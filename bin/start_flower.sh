@@ -1,1 +1,1 @@
-celery flower --broker=redis://localhost:6379/0 --backend=redis://localhost:6379/1
+celery flower --broker=mongodb://localhost:27017 --backend=redis://localhost:6379/1

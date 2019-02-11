@@ -55,6 +55,7 @@ class SpiderExecutorApi(Resource):
         }
 
 
-api.add_resource(SpiderExecutorApi, '/api/spider/:id/crawl')
-api.add_resource(SpiderApi, '/api/spider/:id')
-api.add_resource(SpiderApi, '/api/spiders')
+api.add_resource(SpiderExecutorApi, '/api/spiders/<string:id>/crawl')
+api.add_resource(SpiderApi,
+                 '/api/spiders',
+                 '/api/spiders/<string:id>')

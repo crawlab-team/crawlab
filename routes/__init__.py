@@ -1,7 +1,7 @@
 # print('routes')
 
-from routes import spider
-from routes import task
+from routes import spiders
+from routes import tasks
 
 print('routes')
 

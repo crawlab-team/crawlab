@@ -10,8 +10,10 @@ app.config['DEBUG'] = True
 api = Api(app)
 
 # reference api routes
-import routes.task
-import routes.spider
+import routes.tasks
+import routes.spiders
+import routes.test
 
 # start flask app
-app.run()
+if __name__ == '__main__':
+    app.run()

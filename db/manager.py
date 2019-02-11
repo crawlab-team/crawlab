@@ -1,6 +1,10 @@
 from bson import ObjectId
+from mongoengine import connect
 from pymongo import MongoClient
 from config.db import MONGO_HOST, MONGO_PORT, MONGO_DB
+from utils import is_object_id
+
+connect(db=MONGO_DB, host=MONGO_HOST, port=MONGO_PORT)
 
 
 class DbManager(object):
@@ -32,8 +36,12 @@ class DbManager(object):
         return data
 
     def get(self, col_name: str, id: str):
+        if is_object_id(id):
+            _id = ObjectId(id)
+        else:
+            _id = id
         col = self.db[col_name]
-        return col.find_one({'_id': ObjectId(id)})
+        return col.find_one({'_id': _id})
 
     def count(self, col_name: str, cond):
         col = self.db[col_name]
