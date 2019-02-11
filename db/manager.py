@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from config.db import MONGO_HOST, MONGO_PORT, MONGO_DB
 from utils import is_object_id
 
+
 connect(db=MONGO_DB, host=MONGO_HOST, port=MONGO_PORT)
 
 
