@@ -1,5 +1,7 @@
-from app import app
+# print('routes')
 
+from routes import spider
+from routes import task
 
-# api.add_resource(SpiderApi, '/spider')
-# print(SpiderExecutorApi)
+print('routes')
+

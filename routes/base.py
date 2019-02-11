@@ -1,21 +1,21 @@
 import json
-# from celery.utils.log import get_logger
+
+from celery.utils.log import get_logger
 from flask_restful import reqparse, Resource
 
 from app import api
 from db.manager import db_manager
-from tasks.spider import execute_spider
 
-# logger = get_logger('tasks')
+logger = get_logger('tasks')
 parser = reqparse.RequestParser()
-parser.add_argument('spider_name', type=str)
+parser.add_argument('task_name', type=str)
 
 # collection name
-COL_NAME = 'spiders'
+COL_NAME = 'test'
 
 
-class SpiderApi(Resource):
-    col_name = COL_NAME
+class BaseApi(Resource):
+    col_name = 'base'
 
     def get(self, id=None):
         args = parser.parse_args()
@@ -40,21 +40,3 @@ class SpiderApi(Resource):
     def remove(self, id=None):
         pass
 
-
-class SpiderExecutorApi(Resource):
-    col_name = COL_NAME
-
-    def post(self, id):
-        args = parser.parse_args()
-        job = execute_spider.delay(args.spider_name)
-        return {
-            'id': job.id,
-            'status': job.status,
-            'spider_name': args.spider_name,
-            'result': job.get(timeout=5)
-        }
-
-
-api.add_resource(SpiderExecutorApi, '/api/spider/:id/crawl')
-api.add_resource(SpiderApi, '/api/spider/:id')
-api.add_resource(SpiderApi, '/api/spiders')

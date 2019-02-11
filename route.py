@@ -1,4 +1,4 @@
-from app import api
-from api.spider import SpiderApi, SpiderExecutorApi
+# from app import api
+# from api.spider import SpiderApi, SpiderExecutorApi
 
-api.add_resource(SpiderExecutorApi, '/spider')
+# api.add_resource(SpiderExecutorApi, '/spider')

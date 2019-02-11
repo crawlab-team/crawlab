@@ -1,3 +1,4 @@
+from bson import ObjectId
 from pymongo import MongoClient
 from config.db import MONGO_HOST, MONGO_PORT, MONGO_DB
 
@@ -7,7 +8,6 @@ class DbManager(object):
         self.mongo = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
         self.db = self.mongo[MONGO_DB]
 
-    # TODO: CRUD
     def save(self, col_name: str, item, **kwargs):
         col = self.db[col_name]
         col.save(item, **kwargs)
@@ -20,12 +20,24 @@ class DbManager(object):
         col = self.db[col_name]
         col.update(cond, {'$set': values}, **kwargs)
 
-    def list(self, col_name: str, cond: dict, skip: int, limit: int, **kwargs):
-        if kwargs.get('page') is not None:
-            try:
-                page = int(kwargs.get('page'))
-                skip = page * limit
-            except Exception as err:
-                pass
-        # TODO: list logic
-        # TODO: pagination
+    def update_one(self, col_name: str, id: str, values: dict, **kwargs):
+        col = self.db[col_name]
+        col.find_one_and_update({'_id': ObjectId(id)}, {'$set': values})
+
+    def list(self, col_name: str, cond: dict, skip: int = 0, limit: int = 10, **kwargs):
+        col = self.db[col_name]
+        data = []
+        for item in col.find(cond).skip(skip).limit(limit):
+            data.append(item)
+        return data
+
+    def get(self, col_name: str, id: str):
+        col = self.db[col_name]
+        return col.find_one({'_id': ObjectId(id)})
+
+    def count(self, col_name: str, cond):
+        col = self.db[col_name]
+        return col.count(cond)
+
+
+db_manager = DbManager()

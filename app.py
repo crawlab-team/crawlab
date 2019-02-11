@@ -9,5 +9,9 @@ app.config['DEBUG'] = True
 # init flask api instance
 api = Api(app)
 
+# reference api routes
+import routes.task
+import routes.spider
+
 # start flask app
 app.run()
