@@ -6,10 +6,12 @@
 # * 'mptr' and 'fptr' create a POST request to submit a form with a text or file field (multipart/form-data);
 
 ### Send POST request with json body
-POST http://localhost:5000/api/test
+PUT http://localhost:5000/api/spiders
 Content-Type: application/json
 
 {
   "id": 999,
   "value": "content"
 }
+
+###

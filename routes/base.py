@@ -3,6 +3,12 @@ from flask_restful import reqparse, Resource
 from db.manager import db_manager
 from utils import jsonify
 
+DEFAULT_ARGS = [
+    'page',
+    'page_size',
+    'filter'
+]
+
 
 class BaseApi(Resource):
     col_name = 'tmp'
@@ -61,8 +67,30 @@ class BaseApi(Resource):
         else:
             return jsonify(db_manager.get(col_name=self.col_name, id=id))
 
-    def update(self, id=None):
-        pass
+    def put(self):
+        args = self.parser.parse_args()
+        item = {}
+        for k in args.keys():
+            if k not in DEFAULT_ARGS:
+                item[k] = args.get(k)
+        item = db_manager.save(col_name=self.col_name, item=item)
+        return item
 
-    def remove(self, id=None):
+    def post(self, id=None):
+        args = self.parser.parse_args()
+        item = db_manager.get(col_name=self.col_name, id=id)
+        if item is None:
+            return {
+                'status': 'ok',
+                'code': 401,
+                'error': 'item not exists'
+            }
+        values = {}
+        for k in args.keys():
+            if k not in DEFAULT_ARGS:
+                values[k] = args.get(k)
+        item = db_manager.update_one(col_name=self.col_name, id=id, values=values)
+        return item
+
+    def delete(self, id=None):
         pass
