@@ -15,22 +15,22 @@ parser.add_argument('spider_name', type=str)
 class SpiderApi(BaseApi):
     col_name = 'spiders'
 
+    arguments = (
+        ('spider_name', str),
+        ('spider_type', int),
+        ('lang_type', int),
+        ('execute_cmd', str),
+        ('src_file_path', str),
+    )
 
-class SpiderExecutorApi(Resource):
-    col_name = 'spiders'
+    def crawl(self, id):
+        print('crawl: %s' % id)
 
-    def post(self, id):
-        args = parser.parse_args()
-        job = execute_spider.delay(args.spider_name)
-        return {
-            'id': job.id,
-            'status': job.status,
-            'spider_name': args.spider_name,
-            'result': job.get(timeout=5)
-        }
+    def deploy(self, id):
+        print('deploy: %s' % id)
 
 
-api.add_resource(SpiderExecutorApi, '/api/spiders/<string:id>/crawl')
 api.add_resource(SpiderApi,
                  '/api/spiders',
-                 '/api/spiders/<string:id>')
+                 '/api/spiders/<string:id>',
+                 '/api/spiders/<string:id>/<string:action>')

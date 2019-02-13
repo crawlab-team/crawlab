@@ -9,4 +9,4 @@ class Spider(BaseModel):
     spider_type = IntField()
     lang_type = IntField()
     execute_cmd = StringField()
-    file_path = StringField()
+    src_file_path = StringField()

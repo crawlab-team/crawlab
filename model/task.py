@@ -4,6 +4,6 @@ from model.base import BaseModel
 
 
 class Task(BaseModel):
-    node_id = ObjectIdField()
-    spider_id = ObjectIdField()
+    _id = ObjectIdField()
+    deploy_id = ObjectIdField()
     file_path = StringField()

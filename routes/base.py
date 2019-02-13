@@ -21,6 +21,9 @@ class BaseApi(Resource):
         self.parser.add_argument('page_size', type=int)
         self.parser.add_argument('filter', type=dict)
 
+        for arg, type in self.arguments:
+            self.parser.add_argument(arg, type=type)
+
     def get(self, id=None):
         args = self.parser.parse_args()
 
@@ -76,21 +79,34 @@ class BaseApi(Resource):
         item = db_manager.save(col_name=self.col_name, item=item)
         return item
 
-    def post(self, id=None):
+    def update(self, id=None):
         args = self.parser.parse_args()
         item = db_manager.get(col_name=self.col_name, id=id)
         if item is None:
             return {
-                'status': 'ok',
-                'code': 401,
-                'error': 'item not exists'
-            }
+                       'status': 'ok',
+                       'code': 401,
+                       'error': 'item not exists'
+                   }, 401
         values = {}
         for k in args.keys():
             if k not in DEFAULT_ARGS:
                 values[k] = args.get(k)
         item = db_manager.update_one(col_name=self.col_name, id=id, values=values)
         return item
+
+    def post(self, id=None, action=None):
+        if action is None:
+            return self.update(id)
+
+        if not hasattr(self, action):
+            return {
+                       'status': 'ok',
+                       'code': 400,
+                       'error': 'action "%s" invalid' % action
+                   }, 400
+
+        return getattr(self, action)(id)
 
     def delete(self, id=None):
         pass

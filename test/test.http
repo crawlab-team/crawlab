@@ -5,13 +5,26 @@
 # * 'ptr' and 'ptrp' create a POST request with a simple or parameter-like body;
 # * 'mptr' and 'fptr' create a POST request to submit a form with a text or file field (multipart/form-data);
 
-### Send POST request with json body
+### Send PUT request with json body
 PUT http://localhost:5000/api/spiders
 Content-Type: application/json
 
 {
-  "id": 999,
-  "value": "content"
+  "spider_name": "a spider"
 }
+
+### Send POST request with json body
+POST http://localhost:5000/api/spiders/5c63a2ddb65d151bee71d76b
+Content-Type: application/json
+
+{
+  "spider_name": "b spider"
+}
+
+### Send POST request with json body by path
+POST http://localhost:5000/api/spiders/5c63a2ddb65d151bee71d76b/crawl
+Content-Type: application/json
+
+{}
 
 ###

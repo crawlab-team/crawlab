@@ -1,3 +1,99 @@
+POST http://localhost:5000/api/spiders/5c63a2ddb65d151bee71d76b/crawl
+Content-Type: application/json
+
+{}
+
+<> 2019-02-13T125947.200.json
+
+###
+
+POST http://localhost:5000/api/spiders/5c63a2ddb65d151bee71d76b/crawl
+Content-Type: application/json
+
+{}
+
+<> 2019-02-13T125918.500.json
+
+###
+
+POST http://localhost:5000/api/spiders/5c63a2ddb65d151bee71d76b/crawl
+Content-Type: application/json
+
+{}
+
+<> 2019-02-13T125714.200.json
+
+###
+
+POST http://localhost:5000/api/spiders/5c63a2ddb65d151bee71d76b
+Content-Type: application/json
+
+{
+  "spider_name": "b spider"
+}
+
+<> 2019-02-13T125635.200.json
+
+###
+
+PUT http://localhost:5000/api/spiders
+Content-Type: application/json
+
+{
+  "spider_name": "a spider"
+}
+
+<> 2019-02-13T125349.200.json
+
+###
+
+PUT http://localhost:5000/api/spiders
+Content-Type: application/json
+
+{
+  "spider_name": "a spider"
+}
+
+<> 2019-02-13T125334.200.json
+
+###
+
+PUT http://localhost:5000/api/spiders
+Content-Type: application/json
+
+{
+  "id": 999,
+  "value": "content"
+}
+
+<> 2019-02-13T125142.200.json
+
+###
+
+PUT http://localhost:5000/api/spiders
+Content-Type: application/json
+
+{
+  "id": 999,
+  "value": "content"
+}
+
+<> 2019-02-13T125046.200.json
+
+###
+
+PUT http://localhost:5000/api/spiders
+Content-Type: application/json
+
+{
+  "id": 999,
+  "value": "content"
+}
+
+<> 2019-02-13T124900.200.json
+
+###
+
 PUT http://localhost:5000/api/spiders
 Content-Type: application/json
 
