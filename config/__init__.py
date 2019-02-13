@@ -1,2 +1,1 @@
-MONGO_HOST = 'localhost'
-MONGO_DATABASE = 'test'
+PROJECT_FILE_FOLDER = '/var/crawlab'

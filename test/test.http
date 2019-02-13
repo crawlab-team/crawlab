@@ -10,7 +10,11 @@ PUT http://localhost:5000/api/spiders
 Content-Type: application/json
 
 {
-  "spider_name": "a spider"
+  "spider_name": "baidu spider",
+  "cmd": "python /Users/yeqing/projects/crawlab/spiders/baidu/baidu.py",
+  "src": "/Users/yeqing/projects/crawlab/spiders/baidu/baidu.py",
+  "spider_type": 1,
+  "lang_type": 1
 }
 
 ### Send POST request with json body
@@ -18,7 +22,11 @@ POST http://localhost:5000/api/spiders/5c63a2ddb65d151bee71d76b
 Content-Type: application/json
 
 {
-  "spider_name": "b spider"
+  "spider_name": "baidu spider",
+  "cmd": "/Users/yeqing/projects/crawlab/spiders/baidu/baidu.py",
+  "src": "/Users/yeqing/projects/crawlab/spiders/baidu/baidu.py",
+  "spider_type": 1,
+  "lang_type": 1
 }
 
 ### Send POST request with json body by path

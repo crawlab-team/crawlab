@@ -1,9 +1,8 @@
 from bson import ObjectId
 from mongoengine import connect
-from pymongo import MongoClient
+from pymongo import MongoClient, DESCENDING
 from config.db import MONGO_HOST, MONGO_PORT, MONGO_DB
 from utils import is_object_id
-
 
 connect(db=MONGO_DB, host=MONGO_HOST, port=MONGO_PORT)
 
@@ -47,6 +46,12 @@ class DbManager(object):
     def count(self, col_name: str, cond):
         col = self.db[col_name]
         return col.count(cond)
+
+    def get_latest_version(self, spider_id):
+        col = self.db['deploys']
+        for item in col.find({'spider_id': ObjectId(spider_id)}).sort('version', DESCENDING):
+            return item.version
+        return None
 
 
 db_manager = DbManager()
