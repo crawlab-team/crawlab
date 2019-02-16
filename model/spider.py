@@ -5,8 +5,8 @@ from model.base import BaseModel
 
 class Spider(BaseModel):
     _id = ObjectIdField()
-    spider_name = StringField()
+    name = StringField()
     cmd = StringField()
     src = StringField()
-    spider_type = IntField()
-    lang_type = IntField()
+    type = IntField()
+    lang = IntField()

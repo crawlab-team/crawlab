@@ -5,6 +5,8 @@ from model.base import BaseModel
 
 class Node(BaseModel):
     _id = ObjectIdField()
-    node_ip = StringField()
-    node_name = StringField()
-    node_description = StringField()
+    ip = StringField()
+    port = IntField()
+    name = StringField()
+    description = StringField()
+    status = IntField()

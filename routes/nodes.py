@@ -6,9 +6,10 @@ class NodeApi(BaseApi):
     col_name = 'nodes'
 
     arguments = (
-        ('node_ip', str),
-        ('node_name', str),
-        ('node_description', str),
+        ('ip', str),
+        ('port', int),
+        ('name', str),
+        ('description', str),
     )
 
 

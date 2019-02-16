@@ -16,11 +16,11 @@ class SpiderApi(BaseApi):
     col_name = 'spiders'
 
     arguments = (
-        ('spider_name', str),
+        ('name', str),
         ('cmd', str),
         ('src', str),
-        ('spider_type', int),
-        ('lang_type', int),
+        ('type', int),
+        ('lang', int),
     )
 
     def crawl(self, id):

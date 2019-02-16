@@ -9,6 +9,21 @@ Content-Type: application/json
   "lang_type": 1
 }
 
+<> 2019-02-16T044301.200.json
+
+###
+
+PUT http://localhost:5000/api/spiders
+Content-Type: application/json
+
+{
+  "spider_name": "baidu spider",
+  "cmd": "python /Users/yeqing/projects/crawlab/spiders/baidu/baidu.py",
+  "src": "/Users/yeqing/projects/crawlab/spiders/baidu/baidu.py",
+  "spider_type": 1,
+  "lang_type": 1
+}
+
 <> 2019-02-13T083950.200.json
 
 ###

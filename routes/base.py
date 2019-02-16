@@ -58,6 +58,8 @@ class BaseApi(Resource):
                                     skip=(page - 1) * page_size,
                                     limit=page_size)
 
+            # TODO: getting status for node
+
             return jsonify({
                 'status': 'ok',
                 'total_count': total_count,
@@ -109,4 +111,4 @@ class BaseApi(Resource):
         return getattr(self, action)(id)
 
     def delete(self, id=None):
-        pass
+        db_manager.remove_one(col_name=self.col_name, id=id)
