@@ -14,7 +14,15 @@ class FileApi(Resource):
         super(FileApi).__init__()
         self.parser.add_argument('path', type=str)
 
-    def get(self):
+    def get(self, action=None):
+        if action is not None:
+            if action == 'getDefaultPath':
+                return jsonify({
+                    'defaultPath': os.path.abspath(os.path.join(os.path.curdir, 'spiders'))
+                })
+            else:
+                return {}
+
         args = self.parser.parse_args()
         path = args.get('path')
         folders = []
@@ -22,7 +30,7 @@ class FileApi(Resource):
         for _path in os.listdir(path):
             if os.path.isfile(os.path.join(path, _path)):
                 files.append(_path)
-            elif os.path.isdir(os.path.join(_path)):
+            elif os.path.isdir(os.path.join(path, _path)):
                 folders.append(_path)
         return jsonify({
             'status': 'ok',
@@ -32,4 +40,5 @@ class FileApi(Resource):
 
 
 api.add_resource(FileApi,
-                 '/api/files')
+                 '/api/files',
+                 '/api/files/<string:action>')
