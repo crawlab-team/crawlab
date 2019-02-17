@@ -44,3 +44,10 @@ Content-Type: application/json
 {}
 
 ###
+### Send GET request with json body by path
+GET http://localhost:5000/api/files?path=/Users/yeqing/projects/crawlab
+Content-Type: application/json
+
+{}
+
+###

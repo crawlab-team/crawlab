@@ -1,3 +1,84 @@
+GET http://localhost:5000/api/files?path=/Users/yeqing/projects/crawlab
+Content-Type: application/json
+
+{}
+
+<> 2019-02-17T105049.200.json
+
+###
+
+GET http://localhost:5000/api/files?path=/Users/yeqing/projects/crawlab
+Content-Type: application/json
+
+{}
+
+<> 2019-02-17T105013.200.json
+
+###
+
+GET http://localhost:5000/api/files?path=/Users/yeqing/projects/crawlab-frontend/src
+Content-Type: application/json
+
+{}
+
+<> 2019-02-17T104952.200.json
+
+###
+
+GET http://localhost:5000/api/files?path=/Users/yeqing/projects/crawlab-frontend
+Content-Type: application/json
+
+{}
+
+<> 2019-02-17T104905.200.json
+
+###
+
+GET http://localhost:5000/api/files?path=/Users/yeqing/projects/crawlab-frontend
+Content-Type: application/json
+
+{}
+
+<> 2019-02-17T104843.200.json
+
+###
+
+GET http://localhost:5000/api/files?path=/Users/yeqing/projects/crawlab-frontend
+Content-Type: application/json
+
+{}
+
+<> 2019-02-17T104612.200.json
+
+###
+
+GET http://localhost:5000/api/files?path=/Users/yeqing/projects/crawlab-frontend
+Content-Type: application/json
+
+{}
+
+<> 2019-02-17T104523.400.json
+
+###
+
+GET http://localhost:5000/api/file?path=/Users/yeqing/projects/crawlab-frontend
+Content-Type: application/json
+
+{}
+
+<> 2019-02-17T104518.404.html
+
+###
+
+GET http://localhost:5000/api/file?path=/Users/yeqing/projects/crawlab-frontend
+Content-Type: application/json
+
+{}
+
+<> 2019-02-17T104351.404.html
+
+###
+
 PUT http://localhost:5000/api/spiders
 Content-Type: application/json
 

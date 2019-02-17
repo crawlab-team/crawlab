@@ -18,6 +18,7 @@ import routes.nodes
 import routes.spiders
 import routes.deploys
 import routes.tasks
+import routes.files
 import routes.test
 
 # start flask app
