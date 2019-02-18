@@ -45,6 +45,7 @@ class DbManager(object):
         else:
             _id = id
         col = self.db[col_name]
+        print(_id)
         return col.find_one({'_id': _id})
 
     def count(self, col_name: str, cond):
@@ -54,7 +55,7 @@ class DbManager(object):
     def get_latest_version(self, spider_id):
         col = self.db['deploys']
         for item in col.find({'spider_id': ObjectId(spider_id)}).sort('version', DESCENDING):
-            return item.version
+            return item.get('version')
         return None
 
 
