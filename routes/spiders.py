@@ -27,7 +27,7 @@ class SpiderApi(BaseApi):
 
     def crawl(self, id):
         job = execute_spider.delay(id)
-        print('crawl: %s' % id)
+        # print('crawl: %s' % id)
         return {
             'code': 200,
             'status': 'ok',
