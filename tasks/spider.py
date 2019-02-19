@@ -3,6 +3,7 @@ import sys
 from datetime import datetime
 
 import requests
+from bson import ObjectId
 from celery.utils.log import get_logger
 
 from config import PROJECT_FILE_FOLDER, PROJECT_LOGS_FOLDER
@@ -13,8 +14,10 @@ import subprocess
 logger = get_logger(__name__)
 
 
-@app.task
-def execute_spider(id: str):
+@app.task(bind=True)
+def execute_spider(self, id: str):
+    task_id = self.request.id
+    hostname = self.request.hostname
     spider = db_manager.get('spiders', id=id)
     latest_version = db_manager.get_latest_version(spider_id=id)
     command = spider.get('cmd')
@@ -30,19 +33,44 @@ def execute_spider(id: str):
     if not os.path.exists(log_path):
         os.makedirs(log_path)
 
+    # open log file streams
+    log_file_path = os.path.join(log_path, '%s.log' % datetime.now().strftime('%Y%m%d%H%M%S'))
+    stdout = open(log_file_path, 'a')
+    stderr = open(log_file_path, 'a')
+
+    # create a new task
+    db_manager.save('tasks', {
+        '_id': task_id,
+        'spider_id': ObjectId(id),
+        'create_ts': datetime.now(),
+        'hostname': hostname,
+        'log_file_path': log_file_path,
+    })
+
     # execute the command
     p = subprocess.Popen(command,
                          shell=True,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE,
+                         stdout=stdout.fileno(),
+                         stderr=stderr.fileno(),
                          cwd=current_working_directory,
                          bufsize=1)
 
-    # output the log file
-    log_file_path = os.path.join(log_path, '%s.txt' % datetime.now().strftime('%Y%m%d%H%M%S'))
-    with open(log_file_path, 'a') as f:
-        for line in p.stdout.readlines():
-            f.write(line.decode('utf-8') + '\n')
+    # get output from the process
+    _stdout, _stderr = p.communicate()
+
+    # save task when the task is finished
+    db_manager.update_one('tasks', id=task_id, values={
+        'finish_ts': datetime.now(),
+    })
+    task = db_manager.get('tasks', id=id)
+
+    # close log file streams
+    stdout.flush()
+    stderr.flush()
+    stdout.close()
+    stderr.close()
+
+    return task
 
 
 @app.task

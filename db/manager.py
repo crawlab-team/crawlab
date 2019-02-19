@@ -26,7 +26,10 @@ class DbManager(object):
 
     def update_one(self, col_name: str, id: str, values: dict, **kwargs):
         col = self.db[col_name]
-        col.find_one_and_update({'_id': ObjectId(id)}, {'$set': values})
+        _id = id
+        if is_object_id(id):
+            _id = ObjectId(id)
+        col.find_one_and_update({'_id': _id}, {'$set': values})
 
     def remove_one(self, col_name: str, id: str, **kwargs):
         col = self.db[col_name]
@@ -39,13 +42,14 @@ class DbManager(object):
             data.append(item)
         return data
 
-    def get(self, col_name: str, id: str):
-        if is_object_id(id):
+    def get(self, col_name: str, id):
+        if type(id) == ObjectId:
+            _id = id
+        elif is_object_id(id):
             _id = ObjectId(id)
         else:
             _id = id
         col = self.db[col_name]
-        print(_id)
         return col.find_one({'_id': _id})
 
     def count(self, col_name: str, cond):
