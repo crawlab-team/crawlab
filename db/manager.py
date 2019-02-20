@@ -14,6 +14,7 @@ class DbManager(object):
 
     def save(self, col_name: str, item, **kwargs):
         col = self.db[col_name]
+        item.pop('stats')  # in case some fields cannot be saved in MongoDB
         col.save(item, **kwargs)
 
     def remove(self, col_name: str, cond: dict, **kwargs):

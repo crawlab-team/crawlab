@@ -7,12 +7,12 @@ from celery.utils.log import get_logger
 
 from config import PROJECT_FILE_FOLDER, PROJECT_LOGS_FOLDER
 from db.manager import db_manager
-from tasks import app
+from app import celery_app
 import subprocess
 
 logger = get_logger(__name__)
 
 
-@app.task
+@celery_app.task
 def deploy_spider(id):
     pass

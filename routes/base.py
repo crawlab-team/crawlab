@@ -24,11 +24,21 @@ class BaseApi(Resource):
         for arg, type in self.arguments:
             self.parser.add_argument(arg, type=type)
 
-    def get(self, id=None):
+    def get(self, id=None, action=None):
         args = self.parser.parse_args()
 
-        # get item by id
-        if id is None:
+        # action by id
+        if action is not None:
+            if not hasattr(self, action):
+                return {
+                           'status': 'ok',
+                           'code': 400,
+                           'error': 'action "%s" invalid' % action
+                       }, 400
+            return getattr(self, action)(id)
+
+        # list items
+        elif id is None:
             # filter
             cond = {}
             if args.get('filter') is not None:
@@ -68,7 +78,7 @@ class BaseApi(Resource):
                 'items': items
             })
 
-        # list items
+        # get item by id
         else:
             return jsonify(db_manager.get(col_name=self.col_name, id=id))
 

@@ -1,1 +1,2 @@
-celery flower --broker=mongodb://localhost:27017 --backend=redis://localhost:6379/1
+#!/usr/bin/env bash
+celery flower --broker=mongodb://localhost:27017

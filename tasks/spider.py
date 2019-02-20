@@ -8,13 +8,13 @@ from celery.utils.log import get_logger
 
 from config import PROJECT_FILE_FOLDER, PROJECT_LOGS_FOLDER
 from db.manager import db_manager
-from tasks import app
+from app import celery_app
 import subprocess
 
 logger = get_logger(__name__)
 
 
-@app.task(bind=True)
+@celery_app.task(bind=True)
 def execute_spider(self, id: str):
     task_id = self.request.id
     hostname = self.request.hostname
@@ -71,9 +71,3 @@ def execute_spider(self, id: str):
     stderr.close()
 
     return task
-
-
-@app.task
-def get_baidu_html(keyword: str):
-    res = requests.get('http://www.baidu.com')
-    return res.content.decode('utf-8')

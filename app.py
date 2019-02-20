@@ -7,6 +7,10 @@ from flask_restful import Api
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
+# celery_app
+celery_app = Celery(__name__)
+celery_app.config_from_object('config.celery')
+
 # init flask api instance
 api = Api(app)
 
@@ -19,7 +23,6 @@ import routes.spiders
 import routes.deploys
 import routes.tasks
 import routes.files
-import routes.test
 
 # start flask app
 if __name__ == '__main__':

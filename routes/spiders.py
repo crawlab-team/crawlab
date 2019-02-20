@@ -25,6 +25,10 @@ class SpiderApi(BaseApi):
         ('lang', int),
     )
 
+    def get(self, id=None, action=None):
+        # TODO: discover folders by path
+        pass
+
     def crawl(self, id):
         job = execute_spider.delay(id)
         # print('crawl: %s' % id)
