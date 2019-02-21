@@ -35,6 +35,8 @@ class NodeApi(BaseApi):
         elif id is not None:
             return db_manager.get('nodes', id=id)
 
+        # TODO: use query "?status=1" to get status of nodes
+
         # get a list of items
         res = requests.get('%s/workers' % FLOWER_API_ENDPOINT)
         online_node_ids = []
