@@ -1,3 +1,3 @@
 class NodeType:
-    OFFLINE = 0
-    ONLINE = 1
+    ONLINE = 'online'
+    OFFLINE = 'offline'
