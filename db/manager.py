@@ -40,7 +40,7 @@ class DbManager(object):
         col = self.db[col_name]
         col.remove({'_id': ObjectId(id)})
 
-    def list(self, col_name: str, cond: dict, skip: int = 0, limit: int = 10, **kwargs):
+    def list(self, col_name: str, cond: dict, skip: int = 0, limit: int = 100, **kwargs):
         col = self.db[col_name]
         data = []
         for item in col.find(cond).skip(skip).limit(limit):

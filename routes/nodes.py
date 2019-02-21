@@ -1,6 +1,7 @@
 import json
 
 import requests
+from bson import ObjectId
 
 from config.celery import FLOWER_API_ENDPOINT
 from constants.node import NodeType
@@ -80,5 +81,18 @@ class NodeApi(BaseApi):
             'items': nodes
         })
 
-    def spider(self, id=None):
+    def get_spiders(self, id=None):
         items = db_manager.list('spiders')
+
+    def get_deploys(self, id):
+        items = db_manager.list('deploys', {'node_id': id})
+        deploys = []
+        for item in items:
+            spider_id = item['spider_id']
+            spider = db_manager.get('spiders', id=str(spider_id))
+            item['spider_name'] = spider['name']
+            deploys.append(item)
+        return jsonify({
+            'status': 'ok',
+            'items': deploys
+        })

@@ -1,5 +1,6 @@
 import os
 import shutil
+from datetime import datetime
 
 from bson import ObjectId
 
@@ -21,6 +22,9 @@ class SpiderApi(BaseApi):
         ('src', str),
         ('type', str),
         ('lang', str),
+
+        # for deploy only
+        ('node_id', str),
     )
 
     def get(self, id=None, action=None):
@@ -86,10 +90,15 @@ class SpiderApi(BaseApi):
         }
 
     def deploy(self, id):
+        args = self.parser.parse_args()
+        node_id = args.get('node_id')
+
         # get spider given the id
         spider = db_manager.get(col_name=self.col_name, id=id)
         if spider is None:
             return
+
+        # TODO: deploy spiders to other node rather than in local machine
 
         # get latest version
         latest_version = db_manager.get_latest_version(spider_id=id)
@@ -122,5 +131,19 @@ class SpiderApi(BaseApi):
             db_manager.save('deploys', {
                 'spider_id': ObjectId(id),
                 'version': version,
-                'node_id': None  # TODO: deploy to corresponding node
+                'node_id': node_id,
+                'finish_ts': datetime.now()
             })
+
+    def get_deploys(self, id):
+        items = db_manager.list('deploys', {'spider_id': ObjectId(id)})
+        deploys = []
+        for item in items:
+            spider_id = item['spider_id']
+            spider = db_manager.get('spiders', id=str(spider_id))
+            item['spider_name'] = spider['name']
+            deploys.append(item)
+        return jsonify({
+            'status': 'ok',
+            'items': deploys
+        })
