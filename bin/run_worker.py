@@ -1,7 +1,13 @@
 import sys
+import os
 from celery import Celery
 
-from app import celery_app
+# make sure the working directory is in system path
+file_dir = os.path.dirname(os.path.realpath(__file__))
+root_path = os.path.abspath(os.path.join(file_dir, '..'))
+sys.path.append(root_path)
+
+from tasks.celery import celery_app
 
 # import necessary tasks
 import tasks.spider

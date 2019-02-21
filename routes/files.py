@@ -2,7 +2,6 @@ import os
 
 from flask_restful import reqparse, Resource
 
-from app import api
 from utils import jsonify
 
 
@@ -38,7 +37,3 @@ class FileApi(Resource):
             'folders': sorted(folders),
         })
 
-
-api.add_resource(FileApi,
-                 '/api/files',
-                 '/api/files/<string:action>')

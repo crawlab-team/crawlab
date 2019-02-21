@@ -1,16 +1,17 @@
 from celery import Celery
 from flask import Flask
 from flask_cors import CORS
-from flask_restful import Api
+from flask_restful import Api, Resource
 
-# TODO: 用配置文件启动 http://www.pythondoc.com/flask/config.html
+from routes.deploys import DeployApi
+from routes.files import FileApi
+from routes.nodes import NodeApi
+from routes.spiders import SpiderApi
+from routes.tasks import TaskApi
+
+# flask app instance
 app = Flask(__name__)
-app.config['DEBUG'] = True
-
-# celery_app
-celery_app = Celery(__name__)
-celery_app.config_from_object('config.celery')
-
+app.config.from_object('config.flask')
 # init flask api instance
 api = Api(app)
 
@@ -18,12 +19,27 @@ api = Api(app)
 CORS(app, supports_credentials=True)
 
 # reference api routes
-import routes.nodes
-import routes.spiders
-import routes.deploys
-import routes.tasks
-import routes.files
+
+api.add_resource(NodeApi,
+                 '/api/nodes',
+                 '/api/nodes/<string:id>',
+                 '/api/nodes/<string:id>/<string:action>')
+api.add_resource(SpiderApi,
+                 '/api/spiders',
+                 '/api/spiders/<string:id>',
+                 '/api/spiders/<string:id>/<string:action>')
+api.add_resource(DeployApi,
+                 '/api/deploys',
+                 '/api/deploys/<string:id>',
+                 '/api/deploys/<string:id>/<string:action>')
+api.add_resource(TaskApi,
+                 '/api/tasks',
+                 '/api/tasks/<string:id>'
+                 )
+api.add_resource(FileApi,
+                 '/api/files',
+                 '/api/files/<string:action>')
 
 # start flask app
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port='5000')
+    app.run()

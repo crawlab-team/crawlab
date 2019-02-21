@@ -5,9 +5,9 @@ from datetime import datetime
 import requests
 from celery.utils.log import get_logger
 
-from config import PROJECT_FILE_FOLDER, PROJECT_LOGS_FOLDER
+from config.common import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_LOGS_FOLDER
 from db.manager import db_manager
-from app import celery_app
+from .celery import celery_app
 import subprocess
 
 logger = get_logger(__name__)

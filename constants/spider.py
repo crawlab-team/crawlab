@@ -1,10 +1,24 @@
 class SpiderType:
-    SCRAPY = 1
-    PYSPIDER = 2
-    WEBMAGIC = 3
+    SCRAPY = 'scrapy'
+    PYSPIDER = 'pyspider'
+    WEBMAGIC = 'webmagic'
 
 
 class LangType:
-    PYTHON = 1
-    NODEJS = 2
-    JAVA = 3
+    PYTHON = 'python'
+    JAVASCRIPT = 'javascript'
+    JAVA = 'java'
+    GO = 'go'
+    OTHER = 'other'
+
+
+SUFFIX_IGNORE = [
+    'pyc'
+]
+
+FILE_SUFFIX_LANG_MAPPING = {
+    'py': LangType.PYTHON,
+    'js': LangType.JAVASCRIPT,
+    'java': LangType.JAVA,
+    'go': LangType.GO,
+}

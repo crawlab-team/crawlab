@@ -1,4 +1,3 @@
-from app import api
 from db.manager import db_manager
 from routes.base import BaseApi
 from utils import jsonify
@@ -25,10 +24,3 @@ class TaskApi(BaseApi):
             'status': 'ok',
             'items': items
         })
-
-
-# add api to resources
-api.add_resource(TaskApi,
-                 '/api/tasks',
-                 '/api/tasks/<string:id>'
-                 )

@@ -14,7 +14,11 @@ class DbManager(object):
 
     def save(self, col_name: str, item, **kwargs):
         col = self.db[col_name]
-        item.pop('stats')  # in case some fields cannot be saved in MongoDB
+
+        # in case some fields cannot be saved in MongoDB
+        if item.get('stats') is not None:
+            item.pop('stats')
+
         col.save(item, **kwargs)
 
     def remove(self, col_name: str, cond: dict, **kwargs):
@@ -43,6 +47,10 @@ class DbManager(object):
             data.append(item)
         return data
 
+    def _get(self, col_name: str, cond: dict):
+        col = self.db[col_name]
+        return col.find_one(cond)
+
     def get(self, col_name: str, id):
         if type(id) == ObjectId:
             _id = id
@@ -50,8 +58,10 @@ class DbManager(object):
             _id = ObjectId(id)
         else:
             _id = id
-        col = self.db[col_name]
-        return col.find_one({'_id': _id})
+        return self._get(col_name=col_name, cond={'_id': _id})
+
+    def get_one_by_key(self, col_name: str, key, value):
+        return self._get(col_name=col_name, cond={key: value})
 
     def count(self, col_name: str, cond):
         col = self.db[col_name]

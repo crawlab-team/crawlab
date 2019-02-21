@@ -1,17 +1,15 @@
-import json
-# from celery.utils.log import get_logger
 import os
 import shutil
 
 from bson import ObjectId
-from flask_restful import reqparse, Resource
 
-from app import api
-from config import PROJECT_FILE_FOLDER
+from config.common import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_SOURCE_FILE_FOLDER
 from db.manager import db_manager
 from routes.base import BaseApi
 from tasks.spider import execute_spider
 from utils import jsonify
+from utils.file import get_file_suffix_stats
+from utils.spider import get_lang_by_stats
 
 
 class SpiderApi(BaseApi):
@@ -21,13 +19,59 @@ class SpiderApi(BaseApi):
         ('name', str),
         ('cmd', str),
         ('src', str),
-        ('type', int),
-        ('lang', int),
+        ('type', str),
+        ('lang', str),
     )
 
     def get(self, id=None, action=None):
-        # TODO: discover folders by path
-        pass
+        # action by id
+        if action is not None:
+            if not hasattr(self, action):
+                return {
+                           'status': 'ok',
+                           'code': 400,
+                           'error': 'action "%s" invalid' % action
+                       }, 400
+            return getattr(self, action)(id)
+
+        # get one node
+        elif id is not None:
+            return jsonify(db_manager.get('spiders', id=id))
+
+        # get a list of items
+        else:
+            dirs = os.listdir(PROJECT_SOURCE_FILE_FOLDER)
+            for _dir in dirs:
+                dir_path = os.path.join(PROJECT_SOURCE_FILE_FOLDER, _dir)
+                dir_name = _dir
+                spider = db_manager.get_one_by_key('spiders', key='src', value=dir_path)
+
+                # new spider
+                if spider is None:
+                    stats = get_file_suffix_stats(dir_path)
+                    lang = get_lang_by_stats(stats)
+                    db_manager.save('spiders', {
+                        'name': dir_name,
+                        'src': dir_path,
+                        'lang': lang,
+                        'suffix_stats': stats,
+                    })
+
+                # existing spider
+                else:
+                    stats = get_file_suffix_stats(dir_path)
+                    lang = get_lang_by_stats(stats)
+                    db_manager.update_one('spiders', id=str(spider['_id']), values={
+                        'lang': lang,
+                        'suffix_stats': stats,
+                    })
+
+            items = db_manager.list('spiders', {})
+
+        return jsonify({
+            'status': 'ok',
+            'items': items
+        })
 
     def crawl(self, id):
         job = execute_spider.delay(id)
@@ -56,7 +100,7 @@ class SpiderApi(BaseApi):
 
         # make source / destination
         src = spider.get('src')
-        dst = os.path.join(PROJECT_FILE_FOLDER, str(spider.get('_id')), str(latest_version + 1))
+        dst = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')), str(latest_version + 1))
 
         # copy files
         try:
@@ -80,9 +124,3 @@ class SpiderApi(BaseApi):
                 'version': version,
                 'node_id': None  # TODO: deploy to corresponding node
             })
-
-
-api.add_resource(SpiderApi,
-                 '/api/spiders',
-                 '/api/spiders/<string:id>',
-                 '/api/spiders/<string:id>/<string:action>')
