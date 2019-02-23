@@ -49,8 +49,7 @@ def execute_spider(self, id: str, node_id: str):
     })
 
     # execute the command
-    p = subprocess.Popen(command,
-                         shell=True,
+    p = subprocess.Popen(command.split(' '),
                          stdout=stdout.fileno(),
                          stderr=stderr.fileno(),
                          cwd=current_working_directory,

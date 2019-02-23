@@ -142,7 +142,7 @@ class SpiderApi(BaseApi):
             })
 
     def get_deploys(self, id):
-        items = db_manager.list('deploys', {'spider_id': ObjectId(id)})
+        items = db_manager.list('deploys', {'spider_id': ObjectId(id)}, limit=10)
         deploys = []
         for item in items:
             spider_id = item['spider_id']
@@ -155,7 +155,7 @@ class SpiderApi(BaseApi):
         })
 
     def get_tasks(self, id):
-        items = db_manager.list('tasks', {'spider_id': ObjectId(id)})
+        items = db_manager.list('tasks', {'spider_id': ObjectId(id)}, limit=10)
         for item in items:
             spider_id = item['spider_id']
             spider = db_manager.get('spiders', id=str(spider_id))

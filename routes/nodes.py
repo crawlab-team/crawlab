@@ -87,7 +87,7 @@ class NodeApi(BaseApi):
         items = db_manager.list('spiders')
 
     def get_deploys(self, id):
-        items = db_manager.list('deploys', {'node_id': id})
+        items = db_manager.list('deploys', {'node_id': id}, limit=10)
         deploys = []
         for item in items:
             spider_id = item['spider_id']
@@ -100,7 +100,7 @@ class NodeApi(BaseApi):
         })
 
     def get_tasks(self, id):
-        items = db_manager.list('tasks', {'node_id': id})
+        items = db_manager.list('tasks', {'node_id': id}, limit=10)
         for item in items:
             spider_id = item['spider_id']
             spider = db_manager.get('spiders', id=str(spider_id))

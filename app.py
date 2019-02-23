@@ -34,7 +34,8 @@ api.add_resource(DeployApi,
                  '/api/deploys/<string:id>/<string:action>')
 api.add_resource(TaskApi,
                  '/api/tasks',
-                 '/api/tasks/<string:id>'
+                 '/api/tasks/<string:id>',
+                 '/api/tasks/<string:id>/<string:action>'
                  )
 api.add_resource(FileApi,
                  '/api/files',
