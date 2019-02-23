@@ -98,3 +98,16 @@ class NodeApi(BaseApi):
             'status': 'ok',
             'items': deploys
         })
+
+    def get_tasks(self, id):
+        items = db_manager.list('tasks', {'node_id': id})
+        for item in items:
+            spider_id = item['spider_id']
+            spider = db_manager.get('spiders', id=str(spider_id))
+            item['spider_name'] = spider['name']
+            task = db_manager.get('tasks_celery', id=item['_id'])
+            item['status'] = task['status']
+        return jsonify({
+            'status': 'ok',
+            'items': items
+        })

@@ -78,7 +78,13 @@ class SpiderApi(BaseApi):
         })
 
     def crawl(self, id):
-        job = execute_spider.delay(id)
+        args = self.parser.parse_args()
+        node_id = args.get('node_id')
+
+        if node_id is None:
+            return {}, 400
+
+        job = execute_spider.delay(id, node_id)
         # print('crawl: %s' % id)
         return {
             'code': 200,
@@ -146,4 +152,20 @@ class SpiderApi(BaseApi):
         return jsonify({
             'status': 'ok',
             'items': deploys
+        })
+
+    def get_tasks(self, id):
+        items = db_manager.list('tasks', {'spider_id': ObjectId(id)})
+        for item in items:
+            spider_id = item['spider_id']
+            spider = db_manager.get('spiders', id=str(spider_id))
+            item['spider_name'] = spider['name']
+            task = db_manager.get('tasks_celery', id=item['_id'])
+            if task is not None:
+                item['status'] = task['status']
+            else:
+                item['status'] = 'UNAVAILABLE'
+        return jsonify({
+            'status': 'ok',
+            'items': items
         })

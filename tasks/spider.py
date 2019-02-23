@@ -15,7 +15,7 @@ logger = get_logger(__name__)
 
 
 @celery_app.task(bind=True)
-def execute_spider(self, id: str):
+def execute_spider(self, id: str, node_id: str):
     task_id = self.request.id
     hostname = self.request.hostname
     spider = db_manager.get('spiders', id=id)
@@ -43,6 +43,7 @@ def execute_spider(self, id: str):
         '_id': task_id,
         'spider_id': ObjectId(id),
         'create_ts': datetime.now(),
+        'node_id': node_id,
         'hostname': hostname,
         'log_file_path': log_file_path,
     })
