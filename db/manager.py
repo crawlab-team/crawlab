@@ -73,5 +73,9 @@ class DbManager(object):
             return item.get('version')
         return None
 
+    def aggregate(self, col_name: str, pipelines, **kwargs):
+        col = self.db[col_name]
+        return col.aggregate(pipelines, **kwargs)
+
 
 db_manager = DbManager()

@@ -7,6 +7,7 @@ from routes.deploys import DeployApi
 from routes.files import FileApi
 from routes.nodes import NodeApi
 from routes.spiders import SpiderApi
+from routes.stats import StatsApi
 from routes.tasks import TaskApi
 
 # flask app instance
@@ -40,6 +41,9 @@ api.add_resource(TaskApi,
 api.add_resource(FileApi,
                  '/api/files',
                  '/api/files/<string:action>')
+api.add_resource(StatsApi,
+                 '/api/stats',
+                 '/api/stats/<string:action>')
 
 # start flask app
 if __name__ == '__main__':
