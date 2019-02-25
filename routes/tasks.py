@@ -33,7 +33,7 @@ class TaskApi(BaseApi):
                 task['log'] = f.read()
             return jsonify(task)
 
-        tasks = db_manager.list('tasks', {}, limit=1000)
+        tasks = db_manager.list('tasks', {}, limit=1000, sort_key='finish_ts')
         items = []
         for task in tasks:
             _task = db_manager.get('tasks_celery', id=task['_id'])

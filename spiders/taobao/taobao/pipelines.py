@@ -8,4 +8,5 @@
 
 class TaobaoPipeline(object):
     def process_item(self, item, spider):
+        print('task_id: %s' % spider.task_id)
         return item

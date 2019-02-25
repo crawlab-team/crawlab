@@ -40,10 +40,13 @@ class DbManager(object):
         col = self.db[col_name]
         col.remove({'_id': ObjectId(id)})
 
-    def list(self, col_name: str, cond: dict, skip: int = 0, limit: int = 100, **kwargs):
+    def list(self, col_name: str, cond: dict, sort_key=None, sort_direction=DESCENDING, skip: int = 0, limit: int = 100,
+             **kwargs):
+        if sort_key is None:
+            sort_key = '_i'
         col = self.db[col_name]
         data = []
-        for item in col.find(cond).skip(skip).limit(limit):
+        for item in col.find(cond).sort(sort_key, sort_direction).skip(skip).limit(limit):
             data.append(item)
         return data
 

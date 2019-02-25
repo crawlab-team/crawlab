@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+import os
+
 import scrapy
+
+from ..items import TaobaoItem
 
 
 class TaobaoSpiderSpider(scrapy.Spider):
@@ -8,4 +12,4 @@ class TaobaoSpiderSpider(scrapy.Spider):
     start_urls = ['http://taobao.com/']
 
     def parse(self, response):
-        pass
+        yield TaobaoItem()

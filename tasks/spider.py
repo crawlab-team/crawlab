@@ -46,6 +46,7 @@ def execute_spider(self, id: str, node_id: str):
         'node_id': node_id,
         'hostname': hostname,
         'log_file_path': log_file_path,
+        'spider_version': latest_version
     })
 
     # execute the command

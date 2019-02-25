@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timedelta
 
 from flask_restful import reqparse, Resource
 
@@ -54,9 +55,20 @@ class StatsApi(Resource):
                 }
             }
         ])
-        daily_tasks = []
+        date_cache = {}
         for item in cur:
-            daily_tasks.append(item)
+            date_cache[item['_id']] = item['count']
+        start_date = datetime.now() - timedelta(31)
+        end_date = datetime.now() - timedelta(1)
+        date = start_date
+        daily_tasks = []
+        while date < end_date:
+            date = date + timedelta(1)
+            date_str = date.strftime('%Y-%m-%d')
+            daily_tasks.append({
+                'date': date_str,
+                'count': date_cache.get(date_str) or 0,
+            })
 
         return {
             'status': 'ok',
