@@ -71,6 +71,8 @@ class SpiderApi(BaseApi):
                     })
 
             items = db_manager.list('spiders', {})
+            for item in items:
+                item['latest_version'] = db_manager.get_latest_version(item['_id'])
 
         return jsonify({
             'status': 'ok',

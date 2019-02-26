@@ -1,4 +1,4 @@
-from constants.spider import FILE_SUFFIX_LANG_MAPPING, LangType, SUFFIX_IGNORE
+from constants.spider import FILE_SUFFIX_LANG_MAPPING, LangType, SUFFIX_IGNORE, SpiderType
 
 
 def get_lang_by_stats(stats: dict) -> LangType:
@@ -13,3 +13,7 @@ def get_lang_by_stats(stats: dict) -> LangType:
     if FILE_SUFFIX_LANG_MAPPING.get(top_suffix) is not None:
         return FILE_SUFFIX_LANG_MAPPING.get(top_suffix)
     return LangType.OTHER
+
+
+def get_spider_type(path: str) -> SpiderType:
+    return SpiderType.SCRAPY
