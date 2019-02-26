@@ -120,6 +120,7 @@ class SpiderApi(BaseApi):
         dst = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')), str(latest_version + 1))
 
         # copy files
+        # TODO: multi-node copy files
         try:
             shutil.copytree(src=src, dst=dst)
             return {

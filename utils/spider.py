@@ -1,3 +1,5 @@
+import os
+
 from constants.spider import FILE_SUFFIX_LANG_MAPPING, LangType, SUFFIX_IGNORE, SpiderType
 
 
@@ -16,4 +18,6 @@ def get_lang_by_stats(stats: dict) -> LangType:
 
 
 def get_spider_type(path: str) -> SpiderType:
-    return SpiderType.SCRAPY
+    for file_name in os.listdir(path):
+        if file_name == 'scrapy.cfg':
+            return SpiderType.SCRAPY
