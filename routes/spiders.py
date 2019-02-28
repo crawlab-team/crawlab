@@ -1,16 +1,25 @@
+import json
 import os
 import shutil
 from datetime import datetime
+from random import random
 
+import requests
 from bson import ObjectId
+from flask_restful import reqparse
+from werkzeug.datastructures import FileStorage
 
-from config.common import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_SOURCE_FILE_FOLDER
+from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_SOURCE_FILE_FOLDER, PROJECT_TMP_FOLDER
 from db.manager import db_manager
 from routes.base import BaseApi
 from tasks.spider import execute_spider
 from utils import jsonify
-from utils.file import get_file_suffix_stats
+from utils.deploy import zip_file, unzip_file
+from utils.file import get_file_suffix_stats, get_file_suffix
 from utils.spider import get_lang_by_stats
+
+parser = reqparse.RequestParser()
+parser.add_argument('file', type=FileStorage, location='files')
 
 
 class SpiderApi(BaseApi):
@@ -106,7 +115,8 @@ class SpiderApi(BaseApi):
         if spider is None:
             return
 
-        # TODO: deploy spiders to other node rather than in local machine
+        # get node given the node
+        node = db_manager.get(col_name='nodes', id=node_id)
 
         # get latest version
         latest_version = db_manager.get_latest_version(spider_id=id)
@@ -117,24 +127,48 @@ class SpiderApi(BaseApi):
 
         # make source / destination
         src = spider.get('src')
-        dst = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')), str(latest_version + 1))
 
         # copy files
         # TODO: multi-node copy files
         try:
-            shutil.copytree(src=src, dst=dst)
-            return {
-                'code': 200,
-                'status': 'ok',
-                'message': 'deploy success'
-            }
+            # TODO: deploy spiders to other node rather than in local machine
+            output_file_name = '%s_%s.zip' % (
+                datetime.now().strftime('%Y%m%d%H%M%S'),
+                str(random())[2:12]
+            )
+            output_file_path = os.path.join(PROJECT_TMP_FOLDER, output_file_name)
+
+            # zip source folder to zip file
+            zip_file(source_dir=src,
+                     output_filename=output_file_path)
+
+            # upload to api
+            files = {'file': open(output_file_path, 'rb')}
+            r = requests.post('http://%s:%s/api/spiders/%s/deploy_file' % (node.get('ip'), node.get('port'), id),
+                              files=files)
+
+            if r.status_code == 200:
+                return {
+                    'code': 200,
+                    'status': 'ok',
+                    'message': 'deploy success'
+                }
+
+            else:
+                return {
+                           'code': r.status_code,
+                           'status': 'ok',
+                           'error': json.loads(r.content)['error']
+                       }, r.status_code
+
         except Exception as err:
             print(err)
             return {
-                'code': 500,
-                'status': 'ok',
-                'error': str(err)
-            }
+                       'code': 500,
+                       'status': 'ok',
+                       'error': str(err)
+                   }, 500
+
         finally:
             version = latest_version + 1
             db_manager.save('deploys', {
@@ -144,8 +178,52 @@ class SpiderApi(BaseApi):
                 'finish_ts': datetime.now()
             })
 
+    def deploy_file(self, id):
+        args = parser.parse_args()
+        f = args.file
+
+        if get_file_suffix(f.filename) != 'zip':
+            return {
+                       'status': 'ok',
+                       'error': 'file type mismatch'
+                   }, 400
+
+        # save zip file on temp folder
+        file_path = '%s/%s' % (PROJECT_TMP_FOLDER, f.filename)
+        with open(file_path, 'wb') as fw:
+            fw.write(f.stream.read())
+
+        # unzip zip file
+        dir_path = file_path.replace('.zip', '')
+        if os.path.exists(dir_path):
+            shutil.rmtree(dir_path)
+        unzip_file(file_path, dir_path)
+
+        # get spider and version
+        spider = db_manager.get(col_name=self.col_name, id=id)
+        if spider is None:
+            return None, 400
+
+        # get version
+        latest_version = db_manager.get_latest_version(spider_id=id)
+        if latest_version is None:
+            latest_version = 0
+
+        # make source / destination
+        src = dir_path
+        dst = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')), str(latest_version + 1))
+
+        # copy from source to destination
+        shutil.copytree(src=src, dst=dst)
+
+        return {
+            'code': 200,
+            'status': 'ok',
+            'message': 'deploy success'
+        }
+
     def get_deploys(self, id):
-        items = db_manager.list('deploys', {'spider_id': ObjectId(id)}, limit=10, sort_key='create_ts')
+        items = db_manager.list('deploys', cond={'spider_id': ObjectId(id)}, limit=10, sort_key='create_ts')
         deploys = []
         for item in items:
             spider_id = item['spider_id']
@@ -158,7 +236,7 @@ class SpiderApi(BaseApi):
         })
 
     def get_tasks(self, id):
-        items = db_manager.list('tasks', {'spider_id': ObjectId(id)}, limit=10, sort_key='finish_ts')
+        items = db_manager.list('tasks', cond={'spider_id': ObjectId(id)}, limit=10, sort_key='finish_ts')
         for item in items:
             spider_id = item['spider_id']
             spider = db_manager.get('spiders', id=str(spider_id))

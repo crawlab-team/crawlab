@@ -3,6 +3,7 @@ import os
 from flask_restful import reqparse, Resource
 
 from utils import jsonify
+from utils.file import get_file_content
 
 
 class FileApi(Resource):
@@ -14,16 +15,23 @@ class FileApi(Resource):
         self.parser.add_argument('path', type=str)
 
     def get(self, action=None):
+        args = self.parser.parse_args()
+        path = args.get('path')
+
         if action is not None:
             if action == 'getDefaultPath':
                 return jsonify({
                     'defaultPath': os.path.abspath(os.path.join(os.path.curdir, 'spiders'))
                 })
+
+            elif action == 'get_file':
+                file_data = get_file_content(path)
+                file_data['status'] = 'ok'
+                return jsonify(file_data)
+
             else:
                 return {}
 
-        args = self.parser.parse_args()
-        path = args.get('path')
         folders = []
         files = []
         for _path in os.listdir(path):
@@ -36,4 +44,3 @@ class FileApi(Resource):
             'files': sorted(files),
             'folders': sorted(folders),
         })
-

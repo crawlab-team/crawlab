@@ -3,21 +3,22 @@ import json
 import requests
 from bson import ObjectId
 
-from config.celery import FLOWER_API_ENDPOINT
+from config import FLOWER_API_ENDPOINT
 from constants.node import NodeType
 from db.manager import db_manager
 from routes.base import BaseApi
 from utils import jsonify
+from utils.node import check_nodes_status
 
 
 class NodeApi(BaseApi):
     col_name = 'nodes'
 
     arguments = (
-        # ('ip', str),
-        # ('port', int),
         ('name', str),
         ('description', str),
+        ('ip', str),
+        ('port', str),
     )
 
     def get(self, id=None, action=None):
@@ -37,6 +38,9 @@ class NodeApi(BaseApi):
 
         # TODO: use query "?status=1" to get status of nodes
 
+        # get status for each node
+        status_data = check_nodes_status()
+
         # get a list of items
         res = requests.get('%s/workers' % FLOWER_API_ENDPOINT)
         online_node_ids = []
@@ -52,7 +56,6 @@ class NodeApi(BaseApi):
                     node[_k] = _v
                 node['_id'] = node_name
                 node['name'] = node_name
-                node['status'] = NodeType.ONLINE
                 db_manager.save('nodes', node)
 
             # existing node
@@ -60,7 +63,6 @@ class NodeApi(BaseApi):
                 for _k, _v in v.items():
                     node[_k] = _v
                 node['name'] = node_name
-                node['status'] = NodeType.ONLINE
                 db_manager.save('nodes', node)
 
             online_node_ids.append(node_name)
@@ -69,8 +71,9 @@ class NodeApi(BaseApi):
         nodes = []
         items = db_manager.list('nodes', {})
         for item in items:
+            node_status = status_data.get(item['name'])
             if item['_id'] in online_node_ids:
-                item['status'] = NodeType.ONLINE
+                item['status'] = NodeType.ONLINE if node_status else NodeType.OFFLINE
             else:
                 item['status'] = NodeType.OFFLINE
             db_manager.update_one('nodes', item['_id'], {

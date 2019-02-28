@@ -5,6 +5,14 @@ from collections import defaultdict
 SUFFIX_PATTERN = r'\.(\w{,10})$'
 suffix_regex = re.compile(SUFFIX_PATTERN, re.IGNORECASE)
 
+SUFFIX_LANG_MAPPING = {
+    'py': 'python',
+    'js': 'javascript',
+    'sh': 'shell',
+    'java': 'java',
+    'c': 'c',
+}
+
 
 def get_file_suffix(file_name: str):
     file_name = file_name.lower()
@@ -32,3 +40,14 @@ def get_file_suffix_stats(path) -> dict:
         suffix = get_file_suffix(file_path)
         stats[suffix] += 1
     return stats
+
+
+def get_file_content(path) -> dict:
+    with open(path) as f:
+        suffix = get_file_suffix(path)
+        lang = SUFFIX_LANG_MAPPING.get(suffix)
+        return {
+            'lang': lang,
+            'suffix': suffix,
+            'content': f.read()
+        }
