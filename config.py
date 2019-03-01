@@ -11,6 +11,8 @@ CELERY_MONGODB_BACKEND_SETTINGS = {
     'database': 'crawlab_test',
     'taskmeta_collection': 'tasks_celery',
 }
+
+# flower variables
 FLOWER_API_ENDPOINT = 'http://localhost:5555/api'
 
 # database variables
@@ -22,3 +24,4 @@ MONGO_DB = 'crawlab_test'
 
 # flask variables
 DEBUG = True
+SERVER_NAME = '0.0.0.0:5000'

@@ -1,13 +1,7 @@
-import subprocess
-import sys
-import threading
-
-from celery import Celery
 from flask import Flask
 from flask_cors import CORS
-from flask_restful import Api, Resource
+from flask_restful import Api
 
-from config import BROKER_URL
 from routes.deploys import DeployApi
 from routes.files import FileApi
 from routes.nodes import NodeApi
@@ -18,6 +12,7 @@ from routes.tasks import TaskApi
 # flask app instance
 app = Flask(__name__)
 app.config.from_object('config')
+
 # init flask api instance
 api = Api(app)
 
@@ -25,7 +20,6 @@ api = Api(app)
 CORS(app, supports_credentials=True)
 
 # reference api routes
-
 api.add_resource(NodeApi,
                  '/api/nodes',
                  '/api/nodes/<string:id>',
@@ -50,24 +44,5 @@ api.add_resource(StatsApi,
                  '/api/stats',
                  '/api/stats/<string:action>')
 
-
-def run_app():
-    app.run()
-
-
-def run_flower():
-    p = subprocess.Popen(['celery', 'flower', '-b', BROKER_URL], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    for line in iter(p.stdout.readline, 'b'):
-        print(line.decode('utf-8'))
-
-
 if __name__ == '__main__':
-    # start flower app
-    th_flower = threading.Thread(target=run_flower)
-    th_flower.start()
-
-    # start flask app
-    # th_app = threading.Thread(target=run_app)
-    # th_app.start()
     app.run()
-
