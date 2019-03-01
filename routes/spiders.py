@@ -93,10 +93,43 @@ class SpiderApi(BaseApi):
         node_id = args.get('node_id')
 
         if node_id is None:
-            return {}, 400
+            return {
+                       'code': 400,
+                       'status': 400,
+                       'error': 'node_id cannot be empty'
+                   }, 400
+
+        # get node from db
+        node = db_manager.get('nodes', id=node_id)
+
+        # validate ip and port
+        if node.get('ip') is None or node.get('port') is None:
+            return {
+                       'code': 400,
+                       'status': 'ok',
+                       'error': 'node ip and port should not be empty'
+                   }, 400
+
+        # dispatch crawl task
+        res = requests.get('http://%s:%s/api/spiders/%s/on_crawl' % (
+            node.get('ip'),
+            node.get('port'),
+            id
+        ), {'node_id', node_id})
+        data = json.loads(res)
+        return {
+            'code': res.status_code,
+            'status': 'ok',
+            'error': data.get('error'),
+            'task': data.get('task')
+        }
+
+    def on_crawl(self, id):
+        args = self.parser.parse_args()
+        node_id = args.get('node_id')
 
         job = execute_spider.delay(id, node_id)
-        # print('crawl: %s' % id)
+
         return {
             'code': 200,
             'status': 'ok',

@@ -1,7 +1,8 @@
-from flask import Flask
+from flask import Flask, logging
 from flask_cors import CORS
 from flask_restful import Api
 
+from config import FLASK_HOST, FLASK_PORT
 from routes.deploys import DeployApi
 from routes.files import FileApi
 from routes.nodes import NodeApi
@@ -45,4 +46,4 @@ api.add_resource(StatsApi,
                  '/api/stats/<string:action>')
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host=FLASK_HOST, port=FLASK_PORT)

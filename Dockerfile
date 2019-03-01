@@ -6,8 +6,6 @@ FROM ubuntu:latest
 ADD . /opt/crawlab
 
 # add dns
-#RUN echo -e "nameserver 180.76.76.76" >> /etc/resolv.conf
-#ADD ./resolv.conf /etc
 RUN cat /etc/resolv.conf
 
 # install python

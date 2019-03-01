@@ -1,7 +1,7 @@
 import json
 
 import requests
-from bson import ObjectId
+from flask import current_app
 
 from config import FLOWER_API_ENDPOINT
 from constants.node import NodeType
@@ -39,33 +39,40 @@ class NodeApi(BaseApi):
         # TODO: use query "?status=1" to get status of nodes
 
         # get status for each node
-        status_data = check_nodes_status()
+        status_data = {}
+        try:
+            status_data = check_nodes_status()
+        except Exception as err:
+            current_app.logger.error(err)
 
         # get a list of items
-        res = requests.get('%s/workers' % FLOWER_API_ENDPOINT)
         online_node_ids = []
-        for k, v in json.loads(res.content.decode('utf-8')).items():
-            node_name = k
-            node_celery = v
-            node = db_manager.get('nodes', id=node_name)
+        try:
+            res = requests.get('%s/workers' % FLOWER_API_ENDPOINT)
+            for k, v in json.loads(res.content.decode('utf-8')).items():
+                node_name = k
+                node_celery = v
+                node = db_manager.get('nodes', id=node_name)
 
-            # new node
-            if node is None:
-                node = {}
-                for _k, _v in node_celery.items():
-                    node[_k] = _v
-                node['_id'] = node_name
-                node['name'] = node_name
-                db_manager.save('nodes', node)
+                # new node
+                if node is None:
+                    node = {}
+                    for _k, _v in node_celery.items():
+                        node[_k] = _v
+                    node['_id'] = node_name
+                    node['name'] = node_name
+                    db_manager.save('nodes', node)
 
-            # existing node
-            else:
-                for _k, _v in v.items():
-                    node[_k] = _v
-                node['name'] = node_name
-                db_manager.save('nodes', node)
+                # existing node
+                else:
+                    for _k, _v in v.items():
+                        node[_k] = _v
+                    node['name'] = node_name
+                    db_manager.save('nodes', node)
 
-            online_node_ids.append(node_name)
+                online_node_ids.append(node_name)
+        except Exception as err:
+            current_app.logger.error(err)
 
         # iterate db nodes to update status
         nodes = []
