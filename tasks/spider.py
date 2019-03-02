@@ -4,6 +4,7 @@ from datetime import datetime
 
 import requests
 from bson import ObjectId
+from celery import current_app
 from celery.utils.log import get_logger
 
 from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_LOGS_FOLDER
@@ -19,11 +20,12 @@ def execute_spider(self, id: str, node_id: str):
     task_id = self.request.id
     hostname = self.request.hostname
     spider = db_manager.get('spiders', id=id)
-    latest_version = db_manager.get_latest_version(spider_id=id)
+    latest_version = db_manager.get_latest_version(spider_id=id, node_id=node_id)
     command = spider.get('cmd')
     current_working_directory = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')), str(latest_version))
 
     # log info
+    logger.info('current_working_directory: %s' % current_working_directory)
     logger.info('spider_id: %s' % id)
     logger.info('version: %s' % latest_version)
     logger.info(command)

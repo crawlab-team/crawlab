@@ -29,8 +29,11 @@ class TaskApi(BaseApi):
             task['status'] = _task['status']
             task['result'] = _task['result']
             task['spider_name'] = _spider['name']
-            with open(task['log_file_path']) as f:
-                task['log'] = f.read()
+            try:
+                with open(task['log_file_path']) as f:
+                    task['log'] = f.read()
+            except Exception as err:
+                task['log'] = ''
             return jsonify(task)
 
         tasks = db_manager.list('tasks', {}, limit=1000, sort_key='finish_ts')
@@ -47,10 +50,17 @@ class TaskApi(BaseApi):
         })
 
     def get_log(self, id):
-        task = db_manager.get('tasks', id=id)
-        with open(task['log_file_path']) as f:
-            log = f.read()
+        try:
+            task = db_manager.get('tasks', id=id)
+            with open(task['log_file_path']) as f:
+                log = f.read()
+                return {
+                    'status': 'ok',
+                    'log': log
+                }
+        except Exception as err:
             return {
-                'status': 'ok',
-                'log': log
-            }
+                       'code': 500,
+                       'status': 'ok',
+                       'error': str(err)
+                   }, 500

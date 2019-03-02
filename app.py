@@ -1,8 +1,11 @@
+import os
+import shutil
+
 from flask import Flask, logging
 from flask_cors import CORS
 from flask_restful import Api
 
-from config import FLASK_HOST, FLASK_PORT
+from config import FLASK_HOST, FLASK_PORT, PROJECT_LOGS_FOLDER
 from routes.deploys import DeployApi
 from routes.files import FileApi
 from routes.nodes import NodeApi
@@ -44,6 +47,10 @@ api.add_resource(FileApi,
 api.add_resource(StatsApi,
                  '/api/stats',
                  '/api/stats/<string:action>')
+
+# create folder if it does not exist
+if os.path.exists(PROJECT_LOGS_FOLDER):
+    os.makedirs(PROJECT_LOGS_FOLDER)
 
 if __name__ == '__main__':
     app.run(host=FLASK_HOST, port=FLASK_PORT)

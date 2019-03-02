@@ -38,7 +38,10 @@ class DbManager(object):
 
     def remove_one(self, col_name: str, id: str, **kwargs):
         col = self.db[col_name]
-        col.remove({'_id': ObjectId(id)})
+        _id = id
+        if is_object_id(id):
+            _id = ObjectId(id)
+        col.remove({'_id': _id})
 
     def list(self, col_name: str, cond: dict, sort_key=None, sort_direction=DESCENDING, skip: int = 0, limit: int = 100,
              **kwargs):
@@ -70,10 +73,18 @@ class DbManager(object):
         col = self.db[col_name]
         return col.count(cond)
 
-    def get_latest_version(self, spider_id):
+    def get_latest_version(self, spider_id, node_id):
         col = self.db['deploys']
-        for item in col.find({'spider_id': ObjectId(spider_id)}).sort('version', DESCENDING):
+        for item in col.find({'spider_id': ObjectId(spider_id), 'node_id': node_id}) \
+                .sort('version', DESCENDING):
             return item.get('version')
+        return None
+
+    def get_last_deploy(self, spider_id):
+        col = self.db['deploys']
+        for item in col.find({'spider_id': ObjectId(spider_id)}) \
+                .sort('finish_ts', DESCENDING):
+            return item
         return None
 
     def aggregate(self, col_name: str, pipelines, **kwargs):

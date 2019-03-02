@@ -6,6 +6,7 @@ from random import random
 
 import requests
 from bson import ObjectId
+from flask import current_app, request
 from flask_restful import reqparse
 from werkzeug.datastructures import FileStorage
 
@@ -81,7 +82,9 @@ class SpiderApi(BaseApi):
 
             items = db_manager.list('spiders', {})
             for item in items:
-                item['latest_version'] = db_manager.get_latest_version(item['_id'])
+                last_deploy = db_manager.get_last_deploy(spider_id=str(item['_id']))
+                if last_deploy:
+                    item['update_ts'] = last_deploy['finish_ts'].strftime('%Y-%m-%d %H:%M:%S')
 
         return jsonify({
             'status': 'ok',
@@ -111,12 +114,13 @@ class SpiderApi(BaseApi):
                    }, 400
 
         # dispatch crawl task
-        res = requests.get('http://%s:%s/api/spiders/%s/on_crawl' % (
+        res = requests.get('http://%s:%s/api/spiders/%s/on_crawl?node_id=%s' % (
             node.get('ip'),
             node.get('port'),
-            id
-        ), {'node_id', node_id})
-        data = json.loads(res)
+            id,
+            node_id
+        ))
+        data = json.loads(res.content.decode('utf-8'))
         return {
             'code': res.status_code,
             'status': 'ok',
@@ -152,7 +156,7 @@ class SpiderApi(BaseApi):
         node = db_manager.get(col_name='nodes', id=node_id)
 
         # get latest version
-        latest_version = db_manager.get_latest_version(spider_id=id)
+        latest_version = db_manager.get_latest_version(spider_id=id, node_id=node_id)
 
         # initialize version if no version found
         if latest_version is None:
@@ -177,8 +181,12 @@ class SpiderApi(BaseApi):
 
             # upload to api
             files = {'file': open(output_file_path, 'rb')}
-            r = requests.post('http://%s:%s/api/spiders/%s/deploy_file' % (node.get('ip'), node.get('port'), id),
-                              files=files)
+            r = requests.post('http://%s:%s/api/spiders/%s/deploy_file?node_id=%s' % (
+                node.get('ip'),
+                node.get('port'),
+                id,
+                node_id,
+            ), files=files)
 
             if r.status_code == 200:
                 return {
@@ -191,11 +199,11 @@ class SpiderApi(BaseApi):
                 return {
                            'code': r.status_code,
                            'status': 'ok',
-                           'error': json.loads(r.content)['error']
+                           'error': r.content.decode('utf-8')
                        }, r.status_code
 
         except Exception as err:
-            print(err)
+            current_app.logger.error(err)
             return {
                        'code': 500,
                        'status': 'ok',
@@ -211,8 +219,9 @@ class SpiderApi(BaseApi):
                 'finish_ts': datetime.now()
             })
 
-    def deploy_file(self, id):
+    def deploy_file(self, id=None):
         args = parser.parse_args()
+        node_id = request.args.get('node_id')
         f = args.file
 
         if get_file_suffix(f.filename) != 'zip':
@@ -238,13 +247,18 @@ class SpiderApi(BaseApi):
             return None, 400
 
         # get version
-        latest_version = db_manager.get_latest_version(spider_id=id)
+        latest_version = db_manager.get_latest_version(spider_id=id, node_id=node_id)
         if latest_version is None:
             latest_version = 0
 
         # make source / destination
-        src = dir_path
+        src = os.path.join(dir_path, os.listdir(dir_path)[0])
+        # src = dir_path
         dst = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')), str(latest_version + 1))
+
+        # logging info
+        current_app.logger.info('src: %s' % src)
+        current_app.logger.info('dst: %s' % dst)
 
         # copy from source to destination
         shutil.copytree(src=src, dst=dst)
@@ -256,7 +270,7 @@ class SpiderApi(BaseApi):
         }
 
     def get_deploys(self, id):
-        items = db_manager.list('deploys', cond={'spider_id': ObjectId(id)}, limit=10, sort_key='create_ts')
+        items = db_manager.list('deploys', cond={'spider_id': ObjectId(id)}, limit=10, sort_key='finish_ts')
         deploys = []
         for item in items:
             spider_id = item['spider_id']
