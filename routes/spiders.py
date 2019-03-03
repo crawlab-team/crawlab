@@ -210,15 +210,6 @@ class SpiderApi(BaseApi):
                        'error': str(err)
                    }, 500
 
-        finally:
-            version = latest_version + 1
-            db_manager.save('deploys', {
-                'spider_id': ObjectId(id),
-                'version': version,
-                'node_id': node_id,
-                'finish_ts': datetime.now()
-            })
-
     def deploy_file(self, id=None):
         args = parser.parse_args()
         node_id = request.args.get('node_id')
@@ -260,8 +251,22 @@ class SpiderApi(BaseApi):
         current_app.logger.info('src: %s' % src)
         current_app.logger.info('dst: %s' % dst)
 
+        # remove if the target folder exists
+        if os.path.exists(dst):
+            shutil.rmtree(dst)
+
         # copy from source to destination
         shutil.copytree(src=src, dst=dst)
+
+        # save to db
+        # TODO: task management for deployment
+        version = latest_version + 1
+        db_manager.save('deploys', {
+            'spider_id': ObjectId(id),
+            'version': version,
+            'node_id': node_id,
+            'finish_ts': datetime.now()
+        })
 
         return {
             'code': 200,

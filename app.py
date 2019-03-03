@@ -49,7 +49,7 @@ api.add_resource(StatsApi,
                  '/api/stats/<string:action>')
 
 # create folder if it does not exist
-if os.path.exists(PROJECT_LOGS_FOLDER):
+if not os.path.exists(PROJECT_LOGS_FOLDER):
     os.makedirs(PROJECT_LOGS_FOLDER)
 
 if __name__ == '__main__':
