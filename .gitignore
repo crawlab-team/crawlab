@@ -107,3 +107,6 @@ venv.bak/
 
 # node_modules
 node_modules/
+
+# egg-info
+*.egg-info

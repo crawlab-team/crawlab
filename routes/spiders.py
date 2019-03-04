@@ -1,13 +1,14 @@
 import json
 import os
 import shutil
+import subprocess
 from datetime import datetime
 from random import random
 
 import requests
 from bson import ObjectId
 from flask import current_app, request
-from flask_restful import reqparse
+from flask_restful import reqparse, Resource
 from werkzeug.datastructures import FileStorage
 
 from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_SOURCE_FILE_FOLDER, PROJECT_TMP_FOLDER
@@ -302,3 +303,63 @@ class SpiderApi(BaseApi):
             'status': 'ok',
             'items': items
         })
+
+
+class SpiderImportApi(Resource):
+    parser = reqparse.RequestParser()
+    arguments = [
+        ('url', str)
+    ]
+
+    def __init__(self):
+        super(SpiderImportApi).__init__()
+        for arg, type in self.arguments:
+            self.parser.add_argument(arg, type=type)
+
+    def post(self, platform=None):
+        if platform is None:
+            return {
+                       'status': 'ok',
+                       'code': 404,
+                       'error': 'platform invalid'
+                   }, 404
+
+        if not hasattr(self, platform):
+            return {
+                       'status': 'ok',
+                       'code': 400,
+                       'error': 'platform "%s" invalid' % platform
+                   }, 400
+
+        return getattr(self, platform)()
+
+    def github(self):
+        self._git()
+
+    def gitlab(self):
+        self._git()
+
+    def _git(self):
+        args = self.parser.parse_args()
+        url = args.get('url')
+        if url is None:
+            return {
+                       'status': 'ok',
+                       'code': 400,
+                       'error': 'url should not be empty'
+                   }, 400
+
+        try:
+            p = subprocess.Popen(['git', 'clone', url], cwd=PROJECT_SOURCE_FILE_FOLDER)
+            _stdout, _stderr = p.communicate()
+        except Exception as err:
+            return {
+                       'status': 'ok',
+                       'code': 500,
+                       'error': str(err)
+                   }, 500
+
+        return {
+            'status': 'ok',
+            'message': 'success'
+        }

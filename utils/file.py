@@ -2,7 +2,7 @@ import os
 import re
 from collections import defaultdict
 
-SUFFIX_PATTERN = r'\.(\w{,10})$'
+SUFFIX_PATTERN = r'\.([a-zA-Z]{,6})$'
 suffix_regex = re.compile(SUFFIX_PATTERN, re.IGNORECASE)
 
 SUFFIX_LANG_MAPPING = {
@@ -20,7 +20,7 @@ def get_file_suffix(file_name: str):
     if m is not None:
         return m.groups()[0]
     else:
-        return file_name
+        return None
 
 
 def get_file_list(path):
@@ -38,7 +38,8 @@ def get_file_suffix_stats(path) -> dict:
     stats = defaultdict(int)
     for file_path in get_file_list(path):
         suffix = get_file_suffix(file_path)
-        stats[suffix] += 1
+        if suffix is not None:
+            stats[suffix] += 1
     return stats
 
 

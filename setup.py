@@ -7,7 +7,7 @@ with open('requirements.txt') as f:
     requirements = [l for l in f.read().splitlines() if l]
 
 setup(
-    name='crawlab',
+    name='crawlab-server',
     version='0.0.1',
     url='https://github.com/tikazyq/crawlab',
     install_requires=requirements,

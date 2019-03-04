@@ -12,7 +12,10 @@ const state = {
   activeNode: {},
 
   // upload form for importing spiders
-  importForm: {}
+  importForm: {
+    url: '',
+    type: 'github'
+  }
 }
 
 const getters = {}
@@ -114,8 +117,14 @@ const actions = {
           }).sort((a, b) => a.create_ts < b.create_ts ? 1 : -1),
           { root: true })
       })
+  },
+  importGithub ({ state }) {
+    const url = state.importForm.url
+    return request.post('/spiders/import/github', { url })
+      .then(response => {
+        console.log(response)
+      })
   }
-
 }
 
 export default {

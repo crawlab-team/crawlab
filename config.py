@@ -13,6 +13,7 @@ CELERY_MONGODB_BACKEND_SETTINGS = {
     'database': 'crawlab_test',
     'taskmeta_collection': 'tasks_celery',
 }
+CELERY_TIMEZONE = 'Asia/Shanghai'
 
 # flower variables
 FLOWER_API_ENDPOINT = 'http://localhost:5555/api'

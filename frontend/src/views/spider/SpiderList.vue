@@ -8,22 +8,22 @@
       :before-close="onDialogClose">
       <el-form label-width="150px"
                :model="importForm"
-               ref="spiderForm"
+               ref="importForm"
                label-position="right">
         <el-form-item label="Source URL" prop="url" required>
           <el-input v-model="importForm.url" placeholder="Source URL"></el-input>
         </el-form-item>
         <el-form-item label="Source Type" prop="type" required>
           <el-select v-model="importForm.type" placeholder="Source Type">
-            <el-option value="github"></el-option>
-            <el-option value="gitlab"></el-option>
-            <el-option value="svn"></el-option>
+            <el-option value="github" label="Github"></el-option>
+            <el-option value="gitlab" label="Gitlab"></el-option>
+            <el-option value="svn" label="SVN" disabled></el-option>
           </el-select>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="onCancel">Cancel</el-button>
-        <el-button type="primary" @click="onImport">Import</el-button>
+        <el-button v-loading="importLoading" type="primary" @click="onImport">Import</el-button>
       </span>
     </el-dialog>
 
@@ -36,23 +36,9 @@
                 @change="onSearch">
       </el-input>
       <div class="right">
-        <el-dropdown class="btn">
-          <el-button type="primary" icon="el-icon-upload">
-            Import Spiders
-            <i class="el-icon-arrow-down el-icon--right"></i>
-          </el-button>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>
-              <div @click="openImportDialog('github')">Github</div>
-            </el-dropdown-item>
-            <el-dropdown-item disabled>
-              <span @click="openImportDialog('gitlab')">Gitlab</span>
-            </el-dropdown-item>
-            <el-dropdown-item disabled>
-              <span @click="openImportDialog('svn')">SVN</span>
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
+        <el-button type="primary" icon="el-icon-upload" @click="openImportDialog">
+          Import Spiders
+        </el-button>
         <el-button type="success"
                    icon="el-icon-refresh"
                    class="btn refresh"
@@ -158,6 +144,7 @@ export default {
         pageNum: 0,
         pageSize: 10
       },
+      importLoading: false,
       isEditMode: false,
       dialogVisible: false,
       filter: {
@@ -231,7 +218,6 @@ export default {
       this.dialogVisible = false
     },
     onEdit (row) {
-      console.log(row)
       this.isEditMode = true
       this.$store.commit('spider/SET_SPIDER_FORM', row)
       this.dialogVisible = true
@@ -268,10 +254,25 @@ export default {
       this.$store.dispatch('spider/getSpiderList')
     },
     onImport () {
-      this.dialogVisible = false
+      this.$refs.importForm.validate(valid => {
+        if (valid) {
+          this.importLoading = true
+          this.$store.dispatch('spider/importGithub')
+            .then(response => {
+              this.$message.success('Import repo sucessfully')
+              this.$store.dispatch('spider/getSpiderList')
+            })
+            .catch(response => {
+              this.$message.error(response.data.error)
+            })
+            .finally(() => {
+              this.dialogVisible = false
+              this.importLoading = false
+            })
+        }
+      })
     },
-    openImportDialog (type) {
-      this.$store.commit('spider/SET_IMPORT_FORM', { type })
+    openImportDialog () {
       this.dialogVisible = true
     }
   },
