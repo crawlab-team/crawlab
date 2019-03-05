@@ -36,7 +36,10 @@
                 @change="onSearch">
       </el-input>
       <div class="right">
-        <el-button type="primary" icon="el-icon-upload" @click="openImportDialog">
+        <el-button type="primary" icon="fa fa-cloud" @click="onDeployAll">
+          Deploy All
+        </el-button>
+        <el-button type="primary" icon="fa fa-download" @click="openImportDialog">
           Import Spiders
         </el-button>
         <el-button type="success"
@@ -243,9 +246,16 @@ export default {
       this.$store.commit('dialogView/SET_DIALOG_TYPE', 'spiderDeploy')
     },
     onCrawl (row) {
-      this.$store.dispatch('spider/getSpiderData', row._id.$oid)
-      this.$store.commit('dialogView/SET_DIALOG_VISIBLE', true)
-      this.$store.commit('dialogView/SET_DIALOG_TYPE', 'spiderRun')
+      this.$confirm('Are you sure to run this spider', 'Notice', {
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel'
+      })
+        .then(() => {
+          this.$store.dispatch('spider/crawlSpider', { id: row._id.$oid })
+            .then(() => {
+              this.$message.success(`Running spider "${row._id.$oid}" has been scheduled`)
+            })
+        })
     },
     onView (row) {
       this.$router.push(`/spiders/${row._id.$oid}`)
@@ -257,9 +267,10 @@ export default {
       this.$refs.importForm.validate(valid => {
         if (valid) {
           this.importLoading = true
+          // TODO: switch between github / gitlab / svn
           this.$store.dispatch('spider/importGithub')
             .then(response => {
-              this.$message.success('Import repo sucessfully')
+              this.$message.success('Import repo successfully')
               this.$store.dispatch('spider/getSpiderList')
             })
             .catch(response => {
@@ -274,6 +285,19 @@ export default {
     },
     openImportDialog () {
       this.dialogVisible = true
+    },
+    onDeployAll () {
+      this.$confirm('Are you sure to deploy all spiders to active nodes?', 'Notice', {
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      })
+        .then(() => {
+          this.$store.dispatch('spider/deployAll')
+            .then(() => {
+              this.$message.success('Deployed all spiders successfully')
+            })
+        })
     }
   },
   created () {

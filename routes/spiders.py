@@ -12,6 +12,8 @@ from flask_restful import reqparse, Resource
 from werkzeug.datastructures import FileStorage
 
 from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_SOURCE_FILE_FOLDER, PROJECT_TMP_FOLDER
+from constants.node import NodeStatus
+from constants.task import TaskStatus
 from db.manager import db_manager
 from routes.base import BaseApi
 from tasks.spider import execute_spider
@@ -55,6 +57,7 @@ class SpiderApi(BaseApi):
 
         # get a list of items
         else:
+            items = []
             dirs = os.listdir(PROJECT_SOURCE_FILE_FOLDER)
             for _dir in dirs:
                 dir_path = os.path.join(PROJECT_SOURCE_FILE_FOLDER, _dir)
@@ -81,16 +84,13 @@ class SpiderApi(BaseApi):
                         'suffix_stats': stats,
                     })
 
-            items = db_manager.list('spiders', {})
-            for item in items:
-                last_deploy = db_manager.get_last_deploy(spider_id=str(item['_id']))
-                if last_deploy:
-                    item['update_ts'] = last_deploy['finish_ts'].strftime('%Y-%m-%d %H:%M:%S')
+                # append spider
+                items.append(spider)
 
-        return jsonify({
-            'status': 'ok',
-            'items': items
-        })
+            return jsonify({
+                'status': 'ok',
+                'items': items
+            })
 
     def crawl(self, id):
         args = self.parser.parse_args()
@@ -131,9 +131,8 @@ class SpiderApi(BaseApi):
 
     def on_crawl(self, id):
         args = self.parser.parse_args()
-        node_id = args.get('node_id')
 
-        job = execute_spider.delay(id, node_id)
+        job = execute_spider.delay(id)
 
         return {
             'code': 200,
@@ -155,13 +154,6 @@ class SpiderApi(BaseApi):
 
         # get node given the node
         node = db_manager.get(col_name='nodes', id=node_id)
-
-        # get latest version
-        latest_version = db_manager.get_latest_version(spider_id=id, node_id=node_id)
-
-        # initialize version if no version found
-        if latest_version is None:
-            latest_version = 0
 
         # make source / destination
         src = spider.get('src')
@@ -238,15 +230,10 @@ class SpiderApi(BaseApi):
         if spider is None:
             return None, 400
 
-        # get version
-        latest_version = db_manager.get_latest_version(spider_id=id, node_id=node_id)
-        if latest_version is None:
-            latest_version = 0
-
         # make source / destination
         src = os.path.join(dir_path, os.listdir(dir_path)[0])
         # src = dir_path
-        dst = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')), str(latest_version + 1))
+        dst = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')))
 
         # logging info
         current_app.logger.info('src: %s' % src)
@@ -261,10 +248,8 @@ class SpiderApi(BaseApi):
 
         # save to db
         # TODO: task management for deployment
-        version = latest_version + 1
         db_manager.save('deploys', {
             'spider_id': ObjectId(id),
-            'version': version,
             'node_id': node_id,
             'finish_ts': datetime.now()
         })
@@ -298,7 +283,7 @@ class SpiderApi(BaseApi):
             if task is not None:
                 item['status'] = task['status']
             else:
-                item['status'] = 'UNAVAILABLE'
+                item['status'] = TaskStatus.UNAVAILABLE
         return jsonify({
             'status': 'ok',
             'items': items
@@ -358,6 +343,61 @@ class SpiderImportApi(Resource):
                        'code': 500,
                        'error': str(err)
                    }, 500
+
+        return {
+            'status': 'ok',
+            'message': 'success'
+        }
+
+
+class SpiderManageApi(Resource):
+    parser = reqparse.RequestParser()
+    arguments = [
+        ('url', str)
+    ]
+
+    def post(self, action):
+        if not hasattr(self, action):
+            return {
+                       'status': 'ok',
+                       'code': 400,
+                       'error': 'action "%s" invalid' % action
+                   }, 400
+
+        return getattr(self, action)()
+
+    def deploy_all(self):
+        # active nodes
+        nodes = db_manager.list('nodes', {'status': NodeStatus.ONLINE})
+
+        # all spiders
+        spiders = db_manager.list('spiders', {'cmd': {'$exists': True}})
+
+        # iterate all nodes
+        for node in nodes:
+            node_id = node['_id']
+            for spider in spiders:
+                spider_id = spider['_id']
+                spider_src = spider['src']
+
+                output_file_name = '%s_%s.zip' % (
+                    datetime.now().strftime('%Y%m%d%H%M%S'),
+                    str(random())[2:12]
+                )
+                output_file_path = os.path.join(PROJECT_TMP_FOLDER, output_file_name)
+
+                # zip source folder to zip file
+                zip_file(source_dir=spider_src,
+                         output_filename=output_file_path)
+
+                # upload to api
+                files = {'file': open(output_file_path, 'rb')}
+                r = requests.post('http://%s:%s/api/spiders/%s/deploy_file?node_id=%s' % (
+                    node.get('ip'),
+                    node.get('port'),
+                    spider_id,
+                    node_id,
+                ), files=files)
 
         return {
             'status': 'ok',

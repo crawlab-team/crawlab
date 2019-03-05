@@ -71,10 +71,19 @@ export default {
   },
   methods: {
     onRun () {
+      const row = this.spiderForm
       this.$refs['spiderForm'].validate(res => {
         if (res) {
-          this.$store.commit('dialogView/SET_DIALOG_VISIBLE', true)
-          this.$store.commit('dialogView/SET_DIALOG_TYPE', 'spiderRun')
+          this.$confirm('Are you sure to run this spider', 'Notice', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel'
+          })
+            .then(() => {
+              this.$store.dispatch('spider/crawlSpider', { id: row._id.$oid })
+                .then(() => {
+                  this.$message.success(`Running spider "${row._id.$oid}" has been scheduled`)
+                })
+            })
         }
       })
     },

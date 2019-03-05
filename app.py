@@ -9,7 +9,7 @@ from config import FLASK_HOST, FLASK_PORT, PROJECT_LOGS_FOLDER
 from routes.deploys import DeployApi
 from routes.files import FileApi
 from routes.nodes import NodeApi
-from routes.spiders import SpiderApi, SpiderImportApi
+from routes.spiders import SpiderApi, SpiderImportApi, SpiderManageApi
 from routes.stats import StatsApi
 from routes.tasks import TaskApi
 
@@ -30,6 +30,8 @@ api.add_resource(NodeApi,
                  '/api/nodes/<string:id>/<string:action>')
 api.add_resource(SpiderImportApi,
                  '/api/spiders/import/<string:platform>')
+api.add_resource(SpiderManageApi,
+                 '/api/spiders/manage/<string:action>')
 api.add_resource(SpiderApi,
                  '/api/spiders',
                  '/api/spiders/<string:id>',

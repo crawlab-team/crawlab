@@ -1,4 +1,6 @@
 # project variables
+from celery.schedules import crontab
+
 PROJECT_SOURCE_FILE_FOLDER = '/Users/yeqing/projects/crawlab/spiders'
 PROJECT_DEPLOY_FILE_FOLDER = '/var/crawlab'
 PROJECT_LOGS_FOLDER = '/var/logs/crawlab'
@@ -14,6 +16,7 @@ CELERY_MONGODB_BACKEND_SETTINGS = {
     'taskmeta_collection': 'tasks_celery',
 }
 CELERY_TIMEZONE = 'Asia/Shanghai'
+CELERY_ENABLE_UTC = True
 
 # flower variables
 FLOWER_API_ENDPOINT = 'http://localhost:5555/api'
@@ -30,4 +33,3 @@ MONGO_DB = 'crawlab_test'
 DEBUG = True
 FLASK_HOST = '0.0.0.0'
 FLASK_PORT = 5000
-# SERVER_NAME = '0.0.0.0:5000'

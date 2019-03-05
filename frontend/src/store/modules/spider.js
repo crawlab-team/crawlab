@@ -87,10 +87,8 @@ const actions = {
       })
   },
   crawlSpider ({ state, dispatch }, payload) {
-    const { id, nodeId } = payload
-    return request.post(`/spiders/${id}/crawl`, {
-      node_id: nodeId
-    })
+    const { id } = payload
+    return request.post(`/spiders/${id}/on_crawl`)
       .then(response => {
         console.log(response.data)
       })
@@ -121,6 +119,12 @@ const actions = {
   importGithub ({ state }) {
     const url = state.importForm.url
     return request.post('/spiders/import/github', { url })
+      .then(response => {
+        console.log(response)
+      })
+  },
+  deployAll () {
+    return request.post('/spiders/manage/deploy_all')
       .then(response => {
         console.log(response)
       })

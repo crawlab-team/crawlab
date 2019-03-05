@@ -16,22 +16,22 @@ logger = get_logger(__name__)
 
 
 @celery_app.task(bind=True)
-def execute_spider(self, id: str, node_id: str):
+def execute_spider(self, id: str):
+    print(self.state)
     task_id = self.request.id
     hostname = self.request.hostname
     spider = db_manager.get('spiders', id=id)
-    latest_version = db_manager.get_latest_version(spider_id=id, node_id=node_id)
     command = spider.get('cmd')
-    current_working_directory = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')), str(latest_version))
+
+    current_working_directory = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')))
 
     # log info
     logger.info('current_working_directory: %s' % current_working_directory)
     logger.info('spider_id: %s' % id)
-    logger.info('version: %s' % latest_version)
     logger.info(command)
 
     # make sure the log folder exists
-    log_path = os.path.join(PROJECT_LOGS_FOLDER, id, str(latest_version))
+    log_path = os.path.join(PROJECT_LOGS_FOLDER, id)
     if not os.path.exists(log_path):
         os.makedirs(log_path)
 
@@ -45,17 +45,19 @@ def execute_spider(self, id: str, node_id: str):
         '_id': task_id,
         'spider_id': ObjectId(id),
         'create_ts': datetime.now(),
-        'node_id': node_id,
+        'node_id': hostname,
         'hostname': hostname,
         'log_file_path': log_file_path,
-        'spider_version': latest_version
     })
 
     # execute the command
+    env = os.environ.copy()
+    env['CRAWLAB_TASK_ID'] = task_id
     p = subprocess.Popen(command.split(' '),
                          stdout=stdout.fileno(),
                          stderr=stderr.fileno(),
                          cwd=current_working_directory,
+                         env=env,
                          bufsize=1)
 
     # get output from the process

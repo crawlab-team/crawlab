@@ -10,7 +10,7 @@ RUN cat /etc/resolv.conf
 
 # install python
 RUN apt-get update
-RUN apt-get install -y python3 python3-pip net-tools iputils-ping vim
+RUN apt-get install -y python3 python3-pip net-tools iputils-ping vim ntp
 
 # soft link
 RUN ln -s /usr/bin/pip3 /usr/local/bin/pip
