@@ -34,6 +34,23 @@ cd frontend
 npm run dev
 ```
 
+## Screenshot
+
+#### Home Page
+![home](./docs/img/screenshot-home.png)
+
+#### Spider List
+
+![spider-list](./docs/img/screenshot-spiders.png)
+
+#### Spider Detail - Overview
+
+![spider-list](./docs/img/screenshot-spider-detail-overview.png)
+
+#### Task Detail - Results
+
+![spider-list](./docs/img/screenshot-task-detail-results.png)
+
 ## Architecture
 
 The architecture of Crawlab is as below. It's very similar to Celery architecture, but a few more modules including Frontend, Spiders and Flower are added to feature the crawling management functionality. 
@@ -60,3 +77,7 @@ After deploying the spider, you can click "Run" button on spider detail page and
 ### Tasks
 
 Tasks are triggered and run by the workers. Users can check the task status info and logs in the task detail page. 
+
+### App
+
+### Broker

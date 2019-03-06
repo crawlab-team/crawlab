@@ -12,6 +12,9 @@
           </pre>
         </div>
       </el-tab-pane>
+      <el-tab-pane label="Results" name="results">
+        <general-table-view :data="taskResultsData" :columns="taskResultsColumns"/>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -21,10 +24,12 @@ import {
   mapState
 } from 'vuex'
 import TaskOverview from '../../components/Overview/TaskOverview'
+import GeneralTableView from '../../components/TableView/GeneralTableView'
 
 export default {
   name: 'TaskDetail',
   components: {
+    GeneralTableView,
     TaskOverview
   },
   data () {
@@ -34,7 +39,9 @@ export default {
   },
   computed: {
     ...mapState('task', [
-      'taskLog'
+      'taskLog',
+      'taskResultsData',
+      'taskResultsColumns'
     ]),
     ...mapState('file', [
       'currentPath'
@@ -53,6 +60,7 @@ export default {
   created () {
     this.$store.dispatch('task/getTaskData', this.$route.params.id)
     this.$store.dispatch('task/getTaskLog', this.$route.params.id)
+    this.$store.dispatch('task/getTaskResults', this.$route.params.id)
   }
 }
 </script>

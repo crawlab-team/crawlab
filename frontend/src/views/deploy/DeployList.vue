@@ -93,10 +93,10 @@ export default {
       },
       // tableData,
       columns: [
-        { name: 'version', label: 'Version', width: '180' },
+        // { name: 'version', label: 'Version', width: '180' },
         // { name: 'ip', label: 'IP', width: '160' },
         // { name: 'port', label: 'Port', width: '80' },
-        { name: 'finish_ts', label: 'Finish Time', width: '180' },
+        { name: 'finish_ts', label: 'Time', width: '180' },
         { name: 'spider_name', label: 'Spider', width: '180', sortable: true },
         { name: 'node_id', label: 'Node', width: 'auto' }
       ],
@@ -121,6 +121,11 @@ export default {
         }
         return false
       })
+        .filter((d, index) => {
+          // pagination
+          const { pageNum, pageSize } = this.pagination
+          return (pageSize * (pageNum - 1) <= index) && (index < pageSize * pageNum)
+        })
     }
   },
   methods: {

@@ -158,7 +158,7 @@ export default {
         { name: 'name', label: 'Name', width: 'auto' },
         { name: 'type', label: 'Spider Type', width: '160', sortable: true },
         { name: 'lang', label: 'Language', width: '160', sortable: true },
-        { name: 'update_ts', label: 'Last Update', width: '120' }
+        { name: 'last_run_ts', label: 'Last Run', width: '120' }
       ],
       spiderFormRules: {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]

@@ -15,8 +15,12 @@
         <el-form-item label="Source Folder">
           <el-input v-model="spiderForm.src" placeholder="Source Folder" disabled></el-input>
         </el-form-item>
-        <el-form-item label="Execute Command" prop="cmd" :rule="cmdRule" required>
+        <el-form-item label="Execute Command" prop="cmd" required>
           <el-input v-model="spiderForm.cmd" placeholder="Execute Command"
+                    :disabled="isView"></el-input>
+        </el-form-item>
+        <el-form-item label="Results Collection">
+          <el-input v-model="spiderForm.col" placeholder="Results Collection"
                     :disabled="isView"></el-input>
         </el-form-item>
         <el-form-item label="Spider Type">
@@ -37,8 +41,8 @@
       </el-form>
     </el-row>
     <el-row class="button-container" v-if="!isView">
-      <el-button type="success" @click="onRun">Run</el-button>
-      <el-button type="primary" @click="onDeploy">Deploy</el-button>
+      <el-button type="danger" @click="onRun">Run</el-button>
+      <!--<el-button type="primary" @click="onDeploy">Deploy</el-button>-->
       <el-button type="success" @click="onSave">Save</el-button>
     </el-row>
   </div>

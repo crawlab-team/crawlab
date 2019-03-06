@@ -13,7 +13,7 @@
       <el-tab-pane label="Overview" name="overview">
         <node-overview></node-overview>
       </el-tab-pane>
-      <el-tab-pane label="Deployed Spiders" name="spiders">
+      <el-tab-pane label="Deployed Spiders" name="spiders" v-if="false">
         Deployed Spiders
       </el-tab-pane>
     </el-tabs>

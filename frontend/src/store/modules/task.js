@@ -5,7 +5,9 @@ const state = {
   // TaskList
   taskList: [],
   taskForm: {},
-  taskLog: ''
+  taskLog: '',
+  taskResultsData: [],
+  taskResultsColumns: []
 }
 
 const getters = {}
@@ -19,6 +21,12 @@ const mutations = {
   },
   SET_TASK_LOG (state, value) {
     state.taskLog = value
+  },
+  SET_TASK_RESULTS_DATA (state, value) {
+    state.taskResultsData = value
+  },
+  SET_TASK_RESULTS_COLUMNS (state, value) {
+    state.taskResultsColumns = value
   }
 }
 
@@ -53,6 +61,13 @@ const actions = {
     return request.get(`/tasks/${id}/get_log`)
       .then(response => {
         commit('SET_TASK_LOG', response.data.log)
+      })
+  },
+  getTaskResults ({ state, commit }, id) {
+    return request.get(`/tasks/${id}/get_results`)
+      .then(response => {
+        commit('SET_TASK_RESULTS_DATA', response.data.items)
+        commit('SET_TASK_RESULTS_COLUMNS', response.data.fields)
       })
   }
 }

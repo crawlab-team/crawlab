@@ -7,7 +7,7 @@
       </el-row>
 
       <!--last deploys-->
-      <el-row>
+      <el-row v-if="false">
         <deploy-table-view title="Latest Deploys"/>
       </el-row>
     </el-col>

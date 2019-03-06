@@ -30,14 +30,23 @@ class SpiderApi(BaseApi):
     col_name = 'spiders'
 
     arguments = (
+        # name of spider
         ('name', str),
+
+        # execute shell command
         ('cmd', str),
+
+        # spider source folder
         ('src', str),
+
+        # spider type
         ('type', str),
+
+        # spider language
         ('lang', str),
 
-        # for deploy only
-        ('node_id', str),
+        # spider results collection
+        ('col', str),
     )
 
     def get(self, id=None, action=None):
@@ -130,8 +139,6 @@ class SpiderApi(BaseApi):
         }
 
     def on_crawl(self, id):
-        args = self.parser.parse_args()
-
         job = execute_spider.delay(id)
 
         return {

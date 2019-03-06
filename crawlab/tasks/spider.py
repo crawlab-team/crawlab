@@ -17,7 +17,6 @@ logger = get_logger(__name__)
 
 @celery_app.task(bind=True)
 def execute_spider(self, id: str):
-    print(self.state)
     task_id = self.request.id
     hostname = self.request.hostname
     spider = db_manager.get('spiders', id=id)
@@ -53,6 +52,7 @@ def execute_spider(self, id: str):
     # execute the command
     env = os.environ.copy()
     env['CRAWLAB_TASK_ID'] = task_id
+    env['CRAWLAB_COLLECTION'] = spider.get('col')
     p = subprocess.Popen(command.split(' '),
                          stdout=stdout.fileno(),
                          stderr=stderr.fileno(),

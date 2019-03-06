@@ -13,7 +13,7 @@
                    icon="el-icon-refresh"
                    class="refresh"
                    @click="onRefresh">
-          Search
+          Refresh
         </el-button>
       </div>
     </div>

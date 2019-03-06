@@ -4,7 +4,7 @@
       <h5 class="title">{{title}}</h5>
       <el-button type="success" plain class="small-btn" size="mini" icon="fa fa-refresh" @click="onRefresh"></el-button>
     </el-row>
-    <el-table border height="240px" :data="taskList">
+    <el-table border height="480px" :data="taskList">
       <el-table-column property="node" label="Node" width="220" align="center">
         <template slot-scope="scope">
           <a class="a-tag" @click="onClickNode(scope.row)">{{scope.row.node_id}}</a>
@@ -65,7 +65,11 @@ export default {
       this.$router.push(`/tasks/${row._id}`)
     },
     onRefresh () {
-      this.$store.dispatch('spider/getTaskList', this.spiderForm._id.$oid)
+      if (this.$route.path.split('/')[1] === 'spiders') {
+        this.$store.dispatch('spider/getTaskList', this.$route.params.id)
+      } else if (this.$route.path.split('/')[1] === 'nodes') {
+        this.$store.dispatch('node/getTaskList', this.$route.params.id)
+      }
     }
   }
 }

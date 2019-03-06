@@ -1,3 +1,4 @@
+from constants.task import TaskStatus
 from db.manager import db_manager
 from routes.base import BaseApi
 from utils import jsonify
@@ -64,8 +65,11 @@ class NodeApi(BaseApi):
             spider_id = item['spider_id']
             spider = db_manager.get('spiders', id=str(spider_id))
             item['spider_name'] = spider['name']
-            task = db_manager.get('tasks_celery', id=item['_id'])
-            item['status'] = task['status']
+            _task = db_manager.get('tasks_celery', id=item['_id'])
+            if _task:
+                item['status'] = _task['status']
+            else:
+                item['status'] = TaskStatus.UNAVAILABLE
         return jsonify({
             'status': 'ok',
             'items': items

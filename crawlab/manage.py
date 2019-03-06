@@ -86,12 +86,17 @@ def run_worker():
 
 
 @click.command()
-@click.argument('action', type=click.Choice([ActionType.APP, ActionType.FLOWER, ActionType.RUN_ALL]))
+@click.argument('action', type=click.Choice([ActionType.APP,
+                                             ActionType.FLOWER,
+                                             ActionType.WORKER,
+                                             ActionType.RUN_ALL]))
 def main(action):
     if action == ActionType.APP:
         run_app()
     elif action == ActionType.FLOWER:
         run_flower()
+    elif action == ActionType.WORKER:
+        run_worker()
     elif action == ActionType.RUN_ALL:
         p_flower = Process(target=run_flower)
         p_flower.start()

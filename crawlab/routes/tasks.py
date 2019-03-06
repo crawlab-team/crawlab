@@ -2,6 +2,7 @@ from constants.task import TaskStatus
 from db.manager import db_manager
 from routes.base import BaseApi
 from utils import jsonify
+from utils.spider import get_spider_col_fields
 
 
 class TaskApi(BaseApi):
@@ -71,3 +72,17 @@ class TaskApi(BaseApi):
                        'status': 'ok',
                        'error': str(err)
                    }, 500
+
+    def get_results(self, id):
+        task = db_manager.get('tasks', id=id)
+        spider = db_manager.get('spiders', id=task['spider_id'])
+        col_name = spider.get('col')
+        if not col_name:
+            return []
+        fields = get_spider_col_fields(col_name)
+        items = db_manager.list(col_name, {'task_id': id})
+        return jsonify({
+            'status': 'ok',
+            'fields': fields,
+            'items': items
+        })

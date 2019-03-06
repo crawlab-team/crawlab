@@ -60,7 +60,8 @@ const actions = {
       src: state.spiderForm.src,
       cmd: state.spiderForm.cmd,
       type: state.spiderForm.type,
-      lang: state.spiderForm.lang
+      lang: state.spiderForm.lang,
+      col: state.spiderForm.col
     })
       .then(() => {
         dispatch('getSpiderList')
