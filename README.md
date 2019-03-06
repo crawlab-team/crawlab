@@ -54,7 +54,7 @@ npm run dev
 
 ## Architecture
 
-The architecture of Crawlab is as below. It's very similar to Celery architecture, but a few more modules including Frontend, Spiders and Flower are added to feature the crawling management functionality. 
+Crawlab's architecture is very similar to Celery's, but a few more modules including Frontend, Spiders and Flower are added to feature the crawling management functionality. 
 
 ![crawlab-architecture](./docs/img/crawlab-architecture.png)
 
@@ -64,21 +64,60 @@ Nodes are actually the workers defined in Celery. A node is running and connecte
 
 ### Spiders
 
-#### Auto Discovery
-In `config.py` file, edit `PROJECT_SOURCE_FILE_FOLDER` as the directory where the spiders projects are located. The web app will discover spider projects automatically.
+##### Auto Discovery
+In `config.py` file, edit `PROJECT_SOURCE_FILE_FOLDER` as the directory where the spiders projects are located. The web app will discover spider projects automatically. How simple is that!
 
-#### Deploy Spiders
+##### Deploy Spiders
 
 All spiders need to be deployed to a specific node before crawling. Simply click "Deploy" button on spider detail page and select the right node for the deployment. 
 
-#### Run Spiders
+##### Run Spiders
 
 After deploying the spider, you can click "Run" button on spider detail page and select a specific node to start crawling. It will triggers a task for the crawling, where you can see in detail in tasks page.
 
 ### Tasks
 
-Tasks are triggered and run by the workers. Users can check the task status info and logs in the task detail page. 
+Tasks are triggered and run by the workers. Users can view the task status, logs and results in the task detail page. 
 
 ### App
 
+This is a Flask app that provides necessary API for common operations such as CRUD, spider deployment and task running. Each node has to run the flask app to get spiders deployed on this machine. Simply run `python manage.py app` or `python ./bin/run_app.py` to start the app.
+
 ### Broker
+
+Broker is the same as defined in Celery. It is the queue for running async tasks.
+
+### Frontend
+
+Frontend is basically a Vue SPA that inherits from [Vue-Element-Admin](https://github.com/PanJiaChen/vue-element-admin) of [PanJiaChen](https://github.com/PanJiaChen). Thanks for his awesome template.
+
+## Linking Results
+
+A task is triggered via `Popen` in python `subprocess` module. A Task ID is will be defined as a variable `CRAWLAB_TASK_ID` in the shell environment to link the data to the task. 
+
+In your spider program, you should store the `CRAWLAB_TASK_ID` value in the database with key `task_id`. Then Crawlab would know how to link those results to a particular task. For now, Crawlab only supports MongoDB. 
+
+```python
+import os
+from pymongo import MongoClient
+
+MONGO_HOST = '192.168.99.100'
+MONGO_PORT = 27017
+MONGO_DB = 'crawlab_test'
+
+# scrapy example in the pipeline
+class JuejinPipeline(object):
+    mongo = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
+    db = mongo[MONGO_DB]
+    col_name = os.environ.get('CRAWLAB_COLLECTION')
+    if not col_name:
+        col_name = 'test'
+    col = db[col_name]
+
+    def process_item(self, item, spider):
+        item['task_id'] = os.environ.get('CRAWLAB_TASK_ID')
+        self.col.save(item)
+        return item
+```
+
+## Comparison with Other Frameworks
