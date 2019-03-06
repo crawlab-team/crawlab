@@ -1,11 +1,14 @@
 import os
-import shutil
+import subprocess
+from multiprocessing import Process
 
-from flask import Flask, logging
+import click
+from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 
-from config import FLASK_HOST, FLASK_PORT, PROJECT_LOGS_FOLDER
+from config import FLASK_HOST, FLASK_PORT, PROJECT_LOGS_FOLDER, BROKER_URL
+from constants.manage import ActionType
 from routes.deploys import DeployApi
 from routes.files import FileApi
 from routes.nodes import NodeApi
@@ -52,9 +55,36 @@ api.add_resource(StatsApi,
                  '/api/stats',
                  '/api/stats/<string:action>')
 
-# create folder if it does not exist
-if not os.path.exists(PROJECT_LOGS_FOLDER):
-    os.makedirs(PROJECT_LOGS_FOLDER)
+
+def run_app():
+    # create folder if it does not exist
+    if not os.path.exists(PROJECT_LOGS_FOLDER):
+        os.makedirs(PROJECT_LOGS_FOLDER)
+
+    # run app instance
+    app.run(host=FLASK_HOST, port=FLASK_PORT)
+
+
+def run_flower():
+    p = subprocess.Popen(['celery', 'flower', '-b', BROKER_URL], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    for line in iter(p.stdout.readline, 'b'):
+        if line.decode('utf-8') != '':
+            print(line.decode('utf-8'))
+
+
+@click.command()
+@click.argument('action', type=click.Choice([ActionType.APP, ActionType.FLOWER, ActionType.RUN_ALL]))
+def main(action):
+    if action == ActionType.APP:
+        run_app()
+    elif action == ActionType.FLOWER:
+        run_flower()
+    elif action == ActionType.RUN_ALL:
+        p_flower = Process(target=run_flower)
+        p_flower.start()
+        p_app = Process(target=run_app)
+        p_app.start()
+
 
 if __name__ == '__main__':
-    app.run(host=FLASK_HOST, port=FLASK_PORT)
+    main()
