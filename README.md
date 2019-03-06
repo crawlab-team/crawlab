@@ -9,7 +9,13 @@ Celery-based web crawler admin platform for managing distributed web spiders reg
 ## Installation
 
 ```bash
-pip install -r requirements.txt
+# install the requirements for backend
+pip install -r ./crawlab/requirements.txt
+```
+
+```bash
+cd frontend
+npm install
 ```
 
 ## Configure
@@ -18,18 +24,14 @@ Please edit configuration file `config.py` to configure api and database connect
 
 ## Quick Start
 ```bash
-# run web app
-python app.py
-
-# run flower app
-python ./bin/run_flower.py
-
-# run worker
-python ./bin/run_worker.py
+# run all services
+python manage.py run_all
 ```
 
 ```bash
-# TODO: frontend
+# run frontend client
+cd frontend
+npm run dev
 ```
 
 ## Architecture

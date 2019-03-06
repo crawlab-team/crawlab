@@ -97,6 +97,8 @@ def main(action):
         p_flower.start()
         p_app = Process(target=run_app)
         p_app.start()
+        p_worker = Process(target=run_worker)
+        p_worker.start()
 
 
 if __name__ == '__main__':
