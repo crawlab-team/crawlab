@@ -1,5 +1,8 @@
 # Crawlab
-Celery-based web crawler admin platform for managing distributed web spiders regardless of languages and frameworks.
+
+Celery-based web crawler admin platform for managing distributed web spiders regardless of languages and frameworks. 
+
+[中文文档](https://github.com/tikazyq/crawlab/blob/master/README-zh.md)
 
 ## Pre-requisite
 - Python3
@@ -69,7 +72,7 @@ In `config.py` file, edit `PROJECT_SOURCE_FILE_FOLDER` as the directory where th
 
 ##### Deploy Spiders
 
-All spiders need to be deployed to a specific node before crawling. Simply click "Deploy" button on spider detail page and select the right node for the deployment. 
+All spiders need to be deployed to a specific node before crawling. Simply click "Deploy" button on spider detail page and the spiders will be deployed to all active nodes. 
 
 ##### Run Spiders
 
