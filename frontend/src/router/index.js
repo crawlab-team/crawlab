@@ -166,8 +166,19 @@ export const constantRouterMap = [
   { path: '*', redirect: '/404', hidden: true }
 ]
 
-export default new Router({
+const router = new Router({
   // mode: 'history', //后端支持可开
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })
+
+router.beforeEach((to, from, next) => {
+  if (to.meta && to.meta.title) {
+    window.document.title = `Crawlab - ${to.meta.title}`
+  } else {
+    window.document.title = 'Crawlab'
+  }
+  next()
+})
+
+export default router

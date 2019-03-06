@@ -241,9 +241,19 @@ export default {
       })
     },
     onDeploy (row) {
-      this.$store.dispatch('spider/getSpiderData', row._id.$oid)
-      this.$store.commit('dialogView/SET_DIALOG_VISIBLE', true)
-      this.$store.commit('dialogView/SET_DIALOG_TYPE', 'spiderDeploy')
+      this.$confirm('Are you sure to deploy this spider?', 'Notification', {
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      }).then(() => {
+        this.$store.dispatch('spider/deploySpider', row._id.$oid)
+          .then(() => {
+            this.$message({
+              type: 'success',
+              message: 'Deployed successfully'
+            })
+          })
+      })
     },
     onCrawl (row) {
       this.$confirm('Are you sure to run this spider', 'Notice', {
@@ -251,7 +261,7 @@ export default {
         cancelButtonText: 'Cancel'
       })
         .then(() => {
-          this.$store.dispatch('spider/crawlSpider', { id: row._id.$oid })
+          this.$store.dispatch('spider/crawlSpider', row._id.$oid)
             .then(() => {
               this.$message.success(`Running spider "${row._id.$oid}" has been scheduled`)
             })

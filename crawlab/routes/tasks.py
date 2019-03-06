@@ -1,3 +1,7 @@
+import json
+
+import requests
+
 from constants.task import TaskStatus
 from db.manager import db_manager
 from routes.base import BaseApi
@@ -57,7 +61,7 @@ class TaskApi(BaseApi):
             'items': items
         })
 
-    def get_log(self, id):
+    def on_get_log(self, id):
         try:
             task = db_manager.get('tasks', id=id)
             with open(task['log_file_path']) as f:
@@ -71,6 +75,28 @@ class TaskApi(BaseApi):
                        'code': 500,
                        'status': 'ok',
                        'error': str(err)
+                   }, 500
+
+    def get_log(self, id):
+        task = db_manager.get('tasks', id=id)
+        node = db_manager.get('nodes', id=task['node_id'])
+        r = requests.get('http://%s:%s/api/tasks/%s/on_get_log' % (
+            node['ip'],
+            node['port'],
+            id
+        ))
+        if r.status_code == 200:
+            data = json.loads(r.content.decode('utf-8'))
+            return {
+                'status': 'ok',
+                'log': data.get('log')
+            }
+        else:
+            data = json.loads(r.content)
+            return {
+                       'code': 500,
+                       'status': 'ok',
+                       'error': data['error']
                    }, 500
 
     def get_results(self, id):

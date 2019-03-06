@@ -79,16 +79,13 @@ const actions = {
         commit('SET_SPIDER_FORM', response.data)
       })
   },
-  deploySpider ({ state, dispatch }, { id, nodeId }) {
-    return request.post(`/spiders/${id}/deploy`, {
-      node_id: nodeId
-    })
+  deploySpider ({ state, dispatch }, id) {
+    return request.post(`/spiders/${id}/deploy`)
       .then(response => {
         console.log(response.data)
       })
   },
-  crawlSpider ({ state, dispatch }, payload) {
-    const { id } = payload
+  crawlSpider ({ state, dispatch }, id) {
     return request.post(`/spiders/${id}/on_crawl`)
       .then(response => {
         console.log(response.data)

@@ -133,10 +133,7 @@ export default {
             this.$store.commit('dialogView/SET_DIALOG_VISIBLE', false)
           })
       } else if (this.dialogType === 'spiderRun') {
-        this.$store.dispatch('spider/crawlSpider', {
-          id: this.spiderForm._id.$oid,
-          nodeId: this.activeNode._id
-        })
+        this.$store.dispatch('spider/crawlSpider', this.spiderForm._id.$oid)
           .then(() => {
             this.$message.success(`Spider "${this.spiderForm.name}" started to run on node "${this.activeNode._id}"`)
           })

@@ -42,7 +42,7 @@
     </el-row>
     <el-row class="button-container" v-if="!isView">
       <el-button type="danger" @click="onRun">Run</el-button>
-      <!--<el-button type="primary" @click="onDeploy">Deploy</el-button>-->
+      <el-button type="primary" @click="onDeploy">Deploy</el-button>
       <el-button type="success" @click="onSave">Save</el-button>
     </el-row>
   </div>
@@ -78,12 +78,12 @@ export default {
       const row = this.spiderForm
       this.$refs['spiderForm'].validate(res => {
         if (res) {
-          this.$confirm('Are you sure to run this spider', 'Notice', {
+          this.$confirm('Are you sure to run this spider?', 'Notice', {
             confirmButtonText: 'Confirm',
             cancelButtonText: 'Cancel'
           })
             .then(() => {
-              this.$store.dispatch('spider/crawlSpider', { id: row._id.$oid })
+              this.$store.dispatch('spider/crawlSpider', row._id.$oid)
                 .then(() => {
                   this.$message.success(`Running spider "${row._id.$oid}" has been scheduled`)
                 })
@@ -92,8 +92,21 @@ export default {
       })
     },
     onDeploy () {
-      this.$store.commit('dialogView/SET_DIALOG_VISIBLE', true)
-      this.$store.commit('dialogView/SET_DIALOG_TYPE', 'spiderDeploy')
+      const row = this.spiderForm
+      this.$refs['spiderForm'].validate(res => {
+        if (res) {
+          this.$confirm('Are you sure to deploy this spider?', 'Notice', {
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel'
+          })
+            .then(() => {
+              this.$store.dispatch('spider/crawlSpider', row._id.$oid)
+                .then(() => {
+                  this.$message.success(`Spider "${row._id.$oid}" has been deployed`)
+                })
+            })
+        }
+      })
     },
     onSave () {
       this.$refs['spiderForm'].validate(res => {

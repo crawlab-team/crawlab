@@ -151,24 +151,12 @@ class SpiderApi(BaseApi):
         }
 
     def deploy(self, id):
-        args = self.parser.parse_args()
-        node_id = args.get('node_id')
+        spider = db_manager.get('spiders', id=id)
+        nodes = db_manager.list('nodes', {})
 
-        # get spider given the id
-        spider = db_manager.get(col_name=self.col_name, id=id)
-        if spider is None:
-            return
+        for node in nodes:
+            node_id = node['_id']
 
-        # get node given the node
-        node = db_manager.get(col_name='nodes', id=node_id)
-
-        # make source / destination
-        src = spider.get('src')
-
-        # copy files
-        # TODO: multi-node copy files
-        try:
-            # TODO: deploy spiders to other node rather than in local machine
             output_file_name = '%s_%s.zip' % (
                 datetime.now().strftime('%Y%m%d%H%M%S'),
                 str(random())[2:12]
@@ -176,7 +164,7 @@ class SpiderApi(BaseApi):
             output_file_path = os.path.join(PROJECT_TMP_FOLDER, output_file_name)
 
             # zip source folder to zip file
-            zip_file(source_dir=src,
+            zip_file(source_dir=spider['src'],
                      output_filename=output_file_path)
 
             # upload to api
@@ -188,27 +176,11 @@ class SpiderApi(BaseApi):
                 node_id,
             ), files=files)
 
-            if r.status_code == 200:
-                return {
-                    'code': 200,
-                    'status': 'ok',
-                    'message': 'deploy success'
-                }
-
-            else:
-                return {
-                           'code': r.status_code,
-                           'status': 'ok',
-                           'error': r.content.decode('utf-8')
-                       }, r.status_code
-
-        except Exception as err:
-            current_app.logger.error(err)
-            return {
-                       'code': 500,
-                       'status': 'ok',
-                       'error': str(err)
-                   }, 500
+        return {
+            'code': 200,
+            'status': 'ok',
+            'message': 'deploy success'
+        }
 
     def deploy_file(self, id=None):
         args = parser.parse_args()
