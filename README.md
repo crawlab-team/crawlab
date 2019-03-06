@@ -14,6 +14,7 @@ pip install -r ./crawlab/requirements.txt
 ```
 
 ```bash
+# install frontend node modules
 cd frontend
 npm install
 ```
