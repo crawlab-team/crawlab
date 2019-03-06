@@ -1,11 +1,16 @@
 import os
 import subprocess
+import sys
 from multiprocessing import Process
 
 import click
 from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
+
+file_dir = os.path.dirname(os.path.realpath(__file__))
+root_path = os.path.abspath(os.path.join(file_dir, '.'))
+sys.path.append(root_path)
 
 from config import FLASK_HOST, FLASK_PORT, PROJECT_LOGS_FOLDER, BROKER_URL
 from constants.manage import ActionType
@@ -15,6 +20,7 @@ from routes.nodes import NodeApi
 from routes.spiders import SpiderApi, SpiderImportApi, SpiderManageApi
 from routes.stats import StatsApi
 from routes.tasks import TaskApi
+from tasks.celery import celery_app
 
 # flask app instance
 app = Flask(__name__)
@@ -70,6 +76,13 @@ def run_flower():
     for line in iter(p.stdout.readline, 'b'):
         if line.decode('utf-8') != '':
             print(line.decode('utf-8'))
+
+
+def run_worker():
+    if sys.platform == 'windows':
+        celery_app.start(argv=['tasks', 'worker', '-P', 'eventlet', '-E', '-l', 'INFO'])
+    else:
+        celery_app.start(argv=['tasks', 'worker', '-E', '-l', 'INFO'])
 
 
 @click.command()
