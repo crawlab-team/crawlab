@@ -122,10 +122,31 @@ class JuejinPipeline(object):
 
 ## Comparison with Other Frameworks
 
+There are existing spider management frameworks. So why use Crawlab? 
+
+The reason is that most of the existing platforms are depending on Scrapyd, which limits the choice only within python and scrapy. Surely scrapy is a great web crawl frameowrk, but it cannot do everything. 
+
+Crawlab is easy to use, general enough to adapt spiders in any language and any framework. It has also a beautiful frontend interface for users to manage spiders much more easily. 
+
 |Framework | Type | Distributed | Frontend | Scrapyd-Dependent |
-|---|---|---|---|---|
-| Crawlab | Admin Platform | Y | Y | N
-| Gerapy | Admin Platform | Y | Y | Y
-| SpiderKeeper | Admin Platform | Y | Y | Y
-| ScrapyAdmin | Admin Platform | Y | Y | Y
-| Scrapyd | Web Service | Y | N | N/A
+|:---:|:---:|:---:|:---:|:---:|
+| [Crawlab](https://github.com/tikazyq/crawlab) | Admin Platform | Y | Y | N
+| [Gerapy](https://github.com/Gerapy/Gerapy) | Admin Platform | Y | Y | Y
+| [SpiderKeeper](https://github.com/DormyMo/SpiderKeeper) | Admin Platform | Y | Y | Y
+| [ScrapydWeb](https://github.com/my8100/scrapydweb) | Admin Platform | Y | Y | Y
+| [Scrapyd](https://github.com/scrapy/scrapyd) | Web Service | Y | N | N/A
+
+## TODOs
+##### Backend
+- [ ] File Management
+- [ ] MySQL Database Support
+- [ ] Task Restart
+- [ ] Node Monitoring
+- [ ] More spider examples
+
+##### Frontend
+- [ ] Task Stats/Analytics
+- [ ] Table Filters
+- [ ] Multi-Language Support (中文)
+- [ ] Login & User Management
+- [ ] General Search
