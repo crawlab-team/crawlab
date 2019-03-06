@@ -121,3 +121,11 @@ class JuejinPipeline(object):
 ```
 
 ## Comparison with Other Frameworks
+
+|Framework | Type | Distributed | Frontend | Scrapyd-Dependent |
+|---|---|---|---|---|
+| Crawlab | Admin Platform | Y | Y | N
+| Gerapy | Admin Platform | Y | Y | Y
+| SpiderKeeper | Admin Platform | Y | Y | Y
+| ScrapyAdmin | Admin Platform | Y | Y | Y
+| Scrapyd | Web Service | Y | N | N/A
