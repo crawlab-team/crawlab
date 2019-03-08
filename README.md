@@ -2,6 +2,8 @@
 
 Celery-based web crawler admin platform for managing distributed web spiders regardless of languages and frameworks. 
 
+[Demo](http://139.129.230.98:8080)
+
 [中文文档](https://github.com/tikazyq/crawlab/blob/master/README-zh.md)
 
 ## Pre-requisite

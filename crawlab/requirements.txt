@@ -1,4 +1,5 @@
 amqp==2.4.1
+apscheduler==3.5.3
 aniso8601==4.1.0
 asn1crypto==0.24.0
 attrs==18.2.0
