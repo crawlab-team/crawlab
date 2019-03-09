@@ -1,10 +1,7 @@
 import os
-import sys
 from datetime import datetime
 
-import requests
 from bson import ObjectId
-from celery import current_app
 from celery.utils.log import get_logger
 
 from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_LOGS_FOLDER
@@ -52,7 +49,8 @@ def execute_spider(self, id: str):
     # execute the command
     env = os.environ.copy()
     env['CRAWLAB_TASK_ID'] = task_id
-    env['CRAWLAB_COLLECTION'] = spider.get('col')
+    if spider.get('col'):
+        env['CRAWLAB_COLLECTION'] = spider.get('col')
     p = subprocess.Popen(command.split(' '),
                          stdout=stdout.fileno(),
                          stderr=stderr.fileno(),

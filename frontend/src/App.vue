@@ -48,4 +48,8 @@ export default {
     margin-top: 10px;
     text-align: right;
   }
+
+  .el-form .el-form-item {
+    margin-bottom: 10px;
+  }
 </style>

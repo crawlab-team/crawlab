@@ -67,59 +67,10 @@ api.add_resource(ScheduleApi,
                  '/api/schedules',
                  '/api/schedules/<string:id>')
 
-
-def run_app():
+if __name__ == '__main__':
     # create folder if it does not exist
     if not os.path.exists(PROJECT_LOGS_FOLDER):
         os.makedirs(PROJECT_LOGS_FOLDER)
 
     # run app instance
-    app.run(host=FLASK_HOST, port=FLASK_PORT)
-
-
-def run_flower():
-    p = subprocess.Popen(['celery', 'flower', '-b', BROKER_URL], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    for line in iter(p.stdout.readline, 'b'):
-        if line.decode('utf-8') != '':
-            print(line.decode('utf-8'))
-
-
-def run_worker():
-    if sys.platform == 'windows':
-        celery_app.start(argv=['tasks', 'worker', '-P', 'eventlet', '-E', '-l', 'INFO'])
-    else:
-        celery_app.start(argv=['tasks', 'worker', '-E', '-l', 'INFO'])
-
-
-def run_scheduler():
-    scheduler.run()
-
-
-@click.command()
-@click.argument('action', type=click.Choice([ActionType.APP,
-                                             ActionType.FLOWER,
-                                             ActionType.WORKER,
-                                             ActionType.SCHEDULER,
-                                             ActionType.RUN_ALL]))
-def main(action):
-    if action == ActionType.APP:
-        run_app()
-    elif action == ActionType.FLOWER:
-        run_flower()
-    elif action == ActionType.WORKER:
-        run_worker()
-    elif action == ActionType.SCHEDULER:
-        run_scheduler()
-    elif action == ActionType.RUN_ALL:
-        p_flower = Process(target=run_flower)
-        p_flower.start()
-        p_app = Process(target=run_app)
-        p_app.start()
-        p_worker = Process(target=run_worker)
-        p_worker.start()
-        p_scheduler = Process(target=run_scheduler)
-        p_scheduler.start()
-
-
-if __name__ == '__main__':
-    main()
+    app.run(host=FLASK_HOST, port=FLASK_PORT, threaded=True)

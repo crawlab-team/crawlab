@@ -12,6 +12,11 @@ class LangType:
     OTHER = 'other'
 
 
+class CronEnabled:
+    ON = 1
+    OFF = 0
+
+
 SUFFIX_IGNORE = [
     'pyc'
 ]

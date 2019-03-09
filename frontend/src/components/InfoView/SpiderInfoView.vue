@@ -38,6 +38,23 @@
             <el-option value="go" label="Go"></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="Schedule Enabled">
+          <el-switch v-model="spiderForm.cron_enabled" :disabled="isView">
+          </el-switch>
+        </el-form-item>
+        <el-form-item label="Schedule Cron" v-if="spiderForm.cron_enabled" prop="cron" :rules="cronRules">
+          <template slot="label">
+            <el-tooltip content="Cron Format: [second] [minute] [hour] [day of month] [month] [day of week]"
+                        placement="top">
+              <span>
+                Schedule Cron
+                <i class="fa fa-exclamation-circle"></i>
+              </span>
+            </el-tooltip>
+          </template>
+          <el-input v-model="spiderForm.cron" placeholder="Schedule Cron"
+                    :disabled="isView"></el-input>
+        </el-form-item>
       </el-form>
     </el-row>
     <el-row class="button-container" v-if="!isView">
@@ -62,9 +79,27 @@ export default {
     }
   },
   data () {
+    const cronValidator = (rule, value, callback) => {
+      let patArr = []
+      for (let i = 0; i < 6; i++) {
+        patArr.push('[/*,0-9]+')
+      }
+      const pat = '^' + patArr.join(' ') + '$'
+      if (this.spiderForm.cron_enabled) {
+        if (!value) {
+          callback(new Error('cron cannot be empty'))
+        } else if (!value.match(pat)) {
+          callback(new Error('cron format is invalid'))
+        }
+      }
+      callback()
+    }
     return {
       cmdRule: [
         { message: 'Execute Command should not be empty', required: true }
+      ],
+      cronRules: [
+        { validator: cronValidator, trigger: 'blur' }
       ]
     }
   },

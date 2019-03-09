@@ -133,6 +133,27 @@ export const constantRouterMap = [
     ]
   },
   {
+    name: 'Schedule',
+    path: '/schedules',
+    component: Layout,
+    meta: {
+      title: 'Schedules',
+      icon: 'fa fa-calendar'
+    },
+    hidden: true,
+    children: [
+      {
+        path: '',
+        name: 'ScheduleList',
+        component: () => import('../views/schedule/ScheduleList'),
+        meta: {
+          title: 'Schedules',
+          icon: 'fa fa-calendar'
+        }
+      }
+    ]
+  },
+  {
     name: 'Deploy',
     path: '/deploys',
     component: Layout,

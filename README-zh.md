@@ -14,7 +14,7 @@
 
 ```bash
 # 安装后台类库
-pip install -r ./crawlab/requirements.txt
+pip install -r requirements.txt
 ```
 
 ```bash

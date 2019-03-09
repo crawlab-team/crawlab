@@ -47,6 +47,12 @@ class SpiderApi(BaseApi):
 
         # spider results collection
         ('col', str),
+
+        # spider schedule cron
+        ('cron', str),
+
+        # spider schedule cron enabled
+        ('cron_enabled', int),
     )
 
     def get(self, id=None, action=None):

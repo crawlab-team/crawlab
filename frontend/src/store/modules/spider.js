@@ -48,7 +48,10 @@ const actions = {
       src: state.spiderForm.src,
       cmd: state.spiderForm.cmd,
       type: state.spiderForm.type,
-      lang: state.spiderForm.lang
+      lang: state.spiderForm.lang,
+      col: state.spiderForm.col,
+      cron: state.spiderForm.cron,
+      cron_enabled: state.spiderForm.cron_enabled ? 1 : 0
     })
       .then(() => {
         dispatch('getSpiderList')
@@ -61,7 +64,9 @@ const actions = {
       cmd: state.spiderForm.cmd,
       type: state.spiderForm.type,
       lang: state.spiderForm.lang,
-      col: state.spiderForm.col
+      col: state.spiderForm.col,
+      cron: state.spiderForm.cron,
+      cron_enabled: state.spiderForm.cron_enabled ? 1 : 0
     })
       .then(() => {
         dispatch('getSpiderList')
@@ -76,7 +81,9 @@ const actions = {
   getSpiderData ({ state, commit }, id) {
     return request.get(`/spiders/${id}`)
       .then(response => {
-        commit('SET_SPIDER_FORM', response.data)
+        let data = response.data
+        data.cron_enabled = !!data.cron_enabled
+        commit('SET_SPIDER_FORM', data)
       })
   },
   deploySpider ({ state, dispatch }, id) {

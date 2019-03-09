@@ -15,7 +15,7 @@ Celery-based web crawler admin platform for managing distributed web spiders reg
 
 ```bash
 # install the requirements for backend
-pip install -r ./crawlab/requirements.txt
+pip install -r requirements.txt
 ```
 
 ```bash
