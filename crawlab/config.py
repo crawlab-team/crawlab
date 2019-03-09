@@ -29,5 +29,5 @@ MONGO_DB = 'crawlab_test'
 
 # flask variables
 DEBUG = True
-FLASK_HOST = '0.0.0.0'
-FLASK_PORT = 5000
+FLASK_HOST = '127.0.0.1'
+FLASK_PORT = 8000

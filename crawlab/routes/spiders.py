@@ -16,6 +16,7 @@ from constants.node import NodeStatus
 from constants.task import TaskStatus
 from db.manager import db_manager
 from routes.base import BaseApi
+from tasks.scheduler import scheduler
 from tasks.spider import execute_spider
 from utils import jsonify
 from utils.deploy import zip_file, unzip_file
@@ -24,6 +25,10 @@ from utils.spider import get_lang_by_stats
 
 parser = reqparse.RequestParser()
 parser.add_argument('file', type=FileStorage, location='files')
+
+IGNORE_DIRS = [
+    '.idea'
+]
 
 
 class SpiderApi(BaseApi):
@@ -75,6 +80,9 @@ class SpiderApi(BaseApi):
             items = []
             dirs = os.listdir(PROJECT_SOURCE_FILE_FOLDER)
             for _dir in dirs:
+                if _dir in IGNORE_DIRS:
+                    continue
+
                 dir_path = os.path.join(PROJECT_SOURCE_FILE_FOLDER, _dir)
                 dir_name = _dir
                 spider = db_manager.get_one_by_key('spiders', key='src', value=dir_path)
@@ -273,6 +281,9 @@ class SpiderApi(BaseApi):
             'status': 'ok',
             'items': items
         })
+
+    def after_update(self, id=None):
+        scheduler.update()
 
 
 class SpiderImportApi(Resource):

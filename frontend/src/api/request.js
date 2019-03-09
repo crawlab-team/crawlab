@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const baseUrl = 'http://localhost:5000/api'
+const baseUrl = 'http://localhost:8000/api'
+// const baseUrl = 'http://139.129.230.98:8000/api'
 
 const request = (method, path, params, data) => {
   return new Promise((resolve, reject) => {

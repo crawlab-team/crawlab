@@ -105,6 +105,10 @@ class BaseApi(Resource):
             if k not in DEFAULT_ARGS:
                 values[k] = args.get(k)
         item = db_manager.update_one(col_name=self.col_name, id=id, values=values)
+
+        # execute after_update hook
+        self.after_update(id)
+
         return item
 
     def post(self, id=None, action=None):
@@ -122,3 +126,6 @@ class BaseApi(Resource):
 
     def delete(self, id=None):
         db_manager.remove_one(col_name=self.col_name, id=id)
+
+    def after_update(self, id=None):
+        pass

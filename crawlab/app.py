@@ -15,15 +15,13 @@ file_dir = os.path.dirname(os.path.realpath(__file__))
 root_path = os.path.abspath(os.path.join(file_dir, '.'))
 sys.path.append(root_path)
 
-from config import FLASK_HOST, FLASK_PORT, PROJECT_LOGS_FOLDER, BROKER_URL
-from constants.manage import ActionType
+from config import FLASK_HOST, FLASK_PORT, PROJECT_LOGS_FOLDER
 from routes.deploys import DeployApi
 from routes.files import FileApi
 from routes.nodes import NodeApi
 from routes.spiders import SpiderApi, SpiderImportApi, SpiderManageApi
 from routes.stats import StatsApi
 from routes.tasks import TaskApi
-from tasks.celery import celery_app
 
 # flask app instance
 app = Flask(__name__)
@@ -71,6 +69,9 @@ if __name__ == '__main__':
     # create folder if it does not exist
     if not os.path.exists(PROJECT_LOGS_FOLDER):
         os.makedirs(PROJECT_LOGS_FOLDER)
+
+    # run scheduler as a separate process
+    scheduler.run()
 
     # run app instance
     app.run(host=FLASK_HOST, port=FLASK_PORT, threaded=True)
