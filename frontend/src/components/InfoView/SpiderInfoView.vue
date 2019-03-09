@@ -15,7 +15,7 @@
         <el-form-item label="Source Folder">
           <el-input v-model="spiderForm.src" placeholder="Source Folder" disabled></el-input>
         </el-form-item>
-        <el-form-item label="Execute Command" prop="cmd" required>
+        <el-form-item label="Execute Command" prop="cmd" required :inline-message="true">
           <el-input v-model="spiderForm.cmd" placeholder="Execute Command"
                     :disabled="isView"></el-input>
         </el-form-item>
@@ -42,7 +42,10 @@
           <el-switch v-model="spiderForm.cron_enabled" :disabled="isView">
           </el-switch>
         </el-form-item>
-        <el-form-item label="Schedule Cron" v-if="spiderForm.cron_enabled" prop="cron" :rules="cronRules">
+        <el-form-item label="Schedule Cron" v-if="spiderForm.cron_enabled"
+                      prop="cron"
+                      :rules="cronRules"
+                      :inline-message="true">
           <template slot="label">
             <el-tooltip content="Cron Format: [second] [minute] [hour] [day of month] [month] [day of week]"
                         placement="top">
