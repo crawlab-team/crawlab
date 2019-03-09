@@ -38,7 +38,8 @@
       </el-form>
     </el-row>
     <el-row class="button-container">
-      <el-button type="danger" @click="onRestart">Restart</el-button>
+      <el-button v-if="isRunning" type="danger" @click="onStop">Stop</el-button>
+      <!--<el-button type="danger" @click="onRestart">Restart</el-button>-->
     </el-row>
   </div>
 </template>
@@ -53,10 +54,19 @@ export default {
   computed: {
     ...mapState('task', [
       'taskForm'
-    ])
+    ]),
+    isRunning () {
+      return !['SUCCESS', 'FAILURE'].includes(this.taskForm.status)
+    }
   },
   methods: {
-    Restart () {
+    onRestart () {
+    },
+    onStop () {
+      this.$store.dispatch('task/stopTask', this.$route.params.id)
+        .then(() => {
+          this.$message.success(`Task "${this.$route.params.id}" has been sent signal to stop`)
+        })
     }
   }
 }

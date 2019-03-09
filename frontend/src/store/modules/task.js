@@ -57,6 +57,12 @@ const actions = {
         dispatch('getTaskList')
       })
   },
+  stopTask ({ state, dispatch }, id) {
+    return request.post(`/tasks/${id}/stop`)
+      .then(() => {
+        dispatch('getTaskList')
+      })
+  },
   getTaskLog ({ state, commit }, id) {
     return request.get(`/tasks/${id}/get_log`)
       .then(response => {

@@ -1,6 +1,7 @@
 import json
 
 import requests
+from celery.worker.control import revoke
 
 from constants.task import TaskStatus
 from db.manager import db_manager
@@ -112,3 +113,10 @@ class TaskApi(BaseApi):
             'fields': fields,
             'items': items
         })
+
+    def stop(self, id):
+        revoke(id, terminate=True)
+        return {
+            'id': id,
+            'status': 'ok',
+        }
