@@ -107,6 +107,10 @@ class TaskApi(BaseApi):
                    }, 500
 
     def get_results(self, id):
+        args = self.parser.parse_args()
+        page_size = args.get('page_size') or 10
+        page_num = args.get('page_num') or 1
+
         task = db_manager.get('tasks', id=id)
         spider = db_manager.get('spiders', id=task['spider_id'])
         col_name = spider.get('col')
@@ -117,6 +121,9 @@ class TaskApi(BaseApi):
         return {
             'status': 'ok',
             'fields': jsonify(fields),
+            'total_count': db_manager.count(col_name, {'task_id': id}),
+            'page_num': page_num,
+            'page_size': page_size,
             'items': jsonify(items)
         }
 

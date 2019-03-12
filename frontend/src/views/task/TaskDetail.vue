@@ -13,7 +13,11 @@
         </div>
       </el-tab-pane>
       <el-tab-pane label="Results" name="results">
-        <general-table-view :data="taskResultsData" :columns="taskResultsColumns"/>
+        <general-table-view :data="taskResultsData"
+                            :columns="taskResultsColumns"
+                            :page-num="resultsPageNum"
+                            :page-size="resultsPageSize"
+                            :total="taskResultsTotalCount"/>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -41,14 +45,31 @@ export default {
     ...mapState('task', [
       'taskLog',
       'taskResultsData',
-      'taskResultsColumns'
+      'taskResultsColumns',
+      'taskResultsTotalCount'
     ]),
     ...mapState('file', [
       'currentPath'
     ]),
     ...mapState('deploy', [
       'deployList'
-    ])
+    ]),
+    resultsPageNum: {
+      get () {
+        return this.$store.state.task.resultsPageNum
+      },
+      set (value) {
+        this.$store.commit('task/SET_RESULTS_PAGE_NUM', value)
+      }
+    },
+    resultsPageSize: {
+      get () {
+        return this.$store.state.task.resultsPageSize
+      },
+      set (value) {
+        this.$store.commit('task/SET_RESULTS_PAGE_SIZE', value)
+      }
+    }
   },
   methods: {
     onTabClick () {

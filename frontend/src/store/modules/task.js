@@ -9,9 +9,13 @@ const state = {
   taskLog: '',
   taskResultsData: [],
   taskResultsColumns: [],
+  taskResultsTotalCount: 0,
   // pagination
   pageNum: 0,
-  pageSize: 10
+  pageSize: 10,
+  // results
+  resultsPageNum: 0,
+  resultsPageSize: 10
 }
 
 const getters = {}
@@ -40,6 +44,15 @@ const mutations = {
   },
   SET_TASK_LIST_TOTAL_COUNT (state, value) {
     state.taskListTotalCount = value
+  },
+  SET_RESULTS_PAGE_NUM (state, value) {
+    state.resultsPageNum = value
+  },
+  SET_RESULTS_PAGE_SIZE (state, value) {
+    state.resultsPageSize = value
+  },
+  SET_TASK_RESULTS_TOTAL_COUNT (state, value) {
+    state.taskResultsTotalCount = value
   }
 }
 
@@ -87,10 +100,15 @@ const actions = {
       })
   },
   getTaskResults ({ state, commit }, id) {
-    return request.get(`/tasks/${id}/get_results`)
+    return request.get(`/tasks/${id}/get_results`, {
+      page_num: state.resultsPageNum,
+      page_size: state.resultsPageSize
+    })
       .then(response => {
         commit('SET_TASK_RESULTS_DATA', response.data.items)
         commit('SET_TASK_RESULTS_COLUMNS', response.data.fields)
+        commit('SET_TASK_RESULTS_COLUMNS', response.data.fields)
+        commit('SET_TASK_RESULTS_TOTAL_COUNT', response.data.total_count)
       })
   }
 }

@@ -11,11 +11,13 @@
     </el-table>
     <div class="pagination">
       <el-pagination
-        :current-page.sync="pagination.pageNum"
+        @current-change="onPageChange"
+        @size-change="onPageChange"
+        :current-page.sync="pageNum"
         :page-sizes="[10, 20, 50, 100]"
-        :page-size.sync="pagination.pageSize"
+        :page-size.sync="pageSize"
         layout="sizes, prev, pager, next"
-        :total="data.length">
+        :total="total">
       </el-pagination>
     </div>
   </div>
@@ -25,14 +27,21 @@
 export default {
   name: 'GeneralTableView',
   data () {
-    return {
-      pagination: {
-        pageNum: 1,
-        pageSize: 10
-      }
-    }
+    return {}
   },
   props: {
+    pageNum: {
+      type: Number,
+      default: 1
+    },
+    pageSize: {
+      type: Number,
+      default: 10
+    },
+    total: {
+      type: Number,
+      default: 0
+    },
     columns: {
       type: Array,
       default () {
@@ -52,9 +61,15 @@ export default {
         .map(d => d)
         .filter((d, index) => {
           // pagination
-          const { pageNum, pageSize } = this.pagination
+          const pageNum = this.pageNum
+          const pageSize = this.pageSize
           return (pageSize * (pageNum - 1) <= index) && (index < pageSize * pageNum)
         })
+    }
+  },
+  methods: {
+    onPageChange () {
+      this.$emit('page-change')
     }
   }
 }
