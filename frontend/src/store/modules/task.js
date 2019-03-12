@@ -4,10 +4,14 @@ import request from '../../api/request'
 const state = {
   // TaskList
   taskList: [],
+  taskListTotalCount: 0,
   taskForm: {},
   taskLog: '',
   taskResultsData: [],
-  taskResultsColumns: []
+  taskResultsColumns: [],
+  // pagination
+  pageNum: 0,
+  pageSize: 10
 }
 
 const getters = {}
@@ -27,6 +31,15 @@ const mutations = {
   },
   SET_TASK_RESULTS_COLUMNS (state, value) {
     state.taskResultsColumns = value
+  },
+  SET_PAGE_NUM (state, value) {
+    state.pageNum = value
+  },
+  SET_PAGE_SIZE (state, value) {
+    state.pageSize = value
+  },
+  SET_TASK_LIST_TOTAL_COUNT (state, value) {
+    state.taskListTotalCount = value
   }
 }
 
@@ -46,9 +59,13 @@ const actions = {
       })
   },
   getTaskList ({ state, commit }) {
-    return request.get('/tasks', {})
+    return request.get('/tasks', {
+      page_num: state.pageNum,
+      page_size: state.pageSize
+    })
       .then(response => {
         commit('SET_TASK_LIST', response.data.items)
+        commit('SET_TASK_LIST_TOTAL_COUNT', response.data.total_count)
       })
   },
   deleteTask ({ state, dispatch }, id) {

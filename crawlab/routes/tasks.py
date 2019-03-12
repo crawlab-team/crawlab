@@ -36,8 +36,6 @@ class TaskApi(BaseApi):
             if _task:
                 if not task.get('status'):
                     task['status'] = _task['status']
-            # else:
-            #     task['status'] = TaskStatus.UNAVAILABLE
             task['result'] = _task['result']
             task['spider_name'] = _spider['name']
             try:
@@ -47,7 +45,11 @@ class TaskApi(BaseApi):
                 task['log'] = ''
             return jsonify(task)
 
-        tasks = db_manager.list('tasks', {}, limit=1000, sort_key='finish_ts')
+        # list tasks
+        args = self.parser.parse_args()
+        page_size = args.get('page_size') or 10
+        page_num = args.get('page_num') or 1
+        tasks = db_manager.list('tasks', {}, limit=page_size, skip=page_size * (page_num - 1), sort_key='finish_ts')
         items = []
         for task in tasks:
             _task = db_manager.get('tasks_celery', id=task['_id'])
@@ -60,6 +62,9 @@ class TaskApi(BaseApi):
             items.append(task)
         return {
             'status': 'ok',
+            'total_count': db_manager.count('tasks', {}),
+            'page_num': page_num,
+            'page_size': page_size,
             'items': jsonify(items)
         }
 

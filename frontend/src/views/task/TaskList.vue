@@ -75,14 +75,16 @@
       </el-table-column>
     </el-table>
     <div class="pagination">
+      pageNum: {{pageNum}}
+      pageSize: {{pageSize}}
       <el-pagination
         @current-change="onPageChange"
         @size-change="onPageChange"
-        :current-page.sync="pagination.pageNum"
+        :current-page.sync="pageNum"
         :page-sizes="[10, 20, 50, 100]"
-        :page-size.sync="pagination.pageSize"
+        :page-size.sync="pageSize"
         layout="sizes, prev, pager, next"
-        :total="taskList.length">
+        :total="taskListTotalCount">
       </el-pagination>
     </div>
   </div>
@@ -92,16 +94,11 @@
 import {
   mapState
 } from 'vuex'
-import dayjs from 'dayjs'
 
 export default {
   name: 'TaskList',
   data () {
     return {
-      pagination: {
-        pageNum: 0,
-        pageSize: 10
-      },
       isEditMode: false,
       dialogVisible: false,
       filter: {
@@ -120,21 +117,28 @@ export default {
   computed: {
     ...mapState('task', [
       'taskList',
+      'taskListTotalCount',
       'taskForm'
     ]),
+    pageNum: {
+      get () {
+        return this.$store.state.task.pageNum
+      },
+      set (value) {
+        this.$store.commit('task/SET_PAGE_NUM', value)
+      }
+    },
+    pageSize: {
+      get () {
+        return this.$store.state.task.pageSize
+      },
+      set (value) {
+        this.$store.commit('task/SET_PAGE_SIZE', value)
+      }
+    },
     filteredTableData () {
       return this.taskList
-        .map(d => {
-          if (d.create_ts) d.create_ts = dayjs(d.create_ts.$date).format('YYYY-MM-DD HH:mm:ss')
-          if (d.finish_ts) d.finish_ts = dayjs(d.finish_ts.$date).format('YYYY-MM-DD HH:mm:ss')
-
-          try {
-            d.spider_id = d.spider_id
-          } catch (e) {
-            if (d.spider_id) d.spider_id = d.spider_id.toString()
-          }
-          return d
-        })
+        .map(d => d)
         .sort((a, b) => a.create_ts < b.create_ts ? 1 : -1)
         .filter(d => {
           // keyword
@@ -147,11 +151,12 @@ export default {
           }
           return false
         })
-        .filter((d, index) => {
-          // pagination
-          const { pageNum, pageSize } = this.pagination
-          return (pageSize * (pageNum - 1) <= index) && (index < pageSize * pageNum)
-        })
+        // .filter((d, index) => {
+        //   // pagination
+        //   const pageNum = this.pageNum
+        //   const pageSize = this.pageSize
+        //   return (pageSize * (pageNum - 1) <= index) && (index < pageSize * pageNum)
+        // })
     }
   },
   methods: {
@@ -186,7 +191,9 @@ export default {
       this.$router.push(`/nodes/${row.node_id}`)
     },
     onPageChange () {
-      this.$store.dispatch('task/getTaskList')
+      setTimeout(() => {
+        this.$store.dispatch('task/getTaskList')
+      }, 0)
     }
   },
   created () {

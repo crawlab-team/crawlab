@@ -4,7 +4,7 @@ from db.manager import db_manager
 from utils import jsonify
 
 DEFAULT_ARGS = [
-    'page',
+    'page_num',
     'page_size',
     'filter'
 ]
@@ -17,7 +17,7 @@ class BaseApi(Resource):
 
     def __init__(self):
         super(BaseApi).__init__()
-        self.parser.add_argument('page', type=int)
+        self.parser.add_argument('page_num', type=int)
         self.parser.add_argument('page_size', type=int)
         self.parser.add_argument('filter', type=dict)
 
@@ -47,7 +47,7 @@ class BaseApi(Resource):
 
             # page number
             page = 1
-            if args.get('page') is not None:
+            if args.get('page_num') is not None:
                 page = args.page
                 # page = int(args.page)
 
@@ -73,7 +73,7 @@ class BaseApi(Resource):
             return jsonify({
                 'status': 'ok',
                 'total_count': total_count,
-                'page': page,
+                'page_num': page,
                 'page_size': page_size,
                 'items': items
             })

@@ -49,19 +49,7 @@ export default {
   computed: {
     filteredData () {
       return this.data
-        .map(d => {
-          for (let k in d) {
-            if (d.hasOwnProperty(k)) {
-              if (d[k] === undefined || d[k] === null) continue
-              if (typeof d[k] === 'object') {
-                if (d[k]) {
-                  d[k] = d[k]
-                }
-              }
-            }
-          }
-          return d
-        })
+        .map(d => d)
         .filter((d, index) => {
           // pagination
           const { pageNum, pageSize } = this.pagination
