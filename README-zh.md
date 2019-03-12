@@ -36,7 +36,7 @@ python manage.py run_all
 ```bash
 # 运行前端
 cd frontend
-npm run dev
+npm run serve
 ```
 
 ## 截图

@@ -37,7 +37,7 @@ python manage.py run_all
 ```bash
 # run frontend client
 cd frontend
-npm run dev
+npm run serve
 ```
 
 ## Screenshot
