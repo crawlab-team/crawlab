@@ -3,8 +3,8 @@
     <!--selector-->
     <div class="selector">
       <label class="label">Spider: </label>
-      <el-select v-model="spiderForm._id.$oid" @change="onSpiderChange">
-        <el-option v-for="op in spiderList" :key="op._id.$oid" :value="op._id.$oid" :label="op.name"></el-option>
+      <el-select v-model="spiderForm._id" @change="onSpiderChange">
+        <el-option v-for="op in spiderList" :key="op._id" :value="op._id" :label="op.name"></el-option>
       </el-select>
     </div>
 

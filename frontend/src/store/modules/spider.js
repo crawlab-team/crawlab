@@ -58,7 +58,7 @@ const actions = {
       })
   },
   editSpider ({ state, dispatch }) {
-    return request.post(`/spiders/${state.spiderForm._id.$oid}`, {
+    return request.post(`/spiders/${state.spiderForm._id}`, {
       name: state.spiderForm.name,
       src: state.spiderForm.src,
       cmd: state.spiderForm.cmd,

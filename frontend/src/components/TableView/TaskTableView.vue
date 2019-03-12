@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     onClickSpider (row) {
-      this.$router.push(`/spiders/${row.spider_id.$oid}`)
+      this.$router.push(`/spiders/${row.spider_id}`)
     },
     onClickNode (row) {
       this.$router.push(`/nodes/${row.node_id}`)

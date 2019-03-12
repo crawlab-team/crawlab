@@ -41,7 +41,7 @@ const actions = {
         if (data.create_ts) data.create_ts = dayjs(data.create_ts.$date).format('YYYY-MM-DD HH:mm:ss')
         if (data.finish_ts) data.finish_ts = dayjs(data.finish_ts.$date).format('YYYY-MM-DD HH:mm:ss')
         commit('SET_TASK_FORM', data)
-        dispatch('spider/getSpiderData', data.spider_id.$oid, { root: true })
+        dispatch('spider/getSpiderData', data.spider_id, { root: true })
         dispatch('node/getNodeData', data.node_id, { root: true })
       })
   },

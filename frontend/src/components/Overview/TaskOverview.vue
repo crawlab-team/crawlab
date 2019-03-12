@@ -54,7 +54,7 @@ export default {
       this.$router.push(`/nodes/${this.nodeForm._id}`)
     },
     onClickSpiderTitle () {
-      this.$router.push(`/spiders/${this.spiderForm._id.$oid}`)
+      this.$router.push(`/spiders/${this.spiderForm._id}`)
     }
   },
   created () {

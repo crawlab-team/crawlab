@@ -35,7 +35,7 @@ class DeployApi(BaseApi):
                 spider = db_manager.get('spiders', id=str(spider_id))
                 item['spider_name'] = spider['name']
                 deploys.append(item)
-            return jsonify({
+            return {
                 'status': 'ok',
-                'items': deploys
-            })
+                'items': jsonify(deploys)
+            }

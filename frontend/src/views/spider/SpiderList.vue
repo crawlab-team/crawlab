@@ -231,7 +231,7 @@ export default {
         cancelButtonText: 'Cancel',
         type: 'warning'
       }).then(() => {
-        this.$store.dispatch('spider/deleteSpider', row._id.$oid)
+        this.$store.dispatch('spider/deleteSpider', row._id)
           .then(() => {
             this.$message({
               type: 'success',
@@ -246,7 +246,7 @@ export default {
         cancelButtonText: 'Cancel',
         type: 'warning'
       }).then(() => {
-        this.$store.dispatch('spider/deploySpider', row._id.$oid)
+        this.$store.dispatch('spider/deploySpider', row._id)
           .then(() => {
             this.$message({
               type: 'success',
@@ -261,14 +261,14 @@ export default {
         cancelButtonText: 'Cancel'
       })
         .then(() => {
-          this.$store.dispatch('spider/crawlSpider', row._id.$oid)
+          this.$store.dispatch('spider/crawlSpider', row._id)
             .then(() => {
-              this.$message.success(`Running spider "${row._id.$oid}" has been scheduled`)
+              this.$message.success(`Running spider "${row._id}" has been scheduled`)
             })
         })
     },
     onView (row) {
-      this.$router.push(`/spiders/${row._id.$oid}`)
+      this.$router.push(`/spiders/${row._id}`)
     },
     onPageChange () {
       this.$store.dispatch('spider/getSpiderList')

@@ -38,10 +38,10 @@ class NodeApi(BaseApi):
             # iterate db nodes to update status
             nodes = db_manager.list('nodes', {})
 
-            return jsonify({
+            return {
                 'status': 'ok',
-                'items': nodes
-            })
+                'items': jsonify(nodes)
+            }
 
     def get_spiders(self, id=None):
         items = db_manager.list('spiders')
@@ -54,10 +54,10 @@ class NodeApi(BaseApi):
             spider = db_manager.get('spiders', id=str(spider_id))
             item['spider_name'] = spider['name']
             deploys.append(item)
-        return jsonify({
+        return {
             'status': 'ok',
-            'items': deploys
-        })
+            'items': jsonify(deploys)
+        }
 
     def get_tasks(self, id):
         items = db_manager.list('tasks', {'node_id': id}, limit=10, sort_key='create_ts')
@@ -70,7 +70,7 @@ class NodeApi(BaseApi):
                 item['status'] = _task['status']
             else:
                 item['status'] = TaskStatus.UNAVAILABLE
-        return jsonify({
+        return {
             'status': 'ok',
-            'items': items
-        })
+            'items': jsonify(items)
+        }

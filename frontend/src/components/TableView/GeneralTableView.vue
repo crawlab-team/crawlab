@@ -54,8 +54,8 @@ export default {
             if (d.hasOwnProperty(k)) {
               if (d[k] === undefined || d[k] === null) continue
               if (typeof d[k] === 'object') {
-                if (d[k].$oid) {
-                  d[k] = d[k].$oid
+                if (d[k]) {
+                  d[k] = d[k]
                 }
               }
             }

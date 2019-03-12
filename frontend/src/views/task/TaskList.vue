@@ -129,7 +129,7 @@ export default {
           if (d.finish_ts) d.finish_ts = dayjs(d.finish_ts.$date).format('YYYY-MM-DD HH:mm:ss')
 
           try {
-            d.spider_id = d.spider_id.$oid
+            d.spider_id = d.spider_id
           } catch (e) {
             if (d.spider_id) d.spider_id = d.spider_id.toString()
           }

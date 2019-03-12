@@ -7,7 +7,7 @@
                class="spider-form"
                label-position="right">
         <el-form-item label="Spider ID">
-          <el-input v-model="spiderForm._id.$oid" placeholder="Spider ID" disabled></el-input>
+          <el-input v-model="spiderForm._id" placeholder="Spider ID" disabled></el-input>
         </el-form-item>
         <el-form-item label="Spider Name">
           <el-input v-model="spiderForm.name" placeholder="Spider Name" :disabled="isView"></el-input>
@@ -121,9 +121,9 @@ export default {
             cancelButtonText: 'Cancel'
           })
             .then(() => {
-              this.$store.dispatch('spider/crawlSpider', row._id.$oid)
+              this.$store.dispatch('spider/crawlSpider', row._id)
                 .then(() => {
-                  this.$message.success(`Running spider "${row._id.$oid}" has been scheduled`)
+                  this.$message.success(`Running spider "${row._id}" has been scheduled`)
                 })
             })
         }
@@ -138,9 +138,9 @@ export default {
             cancelButtonText: 'Cancel'
           })
             .then(() => {
-              this.$store.dispatch('spider/deploySpider', row._id.$oid)
+              this.$store.dispatch('spider/deploySpider', row._id)
                 .then(() => {
-                  this.$message.success(`Spider "${row._id.$oid}" has been deployed`)
+                  this.$message.success(`Spider "${row._id}" has been deployed`)
                 })
             })
         }

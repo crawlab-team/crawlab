@@ -233,7 +233,7 @@ export default {
         cancelButtonText: 'Cancel',
         type: 'warning'
       }).then(() => {
-        this.$store.dispatch('spider/deleteSpider', row._id.$oid)
+        this.$store.dispatch('spider/deleteSpider', row._id)
           .then(() => {
             this.$message({
               type: 'success',
@@ -243,17 +243,17 @@ export default {
       })
     },
     onDeploy (row) {
-      this.$store.dispatch('spider/getSpiderData', row._id.$oid)
+      this.$store.dispatch('spider/getSpiderData', row._id)
       this.$store.commit('dialogView/SET_DIALOG_VISIBLE', true)
       this.$store.commit('dialogView/SET_DIALOG_TYPE', 'spiderDeploy')
     },
     onCrawl (row) {
-      this.$store.dispatch('spider/getSpiderData', row._id.$oid)
+      this.$store.dispatch('spider/getSpiderData', row._id)
       this.$store.commit('dialogView/SET_DIALOG_VISIBLE', true)
       this.$store.commit('dialogView/SET_DIALOG_TYPE', 'spiderRun')
     },
     onView (row) {
-      this.$router.push(`/spiders/${row._id.$oid}`)
+      this.$router.push(`/spiders/${row._id}`)
     }
   },
   created () {

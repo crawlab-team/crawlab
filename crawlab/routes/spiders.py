@@ -110,10 +110,10 @@ class SpiderApi(BaseApi):
                 # append spider
                 items.append(spider)
 
-            return jsonify({
+            return {
                 'status': 'ok',
-                'items': items
-            })
+                'items': jsonify(items)
+            }
 
     def crawl(self, id):
         args = self.parser.parse_args()
@@ -166,7 +166,7 @@ class SpiderApi(BaseApi):
 
     def deploy(self, id):
         spider = db_manager.get('spiders', id=id)
-        nodes = db_manager.list('nodes', {})
+        nodes = db_manager.list('nodes', {'status': NodeStatus.ONLINE})
 
         for node in nodes:
             node_id = node['_id']
@@ -261,10 +261,10 @@ class SpiderApi(BaseApi):
             spider = db_manager.get('spiders', id=str(spider_id))
             item['spider_name'] = spider['name']
             deploys.append(item)
-        return jsonify({
+        return {
             'status': 'ok',
-            'items': deploys
-        })
+            'items': jsonify(deploys)
+        }
 
     def get_tasks(self, id):
         items = db_manager.list('tasks', cond={'spider_id': ObjectId(id)}, limit=10, sort_key='finish_ts')
@@ -277,10 +277,10 @@ class SpiderApi(BaseApi):
                 item['status'] = task['status']
             else:
                 item['status'] = TaskStatus.UNAVAILABLE
-        return jsonify({
+        return {
             'status': 'ok',
-            'items': items
-        })
+            'items': jsonify(items)
+        }
 
     def after_update(self, id=None):
         scheduler.update()

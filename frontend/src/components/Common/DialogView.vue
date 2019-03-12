@@ -9,8 +9,8 @@
       <label>{{message}}</label>
 
       <!--selection for node-->
-      <el-select v-if="type === 'node'" v-model="activeSpider._id.$oid">
-        <el-option v-for="op in spiderList" :key="op._id.$oid" :value="op._id.$oid" :label="op.name"></el-option>
+      <el-select v-if="type === 'node'" v-model="activeSpider._id">
+        <el-option v-for="op in spiderList" :key="op._id" :value="op._id" :label="op.name"></el-option>
       </el-select>
 
       <!--selection for spider-->
@@ -119,7 +119,7 @@ export default {
       } else if (this.dialogType === 'nodeRun') {
       } else if (this.dialogType === 'spiderDeploy') {
         this.$store.dispatch('spider/deploySpider', {
-          id: this.spiderForm._id.$oid,
+          id: this.spiderForm._id,
           nodeId: this.activeNode._id
         })
           .then(() => {
@@ -133,7 +133,7 @@ export default {
             this.$store.commit('dialogView/SET_DIALOG_VISIBLE', false)
           })
       } else if (this.dialogType === 'spiderRun') {
-        this.$store.dispatch('spider/crawlSpider', this.spiderForm._id.$oid)
+        this.$store.dispatch('spider/crawlSpider', this.spiderForm._id)
           .then(() => {
             this.$message.success(`Spider "${this.spiderForm.name}" started to run on node "${this.activeNode._id}"`)
           })

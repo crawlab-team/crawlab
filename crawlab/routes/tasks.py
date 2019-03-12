@@ -58,10 +58,10 @@ class TaskApi(BaseApi):
                 task['status'] = TaskStatus.UNAVAILABLE
             task['spider_name'] = _spider['name']
             items.append(task)
-        return jsonify({
+        return {
             'status': 'ok',
-            'items': items
-        })
+            'items': jsonify(items)
+        }
 
     def on_get_log(self, id):
         try:
@@ -109,11 +109,11 @@ class TaskApi(BaseApi):
             return []
         fields = get_spider_col_fields(col_name)
         items = db_manager.list(col_name, {'task_id': id})
-        return jsonify({
+        return {
             'status': 'ok',
-            'fields': fields,
-            'items': items
-        })
+            'fields': jsonify(fields),
+            'items': jsonify(items)
+        }
 
     def stop(self, id):
         revoke(id, terminate=True)
