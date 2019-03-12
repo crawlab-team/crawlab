@@ -34,9 +34,10 @@ class TaskApi(BaseApi):
             _task = db_manager.get('tasks_celery', id=task['_id'])
             _spider = db_manager.get('spiders', id=str(task['spider_id']))
             if _task:
-                task['status'] = _task['status']
-            else:
-                task['status'] = TaskStatus.UNAVAILABLE
+                if not task.get('status'):
+                    task['status'] = _task['status']
+            # else:
+            #     task['status'] = TaskStatus.UNAVAILABLE
             task['result'] = _task['result']
             task['spider_name'] = _spider['name']
             try:

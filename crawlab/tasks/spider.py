@@ -5,6 +5,7 @@ from bson import ObjectId
 from celery.utils.log import get_logger
 
 from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_LOGS_FOLDER
+from constants.task import TaskStatus
 from db.manager import db_manager
 from .celery import celery_app
 import subprocess
@@ -44,6 +45,7 @@ def execute_spider(self, id: str):
         'node_id': 'celery@%s' % hostname,
         'hostname': hostname,
         'log_file_path': log_file_path,
+        'status': TaskStatus.PENDING
     })
 
     # execute the command
@@ -61,9 +63,17 @@ def execute_spider(self, id: str):
     # get output from the process
     _stdout, _stderr = p.communicate()
 
+    # get return code
+    code = p.poll()
+    if code == 0:
+        status = TaskStatus.SUCCESS
+    else:
+        status = TaskStatus.FAILURE
+
     # save task when the task is finished
     db_manager.update_one('tasks', id=task_id, values={
         'finish_ts': datetime.now(),
+        'status': status
     })
     task = db_manager.get('tasks', id=id)
 
