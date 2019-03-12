@@ -75,8 +75,6 @@
       </el-table-column>
     </el-table>
     <div class="pagination">
-      pageNum: {{pageNum}}
-      pageSize: {{pageSize}}
       <el-pagination
         @current-change="onPageChange"
         @size-change="onPageChange"
