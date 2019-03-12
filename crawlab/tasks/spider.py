@@ -41,7 +41,7 @@ def execute_spider(self, id: str):
         '_id': task_id,
         'spider_id': ObjectId(id),
         'create_ts': datetime.now(),
-        'node_id': hostname,
+        'node_id': 'celery@%s' % hostname,
         'hostname': hostname,
         'log_file_path': log_file_path,
     })

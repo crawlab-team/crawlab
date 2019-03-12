@@ -138,7 +138,7 @@ export default {
             cancelButtonText: 'Cancel'
           })
             .then(() => {
-              this.$store.dispatch('spider/crawlSpider', row._id.$oid)
+              this.$store.dispatch('spider/deploySpider', row._id.$oid)
                 .then(() => {
                   this.$message.success(`Spider "${row._id.$oid}" has been deployed`)
                 })
