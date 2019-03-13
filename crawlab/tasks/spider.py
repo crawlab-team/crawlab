@@ -38,17 +38,15 @@ def execute_spider(self, id: str):
     stderr = open(log_file_path, 'a')
 
     # create a new task
-    db_manager.save('tasks', {
-        '_id': task_id,
-        'spider_id': ObjectId(id),
-        'create_ts': datetime.now(),
+    db_manager.update_one('tasks', id=task_id, values={
+        'start_ts': datetime.now(),
         'node_id': 'celery@%s' % hostname,
         'hostname': hostname,
         'log_file_path': log_file_path,
-        'status': TaskStatus.PENDING
+        'status': TaskStatus.STARTED
     })
 
-    # execute the command
+    # start the process and pass params as env variables
     env = os.environ.copy()
     env['CRAWLAB_TASK_ID'] = task_id
     if spider.get('col'):

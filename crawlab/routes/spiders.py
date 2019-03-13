@@ -155,6 +155,14 @@ class SpiderApi(BaseApi):
     def on_crawl(self, id):
         job = execute_spider.delay(id)
 
+        # create a new task
+        db_manager.save('tasks', {
+            '_id': job.id,
+            'spider_id': ObjectId(id),
+            'create_ts': datetime.now(),
+            'status': TaskStatus.PENDING
+        })
+
         return {
             'code': 200,
             'status': 'ok',
@@ -267,7 +275,7 @@ class SpiderApi(BaseApi):
         }
 
     def get_tasks(self, id):
-        items = db_manager.list('tasks', cond={'spider_id': ObjectId(id)}, limit=10, sort_key='finish_ts')
+        items = db_manager.list('tasks', cond={'spider_id': ObjectId(id)}, limit=10, sort_key='create_ts')
         for item in items:
             spider_id = item['spider_id']
             spider = db_manager.get('spiders', id=str(spider_id))

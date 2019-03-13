@@ -4,7 +4,7 @@ const MongoClient = require('mongodb').MongoClient;
 (async () => {
   // browser
   const browser = await (puppeteer.launch({
-    timeout: 15000
+    timeout: 10000
   }));
 
   // define start url
@@ -14,40 +14,60 @@ const MongoClient = require('mongodb').MongoClient;
   const page = await browser.newPage();
 
   // navigate to url
-  await page.goto(url);
-  await page.waitFor(2000);
+  try {
+    await page.goto(url);
+    await page.waitFor(2000);
+  } catch (e) {
+    console.error(e);
 
-  // take a screenshot
-  await page.screenshot({path: 'screenshot.png'});
+    // close browser
+    browser.close();
+
+    // exit code 1 indicating an error happened
+    code = 1;
+    process.emit("exit ");
+    process.reallyExit(code);
+
+    return
+  }
+
+  // scroll down to fetch more data
+  for (let i = 0; i < 10; i++) {
+    console.log('Pressing PageDown...');
+    await page.keyboard.press('PageDown', 200);
+    await page.waitFor(500);
+  }
 
   // scrape data
   const results = await page.evaluate(() => {
     let results = [];
-    document.querySelectorAll('.news-list .news-item .news__item-title').forEach(el => {
+    document.querySelectorAll('.news-list .news-item').forEach(el => {
       results.push({
-        title: el.innerText
+        url: 'https://segmentfault.com' + el.querySelector('.news__item-info > a').getAttribute('href'),
+        title: el.querySelector('.news__item-title').innerText
       })
     });
     return results;
   });
 
   // open database connection
-  const client = await MongoClient.connect('mongodb://localhost/crawlab_test');
-  let db = await client.db('test');
-  const colName = process.env.CRAWLAB_COLLECTION;
+  const client = await MongoClient.connect('mongodb://192.168.99.100:27017');
+  let db = await client.db('crawlab_test');
+  const colName = process.env.CRAWLAB_COLLECTION || 'results_segmentfault';
   const taskId = process.env.CRAWLAB_TASK_ID;
   const col = db.collection(colName);
 
   // save to database
   await results.forEach(d => {
     d.task_id = taskId;
-    col.save(d);
+    console.log(d);
+    col.insertOne(d);
   });
 
-  // close database connection
-  db.close();
+  console.log(`results.length: ${results.length}`);
 
-  console.log(results);
+  // close database connection
+  client.close();
 
   // shutdown browser
   browser.close();

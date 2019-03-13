@@ -20,7 +20,7 @@
                        width="100">
         <template slot-scope="scope">
           <el-tag type="success" v-if="scope.row.status === 'SUCCESS'">SUCCESS</el-tag>
-          <el-tag type="warning" v-else-if="scope.row.status === 'PENDING'">PENDING</el-tag>
+          <el-tag type="warning" v-else-if="scope.row.status === 'STARTED'">STARTED</el-tag>
           <el-tag type="danger" v-else-if="scope.row.status === 'FAILURE'">FAILURE</el-tag>
           <el-tag type="info" v-else>{{scope.row['status']}}</el-tag>
         </template>

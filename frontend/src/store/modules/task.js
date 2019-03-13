@@ -1,4 +1,3 @@
-import dayjs from 'dayjs'
 import request from '../../api/request'
 
 const state = {

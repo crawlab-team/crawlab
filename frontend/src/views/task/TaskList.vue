@@ -52,7 +52,7 @@
                          :width="col.width">
           <template slot-scope="scope">
             <el-tag type="success" v-if="scope.row.status === 'SUCCESS'">SUCCESS</el-tag>
-            <el-tag type="warning" v-else-if="scope.row.status === 'PENDING'">PENDING</el-tag>
+            <el-tag type="warning" v-else-if="scope.row.status === 'STARTED'">STARTED</el-tag>
             <el-tag type="danger" v-else-if="scope.row.status === 'FAILURE'">FAILURE</el-tag>
             <el-tag type="info" v-else>{{scope.row[col.name]}}</el-tag>
           </template>
@@ -66,7 +66,7 @@
                          :width="col.width">
         </el-table-column>
       </template>
-      <el-table-column label="Action" align="center" width="180">
+      <el-table-column label="Action" align="center" width="auto">
         <template slot-scope="scope">
           <el-tooltip content="View" placement="top">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
@@ -104,10 +104,11 @@ export default {
       },
       // tableData,
       columns: [
-        { name: 'create_ts', label: 'Create Date', width: '150' },
-        { name: 'finish_ts', label: 'Finish Date', width: '150' },
+        { name: 'create_ts', label: 'Create Time', width: '150' },
+        { name: 'start_ts', label: 'Start Time', width: '150' },
+        { name: 'finish_ts', label: 'Finish Time', width: '150' },
         { name: 'spider_name', label: 'Spider', width: '160' },
-        { name: 'node_id', label: 'Node', width: 'auto' },
+        { name: 'node_id', label: 'Node', width: '160' },
         { name: 'status', label: 'Status', width: '160', sortable: true }
       ]
     }

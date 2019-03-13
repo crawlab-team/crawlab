@@ -49,14 +49,12 @@ class TaskApi(BaseApi):
         args = self.parser.parse_args()
         page_size = args.get('page_size') or 10
         page_num = args.get('page_num') or 1
-        tasks = db_manager.list('tasks', {}, limit=page_size, skip=page_size * (page_num - 1), sort_key='finish_ts')
+        tasks = db_manager.list('tasks', {}, limit=page_size, skip=page_size * (page_num - 1), sort_key='create_ts')
         items = []
         for task in tasks:
-            _task = db_manager.get('tasks_celery', id=task['_id'])
+            # _task = db_manager.get('tasks_celery', id=task['_id'])
             _spider = db_manager.get('spiders', id=str(task['spider_id']))
-            if _task:
-                task['status'] = _task['status']
-            else:
+            if task.get('status') is None:
                 task['status'] = TaskStatus.UNAVAILABLE
             task['spider_name'] = _spider['name']
             items.append(task)

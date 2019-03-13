@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mongodb": "^3.1.13"
+    "mongodb": "^3.1.13",
+    "puppeteer": "^1.13.0"
   }
 }
