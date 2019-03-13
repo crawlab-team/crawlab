@@ -96,11 +96,15 @@ Crawlab的架构跟Celery非常相似，但是加入了包括前端、爬虫、F
 
 前端其实就是一个基于[Vue-Element-Admin](https://github.com/PanJiaChen/vue-element-admin)的单页应用。其中重用了很多Element-UI的控件来支持相应的展示。
 
-## 数据关联
+## 与其他框架的集成
 
 任务是利用python的`subprocess`模块中的`Popen`来实现的。任务ID将以环境变量`CRAWLAB_TASK_ID`的形式存在于爬虫任务运行的进程中，并以此来关联抓取数据。
 
 在你的爬虫程序中，你需要将`CRAWLAB_TASK_ID`的值以`task_id`作为可以存入数据库中。这样Crawlab就直到如何将爬虫任务与抓取数据关联起来了。当前，Crawlab只支持MongoDB。
+
+### Scrapy
+
+以下是Crawlab跟Scrapy集成的例子，利用了Crawlab传过来的task_id和collection_name。
 
 ```python
 import os

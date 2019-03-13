@@ -96,11 +96,15 @@ Broker is the same as defined in Celery. It is the queue for running async tasks
 
 Frontend is basically a Vue SPA that inherits from [Vue-Element-Admin](https://github.com/PanJiaChen/vue-element-admin) of [PanJiaChen](https://github.com/PanJiaChen). Thanks for his awesome template.
 
-## Linking Results
+## Integration with Other Frameworks
 
 A task is triggered via `Popen` in python `subprocess` module. A Task ID is will be defined as a variable `CRAWLAB_TASK_ID` in the shell environment to link the data to the task. 
 
 In your spider program, you should store the `CRAWLAB_TASK_ID` value in the database with key `task_id`. Then Crawlab would know how to link those results to a particular task. For now, Crawlab only supports MongoDB. 
+
+### Scrapy
+
+Below is an example to integrate Crawlab with Scrapy in pipelines. 
 
 ```python
 import os
