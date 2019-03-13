@@ -272,10 +272,7 @@ class SpiderApi(BaseApi):
             spider_id = item['spider_id']
             spider = db_manager.get('spiders', id=str(spider_id))
             item['spider_name'] = spider['name']
-            task = db_manager.get('tasks_celery', id=item['_id'])
-            if task is not None:
-                item['status'] = task['status']
-            else:
+            if item.get('status') is None:
                 item['status'] = TaskStatus.UNAVAILABLE
         return {
             'status': 'ok',
