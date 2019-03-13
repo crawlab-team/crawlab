@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-let baseUrl = 'http://localhost:8000'
+let baseUrl = 'http://localhost:8000/api'
 if (process.env.NODE_ENV === 'production') {
   baseUrl = 'http://139.129.230.98:8000/api'
 }
