@@ -1,9 +1,10 @@
 {
   "name": "crawlab",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve --ip=0.0.0.0",
+    "serve": "cross-env NODE_ENV=development vue-cli-service serve --ip=0.0.0.0",
+    "serve-prod": "cross-env NODE_ENV=production vue-cli-service serve --mode=production --ip=0.0.0.0",
     "config": "vue ui",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
@@ -12,6 +13,7 @@
   "dependencies": {
     "@tinymce/tinymce-vue": "^2.0.0",
     "axios": "0.18.0",
+    "cross-env": "^5.2.0",
     "dayjs": "^1.8.6",
     "echarts": "^4.1.0",
     "element-ui": "2.4.6",
