@@ -8,14 +8,14 @@ const MongoClient = require('mongodb').MongoClient;
   }));
 
   // define start url
-  const url = 'https://segmentfault.com/newest';
+  const url = 'https://juejin.im';
 
   // start a new page
   const page = await browser.newPage();
 
   // navigate to url
   try {
-    await page.goto(url);
+    await page.goto(url, {waitUntil: 'domcontentloaded'});
     await page.waitFor(2000);
   } catch (e) {
     console.error(e);
@@ -32,20 +32,21 @@ const MongoClient = require('mongodb').MongoClient;
   }
 
   // scroll down to fetch more data
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 100; i++) {
     console.log('Pressing PageDown...');
     await page.keyboard.press('PageDown', 200);
-    await page.waitFor(500);
+    await page.waitFor(100);
   }
 
   // scrape data
   const results = await page.evaluate(() => {
     let results = [];
-    document.querySelectorAll('.news-list .news-item').forEach(el => {
+    document.querySelectorAll('.entry-list > .item').forEach(el => {
+      if (!el.querySelector('.title')) return;
       results.push({
-        url: 'https://segmentfault.com' + el.querySelector('.news__item-info > a').getAttribute('href'),
-        title: el.querySelector('.news__item-title').innerText
-      })
+        url: 'https://juejin.com' + el.querySelector('.title').getAttribute('href'),
+        title: el.querySelector('.title').innerText
+      });
     });
     return results;
   });
@@ -53,7 +54,7 @@ const MongoClient = require('mongodb').MongoClient;
   // open database connection
   const client = await MongoClient.connect('mongodb://192.168.99.100:27017');
   let db = await client.db('crawlab_test');
-  const colName = process.env.CRAWLAB_COLLECTION || 'results_segmentfault';
+  const colName = process.env.CRAWLAB_COLLECTION || 'results_juejin';
   const taskId = process.env.CRAWLAB_TASK_ID;
   const col = db.collection(colName);
 
