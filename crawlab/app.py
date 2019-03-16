@@ -73,6 +73,7 @@ api.add_resource(ScheduleApi,
 def monitor_nodes_status(celery_app):
     def update_nodes_status(event):
         node_id = event.get('hostname')
+
         db_manager.update_one('nodes', id=node_id, values={
             'status': NodeStatus.ONLINE
         })
