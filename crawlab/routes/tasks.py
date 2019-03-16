@@ -31,13 +31,8 @@ class TaskApi(BaseApi):
 
         elif id is not None:
             task = db_manager.get('tasks', id=id)
-            _task = db_manager.get('tasks_celery', id=task['_id'])
-            _spider = db_manager.get('spiders', id=str(task['spider_id']))
-            if _task:
-                if not task.get('status'):
-                    task['status'] = _task['status']
-            task['result'] = _task['result']
-            task['spider_name'] = _spider['name']
+            spider = db_manager.get('spiders', id=str(task['spider_id']))
+            task['spider_name'] = spider['name']
             try:
                 with open(task['log_file_path']) as f:
                     task['log'] = f.read()

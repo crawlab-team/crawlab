@@ -65,11 +65,6 @@ class NodeApi(BaseApi):
             spider_id = item['spider_id']
             spider = db_manager.get('spiders', id=str(spider_id))
             item['spider_name'] = spider['name']
-            _task = db_manager.get('tasks_celery', id=item['_id'])
-            if _task:
-                item['status'] = _task['status']
-            else:
-                item['status'] = TaskStatus.UNAVAILABLE
         return {
             'status': 'ok',
             'items': jsonify(items)
