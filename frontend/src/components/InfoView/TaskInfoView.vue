@@ -11,7 +11,7 @@
         </el-form-item>
         <el-form-item label="Status">
           <el-tag type="success" v-if="taskForm.status === 'SUCCESS'">SUCCESS</el-tag>
-          <el-tag type="warning" v-else-if="taskForm.status === 'PENDING'">PENDING</el-tag>
+          <el-tag type="warning" v-else-if="taskForm.status === 'STARTED'">STARTED</el-tag>
           <el-tag type="danger" v-else-if="taskForm.status === 'FAILURE'">FAILURE</el-tag>
           <el-tag type="info" v-else>{{taskForm.status}}</el-tag>
         </el-form-item>

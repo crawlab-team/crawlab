@@ -1,5 +1,4 @@
 import request from '../../api/request'
-import dayjs from 'dayjs'
 
 const state = {
   deployList: []
