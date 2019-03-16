@@ -15,9 +15,9 @@
           <el-tag type="danger" v-else-if="taskForm.status === 'FAILURE'">FAILURE</el-tag>
           <el-tag type="info" v-else>{{taskForm.status}}</el-tag>
         </el-form-item>
-        <el-form-item label="Spider Version">
-          <el-input v-model="taskForm.spider_version" placeholder="Log File Path" disabled></el-input>
-        </el-form-item>
+        <!--<el-form-item label="Spider Version">-->
+        <!--<el-input v-model="taskForm.spider_version" placeholder="Spider Version" disabled></el-input>-->
+        <!--</el-form-item>-->
         <el-form-item label="Log File Path">
           <el-input v-model="taskForm.log_file_path" placeholder="Log File Path" disabled></el-input>
         </el-form-item>
