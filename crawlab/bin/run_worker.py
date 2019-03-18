@@ -1,6 +1,5 @@
 import sys
 import os
-from celery import Celery
 
 # make sure the working directory is in system path
 file_dir = os.path.dirname(os.path.realpath(__file__))
