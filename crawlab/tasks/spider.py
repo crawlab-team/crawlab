@@ -23,6 +23,8 @@ def execute_spider(self, id: str):
     current_working_directory = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')))
 
     # log info
+    logger.info('task_id: %s' % task_id)
+    logger.info('hostname: %s' % hostname)
     logger.info('current_working_directory: %s' % current_working_directory)
     logger.info('spider_id: %s' % id)
     logger.info(command)
@@ -40,7 +42,7 @@ def execute_spider(self, id: str):
     # create a new task
     db_manager.update_one('tasks', id=task_id, values={
         'start_ts': datetime.now(),
-        'node_id': 'celery@%s' % hostname,
+        'node_id': hostname,
         'hostname': hostname,
         'log_file_path': log_file_path,
         'status': TaskStatus.STARTED
