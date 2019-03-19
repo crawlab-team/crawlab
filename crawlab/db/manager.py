@@ -2,7 +2,7 @@ from bson import ObjectId
 from mongoengine import connect
 from pymongo import MongoClient, DESCENDING
 from config import MONGO_HOST, MONGO_PORT, MONGO_DB
-from utils import is_object_id
+from utils import is_object_id, jsonify
 
 connect(db=MONGO_DB, host=MONGO_HOST, port=MONGO_PORT)
 
@@ -34,6 +34,7 @@ class DbManager(object):
         _id = id
         if is_object_id(id):
             _id = ObjectId(id)
+        print('UPDATE: _id = "%s", values = %s' % (str(_id), jsonify(values)))
         col.find_one_and_update({'_id': _id}, {'$set': values})
 
     def remove_one(self, col_name: str, id: str, **kwargs):
