@@ -15,7 +15,7 @@ const MongoClient = require('mongodb').MongoClient;
 
   // navigate to url
   try {
-    await page.goto(url);
+    await page.goto(url, {waitUntil: 'domcontentloaded'});
     await page.waitFor(2000);
   } catch (e) {
     console.error(e);
@@ -65,6 +65,7 @@ const MongoClient = require('mongodb').MongoClient;
 
     // assign taskID
     results[i].task_id = taskId;
+    results[i].source = 'segmentfault';
 
     // insert row
     await col.insertOne(results[i]);

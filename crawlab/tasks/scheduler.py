@@ -45,7 +45,8 @@ class Scheduler(object):
             day = cron_arr[3]
             month = cron_arr[4]
             day_of_week = cron_arr[5]
-            self.scheduler.add_job(func=self.execute_spider, trigger='cron', args=(str(spider['_id']),), jobstore='mongo',
+            self.scheduler.add_job(func=self.execute_spider, trigger='cron', args=(str(spider['_id']),),
+                                   jobstore='mongo',
                                    day_of_week=day_of_week, month=month, day=day, hour=hour, minute=minute,
                                    second=second)
 

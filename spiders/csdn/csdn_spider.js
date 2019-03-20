@@ -67,6 +67,7 @@ const MongoClient = require('mongodb').MongoClient;
 
     // assign taskID
     results[i].task_id = taskId;
+    results[i].source = 'csdn';
 
     // insert row
     await col.insertOne(results[i]);
