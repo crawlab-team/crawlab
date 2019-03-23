@@ -34,7 +34,7 @@ class DbManager(object):
         _id = id
         if is_object_id(id):
             _id = ObjectId(id)
-        print('UPDATE: _id = "%s", values = %s' % (str(_id), jsonify(values)))
+        # print('UPDATE: _id = "%s", values = %s' % (str(_id), jsonify(values)))
         col.find_one_and_update({'_id': _id}, {'$set': values})
 
     def remove_one(self, col_name: str, id: str, **kwargs):
