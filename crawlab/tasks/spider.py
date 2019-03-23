@@ -72,7 +72,6 @@ def execute_spider(self, id: str):
 
     # save task when the task is finished
     db_manager.update_one('tasks', id=task_id, values={
-        'start_ts': datetime.utcnow(),
         'node_id': hostname,
         'hostname': hostname,
         'log_file_path': log_file_path,
