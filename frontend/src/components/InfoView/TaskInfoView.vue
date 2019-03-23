@@ -6,31 +6,31 @@
                ref="nodeForm"
                class="node-form"
                label-position="right">
-        <el-form-item label="Task ID">
+        <el-form-item :label="$t('Task ID')">
           <el-input v-model="taskForm._id" placeholder="Task ID" disabled></el-input>
         </el-form-item>
-        <el-form-item label="Status">
-          <el-tag type="success" v-if="taskForm.status === 'SUCCESS'">SUCCESS</el-tag>
-          <el-tag type="warning" v-else-if="taskForm.status === 'STARTED'">STARTED</el-tag>
-          <el-tag type="danger" v-else-if="taskForm.status === 'FAILURE'">FAILURE</el-tag>
-          <el-tag type="info" v-else>{{taskForm.status}}</el-tag>
+        <el-form-item :label="$t('Status')">
+          <el-tag type="success" v-if="taskForm.status === 'SUCCESS'">{{$t('SUCCESS')}}</el-tag>
+          <el-tag type="warning" v-else-if="taskForm.status === 'STARTED'">{{$t('STARTED')}}</el-tag>
+          <el-tag type="danger" v-else-if="taskForm.status === 'FAILURE'">{{$t('FAILURE')}}</el-tag>
+          <el-tag type="info" v-else>{{$t(taskForm.status)}}</el-tag>
         </el-form-item>
         <!--<el-form-item label="Spider Version">-->
         <!--<el-input v-model="taskForm.spider_version" placeholder="Spider Version" disabled></el-input>-->
         <!--</el-form-item>-->
-        <el-form-item label="Log File Path">
+        <el-form-item :label="$t('Log File Path')">
           <el-input v-model="taskForm.log_file_path" placeholder="Log File Path" disabled></el-input>
         </el-form-item>
-        <el-form-item label="Create Timestamp">
+        <el-form-item :label="$t('Create Timestamp')">
           <el-input v-model="taskForm.create_ts" placeholder="Create Timestamp" disabled></el-input>
         </el-form-item>
-        <el-form-item label="Finish Timestamp">
+        <el-form-item :label="$t('Finish Timestamp')">
           <el-input v-model="taskForm.finish_ts" placeholder="Finish Timestamp" disabled></el-input>
         </el-form-item>
-        <el-form-item label="Duration (sec)">
+        <el-form-item :label="$t('Duration (sec)')">
           <el-input v-model="taskForm.duration" placeholder="Duration" disabled></el-input>
         </el-form-item>
-        <el-form-item label="Error Message" v-if="taskForm.status === 'FAILURE'">
+        <el-form-item :label="$t('Error Message')" v-if="taskForm.status === 'FAILURE'">
           <div class="error-message">
             {{taskForm.result}}
           </div>

@@ -9,6 +9,7 @@ import spider from './modules/spider'
 import deploy from './modules/deploy'
 import task from './modules/task'
 import file from './modules/file'
+import lang from './modules/lang'
 import getters from './getters'
 
 Vue.use(Vuex)
@@ -23,7 +24,8 @@ const store = new Vuex.Store({
     spider,
     deploy,
     task,
-    file
+    file,
+    lang
   },
   getters
 })

@@ -1,21 +1,29 @@
 <template>
   <div class="navbar">
     <hamburger :toggle-click="toggleSideBar" :is-active="sidebar.opened" class="hamburger-container"/>
-    <breadcrumb/>
+    <breadcrumb class="breadcrumb"/>
     <el-dropdown class="avatar-container" trigger="click">
-      <div class="avatar-wrapper">
-        <img src="https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif?imageView2/1/w/80/h/80"
-             class="user-avatar">
-        <i class="el-icon-caret-bottom"/>
-      </div>
+      <span class="el-dropdown-link">
+        {{$t('User')}}
+        <i class="el-icon-arrow-down el-icon--right"></i>
+      </span>
       <el-dropdown-menu slot="dropdown" class="user-dropdown">
-        <!--<router-link class="inlineBlock" to="/">-->
-        <!--<el-dropdown-item>-->
-        <!--Home-->
-        <!--</el-dropdown-item>-->
-        <!--</router-link>-->
-        <el-dropdown-item divided>
+        <el-dropdown-item>
           <span style="display:block;" @click="logout">LogOut</span>
+        </el-dropdown-item>
+      </el-dropdown-menu>
+    </el-dropdown>
+    <el-dropdown class="lang-list" trigger="click">
+      <span class="el-dropdown-link">
+        {{$t($store.getters['lang/lang'])}}
+        <i class="el-icon-arrow-down el-icon--right"></i>
+      </span>
+      <el-dropdown-menu slot="dropdown">
+        <el-dropdown-item @click.native="setLang('en')">
+          <span>English</span>
+        </el-dropdown-item>
+        <el-dropdown-item @click.native="setLang('zh')">
+          <span>中文</span>
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
@@ -44,6 +52,11 @@ export default {
     },
     logout () {
       this.$router.push('/login')
+    },
+    setLang (lang) {
+      window.localStorage.setItem('lang', lang)
+      this.$i18n.locale = lang
+      this.$store.commit('lang/SET_LANG', lang)
     }
   }
 }
@@ -62,6 +75,15 @@ export default {
       padding: 0 10px;
     }
 
+    .lang-list {
+      cursor: pointer;
+      display: inline-block;
+      float: right;
+      margin-right: 35px;
+      /*position: absolute;*/
+      /*right: 80px;*/
+    }
+
     .screenfull {
       position: absolute;
       right: 90px;
@@ -70,30 +92,13 @@ export default {
     }
 
     .avatar-container {
+      cursor: pointer;
       height: 50px;
       display: inline-block;
-      position: absolute;
-      right: 35px;
-
-      .avatar-wrapper {
-        cursor: pointer;
-        margin-top: 5px;
-        position: relative;
-        line-height: initial;
-
-        .user-avatar {
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
-        }
-
-        .el-icon-caret-bottom {
-          position: absolute;
-          right: -20px;
-          top: 25px;
-          font-size: 12px;
-        }
-      }
+      float: right;
+      margin-right: 35px;
+      /*position: absolute;*/
+      /*right: 35px;*/
     }
   }
 </style>

@@ -20,6 +20,7 @@ import '@/icons' // icon
 import '@/permission' // permission control
 
 import request from './api/request'
+import i18n from './i18n'
 
 Vue.use(ElementUI, { locale })
 
@@ -29,6 +30,7 @@ Vue.prototype.$request = request
 
 const app = new Vue({
   el: '#app',
+  i18n,
   router,
   store,
   render: h => h(App)

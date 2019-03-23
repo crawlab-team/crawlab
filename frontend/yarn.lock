@@ -8433,6 +8433,11 @@ vue-hot-reload-api@^2.3.0:
   version "2.3.2"
   resolved "http://registry.npm.taobao.org/vue-hot-reload-api/download/vue-hot-reload-api-2.3.2.tgz#1fcc1495effe08a790909b46bf7b5c4cfeb6f21b"
 
+vue-i18n@^8.9.0:
+  version "8.9.0"
+  resolved "http://registry.npm.taobao.org/vue-i18n/download/vue-i18n-8.9.0.tgz#5f084001fe5b4c7ad8c00ee5f11396a88ff2e55b"
+  integrity sha1-XwhAAf5bTHrYwA7l8ROWqI/y5Vs=
+
 vue-jest@^3.0.2:
   version "3.0.3"
   resolved "http://registry.npm.taobao.org/vue-jest/download/vue-jest-3.0.3.tgz#80f664712f2678b1d8bb3af0f2c0bef5efa8de31"
