@@ -159,7 +159,7 @@ class SpiderApi(BaseApi):
         db_manager.save('tasks', {
             '_id': job.id,
             'spider_id': ObjectId(id),
-            'create_ts': datetime.now(),
+            'create_ts': datetime.utcnow(),
             'status': TaskStatus.PENDING
         })
 
@@ -252,7 +252,7 @@ class SpiderApi(BaseApi):
         db_manager.save('deploys', {
             'spider_id': ObjectId(id),
             'node_id': node_id,
-            'finish_ts': datetime.now()
+            'finish_ts': datetime.utcnow()
         })
 
         return {

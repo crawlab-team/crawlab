@@ -41,7 +41,7 @@ def execute_spider(self, id: str):
 
     # create a new task
     db_manager.update_one('tasks', id=task_id, values={
-        'start_ts': datetime.now(),
+        'start_ts': datetime.utcnow(),
         'node_id': hostname,
         'hostname': hostname,
         'log_file_path': log_file_path,
@@ -72,11 +72,11 @@ def execute_spider(self, id: str):
 
     # save task when the task is finished
     db_manager.update_one('tasks', id=task_id, values={
-        'start_ts': datetime.now(),
+        'start_ts': datetime.utcnow(),
         'node_id': hostname,
         'hostname': hostname,
         'log_file_path': log_file_path,
-        'finish_ts': datetime.now(),
+        'finish_ts': datetime.utcnow(),
         'status': status
     })
     task = db_manager.get('tasks', id=id)
