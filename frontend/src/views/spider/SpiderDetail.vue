@@ -2,7 +2,7 @@
   <div class="app-container">
     <!--selector-->
     <div class="selector">
-      <label class="label">Spider: </label>
+      <label class="label">{{$t('Spider')}}: </label>
       <el-select v-model="spiderForm._id" @change="onSpiderChange">
         <el-option v-for="op in spiderList" :key="op._id" :value="op._id" :label="op.name"></el-option>
       </el-select>
@@ -10,10 +10,10 @@
 
     <!--tabs-->
     <el-tabs v-model="activeTabName" @tab-click="onTabClick" type="card">
-      <el-tab-pane label="Overview" name="overview">
+      <el-tab-pane :label="$t('Overview')" name="overview">
         <spider-overview/>
       </el-tab-pane>
-      <el-tab-pane label="Files" name="files">
+      <el-tab-pane :label="$t('Files')" name="files">
         <file-list/>
       </el-tab-pane>
     </el-tabs>
@@ -90,5 +90,10 @@ export default {
 
   .selector .el-select {
     padding-left: 10px;
+  }
+
+  .label {
+    text-align: right;
+    width: 80px;
   }
 </style>

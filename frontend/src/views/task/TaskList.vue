@@ -3,7 +3,7 @@
     <!--filter-->
     <div class="filter">
       <el-input prefix-icon="el-icon-search"
-                placeholder="Search"
+                :placeholder="$t('Search')"
                 class="filter-search"
                 v-model="filter.keyword"
                 @change="onSearch">
@@ -13,7 +13,7 @@
                    icon="el-icon-refresh"
                    class="refresh"
                    @click="onRefresh">
-          Refresh
+          {{$t('Refresh')}}
         </el-button>
       </div>
     </div>
@@ -26,7 +26,7 @@
       <template v-for="col in columns">
         <el-table-column v-if="col.name === 'spider_name'"
                          :key="col.name"
-                         :label="col.label"
+                         :label="$t(col.label)"
                          :sortable="col.sortable"
                          align="center"
                          :width="col.width">
@@ -36,7 +36,7 @@
         </el-table-column>
         <el-table-column v-else-if="col.name === 'node_id'"
                          :key="col.name"
-                         :label="col.label"
+                         :label="$t(col.label)"
                          :sortable="col.sortable"
                          align="center"
                          :width="col.width">
@@ -46,29 +46,29 @@
         </el-table-column>
         <el-table-column v-else-if="col.name === 'status'"
                          :key="col.name"
-                         :label="col.label"
+                         :label="$t(col.label)"
                          :sortable="col.sortable"
                          align="center"
                          :width="col.width">
           <template slot-scope="scope">
-            <el-tag type="success" v-if="scope.row.status === 'SUCCESS'">SUCCESS</el-tag>
-            <el-tag type="warning" v-else-if="scope.row.status === 'STARTED'">STARTED</el-tag>
-            <el-tag type="danger" v-else-if="scope.row.status === 'FAILURE'">FAILURE</el-tag>
-            <el-tag type="info" v-else>{{scope.row[col.name]}}</el-tag>
+            <el-tag type="success" v-if="scope.row.status === 'SUCCESS'">{{$t('SUCCESS')}}</el-tag>
+            <el-tag type="warning" v-else-if="scope.row.status === 'STARTED'">{{$t('STARTED')}}</el-tag>
+            <el-tag type="danger" v-else-if="scope.row.status === 'FAILURE'">{{$t('FAILURE')}}</el-tag>
+            <el-tag type="info" v-else>{{$t(scope.row[col.name])}}</el-tag>
           </template>
         </el-table-column>
         <el-table-column v-else
                          :key="col.name"
                          :property="col.name"
-                         :label="col.label"
+                         :label="$t(col.label)"
                          :sortable="col.sortable"
                          align="center"
                          :width="col.width">
         </el-table-column>
       </template>
-      <el-table-column label="Action" align="center" width="auto">
+      <el-table-column :label="$t('Action')" align="center" width="auto">
         <template slot-scope="scope">
-          <el-tooltip content="View" placement="top">
+          <el-tooltip :content="$t('View')" placement="top">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
           </el-tooltip>
         </template>
@@ -150,12 +150,12 @@ export default {
           }
           return false
         })
-        // .filter((d, index) => {
-        //   // pagination
-        //   const pageNum = this.pageNum
-        //   const pageSize = this.pageSize
-        //   return (pageSize * (pageNum - 1) <= index) && (index < pageSize * pageNum)
-        // })
+      // .filter((d, index) => {
+      //   // pagination
+      //   const pageNum = this.pageNum
+      //   const pageSize = this.pageSize
+      //   return (pageSize * (pageNum - 1) <= index) && (index < pageSize * pageNum)
+      // })
     }
   },
   methods: {

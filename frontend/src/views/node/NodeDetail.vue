@@ -2,7 +2,7 @@
   <div class="app-container">
     <!--selector-->
     <div class="selector">
-      <label class="label">Node: </label>
+      <label class="label">{{$t('Node')}}: </label>
       <el-select v-model="nodeForm._id" @change="onNodeChange">
         <el-option v-for="op in nodeList" :key="op._id" :value="op._id" :label="op.name"></el-option>
       </el-select>
@@ -10,11 +10,11 @@
 
     <!--tabs-->
     <el-tabs v-model="activeTabName" @tab-click="onTabClick" type="card">
-      <el-tab-pane label="Overview" name="overview">
+      <el-tab-pane :label="$t('Overview')" name="overview">
         <node-overview></node-overview>
       </el-tab-pane>
-      <el-tab-pane label="Deployed Spiders" name="spiders" v-if="false">
-        Deployed Spiders
+      <el-tab-pane :label="$t('Deployed Spiders')" name="spiders" v-if="false">
+        {{$t('Deployed Spiders')}}
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -78,6 +78,11 @@ export default {
 
   .selector .el-select {
     padding-left: 10px;
+  }
+
+  .label {
+    width: 100px;
+    text-align: right;
   }
 </style>
 <style lang="scss">

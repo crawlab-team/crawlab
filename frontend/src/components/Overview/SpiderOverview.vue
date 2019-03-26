@@ -3,12 +3,12 @@
     <el-col :span="12">
       <!--last tasks-->
       <el-row>
-        <task-table-view title="Latest Tasks"/>
+        <task-table-view :title="$t('Latest Tasks')"/>
       </el-row>
 
       <!--last deploys-->
       <el-row v-if="false">
-        <deploy-table-view title="Latest Deploys"/>
+        <deploy-table-view :title="$t('Latest Deploys')"/>
       </el-row>
     </el-col>
 

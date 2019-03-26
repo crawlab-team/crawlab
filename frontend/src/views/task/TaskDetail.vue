@@ -2,17 +2,17 @@
   <div class="app-container">
     <!--tabs-->
     <el-tabs v-model="activeTabName" @tab-click="onTabClick" type="card">
-      <el-tab-pane label="Overview" name="overview">
+      <el-tab-pane :label="$t('Overview')" name="overview">
         <task-overview/>
       </el-tab-pane>
-      <el-tab-pane label="Log" name="log">
+      <el-tab-pane :label="$t('Log')" name="log">
         <div class="log-view">
           <pre>
             {{taskLog}}
           </pre>
         </div>
       </el-tab-pane>
-      <el-tab-pane label="Results" name="results">
+      <el-tab-pane :label="$t('Results')" name="results">
         <general-table-view :data="taskResultsData"
                             :columns="taskResultsColumns"
                             :page-num="resultsPageNum"

@@ -17,7 +17,7 @@
       </div>
       <!--action-->
       <div class="action-container">
-        <el-button type="success" size="mini">Choose Folder</el-button>
+        <el-button type="success" size="mini">{{$t('Choose Folder')}}</el-button>
       </div>
 
     </div>

@@ -2,7 +2,7 @@
   <div class="app-container">
     <!--add popup-->
     <el-dialog
-      title="Import Spider"
+      :title="$t('Import Spider')"
       :visible.sync="dialogVisible"
       width="60%"
       :before-close="onDialogClose">
@@ -10,10 +10,10 @@
                :model="importForm"
                ref="importForm"
                label-position="right">
-        <el-form-item label="Source URL" prop="url" required>
-          <el-input v-model="importForm.url" placeholder="Source URL"></el-input>
+        <el-form-item :label="$t('Source URL')" prop="url" required>
+          <el-input v-model="importForm.url" :placeholder="$t('Source URL')"></el-input>
         </el-form-item>
-        <el-form-item label="Source Type" prop="type" required>
+        <el-form-item :label="$t('Source Type')" prop="type" required>
           <el-select v-model="importForm.type" placeholder="Source Type">
             <el-option value="github" label="Github"></el-option>
             <el-option value="gitlab" label="Gitlab"></el-option>
@@ -22,38 +22,31 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="onCancel">Cancel</el-button>
-        <el-button v-loading="importLoading" type="primary" @click="onImport">Import</el-button>
+        <el-button @click="onCancel">{{$t('Cancel')}}</el-button>
+        <el-button v-loading="importLoading" type="primary" @click="onImport">{{$t('Import')}}</el-button>
       </span>
     </el-dialog>
 
     <!--filter-->
     <div class="filter">
       <el-input prefix-icon="el-icon-search"
-                placeholder="Search"
+                :placeholder="$t('Search')"
                 class="filter-search"
                 v-model="filter.keyword"
                 @change="onSearch">
       </el-input>
       <div class="right">
         <el-button type="primary" icon="fa fa-cloud" @click="onDeployAll">
-          Deploy All
+          {{$t('Deploy All')}}
         </el-button>
         <el-button type="primary" icon="fa fa-download" @click="openImportDialog">
-          Import Spiders
+          {{$t('Import Spiders')}}
         </el-button>
         <el-button type="success"
                    icon="el-icon-refresh"
                    class="btn refresh"
                    @click="onRefresh">
-          Refresh
-        </el-button>
-        <el-button type="primary"
-                   v-if="false"
-                   icon="el-icon-plus"
-                   class="add"
-                   @click="onAdd">
-          Add Spider
+          {{$t('Refresh')}}
         </el-button>
       </div>
     </div>
@@ -66,7 +59,7 @@
       <template v-for="col in columns">
         <el-table-column v-if="col.name === 'type'"
                          :key="col.name"
-                         :label="col.label"
+                         :label="$t(col.label)"
                          :sortable="col.sortable"
                          align="center"
                          :width="col.width">
@@ -79,7 +72,7 @@
         </el-table-column>
         <el-table-column v-else-if="col.name === 'lang'"
                          :key="col.name"
-                         :label="col.label"
+                         :label="$t(col.label)"
                          :sortable="col.sortable"
                          align="center"
                          :width="col.width">
@@ -94,27 +87,27 @@
         <el-table-column v-else
                          :key="col.name"
                          :property="col.name"
-                         :label="col.label"
+                         :label="$t(col.label)"
                          :sortable="col.sortable"
                          align="center"
                          :width="col.width">
         </el-table-column>
       </template>
-      <el-table-column label="Action" align="center" width="250">
+      <el-table-column :label="$t('Action')" align="center" width="250">
         <template slot-scope="scope">
-          <el-tooltip content="View" placement="top">
+          <el-tooltip :content="$t('View')" placement="top">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
           </el-tooltip>
-          <el-tooltip content="Edit" placement="top">
+          <el-tooltip :content="$t('Edit')" placement="top">
             <el-button type="warning" icon="el-icon-edit" size="mini" @click="onView(scope.row)"></el-button>
           </el-tooltip>
-          <el-tooltip content="Remove" placement="top">
+          <el-tooltip :content="$t('Remove')" placement="top">
             <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
           </el-tooltip>
-          <el-tooltip content="Deploy" placement="top">
+          <el-tooltip :content="$t('Deploy')" placement="top">
             <el-button type="primary" icon="fa fa-cloud" size="mini" @click="onDeploy(scope.row)"></el-button>
           </el-tooltip>
-          <el-tooltip content="Run" placement="top">
+          <el-tooltip :content="$t('Run')" placement="top">
             <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
           </el-tooltip>
         </template>

@@ -5,28 +5,28 @@
       <el-button type="success" plain class="small-btn" size="mini" icon="fa fa-refresh" @click="onRefresh"></el-button>
     </el-row>
     <el-table border height="480px" :data="taskList">
-      <el-table-column property="node" label="Node" width="220" align="center">
+      <el-table-column property="node" :label="$t('Node')" width="220" align="center">
         <template slot-scope="scope">
           <a class="a-tag" @click="onClickNode(scope.row)">{{scope.row.node_id}}</a>
         </template>
       </el-table-column>
-      <el-table-column property="spider_name" label="Spider" width="80" align="center">
+      <el-table-column property="spider_name" :label="$t('Spider')" width="80" align="center">
         <template slot-scope="scope">
           <a class="a-tag" @click="onClickSpider(scope.row)">{{scope.row.spider_name}}</a>
         </template>
       </el-table-column>
-      <el-table-column label="Status"
+      <el-table-column :label="$t('Status')"
                        align="center"
                        width="100">
         <template slot-scope="scope">
-          <el-tag type="success" v-if="scope.row.status === 'SUCCESS'">SUCCESS</el-tag>
-          <el-tag type="warning" v-else-if="scope.row.status === 'STARTED'">STARTED</el-tag>
-          <el-tag type="danger" v-else-if="scope.row.status === 'FAILURE'">FAILURE</el-tag>
-          <el-tag type="info" v-else>{{scope.row['status']}}</el-tag>
+          <el-tag type="success" v-if="scope.row.status === 'SUCCESS'">{{$t('SUCCESS')}}</el-tag>
+          <el-tag type="warning" v-else-if="scope.row.status === 'STARTED'">{{$t('STARTED')}}</el-tag>
+          <el-tag type="danger" v-else-if="scope.row.status === 'FAILURE'">{{$t('FAILURE')}}</el-tag>
+          <el-tag type="info" v-else>{{$t(scope.row['status'])}}</el-tag>
         </template>
       </el-table-column>
       <!--<el-table-column property="create_ts" label="Create Time" width="auto" align="center"></el-table-column>-->
-      <el-table-column property="create_ts" label="Create Time" width="auto" align="center">
+      <el-table-column property="create_ts" :label="$t('Create Time')" width="auto" align="center">
         <template slot-scope="scope">
           <a href="javascript:" class="a-tag" @click="onClickTask(scope.row)">{{scope.row.create_ts}}</a>
         </template>
