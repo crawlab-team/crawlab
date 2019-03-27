@@ -9,7 +9,7 @@
             </el-col>
             <el-col :span="18" class="text-col">
               <el-row>
-                <label class="label">{{m.label}}</label>
+                <label class="label">{{$t(m.label)}}</label>
               </el-row>
               <el-row>
                 <div class="value">{{overviewStats[m.name]}}</div>
@@ -21,7 +21,7 @@
     </el-row>
     <el-row>
       <el-card shadow="hover">
-        <h4 class="title">Daily New Tasks</h4>
+        <h4 class="title">{{$t('Daily New Tasks')}}</h4>
         <div id="echarts-daily-tasks" class="echarts-box"></div>
       </el-card>
     </el-row>

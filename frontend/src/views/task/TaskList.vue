@@ -166,9 +166,9 @@ export default {
       this.$store.dispatch('task/getTaskList')
     },
     onRemove (row) {
-      this.$confirm('Are you sure to delete this task?', 'Notification', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+      this.$confirm(this.$t('Are you sure to delete this task?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
         type: 'warning'
       }).then(() => {
         this.$store.dispatch('task/deleteTask', row._id)

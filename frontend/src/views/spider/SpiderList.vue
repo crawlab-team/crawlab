@@ -219,9 +219,9 @@ export default {
       this.dialogVisible = true
     },
     onRemove (row) {
-      this.$confirm('Are you sure to delete this spider?', 'Notification', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+      this.$confirm(this.$t('Are you sure to delete this spider?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
         type: 'warning'
       }).then(() => {
         this.$store.dispatch('spider/deleteSpider', row._id)
@@ -234,9 +234,9 @@ export default {
       })
     },
     onDeploy (row) {
-      this.$confirm('Are you sure to deploy this spider?', 'Notification', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+      this.$confirm(this.$t('Are you sure to deploy this spider?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
         type: 'warning'
       }).then(() => {
         this.$store.dispatch('spider/deploySpider', row._id)
@@ -249,14 +249,14 @@ export default {
       })
     },
     onCrawl (row) {
-      this.$confirm('Are you sure to run this spider', 'Notice', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel'
+      this.$confirm(this.$t('Are you sure to run this spider?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel')
       })
         .then(() => {
           this.$store.dispatch('spider/crawlSpider', row._id)
             .then(() => {
-              this.$message.success(`Running spider "${row._id}" has been scheduled`)
+              this.$message.success(this.$t(`Spider task has been scheduled`))
             })
         })
     },
@@ -290,15 +290,15 @@ export default {
       this.dialogVisible = true
     },
     onDeployAll () {
-      this.$confirm('Are you sure to deploy all spiders to active nodes?', 'Notice', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+      this.$confirm(this.$t('Are you sure to deploy all spiders to active nodes?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
         type: 'warning'
       })
         .then(() => {
           this.$store.dispatch('spider/deployAll')
             .then(() => {
-              this.$message.success('Deployed all spiders successfully')
+              this.$message.success(this.$t('Deployed all spiders successfully'))
             })
         })
     }

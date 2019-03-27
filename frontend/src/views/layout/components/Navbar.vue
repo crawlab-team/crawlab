@@ -9,7 +9,7 @@
       </span>
       <el-dropdown-menu slot="dropdown" class="user-dropdown">
         <el-dropdown-item>
-          <span style="display:block;" @click="logout">LogOut</span>
+          <span style="display:block;" @click="logout">{{$t('Logout')}}</span>
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>

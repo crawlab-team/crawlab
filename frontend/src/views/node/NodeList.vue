@@ -3,7 +3,7 @@
     <!--filter-->
     <div class="filter">
       <el-input prefix-icon="el-icon-search"
-                placeholder="Search"
+                :placeholder="$t('Search')"
                 class="filter-search"
                 v-model="filter.keyword"
                 @change="onSearch">
@@ -13,7 +13,7 @@
                    icon="el-icon-refresh"
                    class="refresh"
                    @click="onRefresh">
-          Refresh
+          {{$t('Refresh')}}
         </el-button>
       </div>
     </div>
@@ -26,34 +26,34 @@
       <template v-for="col in columns">
         <el-table-column v-if="col.name === 'status'"
                          :key="col.name"
-                         :label="col.label"
+                         :label="$t(col.label)"
                          :sortable="col.sortable"
                          align="center"
                          :width="col.width">
           <template slot-scope="scope">
-            <el-tag type="info" v-if="scope.row.status === 'offline'">Offline</el-tag>
-            <el-tag type="success" v-else-if="scope.row.status === 'online'">Online</el-tag>
-            <el-tag type="danger" v-else>Unavailable</el-tag>
+            <el-tag type="info" v-if="scope.row.status === 'offline'">{{$t('Offline')}}</el-tag>
+            <el-tag type="success" v-else-if="scope.row.status === 'online'">{{$t('Online')}}</el-tag>
+            <el-tag type="danger" v-else>{{$t('Unavailable')}}</el-tag>
           </template>
         </el-table-column>
         <el-table-column v-else
                          :key="col.name"
                          :property="col.name"
-                         :label="col.label"
+                         :label="$t(col.label)"
                          :sortable="col.sortable"
                          align="center"
                          :width="col.width">
         </el-table-column>
       </template>
-      <el-table-column label="Action" align="center" width="160">
+      <el-table-column :label="$t('Action')" align="center" width="160">
         <template slot-scope="scope">
-          <el-tooltip content="View" placement="top">
+          <el-tooltip :content="$t('View')" placement="top">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
           </el-tooltip>
-          <el-tooltip content="Edit" placement="top">
+          <el-tooltip :content="$t('Edit')" placement="top">
             <el-button type="warning" icon="el-icon-edit" size="mini" @click="onView(scope.row)"></el-button>
           </el-tooltip>
-          <el-tooltip content="Edit" placement="top">
+          <el-tooltip :content="$t('Remove')" placement="top">
             <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
           </el-tooltip>
         </template>
@@ -165,9 +165,9 @@ export default {
       this.dialogVisible = true
     },
     onRemove (row) {
-      this.$confirm('Are you sure to delete this node?', 'Notification', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+      this.$confirm(this.$t('Are you sure to delete this node?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
         type: 'warning'
       }).then(() => {
         this.$store.dispatch('node/deleteNode', row._id)

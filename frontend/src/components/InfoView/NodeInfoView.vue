@@ -51,7 +51,7 @@ export default {
         if (valid) {
           this.$store.dispatch('node/editNode')
             .then(() => {
-              this.$message.success('Node has been saved successfully')
+              this.$message.success(this.$t('Node info has been saved successfully'))
             })
         }
       })

@@ -116,14 +116,14 @@ export default {
       const row = this.spiderForm
       this.$refs['spiderForm'].validate(res => {
         if (res) {
-          this.$confirm('Are you sure to run this spider?', 'Notice', {
-            confirmButtonText: 'Confirm',
-            cancelButtonText: 'Cancel'
+          this.$confirm(this.$t('Are you sure to run this spider?'), this.$t('Notification'), {
+            confirmButtonText: this.$t('Confirm'),
+            cancelButtonText: this.$t('Cancel')
           })
             .then(() => {
               this.$store.dispatch('spider/crawlSpider', row._id)
                 .then(() => {
-                  this.$message.success(`Running spider "${row._id}" has been scheduled`)
+                  this.$message.success(this.$t(`Spider task has been scheduled`))
                 })
             })
         }
@@ -133,14 +133,14 @@ export default {
       const row = this.spiderForm
       this.$refs['spiderForm'].validate(res => {
         if (res) {
-          this.$confirm('Are you sure to deploy this spider?', 'Notice', {
-            confirmButtonText: 'Confirm',
-            cancelButtonText: 'Cancel'
+          this.$confirm(this.$t('Are you sure to deploy this spider?'), this.$t('Notification'), {
+            confirmButtonText: this.$t('Confirm'),
+            cancelButtonText: this.$t('Cancel')
           })
             .then(() => {
               this.$store.dispatch('spider/deploySpider', row._id)
                 .then(() => {
-                  this.$message.success(`Spider "${row._id}" has been deployed`)
+                  this.$message.success(this.$t(`Spider has been deployed`))
                 })
             })
         }
@@ -151,7 +151,7 @@ export default {
         if (res) {
           this.$store.dispatch('spider/editSpider')
             .then(() => {
-              this.$message.success('Spider info has been saved successfully')
+              this.$message.success(this.$t('Spider info has been saved successfully'))
             })
             .catch(error => {
               this.$message.error(error)

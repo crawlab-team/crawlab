@@ -228,9 +228,9 @@ export default {
       this.dialogVisible = true
     },
     onRemove (row) {
-      this.$confirm('Are you sure to delete this spider?', 'Notification', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+      this.$confirm(this.$t('Are you sure to delete this spider?)', this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
         type: 'warning'
       }).then(() => {
         this.$store.dispatch('spider/deleteSpider', row._id)

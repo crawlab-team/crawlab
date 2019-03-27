@@ -3,7 +3,7 @@
     <!--filter-->
     <div class="filter">
       <el-input prefix-icon="el-icon-search"
-                placeholder="Search"
+                :placeholder="$t('Search')"
                 class="filter-search"
                 v-model="filter.keyword"
                 @change="onSearch">
@@ -13,7 +13,7 @@
                    icon="el-icon-refresh"
                    class="refresh"
                    @click="onRefresh">
-          Refresh
+          {{$t('Refresh')}}
         </el-button>
       </div>
     </div>
@@ -26,7 +26,7 @@
       <template v-for="col in columns">
         <el-table-column v-if="col.name === 'spider_name'"
                          :key="col.name"
-                         :label="col.label"
+                         :label="$t(col.label)"
                          :sortable="col.sortable"
                          align="center"
                          :width="col.width">
@@ -36,7 +36,7 @@
         </el-table-column>
         <el-table-column v-else-if="col.name === 'node_id'"
                          :key="col.name"
-                         :label="col.label"
+                         :label="$t(col.label)"
                          :sortable="col.sortable"
                          align="center"
                          :width="col.width">
@@ -47,15 +47,15 @@
         <el-table-column v-else
                          :key="col.name"
                          :property="col.name"
-                         :label="col.label"
+                         :label="$t(col.label)"
                          :sortable="col.sortable"
                          align="center"
                          :width="col.width">
         </el-table-column>
       </template>
-      <el-table-column label="Action" align="center" width="160">
+      <el-table-column :label="$t('Action')" align="center" width="160">
         <template slot-scope="scope">
-          <el-tooltip content="View" placement="top">
+          <el-tooltip :content="$t('View')" placement="top">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
           </el-tooltip>
         </template>
