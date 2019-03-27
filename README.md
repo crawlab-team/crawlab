@@ -156,6 +156,6 @@ Crawlab is easy to use, general enough to adapt spiders in any language and any 
 ##### Frontend
 - [ ] Task Stats/Analytics
 - [ ] Table Filters
-- [ ] Multi-Language Support (中文)
+- [x] Multi-Language Support (中文)
 - [ ] Login & User Management
 - [ ] General Search
