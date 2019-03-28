@@ -30,8 +30,14 @@ Please edit configuration file `config.py` to configure api and database connect
 
 ## Quick Start
 ```bash
-# run all services
-python manage.py run_all
+# Start backend API
+python app.py
+
+# Start Flower service
+python ./bin/run_flower.py
+
+# Start worker
+python ./bin/run_worker.py
 ```
 
 ```bash

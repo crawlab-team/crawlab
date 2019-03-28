@@ -29,8 +29,14 @@ npm install
 
 ## 快速开始
 ```bash
-# 运行所有服务
-python manage.py run_all
+# 启动后端API
+python app.py
+
+# 启动Flower服务
+python ./bin/run_flower.py
+
+# 启动worker
+python ./bin/run_worker.py
 ```
 
 ```bash
