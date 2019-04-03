@@ -1,5 +1,5 @@
 import os, zipfile
-
+from utils.log import other
 
 # 打包目录为zip文件（未压缩）
 def zip_file(source_dir, output_filename):
@@ -20,4 +20,4 @@ def unzip_file(zip_src, dst_dir):
         for file in fz.namelist():
             fz.extract(file, dst_dir)
     else:
-        print('This is not zip')
+        other.info('This is not zip')
