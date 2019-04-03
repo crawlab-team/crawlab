@@ -1,6 +1,7 @@
 amqp==2.4.2
 aniso8601==6.0.0
 APScheduler==3.6.0
+attrs==19.1.0
 Babel==2.6.0
 billiard==3.6.0.0
 celery==4.3.0
@@ -11,15 +12,18 @@ coloredlogs==10.0
 Flask==1.0.2
 Flask-Cors==3.0.7
 Flask-RESTful==0.3.7
+flask-restplus==0.12.1
 flower==0.9.3
 humanfriendly==4.18
 idna==2.8
 itsdangerous==1.1.0
 Jinja2==2.10
+jsonschema==3.0.1
 kombu==4.5.0
 MarkupSafe==1.1.1
 mongoengine==0.17.0
 pymongo==3.7.2
+pyrsistent==0.14.11
 pytz==2018.9
 redis==3.2.1
 requests==2.21.0
