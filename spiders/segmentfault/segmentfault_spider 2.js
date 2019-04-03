@@ -8,7 +8,7 @@ const MongoClient = require('mongodb').MongoClient;
   }));
 
   // define start url
-  const url = 'https://juejin.im';
+  const url = 'https://segmentfault.com/newest';
 
   // start a new page
   const page = await browser.newPage();
@@ -32,29 +32,28 @@ const MongoClient = require('mongodb').MongoClient;
   }
 
   // scroll down to fetch more data
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 10; i++) {
     console.log('Pressing PageDown...');
     await page.keyboard.press('PageDown', 200);
-    await page.waitFor(100);
+    await page.waitFor(500);
   }
 
   // scrape data
   const results = await page.evaluate(() => {
     let results = [];
-    document.querySelectorAll('.entry-list > .item').forEach(el => {
-      if (!el.querySelector('.title')) return;
+    document.querySelectorAll('.news-list .news-item').forEach(el => {
       results.push({
-        url: 'https://juejin.com' + el.querySelector('.title').getAttribute('href'),
-        title: el.querySelector('.title').innerText
-      });
+        url: 'https://segmentfault.com' + el.querySelector('.news__item-info > a').getAttribute('href'),
+        title: el.querySelector('.news__item-title').innerText
+      })
     });
     return results;
   });
 
   // open database connection
-  const client = await MongoClient.connect('mongodb://127.0.0.1:27017');
+  const client = await MongoClient.connect('mongodb://192.168.99.100:27017');
   let db = await client.db('crawlab_test');
-  const colName = process.env.CRAWLAB_COLLECTION || 'results_juejin';
+  const colName = process.env.CRAWLAB_COLLECTION || 'results_segmentfault';
   const taskId = process.env.CRAWLAB_TASK_ID;
   const col = db.collection(colName);
 
@@ -66,7 +65,7 @@ const MongoClient = require('mongodb').MongoClient;
 
     // assign taskID
     results[i].task_id = taskId;
-    results[i].source = 'juejin';
+    results[i].source = 'segmentfault';
 
     // insert row
     await col.insertOne(results[i]);

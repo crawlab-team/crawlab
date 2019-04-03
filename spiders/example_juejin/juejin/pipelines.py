@@ -8,7 +8,7 @@ import os
 
 from pymongo import MongoClient
 
-MONGO_HOST = '192.168.99.100'
+MONGO_HOST = '127.0.0.1'
 MONGO_PORT = 27017
 MONGO_DB = 'crawlab_test'
 
@@ -16,9 +16,7 @@ MONGO_DB = 'crawlab_test'
 class JuejinPipeline(object):
     mongo = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
     db = mongo[MONGO_DB]
-    col_name = os.environ.get('CRAWLAB_COLLECTION')
-    if not col_name:
-        col_name = 'test'
+    col_name = os.environ.get('CRAWLAB_COLLECTION','test')
     col = db[col_name]
 
     def process_item(self, item, spider):

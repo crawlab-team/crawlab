@@ -1,12 +1,16 @@
 # project variables
-PROJECT_SOURCE_FILE_FOLDER = '/Users/yeqing/projects/crawlab/spiders'
-PROJECT_DEPLOY_FILE_FOLDER = '/var/crawlab'
-PROJECT_LOGS_FOLDER = '/var/logs/crawlab'
+# 爬虫源码路径
+PROJECT_SOURCE_FILE_FOLDER = '../spiders'
+
+# 爬虫部署路径
+PROJECT_DEPLOY_FILE_FOLDER = '../deployfile'
+
+PROJECT_LOGS_FOLDER = '../deployfile/logs'
 PROJECT_TMP_FOLDER = '/tmp'
 
 # celery variables
-BROKER_URL = 'redis://192.168.99.100:6379/0'
-CELERY_RESULT_BACKEND = 'mongodb://192.168.99.100:27017/'
+BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_BACKEND = 'mongodb://127.0.0.1:27017/'
 CELERY_MONGODB_BACKEND_SETTINGS = {
     'database': 'crawlab_test',
     'taskmeta_collection': 'tasks_celery',
@@ -18,7 +22,7 @@ CELERY_ENABLE_UTC = True
 FLOWER_API_ENDPOINT = 'http://localhost:5555/api'
 
 # database variables
-MONGO_HOST = '192.168.99.100'
+MONGO_HOST = '127.0.0.1'
 MONGO_PORT = 27017
 MONGO_DB = 'crawlab_test'
 

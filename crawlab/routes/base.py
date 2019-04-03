@@ -25,6 +25,8 @@ class BaseApi(Resource):
             self.parser.add_argument(arg, type=type)
 
     def get(self, id=None, action=None):
+        import pdb
+        pdb.set_trace()
         args = self.parser.parse_args()
 
         # action by id
