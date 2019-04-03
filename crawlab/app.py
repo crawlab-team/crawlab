@@ -8,7 +8,7 @@ from celery import Celery
 from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
-
+from utils.log import other
 from constants.node import NodeStatus
 from db.manager import db_manager
 from routes.schedules import ScheduleApi
@@ -78,7 +78,7 @@ def monitor_nodes_status(celery_app):
         })
 
     def update_nodes_status_online(event):
-        print(event)
+        other.info(f"{event}")
 
     with celery_app.connection() as connection:
         recv = celery_app.events.Receiver(connection, handlers={

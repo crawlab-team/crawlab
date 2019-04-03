@@ -24,7 +24,7 @@ from routes.spiders import SpiderApi, SpiderImportApi, SpiderManageApi
 from routes.stats import StatsApi
 from routes.tasks import TaskApi
 from tasks.celery import celery_app
-
+from utils.log import other
 # flask app instance
 app = Flask(__name__)
 app.config.from_object('config')
@@ -81,7 +81,7 @@ def run_flower():
     p = subprocess.Popen(['celery', 'flower', '-b', BROKER_URL], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     for line in iter(p.stdout.readline, 'b'):
         if line.decode('utf-8') != '':
-            print(line.decode('utf-8'))
+            other.info(line.decode('utf-8'))
 
 
 def run_worker():
