@@ -10,6 +10,7 @@ from utils import jsonify
 from utils.spider import get_spider_col_fields
 from utils.log import other
 
+
 class TaskApi(BaseApi):
     col_name = 'tasks'
 

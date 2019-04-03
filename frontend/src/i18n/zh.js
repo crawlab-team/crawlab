@@ -126,5 +126,5 @@ export default {
   'Node info has been saved successfully': '节点信息已成功保存',
   'Are you sure to deploy this spider?': '你确定要部署该爬虫?',
   'Are you sure to delete this spider?': '你确定要删除该爬虫?',
-  'Spider info has been saved successfully': '爬虫信息已成功保存',
+  'Spider info has been saved successfully': '爬虫信息已成功保存'
 }

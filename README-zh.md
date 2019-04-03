@@ -62,6 +62,10 @@ npm run serve
 
 ![spider-list](./docs/img/screenshot-task-detail-results.png)
 
+## 使用流程
+
+![user-process](./docs/img/用户使用流程图.png)
+
 ## 架构
 
 Crawlab的架构跟Celery非常相似，但是加入了包括前端、爬虫、Flower在内的额外模块，以支持爬虫管理的功能。
