@@ -8,7 +8,7 @@ const MongoClient = require('mongodb').MongoClient;
   }));
 
   // define start url
-  const url = 'https://juejin.im';
+  const url = 'https://www.csdn.net';
 
   // start a new page
   const page = await browser.newPage();
@@ -41,18 +41,19 @@ const MongoClient = require('mongodb').MongoClient;
   // scrape data
   const results = await page.evaluate(() => {
     let results = [];
-    document.querySelectorAll('.entry-list > .item').forEach(el => {
-      if (!el.querySelector('.title')) return;
+    document.querySelectorAll('#feedlist_id > li').forEach(el => {
+      const $a = el.querySelector('.title > h2 > a');
+      if (!$a) return;
       results.push({
-        url: 'https://juejin.com' + el.querySelector('.title').getAttribute('href'),
-        title: el.querySelector('.title').innerText
+        url: $a.getAttribute('href'),
+        title: $a.innerText
       });
     });
     return results;
   });
 
   // open database connection
-  const client = await MongoClient.connect('mongodb://127.0.0.1:27017');
+  const client = await MongoClient.connect('mongodb://192.168.99.100:27017');
   let db = await client.db('crawlab_test');
   const colName = process.env.CRAWLAB_COLLECTION || 'results_juejin';
   const taskId = process.env.CRAWLAB_TASK_ID;
@@ -66,7 +67,7 @@ const MongoClient = require('mongodb').MongoClient;
 
     // assign taskID
     results[i].task_id = taskId;
-    results[i].source = 'juejin';
+    results[i].source = 'csdn';
 
     // insert row
     await col.insertOne(results[i]);
