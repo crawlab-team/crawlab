@@ -8,11 +8,18 @@ from db.manager import db_manager
 
 
 def check_nodes_status():
+    """
+    Update node status from Flower.
+    """
     res = requests.get('%s/workers?status=1' % FLOWER_API_ENDPOINT)
     return json.loads(res.content.decode('utf-8'))
 
 
 def update_nodes_status(refresh=False):
+    """
+    Update all nodes status
+    :param refresh:
+    """
     online_node_ids = []
     url = '%s/workers?status=1' % FLOWER_API_ENDPOINT
     if refresh:
