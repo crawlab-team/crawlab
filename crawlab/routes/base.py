@@ -1,5 +1,5 @@
-# from flask_restful import reqparse, Resource
-from flask_restplus import reqparse, Resource
+from flask_restful import reqparse, Resource
+# from flask_restplus import reqparse, Resource
 
 from db.manager import db_manager
 from utils import jsonify
