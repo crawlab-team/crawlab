@@ -52,11 +52,22 @@ def execute_spider(self, id: str):
         'status': TaskStatus.STARTED
     })
 
-    # start the process and pass params as env variables
+    # pass params as env variables
     env = os.environ.copy()
+
+    # custom environment variables
+    if spider.get('envs'):
+        for _env in spider.get('envs'):
+            env[_env['name']] = _env['value']
+
+    # task id environment variable
     env['CRAWLAB_TASK_ID'] = task_id
+
+    # collection environment variable
     if spider.get('col'):
         env['CRAWLAB_COLLECTION'] = spider.get('col')
+
+    # start process
     p = subprocess.Popen(command.split(' '),
                          stdout=stdout.fileno(),
                          stderr=stderr.fileno(),

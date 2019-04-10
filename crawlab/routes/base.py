@@ -127,7 +127,8 @@ class BaseApi(Resource):
         values = {}
         for k in args.keys():
             if k not in DEFAULT_ARGS:
-                values[k] = args.get(k)
+                if args.get(k) is not None:
+                    values[k] = args.get(k)
         item = db_manager.update_one(col_name=self.col_name, id=id, values=values)
 
         # execute after_update hook

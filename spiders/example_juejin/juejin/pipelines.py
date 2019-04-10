@@ -8,9 +8,10 @@ import os
 
 from pymongo import MongoClient
 
-MONGO_HOST = '127.0.0.1'
-MONGO_PORT = 27017
-MONGO_DB = 'crawlab_test'
+MONGO_HOST = os.environ['MONGO_HOST']
+MONGO_PORT = os.environ['MONGO_PORT']
+MONGO_DB = os.environ['MONGO_DB']
+print(MONGO_HOST)
 
 
 class JuejinPipeline(object):

@@ -58,6 +58,9 @@ class SpiderApi(BaseApi):
 
         # spider schedule cron enabled
         ('cron_enabled', int),
+
+        # spider schedule cron enabled
+        ('envs', str),
     )
 
     def get(self, id=None, action=None):
@@ -327,6 +330,11 @@ class SpiderApi(BaseApi):
         :param id: spider_id
         """
         scheduler.update()
+
+    def update_envs(self, id: str):
+        args = self.parser.parse_args()
+        envs = json.loads(args.envs)
+        db_manager.update_one(col_name='spiders', id=id, values={'envs': envs})
 
 
 class SpiderImportApi(Resource):
