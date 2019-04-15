@@ -93,21 +93,21 @@
                          :width="col.width">
         </el-table-column>
       </template>
-      <el-table-column :label="$t('Action')" align="center" width="250">
+      <el-table-column :label="$t('Action')" align="left" width="250">
         <template slot-scope="scope">
           <el-tooltip :content="$t('View')" placement="top">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
           </el-tooltip>
-          <el-tooltip :content="$t('Edit')" placement="top">
-            <el-button type="warning" icon="el-icon-edit" size="mini" @click="onView(scope.row)"></el-button>
-          </el-tooltip>
+          <!--<el-tooltip :content="$t('Edit')" placement="top">-->
+          <!--<el-button type="warning" icon="el-icon-edit" size="mini" @click="onView(scope.row)"></el-button>-->
+          <!--</el-tooltip>-->
           <el-tooltip :content="$t('Remove')" placement="top">
             <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
           </el-tooltip>
           <el-tooltip :content="$t('Deploy')" placement="top">
             <el-button type="primary" icon="fa fa-cloud" size="mini" @click="onDeploy(scope.row)"></el-button>
           </el-tooltip>
-          <el-tooltip :content="$t('Run')" placement="top">
+          <el-tooltip v-if="isShowRun(scope.row)" :content="$t('Run')" placement="top">
             <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
           </el-tooltip>
         </template>
@@ -151,7 +151,7 @@ export default {
         { name: 'name', label: 'Name', width: 'auto' },
         { name: 'type', label: 'Spider Type', width: '160', sortable: true },
         { name: 'lang', label: 'Language', width: '160', sortable: true },
-        { name: 'last_run_ts', label: 'Last Run', width: '120' }
+        { name: 'task_ts', label: 'Last Run', width: '160' }
       ],
       spiderFormRules: {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
@@ -301,6 +301,15 @@ export default {
               this.$message.success(this.$t('Deployed all spiders successfully'))
             })
         })
+    },
+    isShowRun (row) {
+      if (!row.deploy_ts) {
+        return false
+      }
+      if (!row.cmd) {
+        return false
+      }
+      return true
     }
   },
   created () {

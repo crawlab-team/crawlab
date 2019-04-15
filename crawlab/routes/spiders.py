@@ -81,7 +81,14 @@ class SpiderApi(BaseApi):
 
         # get one node
         elif id is not None:
-            return jsonify(db_manager.get('spiders', id=id))
+            spider = db_manager.get('spiders', id=id)
+
+            # get deploy
+            last_deploy = db_manager.get_last_deploy(spider_id=spider['_id'])
+            if last_deploy is not None:
+                spider['deploy_ts'] = last_deploy['finish_ts']
+
+            return jsonify(spider)
 
         # get a list of items
         else:
@@ -108,8 +115,23 @@ class SpiderApi(BaseApi):
 
                 # existing spider
                 else:
+                    # get last deploy
+                    last_deploy = db_manager.get_last_deploy(spider_id=spider['_id'])
+                    if last_deploy is not None:
+                        spider['deploy_ts'] = last_deploy['finish_ts']
+
+                    # get last task
+                    last_task = db_manager.get_last_task(spider_id=spider['_id'])
+                    if last_task is not None:
+                        spider['task_ts'] = last_task['create_ts']
+
+                    # file stats
                     stats = get_file_suffix_stats(dir_path)
+
+                    # language
                     lang = get_lang_by_stats(stats)
+
+                    # update spider data
                     db_manager.update_one('spiders', id=str(spider['_id']), values={
                         'lang': lang,
                         'suffix_stats': stats,

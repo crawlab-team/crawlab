@@ -147,11 +147,21 @@ class DbManager(object):
 
     def get_last_deploy(self, spider_id):
         """
-        @deprecated
+        Get latest deploy for a given spider_id
         """
         col = self.db['deploys']
         for item in col.find({'spider_id': ObjectId(spider_id)}) \
                 .sort('finish_ts', DESCENDING):
+            return item
+        return None
+
+    def get_last_task(self, spider_id):
+        """
+        Get latest deploy for a given spider_id
+        """
+        col = self.db['tasks']
+        for item in col.find({'spider_id': ObjectId(spider_id)}) \
+                .sort('create_ts', DESCENDING):
             return item
         return None
 

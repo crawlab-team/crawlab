@@ -31,6 +31,7 @@ export default {
   SUCCESS: '成功',
   FAILURE: '错误',
   UNAVAILABLE: '未知',
+  REVOKED: '已取消',
 
   // 操作
   Run: '运行',
@@ -46,6 +47,7 @@ export default {
   Edit: '编辑',
   Remove: '删除',
   Confirm: '确认',
+  Stop: '停止',
 
   // 主页
   'Total Tasks': '总任务数',

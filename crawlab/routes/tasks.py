@@ -1,8 +1,9 @@
 import json
+from datetime import datetime
 
 import requests
 from bson import ObjectId
-from celery.worker.control import revoke
+from tasks.celery import celery_app
 
 from constants.task import TaskStatus
 from db.manager import db_manager
@@ -42,6 +43,8 @@ class TaskApi(BaseApi):
             task = db_manager.get(col_name=self.col_name, id=id)
             spider = db_manager.get(col_name='spiders', id=str(task['spider_id']))
             task['spider_name'] = spider['name']
+            if task.get('finish_ts') is not None:
+                task['duration'] = (task['finish_ts'] - task['create_ts']).total_seconds()
             try:
                 with open(task['log_file_path']) as f:
                     task['log'] = f.read()
@@ -61,7 +64,8 @@ class TaskApi(BaseApi):
             _spider = db_manager.get(col_name='spiders', id=str(task['spider_id']))
             if task.get('status') is None:
                 task['status'] = TaskStatus.UNAVAILABLE
-            task['spider_name'] = _spider['name']
+            if _spider:
+                task['spider_name'] = _spider['name']
             items.append(task)
         return {
             'status': 'ok',
@@ -146,11 +150,13 @@ class TaskApi(BaseApi):
     def stop(self, id):
         """
         Stop the task in progress.
-        TODO: work in progress
         :param id:
         :return:
         """
-        revoke(id, terminate=True)
+        celery_app.control.revoke(id, terminate=True)
+        db_manager.update_one('tasks', id=id, values={
+            'status': TaskStatus.REVOKED
+        })
         return {
             'id': id,
             'status': 'ok',
