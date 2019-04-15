@@ -11,7 +11,12 @@ class DeployApi(BaseApi):
         ('node_id', str),
     )
 
-    def get(self, id=None, action=None):
+    def get(self, id: str = None, action: str = None) -> (dict, tuple):
+        """
+        GET method of DeployAPI.
+        :param id: deploy_id
+        :param action: action
+        """
         # action by id
         if action is not None:
             if not hasattr(self, action):

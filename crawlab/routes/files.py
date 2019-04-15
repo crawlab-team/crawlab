@@ -15,6 +15,10 @@ class FileApi(Resource):
         self.parser.add_argument('path', type=str)
 
     def get(self, action=None):
+        """
+        GET method of FileAPI.
+        :param action: action
+        """
         args = self.parser.parse_args()
         path = args.get('path')
 

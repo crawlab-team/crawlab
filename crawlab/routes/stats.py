@@ -8,7 +8,11 @@ from utils import jsonify
 
 
 class StatsApi(Resource):
-    def get(self, action=None):
+    def get(self, action: str = None) -> (dict, tuple):
+        """
+        GET method of StatsApi.
+        :param action: action
+        """
         # action
         if action is not None:
             if not hasattr(self, action):
@@ -23,6 +27,9 @@ class StatsApi(Resource):
             return {}
 
     def get_home_stats(self):
+        """
+        Get stats for home page
+        """
         # overview stats
         task_count = db_manager.count('tasks', {})
         spider_count = db_manager.count('spiders', {})

@@ -14,7 +14,12 @@ SUFFIX_LANG_MAPPING = {
 }
 
 
-def get_file_suffix(file_name: str):
+def get_file_suffix(file_name: str) -> (str, None):
+    """
+    Get suffix of a file
+    :param file_name:
+    :return:
+    """
     file_name = file_name.lower()
     m = suffix_regex.search(file_name)
     if m is not None:
@@ -23,7 +28,11 @@ def get_file_suffix(file_name: str):
         return None
 
 
-def get_file_list(path):
+def get_file_list(path: str) -> list:
+    """
+    Get a list of files of given directory path
+    :param path: directory path
+    """
     for root, dirs, file_names in os.walk(path):
         # print(root)  # 当前目录路径
         # print(dirs)  # 当前路径下所有子目录
@@ -35,6 +44,10 @@ def get_file_list(path):
 
 
 def get_file_suffix_stats(path) -> dict:
+    """
+    Get suffix stats of given file
+    :param path: file path
+    """
     stats = defaultdict(int)
     for file_path in get_file_list(path):
         suffix = get_file_suffix(file_path)
@@ -44,6 +57,10 @@ def get_file_suffix_stats(path) -> dict:
 
 
 def get_file_content(path) -> dict:
+    """
+    Get file content
+    :param path: file path
+    """
     with open(path) as f:
         suffix = get_file_suffix(path)
         lang = SUFFIX_LANG_MAPPING.get(suffix)

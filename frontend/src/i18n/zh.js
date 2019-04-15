@@ -16,6 +16,7 @@ export default {
   'Deployed Spiders': '已部署爬虫',
   'Log': '日志',
   'Results': '结果',
+  'Environment': '环境',
 
   // 选择
   Spider: '爬虫',
@@ -79,6 +80,9 @@ export default {
   'Language': '语言',
   'Schedule Enabled': '是否开启定时任务',
   'Schedule Cron': '定时任务',
+  'Variable': '变量',
+  'Value': '值',
+  'Add Environment Variables': '添加环境变量',
 
   // 爬虫列表
   'Name': '名称',
@@ -126,5 +130,5 @@ export default {
   'Node info has been saved successfully': '节点信息已成功保存',
   'Are you sure to deploy this spider?': '你确定要部署该爬虫?',
   'Are you sure to delete this spider?': '你确定要删除该爬虫?',
-  'Spider info has been saved successfully': '爬虫信息已成功保存',
+  'Spider info has been saved successfully': '爬虫信息已成功保存'
 }

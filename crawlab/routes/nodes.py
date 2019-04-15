@@ -15,7 +15,12 @@ class NodeApi(BaseApi):
         ('port', str),
     )
 
-    def get(self, id=None, action=None):
+    def get(self, id: str = None, action: str = None) -> (dict, tuple):
+        """
+        GET method of NodeAPI.
+        :param id: item id
+        :param action: action
+        """
         # action by id
         if action is not None:
             if not hasattr(self, action):
@@ -43,10 +48,11 @@ class NodeApi(BaseApi):
                 'items': jsonify(nodes)
             }
 
-    def get_spiders(self, id=None):
-        items = db_manager.list('spiders')
-
-    def get_deploys(self, id):
+    def get_deploys(self, id: str) -> (dict, tuple):
+        """
+        Get a list of latest deploys of given node_id
+        :param id: node_id
+        """
         items = db_manager.list('deploys', {'node_id': id}, limit=10, sort_key='finish_ts')
         deploys = []
         for item in items:
@@ -60,6 +66,10 @@ class NodeApi(BaseApi):
         }
 
     def get_tasks(self, id):
+        """
+        Get a list of latest tasks of given node_id
+        :param id: node_id
+        """
         items = db_manager.list('tasks', {'node_id': id}, limit=10, sort_key='create_ts')
         for item in items:
             spider_id = item['spider_id']

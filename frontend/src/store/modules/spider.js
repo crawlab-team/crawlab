@@ -5,7 +5,7 @@ const state = {
   spiderList: [],
 
   // active spider data
-  spiderForm: { _id: {} },
+  spiderForm: {},
 
   // node to deploy/run
   activeNode: {},
@@ -76,6 +76,11 @@ const actions = {
       .then(() => {
         dispatch('getSpiderList')
       })
+  },
+  updateSpiderEnvs ({ state }) {
+    return request.post(`/spiders/${state.spiderForm._id}/update_envs`, {
+      envs: JSON.stringify(state.spiderForm.envs)
+    })
   },
   getSpiderData ({ state, commit }, id) {
     return request.get(`/spiders/${id}`)

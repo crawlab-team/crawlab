@@ -52,8 +52,10 @@ const MongoClient = require('mongodb').MongoClient;
   });
 
   // open database connection
-  const client = await MongoClient.connect('mongodb://192.168.99.100:27017');
-  let db = await client.db('crawlab_test');
+  console.log(process.env.MONGO_HOST);
+  console.log(process.env.MONGO_PORT);
+  const client = await MongoClient.connect(`mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}`);
+  let db = await client.db(process.env.MONGO_DB);
   const colName = process.env.CRAWLAB_COLLECTION || 'results_juejin';
   const taskId = process.env.CRAWLAB_TASK_ID;
   const col = db.collection(colName);

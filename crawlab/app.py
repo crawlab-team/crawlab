@@ -8,7 +8,8 @@ from celery import Celery
 from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
-
+# from flask_restplus import Api
+from utils.log import other
 from constants.node import NodeStatus
 from db.manager import db_manager
 from routes.schedules import ScheduleApi
@@ -42,23 +43,22 @@ api.add_resource(NodeApi,
                  '/api/nodes',
                  '/api/nodes/<string:id>',
                  '/api/nodes/<string:id>/<string:action>')
-api.add_resource(SpiderImportApi,
-                 '/api/spiders/import/<string:platform>')
-api.add_resource(SpiderManageApi,
-                 '/api/spiders/manage/<string:action>')
 api.add_resource(SpiderApi,
                  '/api/spiders',
                  '/api/spiders/<string:id>',
                  '/api/spiders/<string:id>/<string:action>')
+api.add_resource(SpiderImportApi,
+                 '/api/spiders/import/<string:platform>')
+api.add_resource(SpiderManageApi,
+                 '/api/spiders/manage/<string:action>')
+api.add_resource(TaskApi,
+                 '/api/tasks',
+                 '/api/tasks/<string:id>',
+                 '/api/tasks/<string:id>/<string:action>')
 api.add_resource(DeployApi,
                  '/api/deploys',
                  '/api/deploys/<string:id>',
                  '/api/deploys/<string:id>/<string:action>')
-api.add_resource(TaskApi,
-                 '/api/tasks',
-                 '/api/tasks/<string:id>',
-                 '/api/tasks/<string:id>/<string:action>'
-                 )
 api.add_resource(FileApi,
                  '/api/files',
                  '/api/files/<string:action>')
@@ -78,7 +78,7 @@ def monitor_nodes_status(celery_app):
         })
 
     def update_nodes_status_online(event):
-        print(event)
+        other.info(f"{event}")
 
     with celery_app.connection() as connection:
         recv = celery_app.events.Receiver(connection, handlers={
