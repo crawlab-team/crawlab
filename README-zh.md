@@ -62,6 +62,10 @@ npm run serve
 
 ![spider-list](./docs/img/screenshot-task-detail-results.png)
 
+## 使用流程
+
+![user-process](./docs/img/用户使用流程图.png)
+
 ## 架构
 
 Crawlab的架构跟Celery非常相似，但是加入了包括前端、爬虫、Flower在内的额外模块，以支持爬虫管理的功能。
@@ -137,7 +141,7 @@ class JuejinPipeline(object):
 
 ## 与其他框架比较
 
-限制以及有一些爬虫管理框架了，因此为啥还要用Crawlab？
+现在已经有一些爬虫管理框架了，因此为啥还要用Crawlab？
 
 因为很多现有当平台都依赖于Scrapyd，限制了爬虫的编程语言以及框架，爬虫工程师只能用scrapy和python。当然，scrapy是非常优秀的爬虫框架，但是它不能做一切事情。
 

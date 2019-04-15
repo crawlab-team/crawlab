@@ -16,6 +16,9 @@
       <el-tab-pane :label="$t('Files')" name="files">
         <file-list/>
       </el-tab-pane>
+      <el-tab-pane :label="$t('Environment')" name="environment">
+        <environment-list/>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -26,10 +29,12 @@ import {
 } from 'vuex'
 import FileList from '../../components/FileList/FileList'
 import SpiderOverview from '../../components/Overview/SpiderOverview'
+import EnvironmentList from '../../components/Environment/EnvironmentList'
 
 export default {
   name: 'NodeDetail',
   components: {
+    EnvironmentList,
     FileList,
     SpiderOverview
   },

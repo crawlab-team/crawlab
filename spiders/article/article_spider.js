@@ -11,7 +11,7 @@ const MongoClient = require('mongodb').MongoClient;
   const page = await browser.newPage();
 
   // open database connection
-  const client = await MongoClient.connect('mongodb://192.168.99.100:27017');
+  const client = await MongoClient.connect('mongodb://127.0.0.1:27017');
   let db = await client.db('crawlab_test');
   const colName = process.env.CRAWLAB_COLLECTION || 'results';
   const col = db.collection(colName);

@@ -1,0 +1,353 @@
+---
+swagger: '2.0'
+basePath: "/api"
+paths:
+  "/deploys":
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: GET method of DeployAPI
+      operationId: get_deploy_api
+      tags:
+      - deploy
+    put:
+      responses:
+        '200':
+          description: Success
+      summary: PUT method for creating a new item
+      operationId: put_deploy_api
+      tags:
+      - deploy
+  "/deploys/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      type: string
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: GET method of DeployAPI
+      operationId: get_deploy_api_by_id
+      tags:
+      - deploy
+    post:
+      responses:
+        '200':
+          description: Success
+      summary: POST method of the given id for performing an action
+      operationId: post_deploy_api
+      tags:
+      - deploy
+    delete:
+      responses:
+        '200':
+          description: Success
+      summary: DELETE method of given id for deleting an item
+      operationId: delete_deploy_api
+      tags:
+      - deploy
+  "/files":
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: GET method of FileAPI
+      operationId: get_file_api
+      tags:
+      - file
+  "/nodes":
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: GET method of NodeAPI
+      operationId: get_node_api
+      tags:
+      - node
+    put:
+      responses:
+        '200':
+          description: Success
+      summary: PUT method for creating a new item
+      operationId: put_node_api
+      tags:
+      - node
+  "/nodes/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      type: string
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: GET method of NodeAPI
+      operationId: get_node_api_by_id
+      tags:
+      - node
+    post:
+      responses:
+        '200':
+          description: Success
+      summary: POST method of the given id for performing an action
+      operationId: post_node_api
+      tags:
+      - node
+    delete:
+      responses:
+        '200':
+          description: Success
+      summary: DELETE method of the given id
+      operationId: delete_node_api
+      tags:
+      - node
+  "/nodes/{id}/get_deploys":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      type: string
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: Get a list of latest deploys of given node_id
+      tags:
+      - node
+  "/nodes/{id}/get_tasks":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      type: string
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: Get a list of latest tasks of given node_id
+      tags:
+      - node
+  "/spiders":
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: GET method of SpiderAPI
+      operationId: get_spider_api
+      tags:
+      - spider
+    put:
+      responses:
+        '200':
+          description: Success
+      summary: PUT method for creating a new item
+      operationId: put_spider_api
+      tags:
+      - spider
+  "/spiders/import/{platform}":
+    parameters:
+    - name: platform
+      in: path
+      required: true
+      type: string
+    post:
+      responses:
+        '200':
+          description: Success
+      operationId: post_spider_import_api
+      tags:
+      - spider
+  "/spiders/manage/deploy_all":
+    post:
+      responses:
+        '200':
+          description: Success
+      summary: Deploy all spiders to all nodes.
+      tags:
+      - spider
+  "/spiders/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      type: string
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: GET method of SpiderAPI
+      operationId: get_spider_api_by_id
+      tags:
+      - spider
+    post:
+      responses:
+        '200':
+          description: Success
+      summary: POST method of the given id for performing an action
+      operationId: post_spider_api
+      tags:
+      - spider
+    delete:
+      responses:
+        '200':
+          description: Success
+      summary: DELETE method of given id for deleting an item
+      operationId: delete_spider_api
+      tags:
+      - spider
+  "/spiders/{id}/get_tasks":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      type: string
+      description: spider_id
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: Get a list of latest tasks of given spider_id
+      tags:
+      - spider
+  "/spiders/{id}/get_deploys":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      type: string
+      description: spider_id
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: Get a list of latest deploys of given spider_id
+      tags:
+      - spider
+  "/spiders/{id}/on_crawl":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      type: string
+      description: spider_id
+    post:
+      responses:
+        '200':
+          description: Success
+      summary: Start a crawl task.
+      tags:
+      - spider
+  "/spiders/{id}/deploy":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      type: string
+      description: spider_id
+    post:
+      responses:
+        '200':
+          description: Success
+      summary: Start a crawl task.
+      tags:
+      - spider
+  "/stats/get_home_stats":
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: Get stats for home page
+      operationId: get_stats_api
+      tags:
+      - stats
+  "/tasks":
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: GET method of TaskAPI
+      operationId: get_task_api
+      tags:
+      - task
+    put:
+      responses:
+        '200':
+          description: Success
+      summary: PUT method for creating a new item
+      operationId: put_task_api
+      tags:
+      - task
+  "/tasks/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      type: string
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: GET method of TaskAPI
+      operationId: get_task_api_by_id
+      tags:
+      - task
+    post:
+      responses:
+        '200':
+          description: Success
+      summary: POST method of the given id for performing an action
+      operationId: post_task_api
+      tags:
+      - task
+    delete:
+      responses:
+        '200':
+          description: Success
+      summary: DELETE method of given id for deleting an item
+      operationId: delete_task_api
+      tags:
+      - task
+  "/tasks/{id}/get_log":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      type: string
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: Submit an HTTP request to fetch log from the node of a given task.
+      operationId: get_task_api_get_log
+      tags:
+      - task
+  "/tasks/{id}/on_get_log":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      type: string
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: Get the log of given task_id
+      operationId: get_task_api_on_get_log
+      tags:
+      - task
+info:
+  title: Crawlab API
+  version: '1.0'
+produces:
+- application/json
+consumes:
+- application/json
+responses:
+  ParseError:
+    description: When a mask can't be parsed
+  MaskError:
+    description: When any error occurs on mask
