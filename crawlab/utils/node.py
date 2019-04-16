@@ -33,9 +33,10 @@ def update_nodes_status(refresh=False):
 
         # new node
         if node is None:
-            node = {'_id': node_name, 'name': node_name, 'status': node_status}
+            node = {'_id': node_name, 'name': node_name, 'status': node_status, 'ip': 'localhost', 'port': '8000'}
             db_manager.save('nodes', node)
 
+        # existing node
         else:
             node['status'] = node_status
             db_manager.save('nodes', node)

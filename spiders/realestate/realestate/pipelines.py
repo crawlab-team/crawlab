@@ -13,10 +13,10 @@ MONGO_PORT = int(os.environ['MONGO_PORT'])
 MONGO_DB = os.environ['MONGO_DB']
 
 
-class JuejinPipeline(object):
+class MongoPipeline(object):
     mongo = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
     db = mongo[MONGO_DB]
-    col_name = os.environ.get('CRAWLAB_COLLECTION','test')
+    col_name = os.environ.get('CRAWLAB_COLLECTION')
     col = db[col_name]
 
     def process_item(self, item, spider):

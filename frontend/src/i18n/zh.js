@@ -8,6 +8,7 @@ export default {
   'Task': '任务',
   'Tasks': '任务',
   'Task Detail': '任务详情',
+  'Schedules': '定时任务',
   'Deploys': '部署',
 
   // 标签
