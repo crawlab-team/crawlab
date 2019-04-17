@@ -38,8 +38,8 @@ class BaseApi(Resource):
         :param action:
         :return:
         """
-        import pdb
-        pdb.set_trace()
+        # import pdb
+        # pdb.set_trace()
         args = self.parser.parse_args()
 
         # action by id
@@ -85,13 +85,13 @@ class BaseApi(Resource):
 
             # TODO: getting status for node
 
-            return jsonify({
+            return {
                 'status': 'ok',
                 'total_count': total_count,
                 'page_num': page,
                 'page_size': page_size,
-                'items': items
-            })
+                'items': jsonify(items)
+            }
 
         # get item by id
         else:
@@ -108,6 +108,9 @@ class BaseApi(Resource):
             if k not in DEFAULT_ARGS:
                 item[k] = args.get(k)
         item = db_manager.save(col_name=self.col_name, item=item)
+
+        self.after_update(item._id)
+
         return item
 
     def update(self, id: str = None) -> (dict, tuple):
