@@ -95,6 +95,10 @@ const actions = {
       .then(response => {
         console.log(response.data)
       })
+      .then(response => {
+        dispatch('getSpiderData', id)
+        dispatch('getSpiderList')
+      })
   },
   crawlSpider ({ state, dispatch }, id) {
     return request.post(`/spiders/${id}/on_crawl`)

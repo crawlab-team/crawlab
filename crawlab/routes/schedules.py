@@ -13,6 +13,8 @@ class ScheduleApi(BaseApi):
     col_name = 'schedules'
 
     arguments = (
+        ('name', str),
+        ('description', str),
         ('cron', str),
         ('spider_id', str)
     )

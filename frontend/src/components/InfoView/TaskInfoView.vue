@@ -32,13 +32,13 @@
         </el-form-item>
         <el-form-item :label="$t('Error Message')" v-if="taskForm.status === 'FAILURE'">
           <div class="error-message">
-            {{taskForm.result}}
+            {{taskForm.log}}
           </div>
         </el-form-item>
       </el-form>
     </el-row>
     <el-row class="button-container">
-      <el-button v-if="isRunning" type="danger" @click="onStop">Stop</el-button>
+      <el-button v-if="isRunning" type="danger" @click="onStop">{{$t('Stop')}}</el-button>
       <!--<el-button type="danger" @click="onRestart">Restart</el-button>-->
     </el-row>
   </div>

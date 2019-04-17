@@ -140,7 +140,7 @@ export const constantRouterMap = [
       title: 'Schedules',
       icon: 'fa fa-calendar'
     },
-    hidden: true,
+    hidden: false,
     children: [
       {
         path: '',

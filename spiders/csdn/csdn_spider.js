@@ -1,6 +1,10 @@
 const puppeteer = require('puppeteer');
 const MongoClient = require('mongodb').MongoClient;
 
+const MONGO_HOST = process.env.MONGO_HOST;
+const MONGO_PORT = process.env.MONGO_PORT;
+const MONGO_DB = process.env.MONGO_DB;
+
 (async () => {
   // browser
   const browser = await (puppeteer.launch({
@@ -53,8 +57,8 @@ const MongoClient = require('mongodb').MongoClient;
   });
 
   // open database connection
-  const client = await MongoClient.connect('mongodb://127.0.0.1:27017');
-  let db = await client.db('crawlab_test');
+  const client = await MongoClient.connect(`mongodb://${MONGO_HOST}:${MONGO_PORT}`);
+  let db = await client.db(MONGO_DB);
   const colName = process.env.CRAWLAB_COLLECTION || 'results_juejin';
   const taskId = process.env.CRAWLAB_TASK_ID;
   const col = db.collection(colName);

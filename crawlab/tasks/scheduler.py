@@ -2,6 +2,7 @@ import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.mongodb import MongoDBJobStore
 from pymongo import MongoClient
+from flask import current_app
 
 from config import MONGO_DB, MONGO_HOST, MONGO_PORT, FLASK_HOST, FLASK_PORT
 from constants.spider import CronEnabled
@@ -29,8 +30,11 @@ class Scheduler(object):
     def restart(self):
         self.scheduler.shutdown()
         self.scheduler.start()
+        current_app.logger.info('restarted')
 
     def update(self):
+        current_app.logger.info('updating...')
+
         # remove all existing periodic jobs
         self.scheduler.remove_all_jobs()
 
@@ -49,6 +53,8 @@ class Scheduler(object):
                                    jobstore='mongo',
                                    day_of_week=day_of_week, month=month, day=day, hour=hour, minute=minute,
                                    second=second)
+
+        current_app.logger.info('updated')
 
     def run(self):
         self.update()
