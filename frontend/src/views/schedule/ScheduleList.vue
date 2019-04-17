@@ -140,6 +140,7 @@ export default {
       this.dialogVisible = false
     },
     onAdd () {
+      this.isEdit = false
       this.dialogVisible = true
       this.$store.commit('schedule/SET_SCHEDULE_FORM', {})
     },
@@ -152,7 +153,7 @@ export default {
           } else {
             action = 'addSchedule'
           }
-          this.$store.dispatch('schedule/' + action)
+          this.$store.dispatch('schedule/' + action, this.scheduleForm._id)
             .then(() => {
               this.dialogVisible = false
               setTimeout(() => {
@@ -167,6 +168,7 @@ export default {
     onEdit (row) {
       this.$store.commit('schedule/SET_SCHEDULE_FORM', row)
       this.dialogVisible = true
+      this.isEdit = true
     },
     onRemove (row) {
       this.$store.dispatch('schedule/removeSchedule', row._id)
