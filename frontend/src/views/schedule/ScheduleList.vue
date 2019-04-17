@@ -112,6 +112,7 @@ export default {
         { name: 'cron', label: 'Cron', width: '220' },
         { name: 'description', label: 'Description', width: 'auto' }
       ],
+      isEdit: false,
       dialogTitle: '',
       dialogVisible: false,
       cronRules: [
@@ -145,8 +146,14 @@ export default {
     onAddSubmit () {
       this.$refs.scheduleForm.validate(res => {
         if (res) {
-          this.$store.dispatch('schedule/addSchedule')
-            .then(response => {
+          let action
+          if (this.isEdit) {
+            action = 'editSchedule'
+          } else {
+            action = 'addSchedule'
+          }
+          this.$store.dispatch('schedule/' + action)
+            .then(() => {
               this.dialogVisible = false
               setTimeout(() => {
                 this.$store.dispatch('schedule/getScheduleList')
@@ -163,7 +170,7 @@ export default {
     },
     onRemove (row) {
       this.$store.dispatch('schedule/removeSchedule', row._id)
-        .then(response => {
+        .then(() => {
           setTimeout(() => {
             this.$store.dispatch('schedule/getScheduleList')
             this.$message.success(`Schedule "${row.name}" has been removed`)
