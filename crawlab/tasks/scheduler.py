@@ -6,22 +6,21 @@ from pymongo import MongoClient
 from config import MONGO_DB, MONGO_HOST, MONGO_PORT, FLASK_HOST, FLASK_PORT
 from constants.spider import CronEnabled
 from db.manager import db_manager
-from tasks.celery import celery_scheduler
 
 
 class Scheduler(object):
     mongo = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
     task_col = 'apscheduler_jobs'
 
+    # scheduler jobstore
     jobstores = {
         'mongo': MongoDBJobStore(database=MONGO_DB,
                                  collection=task_col,
                                  client=mongo)
     }
 
+    # scheduler instance
     scheduler = BackgroundScheduler(jobstores=jobstores)
-
-    # scheduler = celery_scheduler
 
     def execute_spider(self, id: str):
         r = requests.get('http://%s:%s/api/spiders/%s/on_crawl' % (
@@ -32,6 +31,7 @@ class Scheduler(object):
 
     def update(self):
         # remove all existing periodic jobs
+        self.scheduler.remove_all_jobs()
         self.mongo[MONGO_DB][self.task_col].remove()
 
         periodical_tasks = db_manager.list('schedules', {})

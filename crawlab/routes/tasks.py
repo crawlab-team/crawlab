@@ -56,7 +56,13 @@ class TaskApi(BaseApi):
         args = self.parser.parse_args()
         page_size = args.get('page_size') or 10
         page_num = args.get('page_num') or 1
-        tasks = db_manager.list(col_name=self.col_name, cond={}, limit=page_size, skip=page_size * (page_num - 1),
+        filter_str = args.get('filter')
+        filter_ = {}
+        if filter_str is not None:
+            filter_ = json.loads(filter_str)
+            if filter_.get('spider_id'):
+                filter_['spider_id'] = ObjectId(filter_['spider_id'])
+        tasks = db_manager.list(col_name=self.col_name, cond=filter_, limit=page_size, skip=page_size * (page_num - 1),
                                 sort_key='create_ts')
         items = []
         for task in tasks:
@@ -82,7 +88,7 @@ class TaskApi(BaseApi):
 
         return {
             'status': 'ok',
-            'total_count': db_manager.count('tasks', {}),
+            'total_count': db_manager.count('tasks', filter_),
             'page_num': page_num,
             'page_size': page_size,
             'items': jsonify(items)
