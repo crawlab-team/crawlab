@@ -22,6 +22,15 @@ const actions = {
       .then(response => {
         commit('SET_SCHEDULE_LIST', response.data.items)
       })
+  },
+  addSchedule ({ state }) {
+    request.put('/schedules', state.scheduleForm)
+  },
+  editSchedule ({ state }, id) {
+    request.post(`/schedules/${id}`, state.scheduleForm)
+  },
+  removeSchedule ({ state }, id) {
+    request.delete(`/schedules/${id}`)
   }
 }
 
