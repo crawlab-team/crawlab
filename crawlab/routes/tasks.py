@@ -60,13 +60,26 @@ class TaskApi(BaseApi):
                                 sort_key='create_ts')
         items = []
         for task in tasks:
+            # celery tasks
             # _task = db_manager.get('tasks_celery', id=task['_id'])
+
+            # get spider
             _spider = db_manager.get(col_name='spiders', id=str(task['spider_id']))
+
+            # status
             if task.get('status') is None:
                 task['status'] = TaskStatus.UNAVAILABLE
+
+            # spider name
             if _spider:
                 task['spider_name'] = _spider['name']
+
+            # duration
+            if task.get('finish_ts') is not None:
+                task['duration'] = (task['finish_ts'] - task['create_ts']).total_seconds()
+
             items.append(task)
+
         return {
             'status': 'ok',
             'total_count': db_manager.count('tasks', {}),
