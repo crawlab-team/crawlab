@@ -20,6 +20,7 @@ class Scheduler(object):
     scheduler = BackgroundScheduler(jobstores=jobstores)
 
     def execute_spider(self, id: str):
+
         r = requests.get('http://%s:%s/api/spiders/%s/on_crawl' % (
             FLASK_HOST,
             FLASK_PORT,

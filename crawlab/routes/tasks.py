@@ -8,6 +8,7 @@ from db.manager import db_manager
 from routes.base import BaseApi
 from utils import jsonify
 from utils.spider import get_spider_col_fields
+from utils.log import other
 
 
 class TaskApi(BaseApi):
@@ -27,6 +28,7 @@ class TaskApi(BaseApi):
                            'code': 400,
                            'error': 'action "%s" invalid' % action
                        }, 400
+            other.info(f"到这了{action},{id}")
             return getattr(self, action)(id)
 
         elif id is not None:

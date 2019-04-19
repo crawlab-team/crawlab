@@ -1,4 +1,5 @@
 from flask_restful import reqparse, Resource
+# from flask_restplus import reqparse, Resource
 
 from db.manager import db_manager
 from utils import jsonify
@@ -25,6 +26,8 @@ class BaseApi(Resource):
             self.parser.add_argument(arg, type=type)
 
     def get(self, id=None, action=None):
+        import pdb
+        pdb.set_trace()
         args = self.parser.parse_args()
 
         # action by id

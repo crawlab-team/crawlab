@@ -2,15 +2,12 @@ import os
 from datetime import datetime
 
 from bson import ObjectId
-from celery.utils.log import get_logger
-
-from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_LOGS_FOLDER
+from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_LOGS_FOLDER,PYTHON_ENV_PATH
 from constants.task import TaskStatus
 from db.manager import db_manager
 from .celery import celery_app
 import subprocess
-
-logger = get_logger(__name__)
+from utils.log import other as logger
 
 
 @celery_app.task(bind=True)
@@ -19,6 +16,8 @@ def execute_spider(self, id: str):
     hostname = self.request.hostname
     spider = db_manager.get('spiders', id=id)
     command = spider.get('cmd')
+    if command.startswith("env"):
+        command = PYTHON_ENV_PATH + command.replace("env","")
 
     current_working_directory = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')))
 
