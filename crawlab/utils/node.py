@@ -24,7 +24,11 @@ def update_nodes_status(refresh=False):
     url = '%s/workers?status=1' % FLOWER_API_ENDPOINT
     if refresh:
         url += '&refresh=1'
+
     res = requests.get(url)
+    if res.status_code != 200:
+        return online_node_ids
+
     for k, v in json.loads(res.content.decode('utf-8')).items():
         node_name = k
         node_status = NodeStatus.ONLINE if v else NodeStatus.OFFLINE
