@@ -58,9 +58,17 @@ class SpiderApi(BaseApi):
 
         # spider schedule cron enabled
         ('cron_enabled', int),
+
+        # spider schedule cron enabled
+        ('envs', str),
     )
 
     def get(self, id=None, action=None):
+        """
+        GET method of SpiderAPI.
+        :param id: spider_id
+        :param action: action
+        """
         # action by id
         if action is not None:
             if not hasattr(self, action):
@@ -73,7 +81,14 @@ class SpiderApi(BaseApi):
 
         # get one node
         elif id is not None:
-            return jsonify(db_manager.get('spiders', id=id))
+            spider = db_manager.get('spiders', id=id)
+
+            # get deploy
+            last_deploy = db_manager.get_last_deploy(spider_id=spider['_id'])
+            if last_deploy is not None:
+                spider['deploy_ts'] = last_deploy['finish_ts']
+
+            return jsonify(spider)
 
         # get a list of items
         else:
@@ -100,8 +115,23 @@ class SpiderApi(BaseApi):
 
                 # existing spider
                 else:
+                    # get last deploy
+                    last_deploy = db_manager.get_last_deploy(spider_id=spider['_id'])
+                    if last_deploy is not None:
+                        spider['deploy_ts'] = last_deploy['finish_ts']
+
+                    # get last task
+                    last_task = db_manager.get_last_task(spider_id=spider['_id'])
+                    if last_task is not None:
+                        spider['task_ts'] = last_task['create_ts']
+
+                    # file stats
                     stats = get_file_suffix_stats(dir_path)
+
+                    # language
                     lang = get_lang_by_stats(stats)
+
+                    # update spider data
                     db_manager.update_one('spiders', id=str(spider['_id']), values={
                         'lang': lang,
                         'suffix_stats': stats,
@@ -115,7 +145,12 @@ class SpiderApi(BaseApi):
                 'items': jsonify(items)
             }
 
-    def crawl(self, id):
+    def crawl(self, id: str) -> (dict, tuple):
+        """
+        Submit an HTTP request to start a crawl task in the node of given spider_id.
+        @deprecated
+        :param id: spider_id
+        """
         args = self.parser.parse_args()
         node_id = args.get('node_id')
 
@@ -152,7 +187,12 @@ class SpiderApi(BaseApi):
             'task': data.get('task')
         }
 
-    def on_crawl(self, id):
+    def on_crawl(self, id: str) -> (dict, tuple):
+        """
+        Start a crawl task.
+        :param id: spider_id
+        :return:
+        """
         job = execute_spider.delay(id)
 
         # create a new task
@@ -172,7 +212,12 @@ class SpiderApi(BaseApi):
             }
         }
 
-    def deploy(self, id):
+    def deploy(self, id: str) -> (dict, tuple):
+        """
+        Submit HTTP requests to deploy the given spider to all nodes.
+        :param id:
+        :return:
+        """
         spider = db_manager.get('spiders', id=id)
         nodes = db_manager.list('nodes', {'status': NodeStatus.ONLINE})
 
@@ -198,13 +243,19 @@ class SpiderApi(BaseApi):
                 node_id,
             ), files=files)
 
+            # TODO: checkpoint for errors
+
         return {
             'code': 200,
             'status': 'ok',
             'message': 'deploy success'
         }
 
-    def deploy_file(self, id=None):
+    def deploy_file(self, id: str = None) -> (dict, tuple):
+        """
+        Receive HTTP request of deploys and unzip zip files and copy to the destination directories.
+        :param id: spider_id
+        """
         args = parser.parse_args()
         node_id = request.args.get('node_id')
         f = args.file
@@ -261,7 +312,11 @@ class SpiderApi(BaseApi):
             'message': 'deploy success'
         }
 
-    def get_deploys(self, id):
+    def get_deploys(self, id: str) -> (dict, tuple):
+        """
+        Get a list of latest deploys of given spider_id
+        :param id: spider_id
+        """
         items = db_manager.list('deploys', cond={'spider_id': ObjectId(id)}, limit=10, sort_key='finish_ts')
         deploys = []
         for item in items:
@@ -274,7 +329,11 @@ class SpiderApi(BaseApi):
             'items': jsonify(deploys)
         }
 
-    def get_tasks(self, id):
+    def get_tasks(self, id: str) -> (dict, tuple):
+        """
+        Get a list of latest tasks of given spider_id
+        :param id:
+        """
         items = db_manager.list('tasks', cond={'spider_id': ObjectId(id)}, limit=10, sort_key='create_ts')
         for item in items:
             spider_id = item['spider_id']
@@ -287,11 +346,23 @@ class SpiderApi(BaseApi):
             'items': jsonify(items)
         }
 
-    def after_update(self, id=None):
+    def after_update(self, id: str = None) -> None:
+        """
+        After each spider is updated, update the cron scheduler correspondingly.
+        :param id: spider_id
+        """
         scheduler.update()
+
+    def update_envs(self, id: str):
+        args = self.parser.parse_args()
+        envs = json.loads(args.envs)
+        db_manager.update_one(col_name='spiders', id=id, values={'envs': envs})
 
 
 class SpiderImportApi(Resource):
+    __doc__ = """
+    API for importing spiders from external resources including Github, Gitlab, and subversion (WIP)
+    """
     parser = reqparse.RequestParser()
     arguments = [
         ('url', str)
@@ -302,7 +373,7 @@ class SpiderImportApi(Resource):
         for arg, type in self.arguments:
             self.parser.add_argument(arg, type=type)
 
-    def post(self, platform=None):
+    def post(self, platform: str = None) -> (dict, tuple):
         if platform is None:
             return {
                        'status': 'ok',
@@ -319,13 +390,22 @@ class SpiderImportApi(Resource):
 
         return getattr(self, platform)()
 
-    def github(self):
+    def github(self) -> None:
+        """
+        Import Github API
+        """
         self._git()
 
-    def gitlab(self):
+    def gitlab(self) -> None:
+        """
+        Import Gitlab API
+        """
         self._git()
 
     def _git(self):
+        """
+        Helper method to perform github important (basically "git clone" method).
+        """
         args = self.parser.parse_args()
         url = args.get('url')
         if url is None:
@@ -357,7 +437,11 @@ class SpiderManageApi(Resource):
         ('url', str)
     ]
 
-    def post(self, action):
+    def post(self, action: str) -> (dict, tuple):
+        """
+        POST method for SpiderManageAPI.
+        :param action:
+        """
         if not hasattr(self, action):
             return {
                        'status': 'ok',
@@ -367,7 +451,10 @@ class SpiderManageApi(Resource):
 
         return getattr(self, action)()
 
-    def deploy_all(self):
+    def deploy_all(self) -> (dict, tuple):
+        """
+        Deploy all spiders to all nodes.
+        """
         # active nodes
         nodes = db_manager.list('nodes', {'status': NodeStatus.ONLINE})
 

@@ -5,7 +5,7 @@ const state = {
   spiderList: [],
 
   // active spider data
-  spiderForm: { _id: {} },
+  spiderForm: {},
 
   // node to deploy/run
   activeNode: {},
@@ -77,6 +77,11 @@ const actions = {
         dispatch('getSpiderList')
       })
   },
+  updateSpiderEnvs ({ state }) {
+    return request.post(`/spiders/${state.spiderForm._id}/update_envs`, {
+      envs: JSON.stringify(state.spiderForm.envs)
+    })
+  },
   getSpiderData ({ state, commit }, id) {
     return request.get(`/spiders/${id}`)
       .then(response => {
@@ -89,6 +94,10 @@ const actions = {
     return request.post(`/spiders/${id}/deploy`)
       .then(response => {
         console.log(response.data)
+      })
+      .then(response => {
+        dispatch('getSpiderData', id)
+        dispatch('getSpiderList')
       })
   },
   crawlSpider ({ state, dispatch }, id) {

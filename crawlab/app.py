@@ -43,23 +43,22 @@ api.add_resource(NodeApi,
                  '/api/nodes',
                  '/api/nodes/<string:id>',
                  '/api/nodes/<string:id>/<string:action>')
-api.add_resource(SpiderImportApi,
-                 '/api/spiders/import/<string:platform>')
-api.add_resource(SpiderManageApi,
-                 '/api/spiders/manage/<string:action>')
 api.add_resource(SpiderApi,
                  '/api/spiders',
                  '/api/spiders/<string:id>',
                  '/api/spiders/<string:id>/<string:action>')
+api.add_resource(SpiderImportApi,
+                 '/api/spiders/import/<string:platform>')
+api.add_resource(SpiderManageApi,
+                 '/api/spiders/manage/<string:action>')
+api.add_resource(TaskApi,
+                 '/api/tasks',
+                 '/api/tasks/<string:id>',
+                 '/api/tasks/<string:id>/<string:action>')
 api.add_resource(DeployApi,
                  '/api/deploys',
                  '/api/deploys/<string:id>',
                  '/api/deploys/<string:id>/<string:action>')
-api.add_resource(TaskApi,
-                 '/api/tasks',
-                 '/api/tasks/<string:id>',
-                 '/api/tasks/<string:id>/<string:action>'
-                 )
 api.add_resource(FileApi,
                  '/api/files',
                  '/api/files/<string:action>')
@@ -89,17 +88,17 @@ def monitor_nodes_status(celery_app):
         recv.capture(limit=None, timeout=None, wakeup=True)
 
 
+# run scheduler as a separate process
+scheduler.run()
+
+# monitor node status
+p_monitor = Process(target=monitor_nodes_status, args=(celery_app,))
+p_monitor.start()
+
+# create folder if it does not exist
+if not os.path.exists(PROJECT_LOGS_FOLDER):
+    os.makedirs(PROJECT_LOGS_FOLDER)
+
 if __name__ == '__main__':
-    # create folder if it does not exist
-    if not os.path.exists(PROJECT_LOGS_FOLDER):
-        os.makedirs(PROJECT_LOGS_FOLDER)
-
-    # run scheduler as a separate process
-    scheduler.run()
-
-    # monitor node status
-    p_monitor = Process(target=monitor_nodes_status, args=(celery_app,))
-    p_monitor.start()
-
     # run app instance
     app.run(host=FLASK_HOST, port=FLASK_PORT, threaded=True)

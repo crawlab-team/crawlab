@@ -8,6 +8,7 @@ export default {
   'Task': '任务',
   'Tasks': '任务',
   'Task Detail': '任务详情',
+  'Schedules': '定时任务',
   'Deploys': '部署',
 
   // 标签
@@ -16,6 +17,7 @@ export default {
   'Deployed Spiders': '已部署爬虫',
   'Log': '日志',
   'Results': '结果',
+  'Environment': '环境',
 
   // 选择
   Spider: '爬虫',
@@ -30,6 +32,7 @@ export default {
   SUCCESS: '成功',
   FAILURE: '错误',
   UNAVAILABLE: '未知',
+  REVOKED: '已取消',
 
   // 操作
   Run: '运行',
@@ -45,6 +48,7 @@ export default {
   Edit: '编辑',
   Remove: '删除',
   Confirm: '确认',
+  Stop: '停止',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -79,6 +83,9 @@ export default {
   'Language': '语言',
   'Schedule Enabled': '是否开启定时任务',
   'Schedule Cron': '定时任务',
+  'Variable': '变量',
+  'Value': '值',
+  'Add Environment Variables': '添加环境变量',
 
   // 爬虫列表
   'Name': '名称',

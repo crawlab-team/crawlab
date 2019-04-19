@@ -38,30 +38,30 @@
             <el-option value="go" label="Go"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('Schedule Enabled')">
-          <el-switch v-model="spiderForm.cron_enabled" :disabled="isView">
-          </el-switch>
-        </el-form-item>
-        <el-form-item :label="$t('Schedule Cron')" v-if="spiderForm.cron_enabled"
-                      prop="cron"
-                      :rules="cronRules"
-                      :inline-message="true">
-          <template slot="label">
-            <el-tooltip :content="$t('Cron Format: [second] [minute] [hour] [day of month] [month] [day of week]')"
-                        placement="top">
-              <span>
-                {{$t('Schedule Cron')}}
-                <i class="fa fa-exclamation-circle"></i>
-              </span>
-            </el-tooltip>
-          </template>
-          <el-input v-model="spiderForm.cron" :placeholder="$t('Schedule Cron')"
-                    :disabled="isView"></el-input>
-        </el-form-item>
+        <!--<el-form-item :label="$t('Schedule Enabled')">-->
+        <!--<el-switch v-model="spiderForm.cron_enabled" :disabled="isView">-->
+        <!--</el-switch>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item :label="$t('Schedule Cron')" v-if="spiderForm.cron_enabled"-->
+        <!--prop="cron"-->
+        <!--:rules="cronRules"-->
+        <!--:inline-message="true">-->
+        <!--<template slot="label">-->
+        <!--<el-tooltip :content="$t('Cron Format: [second] [minute] [hour] [day of month] [month] [day of week]')"-->
+        <!--placement="top">-->
+        <!--<span>-->
+        <!--{{$t('Schedule Cron')}}-->
+        <!--<i class="fa fa-exclamation-circle"></i>-->
+        <!--</span>-->
+        <!--</el-tooltip>-->
+        <!--</template>-->
+        <!--<el-input v-model="spiderForm.cron" :placeholder="$t('Schedule Cron')"-->
+        <!--:disabled="isView"></el-input>-->
+        <!--</el-form-item>-->
       </el-form>
     </el-row>
     <el-row class="button-container" v-if="!isView">
-      <el-button type="danger" @click="onRun">{{$t('Run')}}</el-button>
+      <el-button v-if="isShowRun" type="danger" @click="onRun">{{$t('Run')}}</el-button>
       <el-button type="primary" @click="onDeploy">{{$t('Deploy')}}</el-button>
       <el-button type="success" @click="onSave">{{$t('Save')}}</el-button>
     </el-row>
@@ -109,7 +109,16 @@ export default {
   computed: {
     ...mapState('spider', [
       'spiderForm'
-    ])
+    ]),
+    isShowRun () {
+      if (!this.spiderForm.deploy_ts) {
+        return false
+      }
+      if (!this.spiderForm.cmd) {
+        return false
+      }
+      return true
+    }
   },
   methods: {
     onRun () {
@@ -131,6 +140,11 @@ export default {
     },
     onDeploy () {
       const row = this.spiderForm
+
+      // save spider
+      this.$store.dispatch('spider/editSpider', row._id)
+
+      // validate fields
       this.$refs['spiderForm'].validate(res => {
         if (res) {
           this.$confirm(this.$t('Are you sure to deploy this spider?'), this.$t('Notification'), {

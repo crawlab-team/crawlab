@@ -1,7 +1,9 @@
 import json
+from datetime import datetime
 
 import requests
-from celery.worker.control import revoke
+from bson import ObjectId
+from tasks.celery import celery_app
 
 from constants.task import TaskStatus
 from db.manager import db_manager
@@ -12,6 +14,7 @@ from utils.log import other
 
 
 class TaskApi(BaseApi):
+    # collection name
     col_name = 'tasks'
 
     arguments = (
@@ -19,7 +22,12 @@ class TaskApi(BaseApi):
         ('file_path', str)
     )
 
-    def get(self, id=None, action=None):
+    def get(self, id: str = None, action: str = None):
+        """
+        GET method of TaskAPI.
+        :param id: item id
+        :param action: action
+        """
         # action by id
         if action is not None:
             if not hasattr(self, action):
@@ -28,13 +36,15 @@ class TaskApi(BaseApi):
                            'code': 400,
                            'error': 'action "%s" invalid' % action
                        }, 400
-            other.info(f"到这了{action},{id}")
+            # other.info(f"到这了{action},{id}")
             return getattr(self, action)(id)
 
         elif id is not None:
-            task = db_manager.get('tasks', id=id)
-            spider = db_manager.get('spiders', id=str(task['spider_id']))
+            task = db_manager.get(col_name=self.col_name, id=id)
+            spider = db_manager.get(col_name='spiders', id=str(task['spider_id']))
             task['spider_name'] = spider['name']
+            if task.get('finish_ts') is not None:
+                task['duration'] = (task['finish_ts'] - task['create_ts']).total_seconds()
             try:
                 with open(task['log_file_path']) as f:
                     task['log'] = f.read()
@@ -46,26 +56,51 @@ class TaskApi(BaseApi):
         args = self.parser.parse_args()
         page_size = args.get('page_size') or 10
         page_num = args.get('page_num') or 1
-        tasks = db_manager.list('tasks', {}, limit=page_size, skip=page_size * (page_num - 1), sort_key='create_ts')
+        filter_str = args.get('filter')
+        filter_ = {}
+        if filter_str is not None:
+            filter_ = json.loads(filter_str)
+            if filter_.get('spider_id'):
+                filter_['spider_id'] = ObjectId(filter_['spider_id'])
+        tasks = db_manager.list(col_name=self.col_name, cond=filter_, limit=page_size, skip=page_size * (page_num - 1),
+                                sort_key='create_ts')
         items = []
         for task in tasks:
+            # celery tasks
             # _task = db_manager.get('tasks_celery', id=task['_id'])
-            _spider = db_manager.get('spiders', id=str(task['spider_id']))
+
+            # get spider
+            _spider = db_manager.get(col_name='spiders', id=str(task['spider_id']))
+
+            # status
             if task.get('status') is None:
                 task['status'] = TaskStatus.UNAVAILABLE
-            task['spider_name'] = _spider['name']
+
+            # spider name
+            if _spider:
+                task['spider_name'] = _spider['name']
+
+            # duration
+            if task.get('finish_ts') is not None:
+                task['duration'] = (task['finish_ts'] - task['create_ts']).total_seconds()
+
             items.append(task)
+
         return {
             'status': 'ok',
-            'total_count': db_manager.count('tasks', {}),
+            'total_count': db_manager.count('tasks', filter_),
             'page_num': page_num,
             'page_size': page_size,
             'items': jsonify(items)
         }
 
-    def on_get_log(self, id):
+    def on_get_log(self, id: (str, ObjectId)) -> (dict, tuple):
+        """
+        Get the log of given task_id
+        :param id: task_id
+        """
         try:
-            task = db_manager.get('tasks', id=id)
+            task = db_manager.get(col_name=self.col_name, id=id)
             with open(task['log_file_path']) as f:
                 log = f.read()
                 return {
@@ -79,9 +114,14 @@ class TaskApi(BaseApi):
                        'error': str(err)
                    }, 500
 
-    def get_log(self, id):
-        task = db_manager.get('tasks', id=id)
-        node = db_manager.get('nodes', id=task['node_id'])
+    def get_log(self, id: (str, ObjectId)) -> (dict, tuple):
+        """
+        Submit an HTTP request to fetch log from the node of a given task.
+        :param id: task_id
+        :return:
+        """
+        task = db_manager.get(col_name=self.col_name, id=id)
+        node = db_manager.get(col_name='nodes', id=task['node_id'])
         r = requests.get('http://%s:%s/api/tasks/%s/on_get_log' % (
             node['ip'],
             node['port'],
@@ -101,7 +141,11 @@ class TaskApi(BaseApi):
                        'error': data['error']
                    }, 500
 
-    def get_results(self, id):
+    def get_results(self, id: str) -> (dict, tuple):
+        """
+        Get a list of results crawled in a given task.
+        :param id: task_id
+        """
         args = self.parser.parse_args()
         page_size = args.get('page_size') or 10
         page_num = args.get('page_num') or 1
@@ -123,7 +167,15 @@ class TaskApi(BaseApi):
         }
 
     def stop(self, id):
-        revoke(id, terminate=True)
+        """
+        Stop the task in progress.
+        :param id:
+        :return:
+        """
+        celery_app.control.revoke(id, terminate=True)
+        db_manager.update_one('tasks', id=id, values={
+            'status': TaskStatus.REVOKED
+        })
         return {
             'id': id,
             'status': 'ok',
