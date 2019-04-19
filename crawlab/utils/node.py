@@ -8,16 +8,27 @@ from db.manager import db_manager
 
 
 def check_nodes_status():
+    """
+    Update node status from Flower.
+    """
     res = requests.get('%s/workers?status=1' % FLOWER_API_ENDPOINT)
     return json.loads(res.content.decode('utf-8'))
 
 
 def update_nodes_status(refresh=False):
+    """
+    Update all nodes status
+    :param refresh:
+    """
     online_node_ids = []
     url = '%s/workers?status=1' % FLOWER_API_ENDPOINT
     if refresh:
         url += '&refresh=1'
+
     res = requests.get(url)
+    if res.status_code != 200:
+        return online_node_ids
+
     for k, v in json.loads(res.content.decode('utf-8')).items():
         node_name = k
         node_status = NodeStatus.ONLINE if v else NodeStatus.OFFLINE
@@ -26,9 +37,10 @@ def update_nodes_status(refresh=False):
 
         # new node
         if node is None:
-            node = {'_id': node_name, 'name': node_name, 'status': node_status}
+            node = {'_id': node_name, 'name': node_name, 'status': node_status, 'ip': 'localhost', 'port': '8000'}
             db_manager.save('nodes', node)
 
+        # existing node
         else:
             node['status'] = node_status
             db_manager.save('nodes', node)
