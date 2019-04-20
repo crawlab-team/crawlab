@@ -111,6 +111,11 @@ export default {
   // 部署
   'Time': '时间',
 
+  // 定时任务
+  'Schedule Name': '定时任务名称',
+  'Schedule Description': '定时任务描述',
+  'Parameters': '参数',
+
   // 文件
   'Choose Folder': '选择文件',
 

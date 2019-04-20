@@ -193,12 +193,19 @@ class SpiderApi(BaseApi):
         :param id: spider_id
         :return:
         """
-        job = execute_spider.delay(id)
+        args = self.parser.parse_args()
+        params = args.get('params')
+
+        spider = db_manager.get('spiders', id=ObjectId(id))
+
+        job = execute_spider.delay(id, params)
 
         # create a new task
         db_manager.save('tasks', {
             '_id': job.id,
             'spider_id': ObjectId(id),
+            'cmd': spider.get('cmd'),
+            'params': params,
             'create_ts': datetime.utcnow(),
             'status': TaskStatus.PENDING
         })

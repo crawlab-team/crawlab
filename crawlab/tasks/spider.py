@@ -11,7 +11,7 @@ from utils.log import other as logger
 
 
 @celery_app.task(bind=True)
-def execute_spider(self, id: str):
+def execute_spider(self, id: str, params: str = None):
     """
     Execute spider task.
     :param self:
@@ -23,6 +23,8 @@ def execute_spider(self, id: str):
     command = spider.get('cmd')
     if command.startswith("env"):
         command = PYTHON_ENV_PATH + command.replace("env", "")
+    if params is not None:
+        command += ' ' + params
 
     current_working_directory = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')))
 
@@ -43,7 +45,7 @@ def execute_spider(self, id: str):
     stdout = open(log_file_path, 'a')
     stderr = open(log_file_path, 'a')
 
-    # create a new task
+    # update task status as started
     db_manager.update_one('tasks', id=task_id, values={
         'start_ts': datetime.utcnow(),
         'node_id': hostname,
@@ -68,7 +70,9 @@ def execute_spider(self, id: str):
         env['CRAWLAB_COLLECTION'] = spider.get('col')
 
     # start process
-    p = subprocess.Popen(command.split(' '),
+    cmd_arr = command.split(' ')
+    cmd_arr = list(filter(lambda x: x != '', cmd_arr))
+    p = subprocess.Popen(cmd_arr,
                          stdout=stdout.fileno(),
                          stderr=stderr.fileno(),
                          cwd=current_working_directory,
@@ -87,9 +91,6 @@ def execute_spider(self, id: str):
 
     # save task when the task is finished
     db_manager.update_one('tasks', id=task_id, values={
-        'node_id': hostname,
-        'hostname': hostname,
-        'log_file_path': log_file_path,
         'finish_ts': datetime.utcnow(),
         'status': status
     })

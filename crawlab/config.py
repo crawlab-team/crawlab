@@ -5,7 +5,8 @@ PROJECT_SOURCE_FILE_FOLDER = '../spiders'
 PYTHON_ENV_PATH = '/Users/chennan/Desktop/2019/env/bin/python'
 
 # 爬虫部署路径
-PROJECT_DEPLOY_FILE_FOLDER = '../deployfile'
+# PROJECT_DEPLOY_FILE_FOLDER = '../deployfile'
+PROJECT_DEPLOY_FILE_FOLDER = '/var/crawlab'
 
 # 爬虫日志路径
 PROJECT_LOGS_FOLDER = '../deployfile/logs'

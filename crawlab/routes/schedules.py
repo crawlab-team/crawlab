@@ -17,7 +17,8 @@ class ScheduleApi(BaseApi):
         ('name', str),
         ('description', str),
         ('cron', str),
-        ('spider_id', str)
+        ('spider_id', str),
+        ('params', str)
     )
 
     def after_update(self, id: str = None):

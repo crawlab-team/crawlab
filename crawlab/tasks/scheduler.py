@@ -22,12 +22,15 @@ class Scheduler(object):
     # scheduler instance
     scheduler = BackgroundScheduler(jobstores=jobstores)
 
-    def execute_spider(self, id: str):
+    def execute_spider(self, id: str, params: str = None):
+        query = {}
+        if params is not None:
+            query['params'] = params
         r = requests.get('http://%s:%s/api/spiders/%s/on_crawl' % (
             FLASK_HOST,
             FLASK_PORT,
             id
-        ))
+        ), query)
 
     def update(self):
         # remove all existing periodic jobs
@@ -44,9 +47,15 @@ class Scheduler(object):
             day = cron_arr[3]
             month = cron_arr[4]
             day_of_week = cron_arr[5]
-            self.scheduler.add_job(func=self.execute_spider, trigger='cron', args=(str(task['spider_id']),),
+            self.scheduler.add_job(func=self.execute_spider,
+                                   args=(str(task['spider_id']), task.get('params'),),
+                                   trigger='cron',
                                    jobstore='mongo',
-                                   day_of_week=day_of_week, month=month, day=day, hour=hour, minute=minute,
+                                   day_of_week=day_of_week,
+                                   month=month,
+                                   day=day,
+                                   hour=hour,
+                                   minute=minute,
                                    second=second)
 
     def run(self):
