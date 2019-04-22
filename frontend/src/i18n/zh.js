@@ -101,6 +101,8 @@ export default {
   'Finish Timestamp': '完成时间',
   'Duration (sec)': '用时(秒)',
   'Error Message': '错误信息',
+  'Results Count': '结果数',
+  'Average Results Count per Second': '抓取速度(个/秒)',
 
   // 任务列表
   'Node': '节点',

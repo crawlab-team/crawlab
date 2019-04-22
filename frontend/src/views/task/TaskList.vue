@@ -106,12 +106,14 @@ export default {
       dialogVisible: false,
       // tableData,
       columns: [
-        { name: 'create_ts', label: 'Create Time', width: '150' },
-        { name: 'start_ts', label: 'Start Time', width: '150' },
-        { name: 'finish_ts', label: 'Finish Time', width: '150' },
+        { name: 'create_ts', label: 'Create Time', width: '100' },
+        { name: 'start_ts', label: 'Start Time', width: '100' },
+        { name: 'finish_ts', label: 'Finish Time', width: '100' },
         { name: 'duration', label: 'Duration (sec)', width: '80' },
-        { name: 'spider_name', label: 'Spider', width: '160' },
+        { name: 'spider_name', label: 'Spider', width: '120' },
         { name: 'node_id', label: 'Node', width: '160' },
+        { name: 'num_results', label: 'Results Count', width: '80' },
+        { name: 'avg_num_results', label: 'Average Results Count per Second', width: '80' },
         { name: 'status', label: 'Status', width: '80' }
       ]
     }
