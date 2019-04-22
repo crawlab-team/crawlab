@@ -1,5 +1,9 @@
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 # 爬虫源码路径
-PROJECT_SOURCE_FILE_FOLDER = '../spiders'
+PROJECT_SOURCE_FILE_FOLDER = os.path.join(BASE_DIR, "spiders")
 
 # 配置python虚拟环境的路径
 PYTHON_ENV_PATH = '/Users/chennan/Desktop/2019/env/bin/python'

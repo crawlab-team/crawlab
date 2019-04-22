@@ -42,9 +42,21 @@ class TaskApi(BaseApi):
         elif id is not None:
             task = db_manager.get(col_name=self.col_name, id=id)
             spider = db_manager.get(col_name='spiders', id=str(task['spider_id']))
-            task['spider_name'] = spider['name']
+
+            # spider
+            task['num_results'] = 0
+            if spider:
+                task['spider_name'] = spider['name']
+                if spider.get('col'):
+                    col = spider.get('col')
+                    num_results = db_manager.count(col, {'task_id': task['_id']})
+                    task['num_results'] = num_results
+
+            # duration
             if task.get('finish_ts') is not None:
                 task['duration'] = (task['finish_ts'] - task['create_ts']).total_seconds()
+                task['avg_num_results'] = round(task['num_results'] / task['duration'], 1)
+
             try:
                 with open(task['log_file_path']) as f:
                     task['log'] = f.read()
@@ -76,13 +88,22 @@ class TaskApi(BaseApi):
             if task.get('status') is None:
                 task['status'] = TaskStatus.UNAVAILABLE
 
-            # spider name
+            # spider
+            task['num_results'] = 0
             if _spider:
+                # spider name
                 task['spider_name'] = _spider['name']
+
+                # number of results
+                if _spider.get('col'):
+                    col = _spider.get('col')
+                    num_results = db_manager.count(col, {'task_id': task['_id']})
+                    task['num_results'] = num_results
 
             # duration
             if task.get('finish_ts') is not None:
                 task['duration'] = (task['finish_ts'] - task['create_ts']).total_seconds()
+                task['avg_num_results'] = round(task['num_results'] / task['duration'], 1)
 
             items.append(task)
 
