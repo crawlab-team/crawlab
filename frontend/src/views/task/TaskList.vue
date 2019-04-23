@@ -102,9 +102,16 @@ export default {
   name: 'TaskList',
   data () {
     return {
+      // setInterval handle
+      handle: undefined,
+
+      // determine if is edit mode
       isEditMode: false,
+
+      // dialog visibility
       dialogVisible: false,
-      // tableData,
+
+      // table columns
       columns: [
         { name: 'create_ts', label: 'Create Time', width: '100' },
         { name: 'start_ts', label: 'Start Time', width: '100' },
@@ -211,6 +218,15 @@ export default {
     this.$store.dispatch('task/getTaskList')
     this.$store.dispatch('spider/getSpiderList')
     this.$store.dispatch('node/getNodeList')
+  },
+  mounted () {
+    // request task list every 5 seconds
+    this.handle = setInterval(() => {
+      this.$store.dispatch('task/getTaskList')
+    }, 5000)
+  },
+  destroyed () {
+    clearInterval(this.handle)
   }
 }
 </script>
