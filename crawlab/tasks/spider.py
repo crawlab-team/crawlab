@@ -3,6 +3,8 @@ from datetime import datetime
 from time import sleep
 
 from bson import ObjectId
+from pymongo import ASCENDING
+
 from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_LOGS_FOLDER, PYTHON_ENV_PATH
 from constants.task import TaskStatus
 from db.manager import db_manager
@@ -88,7 +90,7 @@ def execute_spider(self, id: str, params: str = None):
         env['CRAWLAB_COLLECTION'] = spider.get('col')
 
         # create index to speed results data retrieval
-        db_manager.create_index(spider.get('col'), {'task_id': 1})
+        db_manager.create_index(spider.get('col'), [('task_id', ASCENDING)])
 
     # start process
     cmd_arr = command.split(' ')
