@@ -2,20 +2,22 @@
   <div class="app-container">
     <!--filter-->
     <div class="filter">
-      <el-input prefix-icon="el-icon-search"
-                :placeholder="$t('Search')"
-                class="filter-search"
-                v-model="filter.keyword"
-                @change="onSearch">
-      </el-input>
-      <div class="right">
+      <div class="left">
+        <el-select class="filter-select" v-model="filter.node_id" :placeholder="$t('Node')" filterable clearable>
+          <el-option v-for="op in nodeList" :key="op._id" :value="op._id" :label="op.name"></el-option>
+        </el-select>
+        <el-select class="filter-select" v-model="filter.spider_id" :placeholder="$t('Spider')" filterable clearable>
+          <el-option v-for="op in spiderList" :key="op._id" :value="op._id" :label="op.name"></el-option>
+        </el-select>
         <el-button type="success"
-                   icon="el-icon-refresh"
+                   icon="el-icon-search"
                    class="refresh"
                    @click="onRefresh">
-          {{$t('Refresh')}}
+          {{$t('Search')}}
         </el-button>
       </div>
+      <!--<div class="right">-->
+      <!--</div>-->
     </div>
 
     <!--table list-->
@@ -100,27 +102,41 @@ export default {
   name: 'TaskList',
   data () {
     return {
+      // setInterval handle
+      handle: undefined,
+
+      // determine if is edit mode
       isEditMode: false,
+
+      // dialog visibility
       dialogVisible: false,
-      filter: {
-        keyword: ''
-      },
-      // tableData,
+
+      // table columns
       columns: [
-        { name: 'create_ts', label: 'Create Time', width: '150' },
-        { name: 'start_ts', label: 'Start Time', width: '150' },
-        { name: 'finish_ts', label: 'Finish Time', width: '150' },
-        { name: 'spider_name', label: 'Spider', width: '160' },
+        { name: 'create_ts', label: 'Create Time', width: '100' },
+        { name: 'start_ts', label: 'Start Time', width: '100' },
+        { name: 'finish_ts', label: 'Finish Time', width: '100' },
+        { name: 'duration', label: 'Duration (sec)', width: '80' },
+        { name: 'spider_name', label: 'Spider', width: '120' },
         { name: 'node_id', label: 'Node', width: '160' },
-        { name: 'status', label: 'Status', width: '160', sortable: true }
+        { name: 'num_results', label: 'Results Count', width: '80' },
+        { name: 'avg_num_results', label: 'Average Results Count per Second', width: '80' },
+        { name: 'status', label: 'Status', width: '80' }
       ]
     }
   },
   computed: {
     ...mapState('task', [
+      'filter',
       'taskList',
       'taskListTotalCount',
       'taskForm'
+    ]),
+    ...mapState('spider', [
+      'spiderList'
+    ]),
+    ...mapState('node', [
+      'nodeList'
     ]),
     pageNum: {
       get () {
@@ -200,6 +216,17 @@ export default {
   },
   created () {
     this.$store.dispatch('task/getTaskList')
+    this.$store.dispatch('spider/getSpiderList')
+    this.$store.dispatch('node/getNodeList')
+  },
+  mounted () {
+    // request task list every 5 seconds
+    this.handle = setInterval(() => {
+      this.$store.dispatch('task/getTaskList')
+    }, 5000)
+  },
+  destroyed () {
+    clearInterval(this.handle)
   }
 }
 </script>
@@ -214,6 +241,13 @@ export default {
   .filter {
     display: flex;
     justify-content: space-between;
+
+    .left {
+      .filter-select {
+        width: 180px;
+        margin-right: 10px;
+      }
+    }
 
     .filter-search {
       width: 240px;

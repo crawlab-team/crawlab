@@ -31,6 +31,15 @@
           </template>
           <el-input v-model="scheduleForm.cron" :placeholder="$t('Cron')"></el-input>
         </el-form-item>
+        <el-form-item :label="$t('Execute Command')" prop="params">
+          <el-input v-model="spider.cmd"
+                    :placeholder="$t('Execute Command')"
+                    disabled></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('Parameters')" prop="params">
+          <el-input v-model="scheduleForm.params"
+                    :placeholder="$t('Parameters')"></el-input>
+        </el-form-item>
         <el-form-item :label="$t('Schedule Description')" prop="description">
           <el-input v-model="scheduleForm.description" type="textarea"
                     :placeholder="$t('Schedule Description')"></el-input>
@@ -130,6 +139,14 @@ export default {
     ]),
     filteredTableData () {
       return this.scheduleList
+    },
+    spider () {
+      for (let i = 0; i < this.spiderList.length; i++) {
+        if (this.spiderList[i]._id === this.scheduleForm.spider_id) {
+          return this.spiderList[i]
+        }
+      }
+      return {}
     }
   },
   methods: {

@@ -86,6 +86,8 @@ export default {
   'Variable': '变量',
   'Value': '值',
   'Add Environment Variables': '添加环境变量',
+  'Last 7-Day Tasks': '最近7天任务数',
+  'Last 5-Run Errors': '最近5次运行错误数',
 
   // 爬虫列表
   'Name': '名称',
@@ -101,6 +103,8 @@ export default {
   'Finish Timestamp': '完成时间',
   'Duration (sec)': '用时(秒)',
   'Error Message': '错误信息',
+  'Results Count': '结果数',
+  'Average Results Count per Second': '抓取速度(个/秒)',
 
   // 任务列表
   'Node': '节点',
@@ -110,6 +114,12 @@ export default {
 
   // 部署
   'Time': '时间',
+
+  // 定时任务
+  'Schedule Name': '定时任务名称',
+  'Schedule Description': '定时任务描述',
+  'Parameters': '参数',
+  'Add Schedule': '添加定时任务',
 
   // 文件
   'Choose Folder': '选择文件',

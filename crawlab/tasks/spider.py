@@ -1,7 +1,10 @@
 import os
 from datetime import datetime
+from time import sleep
 
 from bson import ObjectId
+from pymongo import ASCENDING, DESCENDING
+
 from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_LOGS_FOLDER, PYTHON_ENV_PATH
 from constants.task import TaskStatus
 from db.manager import db_manager
@@ -10,8 +13,19 @@ import subprocess
 from utils.log import other as logger
 
 
+def get_task(id: str):
+    i = 0
+    while i < 5:
+        task = db_manager.get('tasks', id=id)
+        if task is not None:
+            return task
+        i += 1
+        sleep(1)
+    return None
+
+
 @celery_app.task(bind=True)
-def execute_spider(self, id: str):
+def execute_spider(self, id: str, params: str = None):
     """
     Execute spider task.
     :param self:
@@ -23,7 +37,15 @@ def execute_spider(self, id: str):
     command = spider.get('cmd')
     if command.startswith("env"):
         command = PYTHON_ENV_PATH + command.replace("env", "")
+    if params is not None:
+        command += ' ' + params
 
+    # get task object and return if not found
+    task = get_task(task_id)
+    if task is None:
+        return
+
+    # current working directory
     current_working_directory = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')))
 
     # log info
@@ -43,7 +65,7 @@ def execute_spider(self, id: str):
     stdout = open(log_file_path, 'a')
     stderr = open(log_file_path, 'a')
 
-    # create a new task
+    # update task status as started
     db_manager.update_one('tasks', id=task_id, values={
         'start_ts': datetime.utcnow(),
         'node_id': hostname,
@@ -67,8 +89,13 @@ def execute_spider(self, id: str):
     if spider.get('col'):
         env['CRAWLAB_COLLECTION'] = spider.get('col')
 
+        # create index to speed results data retrieval
+        db_manager.create_index(spider.get('col'), [('task_id', ASCENDING)])
+
     # start process
-    p = subprocess.Popen(command.split(' '),
+    cmd_arr = command.split(' ')
+    cmd_arr = list(filter(lambda x: x != '', cmd_arr))
+    p = subprocess.Popen(cmd_arr,
                          stdout=stdout.fileno(),
                          stderr=stderr.fileno(),
                          cwd=current_working_directory,
@@ -87,9 +114,6 @@ def execute_spider(self, id: str):
 
     # save task when the task is finished
     db_manager.update_one('tasks', id=task_id, values={
-        'node_id': hostname,
-        'hostname': hostname,
-        'log_file_path': log_file_path,
         'finish_ts': datetime.utcnow(),
         'status': status
     })

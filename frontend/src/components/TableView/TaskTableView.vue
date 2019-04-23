@@ -43,6 +43,12 @@ import {
 
 export default {
   name: 'TaskTableView',
+  data () {
+    return {
+      // setInterval handle
+      handle: undefined
+    }
+  },
   props: {
     title: String
   },
@@ -71,6 +77,14 @@ export default {
         this.$store.dispatch('node/getTaskList', this.$route.params.id)
       }
     }
+  },
+  mounted () {
+    this.handle = setInterval(() => {
+      this.onRefresh()
+    }, 5000)
+  },
+  destroyed () {
+    clearInterval(this.handle)
   }
 }
 </script>

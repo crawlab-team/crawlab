@@ -30,6 +30,13 @@
         <el-form-item :label="$t('Duration (sec)')">
           <el-input v-model="taskForm.duration" placeholder="Duration" disabled></el-input>
         </el-form-item>
+        <el-form-item :label="$t('Results Count')">
+          <el-input v-model="taskForm.num_results" placeholder="Results Count" disabled></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('Average Results Count per Second')">
+          <el-input v-model="taskForm.avg_num_results" placeholder="Average Results Count per Second" disabled>
+          </el-input>
+        </el-form-item>
         <el-form-item :label="$t('Error Message')" v-if="taskForm.status === 'FAILURE'">
           <div class="error-message">
             {{taskForm.log}}

@@ -23,7 +23,7 @@ class BaseApi(Resource):
         super(BaseApi).__init__()
         self.parser.add_argument('page_num', type=int)
         self.parser.add_argument('page_size', type=int)
-        self.parser.add_argument('filter', type=dict)
+        self.parser.add_argument('filter', type=str)
 
         for arg, type in self.arguments:
             self.parser.add_argument(arg, type=type)
@@ -109,7 +109,7 @@ class BaseApi(Resource):
                 item[k] = args.get(k)
         item = db_manager.save(col_name=self.col_name, item=item)
 
-        self.after_update(item._id)
+        self.after_update()
 
         return item
 

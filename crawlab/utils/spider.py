@@ -1,6 +1,10 @@
 import os
+from datetime import datetime, timedelta
+
+from bson import ObjectId
 
 from constants.spider import FILE_SUFFIX_LANG_MAPPING, LangType, SUFFIX_IGNORE, SpiderType
+from constants.task import TaskStatus
 from db.manager import db_manager
 
 
@@ -43,3 +47,25 @@ def get_spider_col_fields(col_name: str) -> list:
         for k in item.keys():
             fields.add(k)
     return list(fields)
+
+
+def get_last_n_run_errors_count(spider_id: ObjectId, n: int) -> list:
+    tasks = db_manager.list(col_name='tasks',
+                            cond={'spider_id': spider_id},
+                            sort_key='create_ts',
+                            limit=n)
+    count = 0
+    for task in tasks:
+        if task['status'] == TaskStatus.FAILURE:
+            count += 1
+    return count
+
+
+def get_last_n_day_tasks_count(spider_id: ObjectId, n: int) -> list:
+    return db_manager.count(col_name='tasks',
+                            cond={
+                                'spider_id': spider_id,
+                                'create_ts': {
+                                    '$gte': (datetime.now() - timedelta(n))
+                                }
+                            })

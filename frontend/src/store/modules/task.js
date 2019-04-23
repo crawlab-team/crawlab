@@ -9,6 +9,11 @@ const state = {
   taskResultsData: [],
   taskResultsColumns: [],
   taskResultsTotalCount: 0,
+  // filter
+  filter: {
+    node_id: '',
+    spider_id: ''
+  },
   // pagination
   pageNum: 0,
   pageSize: 10,
@@ -68,7 +73,11 @@ const actions = {
   getTaskList ({ state, commit }) {
     return request.get('/tasks', {
       page_num: state.pageNum,
-      page_size: state.pageSize
+      page_size: state.pageSize,
+      filter: {
+        node_id: state.filter.node_id || undefined,
+        spider_id: state.filter.spider_id || undefined
+      }
     })
       .then(response => {
         commit('SET_TASK_LIST', response.data.items)
