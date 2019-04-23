@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from time import sleep
 
 from bson import ObjectId
 from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_LOGS_FOLDER, PYTHON_ENV_PATH
@@ -8,6 +9,17 @@ from db.manager import db_manager
 from .celery import celery_app
 import subprocess
 from utils.log import other as logger
+
+
+def get_task(id: str):
+    i = 0
+    while i < 5:
+        task = db_manager.get('tasks', id=id)
+        if task is not None:
+            return task
+        i += 1
+        sleep(1)
+    return None
 
 
 @celery_app.task(bind=True)
@@ -26,6 +38,12 @@ def execute_spider(self, id: str, params: str = None):
     if params is not None:
         command += ' ' + params
 
+    # get task object and return if not found
+    task = get_task(task_id)
+    if task is None:
+        return
+
+    # current working directory
     current_working_directory = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')))
 
     # log info
@@ -68,6 +86,9 @@ def execute_spider(self, id: str, params: str = None):
     # collection environment variable
     if spider.get('col'):
         env['CRAWLAB_COLLECTION'] = spider.get('col')
+
+        # create index to speed results data retrieval
+        db_manager.create_index(spider.get('col'), {'task_id': 1})
 
     # start process
     cmd_arr = command.split(' ')

@@ -175,5 +175,9 @@ class DbManager(object):
         col = self.db[col_name]
         return col.aggregate(pipelines, **kwargs)
 
+    def create_index(self, col_name: str, keys: dict, **kwargs):
+        col = self.db[col_name]
+        col.create_index(keys=keys, **kwargs)
+
 
 db_manager = DbManager()
