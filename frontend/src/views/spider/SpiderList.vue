@@ -84,6 +84,17 @@
             <el-tag type="success" v-else-if="scope.row.lang">{{scope.row.lang}}</el-tag>
           </template>
         </el-table-column>
+        <el-table-column v-else-if="col.name === 'last_5_errors'"
+                         :key="col.name"
+                         :label="$t(col.label)"
+                         :width="col.width"
+                         align="center">
+          <template slot-scope="scope">
+            <div :style="{color:scope.row[col.name]>0?'red':''}">
+              {{scope.row[col.name]}}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column v-else
                          :key="col.name"
                          :property="col.name"
@@ -93,7 +104,7 @@
                          :width="col.width">
         </el-table-column>
       </template>
-      <el-table-column :label="$t('Action')" align="left" width="250">
+      <el-table-column :label="$t('Action')" align="left" width="200">
         <template slot-scope="scope">
           <el-tooltip :content="$t('View')" placement="top">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
@@ -151,7 +162,9 @@ export default {
         { name: 'name', label: 'Name', width: 'auto' },
         { name: 'type', label: 'Spider Type', width: '160', sortable: true },
         { name: 'lang', label: 'Language', width: '160', sortable: true },
-        { name: 'task_ts', label: 'Last Run', width: '160' }
+        { name: 'task_ts', label: 'Last Run', width: '160' },
+        { name: 'last_7d_tasks', label: 'Last 7-Day Tasks', width: '80' },
+        { name: 'last_5_errors', label: 'Last 5-Run Errors', width: '80' }
       ],
       spiderFormRules: {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]

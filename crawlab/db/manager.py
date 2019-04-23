@@ -28,7 +28,7 @@ class DbManager(object):
         if item.get('stats') is not None:
             item.pop('stats')
 
-        col.save(item, **kwargs)
+        return col.save(item, **kwargs)
 
     def remove(self, col_name: str, cond: dict, **kwargs) -> None:
         """

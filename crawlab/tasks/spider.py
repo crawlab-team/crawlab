@@ -3,7 +3,7 @@ from datetime import datetime
 from time import sleep
 
 from bson import ObjectId
-from pymongo import ASCENDING
+from pymongo import ASCENDING, DESCENDING
 
 from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_LOGS_FOLDER, PYTHON_ENV_PATH
 from constants.task import TaskStatus

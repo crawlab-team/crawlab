@@ -21,7 +21,7 @@ from tasks.spider import execute_spider
 from utils import jsonify
 from utils.deploy import zip_file, unzip_file
 from utils.file import get_file_suffix_stats, get_file_suffix
-from utils.spider import get_lang_by_stats
+from utils.spider import get_lang_by_stats, get_last_n_run_errors_count, get_last_n_day_tasks_count
 
 parser = reqparse.RequestParser()
 parser.add_argument('file', type=FileStorage, location='files')
@@ -106,7 +106,7 @@ class SpiderApi(BaseApi):
                 if spider is None:
                     stats = get_file_suffix_stats(dir_path)
                     lang = get_lang_by_stats(stats)
-                    db_manager.save('spiders', {
+                    spider = db_manager.save('spiders', {
                         'name': dir_name,
                         'src': dir_path,
                         'lang': lang,
@@ -136,6 +136,13 @@ class SpiderApi(BaseApi):
                         'lang': lang,
                         'suffix_stats': stats,
                     })
+
+                    # ---------
+                    # stats
+                    # ---------
+                    # last 5-run errors
+                    spider['last_5_errors'] = get_last_n_run_errors_count(spider_id=spider['_id'], n=5)
+                    spider['last_7d_tasks'] = get_last_n_day_tasks_count(spider_id=spider['_id'], n=5)
 
                 # append spider
                 items.append(spider)
