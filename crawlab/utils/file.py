@@ -11,6 +11,7 @@ SUFFIX_LANG_MAPPING = {
     'sh': 'shell',
     'java': 'java',
     'c': 'c',
+    'go': 'go',
 }
 
 
@@ -48,11 +49,18 @@ def get_file_suffix_stats(path) -> dict:
     Get suffix stats of given file
     :param path: file path
     """
-    stats = defaultdict(int)
+    _stats = defaultdict(int)
     for file_path in get_file_list(path):
         suffix = get_file_suffix(file_path)
         if suffix is not None:
-            stats[suffix] += 1
+            _stats[suffix] += 1
+
+    # only return suffixes with languages
+    stats = {}
+    for suffix, count in _stats.items():
+        if SUFFIX_LANG_MAPPING.get(suffix) is not None:
+            stats[suffix] = count
+
     return stats
 
 
