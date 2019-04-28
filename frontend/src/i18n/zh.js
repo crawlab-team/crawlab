@@ -18,6 +18,7 @@ export default {
   'Log': '日志',
   'Results': '结果',
   'Environment': '环境',
+  'Analytics': '分析',
 
   // 选择
   Spider: '爬虫',
