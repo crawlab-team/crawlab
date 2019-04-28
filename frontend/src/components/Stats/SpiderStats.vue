@@ -41,13 +41,13 @@
     <el-row>
       <el-col :span="8">
         <el-card class="chart-wrapper" style="margin-right: 20px;">
-          <h4>{{$t('Tasks by Status')}}</h4>
+          <h4>{{$t('Long Tasks')}}</h4>
           <el-table class="table"></el-table>
         </el-card>
       </el-col>
       <el-col :span="16">
         <el-card class="chart-wrapper">
-          <h4>{{$t('Tasks by Status')}}</h4>
+          <h4>{{$t('Daily Duration')}}</h4>
           <div id="duration-line" class="chart"></div>
         </el-card>
       </el-col>
@@ -74,9 +74,22 @@ export default {
           type: 'pie',
           radius: ['50%', '70%'],
           data: this.statusStats.map(d => {
+            let color
+            if (d.name === 'SUCCESS') {
+              color = '#67c23a'
+            } else if (d.name === 'STARTED') {
+              color = '#e6a23c'
+            } else if (d.name === 'FAILURE') {
+              color = '#f56c6c'
+            } else {
+              color = 'grey'
+            }
             return {
               name: this.$t(d.name),
-              value: d.value
+              value: d.value,
+              itemStyle: {
+                color
+              }
             }
           })
         }]
@@ -112,9 +125,38 @@ export default {
       chart.setOption(option)
     },
 
+    renderDurationLine () {
+      const chart = echarts.init(this.$el.querySelector('#duration-line'))
+      const option = {
+        grid: {
+          top: 20,
+          bottom: 40
+        },
+        xAxis: {
+          type: 'category',
+          data: this.dailyStats.map(d => d.date)
+        },
+        yAxis: {
+          type: 'value'
+        },
+        series: [{
+          type: 'line',
+          data: this.dailyStats.map(d => d.duration),
+          areaStyle: {},
+          smooth: true
+        }],
+        tooltip: {
+          trigger: 'axis',
+          show: true
+        }
+      }
+      chart.setOption(option)
+    },
+
     render () {
       this.renderTaskPie()
       this.renderTaskLine()
+      this.renderDurationLine()
     },
 
     update () {
