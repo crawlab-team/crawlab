@@ -1,5 +1,5 @@
 <template>
-  <div class="spider-stats">
+  <div class="spider-stats" v-loading="loading">
     <!--overall stats-->
     <el-row>
       <div class="metric-list">
@@ -65,6 +65,11 @@ import echarts from 'echarts'
 export default {
   name: 'SpiderStats',
   components: { MetricCard },
+  data () {
+    return {
+      loading: false
+    }
+  },
   methods: {
     renderTaskPieStatus () {
       const chart = echarts.init(this.$el.querySelector('#task-pie-status'))
@@ -188,9 +193,11 @@ export default {
     },
 
     update () {
+      this.loading = true
       this.$store.dispatch('spider/getSpiderStats')
         .then(() => {
           this.render()
+          this.loading = false
         })
     },
 
