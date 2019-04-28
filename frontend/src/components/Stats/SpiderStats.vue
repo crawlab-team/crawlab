@@ -197,6 +197,11 @@ export default {
       this.$store.dispatch('spider/getSpiderStats')
         .then(() => {
           this.render()
+        })
+        .catch(() => {
+          this.$message.error(this.$t('An error happened when fetching the data'))
+        })
+        .finally(() => {
           this.loading = false
         })
     },
