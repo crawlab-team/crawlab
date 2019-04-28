@@ -47,7 +47,7 @@
       </el-col>
       <el-col :span="16">
         <el-card class="chart-wrapper">
-          <h4>{{$t('Daily Duration')}}</h4>
+          <h4>{{$t('Daily Duration (sec)')}}</h4>
           <div id="duration-line" class="chart"></div>
         </el-card>
       </el-col>
@@ -69,10 +69,13 @@ export default {
     renderTaskPieStatus () {
       const chart = echarts.init(this.$el.querySelector('#task-pie-status'))
       const option = {
+        tooltip: {
+          show: true
+        },
         series: [{
           name: '',
           type: 'pie',
-          radius: ['50%', '70%'],
+          // radius: ['50%', '70%'],
           data: this.statusStats.map(d => {
             let color
             if (d.name === 'SUCCESS') {
@@ -100,10 +103,13 @@ export default {
     renderTaskPieNode () {
       const chart = echarts.init(this.$el.querySelector('#task-pie-node'))
       const option = {
+        tooltip: {
+          show: true
+        },
         series: [{
           name: '',
           type: 'pie',
-          radius: ['50%', '70%'],
+          // radius: ['50%', '70%'],
           data: this.nodeStats.map(d => {
             return {
               name: d.name,
