@@ -149,6 +149,12 @@ class StatsApi(BaseApi):
                             'format': '%Y-%m-%d',
                             'date': '$create_ts'
                         }
+                    },
+                    'duration': {
+                        '$subtract': [
+                            '$finish_ts',
+                            '$create_ts'
+                        ]
                     }
                 }
             },
@@ -157,6 +163,9 @@ class StatsApi(BaseApi):
                     '_id': '$date',
                     'count': {
                         '$sum': 1
+                    },
+                    'duration': {
+                        '$avg': '$duration'
                     }
                 }
             },
@@ -168,7 +177,10 @@ class StatsApi(BaseApi):
         ])
         date_cache = {}
         for item in cur:
-            date_cache[item['_id']] = item['count']
+            date_cache[item['_id']] = {
+                'duration': item['duration'] / 1000,
+                'count': item['count']
+            }
         start_date = datetime.now() - timedelta(31)
         end_date = datetime.now() - timedelta(1)
         date = start_date
@@ -176,16 +188,33 @@ class StatsApi(BaseApi):
         while date < end_date:
             date = date + timedelta(1)
             date_str = date.strftime('%Y-%m-%d')
-            daily_tasks.append({
+            d = date_cache.get(date_str)
+            row = {
                 'date': date_str,
-                'count': date_cache.get(date_str) or 0,
-            })
+            }
+            if d is None:
+                row['count'] = 0
+                row['duration'] = 0
+            else:
+                row['count'] = d['count']
+                row['duration'] = d['duration']
+            daily_tasks.append(row)
+
+        # calculate total results
+        result_count = 0
+        col_name = spider.get('col')
+        if col_name is not None:
+            for task in tasks:
+                result_count += db_manager.count(col_name, {'task_id': task['_id']})
+
+        # top tasks
+        # top_10_tasks = db_manager.list('tasks', {'spider_id': spider['_id']})
 
         return {
             'status': 'ok',
             'overview': {
                 'task_count': task_count,
-                'result_count': 800,
+                'result_count': result_count,
                 'success_rate': success_rate,
                 'avg_duration': avg_duration
             },
