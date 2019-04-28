@@ -124,7 +124,6 @@ class StatsApi(BaseApi):
                 duration = (task['finish_ts'] - task['create_ts']).total_seconds()
                 total_seconds += duration
 
-
         # task count by node
         task_count_by_node_ = []
         for status, value in task_count_by_node.items():
@@ -217,7 +216,12 @@ class StatsApi(BaseApi):
         col_name = spider.get('col')
         if col_name is not None:
             for task in tasks:
-                result_count += db_manager.count(col_name, {'task_id': task['_id']})
+                result_count += db_manager.count(col_name, {
+                    'task_id': task['_id'],
+                    'create_ts': {
+                        '$gte': datetime.now() - timedelta(30)
+                    }
+                })
 
         # top tasks
         # top_10_tasks = db_manager.list('tasks', {'spider_id': spider['_id']})
