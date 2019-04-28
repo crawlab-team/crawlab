@@ -216,12 +216,7 @@ class StatsApi(BaseApi):
         col_name = spider.get('col')
         if col_name is not None:
             for task in tasks:
-                result_count += db_manager.count(col_name, {
-                    'task_id': task['_id'],
-                    'create_ts': {
-                        '$gte': datetime.now() - timedelta(30)
-                    }
-                })
+                result_count += db_manager.count(col_name, {'task_id': task['_id']})
 
         # top tasks
         # top_10_tasks = db_manager.list('tasks', {'spider_id': spider['_id']})
