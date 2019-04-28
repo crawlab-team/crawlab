@@ -23,7 +23,10 @@ const state = {
   statusStats: [],
 
   // spider daily stats
-  dailyStats: []
+  dailyStats: [],
+
+  // spider node stats
+  nodeStats: []
 }
 
 const getters = {}
@@ -49,7 +52,10 @@ const mutations = {
   },
   SET_DAILY_STATS (state, value) {
     state.dailyStats = value
-  }
+  },
+  SET_NODE_STATS (state, value) {
+    state.nodeStats = value
+  },
 }
 
 const actions = {
@@ -163,6 +169,7 @@ const actions = {
         commit('SET_OVERVIEW_STATS', response.data.overview)
         commit('SET_STATUS_STATS', response.data.task_count_by_status)
         commit('SET_DAILY_STATS', response.data.daily_stats)
+        commit('SET_NODE_STATS', response.data.task_count_by_node)
       })
   }
 }

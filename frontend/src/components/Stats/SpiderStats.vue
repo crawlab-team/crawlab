@@ -27,7 +27,7 @@
       <el-col :span="8">
         <el-card class="chart-wrapper" style="margin-right: 20px;">
           <h4>{{$t('Tasks by Status')}}</h4>
-          <div id="task-pie" class="chart"></div>
+          <div id="task-pie-status" class="chart"></div>
         </el-card>
       </el-col>
       <el-col :span="16">
@@ -41,8 +41,8 @@
     <el-row>
       <el-col :span="8">
         <el-card class="chart-wrapper" style="margin-right: 20px;">
-          <h4>{{$t('Long Tasks')}}</h4>
-          <el-table class="table"></el-table>
+          <h4>{{$t('Tasks by Node')}}</h4>
+          <div id="task-pie-node" class="chart"></div>
         </el-card>
       </el-col>
       <el-col :span="16">
@@ -66,8 +66,8 @@ export default {
   name: 'SpiderStats',
   components: { MetricCard },
   methods: {
-    renderTaskPie () {
-      const chart = echarts.init(this.$el.querySelector('#task-pie'))
+    renderTaskPieStatus () {
+      const chart = echarts.init(this.$el.querySelector('#task-pie-status'))
       const option = {
         series: [{
           name: '',
@@ -90,6 +90,27 @@ export default {
               itemStyle: {
                 color
               }
+            }
+          })
+        }]
+      }
+      chart.setOption(option)
+    },
+
+    renderTaskPieNode () {
+      const chart = echarts.init(this.$el.querySelector('#task-pie-node'))
+      const option = {
+        series: [{
+          name: '',
+          type: 'pie',
+          radius: ['50%', '70%'],
+          data: this.nodeStats.map(d => {
+            return {
+              name: d.name,
+              value: d.value
+              // itemStyle: {
+              //   color
+              // }
             }
           })
         }]
@@ -154,8 +175,9 @@ export default {
     },
 
     render () {
-      this.renderTaskPie()
+      this.renderTaskPieStatus()
       this.renderTaskLine()
+      this.renderTaskPieNode()
       this.renderDurationLine()
     },
 
@@ -180,6 +202,7 @@ export default {
     ...mapState('spider', [
       'overviewStats',
       'statusStats',
+      'nodeStats',
       'dailyStats'
     ])
   },
