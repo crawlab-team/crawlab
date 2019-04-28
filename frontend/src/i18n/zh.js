@@ -89,6 +89,14 @@ export default {
   'Add Environment Variables': '添加环境变量',
   'Last 7-Day Tasks': '最近7天任务数',
   'Last 5-Run Errors': '最近5次运行错误数',
+  '30-Day Tasks': '最近30天任务数',
+  '30-Day Results': '最近30天结果数',
+  'Success Rate': '运行成功率',
+  'Avg Duration (sec)': '平均运行时长(秒)',
+  'Tasks by Status': '分状态任务数',
+  'Tasks by Node': '分节点任务数',
+  'Daily Tasks': '每日任务数',
+  'Daily Avg Duration (sec)': '每日平均运行时长(秒)',
 
   // 爬虫列表
   'Name': '名称',

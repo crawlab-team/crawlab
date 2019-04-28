@@ -47,7 +47,7 @@
       </el-col>
       <el-col :span="16">
         <el-card class="chart-wrapper">
-          <h4>{{$t('Daily Duration (sec)')}}</h4>
+          <h4>{{$t('Daily Avg Duration (sec)')}}</h4>
           <div id="duration-line" class="chart"></div>
         </el-card>
       </el-col>
