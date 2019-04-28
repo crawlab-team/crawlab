@@ -1,13 +1,20 @@
 import os
+from collections import defaultdict
 from datetime import datetime, timedelta
 
 from flask_restful import reqparse, Resource
 
+from constants.task import TaskStatus
 from db.manager import db_manager
+from routes.base import BaseApi
 from utils import jsonify
 
 
-class StatsApi(Resource):
+class StatsApi(BaseApi):
+    arguments = [
+        ['spider_id', str],
+    ]
+
     def get(self, action: str = None) -> (dict, tuple):
         """
         GET method of StatsApi.
@@ -86,4 +93,102 @@ class StatsApi(Resource):
                 'deploy_count': deploy_count,
             },
             'daily_tasks': daily_tasks
+        }
+
+    def get_spider_stats(self):
+        args = self.parser.parse_args()
+        spider_id = args.get('spider_id')
+        spider = db_manager.get('spiders', id=spider_id)
+        tasks = db_manager.list(
+            col_name='tasks',
+            cond={
+                'spider_id': spider['_id'],
+                'create_ts': {
+                    '$gte': datetime.now() - timedelta(30)
+                }
+            },
+            limit=9999999
+        )
+
+        # task count
+        task_count = len(tasks)
+
+        # calculate task count by status
+        task_count_by_status = defaultdict(int)
+        total_seconds = 0
+        for task in tasks:
+            task_count_by_status[task['status']] += 1
+            if task['status'] == TaskStatus.SUCCESS and task.get('finish_ts'):
+                duration = (task['finish_ts'] - task['create_ts']).total_seconds()
+                total_seconds += duration
+
+        task_count_by_status_ = []
+        for status, value in task_count_by_status.items():
+            task_count_by_status_.append({
+                'name': status,
+                'value': value
+            })
+
+        # success rate
+        success_rate = task_count_by_status[TaskStatus.SUCCESS] / task_count
+
+        # average duration
+        avg_duration = total_seconds / task_count
+
+        # calculate task count by date
+        cur = db_manager.aggregate('tasks', [
+            {
+                '$match': {
+                    'spider_id': spider['_id']
+                }
+            },
+            {
+                '$project': {
+                    'date': {
+                        '$dateToString': {
+                            'format': '%Y-%m-%d',
+                            'date': '$create_ts'
+                        }
+                    }
+                }
+            },
+            {
+                '$group': {
+                    '_id': '$date',
+                    'count': {
+                        '$sum': 1
+                    }
+                }
+            },
+            {
+                '$sort': {
+                    '_id': 1
+                }
+            }
+        ])
+        date_cache = {}
+        for item in cur:
+            date_cache[item['_id']] = item['count']
+        start_date = datetime.now() - timedelta(31)
+        end_date = datetime.now() - timedelta(1)
+        date = start_date
+        daily_tasks = []
+        while date < end_date:
+            date = date + timedelta(1)
+            date_str = date.strftime('%Y-%m-%d')
+            daily_tasks.append({
+                'date': date_str,
+                'count': date_cache.get(date_str) or 0,
+            })
+
+        return {
+            'status': 'ok',
+            'overview': {
+                'task_count': task_count,
+                'result_count': 800,
+                'success_rate': success_rate,
+                'avg_duration': avg_duration
+            },
+            'task_count_by_status': task_count_by_status_,
+            'daily_stats': daily_tasks,
         }

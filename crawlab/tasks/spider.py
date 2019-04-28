@@ -127,8 +127,10 @@ def execute_spider(self, id: str, params: str = None):
         status = TaskStatus.FAILURE
 
     # save task when the task is finished
+    finish_ts = datetime.utcnow()
     db_manager.update_one('tasks', id=task_id, values={
-        'finish_ts': datetime.utcnow(),
+        'finish_ts': finish_ts,
+        'duration': (finish_ts - task['create_ts']).total_seconds(),
         'status': status
     })
     task = db_manager.get('tasks', id=id)
