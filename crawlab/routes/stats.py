@@ -113,15 +113,27 @@ class StatsApi(BaseApi):
         # task count
         task_count = len(tasks)
 
-        # calculate task count by status
+        # calculate task count stats
         task_count_by_status = defaultdict(int)
+        task_count_by_node = defaultdict(int)
         total_seconds = 0
         for task in tasks:
             task_count_by_status[task['status']] += 1
+            task_count_by_node[task.get('node_id')] += 1
             if task['status'] == TaskStatus.SUCCESS and task.get('finish_ts'):
                 duration = (task['finish_ts'] - task['create_ts']).total_seconds()
                 total_seconds += duration
 
+
+        # task count by node
+        task_count_by_node_ = []
+        for status, value in task_count_by_node.items():
+            task_count_by_node_.append({
+                'name': status,
+                'value': value
+            })
+
+        # task count by status
         task_count_by_status_ = []
         for status, value in task_count_by_status.items():
             task_count_by_status_.append({
@@ -219,5 +231,6 @@ class StatsApi(BaseApi):
                 'avg_duration': avg_duration
             },
             'task_count_by_status': task_count_by_status_,
+            'task_count_by_node': task_count_by_node_,
             'daily_stats': daily_tasks,
         }
