@@ -189,7 +189,7 @@ class StatsApi(BaseApi):
         date_cache = {}
         for item in cur:
             date_cache[item['_id']] = {
-                'duration': item['duration'] / 1000,
+                'duration': (item['duration'] or 0) / 1000,
                 'count': item['count']
             }
         start_date = datetime.now() - timedelta(31)
