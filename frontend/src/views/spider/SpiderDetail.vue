@@ -19,6 +19,9 @@
       <el-tab-pane :label="$t('Environment')" name="environment">
         <environment-list/>
       </el-tab-pane>
+      <el-tab-pane :label="$t('Analytics')" name="analytics">
+        <spider-stats ref="spider-stats"/>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -30,10 +33,12 @@ import {
 import FileList from '../../components/FileList/FileList'
 import SpiderOverview from '../../components/Overview/SpiderOverview'
 import EnvironmentList from '../../components/Environment/EnvironmentList'
+import SpiderStats from '../../components/Stats/SpiderStats'
 
 export default {
   name: 'NodeDetail',
   components: {
+    SpiderStats,
     EnvironmentList,
     FileList,
     SpiderOverview
@@ -57,6 +62,11 @@ export default {
   },
   methods: {
     onTabClick () {
+      if (this.activeTabName === 'analytics') {
+        setTimeout(() => {
+          this.$refs['spider-stats'].update()
+        }, 0)
+      }
     },
     onSpiderChange (id) {
       this.$router.push(`/spiders/${id}`)

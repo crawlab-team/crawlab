@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import datetime
 from time import sleep
 
@@ -35,8 +36,16 @@ def execute_spider(self, id: str, params: str = None):
     hostname = self.request.hostname
     spider = db_manager.get('spiders', id=id)
     command = spider.get('cmd')
-    if command.startswith("env"):
-        command = PYTHON_ENV_PATH + command.replace("env", "")
+
+    # if start with python, then use sys.executable to execute in the virtualenv
+    if command.startswith('python '):
+        command = command.replace('python ', sys.executable + ' ')
+
+    # if start with scrapy, then use sys.executable to execute scrapy as module in the virtualenv
+    elif command.startswith('scrapy '):
+        command = command.replace('scrapy ', sys.executable + ' -m scrapy ')
+
+    # pass params to the command
     if params is not None:
         command += ' ' + params
 
@@ -95,26 +104,33 @@ def execute_spider(self, id: str, params: str = None):
     # start process
     cmd_arr = command.split(' ')
     cmd_arr = list(filter(lambda x: x != '', cmd_arr))
-    p = subprocess.Popen(cmd_arr,
-                         stdout=stdout.fileno(),
-                         stderr=stderr.fileno(),
-                         cwd=current_working_directory,
-                         env=env,
-                         bufsize=1)
+    try:
+        p = subprocess.Popen(cmd_arr,
+                             stdout=stdout.fileno(),
+                             stderr=stderr.fileno(),
+                             cwd=current_working_directory,
+                             env=env,
+                             bufsize=1)
 
-    # get output from the process
-    _stdout, _stderr = p.communicate()
+        # get output from the process
+        _stdout, _stderr = p.communicate()
 
-    # get return code
-    code = p.poll()
-    if code == 0:
-        status = TaskStatus.SUCCESS
-    else:
+        # get return code
+        code = p.poll()
+        if code == 0:
+            status = TaskStatus.SUCCESS
+        else:
+            status = TaskStatus.FAILURE
+    except Exception as err:
+        logger.error(err)
+        stderr.write(str(err))
         status = TaskStatus.FAILURE
 
     # save task when the task is finished
+    finish_ts = datetime.utcnow()
     db_manager.update_one('tasks', id=task_id, values={
-        'finish_ts': datetime.utcnow(),
+        'finish_ts': finish_ts,
+        'duration': (finish_ts - task['create_ts']).total_seconds(),
         'status': status
     })
     task = db_manager.get('tasks', id=id)

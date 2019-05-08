@@ -14,7 +14,19 @@ const state = {
   importForm: {
     url: '',
     type: 'github'
-  }
+  },
+
+  // spider overview stats
+  overviewStats: {},
+
+  // spider status stats
+  statusStats: [],
+
+  // spider daily stats
+  dailyStats: [],
+
+  // spider node stats
+  nodeStats: []
 }
 
 const getters = {}
@@ -31,7 +43,19 @@ const mutations = {
   },
   SET_IMPORT_FORM (state, value) {
     state.importForm = value
-  }
+  },
+  SET_OVERVIEW_STATS (state, value) {
+    state.overviewStats = value
+  },
+  SET_STATUS_STATS (state, value) {
+    state.statusStats = value
+  },
+  SET_DAILY_STATS (state, value) {
+    state.dailyStats = value
+  },
+  SET_NODE_STATS (state, value) {
+    state.nodeStats = value
+  },
 }
 
 const actions = {
@@ -137,6 +161,15 @@ const actions = {
     return request.post('/spiders/manage/deploy_all')
       .then(response => {
         console.log(response)
+      })
+  },
+  getSpiderStats ({ state, commit }) {
+    return request.get('/stats/get_spider_stats?spider_id=' + state.spiderForm._id)
+      .then(response => {
+        commit('SET_OVERVIEW_STATS', response.data.overview)
+        commit('SET_STATUS_STATS', response.data.task_count_by_status)
+        commit('SET_DAILY_STATS', response.data.daily_stats)
+        commit('SET_NODE_STATS', response.data.task_count_by_node)
       })
   }
 }

@@ -4,6 +4,7 @@ let baseUrl = 'http://localhost:8000/api'
 if (process.env.NODE_ENV === 'production') {
   baseUrl = 'http://139.129.230.98:8000/api'
 }
+// console.log(process.env)
 // const baseUrl = process.env.API_BASE_URL || 'http://localhost:8000/api'
 
 const request = (method, path, params, data) => {
