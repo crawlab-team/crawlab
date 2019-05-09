@@ -137,6 +137,7 @@ export default {
   'Domain': '域名',
   'Category': '类别',
   'Select': '请选择',
+  'Select Category': '请选择类别',
 
   // 文件
   'Choose Folder': '选择文件',

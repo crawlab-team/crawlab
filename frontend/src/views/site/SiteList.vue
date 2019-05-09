@@ -7,6 +7,9 @@
                 class="filter-search"
                 v-model="keyword">
       </el-input>
+      <el-select v-model="filter.category" class="filter-category" :placeholder="$t('Select Category')" clearable>
+        <el-option v-for="op in categoryList" :key="op" :value="op" :label="op"></el-option>
+      </el-select>
       <el-button type="success"
                  icon="el-icon-refresh"
                  class="btn refresh"
@@ -27,7 +30,9 @@
                          :width="col.width"
                          :align="col.align">
           <template slot-scope="scope">
-            <el-select v-model="scope.row[col.name]" :placeholder="$t('Select')">
+            <el-select v-model="scope.row[col.name]"
+                       :placeholder="$t('Select')"
+                       @change="onRowChange(scope.row)">
               <el-option v-for="op in categoryList"
                          :key="op"
                          :value="op"
@@ -45,14 +50,14 @@
                          :width="col.width">
         </el-table-column>
       </template>
-      <el-table-column :label="$t('Action')" align="left" width="200">
+      <el-table-column :label="$t('Action')" align="left" width="120">
         <template slot-scope="scope">
           <el-tooltip :content="$t('View')" placement="top">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
           </el-tooltip>
-          <el-tooltip :content="$t('Remove')" placement="top">
-            <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
-          </el-tooltip>
+          <!--<el-tooltip :content="$t('Remove')" placement="top">-->
+          <!--<el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>-->
+          <!--</el-tooltip>-->
         </template>
       </el-table-column>
     </el-table>
@@ -103,6 +108,7 @@ export default {
   },
   computed: {
     ...mapState('site', [
+      'filter',
       'tableData',
       'totalCount'
     ]),
@@ -137,6 +143,12 @@ export default {
     },
     onPageChange () {
       this.$store.dispatch('site/getSiteList')
+    },
+    onRowChange (row) {
+      this.$store.dispatch('site/editSite', {
+        id: row.domain,
+        category: row.category
+      })
     }
   },
   created () {
@@ -152,6 +164,11 @@ export default {
 
   .filter .filter-search {
     width: 180px;
+  }
+
+  .filter .filter-category {
+    width: 180px;
+    margin-left: 20px;
   }
 
   .filter .btn {

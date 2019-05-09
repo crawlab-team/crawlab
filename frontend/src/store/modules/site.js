@@ -4,7 +4,9 @@ const state = {
   tableData: [],
 
   // filter
-  filter: {},
+  filter: {
+    category: undefined
+  },
   keyword: '',
 
   // pagination
@@ -34,6 +36,12 @@ const mutations = {
 }
 
 const actions = {
+  editSite ({ state, dispatch }, payload) {
+    const { id, category } = payload
+    return request.post(`/sites/${id}`, {
+      category
+    })
+  },
   getSiteList ({ state, commit }) {
     return request.get('/sites', {
       page_num: state.pageNum,
