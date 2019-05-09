@@ -183,6 +183,26 @@ export const constantRouterMap = [
       }
     ]
   },
+  {
+    name: 'Site',
+    path: '/sites',
+    component: Layout,
+    meta: {
+      title: 'Site',
+      icon: 'fa fa-sitemap'
+    },
+    children: [
+      {
+        path: '',
+        name: 'SiteList',
+        component: () => import('../views/site/SiteList'),
+        meta: {
+          title: 'Sites',
+          icon: 'fa fa-sitemap'
+        }
+      }
+    ]
+  },
 
   { path: '*', redirect: '/404', hidden: true }
 ]

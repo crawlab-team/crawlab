@@ -55,7 +55,7 @@ const mutations = {
   },
   SET_NODE_STATS (state, value) {
     state.nodeStats = value
-  },
+  }
 }
 
 const actions = {

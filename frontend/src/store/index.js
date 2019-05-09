@@ -11,6 +11,7 @@ import task from './modules/task'
 import file from './modules/file'
 import schedule from './modules/schedule'
 import lang from './modules/lang'
+import site from './modules/site'
 import getters from './getters'
 
 Vue.use(Vuex)
@@ -27,7 +28,8 @@ const store = new Vuex.Store({
     task,
     file,
     schedule,
-    lang
+    lang,
+    site
   },
   getters
 })
