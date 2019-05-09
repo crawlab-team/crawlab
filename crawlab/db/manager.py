@@ -13,7 +13,7 @@ class DbManager(object):
     """
 
     def __init__(self):
-        self.mongo = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
+        self.mongo = MongoClient(host=MONGO_HOST, port=MONGO_PORT, connect=False)
         self.db = self.mongo[MONGO_DB]
 
     def save(self, col_name: str, item: dict, **kwargs) -> None:
