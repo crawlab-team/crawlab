@@ -70,7 +70,7 @@ export default {
 
   // 节点状态
   Online: '在线',
-  Offline: '在线',
+  Offline: '离线',
   Unavailable: '未知',
 
   // 爬虫
