@@ -36,7 +36,6 @@ class TaskApi(BaseApi):
                            'code': 400,
                            'error': 'action "%s" invalid' % action
                        }, 400
-            # other.info(f"到这了{action},{id}")
             return getattr(self, action)(id)
 
         elif id is not None:
@@ -78,9 +77,6 @@ class TaskApi(BaseApi):
                                 sort_key='create_ts')
         items = []
         for task in tasks:
-            # celery tasks
-            # _task = db_manager.get('tasks_celery', id=task['_id'])
-
             # get spider
             _spider = db_manager.get(col_name='spiders', id=str(task['spider_id']))
 
