@@ -9,6 +9,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 # from flask_restplus import Api
+from routes.sites import SiteApi
 from utils.log import other
 from constants.node import NodeStatus
 from db.manager import db_manager
@@ -68,6 +69,9 @@ api.add_resource(StatsApi,
 api.add_resource(ScheduleApi,
                  '/api/schedules',
                  '/api/schedules/<string:id>')
+api.add_resource(SiteApi,
+                 '/api/sites',
+                 '/api/sites/<string:id>')
 
 
 def monitor_nodes_status(celery_app):

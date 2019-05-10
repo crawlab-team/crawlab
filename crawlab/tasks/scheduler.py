@@ -9,7 +9,7 @@ from db.manager import db_manager
 
 
 class Scheduler(object):
-    mongo = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
+    mongo = MongoClient(host=MONGO_HOST, port=MONGO_PORT, connect=False)
     task_col = 'apscheduler_jobs'
 
     # scheduler jobstore

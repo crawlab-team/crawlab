@@ -55,7 +55,7 @@ const mutations = {
   },
   SET_NODE_STATS (state, value) {
     state.nodeStats = value
-  },
+  }
 }
 
 const actions = {
@@ -74,7 +74,8 @@ const actions = {
       lang: state.spiderForm.lang,
       col: state.spiderForm.col,
       cron: state.spiderForm.cron,
-      cron_enabled: state.spiderForm.cron_enabled ? 1 : 0
+      cron_enabled: state.spiderForm.cron_enabled ? 1 : 0,
+      site: state.spiderForm.site
     })
       .then(() => {
         dispatch('getSpiderList')
@@ -89,7 +90,8 @@ const actions = {
       lang: state.spiderForm.lang,
       col: state.spiderForm.col,
       cron: state.spiderForm.cron,
-      cron_enabled: state.spiderForm.cron_enabled ? 1 : 0
+      cron_enabled: state.spiderForm.cron_enabled ? 1 : 0,
+      site: state.spiderForm.site
     })
       .then(() => {
         dispatch('getSpiderList')

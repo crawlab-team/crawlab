@@ -23,6 +23,14 @@
           <el-input v-model="spiderForm.col" :placeholder="$t('Results Collection')"
                     :disabled="isView"></el-input>
         </el-form-item>
+        <el-form-item :label="$t('Site')">
+          <el-autocomplete v-model="spiderForm.site"
+                           :placeholder="$t('Site')"
+                           :fetch-suggestions="fetchSiteSuggestions"
+                           clearable
+                           @select="onSiteSelect">
+          </el-autocomplete>
+        </el-form-item>
         <el-form-item :label="$t('Spider Type')">
           <el-select v-model="spiderForm.type" :placeholder="$t('Spider Type')" :disabled="isView" clearable>
             <el-option value="scrapy" label="Scrapy"></el-option>
@@ -38,26 +46,6 @@
             <el-option value="go" label="Go"></el-option>
           </el-select>
         </el-form-item>
-        <!--<el-form-item :label="$t('Schedule Enabled')">-->
-        <!--<el-switch v-model="spiderForm.cron_enabled" :disabled="isView">-->
-        <!--</el-switch>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item :label="$t('Schedule Cron')" v-if="spiderForm.cron_enabled"-->
-        <!--prop="cron"-->
-        <!--:rules="cronRules"-->
-        <!--:inline-message="true">-->
-        <!--<template slot="label">-->
-        <!--<el-tooltip :content="$t('Cron Format: [second] [minute] [hour] [day of month] [month] [day of week]')"-->
-        <!--placement="top">-->
-        <!--<span>-->
-        <!--{{$t('Schedule Cron')}}-->
-        <!--<i class="fa fa-exclamation-circle"></i>-->
-        <!--</span>-->
-        <!--</el-tooltip>-->
-        <!--</template>-->
-        <!--<el-input v-model="spiderForm.cron" :placeholder="$t('Schedule Cron')"-->
-        <!--:disabled="isView"></el-input>-->
-        <!--</el-form-item>-->
       </el-form>
     </el-row>
     <el-row class="button-container" v-if="!isView">
@@ -172,6 +160,22 @@ export default {
             })
         }
       })
+    },
+    fetchSiteSuggestions (keyword, callback) {
+      this.$request.get('/sites', {
+        keyword: keyword,
+        page_num: 1,
+        page_size: 100
+      }).then(response => {
+        const data = response.data.items.map(d => {
+          d.value = `${d.name} | ${d.domain}`
+          return d
+        })
+        callback(data)
+      })
+    },
+    onSiteSelect (item) {
+      this.spiderForm.site = item._id
     }
   }
 }
@@ -186,5 +190,9 @@ export default {
     padding: 0 10px;
     width: 100%;
     text-align: right;
+  }
+
+  .el-autocomplete {
+    width: 100%;
   }
 </style>

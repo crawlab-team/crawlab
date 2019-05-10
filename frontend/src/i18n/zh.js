@@ -10,6 +10,7 @@ export default {
   'Task Detail': '任务详情',
   'Schedules': '定时任务',
   'Deploys': '部署',
+  'Sites': '网站',
 
   // 标签
   Overview: '概览',
@@ -70,7 +71,7 @@ export default {
 
   // 节点状态
   Online: '在线',
-  Offline: '在线',
+  Offline: '离线',
   Unavailable: '未知',
 
   // 爬虫
@@ -129,6 +130,15 @@ export default {
   'Schedule Description': '定时任务描述',
   'Parameters': '参数',
   'Add Schedule': '添加定时任务',
+
+  // 网站
+  'Site': '网站',
+  'Rank': '排名',
+  'Domain': '域名',
+  'Category': '类别',
+  'Select': '请选择',
+  'Select Category': '请选择类别',
+  'Spider Count': '爬虫数',
 
   // 文件
   'Choose Folder': '选择文件',

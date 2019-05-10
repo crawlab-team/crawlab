@@ -160,8 +160,9 @@ export default {
       // tableData,
       columns: [
         { name: 'name', label: 'Name', width: 'auto' },
-        { name: 'type', label: 'Spider Type', width: '160', sortable: true },
-        { name: 'lang', label: 'Language', width: '160', sortable: true },
+        { name: 'site_name', label: 'Site', width: '120' },
+        { name: 'type', label: 'Spider Type', width: '120', sortable: true },
+        { name: 'lang', label: 'Language', width: '120', sortable: true },
         { name: 'task_ts', label: 'Last Run', width: '160' },
         { name: 'last_7d_tasks', label: 'Last 7-Day Tasks', width: '80' },
         { name: 'last_5_errors', label: 'Last 5-Run Errors', width: '80' }
