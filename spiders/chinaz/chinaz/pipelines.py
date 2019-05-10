@@ -23,5 +23,6 @@ class MongoPipeline(object):
     def process_item(self, item, spider):
         item['task_id'] = os.environ.get('CRAWLAB_TASK_ID')
         item['_id'] = item['domain']
-        self.col.save(item)
+        if self.col.find_one({'_id': item['_id']}) is not None:
+            self.col.save(item)
         return item
