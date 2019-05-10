@@ -61,6 +61,9 @@ class SpiderApi(BaseApi):
 
         # spider schedule cron enabled
         ('envs', str),
+
+        # spider site
+        ('site', str),
     )
 
     def get(self, id=None, action=None):

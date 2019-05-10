@@ -43,7 +43,8 @@ class SiteApi(BaseApi):
         if keyword is not None:
             filter_['$or'] = [
                 {'description': {'$regex': keyword}},
-                {'name': {'$regex': keyword}}
+                {'name': {'$regex': keyword}},
+                {'domain': {'$regex': keyword}}
             ]
 
         items = db_manager.list(
