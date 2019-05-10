@@ -56,10 +56,17 @@ class SiteApi(BaseApi):
             sort_direction=ASCENDING
         )
 
+        sites = []
+        for site in items:
+            # get spider count
+            site['spider_count'] = db_manager.count('spiders', {'site': site['_id']})
+
+            sites.append(site)
+
         return {
             'status': 'ok',
             'total_count': db_manager.count(self.col_name, filter_),
             'page_num': page_num,
             'page_size': page_size,
-            'items': jsonify(items)
+            'items': jsonify(sites)
         }

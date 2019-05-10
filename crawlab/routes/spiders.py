@@ -128,6 +128,12 @@ class SpiderApi(BaseApi):
                     if last_task is not None:
                         spider['task_ts'] = last_task['create_ts']
 
+                    # get site
+                    if spider.get('site') is not None:
+                        site = db_manager.get('sites', spider['site'])
+                        if site is not None:
+                            spider['site_name'] = site['name']
+
                     # file stats
                     stats = get_file_suffix_stats(dir_path)
 

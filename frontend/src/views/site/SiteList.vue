@@ -41,6 +41,17 @@
             </el-select>
           </template>
         </el-table-column>
+        <el-table-column v-else-if="col.name === 'domain'"
+                         :key="col.name"
+                         :label="$t(col.label)"
+                         :width="col.width"
+                         :align="col.align">
+          <template slot-scope="scope">
+            <a class="domain" :href="'http://' + scope.row[col.name]" target="_blank">
+              {{scope.row[col.name]}}
+            </a>
+          </template>
+        </el-table-column>
         <el-table-column v-else
                          :key="col.name"
                          :property="col.name"
@@ -102,7 +113,8 @@ export default {
         { name: 'name', label: 'Name', align: 'left', width: '120' },
         { name: 'domain', label: 'Domain', align: 'left', width: '150' },
         { name: 'description', label: 'Description', align: 'left' },
-        { name: 'category', label: 'Category', align: 'center', width: '180' }
+        { name: 'category', label: 'Category', align: 'center', width: '180' },
+        { name: 'spider_count', label: 'Spider Count', align: 'center', width: '60' }
       ]
     }
   },
@@ -185,5 +197,9 @@ export default {
 
   .table >>> .el-select .el-select__caret {
     line-height: 32px;
+  }
+
+  .table >>> .domain {
+    text-decoration: underline;
   }
 </style>
