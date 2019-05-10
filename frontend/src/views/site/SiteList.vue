@@ -19,7 +19,7 @@
     </div>
 
     <!--table list-->
-    <el-table :data="tableData"
+    <el-table :data="siteList"
               class="table"
               :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
               border>
@@ -109,7 +109,7 @@ export default {
   computed: {
     ...mapState('site', [
       'filter',
-      'tableData',
+      'siteList',
       'totalCount'
     ]),
     keyword: {

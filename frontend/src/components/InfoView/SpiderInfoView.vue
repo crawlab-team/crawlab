@@ -23,6 +23,14 @@
           <el-input v-model="spiderForm.col" :placeholder="$t('Results Collection')"
                     :disabled="isView"></el-input>
         </el-form-item>
+        <el-form-item :label="$t('Site')">
+          <el-autocomplete v-model="spiderForm.site"
+                           :placeholder="$t('Site')"
+                           :fetch-suggestions="fetchSiteSuggestions"
+                           clearable
+                           @select="onSiteSelect">
+          </el-autocomplete>
+        </el-form-item>
         <el-form-item :label="$t('Spider Type')">
           <el-select v-model="spiderForm.type" :placeholder="$t('Spider Type')" :disabled="isView" clearable>
             <el-option value="scrapy" label="Scrapy"></el-option>
@@ -152,6 +160,22 @@ export default {
             })
         }
       })
+    },
+    fetchSiteSuggestions (keyword, callback) {
+      this.$request.get('/sites', {
+        keyword: keyword,
+        page_num: 1,
+        page_size: 100
+      }).then(response => {
+        const data = response.data.items.map(d => {
+          d.value = `${d.name} | ${d.domain}`
+          return d
+        })
+        callback(data)
+      })
+    },
+    onSiteSelect (item) {
+      this.spiderForm.site = item._id
     }
   }
 }
@@ -166,5 +190,9 @@ export default {
     padding: 0 10px;
     width: 100%;
     text-align: right;
+  }
+
+  .el-autocomplete {
+    width: 100%;
   }
 </style>

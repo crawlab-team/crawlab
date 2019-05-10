@@ -1,7 +1,7 @@
 import request from '../../api/request'
 
 const state = {
-  tableData: [],
+  siteList: [],
 
   // filter
   filter: {
@@ -21,8 +21,8 @@ const mutations = {
   SET_KEYWORD (state, value) {
     state.keyword = value
   },
-  SET_TABLE_DATA (state, value) {
-    state.tableData = value
+  SET_SITE_LIST (state, value) {
+    state.siteList = value
   },
   SET_PAGE_NUM (state, value) {
     state.pageNum = value
@@ -52,7 +52,7 @@ const actions = {
       }
     })
       .then(response => {
-        commit('SET_TABLE_DATA', response.data.items)
+        commit('SET_SITE_LIST', response.data.items)
         commit('SET_TOTAL_COUNT', response.data.total_count)
       })
   }
