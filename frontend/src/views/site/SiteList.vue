@@ -21,6 +21,7 @@
     <!--table list-->
     <el-table :data="siteList"
               class="table"
+              :cell-class-name="getCellClassName"
               :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
               border>
       <template v-for="col in columns">
@@ -50,6 +51,33 @@
             <a class="domain" :href="'http://' + scope.row[col.name]" target="_blank">
               {{scope.row[col.name]}}
             </a>
+          </template>
+        </el-table-column>
+        <el-table-column v-else-if="col.name === 'has_robots'"
+                         :key="col.name"
+                         :label="$t(col.label)"
+                         :width="col.width"
+                         :align="col.align">
+          <template slot-scope="scope">
+            <div>
+              <template v-if="scope.row[col.name]">
+                <a :href="`http://${scope.row._id}/robots.txt`" target="_blank">
+                  Y
+                </a>
+              </template>
+              <template v-else>
+                {{scope.row[col.name] === undefined ? 'N/A' : 'N'}}
+              </template>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column v-else-if="col.name === 'home_response_time'"
+                         :key="col.name"
+                         :label="$t(col.label)"
+                         :width="col.width"
+                         :align="col.align">
+          <template slot-scope="scope">
+            {{scope.row[col.name] ? scope.row[col.name].toFixed(1) : 'N/A'}}
           </template>
         </el-table-column>
         <el-table-column v-else
@@ -110,11 +138,13 @@ export default {
       ],
       columns: [
         { name: 'rank', label: 'Rank', align: 'center', width: '80' },
-        { name: 'name', label: 'Name', align: 'left', width: '120' },
+        { name: 'name', label: 'Name', align: 'left', width: 'auto' },
         { name: 'domain', label: 'Domain', align: 'left', width: '150' },
-        { name: 'description', label: 'Description', align: 'left' },
+        // { name: 'description', label: 'Description', align: 'left', width: 'auto' },
         { name: 'category', label: 'Category', align: 'center', width: '180' },
-        { name: 'spider_count', label: 'Spider Count', align: 'center', width: '60' }
+        { name: 'spider_count', label: 'Spider Count', align: 'center', width: '60' },
+        { name: 'has_robots', label: 'Robots Protocol', align: 'center', width: '65' },
+        { name: 'home_response_time', label: 'Home Page Response Time', align: 'right', width: '80' }
       ]
     }
   },
@@ -161,6 +191,36 @@ export default {
         id: row.domain,
         category: row.category
       })
+    },
+    getCellClassName ({ row, columnIndex }) {
+      let cls = []
+      if (columnIndex === this.getColumnIndex('has_robots')) {
+        cls.push('status')
+        if (row.has_robots === undefined) {
+          cls.push('info')
+        } else if (row.has_robots) {
+          cls.push('danger')
+        } else {
+          cls.push('success')
+        }
+      } else if (columnIndex === this.getColumnIndex('home_response_time')) {
+        cls.push('status')
+        if (row.home_response_time === undefined) {
+          cls.push('info')
+        } else if (row.home_response_time <= 1) {
+          cls.push('success')
+        } else if (row.home_response_time <= 5) {
+          cls.push('primary')
+        } else if (row.home_response_time <= 10) {
+          cls.push('warning')
+        } else {
+          cls.push('danger')
+        }
+      }
+      return cls.join(' ')
+    },
+    getColumnIndex (columnName) {
+      return this.columns.map(d => d.name).indexOf(columnName)
     }
   },
   created () {
@@ -202,4 +262,39 @@ export default {
   .table >>> .domain {
     text-decoration: underline;
   }
+
+  .table >>> .status {
+  }
+
+  .table >>> .status.info {
+    color: #909399;
+    background: rgba(144, 147, 153, .1);
+  }
+
+  .table >>> .status.danger {
+    color: #f56c6c;
+    background: rgba(245, 108, 108, .1);
+  }
+
+  .table >>> .status.success {
+    color: #67c23a;
+    background: rgba(103, 194, 58, .1);
+  }
+
+  .table >>> .status.primary {
+    color: #409eff;
+    background: rgba(64, 158, 255, .1);
+  }
+
+  .table >>> .status.warning {
+    color: #e6a23c;
+    background: rgba(230, 162, 60, .1);
+  }
+
+  .table >>> a {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+  }
+
 </style>

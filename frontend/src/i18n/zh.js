@@ -139,6 +139,8 @@ export default {
   'Select': '请选择',
   'Select Category': '请选择类别',
   'Spider Count': '爬虫数',
+  'Robots Protocol': 'Robots 协议',
+  'Home Page Response Time': '首页响应时间(秒)',
 
   // 文件
   'Choose Folder': '选择文件',
