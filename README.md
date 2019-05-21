@@ -165,3 +165,7 @@ Crawlab is easy to use, general enough to adapt spiders in any language and any 
 - [x] Multi-Language Support (中文)
 - [ ] Login & User Management
 - [ ] General Search
+
+If you like Crawlab or would like to contribute to it, please add the Author's Wechat noting "Crawlab" to enter the discussion group. 
+
+![](https://user-gold-cdn.xitu.io/2019/3/15/169814cbd5e600e9?imageslim)
