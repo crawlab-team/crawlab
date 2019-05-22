@@ -22,7 +22,7 @@ col = db['sites']
 async def process_response(resp, **kwargs):
     url = kwargs.get('url')
     status = resp.status  # 读取状态
-    if status == 200:
+    if status == 200 and ('robots.txt' in str(resp.url)):
         col.update({'_id': url}, {'$set': {'has_robots': True}})
     else:
         # 错误状态
@@ -38,7 +38,7 @@ async def process_home_page_response(resp, **kwargs):
 
 async def request_site(url: str, semaphore):
     _url = 'http://' + url + '/robots.txt'
-    print('crawling ' + _url)
+    # print('crawling ' + _url)
     async with semaphore:
         async with aiohttp.ClientSession() as session:  # <1> 开启一个会话
             async with session.get(_url) as resp:  # 发送请求
@@ -50,7 +50,7 @@ async def request_site(url: str, semaphore):
 
 async def request_site_home_page(url: str, semophore):
     _url = 'http://' + url
-    print('crawling ' + _url)
+    # print('crawling ' + _url)
     async with semophore:
         tic = datetime.now()
         async with aiohttp.ClientSession() as session:  # <1> 开启一个会话
@@ -63,7 +63,7 @@ async def request_site_home_page(url: str, semophore):
 
 async def run():
     semaphore = asyncio.Semaphore(50)  # 限制并发量为50
-    sites = [site for site in col.find({'rank': {'$lte': 5000}})]
+    sites = [site for site in col.find({'rank': {'$lte': 100}})]
     urls = [site['_id'] for site in sites]
     to_get = [request_site(url, semaphore) for url in urls]
     to_get += [request_site_home_page(url, semaphore) for url in urls]
