@@ -63,7 +63,7 @@ async def request_site_home_page(url: str, semophore):
 
 async def run():
     semaphore = asyncio.Semaphore(50)  # 限制并发量为50
-    sites = [site for site in col.find({'rank': {'$lte': 100}})]
+    sites = [site for site in col.find({'rank': {'$lte': 5000}})]
     urls = [site['_id'] for site in sites]
     to_get = [request_site(url, semaphore) for url in urls]
     to_get += [request_site_home_page(url, semaphore) for url in urls]
