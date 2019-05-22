@@ -71,7 +71,8 @@ api.add_resource(ScheduleApi,
                  '/api/schedules/<string:id>')
 api.add_resource(SiteApi,
                  '/api/sites',
-                 '/api/sites/<string:id>')
+                 '/api/sites/<string:id>',
+                 '/api/sites/get/<string:action>')
 
 
 def monitor_nodes_status(celery_app):
