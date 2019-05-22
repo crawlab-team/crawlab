@@ -4,7 +4,7 @@
     <sidebar class="sidebar-container"/>
     <div class="main-container">
       <navbar/>
-      <!--<tags-view/>-->
+      <tags-view/>
       <app-main/>
     </div>
   </div>
@@ -14,8 +14,8 @@
 import {
   Navbar,
   Sidebar,
-  AppMain
-  // TagsView
+  AppMain,
+  TagsView
 } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 
@@ -24,7 +24,7 @@ export default {
   components: {
     Navbar,
     Sidebar,
-    // TagsView,
+    TagsView,
     AppMain
   },
   mixins: [ResizeMixin],
