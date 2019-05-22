@@ -8,10 +8,11 @@
                 v-model="keyword">
       </el-input>
       <el-select v-model="filter.mainCategory" class="filter-category" :placeholder="$t('Select Main Category')"
-                 clearable>
+                 clearable filterable>
         <el-option v-for="op in mainCategoryList" :key="op" :value="op" :label="op"></el-option>
       </el-select>
-      <el-select v-model="filter.category" class="filter-category" :placeholder="$t('Select Category')" clearable>
+      <el-select v-model="filter.category" class="filter-category" :placeholder="$t('Select Category')"
+                 clearable filterable>
         <el-option v-for="op in categoryList" :key="op" :value="op" :label="op"></el-option>
       </el-select>
       <el-button type="success"
@@ -215,6 +216,9 @@ export default {
     },
     mainCategory () {
       return this.filter.mainCategory
+    },
+    category () {
+      return this.filter.category
     }
   },
   watch: {
@@ -224,14 +228,25 @@ export default {
 
       // get category list
       this.$store.dispatch('site/getCategoryList')
+
+      // get site list
+      this.$store.dispatch('site/getSiteList')
+    },
+    category () {
+      // get site list
+      this.$store.dispatch('site/getSiteList')
     }
   },
   methods: {
     onSearch () {
-      this.$store.dispatch('site/getSiteList')
+      setTimeout(() => {
+        this.$store.dispatch('site/getSiteList')
+      }, 0)
     },
     onPageChange () {
-      this.$store.dispatch('site/getSiteList')
+      setTimeout(() => {
+        this.$store.dispatch('site/getSiteList')
+      }, 0)
     },
     onRowChange (row) {
       this.$store.dispatch('site/editSite', {

@@ -135,6 +135,7 @@ export default {
   'Site': '网站',
   'Rank': '排名',
   'Domain': '域名',
+  'Main Category': '主类别',
   'Category': '类别',
   'Select': '请选择',
   'Select Main Category': '请选择主类别',
