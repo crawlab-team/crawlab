@@ -50,7 +50,10 @@ class ChinazSpiderSpider(scrapy.Spider):
 
         # location info extraction
         res2 = arr[1].css('a::text').extract()
-        location = res2[0]
+        if len(res2) > 0:
+            location = res2[0]
+        else:
+            location = '其他'
 
         # assign values to item
         item['main_category'] = main_category
