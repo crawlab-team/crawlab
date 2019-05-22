@@ -53,6 +53,24 @@
             </a>
           </template>
         </el-table-column>
+        <el-table-column v-else-if="col.name === 'spider_count'"
+                         :key="col.name"
+                         :label="$t(col.label)"
+                         :width="col.width"
+                         :align="col.align">
+          <template slot-scope="scope">
+            <div>
+              <template v-if="scope.row[col.name] > 0">
+                <a href="javascript:" @click="goToSpiders(scope.row._id)">
+                  {{scope.row[col.name]}}
+                </a>
+              </template>
+              <template v-else>
+                {{scope.row[col.name]}}
+              </template>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column v-else-if="col.name === 'has_robots'"
                          :key="col.name"
                          :label="$t(col.label)"
@@ -80,6 +98,15 @@
             {{scope.row[col.name] ? scope.row[col.name].toFixed(1) : 'N/A'}}
           </template>
         </el-table-column>
+        <el-table-column v-else-if="col.name === 'home_http_status'"
+                         :key="col.name"
+                         :label="$t(col.label)"
+                         :width="col.width"
+                         :align="col.align">
+          <template slot-scope="scope">
+            {{scope.row[col.name] ? scope.row[col.name].toFixed(0) : 'N/A'}}
+          </template>
+        </el-table-column>
         <el-table-column v-else
                          :key="col.name"
                          :property="col.name"
@@ -89,7 +116,7 @@
                          :width="col.width">
         </el-table-column>
       </template>
-      <el-table-column :label="$t('Action')" align="left" width="120">
+      <el-table-column :label="$t('Action')" align="left" width="120" v-if="false">
         <template slot-scope="scope">
           <el-tooltip :content="$t('View')" placement="top">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
@@ -144,7 +171,8 @@ export default {
         { name: 'category', label: 'Category', align: 'center', width: '180' },
         { name: 'spider_count', label: 'Spider Count', align: 'center', width: '60' },
         { name: 'has_robots', label: 'Robots Protocol', align: 'center', width: '65' },
-        { name: 'home_response_time', label: 'Home Page Response Time', align: 'right', width: '80' }
+        { name: 'home_response_time', label: 'Home Page Response Time (sec)', align: 'right', width: '80' },
+        { name: 'home_http_status', label: 'Home Page Response Status Code', align: 'right', width: '80' }
       ]
     }
   },
@@ -216,11 +244,30 @@ export default {
         } else {
           cls.push('danger')
         }
+      } else if (columnIndex === this.getColumnIndex('home_http_status')) {
+        cls.push('status')
+        if (row.home_http_status === undefined) {
+          cls.push('info')
+        } else if (row.home_http_status === 200) {
+          cls.push('success')
+        } else {
+          cls.push('danger')
+        }
+      } else if (columnIndex === this.getColumnIndex('spider_count')) {
+        cls.push('status')
+        if (row.spider_count > 0) {
+          cls.push('success')
+        } else {
+          cls.push('info')
+        }
       }
       return cls.join(' ')
     },
     getColumnIndex (columnName) {
       return this.columns.map(d => d.name).indexOf(columnName)
+    },
+    goToSpiders (domain) {
+      this.$router.push({ name: 'SpiderList', params: { domain } })
     }
   },
   created () {
@@ -292,6 +339,7 @@ export default {
   }
 
   .table >>> a {
+    text-decoration: underline;
     display: inline-block;
     width: 100%;
     height: 100%;

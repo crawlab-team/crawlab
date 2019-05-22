@@ -140,7 +140,8 @@ export default {
   'Select Category': '请选择类别',
   'Spider Count': '爬虫数',
   'Robots Protocol': 'Robots 协议',
-  'Home Page Response Time': '首页响应时间(秒)',
+  'Home Page Response Time (sec)': '首页响应时间(秒)',
+  'Home Page Response Status Code': '首页响应状态码',
 
   // 文件
   'Choose Folder': '选择文件',

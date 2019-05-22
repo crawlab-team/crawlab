@@ -328,6 +328,9 @@ export default {
   },
   created () {
     this.$store.dispatch('spider/getSpiderList')
+  },
+  mounted () {
+    console.log(this.$route.params.domain)
   }
 }
 </script>
