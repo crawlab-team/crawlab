@@ -26,7 +26,10 @@ const state = {
   dailyStats: [],
 
   // spider node stats
-  nodeStats: []
+  nodeStats: [],
+
+  // filters
+  filterSite: ''
 }
 
 const getters = {}
@@ -55,12 +58,20 @@ const mutations = {
   },
   SET_NODE_STATS (state, value) {
     state.nodeStats = value
+  },
+  SET_FILTER_SITE (state, value) {
+    state.filterSite = value
   }
 }
 
 const actions = {
   getSpiderList ({ state, commit }) {
-    return request.get('/spiders', {})
+    let params = {}
+    if (state.filterSite) {
+      params.site = state.filterSite
+    }
+    console.log(params)
+    return request.get('/spiders', params)
       .then(response => {
         commit('SET_SPIDER_LIST', response.data.items)
       })

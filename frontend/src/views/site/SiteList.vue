@@ -7,11 +7,15 @@
                 class="filter-search"
                 v-model="keyword">
       </el-input>
+      <el-select v-model="filter.mainCategory" class="filter-category" :placeholder="$t('Select Main Category')"
+                 clearable>
+        <el-option v-for="op in mainCategoryList" :key="op" :value="op" :label="op"></el-option>
+      </el-select>
       <el-select v-model="filter.category" class="filter-category" :placeholder="$t('Select Category')" clearable>
         <el-option v-for="op in categoryList" :key="op" :value="op" :label="op"></el-option>
       </el-select>
       <el-button type="success"
-                 icon="el-icon-refresh"
+                 icon="el-icon-search"
                  class="btn refresh"
                  @click="onSearch">
         {{$t('Search')}}
@@ -25,24 +29,24 @@
               :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
               border>
       <template v-for="col in columns">
-        <el-table-column v-if="col.name === 'category'"
-                         :key="col.name"
-                         :label="$t(col.label)"
-                         :width="col.width"
-                         :align="col.align">
-          <template slot-scope="scope">
-            <el-select v-model="scope.row[col.name]"
-                       :placeholder="$t('Select')"
-                       @change="onRowChange(scope.row)">
-              <el-option v-for="op in categoryList"
-                         :key="op"
-                         :value="op"
-                         :label="op">
-              </el-option>
-            </el-select>
-          </template>
-        </el-table-column>
-        <el-table-column v-else-if="col.name === 'domain'"
+        <!--<el-table-column v-if="col.name === 'category'"-->
+        <!--:key="col.name"-->
+        <!--:label="$t(col.label)"-->
+        <!--:width="col.width"-->
+        <!--:align="col.align">-->
+        <!--<template slot-scope="scope">-->
+        <!--<el-select v-model="scope.row[col.name]"-->
+        <!--:placeholder="$t('Select')"-->
+        <!--@change="onRowChange(scope.row)">-->
+        <!--<el-option v-for="op in categoryList"-->
+        <!--:key="op"-->
+        <!--:value="op"-->
+        <!--:label="op">-->
+        <!--</el-option>-->
+        <!--</el-select>-->
+        <!--</template>-->
+        <!--</el-table-column>-->
+        <el-table-column v-if="col.name === 'domain'"
                          :key="col.name"
                          :label="$t(col.label)"
                          :width="col.width"
@@ -150,25 +154,26 @@ export default {
   name: 'SiteList',
   data () {
     return {
-      categoryList: [
-        '新闻',
-        '搜索引擎',
-        '综合',
-        '金融',
-        '购物',
-        '社交',
-        '视频',
-        '音乐',
-        '资讯',
-        '政企官网',
-        '其他'
-      ],
+      // categoryList: [
+      //   '新闻',
+      //   '搜索引擎',
+      //   '综合',
+      //   '金融',
+      //   '购物',
+      //   '社交',
+      //   '视频',
+      //   '音乐',
+      //   '资讯',
+      //   '政企官网',
+      //   '其他'
+      // ],
       columns: [
         { name: 'rank', label: 'Rank', align: 'center', width: '80' },
         { name: 'name', label: 'Name', align: 'left', width: 'auto' },
         { name: 'domain', label: 'Domain', align: 'left', width: '150' },
         // { name: 'description', label: 'Description', align: 'left', width: 'auto' },
-        { name: 'category', label: 'Category', align: 'center', width: '180' },
+        { name: 'main_category', label: 'Main Category', align: 'center', width: '100' },
+        { name: 'category', label: 'Category', align: 'center', width: '100' },
         { name: 'spider_count', label: 'Spider Count', align: 'center', width: '60' },
         { name: 'has_robots', label: 'Robots Protocol', align: 'center', width: '65' },
         { name: 'home_response_time', label: 'Home Page Response Time (sec)', align: 'right', width: '80' },
@@ -180,6 +185,8 @@ export default {
     ...mapState('site', [
       'filter',
       'siteList',
+      'mainCategoryList',
+      'categoryList',
       'totalCount'
     ]),
     keyword: {
@@ -205,6 +212,18 @@ export default {
       set (value) {
         this.$store.commit('site/SET_PAGE_SIZE', value)
       }
+    },
+    mainCategory () {
+      return this.filter.mainCategory
+    }
+  },
+  watch: {
+    mainCategory () {
+      // reset category
+      this.filter.category = undefined
+
+      // get category list
+      this.$store.dispatch('site/getCategoryList')
     }
   },
   methods: {
@@ -248,7 +267,7 @@ export default {
         cls.push('status')
         if (row.home_http_status === undefined) {
           cls.push('info')
-        } else if (row.home_http_status === 200) {
+        } else if (row.home_http_status >= 200 && row.home_http_status < 300) {
           cls.push('success')
         } else {
           cls.push('danger')
@@ -272,6 +291,10 @@ export default {
   },
   created () {
     this.$store.dispatch('site/getSiteList')
+
+    this.$store.dispatch('site/getMainCategoryList')
+
+    this.$store.dispatch('site/getCategoryList')
   }
 }
 </script>

@@ -137,6 +137,7 @@ export default {
   'Domain': '域名',
   'Category': '类别',
   'Select': '请选择',
+  'Select Main Category': '请选择主类别',
   'Select Category': '请选择类别',
   'Spider Count': '爬虫数',
   'Robots Protocol': 'Robots 协议',

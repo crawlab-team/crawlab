@@ -29,12 +29,20 @@
 
     <!--filter-->
     <div class="filter">
-      <el-input prefix-icon="el-icon-search"
-                :placeholder="$t('Search')"
-                class="filter-search"
-                v-model="filter.keyword"
-                @change="onSearch">
-      </el-input>
+      <!--<el-input prefix-icon="el-icon-search"-->
+      <!--:placeholder="$t('Search')"-->
+      <!--class="filter-search"-->
+      <!--v-model="filter.keyword"-->
+      <!--@change="onSearch">-->
+      <!--</el-input>-->
+      <div class="left">
+        <el-autocomplete v-model="filterSite"
+                         :placeholder="$t('Site')"
+                         clearable
+                         :fetch-suggestions="fetchSiteSuggestions"
+                         @select="onSiteSelect">
+        </el-autocomplete>
+      </div>
       <div class="right">
         <el-button type="primary" icon="fa fa-cloud" @click="onDeployAll">
           {{$t('Deploy All')}}
@@ -179,16 +187,31 @@ export default {
       'spiderForm'
     ]),
     filteredTableData () {
-      return this.spiderList.filter(d => {
-        if (!this.filter.keyword) return true
-        for (let i = 0; i < this.columns.length; i++) {
-          const colName = this.columns[i].name
-          if (d[colName] && d[colName].toLowerCase().indexOf(this.filter.keyword.toLowerCase()) > -1) {
-            return true
+      return this.spiderList
+        .filter(d => {
+          if (this.filterSite) {
+            return d.site === this.filterSite
           }
-        }
-        return false
-      })
+          return true
+        })
+      // .filter(d => {
+      //   if (!this.filter.keyword) return true
+      //   for (let i = 0; i < this.columns.length; i++) {
+      //     const colName = this.columns[i].name
+      //     if (d[colName] && d[colName].toLowerCase().indexOf(this.filter.keyword.toLowerCase()) > -1) {
+      //       return true
+      //     }
+      //   }
+      //   return false
+      // })
+    },
+    filterSite: {
+      get () {
+        return this.$store.state.spider.filterSite
+      },
+      set (value) {
+        this.$store.commit('spider/SET_FILTER_SITE', value)
+      }
     }
   },
   methods: {
@@ -324,13 +347,32 @@ export default {
         return false
       }
       return true
+    },
+    fetchSiteSuggestions (keyword, callback) {
+      this.$request.get('/sites', {
+        keyword: keyword,
+        page_num: 1,
+        page_size: 100
+      }).then(response => {
+        const data = response.data.items.map(d => {
+          d.value = `${d.name} | ${d.domain}`
+          return d
+        })
+        callback(data)
+      })
+    },
+    onSiteSelect (item) {
+      this.$store.commit('spider/SET_FILTER_SITE', item._id)
     }
   },
   created () {
+    // take site from params to filter
+    this.$store.commit('spider/SET_FILTER_SITE', this.$route.params.domain)
+
+    // fetch spider list
     this.$store.dispatch('spider/getSpiderList')
   },
   mounted () {
-    console.log(this.$route.params.domain)
   }
 }
 </script>
