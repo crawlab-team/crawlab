@@ -1,7 +1,6 @@
 aiohttp==3.5.4
 amqp==2.4.2
 aniso8601==6.0.0
-Appium-Python-Client==0.40
 APScheduler==3.6.0
 asn1crypto==0.24.0
 async-timeout==3.0.1
