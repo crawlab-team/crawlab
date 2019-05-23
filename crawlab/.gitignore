@@ -110,3 +110,5 @@ node_modules/
 
 # egg-info
 *.egg-info
+
+tmp/
