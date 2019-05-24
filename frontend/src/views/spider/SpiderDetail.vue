@@ -13,7 +13,10 @@
       <el-tab-pane :label="$t('Overview')" name="overview">
         <spider-overview/>
       </el-tab-pane>
-      <el-tab-pane :label="$t('Files')" name="files">
+      <el-tab-pane v-if="isConfigurable" :label="$t('Config')" name="配置">
+        <config-list/>
+      </el-tab-pane>
+      <el-tab-pane v-if="isCustomized" :label="$t('Files')" name="files">
         <file-list/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Environment')" name="environment">
@@ -34,10 +37,12 @@ import FileList from '../../components/FileList/FileList'
 import SpiderOverview from '../../components/Overview/SpiderOverview'
 import EnvironmentList from '../../components/Environment/EnvironmentList'
 import SpiderStats from '../../components/Stats/SpiderStats'
+import ConfigList from '../../components/Config/ConfigList'
 
 export default {
   name: 'NodeDetail',
   components: {
+    ConfigList,
     SpiderStats,
     EnvironmentList,
     FileList,
@@ -58,7 +63,13 @@ export default {
     ]),
     ...mapState('deploy', [
       'deployList'
-    ])
+    ]),
+    isCustomized () {
+      return this.spiderForm.type === 'customized'
+    },
+    isConfigurable () {
+      return this.spiderForm.type === 'configurable'
+    }
   },
   methods: {
     onTabClick () {

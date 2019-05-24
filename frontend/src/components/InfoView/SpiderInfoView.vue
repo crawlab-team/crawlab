@@ -12,10 +12,10 @@
         <el-form-item :label="$t('Spider Name')">
           <el-input v-model="spiderForm.name" :placeholder="$t('Spider Name')" :disabled="isView"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('Source Folder')">
+        <el-form-item v-if="isCustomized" :label="$t('Source Folder')">
           <el-input v-model="spiderForm.src" :placeholder="$t('Source Folder')" disabled></el-input>
         </el-form-item>
-        <el-form-item :label="$t('Execute Command')" prop="cmd" required :inline-message="true">
+        <el-form-item v-if="isCustomized" :label="$t('Execute Command')" prop="cmd" required :inline-message="true">
           <el-input v-model="spiderForm.cmd" :placeholder="$t('Execute Command')"
                     :disabled="isView"></el-input>
         </el-form-item>
@@ -32,13 +32,12 @@
           </el-autocomplete>
         </el-form-item>
         <el-form-item :label="$t('Spider Type')">
-          <el-select v-model="spiderForm.type" :placeholder="$t('Spider Type')" :disabled="isView" clearable>
-            <el-option value="scrapy" label="Scrapy"></el-option>
-            <el-option value="pyspider" label="PySpider"></el-option>
-            <el-option value="webmagic" label="WebMagic"></el-option>
+          <el-select v-model="spiderForm.type" :placeholder="$t('Spider Type')" :disabled="true" clearable>
+            <el-option value="configurable" :label="$t('Configurable')"></el-option>
+            <el-option value="customized" :label="$t('Customized')"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('Language')">
+        <el-form-item v-if="isCustomized" :label="$t('Language')">
           <el-select v-model="spiderForm.lang" :placeholder="$t('Language')" :disabled="isView" clearable>
             <el-option value="python" label="Python"></el-option>
             <el-option value="javascript" label="JavaScript"></el-option>
@@ -50,7 +49,7 @@
     </el-row>
     <el-row class="button-container" v-if="!isView">
       <el-button v-if="isShowRun" type="danger" @click="onRun">{{$t('Run')}}</el-button>
-      <el-button type="primary" @click="onDeploy">{{$t('Deploy')}}</el-button>
+      <el-button v-if="isCustomized" type="primary" @click="onDeploy">{{$t('Deploy')}}</el-button>
       <el-button type="success" @click="onSave">{{$t('Save')}}</el-button>
     </el-row>
   </div>
@@ -99,13 +98,18 @@ export default {
       'spiderForm'
     ]),
     isShowRun () {
-      if (!this.spiderForm.deploy_ts) {
+      if (this.isCustomized) {
+        if (!this.spiderForm.deploy_ts) {
+          return false
+        }
+        return !!this.spiderForm.cmd
+      } else {
+        // TODO: has to add rules
         return false
       }
-      if (!this.spiderForm.cmd) {
-        return false
-      }
-      return true
+    },
+    isCustomized () {
+      return this.spiderForm.type === 'customized'
     }
   },
   methods: {

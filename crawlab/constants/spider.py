@@ -1,7 +1,6 @@
 class SpiderType:
-    SCRAPY = 'scrapy'
-    PYSPIDER = 'pyspider'
-    WEBMAGIC = 'webmagic'
+    CONFIGURABLE = 'configurable'
+    CUSTOMIZED = 'customized'
 
 
 class LangType:

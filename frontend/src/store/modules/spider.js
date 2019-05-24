@@ -79,13 +79,8 @@ const actions = {
   addSpider ({ state, dispatch }) {
     return request.put('/spiders', {
       name: state.spiderForm.name,
-      src: state.spiderForm.src,
-      cmd: state.spiderForm.cmd,
-      type: state.spiderForm.type,
-      lang: state.spiderForm.lang,
       col: state.spiderForm.col,
-      cron: state.spiderForm.cron,
-      cron_enabled: state.spiderForm.cron_enabled ? 1 : 0,
+      type: 'configurable',
       site: state.spiderForm.site
     })
       .then(() => {
@@ -100,8 +95,6 @@ const actions = {
       type: state.spiderForm.type,
       lang: state.spiderForm.lang,
       col: state.spiderForm.col,
-      cron: state.spiderForm.cron,
-      cron_enabled: state.spiderForm.cron_enabled ? 1 : 0,
       site: state.spiderForm.site
     })
       .then(() => {

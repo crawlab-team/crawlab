@@ -13,16 +13,18 @@ export default {
   'Sites': '网站',
 
   // 标签
-  Overview: '概览',
-  Files: '文件',
+  'Overview': '概览',
+  'Files': '文件',
   'Deployed Spiders': '已部署爬虫',
   'Log': '日志',
   'Results': '结果',
   'Environment': '环境',
   'Analytics': '分析',
+  'Rules': '规则',
+  'Config': '配置',
 
   // 选择
-  Spider: '爬虫',
+  'Spider': '爬虫',
 
   // 块标题
   'Latest Tasks': '最近任务',
@@ -37,6 +39,7 @@ export default {
   REVOKED: '已取消',
 
   // 操作
+  Add: '添加',
   Run: '运行',
   Deploy: '部署',
   Save: '保存',
@@ -88,6 +91,9 @@ export default {
   'Variable': '变量',
   'Value': '值',
   'Add Environment Variables': '添加环境变量',
+  'Add Spider': '添加爬虫',
+  'Add Configurable Spider': '添加可配置爬虫',
+  'Add Customized Spider': '添加自定义爬虫',
   'Last 7-Day Tasks': '最近7天任务数',
   'Last 5-Run Errors': '最近5次运行错误数',
   '30-Day Tasks': '最近30天任务数',
@@ -98,6 +104,10 @@ export default {
   'Tasks by Node': '分节点任务数',
   'Daily Tasks': '每日任务数',
   'Daily Avg Duration (sec)': '每日平均运行时长(秒)',
+  'Configurable Spider': '可配置爬虫',
+  'Customized Spider': '自定义爬虫',
+  'Configurable': '可配置',
+  'Customized': '自定义',
 
   // 爬虫列表
   'Name': '名称',

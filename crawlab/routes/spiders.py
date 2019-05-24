@@ -13,6 +13,7 @@ from werkzeug.datastructures import FileStorage
 
 from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_SOURCE_FILE_FOLDER, PROJECT_TMP_FOLDER
 from constants.node import NodeStatus
+from constants.spider import SpiderType
 from constants.task import TaskStatus
 from db.manager import db_manager
 from routes.base import BaseApi
@@ -96,6 +97,8 @@ class SpiderApi(BaseApi):
         # get a list of items
         else:
             items = []
+
+            # get customized spiders
             dirs = os.listdir(PROJECT_SOURCE_FILE_FOLDER)
             for _dir in dirs:
                 if _dir in IGNORE_DIRS:
@@ -114,6 +117,7 @@ class SpiderApi(BaseApi):
                         'src': dir_path,
                         'lang': lang,
                         'suffix_stats': stats,
+                        'type': SpiderType.CUSTOMIZED
                     })
 
                 # existing spider
@@ -123,38 +127,51 @@ class SpiderApi(BaseApi):
                     if last_deploy is not None:
                         spider['deploy_ts'] = last_deploy['finish_ts']
 
-                    # get last task
-                    last_task = db_manager.get_last_task(spider_id=spider['_id'])
-                    if last_task is not None:
-                        spider['task_ts'] = last_task['create_ts']
-
-                    # get site
-                    if spider.get('site') is not None:
-                        site = db_manager.get('sites', spider['site'])
-                        if site is not None:
-                            spider['site_name'] = site['name']
-
                     # file stats
                     stats = get_file_suffix_stats(dir_path)
 
                     # language
                     lang = get_lang_by_stats(stats)
 
+                    # spider type
+                    type_ = SpiderType.CUSTOMIZED
+
                     # update spider data
                     db_manager.update_one('spiders', id=str(spider['_id']), values={
                         'lang': lang,
+                        'type': type_,
                         'suffix_stats': stats,
                     })
 
-                    # ---------
-                    # stats
-                    # ---------
-                    # last 5-run errors
-                    spider['last_5_errors'] = get_last_n_run_errors_count(spider_id=spider['_id'], n=5)
-                    spider['last_7d_tasks'] = get_last_n_day_tasks_count(spider_id=spider['_id'], n=5)
-
                 # append spider
                 items.append(spider)
+
+            # get configurable spiders
+            for spider in db_manager.list('spiders', {'type': SpiderType.CONFIGURABLE}):
+                # append spider
+                items.append(spider)
+
+            # get other info
+            for i in range(len(items)):
+                spider = items[i]
+
+                # get site
+                if spider.get('site') is not None:
+                    site = db_manager.get('sites', spider['site'])
+                    if site is not None:
+                        items[i]['site_name'] = site['name']
+
+                # get last task
+                last_task = db_manager.get_last_task(spider_id=spider['_id'])
+                if last_task is not None:
+                    items[i]['task_ts'] = last_task['create_ts']
+
+                # ---------
+                # stats
+                # ---------
+                # last 5-run errors
+                items[i]['last_5_errors'] = get_last_n_run_errors_count(spider_id=spider['_id'], n=5)
+                items[i]['last_7d_tasks'] = get_last_n_day_tasks_count(spider_id=spider['_id'], n=5)
 
             return {
                 'status': 'ok',
