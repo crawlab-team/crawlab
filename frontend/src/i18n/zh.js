@@ -54,6 +54,7 @@ export default {
   Remove: '删除',
   Confirm: '确认',
   Stop: '停止',
+  Preview: '预览',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -94,6 +95,7 @@ export default {
   'Add Spider': '添加爬虫',
   'Add Configurable Spider': '添加可配置爬虫',
   'Add Customized Spider': '添加自定义爬虫',
+  'Add Field': '添加字段',
   'Last 7-Day Tasks': '最近7天任务数',
   'Last 5-Run Errors': '最近5次运行错误数',
   '30-Day Tasks': '最近30天任务数',
@@ -108,6 +110,8 @@ export default {
   'Customized Spider': '自定义爬虫',
   'Configurable': '可配置',
   'Customized': '自定义',
+  'Text': '文本',
+  'Attribute': '属性',
 
   // 爬虫列表
   'Name': '名称',

@@ -9,11 +9,12 @@ import requests
 from bson import ObjectId
 from flask import current_app, request
 from flask_restful import reqparse, Resource
+from lxml import etree
 from werkzeug.datastructures import FileStorage
 
 from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_SOURCE_FILE_FOLDER, PROJECT_TMP_FOLDER
 from constants.node import NodeStatus
-from constants.spider import SpiderType
+from constants.spider import SpiderType, CrawlType, QueryType, ExtractType
 from constants.task import TaskStatus
 from db.manager import db_manager
 from routes.base import BaseApi
@@ -65,6 +66,25 @@ class SpiderApi(BaseApi):
 
         # spider site
         ('site', str),
+
+        ########################
+        # Configurable Spider
+        ########################
+
+        # spider crawl fields
+        ('fields', str),
+
+        # spider crawl type
+        ('crawl_type', str),
+
+        # spider start url
+        ('start_url', str),
+
+        # spider item selector
+        ('item_selector', str),
+
+        # spider pagination selector
+        ('pagination_selector', str),
     )
 
     def get(self, id=None, action=None):
@@ -394,9 +414,92 @@ class SpiderApi(BaseApi):
         scheduler.update()
 
     def update_envs(self, id: str):
+        """
+        Update environment variables
+        :param id: spider_id
+        """
         args = self.parser.parse_args()
         envs = json.loads(args.envs)
         db_manager.update_one(col_name='spiders', id=id, values={'envs': envs})
+
+    def update_fields(self, id: str):
+        """
+        Update fields variables for configurable spiders
+        :param id: spider_id
+        """
+        args = self.parser.parse_args()
+        fields = json.loads(args.fields)
+        db_manager.update_one(col_name='spiders', id=id, values={'fields': fields})
+
+    def preview_crawl(self, id: str):
+        spider = db_manager.get(col_name='spiders', id=id)
+
+        if spider['type'] != SpiderType.CONFIGURABLE:
+            return {
+                       'status': 'ok',
+                       'error': 'type %s is invalid' % spider['type']
+                   }, 400
+
+        if spider.get('start_url') is None:
+            return {
+                       'status': 'ok',
+                       'error': 'start_url should not be empty'
+                   }, 400
+
+        try:
+            r = requests.get(spider['start_url'])
+        except Exception as err:
+            return {
+                       'status': 'ok',
+                       'error': 'connection error'
+                   }, 500
+
+        if r.status_code != 200:
+            return {
+                'status': 'ok',
+                'error': 'status code is not 200, but %s' % r.status_code
+            }
+
+        # get html parse tree
+        sel = etree.HTML(r.content)
+
+        # parse fields
+        if spider['crawl_type'] == CrawlType.LIST:
+            if spider.get('item_selector') is None:
+                return {
+                           'status': 'ok',
+                           'error': 'item_selector should not be empty'
+                       }, 400
+
+            # TODO: enable xpath
+            data = []
+            items = sel.cssselect(spider['item_selector'])
+            for item in items:
+                row = {}
+                for f in spider['fields']:
+                    if f['type'] == QueryType.CSS:
+                        # css selector
+                        res = item.cssselect(f['query'])
+                    else:
+                        # xpath
+                        res = item.xpath(f['query'])
+
+                    if len(res) > 0:
+                        if f['extract_type'] == ExtractType.TEXT:
+                            row[f['name']] = res[0].text
+                        else:
+                            row[f['name']] = res[0].get(f['attribute'])
+                data.append(row)
+            return {
+                'status': 'ok',
+                'items': data
+            }
+
+        elif spider['crawl_type'] == CrawlType.DETAIL:
+            pass
+
+        elif spider['crawl_type'] == CrawlType.LIST_DETAIL:
+            pass
 
 
 class SpiderImportApi(Resource):

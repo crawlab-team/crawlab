@@ -16,6 +16,22 @@ class CronEnabled:
     OFF = 0
 
 
+class CrawlType:
+    LIST = 'list'
+    DETAIL = 'detail'
+    LIST_DETAIL = 'list-detail'
+
+
+class QueryType:
+    CSS = 'css'
+    XPATH = 'xpath'
+
+
+class ExtractType:
+    TEXT = 'text'
+    ATTRIBUTE = 'attribute'
+
+
 SUFFIX_IGNORE = [
     'pyc'
 ]

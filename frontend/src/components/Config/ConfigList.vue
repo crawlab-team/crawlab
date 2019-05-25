@@ -1,35 +1,121 @@
 <template>
   <div class="config-list">
+    <!--preview results-->
+    <el-dialog :visible.sync="dialogVisible"
+               :title="$t('Preview Results')"
+               width="90%"
+               :before-close="onDialogClose">
+      <el-table :data="previewCrawlData"
+                :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
+                border>
+        <el-table-column v-for="(f, index) in spiderForm.fields"
+                         :label="f.name"
+                         :key="index"
+                         min-width="100px">
+          <template slot-scope="scope">
+            {{scope.row[f.name]}}
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
+    <!--./preview results-->
+
+    <el-row style="margin-top: 10px;">
+      <el-col :span="11" offset="1">
+        <el-form label-width="100px">
+          <el-form-item :label="$t('Crawl Type')">
+            <el-button-group>
+              <el-button v-for="type in crawlTypeList"
+                         :key="type.value"
+                         :type="type.value === spiderForm.crawl_type ? 'primary' : ''"
+                         @click="onSelectCrawlType(type.value)">
+                {{$t(type.label)}}
+              </el-button>
+            </el-button-group>
+          </el-form-item>
+          <el-form-item :label="$t('Start URL')">
+            <el-input v-model="spiderForm.start_url" :placeholder="$t('Start URL')"></el-input>
+          </el-form-item>
+        </el-form>
+      </el-col>
+      <el-col :span="11" :offset="1">
+        <el-form label-width="150px">
+          <el-form-item :label="$t('Item Selector')"
+                        v-if="['list','list-detail'].includes(spiderForm.crawl_type)">
+            <el-input v-model="spiderForm.item_selector" :placeholder="$t('Item Selector')"></el-input>
+          </el-form-item>
+          <el-form-item :label="$t('Pagination Selector')"
+                        v-if="['list','list-detail'].includes(spiderForm.crawl_type)">
+            <el-input v-model="spiderForm.pagination_selector" :placeholder="$t('Pagination Selector')"></el-input>
+          </el-form-item>
+        </el-form>
+      </el-col>
+    </el-row>
+
+    <!--button group-->
     <el-row>
       <div class="button-group">
-        <el-button type="primary" @click="addEnv" icon="el-icon-plus">{{$t('Add Environment Variables')}}</el-button>
-        <el-button type="success" @click="save">{{$t('Save')}}</el-button>
+        <el-button type="primary" @click="addField" icon="el-icon-plus">{{$t('Add Field')}}</el-button>
+        <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>
+        <el-button type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
       </div>
     </el-row>
-    <el-row>
-      <el-table :data="spiderForm.fields">
-        <el-table-column :label="$t('Field Name')">
+    <!--./button group-->
+
+    <!--field list-->
+    <el-row style="margin-top: 10px;">
+      <el-table :data="spiderForm.fields"
+                class="table edit"
+                :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
+                border>
+        <el-table-column :label="$t('Field Name')" width="200px">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.name" :placeholder="$t('Variable')"></el-input>
+            <el-input v-model="scope.row.name" :placeholder="$t('Field Name')"></el-input>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('Extract Type')">
+        <el-table-column :label="$t('Query Type')" width="200px">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.type" :placeholder="$t('Value')"></el-input>
+            <el-select v-model="scope.row.type" :placeholder="$t('Query Type')">
+              <el-option value="css" :label="$t('CSS Selector')"></el-option>
+              <el-option value="xpath" :label="$t('XPath')"></el-option>
+            </el-select>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('Query')">
+        <el-table-column :label="$t('Query')" width="250px">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.query" :placeholder="$t('Value')"></el-input>
+            <el-input v-model="scope.row.query" :placeholder="$t('Query')"></el-input>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('Action')">
+        <el-table-column :label="$t('Extract Type')" width="120px">
           <template slot-scope="scope">
-            <el-button size="mini" icon="el-icon-delete" type="danger" @click="deleteEnv(scope.$index)"></el-button>
+            <el-select v-model="scope.row.extract_type" :placeholder="$t('Extract Type')">
+              <el-option value="text" :label="$t('Text')"></el-option>
+              <el-option value="attribute" :label="$t('Attribute')"></el-option>
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column :label="$t('Attribute')" width="250px">
+          <template slot-scope="scope">
+            <template v-if="scope.row.extract_type === 'attribute'">
+              <el-input v-model="scope.row.attribute"
+                        :placeholder="$t('Attribute')">
+              </el-input>
+            </template>
+            <template v-else>
+            </template>
+          </template>
+        </el-table-column>
+        <el-table-column :label="$t('Action')" fixed="right">
+          <template slot-scope="scope">
+            <div class="action-button-group">
+              <el-button size="mini" icon="el-icon-delete" type="danger"
+                         @click="deleteField(scope.$index)"></el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
     </el-row>
+    <!--./field list-->
   </div>
 </template>
 
@@ -40,14 +126,133 @@ import {
 
 export default {
   name: 'ConfigList',
+  data () {
+    return {
+      crawlTypeList: [
+        { value: 'list', label: 'List Only' },
+        { value: 'detail', label: 'Detail Only' },
+        { value: 'list-detail', label: 'List + Detail' }
+      ],
+      previewLoading: false,
+      saveLoading: false,
+      dialogVisible: false
+    }
+  },
   computed: {
     ...mapState('spider', [
-      'spiderForm'
+      'spiderForm',
+      'previewCrawlData'
     ])
+  },
+  methods: {
+    addField () {
+      this.spiderForm.fields.push({
+        type: 'css',
+        extract_type: 'text'
+      })
+    },
+    deleteField (index) {
+      this.spiderForm.fields.splice(index, 1)
+    },
+    onSelectCrawlType (value) {
+      this.spiderForm.crawl_type = value
+    },
+    onSave () {
+      return new Promise((resolve, reject) => {
+        this.saveLoading = true
+        this.$store.dispatch('spider/updateSpiderFields')
+          .then(() => {
+            this.$store.dispatch('spider/editSpider')
+              .then(() => {
+                this.$message.success(this.$t('Spider info has been saved successfully'))
+                resolve()
+              })
+              .catch(() => {
+                this.$message.error(this.$t('Something wrong happened'))
+                reject(new Error())
+              })
+              .finally(() => {
+                this.saveLoading = false
+              })
+          })
+          .catch(() => {
+            this.$message.error(this.$t('Something wrong happened'))
+            this.saveLoading = false
+            reject(new Error())
+          })
+      })
+    },
+    onDialogClose () {
+      this.dialogVisible = false
+    },
+    onPreview () {
+      this.onSave()
+        .then(() => {
+          this.previewLoading = true
+          this.$store.dispatch('spider/getPreviewCrawlData')
+            .then(() => {
+              this.dialogVisible = true
+            })
+            .catch(() => {
+              this.$message.error(this.$t('Something wrong happened'))
+            })
+            .finally(() => {
+              this.previewLoading = false
+            })
+        })
+    }
+  },
+  created () {
+    if (!this.spiderForm.fields) {
+      this.spiderForm.fields = []
+      for (let i = 0; i < 3; i++) {
+        this.spiderForm.fields.push({
+          name: `field_${i + 1}`,
+          type: 'css',
+          extract_type: 'text'
+        })
+      }
+    }
+    if (!this.spiderForm.crawl_type) this.$set(this.spiderForm, 'crawl_type', 'list')
+    if (!this.spiderForm.start_url) this.$set(this.spiderForm, 'start_url', 'http://example.com')
   }
 }
 </script>
 
 <style scoped>
+  .el-table {
+    margin-top: 10px;
+  }
 
+  .el-table.edit >>> .el-table__body td {
+    padding: 0;
+  }
+
+  .el-table.edit >>> .el-table__body td .cell {
+    padding: 0;
+    font-size: 12px;
+  }
+
+  .el-table.edit >>> .el-input__inner:hover {
+    text-decoration: underline;
+  }
+
+  .el-table.edit >>> .el-input__inner {
+    height: 36px;
+    border: none;
+    border-radius: 0;
+    font-size: 12px;
+  }
+
+  .el-table.edit >>> .el-select .el-input .el-select__caret {
+    line-height: 36px;
+  }
+
+  .button-group {
+    text-align: right;
+  }
+
+  .action-button-group {
+    margin-left: 10px;
+  }
 </style>
