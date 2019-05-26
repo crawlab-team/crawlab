@@ -175,7 +175,7 @@
                          :width="col.width">
         </el-table-column>
       </template>
-      <el-table-column :label="$t('Action')" align="left" width="200">
+      <el-table-column :label="$t('Action')" align="left" width="auto" fixed="right">
         <template slot-scope="scope">
           <el-tooltip :content="$t('View')" placement="top">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
@@ -234,8 +234,8 @@ export default {
       },
       // tableData,
       columns: [
-        { name: 'name', label: 'Name', width: 'auto' },
-        { name: 'site_name', label: 'Site', width: '120' },
+        { name: 'name', label: 'Name', width: '180', align: 'left' },
+        { name: 'site_name', label: 'Site', width: '140', align: 'left' },
         { name: 'type', label: 'Spider Type', width: '120' },
         { name: 'lang', label: 'Language', width: '120', sortable: true },
         { name: 'task_ts', label: 'Last Run', width: '160' },
