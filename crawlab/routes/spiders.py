@@ -5,6 +5,7 @@ import subprocess
 from datetime import datetime
 from random import random
 
+import gevent
 import requests
 from bson import ObjectId
 from flask import current_app, request
@@ -23,7 +24,8 @@ from tasks.spider import execute_spider, execute_config_spider
 from utils import jsonify
 from utils.deploy import zip_file, unzip_file
 from utils.file import get_file_suffix_stats, get_file_suffix
-from utils.spider import get_lang_by_stats, get_last_n_run_errors_count, get_last_n_day_tasks_count
+from utils.spider import get_lang_by_stats, get_last_n_run_errors_count, get_last_n_day_tasks_count, get_list_page_data, \
+    get_detail_page_data
 
 parser = reqparse.RequestParser()
 parser.add_argument('file', type=FileStorage, location='files')
@@ -71,8 +73,11 @@ class SpiderApi(BaseApi):
         # Configurable Spider
         ########################
 
-        # spider crawl fields
+        # spider crawl fields for list page
         ('fields', str),
+
+        # spider crawl fields for detail page
+        ('detail_fields', str),
 
         # spider crawl type
         ('crawl_type', str),
@@ -442,12 +447,21 @@ class SpiderApi(BaseApi):
 
     def update_fields(self, id: str):
         """
-        Update fields variables for configurable spiders
+        Update list page fields variables for configurable spiders
         :param id: spider_id
         """
         args = self.parser.parse_args()
         fields = json.loads(args.fields)
         db_manager.update_one(col_name='spiders', id=id, values={'fields': fields})
+
+    def update_detail_fields(self, id: str):
+        """
+        Update detail page fields variables for configurable spiders
+        :param id: spider_id
+        """
+        args = self.parser.parse_args()
+        detail_fields = json.loads(args.detail_fields)
+        db_manager.update_one(col_name='spiders', id=id, values={'detail_fields': detail_fields})
 
     def preview_crawl(self, id: str):
         spider = db_manager.get(col_name='spiders', id=id)
@@ -489,25 +503,8 @@ class SpiderApi(BaseApi):
                            'error': 'item_selector should not be empty'
                        }, 400
 
-            # TODO: enable xpath
-            data = []
-            items = sel.cssselect(spider['item_selector'])
-            for item in items:
-                row = {}
-                for f in spider['fields']:
-                    if f['type'] == QueryType.CSS:
-                        # css selector
-                        res = item.cssselect(f['query'])
-                    else:
-                        # xpath
-                        res = item.xpath(f['query'])
+            data = get_list_page_data(spider, sel)[:10]
 
-                    if len(res) > 0:
-                        if f['extract_type'] == ExtractType.TEXT:
-                            row[f['name']] = res[0].text
-                        else:
-                            row[f['name']] = res[0].get(f['attribute'])
-                data.append(row)
             return {
                 'status': 'ok',
                 'items': data
@@ -517,7 +514,23 @@ class SpiderApi(BaseApi):
             pass
 
         elif spider['crawl_type'] == CrawlType.LIST_DETAIL:
-            pass
+            data = get_list_page_data(spider, sel)[:10]
+
+            ev_list = []
+            for idx, d in enumerate(data):
+                for f in spider['fields']:
+                    if f.get('is_detail'):
+                        url = d.get(f['name'])
+                        if url is not None:
+                            ev_list.append(gevent.spawn(get_detail_page_data, url, spider, idx, data))
+                        break
+
+            gevent.joinall(ev_list)
+
+            return {
+                'status': 'ok',
+                'items': data
+            }
 
 
 class SpiderImportApi(Resource):

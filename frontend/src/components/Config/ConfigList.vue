@@ -8,7 +8,7 @@
       <el-table :data="previewCrawlData"
                 :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
                 border>
-        <el-table-column v-for="(f, index) in spiderForm.fields"
+        <el-table-column v-for="(f, index) in fields"
                          :label="f.name"
                          :key="index"
                          min-width="100px">
@@ -20,8 +20,9 @@
     </el-dialog>
     <!--./preview results-->
 
+    <!--config detail-->
     <el-row>
-      <el-col :span="11" offset="1">
+      <el-col :span="11" :offset="1">
         <el-form label-width="150px">
           <el-form-item :label="$t('Crawl Type')">
             <el-button-group>
@@ -72,76 +73,40 @@
         </el-form>
       </el-col>
     </el-row>
+    <!--./config detail-->
 
     <!--button group-->
-    <el-row style="margin-top: 10px">
-      <div class="button-group-wrapper">
-        <div class="button-group">
-          <el-button type="primary" @click="addField" icon="el-icon-plus">{{$t('Add Field')}}</el-button>
-        </div>
-        <div class="button-group">
-          <el-button type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
-          <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>
-          <el-button type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
-        </div>
+    <el-row class="button-group-container">
+      <div class="button-group">
+        <el-button type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
+        <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>
+        <el-button type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
       </div>
     </el-row>
     <!--./button group-->
 
-    <!--field list-->
-    <el-row style="margin-top: 10px;">
-      <el-table :data="spiderForm.fields"
-                class="table edit"
-                :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
-                border>
-        <el-table-column :label="$t('Field Name')" width="200px">
-          <template slot-scope="scope">
-            <el-input v-model="scope.row.name" :placeholder="$t('Field Name')"></el-input>
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('Query Type')" width="200px">
-          <template slot-scope="scope">
-            <el-select v-model="scope.row.type" :placeholder="$t('Query Type')">
-              <el-option value="css" :label="$t('CSS Selector')"></el-option>
-              <el-option value="xpath" :label="$t('XPath')"></el-option>
-            </el-select>
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('Query')" width="250px">
-          <template slot-scope="scope">
-            <el-input v-model="scope.row.query" :placeholder="$t('Query')"></el-input>
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('Extract Type')" width="120px">
-          <template slot-scope="scope">
-            <el-select v-model="scope.row.extract_type" :placeholder="$t('Extract Type')">
-              <el-option value="text" :label="$t('Text')"></el-option>
-              <el-option value="attribute" :label="$t('Attribute')"></el-option>
-            </el-select>
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('Attribute')" width="250px">
-          <template slot-scope="scope">
-            <template v-if="scope.row.extract_type === 'attribute'">
-              <el-input v-model="scope.row.attribute"
-                        :placeholder="$t('Attribute')">
-              </el-input>
-            </template>
-            <template v-else>
-            </template>
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('Action')" fixed="right">
-          <template slot-scope="scope">
-            <div class="action-button-group">
-              <el-button size="mini" icon="el-icon-delete" type="danger"
-                         @click="deleteField(scope.$index)"></el-button>
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
+    <!--list field list-->
+    <el-row v-if="['list','list-detail'].includes(spiderForm.crawl_type)"
+            class="list-fields-container">
+      <fields-table-view
+        type="list"
+        title="List Page Fields"
+        :fields="spiderForm.fields"
+      />
     </el-row>
-    <!--./field list-->
+    <!--./list field list-->
+
+    <!--detail field list-->
+    <el-row v-if="['detail','list-detail'].includes(spiderForm.crawl_type)"
+            class="detail-fields-container"
+            style="margin-top: 10px;">
+      <fields-table-view
+        type="detail"
+        title="Detail Page Fields"
+        :fields="spiderForm.detail_fields"
+      />
+    </el-row>
+    <!--./detail field list-->
   </div>
 </template>
 
@@ -149,9 +114,11 @@
 import {
   mapState
 } from 'vuex'
+import FieldsTableView from '../TableView/FieldsTableView'
 
 export default {
   name: 'ConfigList',
+  components: { FieldsTableView },
   data () {
     return {
       crawlTypeList: [
@@ -168,18 +135,20 @@ export default {
     ...mapState('spider', [
       'spiderForm',
       'previewCrawlData'
-    ])
+    ]),
+    fields () {
+      if (this.spiderForm.crawl_type === 'list') {
+        return this.spiderForm.fields
+      } else if (this.spiderForm.crawl_type === 'detail') {
+        return this.spiderForm.detail_fields
+      } else if (this.spiderForm.crawl_type === 'list-detail') {
+        return this.spiderForm.fields.concat(this.spiderForm.detail_fields)
+      } else {
+        return []
+      }
+    }
   },
   methods: {
-    addField () {
-      this.spiderForm.fields.push({
-        type: 'css',
-        extract_type: 'text'
-      })
-    },
-    deleteField (index) {
-      this.spiderForm.fields.splice(index, 1)
-    },
     onSelectCrawlType (value) {
       this.spiderForm.crawl_type = value
     },
@@ -200,6 +169,9 @@ export default {
               .finally(() => {
                 this.saveLoading = false
               })
+          })
+          .then(() => {
+            this.$store.dispatch('spider/updateSpiderDetailFields')
           })
           .catch(() => {
             this.$message.error(this.$t('Something wrong happened'))
@@ -241,6 +213,7 @@ export default {
     }
   },
   created () {
+    // fields for list page
     if (!this.spiderForm.fields) {
       this.spiderForm.fields = []
       for (let i = 0; i < 3; i++) {
@@ -251,6 +224,19 @@ export default {
         })
       }
     }
+
+    // fields for detail page
+    if (!this.spiderForm.detail_fields) {
+      this.spiderForm.detail_fields = []
+      for (let i = 0; i < 3; i++) {
+        this.spiderForm.detail_fields.push({
+          name: `field_${i + 1}`,
+          type: 'css',
+          extract_type: 'text'
+        })
+      }
+    }
+
     if (!this.spiderForm.crawl_type) this.$set(this.spiderForm, 'crawl_type', 'list')
     if (!this.spiderForm.start_url) this.$set(this.spiderForm, 'start_url', 'http://example.com')
     if (!this.spiderForm.item_selector_type) this.$set(this.spiderForm, 'item_selector_type', 'css')
@@ -261,43 +247,29 @@ export default {
 </script>
 
 <style scoped>
-  .el-table {
-  }
 
-  .el-table.edit >>> .el-table__body td {
-    padding: 0;
-  }
-
-  .el-table.edit >>> .el-table__body td .cell {
-    padding: 0;
-    font-size: 12px;
-  }
-
-  .el-table.edit >>> .el-input__inner:hover {
-    text-decoration: underline;
-  }
-
-  .el-table.edit >>> .el-input__inner {
-    height: 36px;
-    border: none;
-    border-radius: 0;
-    font-size: 12px;
-  }
-
-  .el-table.edit >>> .el-select .el-input .el-select__caret {
-    line-height: 36px;
-  }
-
-  .button-group-wrapper {
-    display: flex;
-    justify-content: space-between;
+  .button-group-container {
+    margin-top: 10px;
+    border-bottom: 1px dashed #dcdfe6;
+    padding-bottom: 20px;
   }
 
   .button-group {
     text-align: right;
   }
 
-  .action-button-group {
-    margin-left: 10px;
+  .list-fields-container {
+    margin-top: 20px;
+    border-bottom: 1px dashed #dcdfe6;
+    padding-bottom: 20px;
+  }
+
+  .detail-fields-container {
+    margin-top: 20px;
+  }
+
+  .title {
+    color: #606266;
+    font-size: 14px;
   }
 </style>

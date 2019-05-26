@@ -128,6 +128,9 @@ export default {
   'Pagination Selector Type': '分页项选择器类别',
   'Preview Results': '预览结果',
   'Obey robots.txt': '遵守Robots协议',
+  'List Page Fields': '列表页字段',
+  'Detail Page Fields': '详情页字段',
+  'Detail Page URL': '详情页URL',
 
   // 爬虫列表
   'Name': '名称',

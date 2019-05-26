@@ -1,6 +1,7 @@
 aiohttp==3.5.4
 amqp==2.4.2
 aniso8601==6.0.0
+Appium-Python-Client==0.40
 APScheduler==3.6.0
 asn1crypto==0.24.0
 async-timeout==3.0.1
@@ -26,6 +27,8 @@ Flask-Cors==3.0.7
 Flask-RESTful==0.3.7
 flask-restplus==0.12.1
 flower==0.9.3
+gevent==1.4.0
+greenlet==0.4.15
 gunicorn==19.9.0
 html5lib==1.0.1
 humanfriendly==4.18
@@ -55,6 +58,8 @@ python-dateutil==2.8.0
 pytz==2018.9
 queuelib==1.5.0
 redis==3.2.1
+redisbeat==1.1.4
+reppy==0.4.12
 requests==2.21.0
 Scrapy==1.6.0
 selenium==3.141.0
