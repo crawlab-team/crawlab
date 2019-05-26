@@ -81,8 +81,8 @@ class ConfigSpiderSpider(scrapy.Spider):
     def parse(self, response):
 
         if spider['crawl_type'] == 'list':
-            items = get_list_items(response)
             # list page only
+            items = get_list_items(response)
             for _item in items:
                 item = get_spiders_item(sel=_item, fields=spider['fields'])
                 yield item

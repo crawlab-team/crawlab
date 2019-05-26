@@ -131,6 +131,11 @@ const actions = {
       fields: JSON.stringify(state.spiderForm.fields)
     })
   },
+  updateSpiderDetailFields ({ state }) {
+    return request.post(`/spiders/${state.spiderForm._id}/update_detail_fields`, {
+      detail_fields: JSON.stringify(state.spiderForm.detail_fields)
+    })
+  },
   getSpiderData ({ state, commit }, id) {
     return request.get(`/spiders/${id}`)
       .then(response => {
