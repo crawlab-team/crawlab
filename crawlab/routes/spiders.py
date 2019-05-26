@@ -19,7 +19,7 @@ from constants.task import TaskStatus
 from db.manager import db_manager
 from routes.base import BaseApi
 from tasks.scheduler import scheduler
-from tasks.spider import execute_spider
+from tasks.spider import execute_spider, execute_config_spider
 from utils import jsonify
 from utils.deploy import zip_file, unzip_file
 from utils.file import get_file_suffix_stats, get_file_suffix
@@ -83,8 +83,17 @@ class SpiderApi(BaseApi):
         # spider item selector
         ('item_selector', str),
 
+        # spider item selector type
+        ('item_selector_type', str),
+
         # spider pagination selector
         ('pagination_selector', str),
+
+        # spider pagination selector type
+        ('pagination_selector_type', str),
+
+        # whether to obey robots.txt
+        ('obey_robots_txt', str),
     )
 
     def get(self, id=None, action=None):
@@ -251,7 +260,16 @@ class SpiderApi(BaseApi):
 
         spider = db_manager.get('spiders', id=ObjectId(id))
 
-        job = execute_spider.delay(id, params)
+        # determine execute function
+        if spider['type'] == SpiderType.CONFIGURABLE:
+            # configurable spider
+            exec_func = execute_config_spider
+        else:
+            # customized spider
+            exec_func = execute_spider
+
+        # trigger an asynchronous job
+        job = exec_func.delay(id, params)
 
         # create a new task
         db_manager.save('tasks', {

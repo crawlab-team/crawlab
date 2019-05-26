@@ -7,8 +7,10 @@
 
 import scrapy
 
+from spiders.db import spider
+
 
 class SpidersItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+    fields = {f['name']: scrapy.Field() for f in spider['fields']}
+    fields['_id'] = scrapy.Field()
+    fields['task_id'] = scrapy.Field()

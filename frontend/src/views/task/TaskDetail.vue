@@ -6,11 +6,13 @@
         <task-overview/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Log')" name="log">
-        <div class="log-view">
-          <pre>
-            {{taskLog}}
-          </pre>
-        </div>
+        <el-card>
+          <div class="log-view">
+            <pre>
+              {{taskLog}}
+            </pre>
+          </div>
+        </el-card>
       </el-tab-pane>
       <el-tab-pane :label="$t('Results')" name="results">
         <general-table-view :data="taskResultsData"
@@ -100,5 +102,16 @@ export default {
 
   .selector .el-select {
     padding-left: 10px;
+  }
+
+  .log-view {
+    margin: 20px;
+    height: 640px;
+  }
+
+  .log-view pre {
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
   }
 </style>

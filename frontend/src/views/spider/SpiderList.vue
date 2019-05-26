@@ -426,13 +426,19 @@ export default {
         })
     },
     isShowRun (row) {
-      if (!row.deploy_ts) {
-        return false
+      if (this.isCustomized(row)) {
+        // customized spider
+        if (!row.deploy_ts) {
+          return false
+        }
+        return !!row.cmd
+      } else {
+        // configurable spider
+        return !!row.fields
       }
-      if (!row.cmd) {
-        return false
-      }
-      return true
+    },
+    isCustomized (row) {
+      return row.type === 'customized'
     },
     fetchSiteSuggestions (keyword, callback) {
       this.$request.get('/sites', {

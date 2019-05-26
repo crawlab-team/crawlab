@@ -99,13 +99,14 @@ export default {
     ]),
     isShowRun () {
       if (this.isCustomized) {
+        // customized spider
         if (!this.spiderForm.deploy_ts) {
           return false
         }
         return !!this.spiderForm.cmd
       } else {
-        // TODO: has to add rules
-        return false
+        // configurable spider
+        return !!this.spiderForm.fields
       }
     },
     isCustomized () {
@@ -113,7 +114,7 @@ export default {
     }
   },
   methods: {
-    onRun () {
+    onCrawl () {
       const row = this.spiderForm
       this.$refs['spiderForm'].validate(res => {
         if (res) {

@@ -106,7 +106,10 @@ const actions = {
       crawl_type: state.spiderForm.crawl_type,
       start_url: state.spiderForm.start_url,
       item_selector: state.spiderForm.item_selector,
-      pagination_selector: state.spiderForm.pagination_selector
+      item_selector_type: state.spiderForm.item_selector_type,
+      pagination_selector: state.spiderForm.pagination_selector,
+      pagination_selector_type: state.spiderForm.pagination_selector_type,
+      obey_robots_txt: state.spiderForm.obey_robots_txt
     })
       .then(() => {
         dispatch('getSpiderList')

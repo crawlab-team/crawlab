@@ -20,9 +20,9 @@
     </el-dialog>
     <!--./preview results-->
 
-    <el-row style="margin-top: 10px;">
+    <el-row>
       <el-col :span="11" offset="1">
-        <el-form label-width="100px">
+        <el-form label-width="150px">
           <el-form-item :label="$t('Crawl Type')">
             <el-button-group>
               <el-button v-for="type in crawlTypeList"
@@ -36,28 +36,54 @@
           <el-form-item :label="$t('Start URL')">
             <el-input v-model="spiderForm.start_url" :placeholder="$t('Start URL')"></el-input>
           </el-form-item>
+          <el-form-item :label="$t('Obey robots.txt')">
+            <el-switch v-model="spiderForm.obey_robots_txt" :placeholder="$t('Obey robots.txt')"></el-switch>
+          </el-form-item>
         </el-form>
       </el-col>
       <el-col :span="11" :offset="1">
         <el-form label-width="150px">
           <el-form-item :label="$t('Item Selector')"
                         v-if="['list','list-detail'].includes(spiderForm.crawl_type)">
-            <el-input v-model="spiderForm.item_selector" :placeholder="$t('Item Selector')"></el-input>
+            <el-select style="width: 35%;margin-right: 10px;"
+                       v-model="spiderForm.item_selector_type"
+                       :placeholder="$t('Item Selector Type')">
+              <el-option value="xpath" :label="$t('XPath')"></el-option>
+              <el-option value="css" :label="$t('CSS')"></el-option>
+            </el-select>
+            <el-input style="width: calc(65% - 10px);"
+                      v-model="spiderForm.item_selector"
+                      :placeholder="$t('Item Selector')">
+            </el-input>
           </el-form-item>
           <el-form-item :label="$t('Pagination Selector')"
                         v-if="['list','list-detail'].includes(spiderForm.crawl_type)">
-            <el-input v-model="spiderForm.pagination_selector" :placeholder="$t('Pagination Selector')"></el-input>
+            <el-select style="width: 35%;margin-right: 10px;"
+                       v-model="spiderForm.pagination_selector_type"
+                       :placeholder="$t('Pagination Selector Type')">
+              <el-option value="xpath" :label="$t('XPath')"></el-option>
+              <el-option value="css" :label="$t('CSS')"></el-option>
+            </el-select>
+            <el-input style="width: calc(65% - 10px);"
+                      v-model="spiderForm.pagination_selector"
+                      :placeholder="$t('Pagination Selector')">
+            </el-input>
           </el-form-item>
         </el-form>
       </el-col>
     </el-row>
 
     <!--button group-->
-    <el-row>
-      <div class="button-group">
-        <el-button type="primary" @click="addField" icon="el-icon-plus">{{$t('Add Field')}}</el-button>
-        <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>
-        <el-button type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
+    <el-row style="margin-top: 10px">
+      <div class="button-group-wrapper">
+        <div class="button-group">
+          <el-button type="primary" @click="addField" icon="el-icon-plus">{{$t('Add Field')}}</el-button>
+        </div>
+        <div class="button-group">
+          <el-button type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
+          <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>
+          <el-button type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
+        </div>
       </div>
     </el-row>
     <!--./button group-->
@@ -200,6 +226,18 @@ export default {
               this.previewLoading = false
             })
         })
+    },
+    onCrawl () {
+      this.$confirm(this.$t('Are you sure to run this spider?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel')
+      })
+        .then(() => {
+          this.$store.dispatch('spider/crawlSpider', this.spiderForm._id)
+            .then(() => {
+              this.$message.success(this.$t(`Spider task has been scheduled`))
+            })
+        })
     }
   },
   created () {
@@ -215,13 +253,15 @@ export default {
     }
     if (!this.spiderForm.crawl_type) this.$set(this.spiderForm, 'crawl_type', 'list')
     if (!this.spiderForm.start_url) this.$set(this.spiderForm, 'start_url', 'http://example.com')
+    if (!this.spiderForm.item_selector_type) this.$set(this.spiderForm, 'item_selector_type', 'css')
+    if (!this.spiderForm.pagination_selector_type) this.$set(this.spiderForm, 'pagination_selector_type', 'css')
+    if (!this.spiderForm.obey_robots_txt) this.$set(this.spiderForm, 'obey_robots_txt', true)
   }
 }
 </script>
 
 <style scoped>
   .el-table {
-    margin-top: 10px;
   }
 
   .el-table.edit >>> .el-table__body td {
@@ -246,6 +286,11 @@ export default {
 
   .el-table.edit >>> .el-select .el-input .el-select__caret {
     line-height: 36px;
+  }
+
+  .button-group-wrapper {
+    display: flex;
+    justify-content: space-between;
   }
 
   .button-group {
