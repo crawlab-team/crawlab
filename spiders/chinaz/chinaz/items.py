@@ -16,3 +16,6 @@ class ChinazItem(scrapy.Item):
     domain = scrapy.Field()
     description = scrapy.Field()
     rank = scrapy.Field()
+    main_category = scrapy.Field()
+    category = scrapy.Field()
+    location = scrapy.Field()

@@ -179,5 +179,9 @@ class DbManager(object):
         col = self.db[col_name]
         col.create_index(keys=keys, **kwargs)
 
+    def distinct(self, col_name: str, key: str, filter: dict):
+        col = self.db[col_name]
+        return sorted(col.distinct(key, filter))
+
 
 db_manager = DbManager()

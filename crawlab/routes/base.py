@@ -111,7 +111,7 @@ class BaseApi(Resource):
 
         self.after_update()
 
-        return item
+        return jsonify(item)
 
     def update(self, id: str = None) -> (dict, tuple):
         """
@@ -137,7 +137,7 @@ class BaseApi(Resource):
         # execute after_update hook
         self.after_update(id)
 
-        return item
+        return jsonify(item)
 
     def post(self, id: str = None, action: str = None):
         """

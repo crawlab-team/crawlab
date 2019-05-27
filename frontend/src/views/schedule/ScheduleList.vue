@@ -196,7 +196,7 @@ export default {
           }, 100)
         })
     },
-    onRun () {
+    onCrawl () {
     }
   },
   created () {

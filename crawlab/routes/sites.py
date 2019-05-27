@@ -13,6 +13,7 @@ class SiteApi(BaseApi):
 
     arguments = (
         ('keyword', str),
+        ('main_category', str),
         ('category', str),
     )
 
@@ -69,4 +70,21 @@ class SiteApi(BaseApi):
             'page_num': page_num,
             'page_size': page_size,
             'items': jsonify(sites)
+        }
+
+    def get_main_category_list(self, id):
+        return {
+            'status': 'ok',
+            'items': db_manager.distinct(col_name=self.col_name, key='main_category', filter={})
+        }
+
+    def get_category_list(self, id):
+        args = self.parser.parse_args()
+        filter_ = {}
+        if args.get('main_category') is not None:
+            filter_['main_category'] = args.get('main_category')
+        return {
+            'status': 'ok',
+            'items': db_manager.distinct(col_name=self.col_name, key='category',
+                                         filter=filter_)
         }

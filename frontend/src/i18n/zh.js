@@ -13,16 +13,18 @@ export default {
   'Sites': '网站',
 
   // 标签
-  Overview: '概览',
-  Files: '文件',
+  'Overview': '概览',
+  'Files': '文件',
   'Deployed Spiders': '已部署爬虫',
   'Log': '日志',
   'Results': '结果',
   'Environment': '环境',
   'Analytics': '分析',
+  'Rules': '规则',
+  'Config': '配置',
 
   // 选择
-  Spider: '爬虫',
+  'Spider': '爬虫',
 
   // 块标题
   'Latest Tasks': '最近任务',
@@ -37,6 +39,7 @@ export default {
   REVOKED: '已取消',
 
   // 操作
+  Add: '添加',
   Run: '运行',
   Deploy: '部署',
   Save: '保存',
@@ -51,6 +54,7 @@ export default {
   Remove: '删除',
   Confirm: '确认',
   Stop: '停止',
+  Preview: '预览',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -88,6 +92,10 @@ export default {
   'Variable': '变量',
   'Value': '值',
   'Add Environment Variables': '添加环境变量',
+  'Add Spider': '添加爬虫',
+  'Add Configurable Spider': '添加可配置爬虫',
+  'Add Customized Spider': '添加自定义爬虫',
+  'Add Field': '添加字段',
   'Last 7-Day Tasks': '最近7天任务数',
   'Last 5-Run Errors': '最近5次运行错误数',
   '30-Day Tasks': '最近30天任务数',
@@ -98,6 +106,31 @@ export default {
   'Tasks by Node': '分节点任务数',
   'Daily Tasks': '每日任务数',
   'Daily Avg Duration (sec)': '每日平均运行时长(秒)',
+  'Configurable Spider': '可配置爬虫',
+  'Customized Spider': '自定义爬虫',
+  'Configurable': '可配置',
+  'Customized': '自定义',
+  'Text': '文本',
+  'Attribute': '属性',
+  'Field Name': '字段名称',
+  'Query Type': '查询类别',
+  'Query': '查询',
+  'Extract Type': '提取类别',
+  'CSS Selector': 'CSS选择器',
+  'Crawl Type': '抓取类别',
+  'List Only': '仅列表',
+  'Detail Only': '仅详情页',
+  'List + Detail': '列表＋详情页',
+  'Start URL': '开始URL',
+  'Item Selector': '列表项选择器',
+  'Item Selector Type': '列表项选择器类别',
+  'Pagination Selector': '分页选择器',
+  'Pagination Selector Type': '分页项选择器类别',
+  'Preview Results': '预览结果',
+  'Obey robots.txt': '遵守Robots协议',
+  'List Page Fields': '列表页字段',
+  'Detail Page Fields': '详情页字段',
+  'Detail Page URL': '详情页URL',
 
   // 爬虫列表
   'Name': '名称',
@@ -135,10 +168,15 @@ export default {
   'Site': '网站',
   'Rank': '排名',
   'Domain': '域名',
+  'Main Category': '主类别',
   'Category': '类别',
   'Select': '请选择',
+  'Select Main Category': '请选择主类别',
   'Select Category': '请选择类别',
   'Spider Count': '爬虫数',
+  'Robots Protocol': 'Robots 协议',
+  'Home Page Response Time (sec)': '首页响应时间(秒)',
+  'Home Page Response Status Code': '首页响应状态码',
 
   // 文件
   'Choose Folder': '选择文件',

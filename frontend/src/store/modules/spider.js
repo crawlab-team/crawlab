@@ -26,7 +26,13 @@ const state = {
   dailyStats: [],
 
   // spider node stats
-  nodeStats: []
+  nodeStats: [],
+
+  // filters
+  filterSite: '',
+
+  // preview crawl data
+  previewCrawlData: []
 }
 
 const getters = {}
@@ -55,12 +61,23 @@ const mutations = {
   },
   SET_NODE_STATS (state, value) {
     state.nodeStats = value
+  },
+  SET_FILTER_SITE (state, value) {
+    state.filterSite = value
+  },
+  SET_PREVIEW_CRAWL_DATA (state, value) {
+    state.previewCrawlData = value
   }
 }
 
 const actions = {
   getSpiderList ({ state, commit }) {
-    return request.get('/spiders', {})
+    let params = {}
+    if (state.filterSite) {
+      params.site = state.filterSite
+    }
+    console.log(params)
+    return request.get('/spiders', params)
       .then(response => {
         commit('SET_SPIDER_LIST', response.data.items)
       })
@@ -68,13 +85,8 @@ const actions = {
   addSpider ({ state, dispatch }) {
     return request.put('/spiders', {
       name: state.spiderForm.name,
-      src: state.spiderForm.src,
-      cmd: state.spiderForm.cmd,
-      type: state.spiderForm.type,
-      lang: state.spiderForm.lang,
       col: state.spiderForm.col,
-      cron: state.spiderForm.cron,
-      cron_enabled: state.spiderForm.cron_enabled ? 1 : 0,
+      type: 'configurable',
       site: state.spiderForm.site
     })
       .then(() => {
@@ -89,9 +101,15 @@ const actions = {
       type: state.spiderForm.type,
       lang: state.spiderForm.lang,
       col: state.spiderForm.col,
-      cron: state.spiderForm.cron,
-      cron_enabled: state.spiderForm.cron_enabled ? 1 : 0,
-      site: state.spiderForm.site
+      site: state.spiderForm.site,
+      // configurable spider
+      crawl_type: state.spiderForm.crawl_type,
+      start_url: state.spiderForm.start_url,
+      item_selector: state.spiderForm.item_selector,
+      item_selector_type: state.spiderForm.item_selector_type,
+      pagination_selector: state.spiderForm.pagination_selector,
+      pagination_selector_type: state.spiderForm.pagination_selector_type,
+      obey_robots_txt: state.spiderForm.obey_robots_txt
     })
       .then(() => {
         dispatch('getSpiderList')
@@ -106,6 +124,16 @@ const actions = {
   updateSpiderEnvs ({ state }) {
     return request.post(`/spiders/${state.spiderForm._id}/update_envs`, {
       envs: JSON.stringify(state.spiderForm.envs)
+    })
+  },
+  updateSpiderFields ({ state }) {
+    return request.post(`/spiders/${state.spiderForm._id}/update_fields`, {
+      fields: JSON.stringify(state.spiderForm.fields)
+    })
+  },
+  updateSpiderDetailFields ({ state }) {
+    return request.post(`/spiders/${state.spiderForm._id}/update_detail_fields`, {
+      detail_fields: JSON.stringify(state.spiderForm.detail_fields)
     })
   },
   getSpiderData ({ state, commit }, id) {
@@ -172,6 +200,12 @@ const actions = {
         commit('SET_STATUS_STATS', response.data.task_count_by_status)
         commit('SET_DAILY_STATS', response.data.daily_stats)
         commit('SET_NODE_STATS', response.data.task_count_by_node)
+      })
+  },
+  getPreviewCrawlData ({ state, commit }) {
+    return request.post(`/spiders/${state.spiderForm._id}/preview_crawl`)
+      .then(response => {
+        commit('SET_PREVIEW_CRAWL_DATA', response.data.items)
       })
   }
 }

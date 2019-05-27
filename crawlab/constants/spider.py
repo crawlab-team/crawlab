@@ -1,7 +1,6 @@
 class SpiderType:
-    SCRAPY = 'scrapy'
-    PYSPIDER = 'pyspider'
-    WEBMAGIC = 'webmagic'
+    CONFIGURABLE = 'configurable'
+    CUSTOMIZED = 'customized'
 
 
 class LangType:
@@ -15,6 +14,22 @@ class LangType:
 class CronEnabled:
     ON = 1
     OFF = 0
+
+
+class CrawlType:
+    LIST = 'list'
+    DETAIL = 'detail'
+    LIST_DETAIL = 'list-detail'
+
+
+class QueryType:
+    CSS = 'css'
+    XPATH = 'xpath'
+
+
+class ExtractType:
+    TEXT = 'text'
+    ATTRIBUTE = 'attribute'
 
 
 SUFFIX_IGNORE = [

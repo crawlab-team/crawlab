@@ -5,23 +5,27 @@ import subprocess
 from datetime import datetime
 from random import random
 
+import gevent
 import requests
 from bson import ObjectId
 from flask import current_app, request
 from flask_restful import reqparse, Resource
+from lxml import etree
 from werkzeug.datastructures import FileStorage
 
 from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_SOURCE_FILE_FOLDER, PROJECT_TMP_FOLDER
 from constants.node import NodeStatus
+from constants.spider import SpiderType, CrawlType, QueryType, ExtractType
 from constants.task import TaskStatus
 from db.manager import db_manager
 from routes.base import BaseApi
 from tasks.scheduler import scheduler
-from tasks.spider import execute_spider
+from tasks.spider import execute_spider, execute_config_spider
 from utils import jsonify
 from utils.deploy import zip_file, unzip_file
 from utils.file import get_file_suffix_stats, get_file_suffix
-from utils.spider import get_lang_by_stats, get_last_n_run_errors_count, get_last_n_day_tasks_count
+from utils.spider import get_lang_by_stats, get_last_n_run_errors_count, get_last_n_day_tasks_count, get_list_page_data, \
+    get_detail_page_data
 
 parser = reqparse.RequestParser()
 parser.add_argument('file', type=FileStorage, location='files')
@@ -64,6 +68,37 @@ class SpiderApi(BaseApi):
 
         # spider site
         ('site', str),
+
+        ########################
+        # Configurable Spider
+        ########################
+
+        # spider crawl fields for list page
+        ('fields', str),
+
+        # spider crawl fields for detail page
+        ('detail_fields', str),
+
+        # spider crawl type
+        ('crawl_type', str),
+
+        # spider start url
+        ('start_url', str),
+
+        # spider item selector
+        ('item_selector', str),
+
+        # spider item selector type
+        ('item_selector_type', str),
+
+        # spider pagination selector
+        ('pagination_selector', str),
+
+        # spider pagination selector type
+        ('pagination_selector_type', str),
+
+        # whether to obey robots.txt
+        ('obey_robots_txt', str),
     )
 
     def get(self, id=None, action=None):
@@ -96,6 +131,8 @@ class SpiderApi(BaseApi):
         # get a list of items
         else:
             items = []
+
+            # get customized spiders
             dirs = os.listdir(PROJECT_SOURCE_FILE_FOLDER)
             for _dir in dirs:
                 if _dir in IGNORE_DIRS:
@@ -114,6 +151,7 @@ class SpiderApi(BaseApi):
                         'src': dir_path,
                         'lang': lang,
                         'suffix_stats': stats,
+                        'type': SpiderType.CUSTOMIZED
                     })
 
                 # existing spider
@@ -123,38 +161,51 @@ class SpiderApi(BaseApi):
                     if last_deploy is not None:
                         spider['deploy_ts'] = last_deploy['finish_ts']
 
-                    # get last task
-                    last_task = db_manager.get_last_task(spider_id=spider['_id'])
-                    if last_task is not None:
-                        spider['task_ts'] = last_task['create_ts']
-
-                    # get site
-                    if spider.get('site') is not None:
-                        site = db_manager.get('sites', spider['site'])
-                        if site is not None:
-                            spider['site_name'] = site['name']
-
                     # file stats
                     stats = get_file_suffix_stats(dir_path)
 
                     # language
                     lang = get_lang_by_stats(stats)
 
+                    # spider type
+                    type_ = SpiderType.CUSTOMIZED
+
                     # update spider data
                     db_manager.update_one('spiders', id=str(spider['_id']), values={
                         'lang': lang,
+                        'type': type_,
                         'suffix_stats': stats,
                     })
 
-                    # ---------
-                    # stats
-                    # ---------
-                    # last 5-run errors
-                    spider['last_5_errors'] = get_last_n_run_errors_count(spider_id=spider['_id'], n=5)
-                    spider['last_7d_tasks'] = get_last_n_day_tasks_count(spider_id=spider['_id'], n=5)
-
                 # append spider
                 items.append(spider)
+
+            # get configurable spiders
+            for spider in db_manager.list('spiders', {'type': SpiderType.CONFIGURABLE}):
+                # append spider
+                items.append(spider)
+
+            # get other info
+            for i in range(len(items)):
+                spider = items[i]
+
+                # get site
+                if spider.get('site') is not None:
+                    site = db_manager.get('sites', spider['site'])
+                    if site is not None:
+                        items[i]['site_name'] = site['name']
+
+                # get last task
+                last_task = db_manager.get_last_task(spider_id=spider['_id'])
+                if last_task is not None:
+                    items[i]['task_ts'] = last_task['create_ts']
+
+                # ---------
+                # stats
+                # ---------
+                # last 5-run errors
+                items[i]['last_5_errors'] = get_last_n_run_errors_count(spider_id=spider['_id'], n=5)
+                items[i]['last_7d_tasks'] = get_last_n_day_tasks_count(spider_id=spider['_id'], n=5)
 
             return {
                 'status': 'ok',
@@ -214,7 +265,16 @@ class SpiderApi(BaseApi):
 
         spider = db_manager.get('spiders', id=ObjectId(id))
 
-        job = execute_spider.delay(id, params)
+        # determine execute function
+        if spider['type'] == SpiderType.CONFIGURABLE:
+            # configurable spider
+            exec_func = execute_config_spider
+        else:
+            # customized spider
+            exec_func = execute_spider
+
+        # trigger an asynchronous job
+        job = exec_func.delay(id, params)
 
         # create a new task
         db_manager.save('tasks', {
@@ -377,9 +437,100 @@ class SpiderApi(BaseApi):
         scheduler.update()
 
     def update_envs(self, id: str):
+        """
+        Update environment variables
+        :param id: spider_id
+        """
         args = self.parser.parse_args()
         envs = json.loads(args.envs)
         db_manager.update_one(col_name='spiders', id=id, values={'envs': envs})
+
+    def update_fields(self, id: str):
+        """
+        Update list page fields variables for configurable spiders
+        :param id: spider_id
+        """
+        args = self.parser.parse_args()
+        fields = json.loads(args.fields)
+        db_manager.update_one(col_name='spiders', id=id, values={'fields': fields})
+
+    def update_detail_fields(self, id: str):
+        """
+        Update detail page fields variables for configurable spiders
+        :param id: spider_id
+        """
+        args = self.parser.parse_args()
+        detail_fields = json.loads(args.detail_fields)
+        db_manager.update_one(col_name='spiders', id=id, values={'detail_fields': detail_fields})
+
+    def preview_crawl(self, id: str):
+        spider = db_manager.get(col_name='spiders', id=id)
+
+        if spider['type'] != SpiderType.CONFIGURABLE:
+            return {
+                       'status': 'ok',
+                       'error': 'type %s is invalid' % spider['type']
+                   }, 400
+
+        if spider.get('start_url') is None:
+            return {
+                       'status': 'ok',
+                       'error': 'start_url should not be empty'
+                   }, 400
+
+        try:
+            r = requests.get(spider['start_url'])
+        except Exception as err:
+            return {
+                       'status': 'ok',
+                       'error': 'connection error'
+                   }, 500
+
+        if r.status_code != 200:
+            return {
+                'status': 'ok',
+                'error': 'status code is not 200, but %s' % r.status_code
+            }
+
+        # get html parse tree
+        sel = etree.HTML(r.content)
+
+        # parse fields
+        if spider['crawl_type'] == CrawlType.LIST:
+            if spider.get('item_selector') is None:
+                return {
+                           'status': 'ok',
+                           'error': 'item_selector should not be empty'
+                       }, 400
+
+            data = get_list_page_data(spider, sel)[:10]
+
+            return {
+                'status': 'ok',
+                'items': data
+            }
+
+        elif spider['crawl_type'] == CrawlType.DETAIL:
+            pass
+
+        elif spider['crawl_type'] == CrawlType.LIST_DETAIL:
+            data = get_list_page_data(spider, sel)[:10]
+
+            ev_list = []
+            for idx, d in enumerate(data):
+                for f in spider['fields']:
+                    if f.get('is_detail'):
+                        url = d.get(f['name'])
+                        if url is not None:
+                            ev_list.append(gevent.spawn(get_detail_page_data, url, spider, idx, data))
+                        break
+
+            gevent.joinall(ev_list)
+
+            return {
+                'status': 'ok',
+                'items': data
+            }
 
 
 class SpiderImportApi(Resource):

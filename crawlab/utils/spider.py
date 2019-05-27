@@ -1,9 +1,11 @@
 import os
+import requests
 from datetime import datetime, timedelta
 
 from bson import ObjectId
+from lxml import etree
 
-from constants.spider import FILE_SUFFIX_LANG_MAPPING, LangType, SUFFIX_IGNORE, SpiderType
+from constants.spider import FILE_SUFFIX_LANG_MAPPING, LangType, SUFFIX_IGNORE, SpiderType, QueryType, ExtractType
 from constants.task import TaskStatus
 from db.manager import db_manager
 
@@ -69,3 +71,53 @@ def get_last_n_day_tasks_count(spider_id: ObjectId, n: int) -> list:
                                     '$gte': (datetime.now() - timedelta(n))
                                 }
                             })
+
+
+def get_list_page_data(spider, sel):
+    data = []
+    if spider['item_selector_type'] == QueryType.XPATH:
+        items = sel.xpath(spider['item_selector'])
+    else:
+        items = sel.cssselect(spider['item_selector'])
+    for item in items:
+        row = {}
+        for f in spider['fields']:
+            if f['type'] == QueryType.CSS:
+                # css selector
+                res = item.cssselect(f['query'])
+            else:
+                # xpath
+                res = item.xpath(f['query'])
+
+            if len(res) > 0:
+                if f['extract_type'] == ExtractType.TEXT:
+                    row[f['name']] = res[0].text
+                else:
+                    row[f['name']] = res[0].get(f['attribute'])
+        data.append(row)
+    return data
+
+
+def get_detail_page_data(url, spider, idx, data):
+    r = requests.get(url)
+
+    sel = etree.HTML(r.content)
+
+    row = {}
+    for f in spider['detail_fields']:
+        if f['type'] == QueryType.CSS:
+            # css selector
+            res = sel.cssselect(f['query'])
+        else:
+            # xpath
+            res = sel.xpath(f['query'])
+
+        if len(res) > 0:
+            if f['extract_type'] == ExtractType.TEXT:
+                row[f['name']] = res[0].text
+            else:
+                row[f['name']] = res[0].get(f['attribute'])
+
+    # assign values
+    for k, v in row.items():
+        data[idx][k] = v
