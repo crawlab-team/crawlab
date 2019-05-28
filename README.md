@@ -1,5 +1,7 @@
 # Crawlab
 
+![](https://img.shields.io/badge/version-v0.2.1-blue.svg)
+
 Celery-based web crawler admin platform for managing distributed web spiders regardless of languages and frameworks. 
 
 [Demo](http://139.129.230.98:8080)
