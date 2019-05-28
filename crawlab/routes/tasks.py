@@ -1,8 +1,11 @@
 import json
 import os
 import sys
-from _signal import SIGINT, SIGKILL
-from datetime import datetime
+
+try:
+    from _signal import SIGKILL
+except ImportError:
+    pass
 
 import requests
 from bson import ObjectId
@@ -13,7 +16,6 @@ from db.manager import db_manager
 from routes.base import BaseApi
 from utils import jsonify
 from utils.spider import get_spider_col_fields
-from utils.log import other
 
 
 class TaskApi(BaseApi):
