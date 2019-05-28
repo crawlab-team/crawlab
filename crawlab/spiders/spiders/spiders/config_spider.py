@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
+import os
+import sys
 from urllib.parse import urlparse
 
 import scrapy
 
 from spiders.db import spider
 from spiders.items import SpidersItem
+from spiders.utils import generate_urls
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 
 
 def get_detail_url(item):
@@ -75,8 +80,10 @@ def get_next_url(response):
 
 class ConfigSpiderSpider(scrapy.Spider):
     name = 'config_spider'
-    # allowed_domains = []
-    start_urls = [spider['start_url']]
+
+    def start_requests(self):
+        for url in generate_urls(spider['start_url']):
+            yield scrapy.Request(url=url)
 
     def parse(self, response):
 
@@ -91,7 +98,7 @@ class ConfigSpiderSpider(scrapy.Spider):
                 yield scrapy.Request(url=next_url)
 
         elif spider['crawl_type'] == 'detail':
-            # TODO: detail page onlny
+            # TODO: detail page only
             # detail page only
             pass
 

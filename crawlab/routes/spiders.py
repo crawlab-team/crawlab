@@ -25,7 +25,7 @@ from utils import jsonify
 from utils.deploy import zip_file, unzip_file
 from utils.file import get_file_suffix_stats, get_file_suffix
 from utils.spider import get_lang_by_stats, get_last_n_run_errors_count, get_last_n_day_tasks_count, get_list_page_data, \
-    get_detail_page_data
+    get_detail_page_data, generate_urls
 
 parser = reqparse.RequestParser()
 parser.add_argument('file', type=FileStorage, location='files')
@@ -84,6 +84,9 @@ class SpiderApi(BaseApi):
 
         # spider start url
         ('start_url', str),
+
+        # url pattern: support generation of urls with patterns
+        ('url_pattern', str),
 
         # spider item selector
         ('item_selector', str),
@@ -479,20 +482,29 @@ class SpiderApi(BaseApi):
                    }, 400
 
         try:
-            r = requests.get(spider['start_url'], headers={
-                'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
-            })
+            r = None
+            for url in generate_urls(spider['start_url']):
+                r = requests.get(url, headers={
+                    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
+                })
+                break
         except Exception as err:
             return {
                        'status': 'ok',
                        'error': 'connection error'
                    }, 500
 
-        if r.status_code != 200:
+        if not r:
             return {
-                'status': 'ok',
-                'error': 'status code is not 200, but %s' % r.status_code
-            }
+                       'status': 'ok',
+                       'error': 'response is not returned'
+                   }, 500
+
+        if r and r.status_code != 200:
+            return {
+                       'status': 'ok',
+                       'error': 'status code is not 200, but %s' % r.status_code
+                   }, r.status_code
 
         # get html parse tree
         sel = etree.HTML(r.content)
