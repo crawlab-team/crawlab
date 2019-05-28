@@ -1,4 +1,7 @@
 import json
+import os
+import sys
+from _signal import SIGINT, SIGKILL
 from datetime import datetime
 
 import requests
@@ -189,10 +192,21 @@ class TaskApi(BaseApi):
         :param id:
         :return:
         """
+        task = db_manager.get('tasks', id=id)
         celery_app.control.revoke(id, terminate=True)
         db_manager.update_one('tasks', id=id, values={
             'status': TaskStatus.REVOKED
         })
+
+        # kill process
+        if task.get('pid'):
+            pid = task.get('pid')
+            if 'win32' in sys.platform:
+                os.popen('taskkill /pid:' + str(pid))
+            else:
+                # unix system
+                os.kill(pid, SIGKILL)
+
         return {
             'id': id,
             'status': 'ok',
