@@ -1,5 +1,11 @@
 import json
-from datetime import datetime
+import os
+import sys
+
+try:
+    from _signal import SIGKILL
+except ImportError:
+    pass
 
 import requests
 from bson import ObjectId
@@ -10,7 +16,6 @@ from db.manager import db_manager
 from routes.base import BaseApi
 from utils import jsonify
 from utils.spider import get_spider_col_fields
-from utils.log import other
 
 
 class TaskApi(BaseApi):
@@ -189,10 +194,21 @@ class TaskApi(BaseApi):
         :param id:
         :return:
         """
+        task = db_manager.get('tasks', id=id)
         celery_app.control.revoke(id, terminate=True)
         db_manager.update_one('tasks', id=id, values={
             'status': TaskStatus.REVOKED
         })
+
+        # kill process
+        if task.get('pid'):
+            pid = task.get('pid')
+            if 'win32' in sys.platform:
+                os.popen('taskkill /pid:' + str(pid))
+            else:
+                # unix system
+                os.kill(pid, SIGKILL)
+
         return {
             'id': id,
             'status': 'ok',

@@ -13,7 +13,7 @@ import tasks.spider
 import tasks.deploy
 
 if __name__ == '__main__':
-    if 'win' in sys.platform:
+    if 'win32' in sys.platform:
         celery_app.start(argv=['tasks', 'worker', '-P', 'eventlet', '-E', '-l', 'INFO'])
     else:
         celery_app.start(argv=['tasks', 'worker', '-E', '-l', 'INFO'])

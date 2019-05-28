@@ -1,4 +1,7 @@
 # Crawlab
+
+![](https://img.shields.io/badge/版本-v0.2.1-blue.svg)
+
 基于Celery的爬虫分布式爬虫管理平台，支持多种编程语言以及多种爬虫框架.
 
 [查看演示 Demo](http://139.129.230.98:8080)
@@ -48,19 +51,20 @@ npm run serve
 ## 截图
 
 #### 首页
-![home](./docs/img/screenshot-home.png)
+
+![](https://user-gold-cdn.xitu.io/2019/3/6/169524d4c7f117f7?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
 #### 爬虫列表
 
-![spider-list](./docs/img/screenshot-spiders.png)
+![](https://user-gold-cdn.xitu.io/2019/3/6/169524daf9c8ccef?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
 #### 爬虫详情 - 概览
 
-![spider-list](./docs/img/screenshot-spider-detail-overview.png)
+![](https://user-gold-cdn.xitu.io/2019/3/6/169524e0794d6be1?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
 #### 任务详情 - 抓取结果
 
-![spider-list](./docs/img/screenshot-task-detail-results.png)
+![](https://user-gold-cdn.xitu.io/2019/3/6/169524e4064c7f0a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
 ## 使用流程
 

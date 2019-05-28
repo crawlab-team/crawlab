@@ -1,5 +1,7 @@
 # Crawlab
 
+![](https://img.shields.io/badge/version-v0.2.1-blue.svg)
+
 Celery-based web crawler admin platform for managing distributed web spiders regardless of languages and frameworks. 
 
 [Demo](http://139.129.230.98:8080)
@@ -49,19 +51,20 @@ npm run serve
 ## Screenshot
 
 #### Home Page
-![home](./docs/img/screenshot-home.png)
+
+![](https://user-gold-cdn.xitu.io/2019/3/6/169524d4c7f117f7?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
 #### Spider List
 
-![spider-list](./docs/img/screenshot-spiders.png)
+![](https://user-gold-cdn.xitu.io/2019/3/6/169524daf9c8ccef?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
 #### Spider Detail - Overview
 
-![spider-list](./docs/img/screenshot-spider-detail-overview.png)
+![](https://user-gold-cdn.xitu.io/2019/3/6/169524e0794d6be1?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
 #### Task Detail - Results
 
-![spider-list](./docs/img/screenshot-task-detail-results.png)
+![](https://user-gold-cdn.xitu.io/2019/3/6/169524e4064c7f0a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
 ## Architecture
 
