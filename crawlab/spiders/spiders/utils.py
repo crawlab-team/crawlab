@@ -27,7 +27,7 @@ def generate_urls(base_url: str) -> str:
         url = url.replace('{' + res[0] + ',' + res[1] + '}', '{' + _key + '}', 1)
 
     # string list
-    for i, res in enumerate(re.findall(r'\[(.+)\]', base_url)):
+    for i, res in enumerate(re.findall(r'\[([\w\-,]+)\]', base_url)):
         # list
         _list = res.split(',')
 
@@ -48,3 +48,8 @@ def generate_urls(base_url: str) -> str:
             _list, _key = _arr
             _url = _url.replace('{' + _key + '}', str(_rep), 1)
         yield _url
+
+#
+# base_url = 'http://[baidu,ali].com/page-{1,10}-[1,2,3]'
+# for url in generate_urls(base_url):
+#     print(url)
