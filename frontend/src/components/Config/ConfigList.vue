@@ -267,7 +267,7 @@ export default {
     if (!this.spiderForm.start_url) this.$set(this.spiderForm, 'start_url', 'http://example.com')
     if (!this.spiderForm.item_selector_type) this.$set(this.spiderForm, 'item_selector_type', 'css')
     if (!this.spiderForm.pagination_selector_type) this.$set(this.spiderForm, 'pagination_selector_type', 'css')
-    if (!this.spiderForm.obey_robots_txt) this.$set(this.spiderForm, 'obey_robots_txt', true)
+    if (this.spiderForm.obey_robots_txt === undefined) this.$set(this.spiderForm, 'obey_robots_txt', true)
   }
 }
 </script>
