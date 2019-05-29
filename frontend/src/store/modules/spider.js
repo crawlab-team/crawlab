@@ -208,6 +208,9 @@ const actions = {
       .then(response => {
         commit('SET_PREVIEW_CRAWL_DATA', response.data.items)
       })
+  },
+  extractFields ({ state, commit }) {
+    return request.post(`/spiders/${state.spiderForm._id}/extract_fields`)
   }
 }
 
