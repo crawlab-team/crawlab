@@ -1,10 +1,7 @@
 import os
-import subprocess
 import sys
 from multiprocessing import Process
 
-import click
-from celery import Celery
 from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
