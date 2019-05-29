@@ -523,7 +523,7 @@ class SpiderApi(BaseApi):
         tags = []
         for tag in sel.iter():
             if tag.tag == 'a':
-                if not tag.get('href').startswith('#') and not tag.get('href').startswith('javascript'):
+                if tag.get('href') is not None and not tag.get('href').startswith('#') and not tag.get('href').startswith('javascript'):
                     tags.append(tag)
 
         return tags
