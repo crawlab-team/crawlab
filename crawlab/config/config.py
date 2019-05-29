@@ -50,6 +50,6 @@ MONGO_PORT = 27017
 MONGO_DB = 'crawlab_test'
 
 # Flask 变量
-DEBUG = True
+DEBUG = False
 FLASK_HOST = '127.0.0.1'
 FLASK_PORT = 8000

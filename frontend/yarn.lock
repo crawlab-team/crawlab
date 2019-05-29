@@ -8401,6 +8401,14 @@ vm-browserify@0.0.4:
   dependencies:
     indexof "0.0.1"
 
+vue-ba@^1.2.5:
+  version "1.2.5"
+  resolved "https://registry.npm.taobao.org/vue-ba/download/vue-ba-1.2.5.tgz#fef30732ee749a65a81a4f47113527ee41fda64b"
+  integrity sha1-/vMHMu50mmWoGk9HETUn7kH9pks=
+  dependencies:
+    deep-equal "^1.0.1"
+    vue "^2.3.3"
+
 vue-codemirror-lite@^1.0.4:
   version "1.0.4"
   resolved "http://registry.npm.taobao.org/vue-codemirror-lite/download/vue-codemirror-lite-1.0.4.tgz#48a5cd7d17c0914503c8cd9d9b56b438e49c3410"
@@ -8484,6 +8492,11 @@ vue-template-compiler@^2.5.21:
 vue-template-es2015-compiler@^1.6.0, vue-template-es2015-compiler@^1.8.2:
   version "1.8.2"
   resolved "http://registry.npm.taobao.org/vue-template-es2015-compiler/download/vue-template-es2015-compiler-1.8.2.tgz#dd73e80ba58bb65dd7a8aa2aeef6089cf6116f2a"
+
+vue@^2.3.3:
+  version "2.6.10"
+  resolved "https://registry.npm.taobao.org/vue/download/vue-2.6.10.tgz#a72b1a42a4d82a721ea438d1b6bf55e66195c637"
+  integrity sha1-pysaQqTYKnIepDjRtr9V5mGVxjc=
 
 vue@^2.5.17, vue@^2.5.22:
   version "2.6.6"

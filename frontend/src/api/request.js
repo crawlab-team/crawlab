@@ -1,15 +1,12 @@
 import axios from 'axios'
 
-let baseUrl = 'http://localhost:8000/api'
-if (process.env.NODE_ENV === 'production') {
-  baseUrl = 'http://139.129.230.98:8000/api'
-}
+let baseUrl = process.env.VUE_APP_API_BASE_URL ? process.env.VUE_APP_API_BASE_URL : 'http://localhost:8000/api'
 // console.log(process.env)
 // const baseUrl = process.env.API_BASE_URL || 'http://localhost:8000/api'
 
 const request = (method, path, params, data) => {
   return new Promise((resolve, reject) => {
-    const url = `${baseUrl}${path}`
+    const url = baseUrl + path
     axios({
       method,
       url,

@@ -34,12 +34,15 @@
               </el-button>
             </el-button-group>
           </el-form-item>
-          <el-form-item :label="$t('Start URL')">
+          <el-form-item :label="$t('Start URL')" required>
             <el-input v-model="spiderForm.start_url" :placeholder="$t('Start URL')"></el-input>
           </el-form-item>
           <el-form-item :label="$t('Obey robots.txt')">
             <el-switch v-model="spiderForm.obey_robots_txt" :placeholder="$t('Obey robots.txt')"></el-switch>
           </el-form-item>
+          <!--<el-form-item :label="$t('URL Pattern')">-->
+          <!--<el-input v-model="spiderForm.url_pattern" :placeholder="$t('URL Pattern')"></el-input>-->
+          <!--</el-form-item>-->
         </el-form>
       </el-col>
       <el-col :span="11" :offset="1">
@@ -79,7 +82,8 @@
     <el-row class="button-group-container">
       <div class="button-group">
         <el-button type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
-        <el-button type="primary" @click="onExtractFields" v-loading="extractFieldsLoading">{{$t('Extract Fields')}}</el-button>
+        <el-button type="primary" @click="onExtractFields" v-loading="extractFieldsLoading">{{$t('Extract Fields')}}
+        </el-button>
         <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>
         <el-button type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
       </div>
@@ -214,6 +218,24 @@ export default {
         })
     },
     onExtractFields () {
+      this.onSave()
+        .then(() => {
+          this.extractFieldsLoading = true
+          this.$store.dispatch('spider/extractFields')
+            .then(response => {
+              if (response.data.item_selector) {
+                this.$set(this.spiderForm, 'item_selector', response.data.item_selector)
+                this.$set(this.spiderForm, 'item_selector_type', 'css')
+              }
+
+              if (response.data.fields && response.data.fields.length) {
+                this.spiderForm.fields = response.data.fields
+              }
+            })
+            .finally(() => {
+              this.extractFieldsLoading = false
+            })
+        })
     }
   },
   created () {
@@ -245,7 +267,7 @@ export default {
     if (!this.spiderForm.start_url) this.$set(this.spiderForm, 'start_url', 'http://example.com')
     if (!this.spiderForm.item_selector_type) this.$set(this.spiderForm, 'item_selector_type', 'css')
     if (!this.spiderForm.pagination_selector_type) this.$set(this.spiderForm, 'pagination_selector_type', 'css')
-    if (!this.spiderForm.obey_robots_txt) this.$set(this.spiderForm, 'obey_robots_txt', true)
+    if (this.spiderForm.obey_robots_txt === undefined) this.$set(this.spiderForm, 'obey_robots_txt', true)
   }
 }
 </script>

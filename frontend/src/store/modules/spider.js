@@ -105,6 +105,7 @@ const actions = {
       // configurable spider
       crawl_type: state.spiderForm.crawl_type,
       start_url: state.spiderForm.start_url,
+      url_pattern: state.spiderForm.url_pattern,
       item_selector: state.spiderForm.item_selector,
       item_selector_type: state.spiderForm.item_selector_type,
       pagination_selector: state.spiderForm.pagination_selector,
@@ -207,6 +208,9 @@ const actions = {
       .then(response => {
         commit('SET_PREVIEW_CRAWL_DATA', response.data.items)
       })
+  },
+  extractFields ({ state, commit }) {
+    return request.post(`/spiders/${state.spiderForm._id}/extract_fields`)
   }
 }
 

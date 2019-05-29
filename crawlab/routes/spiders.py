@@ -4,6 +4,7 @@ import shutil
 import subprocess
 from datetime import datetime
 from random import random
+from urllib.parse import urlparse
 
 import gevent
 import requests
@@ -25,7 +26,7 @@ from utils import jsonify
 from utils.deploy import zip_file, unzip_file
 from utils.file import get_file_suffix_stats, get_file_suffix
 from utils.spider import get_lang_by_stats, get_last_n_run_errors_count, get_last_n_day_tasks_count, get_list_page_data, \
-    get_detail_page_data
+    get_detail_page_data, generate_urls
 
 parser = reqparse.RequestParser()
 parser.add_argument('file', type=FileStorage, location='files')
@@ -85,6 +86,9 @@ class SpiderApi(BaseApi):
         # spider start url
         ('start_url', str),
 
+        # url pattern: support generation of urls with patterns
+        ('url_pattern', str),
+
         # spider item selector
         ('item_selector', str),
 
@@ -98,7 +102,7 @@ class SpiderApi(BaseApi):
         ('pagination_selector_type', str),
 
         # whether to obey robots.txt
-        ('obey_robots_txt', str),
+        ('obey_robots_txt', bool),
     )
 
     def get(self, id=None, action=None):
@@ -478,20 +482,29 @@ class SpiderApi(BaseApi):
                    }, 400
 
         try:
-            r = requests.get(spider['start_url'], headers={
-                'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
-            })
+            r = None
+            for url in generate_urls(spider['start_url']):
+                r = requests.get(url, headers={
+                    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
+                })
+                break
         except Exception as err:
             return {
                        'status': 'ok',
                        'error': 'connection error'
                    }, 500
 
-        if r.status_code != 200:
+        if not r:
             return {
-                'status': 'ok',
-                'error': 'status code is not 200, but %s' % r.status_code
-            }
+                       'status': 'ok',
+                       'error': 'response is not returned'
+                   }, 500
+
+        if r and r.status_code != 200:
+            return {
+                       'status': 'ok',
+                       'error': 'status code is not 200, but %s' % r.status_code
+                   }, r.status_code
 
         # get html parse tree
         sel = etree.HTML(r.content)
@@ -502,8 +515,19 @@ class SpiderApi(BaseApi):
     def _get_text_child_tags(sel):
         tags = []
         for tag in sel.iter():
-            if tag.text is not None:
+            if tag.text is not None and tag.text.strip() != '':
                 tags.append(tag)
+        return tags
+
+    @staticmethod
+    def _get_a_child_tags(sel):
+        tags = []
+        for tag in sel.iter():
+            if tag.tag == 'a':
+                if tag.get('href') is not None and not tag.get('href').startswith('#') and not tag.get(
+                        'href').startswith('javascript'):
+                    tags.append(tag)
+
         return tags
 
     def preview_crawl(self, id: str):
@@ -544,6 +568,9 @@ class SpiderApi(BaseApi):
                     if f.get('is_detail'):
                         url = d.get(f['name'])
                         if url is not None:
+                            if not url.startswith('http') and not url.startswith('//'):
+                                u = urlparse(spider['start_url'])
+                                url = f'{u.scheme}://{u.netloc}{url}'
                             ev_list.append(gevent.spawn(get_detail_page_data, url, spider, idx, data))
                         break
 
@@ -566,7 +593,7 @@ class SpiderApi(BaseApi):
         sel = self._get_html(spider)
 
         # when error happens, return
-        if type(sel) == type(tuple):
+        if type(sel) == tuple:
             return sel
 
         list_tag_list = []
@@ -592,15 +619,54 @@ class SpiderApi(BaseApi):
 
         # find the list tag with the most child text tags
         _tag_list = []
-        _max_tag = None
-        _max_num = 0
+        max_tag = None
+        max_num = 0
         for tag in list_tag_list:
             _child_text_tags = self._get_text_child_tags(tag[0])
-            if len(_child_text_tags) > _max_num:
-                _max_tag = tag
-                _max_num = len(_child_text_tags)
+            if len(_child_text_tags) > max_num:
+                max_tag = tag
+                max_num = len(_child_text_tags)
 
-        # TODO: extract list fields
+        # get list item selector
+        item_selector = None
+        if max_tag.get('id') is not None:
+            item_selector = f'#{max_tag.get("id")} > {max_tag.getchildren()[0].tag}'
+        elif max_tag.get('class') is not None:
+            if len(sel.cssselect(f'.{max_tag.get("class")}')) == 1:
+                item_selector = f'.{max_tag.get("class")} > {max_tag.getchildren()[0].tag}'
+
+        # get list fields
+        fields = []
+        if item_selector is not None:
+            for i, tag in enumerate(self._get_text_child_tags(max_tag[0])):
+                if tag.get('class') is not None:
+                    cls_str = '.'.join([x for x in tag.get("class").split(' ') if x != ''])
+                    # print(tag.tag + '.' + cls_str)
+                    if len(tag.cssselect(f'{tag.tag}.{cls_str}')) == 1:
+                        fields.append({
+                            'name': f'field{i + 1}',
+                            'type': 'css',
+                            'extract_type': 'text',
+                            'query': f'{tag.tag}.{cls_str}',
+                        })
+
+            for i, tag in enumerate(self._get_a_child_tags(max_tag[0])):
+                # if the tag is <a...></a>, extract its href
+                if tag.get('class') is not None:
+                    cls_str = '.'.join([x for x in tag.get("class").split(' ') if x != ''])
+                    fields.append({
+                        'name': f'field{i + 1}_url',
+                        'type': 'css',
+                        'extract_type': 'attribute',
+                        'attribute': 'href',
+                        'query': f'{tag.tag}.{cls_str}',
+                    })
+
+        return {
+            'status': 'ok',
+            'item_selector': item_selector,
+            'fields': fields
+        }
 
 
 class SpiderImportApi(Resource):

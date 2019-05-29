@@ -222,4 +222,12 @@ router.beforeEach((to, from, next) => {
   next()
 })
 
+router.afterEach((to, from, next) => {
+  if (to.path) {
+    if (localStorage.getItem('useStats') !== '0') {
+      window._hmt.push(['_trackPageview', to.path])
+    }
+  }
+})
+
 export default router
