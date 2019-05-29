@@ -42,11 +42,11 @@ export default {
         dangerouslyUseHTMLString: true,
         showClose: true,
         duration: 0,
-        message: this.$t('<p>Do you allow us to collect some statistics to improve Crawlab?</p>' +
+        message: '<p>' + this.$t('Do you allow us to collect some statistics to improve Crawlab?') + '</p>' +
           '<div style="text-align: center;margin-top: 10px;">' +
           '<button class="message-btn" onclick="setUseStats(1)">' + this.$t('Yes') + '</button>' +
           '<button class="message-btn" onclick="setUseStats(0)">' + this.$t('No') + '</button>' +
-          '</div>')
+          '</div>'
       })
     }
   }
