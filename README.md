@@ -169,6 +169,9 @@ Crawlab is easy to use, general enough to adapt spiders in any language and any 
 - [ ] Login & User Management
 - [ ] General Search
 
-If you like Crawlab or would like to contribute to it, please add the Author's Wechat noting "Crawlab" to enter the discussion group. 
+If you feel Crawlab could benefit your daily work or your company, please add the author's Wechat account noting "Crawlab" to enter the discussion group. Or you scan the Alipay QR code below to give us a reward to upgrade our teamwork software or buy a coffee.
 
-![](https://user-gold-cdn.xitu.io/2019/3/15/169814cbd5e600e9?imageslim)
+<p align="center">
+    <img src="https://user-gold-cdn.xitu.io/2019/3/15/169814cbd5e600e9?imageslim" height="360">
+    <img src="https://raw.githubusercontent.com/tikazyq/crawlab/master/docs/img/payment.jpg" height="360">
+</p>
