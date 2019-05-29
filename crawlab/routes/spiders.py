@@ -514,8 +514,18 @@ class SpiderApi(BaseApi):
     def _get_text_child_tags(sel):
         tags = []
         for tag in sel.iter():
-            if tag.text is not None:
+            if tag.text is not None and tag.text.strip() != '':
                 tags.append(tag)
+        return tags
+
+    @staticmethod
+    def _get_a_child_tags(sel):
+        tags = []
+        for tag in sel.iter():
+            if tag.tag == 'a':
+                if not tag.get('href').startswith('#') and not tag.get('href').startswith('javascript'):
+                    tags.append(tag)
+
         return tags
 
     def preview_crawl(self, id: str):
@@ -578,7 +588,7 @@ class SpiderApi(BaseApi):
         sel = self._get_html(spider)
 
         # when error happens, return
-        if type(sel) == type(tuple):
+        if type(sel) == tuple:
             return sel
 
         list_tag_list = []
@@ -604,15 +614,55 @@ class SpiderApi(BaseApi):
 
         # find the list tag with the most child text tags
         _tag_list = []
-        _max_tag = None
-        _max_num = 0
+        max_tag = None
+        max_num = 0
         for tag in list_tag_list:
             _child_text_tags = self._get_text_child_tags(tag[0])
-            if len(_child_text_tags) > _max_num:
-                _max_tag = tag
-                _max_num = len(_child_text_tags)
+            if len(_child_text_tags) > max_num:
+                max_tag = tag
+                max_num = len(_child_text_tags)
 
-        # TODO: extract list fields
+        # get list item selector
+        item_selector = None
+        if max_tag.get('id') is not None:
+            item_selector = f'#{max_tag.get("id")} > {max_tag.getchildren()[0].tag}'
+        elif max_tag.get('class') is not None:
+            if len(sel.cssselect(f'.{max_tag.get("class")}')) == 1:
+                item_selector = f'.{max_tag.get("class")} > {max_tag.getchildren()[0].tag}'
+
+        # get list fields
+        fields = []
+        if item_selector is not None:
+            for i, tag in enumerate(self._get_text_child_tags(max_tag[0])):
+                if tag.get('class') is not None:
+                    cls_str = '.'.join([x for x in tag.get("class").split(' ') if x != ''])
+                    # print(tag.tag + '.' + cls_str)
+                    if len(tag.cssselect(f'{tag.tag}.{cls_str}')) == 1:
+                        fields.append({
+                            'name': f'field{i + 1}',
+                            'type': 'css',
+                            'extract_type': 'text',
+                            'query': f'{tag.tag}.{cls_str}',
+                        })
+
+            for i, tag in enumerate(self._get_a_child_tags(max_tag[0])):
+                # if the tag is <a...></a>, extract its href
+                if tag.get('class') is not None:
+                    cls_str = '.'.join([x for x in tag.get("class").split(' ') if x != ''])
+                    fields.append({
+                        'name': f'field{i + 1}_url',
+                        'type': 'css',
+                        'extract_type': 'attribute',
+                        'attribute': 'href',
+                        'query': f'{tag.tag}.{cls_str}',
+                    })
+
+
+        return {
+            'status': 'ok',
+            'item_selector': item_selector,
+            'fields': fields
+        }
 
 
 class SpiderImportApi(Resource):
