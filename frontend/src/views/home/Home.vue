@@ -85,6 +85,9 @@ export default {
         this.dailyTasks = response.data.daily_tasks
         this.initEchartsDailyTasks()
       })
+  },
+  mounted () {
+    // this.$ba.trackPageview('/')
   }
 }
 </script>

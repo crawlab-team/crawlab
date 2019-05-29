@@ -12,6 +12,7 @@ import file from './modules/file'
 import schedule from './modules/schedule'
 import lang from './modules/lang'
 import site from './modules/site'
+import stats from './modules/stats'
 import getters from './getters'
 
 Vue.use(Vuex)
@@ -29,7 +30,9 @@ const store = new Vuex.Store({
     file,
     schedule,
     lang,
-    site
+    site,
+    // 百度统计
+    stats
   },
   getters
 })
