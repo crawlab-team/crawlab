@@ -599,7 +599,8 @@ class SpiderApi(BaseApi):
             if len(_child_text_tags) > _max_num:
                 _max_tag = tag
                 _max_num = len(_child_text_tags)
-        return _max_tag
+
+        # TODO: extract list fields
 
 
 class SpiderImportApi(Resource):
