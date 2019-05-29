@@ -498,6 +498,14 @@ class SpiderApi(BaseApi):
 
         return sel
 
+    @staticmethod
+    def _get_text_child_tags(sel):
+        tags = []
+        for tag in sel.iter():
+            if tag.text is not None:
+                tags.append(tag)
+        return tags
+
     def preview_crawl(self, id: str):
         spider = db_manager.get(col_name='spiders', id=id)
 
@@ -581,6 +589,17 @@ class SpiderApi(BaseApi):
 
                 # add as list tag
                 list_tag_list.append(tag)
+
+        # find the list tag with the most child text tags
+        _tag_list = []
+        _max_tag = None
+        _max_num = 0
+        for tag in list_tag_list:
+            _child_text_tags = self._get_text_child_tags(tag[0])
+            if len(_child_text_tags) > _max_num:
+                _max_tag = tag
+                _max_num = len(_child_text_tags)
+        return _max_tag
 
 
 class SpiderImportApi(Resource):
