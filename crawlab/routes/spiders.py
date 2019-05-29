@@ -466,9 +466,8 @@ class SpiderApi(BaseApi):
         detail_fields = json.loads(args.detail_fields)
         db_manager.update_one(col_name='spiders', id=id, values={'detail_fields': detail_fields})
 
-    def preview_crawl(self, id: str):
-        spider = db_manager.get(col_name='spiders', id=id)
-
+    @staticmethod
+    def _get_html(spider) -> etree.Element:
         if spider['type'] != SpiderType.CONFIGURABLE:
             return {
                        'status': 'ok',
@@ -509,6 +508,26 @@ class SpiderApi(BaseApi):
         # get html parse tree
         sel = etree.HTML(r.content)
 
+        return sel
+
+    @staticmethod
+    def _get_text_child_tags(sel):
+        tags = []
+        for tag in sel.iter():
+            if tag.text is not None:
+                tags.append(tag)
+        return tags
+
+    def preview_crawl(self, id: str):
+        spider = db_manager.get(col_name='spiders', id=id)
+
+        # get html parse tree
+        sel = self._get_html(spider)
+
+        # when error happens, return
+        if type(sel) == type(tuple):
+            return sel
+
         # parse fields
         if spider['crawl_type'] == CrawlType.LIST:
             if spider.get('item_selector') is None:
@@ -525,6 +544,7 @@ class SpiderApi(BaseApi):
             }
 
         elif spider['crawl_type'] == CrawlType.DETAIL:
+            # TODO: 详情页预览
             pass
 
         elif spider['crawl_type'] == CrawlType.LIST_DETAIL:
@@ -545,6 +565,54 @@ class SpiderApi(BaseApi):
                 'status': 'ok',
                 'items': data
             }
+
+    def extract_fields(self, id: str):
+        """
+        Extract list fields from a web page
+        :param id:
+        :return:
+        """
+        spider = db_manager.get(col_name='spiders', id=id)
+
+        # get html parse tree
+        sel = self._get_html(spider)
+
+        # when error happens, return
+        if type(sel) == type(tuple):
+            return sel
+
+        list_tag_list = []
+        threshold = 10
+        # iterate all child nodes in a top-down direction
+        for tag in sel.iter():
+            # get child tags
+            child_tags = tag.getchildren()
+
+            if len(child_tags) < threshold:
+                # if number of child tags is below threshold, skip
+                continue
+            else:
+                # have one or more child tags
+                child_tags_set = set(map(lambda x: x.tag, child_tags))
+
+                # if there are more than 1 tag names, skip
+                if len(child_tags_set) > 1:
+                    continue
+
+                # add as list tag
+                list_tag_list.append(tag)
+
+        # find the list tag with the most child text tags
+        _tag_list = []
+        _max_tag = None
+        _max_num = 0
+        for tag in list_tag_list:
+            _child_text_tags = self._get_text_child_tags(tag[0])
+            if len(_child_text_tags) > _max_num:
+                _max_tag = tag
+                _max_num = len(_child_text_tags)
+
+        # TODO: extract list fields
 
 
 class SpiderImportApi(Resource):

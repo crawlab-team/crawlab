@@ -82,6 +82,7 @@
     <el-row class="button-group-container">
       <div class="button-group">
         <el-button type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
+        <el-button type="primary" @click="onExtractFields" v-loading="extractFieldsLoading">{{$t('Extract Fields')}}</el-button>
         <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>
         <el-button type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
       </div>
@@ -129,6 +130,7 @@ export default {
         { value: 'detail', label: 'Detail Only' },
         { value: 'list-detail', label: 'List + Detail' }
       ],
+      extractFieldsLoading: false,
       previewLoading: false,
       saveLoading: false,
       dialogVisible: false
@@ -213,6 +215,8 @@ export default {
               this.$message.success(this.$t(`Spider task has been scheduled`))
             })
         })
+    },
+    onExtractFields () {
     }
   },
   created () {
