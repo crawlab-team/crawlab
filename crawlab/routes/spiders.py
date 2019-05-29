@@ -4,6 +4,7 @@ import shutil
 import subprocess
 from datetime import datetime
 from random import random
+from urllib.parse import urlparse
 
 import gevent
 import requests
@@ -101,7 +102,7 @@ class SpiderApi(BaseApi):
         ('pagination_selector_type', str),
 
         # whether to obey robots.txt
-        ('obey_robots_txt', str),
+        ('obey_robots_txt', bool),
     )
 
     def get(self, id=None, action=None):
@@ -523,7 +524,8 @@ class SpiderApi(BaseApi):
         tags = []
         for tag in sel.iter():
             if tag.tag == 'a':
-                if tag.get('href') is not None and not tag.get('href').startswith('#') and not tag.get('href').startswith('javascript'):
+                if tag.get('href') is not None and not tag.get('href').startswith('#') and not tag.get(
+                        'href').startswith('javascript'):
                     tags.append(tag)
 
         return tags
@@ -566,6 +568,9 @@ class SpiderApi(BaseApi):
                     if f.get('is_detail'):
                         url = d.get(f['name'])
                         if url is not None:
+                            if not url.startswith('http') and not url.startswith('//'):
+                                u = urlparse(spider['start_url'])
+                                url = f'{u.scheme}://{u.netloc}{url}'
                             ev_list.append(gevent.spawn(get_detail_page_data, url, spider, idx, data))
                         break
 
@@ -656,7 +661,6 @@ class SpiderApi(BaseApi):
                         'attribute': 'href',
                         'query': f'{tag.tag}.{cls_str}',
                     })
-
 
         return {
             'status': 'ok',
