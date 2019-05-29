@@ -1,12 +1,12 @@
 {
   "name": "crawlab",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "scripts": {
     "serve": "cross-env NODE_ENV=development vue-cli-service serve --ip=0.0.0.0",
-    "serve-prod": "cross-env NODE_ENV=production vue-cli-service serve --mode=production --ip=0.0.0.0",
+    "serve:prod": "cross-env NODE_ENV=production vue-cli-service serve --mode=production --ip=0.0.0.0",
     "config": "vue ui",
-    "build": "vue-cli-service build",
+    "build:prod": "vue-cli-service build --mode production",
     "lint": "vue-cli-service lint",
     "test:unit": "vue-cli-service test:unit"
   },

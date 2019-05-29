@@ -37,6 +37,9 @@
           <el-form-item :label="$t('Start URL')">
             <el-input v-model="spiderForm.start_url" :placeholder="$t('Start URL')"></el-input>
           </el-form-item>
+          <el-form-item :label="$t('Obey robots.txt')">
+            <el-switch v-model="spiderForm.obey_robots_txt" :placeholder="$t('Obey robots.txt')"></el-switch>
+          </el-form-item>
           <!--<el-form-item :label="$t('URL Pattern')">-->
             <!--<el-input v-model="spiderForm.url_pattern" :placeholder="$t('URL Pattern')"></el-input>-->
           <!--</el-form-item>-->
@@ -69,9 +72,6 @@
                       v-model="spiderForm.pagination_selector"
                       :placeholder="$t('Pagination Selector')">
             </el-input>
-          </el-form-item>
-          <el-form-item :label="$t('Obey robots.txt')">
-            <el-switch v-model="spiderForm.obey_robots_txt" :placeholder="$t('Obey robots.txt')"></el-switch>
           </el-form-item>
         </el-form>
       </el-col>
