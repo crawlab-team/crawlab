@@ -29,9 +29,9 @@ export default {
       localStorage.setItem('useStats', value)
       document.querySelector('.el-message__closeBtn').click()
       if (value === 1) {
-        _hmt.push(['_trackPageview', '/allow_stats'])
+        window._hmt.push(['_trackPageview', '/allow_stats'])
       } else {
-        _hmt.push(['_trackPageview', '/disallow_stats'])
+        window._hmt.push(['_trackPageview', '/disallow_stats'])
       }
     }
 
@@ -42,11 +42,11 @@ export default {
         dangerouslyUseHTMLString: true,
         showClose: true,
         duration: 0,
-        message: this.$t('<p>Do you allow us to collect some statistics to improve Crawlab?</p>' +
+        message: '<p>' + this.$t('Do you allow us to collect some statistics to improve Crawlab?') + '</p>' +
           '<div style="text-align: center;margin-top: 10px;">' +
           '<button class="message-btn" onclick="setUseStats(1)">' + this.$t('Yes') + '</button>' +
           '<button class="message-btn" onclick="setUseStats(0)">' + this.$t('No') + '</button>' +
-          '</div>')
+          '</div>'
       })
     }
   }
@@ -98,6 +98,7 @@ export default {
     font-size: 12px;
     border-radius: 4px;
     cursor: pointer;
+    border: 1px solid #909399;
   }
 
   .message-btn:hover {

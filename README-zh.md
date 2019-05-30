@@ -1,10 +1,13 @@
 # Crawlab
 
 ![](https://img.shields.io/badge/版本-v0.2.1-blue.svg)
+<a href="https://github.com/tikazyq/crawlab/blob/master/LICENSE" target="_blank">
+    <img src="https://img.shields.io/badge/License-BSD-blue.svg">
+</a>
 
 基于Celery的爬虫分布式爬虫管理平台，支持多种编程语言以及多种爬虫框架.
 
-[查看演示 Demo](http://139.129.230.98:8080)
+[查看演示 Demo](http://114.67.75.98:8080)
 
 [English Documentation](https://github.com/tikazyq/crawlab/blob/master/README.md)
 
