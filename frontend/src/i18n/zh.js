@@ -56,6 +56,8 @@ export default {
   'Stop': '停止',
   'Preview': '预览',
   'Extract Fields': '提取字段',
+  'Download': '下载',
+  'Download CSV': '下载CSV',
 
   // 主页
   'Total Tasks': '总任务数',
