@@ -15,7 +15,6 @@
         </el-card>
       </el-tab-pane>
       <el-tab-pane :label="$t('Results')" name="results">
-        {{ {resultsPageNum, resultsPageSize} }}
         <general-table-view :data="taskResultsData"
                             :columns="taskResultsColumns"
                             :page-num="resultsPageNum"
