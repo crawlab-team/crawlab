@@ -55,6 +55,7 @@ export default {
             })
         }
       })
+      this.$st.sendEv('节点详情', '保存')
     }
   }
 }

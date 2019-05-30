@@ -127,6 +127,7 @@ export default {
                 .then(() => {
                   this.$message.success(this.$t(`Spider task has been scheduled`))
                 })
+              this.$st.sendEv('爬虫详情-概览', '运行')
             })
         }
       })
@@ -149,6 +150,7 @@ export default {
                 .then(() => {
                   this.$message.success(this.$t(`Spider has been deployed`))
                 })
+              this.$st.sendEv('爬虫详情-概览', '部署')
             })
         }
       })
@@ -165,6 +167,7 @@ export default {
             })
         }
       })
+      this.$st.sendEv('爬虫详情-概览', '保存')
     },
     fetchSiteSuggestions (keyword, callback) {
       this.$request.get('/sites', {

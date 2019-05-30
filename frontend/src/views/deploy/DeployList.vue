@@ -134,6 +134,7 @@ export default {
     },
     onRefresh () {
       this.$store.dispatch('deploy/getDeployList')
+      this.$st.sendEv('部署', '刷新')
     },
     onView (row) {
       this.$router.push(`/deploys/${row._id}`)

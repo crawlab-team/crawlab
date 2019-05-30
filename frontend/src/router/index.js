@@ -226,9 +226,7 @@ router.beforeEach((to, from, next) => {
 
 router.afterEach((to, from, next) => {
   if (to.path) {
-    if (localStorage.getItem('useStats') !== '0') {
-      stats.sendPv(to.path)
-    }
+    stats.sendPv(to.path)
   }
 })
 

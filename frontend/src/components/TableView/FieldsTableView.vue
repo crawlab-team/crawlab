@@ -109,14 +109,17 @@ export default {
         type: 'css',
         extract_type: 'text'
       })
+      this.$st.sendEv('爬虫详情-配置', '添加字段')
     },
     deleteField (index) {
       this.fields.splice(index, 1)
+      this.$st.sendEv('爬虫详情-配置', '删除字段')
     },
     onNameChange (row) {
       if (this.fields.filter(d => d.name === row.name).length > 1) {
         this.$message.error(this.$t(`Duplicated field names for ${row.name}`))
       }
+      this.$st.sendEv('爬虫详情-配置', '更改字段')
     },
     onCheck (row) {
       this.fields.forEach(d => {
@@ -124,6 +127,7 @@ export default {
           this.$set(d, 'is_detail', false)
         }
       })
+      this.$st.sendEv('爬虫详情-配置', '设置详情页URL')
     }
   }
 }

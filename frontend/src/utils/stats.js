@@ -1,8 +1,12 @@
 export default {
   sendPv (page) {
-    window._hmt.push(['_trackPageview', page])
+    if (localStorage.getItem('useStats') !== '0') {
+      window._hmt.push(['_trackPageview', page])
+    }
   },
-  sendEv (ev) {
-    window._hmt.push(['_trackCustomEvent', ev])
+  sendEv (category, eventName, optLabel, optValue) {
+    if (localStorage.getItem('useStats') !== '0') {
+      window._hmt.push(['_trackEvent', category, eventName, optLabel, optValue])
+    }
   }
 }
