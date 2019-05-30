@@ -223,6 +223,9 @@ class TaskApi(BaseApi):
         col_name = spider.get('col')
         if not col_name:
             return send_csv([], f'results_{col_name}_{round(time())}.csv')
-        items = db_manager.list(col_name, {'task_id': id})
+        items = db_manager.list(col_name, {'task_id': id}, limit=999999999)
         fields = get_spider_col_fields(col_name)
-        return send_csv(items, filename=f'results_{col_name}_{round(time())}.csv', fields=fields, encoding='utf-8')
+        return send_csv(items,
+                        filename=f'results_{col_name}_{round(time())}.csv',
+                        fields=fields,
+                        encoding='utf-8')
