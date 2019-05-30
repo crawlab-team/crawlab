@@ -178,7 +178,7 @@ class TaskApi(BaseApi):
         if not col_name:
             return []
         fields = get_spider_col_fields(col_name)
-        items = db_manager.list(col_name, {'task_id': id})
+        items = db_manager.list(col_name, {'task_id': id}, skip=page_size * (page_num - 1), limit=page_size)
         return {
             'status': 'ok',
             'fields': jsonify(fields),
