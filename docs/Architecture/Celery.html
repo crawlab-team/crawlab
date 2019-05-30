@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <title>运行 · GitBook</title>
+        <title>Celery · GitBook</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="description" content="">
         <meta name="generator" content="GitBook 3.2.3">
@@ -57,10 +57,10 @@
     <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
 
     
-    <link rel="next" href="../Concept/" />
+    <link rel="next" href="App.html" />
     
     
-    <link rel="prev" href="Installation.html" />
+    <link rel="prev" href="./" />
     
 
     </head>
@@ -102,9 +102,9 @@
             
         </li>
     
-        <li class="chapter " data-level="1.2" data-path="./">
+        <li class="chapter " data-level="1.2" data-path="../QuickStart/">
             
-                <a href="./">
+                <a href="../QuickStart/">
             
                     
                     快速开始
@@ -116,9 +116,9 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="1.2.1" data-path="Installation.html">
+        <li class="chapter " data-level="1.2.1" data-path="../QuickStart/Installation.html">
             
-                <a href="Installation.html">
+                <a href="../QuickStart/Installation.html">
             
                     
                     安装
@@ -129,9 +129,9 @@
             
         </li>
     
-        <li class="chapter active" data-level="1.2.2" data-path="Run.html">
+        <li class="chapter " data-level="1.2.2" data-path="../QuickStart/Run.html">
             
-                <a href="Run.html">
+                <a href="../QuickStart/Run.html">
             
                     
                     运行
@@ -218,9 +218,9 @@
             
         </li>
     
-        <li class="chapter " data-level="1.4" data-path="../Architecture/">
+        <li class="chapter " data-level="1.4" data-path="./">
             
-                <a href="../Architecture/">
+                <a href="./">
             
                     
                     架构
@@ -232,9 +232,9 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="1.4.1" data-path="../Architecture/Celery.html">
+        <li class="chapter active" data-level="1.4.1" data-path="Celery.html">
             
-                <a href="../Architecture/Celery.html">
+                <a href="Celery.html">
             
                     
                     Celery
@@ -245,9 +245,9 @@
             
         </li>
     
-        <li class="chapter " data-level="1.4.2" data-path="../Architecture/App.html">
+        <li class="chapter " data-level="1.4.2" data-path="App.html">
             
-                <a href="../Architecture/App.html">
+                <a href="App.html">
             
                     
                     App
@@ -338,7 +338,7 @@
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href=".." >运行</a>
+        <a href=".." >Celery</a>
     </h1>
 </div>
 
@@ -353,50 +353,7 @@
     
                                 <section class="normal markdown-section">
                                 
-                                <h1 id="&#x8FD0;&#x884C;">&#x8FD0;&#x884C;</h1>
-<p>&#x5728;&#x8FD0;&#x884C;&#x4E4B;&#x524D;&#x9700;&#x8981;&#x5BF9;Crawlab&#x8FDB;&#x884C;&#x4E00;&#x4E9B;&#x914D;&#x7F6E;&#xFF0C;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4E3A;<code>config.py</code>&#x3002;</p>
-<pre><code class="lang-python"><span class="hljs-comment"># project variables</span>
-PROJECT_SOURCE_FILE_FOLDER = <span class="hljs-string">&apos;/Users/yeqing/projects/crawlab/spiders&apos;</span> <span class="hljs-comment"># &#x722C;&#x866B;&#x6E90;&#x7801;&#x6839;&#x76EE;&#x5F55;</span>
-PROJECT_DEPLOY_FILE_FOLDER = <span class="hljs-string">&apos;/var/crawlab&apos;</span>  <span class="hljs-comment"># &#x722C;&#x866B;&#x90E8;&#x7F72;&#x6839;&#x76EE;&#x5F55;</span>
-PROJECT_LOGS_FOLDER = <span class="hljs-string">&apos;/var/logs/crawlab&apos;</span>  <span class="hljs-comment"># &#x65E5;&#x5FD7;&#x76EE;&#x5F55;</span>
-PROJECT_TMP_FOLDER = <span class="hljs-string">&apos;/tmp&apos;</span>  <span class="hljs-comment"># &#x4E34;&#x65F6;&#x6587;&#x4EF6;&#x76EE;&#x5F55;</span>
-
-<span class="hljs-comment"># celery variables</span>
-BROKER_URL = <span class="hljs-string">&apos;redis://192.168.99.100:6379/0&apos;</span>  <span class="hljs-comment"># &#x4E2D;&#x95F4;&#x8005;URL&#xFF0C;&#x8FDE;&#x63A5;redis</span>
-CELERY_RESULT_BACKEND = <span class="hljs-string">&apos;mongodb://192.168.99.100:27017/&apos;</span>  <span class="hljs-comment"># CELERY&#x540E;&#x53F0;URL</span>
-CELERY_MONGODB_BACKEND_SETTINGS = {
-    <span class="hljs-string">&apos;database&apos;</span>: <span class="hljs-string">&apos;crawlab_test&apos;</span>,
-    <span class="hljs-string">&apos;taskmeta_collection&apos;</span>: <span class="hljs-string">&apos;tasks_celery&apos;</span>,
-}
-CELERY_TIMEZONE = <span class="hljs-string">&apos;Asia/Shanghai&apos;</span>
-CELERY_ENABLE_UTC = <span class="hljs-keyword">True</span>
-
-<span class="hljs-comment"># flower variables</span>
-FLOWER_API_ENDPOINT = <span class="hljs-string">&apos;http://localhost:5555/api&apos;</span>  <span class="hljs-comment"># Flower&#x670D;&#x52A1;&#x5730;&#x5740;</span>
-
-<span class="hljs-comment"># database variables</span>
-MONGO_HOST = <span class="hljs-string">&apos;192.168.99.100&apos;</span>
-MONGO_PORT = <span class="hljs-number">27017</span>
-MONGO_DB = <span class="hljs-string">&apos;crawlab_test&apos;</span>
-
-<span class="hljs-comment"># flask variables</span>
-DEBUG = <span class="hljs-keyword">True</span>
-FLASK_HOST = <span class="hljs-string">&apos;127.0.0.1&apos;</span>
-FLASK_PORT = <span class="hljs-number">8000</span>
-</code></pre>
-<p>&#x542F;&#x52A8;&#x540E;&#x7AEF;API&#xFF0C;&#x4E5F;&#x5C31;&#x662F;&#x4E00;&#x4E2A;Flask App&#xFF0C;&#x53EF;&#x4EE5;&#x76F4;&#x63A5;&#x542F;&#x52A8;&#xFF0C;&#x6216;&#x8005;&#x7528;gunicorn&#x4EE3;&#x66FF;&#x3002;</p>
-<pre><code class="lang-bash">python app.py
-</code></pre>
-<p>&#x542F;&#x52A8;Flower&#x670D;&#x52A1;&#xFF08;&#x62B1;&#x6B49;&#x76EE;&#x524D;&#x96C6;&#x6210;Flower&#x5230;App&#x670D;&#x52A1;&#x4E2D;&#xFF0C;&#x5FC5;&#x987B;&#x5355;&#x72EC;&#x542F;&#x52A8;&#x6765;&#x83B7;&#x53D6;&#x8282;&#x70B9;&#x4FE1;&#x606F;&#xFF0C;&#x540E;&#x9762;&#x7684;&#x7248;&#x672C;&#x4E0D;&#x9700;&#x8981;&#x8FD9;&#x4E2A;&#x64CD;&#x4F5C;&#xFF09;&#x3002;</p>
-<pre><code class="lang-bash">python ./bin/run_flower.py
-</code></pre>
-<p>&#x542F;&#x52A8;&#x672C;&#x5730;Worker&#x3002;&#x5728;&#x5176;&#x4ED6;&#x8282;&#x70B9;&#x4E2D;&#x5982;&#x679C;&#x60F3;&#x53EA;&#x662F;&#x60F3;&#x6267;&#x884C;&#x4EFB;&#x52A1;&#x7684;&#x8BDD;&#xFF0C;&#x53EA;&#x9700;&#x8981;&#x542F;&#x52A8;&#x8FD9;&#x4E00;&#x4E2A;&#x670D;&#x52A1;&#x5C31;&#x53EF;&#x4EE5;&#x4E86;&#x3002;</p>
-<pre><code class="lang-bash">python ./bin/run_worker.py
-</code></pre>
-<p>&#x542F;&#x52A8;&#x524D;&#x7AEF;&#x670D;&#x52A1;&#x5668;&#x3002;</p>
-<pre><code class="lang-bash"><span class="hljs-built_in">cd</span> ../frontend
-npm run serve
-</code></pre>
+                                <h1 id="celery">Celery</h1>
 
                                 
                                 </section>
@@ -424,12 +381,12 @@ npm run serve
 
             
                 
-                <a href="Installation.html" class="navigation navigation-prev " aria-label="Previous page: 安装">
+                <a href="./" class="navigation navigation-prev " aria-label="Previous page: 架构">
                     <i class="fa fa-angle-left"></i>
                 </a>
                 
                 
-                <a href="../Concept/" class="navigation navigation-next " aria-label="Next page: 概念">
+                <a href="App.html" class="navigation navigation-next " aria-label="Next page: App">
                     <i class="fa fa-angle-right"></i>
                 </a>
                 
@@ -440,7 +397,7 @@ npm run serve
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"运行","level":"1.2.2","depth":2,"next":{"title":"概念","level":"1.3","depth":1,"path":"Concept/README.md","ref":"Concept/README.md","articles":[{"title":"节点","level":"1.3.1","depth":2,"path":"Concept/Node.md","ref":"Concept/Node.md","articles":[]},{"title":"爬虫","level":"1.3.2","depth":2,"path":"Concept/Spider.md","ref":"Concept/Spider.md","articles":[]},{"title":"任务","level":"1.3.3","depth":2,"path":"Concept/Task.md","ref":"Concept/Task.md","articles":[]},{"title":"部署","level":"1.3.4","depth":2,"path":"Concept/Deploy.md","ref":"Concept/Deploy.md","articles":[]}]},"previous":{"title":"安装","level":"1.2.1","depth":2,"path":"QuickStart/Installation.md","ref":"QuickStart/Installation.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"QuickStart/Run.md","mtime":"2019-03-28T12:00:11.000Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-16T11:37:08.921Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Celery","level":"1.4.1","depth":2,"next":{"title":"App","level":"1.4.2","depth":2,"path":"Architecture/App.md","ref":"Architecture/App.md","articles":[]},"previous":{"title":"架构","level":"1.4","depth":1,"path":"Architecture/README.md","ref":"Architecture/README.md","articles":[{"title":"Celery","level":"1.4.1","depth":2,"path":"Architecture/Celery.md","ref":"Architecture/Celery.md","articles":[]},{"title":"App","level":"1.4.2","depth":2,"path":"Architecture/App.md","ref":"Architecture/App.md","articles":[]}]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"Architecture/Celery.md","mtime":"2019-03-28T11:49:43.000Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-30T11:09:00.453Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
@@ -448,10 +405,6 @@ npm run serve
         
     <script src="../gitbook/gitbook.js"></script>
     <script src="../gitbook/theme.js"></script>
-    
-        
-        <script src="../gitbook/gitbook-plugin-livereload/plugin.js"></script>
-        
     
         
         <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>
