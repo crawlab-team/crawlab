@@ -15,11 +15,13 @@
         </el-card>
       </el-tab-pane>
       <el-tab-pane :label="$t('Results')" name="results">
+        {{ {resultsPageNum, resultsPageSize} }}
         <general-table-view :data="taskResultsData"
                             :columns="taskResultsColumns"
                             :page-num="resultsPageNum"
                             :page-size="resultsPageSize"
-                            :total="taskResultsTotalCount"/>
+                            :total="taskResultsTotalCount"
+                            @page-change="onResultsPageChange"/>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -78,6 +80,12 @@ export default {
     },
     onSpiderChange (id) {
       this.$router.push(`/spiders/${id}`)
+    },
+    onResultsPageChange (payload) {
+      const { pageNum, pageSize } = payload
+      this.resultsPageNum = pageNum
+      this.resultsPageSize = pageSize
+      this.$store.dispatch('task/getTaskResults', this.$route.params.id)
     }
   },
   created () {
