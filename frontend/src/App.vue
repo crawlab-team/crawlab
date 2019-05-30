@@ -29,9 +29,9 @@ export default {
       localStorage.setItem('useStats', value)
       document.querySelector('.el-message__closeBtn').click()
       if (value === 1) {
-        _hmt.push(['_trackPageview', '/allow_stats'])
+        window._hmt.push(['_trackPageview', '/allow_stats'])
       } else {
-        _hmt.push(['_trackPageview', '/disallow_stats'])
+        window._hmt.push(['_trackPageview', '/disallow_stats'])
       }
     }
 
@@ -98,6 +98,7 @@ export default {
     font-size: 12px;
     border-radius: 4px;
     cursor: pointer;
+    border: 1px solid #909399;
   }
 
   .message-btn:hover {

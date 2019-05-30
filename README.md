@@ -1,6 +1,9 @@
 # Crawlab
 
 ![](https://img.shields.io/badge/version-v0.2.1-blue.svg)
+<a href="https://github.com/tikazyq/crawlab/blob/master/LICENSE" target="_blank">
+    <img src="https://img.shields.io/badge/License-BSD-blue.svg">
+</a>
 
 Celery-based web crawler admin platform for managing distributed web spiders regardless of languages and frameworks. 
 
