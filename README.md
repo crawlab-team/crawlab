@@ -5,14 +5,16 @@
     <img src="https://img.shields.io/badge/License-BSD-blue.svg">
 </a>
 
+[中文](https://github.com/tikazyq/crawlab/blob/master/README-zh.md) | English
+
 Celery-based web crawler admin platform for managing distributed web spiders regardless of languages and frameworks. 
 
-[Demo](http://114.67.75.98:8080)
+[Demo](http://114.67.75.98:8080) | [Documentation](https://tikazyq.github.io/crawlab)
 
-[中文文档](https://github.com/tikazyq/crawlab/blob/master/README-zh.md)
 
 ## Pre-requisite
-- Python3
+- Python 3.6+
+- Node.js 8.12+
 - MongoDB
 - Redis
 
@@ -166,11 +168,13 @@ Crawlab is easy to use, general enough to adapt spiders in any language and any 
 - [ ] More spider examples
 
 ##### Frontend
-- [ ] Task Stats/Analytics
-- [ ] Table Filters
+- [x] Task Stats/Analytics
+- [x] Table Filters
 - [x] Multi-Language Support (中文)
 - [ ] Login & User Management
 - [ ] General Search
+
+## Community & Sponsorship
 
 If you feel Crawlab could benefit your daily work or your company, please add the author's Wechat account noting "Crawlab" to enter the discussion group. Or you scan the Alipay QR code below to give us a reward to upgrade our teamwork software or buy a coffee.
 

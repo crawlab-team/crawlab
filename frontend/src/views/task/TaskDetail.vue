@@ -80,7 +80,8 @@ export default {
     }
   },
   methods: {
-    onTabClick () {
+    onTabClick (tab) {
+      this.$st.sendEv('任务详情', '切换标签', 'tabName', tab.name)
     },
     onSpiderChange (id) {
       this.$router.push(`/spiders/${id}`)
@@ -93,6 +94,7 @@ export default {
     },
     downloadCSV () {
       window.location.href = this.$request.baseUrl + '/tasks/' + this.$route.params.id + '/download_results'
+      this.$st.sendEv('任务详情-结果', '下载CSV')
     }
   },
   created () {

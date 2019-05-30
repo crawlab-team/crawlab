@@ -1,19 +1,12 @@
 # Crawlab
-
-![](https://img.shields.io/badge/版本-v0.2.1-blue.svg)
-<a href="https://github.com/tikazyq/crawlab/blob/master/LICENSE" target="_blank">
-    <img src="https://img.shields.io/badge/License-BSD-blue.svg">
-</a>
-
-中文 | [English](https://github.com/tikazyq/crawlab/blob/master/README.md)
-
 基于Celery的爬虫分布式爬虫管理平台，支持多种编程语言以及多种爬虫框架.
 
-[查看演示 Demo](http://114.67.75.98:8080) | [文档](https://tikazyq.github.io/crawlab)
+[查看演示 Demo](http://139.129.230.98:8080)
+
+[English Documentation](https://github.com/tikazyq/crawlab/blob/master/README.md)
 
 ## 要求
-- Python 3.6+
-- Node.js 8.12+
+- Python3
 - MongoDB
 - Redis
 
@@ -55,30 +48,25 @@ npm run serve
 ## 截图
 
 #### 首页
-
-![](https://user-gold-cdn.xitu.io/2019/3/6/169524d4c7f117f7?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![home](./img/screenshot-home.png)
 
 #### 爬虫列表
 
-![](https://user-gold-cdn.xitu.io/2019/3/6/169524daf9c8ccef?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![spider-list](./img/screenshot-spiders.png)
 
 #### 爬虫详情 - 概览
 
-![](https://user-gold-cdn.xitu.io/2019/3/6/169524e0794d6be1?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![spider-list](./img/screenshot-spider-detail-overview.png)
 
 #### 任务详情 - 抓取结果
 
-![](https://user-gold-cdn.xitu.io/2019/3/6/169524e4064c7f0a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-## 使用流程
-
-![user-process](./docs/img/用户使用流程图.png)
+![spider-list](./img/screenshot-task-detail-results.png)
 
 ## 架构
 
 Crawlab的架构跟Celery非常相似，但是加入了包括前端、爬虫、Flower在内的额外模块，以支持爬虫管理的功能。
 
-![crawlab-architecture](./docs/img/crawlab-architecture.png)
+![crawlab-architecture](./img/crawlab-architecture.png)
 
 ### 节点
 
@@ -149,7 +137,7 @@ class JuejinPipeline(object):
 
 ## 与其他框架比较
 
-现在已经有一些爬虫管理框架了，因此为啥还要用Crawlab？
+限制以及有一些爬虫管理框架了，因此为啥还要用Crawlab？
 
 因为很多现有当平台都依赖于Scrapyd，限制了爬虫的编程语言以及框架，爬虫工程师只能用scrapy和python。当然，scrapy是非常优秀的爬虫框架，但是它不能做一切事情。
 
@@ -172,17 +160,8 @@ Crawlab使用起来很方便，也很通用，可以适用于几乎任何主流�
 - [ ] 更多爬虫例子
 
 ##### 前端
-- [x] 任务数据统计
-- [x] 表格过滤
+- [ ] 任务数据统计
+- [ ] 表格过滤
 - [x] 多语言支持 (中文)
 - [ ] 登录和用户管理
 - [ ] 全局搜索
-
-## 社区 & 赞助
-
-如果您觉得Crawlab对您的日常开发或公司有帮助，请加作者微信 tikazyq1 并注明"Crawlab"，作者会将你拉入群。或者，您可以扫下方支付宝二维码给作者打赏去升级团队协作软件或买一杯咖啡。
-
-<p align="center">
-    <img src="https://user-gold-cdn.xitu.io/2019/3/15/169814cbd5e600e9?imageslim" height="360">
-    <img src="https://raw.githubusercontent.com/tikazyq/crawlab/master/docs/img/payment.jpg" height="360">
-</p>

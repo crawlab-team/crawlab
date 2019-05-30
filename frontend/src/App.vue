@@ -29,9 +29,11 @@ export default {
       localStorage.setItem('useStats', value)
       document.querySelector('.el-message__closeBtn').click()
       if (value === 1) {
-        window._hmt.push(['_trackPageview', '/allow_stats'])
+        this.$st.sendPv('/allow_stats')
+        this.$st.sendEv('全局', '允许/禁止统计', 'value', 'allow')
       } else {
-        window._hmt.push(['_trackPageview', '/disallow_stats'])
+        this.$st.sendPv('/disallow_stats')
+        this.$st.sendEv('全局', '允许/禁止统计', 'value', 'disallow')
       }
     }
 

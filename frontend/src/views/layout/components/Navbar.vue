@@ -57,6 +57,8 @@ export default {
       window.localStorage.setItem('lang', lang)
       this.$i18n.locale = lang
       this.$store.commit('lang/SET_LANG', lang)
+
+      this.$st.sendEv('全局', '切换中英文', 'lang', lang)
     }
   }
 }
