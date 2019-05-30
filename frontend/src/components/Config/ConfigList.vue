@@ -9,11 +9,15 @@
                 :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
                 border>
         <el-table-column v-for="(f, index) in fields"
+                         :key="f.name + '-' + index"
                          :label="f.name"
-                         :key="index"
                          min-width="100px">
+          <template slot="header" slot-scope="scope">
+            {{ span.column.label }}
+            <el-input v-model="scope.column.label" size="mini"></el-input>
+          </template>
           <template slot-scope="scope">
-            {{scope.row[f.name]}}
+            {{scope.row[f.name] ? scope.row[f.name].trim() : ''}}
           </template>
         </el-table-column>
       </el-table>
@@ -236,6 +240,19 @@ export default {
               this.extractFieldsLoading = false
             })
         })
+    },
+    renderHeader (h, { column }) {
+      return h(
+        'el-input',
+        {
+          'v-model': 'column.label',
+          on: {
+            change: () => {
+            }
+          }
+        },
+        column.label
+      )
     }
   },
   created () {
@@ -244,7 +261,7 @@ export default {
       this.spiderForm.fields = []
       for (let i = 0; i < 3; i++) {
         this.spiderForm.fields.push({
-          name: `field_${i + 1}`,
+          name: 'field_' + (i + 1),
           type: 'css',
           extract_type: 'text'
         })
@@ -256,7 +273,7 @@ export default {
       this.spiderForm.detail_fields = []
       for (let i = 0; i < 3; i++) {
         this.spiderForm.detail_fields.push({
-          name: `field_${i + 1}`,
+          name: 'field_' + (i + 1),
           type: 'css',
           extract_type: 'text'
         })
