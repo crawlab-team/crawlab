@@ -1,4 +1,4 @@
-# 0.2.2 (unreleased)
+# 0.2.2 (2019-05-30)
 ### Features / Enhancement
 - **Automatic Extract Fields**: Automatically extracting data fields in list pages for configurable spider.
 - **Download Results**: Allow downloading results as csv file.
