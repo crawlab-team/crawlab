@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+import stats from '../utils/stats'
+
 /* Layout */
 import Layout from '../views/layout/Layout'
 
@@ -225,7 +227,7 @@ router.beforeEach((to, from, next) => {
 router.afterEach((to, from, next) => {
   if (to.path) {
     if (localStorage.getItem('useStats') !== '0') {
-      window._hmt.push(['_trackPageview', to.path])
+      stats.sendPv(to.path)
     }
   }
 })

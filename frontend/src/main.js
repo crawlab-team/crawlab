@@ -12,8 +12,6 @@ import 'font-awesome/scss/font-awesome.scss'// FontAwesome
 
 import 'codemirror/lib/codemirror.css'
 
-// import ba from 'vue-ba'
-
 import App from './App'
 import store from './store'
 import router from './router'
@@ -23,6 +21,7 @@ import '@/permission' // permission control
 
 import request from './api/request'
 import i18n from './i18n'
+import utils from './utils'
 
 Vue.use(ElementUI, { locale })
 
@@ -44,6 +43,12 @@ window._hmt = window._hmt || [];
 
 // inject request api
 Vue.prototype.$request = request
+
+// inject utils
+Vue.prototype.$utils = utils
+
+// inject stats
+Vue.prototype.$st = utils.stats
 
 const app = new Vue({
   el: '#app',
