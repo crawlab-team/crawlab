@@ -10,6 +10,7 @@ Babel==2.6.0
 beautifulsoup4==4.7.1
 billiard==3.6.0.0
 bs4==0.0.1
+bson==0.5.8
 cachetools==3.1.0
 celery==4.3.0
 certifi==2019.3.9
@@ -20,9 +21,11 @@ coloredlogs==10.0
 constantly==15.1.0
 cryptography==2.6.1
 cssselect==1.0.3
+csvalidate==1.1.1
 Flask==1.0.2
 Flask-APScheduler==1.11.0
 Flask-Cors==3.0.7
+Flask-CSV==1.2.0
 Flask-RESTful==0.3.7
 flask-restplus==0.12.1
 flower==0.9.3
@@ -42,6 +45,7 @@ jsonschema==3.0.1
 kombu==4.5.0
 lxml==4.3.3
 MarkupSafe==1.1.1
+marshmallow==2.19.2
 mongoengine==0.17.0
 multidict==4.5.2
 parsel==1.5.1
