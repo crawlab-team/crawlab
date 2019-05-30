@@ -1,6 +1,9 @@
 import json
 import os
 import sys
+from time import time
+
+from flask_csv import send_csv
 
 try:
     from _signal import SIGKILL
@@ -178,7 +181,7 @@ class TaskApi(BaseApi):
         if not col_name:
             return []
         fields = get_spider_col_fields(col_name)
-        items = db_manager.list(col_name, {'task_id': id})
+        items = db_manager.list(col_name, {'task_id': id}, skip=page_size * (page_num - 1), limit=page_size)
         return {
             'status': 'ok',
             'fields': jsonify(fields),
@@ -213,3 +216,16 @@ class TaskApi(BaseApi):
             'id': id,
             'status': 'ok',
         }
+
+    def download_results(self, id: str):
+        task = db_manager.get('tasks', id=id)
+        spider = db_manager.get('spiders', id=task['spider_id'])
+        col_name = spider.get('col')
+        if not col_name:
+            return send_csv([], f'results_{col_name}_{round(time())}.csv')
+        items = db_manager.list(col_name, {'task_id': id}, limit=999999999)
+        fields = get_spider_col_fields(col_name, task_id=id, limit=999999999)
+        return send_csv(items,
+                        filename=f'results_{col_name}_{round(time())}.csv',
+                        fields=fields,
+                        encoding='utf-8')

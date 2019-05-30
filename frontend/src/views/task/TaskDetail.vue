@@ -15,11 +15,17 @@
         </el-card>
       </el-tab-pane>
       <el-tab-pane :label="$t('Results')" name="results">
+        <div class="button-group">
+          <el-button type="primary" icon="el-icon-download" @click="downloadCSV">
+            {{$t('Download CSV')}}
+          </el-button>
+        </div>
         <general-table-view :data="taskResultsData"
                             :columns="taskResultsColumns"
                             :page-num="resultsPageNum"
                             :page-size="resultsPageSize"
-                            :total="taskResultsTotalCount"/>
+                            :total="taskResultsTotalCount"
+                            @page-change="onResultsPageChange"/>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -78,6 +84,15 @@ export default {
     },
     onSpiderChange (id) {
       this.$router.push(`/spiders/${id}`)
+    },
+    onResultsPageChange (payload) {
+      const { pageNum, pageSize } = payload
+      this.resultsPageNum = pageNum
+      this.resultsPageSize = pageSize
+      this.$store.dispatch('task/getTaskResults', this.$route.params.id)
+    },
+    downloadCSV () {
+      window.location.href = this.$request.baseUrl + '/tasks/' + this.$route.params.id + '/download_results'
     }
   },
   created () {
@@ -113,5 +128,10 @@ export default {
     height: 100%;
     overflow-x: auto;
     overflow-y: auto;
+  }
+
+  .button-group {
+    margin-bottom: 10px;
+    text-align: right;
   }
 </style>

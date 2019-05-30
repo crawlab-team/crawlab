@@ -58,18 +58,18 @@ export default {
   computed: {
     filteredData () {
       return this.data
-        .map(d => d)
-        .filter((d, index) => {
-          // pagination
-          const pageNum = this.pageNum
-          const pageSize = this.pageSize
-          return (pageSize * (pageNum - 1) <= index) && (index < pageSize * pageNum)
-        })
+      // .map(d => d)
+      // .filter((d, index) => {
+      //   // pagination
+      //   const pageNum = this.pageNum
+      //   const pageSize = this.pageSize
+      //   return (pageSize * (pageNum - 1) <= index) && (index < pageSize * pageNum)
+      // })
     }
   },
   methods: {
     onPageChange () {
-      this.$emit('page-change')
+      this.$emit('page-change', { pageNum: this.pageNum, pageSize: this.pageSize })
     }
   }
 }

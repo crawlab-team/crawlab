@@ -18,7 +18,7 @@ const state = {
   pageNum: 0,
   pageSize: 10,
   // results
-  resultsPageNum: 0,
+  resultsPageNum: 1,
   resultsPageSize: 10
 }
 

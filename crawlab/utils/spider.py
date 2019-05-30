@@ -41,12 +41,17 @@ def get_spider_type(path: str) -> SpiderType:
             return SpiderType.SCRAPY
 
 
-def get_spider_col_fields(col_name: str) -> list:
+def get_spider_col_fields(col_name: str, task_id: str = None, limit: int = 100) -> list:
     """
     Get spider collection fields
     :param col_name: collection name
+    :param task_id: task_id
+    :param limit: limit
     """
-    items = db_manager.list(col_name, {}, limit=100, sort_key='_id')
+    filter_ = {}
+    if task_id is not None:
+        filter_['task_id'] = task_id
+    items = db_manager.list(col_name, filter_, limit=limit, sort_key='_id')
     fields = set()
     for item in items:
         for k in item.keys():
