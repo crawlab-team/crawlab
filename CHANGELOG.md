@@ -1,4 +1,4 @@
-# 0.2.2 (unrealized)
+# 0.2.2 (unreleased)
 ### Features / Enhancement
 - **Automatic Extract Fields**: Automatically extracting data fields in list pages for configurable spider
 - **Baidu Tongji**: Allow users to choose to report usage info to Baidu Tongji.
