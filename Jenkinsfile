@@ -17,10 +17,11 @@ pipeline {
             steps {
                 echo "Running Setup..."
 
-                sh ". ${HOME}/.nvm/nvm.sh"
-                sh "nvm use 8.12"
+                sh 'source ~/.bashrc'
+                // sh ". ${HOME}/.nvm/nvm.sh"
+                // sh "nvm use 8.12"
 
-                sh "${HOME}/.pyenv/bin/pyenv activate crawlab"
+                // sh "${HOME}/.pyenv/bin/pyenv activate crawlab"
 
                 sh '#source /home/yeqing/.profile'
             }
