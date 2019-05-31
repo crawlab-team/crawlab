@@ -21,9 +21,8 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 echo "Building frontend..."
-                sh "cd frontend"
-                sh "cd ${NODE_HOME}/node ${NODE_HOME}/bin/npm install"
-                sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/npm run build:prod"
+                sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/node ${NODE_HOME}/bin/npm install"
+                sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/npm run build:prod"
             }
         }
         stage('Build Backend') {
