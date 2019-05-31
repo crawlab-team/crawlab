@@ -10,7 +10,7 @@ pipeline {
             steps {
                 echo "Building frontend..."
                 sh "cd frontend"
-                sh "/home/yeqing/.nvm/versions/node/v8.12.0/bin/yarn install"
+                sh "/home/yeqing/.nvm/versions/node/v8.12.0/bin/npm install"
                 sh "/home/yeqing/.nvm/versions/node/v8.12.0/bin/npm run build:prod"
             }
         }
