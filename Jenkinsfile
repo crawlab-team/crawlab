@@ -6,6 +6,7 @@ pipeline {
     }
 
     environment {
+        HOME = '/home/yeqing'
         NODE_HOME = '/home/yeqing/.nvm/versions/node/v8.12.0'
         ROOT_DIR = "/home/yeqing/jenkins_home/workspace/crawlab_${GIT_BRANCH}" 
         PYTHON_HOME = '/home/yeqing/.pyenv/shims'
@@ -16,6 +17,11 @@ pipeline {
             steps {
                 echo "Running Setup..."
 
+                sh ". ${HOME}/.nvm/nvm.sh"
+                sh "nvm use 8.12"
+
+                sh "${HOME}/.pyenv/bin/pyenv activate crawlab"
+
                 sh '#source /home/yeqing/.profile'
             }
         }
@@ -23,7 +29,9 @@ pipeline {
             steps {
                 echo "Building frontend..."
                 sh "#${NODE_HOME}/bin/node ${NODE_HOME}/bin/npm install -g yarn pm2 --registry=http://registry.npm.taobao.org/"
-                sh "cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/yarn install --registry=http://registry.npm.taobao.org/ --scripts-prepend-node-path=${NODE_HOME}/bin/node"
+                sh "#cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/yarn install --registry=http://registry.npm.taobao.org/ --scripts-prepend-node-path=${NODE_HOME}/bin/node"
+                sh "#cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/yarn install --registry=http://registry.npm.taobao.org/ --scripts-prepend-node-path=${NODE_HOME}/bin/node"
+                sh "yarn install --registry=http://registry.npm.taobao.org/ --scripts-prepend-node-path=${NODE_HOME}/bin/node"
                 sh "cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${ROOT_DIR}/frontend/node_modules/.bin/vue-cli-service build --mode=production"
             }
         }
