@@ -1,5 +1,5 @@
 pipeline {
-    agent crawlab
+    agent {crawlab}
 
     stages {
         stage('Build Frontend') {
