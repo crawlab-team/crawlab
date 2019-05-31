@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent crawlab
 
     stages {
         stage('Build Frontend') {
