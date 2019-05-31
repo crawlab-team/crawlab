@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo 'Building..'
+                echo "Git branch: ${env.GIT_BRANCH}"
             }
         }
         stage('Test') {
