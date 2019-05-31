@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Setup') {
             steps {
-                "Running Setup..."
+                echo "Running Setup..."
                 sh 'source /home/yeqing/.profile'
             }
         }
