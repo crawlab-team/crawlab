@@ -9,17 +9,17 @@ pipeline {
         stage('Setup') {
             steps {
                 echo "Running Setup..."
-                sh 'source /home/yeqing/.profile'
+                sh '#source /home/yeqing/.profile'
             }
         }
         stage('Build Frontend') {
             steps {
                 echo "Building frontend..."
                 sh "cd frontend"
-                sh "yarn install"
-                sh "npm run build:prod"
-                sh "#/home/yeqing/.nvm/versions/node/v8.12.0/bin/node /home/yeqing/.nvm/versions/node/v8.12.0/bin/npm install"
-                sh "#/home/yeqing/.nvm/versions/node/v8.12.0/bin/node /home/yeqing/.nvm/versions/node/v8.12.0/bin/npm run build:prod"
+                sh "#yarn install"
+                sh "#npm run build:prod"
+                sh "/home/yeqing/.nvm/versions/node/v8.12.0/bin/node /home/yeqing/.nvm/versions/node/v8.12.0/bin/npm install"
+                sh "/home/yeqing/.nvm/versions/node/v8.12.0/bin/node /home/yeqing/.nvm/versions/node/v8.12.0/bin/npm run build:prod"
             }
         }
         stage('Build Backend') {
