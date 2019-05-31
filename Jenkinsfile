@@ -1,5 +1,9 @@
 pipeline {
-    agent {crawlab}
+    agent {
+        node {
+            label 'crawlab'
+        }
+    }
 
     stages {
         stage('Build Frontend') {
