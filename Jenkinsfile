@@ -21,8 +21,8 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 echo "Building frontend..."
-                sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/npm install -g yarn pm2 --registry=http://npm.taobao.org/mirrors"
-                sh "cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/yarn install --registry=http://npm.taobao.org/mirrors"
+                sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/npm install -g yarn pm2 --registry=http://registry.npm.taobao.org/"
+                sh "cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/yarn install --registry=http://registry.npm.taobao.org/"
                 sh "cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/npm run build:prod"
             }
         }
