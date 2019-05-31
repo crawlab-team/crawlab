@@ -10,8 +10,8 @@ pipeline {
             steps {
                 echo "Building frontend..."
                 sh "cd frontend"
-                sh "/home/yeqing/.nvm/versions/node/v8.12.0/bin/npm install"
-                sh "/home/yeqing/.nvm/versions/node/v8.12.0/bin/npm run build:prod"
+                sh "/home/yeqing/.nvm/versions/node/v8.12.0/bin/node /home/yeqing/.nvm/versions/node/v8.12.0/bin/npm install"
+                sh "/home/yeqing/.nvm/versions/node/v8.12.0/bin/node /home/yeqing/.nvm/versions/node/v8.12.0/bin/npm run build:prod"
             }
         }
         stage('Build Backend') {
