@@ -6,6 +6,7 @@ pipeline {
             steps {
                 echo "Building frontend..."
                 sh "cd frontend"
+                sh "npm install -g yarn pm2"
                 sh "yarn install"
                 sh "npm run build:prod"
             }
