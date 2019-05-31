@@ -23,14 +23,14 @@ pipeline {
             steps {
                 echo "Building frontend..."
                 sh "#${NODE_HOME}/bin/node ${NODE_HOME}/bin/npm install -g yarn pm2 --registry=http://registry.npm.taobao.org/"
-                sh "#cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/npm install --registry=http://registry.npm.taobao.org/ --scripts-prepend-node-path=${NODE_HOME}/bin/node"
+                sh "cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/npm install --registry=http://registry.npm.taobao.org/ --scripts-prepend-node-path=${NODE_HOME}/bin/node"
                 sh "cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${ROOT_DIR}/frontend/node_modules/.bin/vue-cli-service build --mode=production"
             }
         }
         stage('Build Backend') {
             steps {
                 echo "Building backend..."
-                sh "${PYTHON_HOME}/pip install -r ${ROOT_DIR}/crawlab/requirements.txt"
+                sh "${PYTHON_HOME}/pip install -r ${ROOT_DIR}/crawlab/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple"
             }
         }
         stage('Test') {
@@ -41,6 +41,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying....'
+                sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/pm2 start app.py"
+                sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/pm2 start ./bin/run_flower.py"
+                sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/pm2 start ./bin/run_worker.py"
             }
         }
     }
