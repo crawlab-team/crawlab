@@ -10,9 +10,8 @@ pipeline {
             steps {
                 echo "Building frontend..."
                 sh "cd frontend"
-                sh "npm install -g yarn pm2"
-                sh "yarn install"
-                sh "npm run build:prod"
+                sh "/home/yeqing/.nvm/versions/node/v8.12.0/bin/yarn install"
+                sh "/home/yeqing/.nvm/versions/node/v8.12.0/bin/npm run build:prod"
             }
         }
         stage('Build Backend') {
