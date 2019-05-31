@@ -8,6 +8,7 @@ pipeline {
     environment {
         NODE_HOME = '/home/yeqing/.nvm/versions/node/v8.12.0'
         ROOT_DIR = "/home/yeqing/jenkins_home/workspace/crawlab_${GIT_BRANCH}" 
+        PYTHON_HOME = '/home/yeqing/.pyenv/shims'
     }
 
     stages {
@@ -23,15 +24,13 @@ pipeline {
                 echo "Building frontend..."
                 sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/npm install -g yarn pm2 --registry=http://registry.npm.taobao.org/"
                 sh "cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/yarn install --registry=http://registry.npm.taobao.org/"
-                sh "cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/npm run build:prod"
+                sh "cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${ROOT_DIR}/frontend/node_modules/.bin/vue-cli-service build --mode=production"
             }
         }
         stage('Build Backend') {
             steps {
                 echo "Building backend..."
-                sh "cd ../crawlab"
-                sh "pyenv activate crawlab"
-                sh "pip install -r requirements.txt"
+                sh "${PYTHON_HOME}/pip install -r ${ROOT_DIR}/crawlab/requirements.txt"
             }
         }
         stage('Test') {
