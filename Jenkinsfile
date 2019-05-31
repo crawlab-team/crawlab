@@ -5,10 +5,16 @@ pipeline {
         }
     }
 
+    environment {
+        NODE_HOME = '/home/yeqing/.nvm/versions/node/v8.12.0'
+        ROOT_DIR = "/home/yeqing/jenkins_home/workspace/crawlab_${GIT_BRANCH}" 
+    }
+
     stages {
         stage('Setup') {
             steps {
                 echo "Running Setup..."
+
                 sh '#source /home/yeqing/.profile'
             }
         }
@@ -16,10 +22,8 @@ pipeline {
             steps {
                 echo "Building frontend..."
                 sh "cd frontend"
-                sh "#yarn install"
-                sh "#npm run build:prod"
-                sh "/home/yeqing/.nvm/versions/node/v8.12.0/bin/node /home/yeqing/.nvm/versions/node/v8.12.0/bin/npm install"
-                sh "/home/yeqing/.nvm/versions/node/v8.12.0/bin/node /home/yeqing/.nvm/versions/node/v8.12.0/bin/npm run build:prod"
+                sh "cd ${NODE_HOME}/node ${NODE_HOME}/bin/npm install"
+                sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/npm run build:prod"
             }
         }
         stage('Build Backend') {
