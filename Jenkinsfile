@@ -41,9 +41,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying....'
-                sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/pm2 start app.py"
-                sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/pm2 start ./bin/run_flower.py"
-                sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/pm2 start ./bin/run_worker.py"
+                sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/bin/pm2 start app.py"
+                sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/bin/pm2 start ./bin/run_flower.py"
+                sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/bin/pm2 start ./bin/run_worker.py"
             }
         }
     }
