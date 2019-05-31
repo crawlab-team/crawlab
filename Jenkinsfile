@@ -2,9 +2,20 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Build Frontend') {
             steps {
-                echo "Git branch: ${env.GIT_BRANCH}"
+                echo "Building frontend..."
+                sh "cd frontend"
+                sh "yarn install"
+                sh "npm run build:prod"
+            }
+        }
+        stage('Build Backend') {
+            steps {
+                echo "Building backend..."
+                sh "cd ../crawlab"
+                sh "pyenv activate crawlab"
+                sh "pip install -r requirements.txt"
             }
         }
         stage('Test') {
