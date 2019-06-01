@@ -14,7 +14,7 @@ pipeline {
 
     stages {
         stage('Setup') {
-            step {
+            steps {
                 echo "Running Setup..."
                 // sh '. /home/yeqing/.profile'
                 if (env.GIT_BRANCH == 'develop') {
