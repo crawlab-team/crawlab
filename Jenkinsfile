@@ -10,14 +10,6 @@ pipeline {
         NODE_HOME = '/home/yeqing/.nvm/versions/node/v8.12.0'
         ROOT_DIR = "/home/yeqing/jenkins_home/workspace/crawlab_${GIT_BRANCH}" 
         PYTHON_HOME = '/home/yeqing/.pyenv/shims'
-
-        if (env.GIT_BRANCH == 'develop') {
-            MODE = 'test'
-        } else if (env.GIT_BRANCH == 'master') {
-            MODE = 'production'
-        } else {
-            MODE = 'test'
-        }
     }
 
     stages {
@@ -25,6 +17,15 @@ pipeline {
             steps {
                 echo "Running Setup..."
                 // sh '. /home/yeqing/.profile'
+                script {
+                    if (env.GIT_BRANCH == 'develop') {
+                        env.MODE = 'test'
+                    } else if (env.GIT_BRANCH == 'master') {
+                        env.MODE = 'production'
+                    } else {
+                        env.MODE = 'test'
+                    }
+                }
             }
         }
         stage('Build Frontend') {
