@@ -1,7 +1,7 @@
 # Crawlab
 
 ![](http://114.67.75.98:8081/buildStatus/icon?job=crawlab%2Fdevelop)
-![](https://img.shields.io/badge/version-v0.2.1-blue.svg)
+![](https://img.shields.io/badge/version-v0.2.3-blue.svg)
 <a href="https://github.com/tikazyq/crawlab/blob/master/LICENSE" target="_blank">
     <img src="https://img.shields.io/badge/license-BSD-blue.svg">
 </a>
@@ -11,7 +11,6 @@
 Celery-based web crawler admin platform for managing distributed web spiders regardless of languages and frameworks. 
 
 [Demo](http://114.67.75.98:8080) | [Documentation](https://tikazyq.github.io/crawlab)
-
 
 ## Pre-requisite
 - Python 3.6+
@@ -38,20 +37,7 @@ Please edit configuration file `config.py` to configure api and database connect
 
 ## Quick Start
 ```bash
-# Start backend API
-python app.py
-
-# Start Flower service
-python ./bin/run_flower.py
-
-# Start worker
-python ./bin/run_worker.py
-```
-
-```bash
-# run frontend client
-cd frontend
-npm run serve
+python manage.py serve
 ```
 
 ## Screenshot

@@ -1,3 +1,7 @@
+# 0.2.3 (unreleased)
+### Features / Enhancement
+- **CLI**. Allow user to use command-line interface to execute Crawlab programs.
+
 # 0.2.2 (2019-05-30)
 ### Features / Enhancement
 - **Automatic Extract Fields**: Automatically extracting data fields in list pages for configurable spider.

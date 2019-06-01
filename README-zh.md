@@ -1,7 +1,7 @@
 # Crawlab
 
 ![](http://114.67.75.98:8081/buildStatus/icon?job=crawlab%2Fdevelop)
-![](https://img.shields.io/badge/版本-v0.2.1-blue.svg)
+![](https://img.shields.io/badge/版本-v0.2.3-blue.svg)
 <a href="https://github.com/tikazyq/crawlab/blob/master/LICENSE" target="_blank">
     <img src="https://img.shields.io/badge/License-BSD-blue.svg">
 </a>
@@ -37,20 +37,7 @@ npm install
 
 ## 快速开始
 ```bash
-# 启动后端API
-python app.py
-
-# 启动Flower服务
-python ./bin/run_flower.py
-
-# 启动worker
-python ./bin/run_worker.py
-```
-
-```bash
-# 运行前端
-cd frontend
-npm run serve
+python manage.py serve
 ```
 
 ## 截图
