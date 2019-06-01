@@ -17,7 +17,7 @@ pipeline {
             steps {
                 echo "Running Setup..."
 
-                sh 'source ~/.bashrc'
+                sh '. ~/.bashrc'
                 // sh ". ${HOME}/.nvm/nvm.sh"
                 // sh "nvm use 8.12"
 
