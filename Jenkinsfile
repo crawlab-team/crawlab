@@ -16,7 +16,7 @@ pipeline {
         stage('Setup') {
             steps {
                 echo "Running Setup..."
-                sh '. /home/yeqing/.profile'
+                // sh '. /home/yeqing/.profile'
             }
         }
         stage('Build Frontend') {
@@ -41,6 +41,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying....'
+                sh "cp -r ${ROOT_DIR}/frontend/dist /var/html/dev.crawlab.cn"
                 sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 restart app"
                 sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 restart run_flower"
                 sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 restart run_worker"
