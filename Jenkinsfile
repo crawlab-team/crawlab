@@ -16,14 +16,7 @@ pipeline {
         stage('Setup') {
             steps {
                 echo "Running Setup..."
-
-                // sh '. ~/.profile'
-                // sh ". ${HOME}/.nvm/nvm.sh"
-                // sh "nvm use 8.12"
-
-                sh "${HOME}/.pyenv/bin/pyenv activate crawlab"
-
-                sh '#source /home/yeqing/.profile'
+                sh '. /home/yeqing/.profile'
             }
         }
         stage('Build Frontend') {
@@ -31,7 +24,6 @@ pipeline {
                 echo "Building frontend..."
                 // sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/npm install -g yarn pm2 --registry=http://registry.npm.taobao.org/"
                 sh "cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/yarn install --registry=http://registry.npm.taobao.org/ --scripts-prepend-node-path=${NODE_HOME}/bin/node"
-                // sh "yarn install --registry=http://registry.npm.taobao.org/ --scripts-prepend-node-path=${NODE_HOME}/bin/node"
                 sh "cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${ROOT_DIR}/frontend/node_modules/.bin/vue-cli-service build --mode=production"
             }
         }
@@ -49,9 +41,11 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying....'
-                sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 start app.py"
-                sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 start ./bin/run_flower.py"
-                sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 start ./bin/run_worker.py"
+                withPythonEnv('crawlab') {
+                    sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 start app.py"
+                    sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 start ./bin/run_flower.py"
+                    sh "cd ${ROOT_DIR}/crawlab && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 start ./bin/run_worker.py"
+                }
             }
         }
     }
