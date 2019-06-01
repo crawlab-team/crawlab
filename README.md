@@ -12,7 +12,6 @@ Celery-based web crawler admin platform for managing distributed web spiders reg
 
 [Demo](http://114.67.75.98:8080) | [Documentation](https://tikazyq.github.io/crawlab)
 
-
 ## Pre-requisite
 - Python 3.6+
 - Node.js 8.12+
@@ -38,20 +37,7 @@ Please edit configuration file `config.py` to configure api and database connect
 
 ## Quick Start
 ```bash
-# Start backend API
-python app.py
-
-# Start Flower service
-python ./bin/run_flower.py
-
-# Start worker
-python ./bin/run_worker.py
-```
-
-```bash
-# run frontend client
-cd frontend
-npm run serve
+python manage.py serve
 ```
 
 ## Screenshot

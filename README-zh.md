@@ -37,20 +37,7 @@ npm install
 
 ## 快速开始
 ```bash
-# 启动后端API
-python app.py
-
-# 启动Flower服务
-python ./bin/run_flower.py
-
-# 启动worker
-python ./bin/run_worker.py
-```
-
-```bash
-# 运行前端
-cd frontend
-npm run serve
+python manage.py serve
 ```
 
 ## 截图

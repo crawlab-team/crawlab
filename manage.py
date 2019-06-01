@@ -8,6 +8,15 @@ BASE_DIR = os.path.dirname(__file__)
 
 APP_DESC = """
 Crawlab CLI tool. 
+
+usage: python manage.py [action]
+
+action:
+    serve: start all necessary services to run crawlab. This is for quick start, please checkout Deployment guide for production environment.
+    app: start app + flower services, normally run on master node.
+    worker: start app + worker services, normally run on worker nodes.
+    flower: start flower service only.
+    frontend: start frontend/client service only.
 """
 ACTION_LIST = [
     'serve',
@@ -17,32 +26,31 @@ ACTION_LIST = [
     'frontend',
 ]
 if len(sys.argv) == 1:
+    print(APP_DESC)
     sys.argv.append('--help')
 parser = argparse.ArgumentParser()
 parser.add_argument('action', type=str)
-# parser.add_argument('-q', '--quality', type=int, default=0,
-#                     help="download video quality : 1 for the standard-definition; 3 for the super-definition")
 args = parser.parse_args()
 
 
 def run_app():
-    p = subprocess.Popen([sys.executable, os.path.join(BASE_DIR, 'app.py')])
+    p = subprocess.Popen([sys.executable, os.path.join(BASE_DIR, 'crawlab', 'app.py')])
     p.communicate()
 
 
 def run_flower():
-    p = subprocess.Popen([sys.executable, os.path.join(BASE_DIR, 'flower.py')])
+    p = subprocess.Popen([sys.executable, os.path.join(BASE_DIR, 'crawlab', 'flower.py')])
     p.communicate()
 
 
 def run_worker():
-    p = subprocess.Popen([sys.executable, os.path.join(BASE_DIR, 'worker.py')])
+    p = subprocess.Popen([sys.executable, os.path.join(BASE_DIR, 'crawlab', 'worker.py')])
     p.communicate()
 
 
 def run_frontend():
     p = subprocess.Popen(['npm', 'run', 'serve'],
-                         cwd=os.path.abspath(os.path.join(BASE_DIR, '..', 'frontend')))
+                         cwd=os.path.abspath(os.path.join(BASE_DIR, 'frontend')))
     p.communicate()
 
 
