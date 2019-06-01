@@ -1,7 +1,7 @@
 # Crawlab
 
 ![](http://114.67.75.98:8081/buildStatus/icon?job=crawlab%2Fdevelop)
-![](https://img.shields.io/badge/version-v0.2.1-blue.svg)
+![](https://img.shields.io/badge/version-v0.2.3-blue.svg)
 <a href="https://github.com/tikazyq/crawlab/blob/master/LICENSE" target="_blank">
     <img src="https://img.shields.io/badge/license-BSD-blue.svg">
 </a>
