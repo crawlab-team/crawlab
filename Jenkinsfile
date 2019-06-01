@@ -17,6 +17,13 @@ pipeline {
             steps {
                 echo "Running Setup..."
                 // sh '. /home/yeqing/.profile'
+                if (env.GIT_BRANCH == 'develop') {
+                    MODE = 'test'
+                } else if (env.GIT_BRANCH == 'master') {
+                    MODE = 'production'
+                } else {
+                    MODE = 'test'
+                }
             }
         }
         stage('Build Frontend') {
@@ -24,7 +31,7 @@ pipeline {
                 echo "Building frontend..."
                 // sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/npm install -g yarn pm2 --registry=http://registry.npm.taobao.org/"
                 sh "cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${NODE_HOME}/bin/yarn install --registry=http://registry.npm.taobao.org/ --scripts-prepend-node-path=${NODE_HOME}/bin/node"
-                sh "cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${ROOT_DIR}/frontend/node_modules/.bin/vue-cli-service build --mode=production"
+                sh "cd ${ROOT_DIR}/frontend && ${NODE_HOME}/bin/node ${ROOT_DIR}/frontend/node_modules/.bin/vue-cli-service build --mode=${MODE}"
             }
         }
         stage('Build Backend') {
@@ -41,7 +48,6 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying....'
-                sh "cp -r ${ROOT_DIR}/frontend/dist /var/html/dev.crawlab.cn"
                 sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 restart app"
                 sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 restart run_flower"
                 sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 restart run_worker"
