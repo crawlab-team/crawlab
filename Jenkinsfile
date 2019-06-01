@@ -14,16 +14,14 @@ pipeline {
 
     stages {
         stage('Setup') {
-            steps {
-                echo "Running Setup..."
-                // sh '. /home/yeqing/.profile'
-                if (env.GIT_BRANCH == 'develop') {
-                    MODE = 'test'
-                } else if (env.GIT_BRANCH == 'master') {
-                    MODE = 'production'
-                } else {
-                    MODE = 'test'
-                }
+            echo "Running Setup..."
+            // sh '. /home/yeqing/.profile'
+            if (env.GIT_BRANCH == 'develop') {
+                MODE = 'test'
+            } else if (env.GIT_BRANCH == 'master') {
+                MODE = 'production'
+            } else {
+                MODE = 'test'
             }
         }
         stage('Build Frontend') {
