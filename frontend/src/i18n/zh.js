@@ -58,6 +58,8 @@ export default {
   'Extract Fields': '提取字段',
   'Download': '下载',
   'Download CSV': '下载CSV',
+  'Upload Zip File': '上传Zip文件',
+  'Upload': '上传',
 
   // 主页
   'Total Tasks': '总任务数',

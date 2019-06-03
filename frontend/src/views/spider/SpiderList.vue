@@ -81,9 +81,16 @@
                width="40%"
                :visible.sync="addCustomizedDialogVisible"
                :before-close="onAddCustomizedDialogClose">
-      <p>
-        {{$t('Please go to the source folder of your spiders, create a sub-folder and add your spider codes into it')}}
-      </p>
+      <el-form :model="spiderForm" ref="addConfigurableForm" inline-message>
+        <el-form-item :label="$t('Upload Zip File')" label-width="120px" name="site">
+          <el-upload
+            :action="$request.baseUrl + '/spiders/manage/upload'"
+            :on-success="onUploadSuccess"
+            :file-list="fileList">
+            <el-button size="small" type="primary">{{$t('Upload')}}</el-button>
+          </el-upload>
+        </el-form-item>
+      </el-form>
     </el-dialog>
     <!--./customized spider dialog-->
 
@@ -213,6 +220,7 @@
 import {
   mapState
 } from 'vuex'
+import ElUploadDrag from 'element-ui/packages/upload/src/upload-dragger'
 
 export default {
   name: 'SpiderList',
@@ -244,7 +252,8 @@ export default {
       ],
       spiderFormRules: {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
-      }
+      },
+      fileList: []
     }
   },
   computed: {
@@ -480,6 +489,8 @@ export default {
             })
         }
       })
+    },
+    onUploadSuccess () {
     }
   },
   created () {
