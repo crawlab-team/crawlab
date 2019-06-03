@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-let baseUrl = process.env.VUE_APP_API_BASE_URL ? process.env.VUE_APP_API_BASE_URL : 'http://localhost:8000/api'
+let baseUrl = process.env.VUE_APP_BASE_URL ? process.env.VUE_APP_BASE_URL : 'http://localhost:8000/api'
 // console.log(process.env)
 // const baseUrl = process.env.API_BASE_URL || 'http://localhost:8000/api'
 

@@ -72,15 +72,17 @@ export default {
     }
   },
   methods: {
-    onTabClick () {
+    onTabClick (tab) {
       if (this.activeTabName === 'analytics') {
         setTimeout(() => {
           this.$refs['spider-stats'].update()
         }, 0)
       }
+      this.$st.sendEv('爬虫详情', '切换标签', 'tabName', tab.name)
     },
     onSpiderChange (id) {
       this.$router.push(`/spiders/${id}`)
+      this.$st.sendEv('爬虫详情', '切换爬虫')
     }
   },
   created () {

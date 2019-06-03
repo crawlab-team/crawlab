@@ -1,18 +1,20 @@
 # Crawlab
 
-![](https://img.shields.io/badge/版本-v0.2.1-blue.svg)
+![](http://114.67.75.98:8081/buildStatus/icon?job=crawlab%2Fdevelop)
+![](https://img.shields.io/badge/版本-v0.2.3-blue.svg)
 <a href="https://github.com/tikazyq/crawlab/blob/master/LICENSE" target="_blank">
     <img src="https://img.shields.io/badge/License-BSD-blue.svg">
 </a>
 
+中文 | [English](https://github.com/tikazyq/crawlab/blob/master/README.md)
+
 基于Celery的爬虫分布式爬虫管理平台，支持多种编程语言以及多种爬虫框架.
 
-[查看演示 Demo](http://139.129.230.98:8080)
-
-[English Documentation](https://github.com/tikazyq/crawlab/blob/master/README.md)
+[查看演示 Demo](http://114.67.75.98:8080) | [文档](https://tikazyq.github.io/crawlab)
 
 ## 要求
-- Python3
+- Python 3.6+
+- Node.js 8.12+
 - MongoDB
 - Redis
 
@@ -35,20 +37,7 @@ npm install
 
 ## 快速开始
 ```bash
-# 启动后端API
-python app.py
-
-# 启动Flower服务
-python ./bin/run_flower.py
-
-# 启动worker
-python ./bin/run_worker.py
-```
-
-```bash
-# 运行前端
-cd frontend
-npm run serve
+python manage.py serve
 ```
 
 ## 截图
@@ -176,6 +165,8 @@ Crawlab使用起来很方便，也很通用，可以适用于几乎任何主流�
 - [x] 多语言支持 (中文)
 - [ ] 登录和用户管理
 - [ ] 全局搜索
+
+## 社区 & 赞助
 
 如果您觉得Crawlab对您的日常开发或公司有帮助，请加作者微信 tikazyq1 并注明"Crawlab"，作者会将你拉入群。或者，您可以扫下方支付宝二维码给作者打赏去升级团队协作软件或买一杯咖啡。
 

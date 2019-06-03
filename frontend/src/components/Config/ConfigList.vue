@@ -163,6 +163,7 @@ export default {
       this.spiderForm.crawl_type = value
     },
     onSave () {
+      this.$st.sendEv('爬虫详情-配置', '保存')
       return new Promise((resolve, reject) => {
         this.saveLoading = true
         this.$store.dispatch('spider/updateSpiderFields')
@@ -207,6 +208,7 @@ export default {
             .finally(() => {
               this.previewLoading = false
             })
+          this.$st.sendEv('爬虫详情-配置', '预览')
         })
     },
     onCrawl () {
@@ -219,6 +221,7 @@ export default {
             .then(() => {
               this.$message.success(this.$t(`Spider task has been scheduled`))
             })
+          this.$st.sendEv('爬虫详情-配置', '运行')
         })
     },
     onExtractFields () {
@@ -239,6 +242,7 @@ export default {
             .finally(() => {
               this.extractFieldsLoading = false
             })
+          this.$st.sendEv('爬虫详情-配置', '提取字段')
         })
     },
     renderHeader (h, { column }) {

@@ -47,6 +47,7 @@ export default {
     },
     onNodeChange (id) {
       this.$router.push(`/nodes/${id}`)
+      this.$st.sendEv('节点详情', '切换节点')
     }
   },
   created () {

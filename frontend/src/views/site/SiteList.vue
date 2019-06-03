@@ -8,11 +8,11 @@
                 v-model="keyword">
       </el-input>
       <el-select v-model="filter.mainCategory" class="filter-category" :placeholder="$t('Select Main Category')"
-                 clearable filterable>
+                 clearable filterable @change="onSelectMainCategory">
         <el-option v-for="op in mainCategoryList" :key="op" :value="op" :label="op"></el-option>
       </el-select>
       <el-select v-model="filter.category" class="filter-category" :placeholder="$t('Select Category')"
-                 clearable filterable>
+                 clearable filterable @change="onSelectCategory">
         <el-option v-for="op in categoryList" :key="op" :value="op" :label="op"></el-option>
       </el-select>
       <el-button type="success"
@@ -53,7 +53,8 @@
                          :width="col.width"
                          :align="col.align">
           <template slot-scope="scope">
-            <a class="domain" :href="'http://' + scope.row[col.name]" target="_blank">
+            <a class="domain" :href="'http://' + scope.row[col.name]" target="_blank"
+               @click="onClickDomain(scope.row._id)">
               {{scope.row[col.name]}}
             </a>
           </template>
@@ -84,7 +85,7 @@
           <template slot-scope="scope">
             <div>
               <template v-if="scope.row[col.name]">
-                <a :href="`http://${scope.row._id}/robots.txt`" target="_blank">
+                <a :href="`http://${scope.row._id}/robots.txt`" target="_blank" @click="onClickRobots(scope.row._id)">
                   Y
                 </a>
               </template>
@@ -242,6 +243,16 @@ export default {
       setTimeout(() => {
         this.$store.dispatch('site/getSiteList')
       }, 0)
+      this.$st.sendEv('网站', '搜索')
+    },
+    onSelectMainCategory () {
+      this.$st.sendEv('网站', '选择主类别')
+    },
+    onSelectCategory () {
+      this.$st.sendEv('网站', '选择类别')
+    },
+    onClickDomain (domain) {
+      this.$st.sendEv('网站', '点击域名', 'domain', domain)
     },
     onPageChange () {
       setTimeout(() => {
@@ -302,6 +313,10 @@ export default {
     },
     goToSpiders (domain) {
       this.$router.push({ name: 'SpiderList', params: { domain } })
+      this.$st.sendEv('网站', '点击爬虫数', 'domain', domain)
+    },
+    onClickRobots (domain) {
+      this.$st.sendEv('网站', '点击Robots协议', 'domain', domain)
     }
   },
   created () {

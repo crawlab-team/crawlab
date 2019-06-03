@@ -160,6 +160,7 @@ export default {
       this.isEdit = false
       this.dialogVisible = true
       this.$store.commit('schedule/SET_SCHEDULE_FORM', {})
+      this.$st.sendEv('定时任务', '添加')
     },
     onAddSubmit () {
       this.$refs.scheduleForm.validate(res => {
@@ -179,6 +180,7 @@ export default {
             })
         }
       })
+      this.$st.sendEv('定时任务', '提交')
     },
     isShowRun () {
     },
@@ -186,6 +188,7 @@ export default {
       this.$store.commit('schedule/SET_SCHEDULE_FORM', row)
       this.dialogVisible = true
       this.isEdit = true
+      this.$st.sendEv('定时任务', '修改', 'id', row._id)
     },
     onRemove (row) {
       this.$store.dispatch('schedule/removeSchedule', row._id)
@@ -195,6 +198,7 @@ export default {
             this.$message.success(`Schedule "${row.name}" has been removed`)
           }, 100)
         })
+      this.$st.sendEv('定时任务', '删除', 'id', row._id)
     },
     onCrawl () {
     }

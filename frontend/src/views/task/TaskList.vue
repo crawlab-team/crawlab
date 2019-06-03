@@ -3,10 +3,20 @@
     <!--filter-->
     <div class="filter">
       <div class="left">
-        <el-select class="filter-select" v-model="filter.node_id" :placeholder="$t('Node')" filterable clearable>
+        <el-select class="filter-select"
+                   v-model="filter.node_id"
+                   :placeholder="$t('Node')"
+                   filterable
+                   clearable
+                   @change="onSelectNode">
           <el-option v-for="op in nodeList" :key="op._id" :value="op._id" :label="op.name"></el-option>
         </el-select>
-        <el-select class="filter-select" v-model="filter.spider_id" :placeholder="$t('Spider')" filterable clearable>
+        <el-select class="filter-select"
+                   v-model="filter.spider_id"
+                   :placeholder="$t('Spider')"
+                   filterable
+                   clearable
+                   @change="onSelectSpider">
           <el-option v-for="op in spiderList" :key="op._id" :value="op._id" :label="op.name"></el-option>
         </el-select>
         <el-button type="success"
@@ -183,6 +193,13 @@ export default {
     },
     onRefresh () {
       this.$store.dispatch('task/getTaskList')
+      this.$st.sendEv('任务', '搜索')
+    },
+    onSelectNode () {
+      this.$st.sendEv('任务', '选择节点')
+    },
+    onSelectSpider () {
+      this.$st.sendEv('任务', '选择爬虫')
     },
     onRemove (row) {
       this.$confirm(this.$t('Are you sure to delete this task?'), this.$t('Notification'), {
@@ -197,16 +214,20 @@ export default {
               message: 'Deleted successfully'
             })
           })
+        this.$st.sendEv('任务', '删除', 'id', row._id)
       })
     },
     onView (row) {
       this.$router.push(`/tasks/${row._id}`)
+      this.$st.sendEv('任务', '搜索', 'id', row._id)
     },
     onClickSpider (row) {
       this.$router.push(`/spiders/${row.spider_id}`)
+      this.$st.sendEv('任务', '点击爬虫详情', 'id', row.spider_id)
     },
     onClickNode (row) {
       this.$router.push(`/nodes/${row.node_id}`)
+      this.$st.sendEv('任务', '点击节点详情', 'id', row.node_id)
     },
     onPageChange () {
       setTimeout(() => {

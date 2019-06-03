@@ -49,10 +49,11 @@ export default {
         name: '',
         value: ''
       })
-      console.log(this.spiderForm)
+      this.$st.sendEv('爬虫详情-环境', '添加')
     },
     deleteEnv (index) {
       this.spiderForm.envs.splice(index, 1)
+      this.$st.sendEv('爬虫详情-环境', '删除')
     },
     save () {
       this.$store.dispatch('spider/updateSpiderEnvs')
@@ -62,6 +63,7 @@ export default {
         .catch(error => {
           this.$message.error(error)
         })
+      this.$st.sendEv('爬虫详情-环境', '保存')
     }
   }
 }

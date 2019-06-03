@@ -123,8 +123,7 @@ export default {
     }
   },
   methods: {
-    onSearch (value) {
-      console.log(value)
+    onSearch () {
     },
     onAdd () {
       this.$store.commit('node/SET_NODE_FORM', [])
@@ -133,6 +132,7 @@ export default {
     },
     onRefresh () {
       this.$store.dispatch('node/getNodeList')
+      this.$st.sendEv('节点', '刷新')
     },
     onSubmit () {
       const vm = this
@@ -159,7 +159,6 @@ export default {
       this.dialogVisible = false
     },
     onEdit (row) {
-      console.log(row)
       this.isEditMode = true
       this.$store.commit('node/SET_NODE_FORM', row)
       this.dialogVisible = true
@@ -177,10 +176,13 @@ export default {
               message: 'Deleted successfully'
             })
           })
+        this.$st.sendEv('节点', '删除', 'id', row._id)
       })
     },
     onView (row) {
       this.$router.push(`/nodes/${row._id}`)
+
+      this.$st.sendEv('节点', '查看', 'id', row._id)
     },
     onPageChange () {
       this.$store.dispatch('node/getNodeList')
