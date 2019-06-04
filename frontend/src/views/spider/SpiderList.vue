@@ -220,7 +220,6 @@
 import {
   mapState
 } from 'vuex'
-import ElUploadDrag from 'element-ui/packages/upload/src/upload-dragger'
 
 export default {
   name: 'SpiderList',
@@ -269,6 +268,9 @@ export default {
             return d.site === this.filterSite
           }
           return true
+        })
+        .filter((d, index) => {
+          return (this.pagination.pageSize * (this.pagination.pageNum - 1)) <= index && (index < this.pagination.pageSize * this.pagination.pageNum)
         })
       // .filter(d => {
       //   if (!this.filter.keyword) return true
@@ -399,7 +401,7 @@ export default {
         })
     },
     onView (row) {
-      this.$router.push(`/spiders/${row._id}`)
+      this.$router.push('/spiders/' +  row._id)
       this.$st.sendEv('爬虫', '查看')
     },
     onPageChange () {
@@ -465,7 +467,7 @@ export default {
         page_size: 100
       }).then(response => {
         const data = response.data.items.map(d => {
-          d.value = `${d.name} | ${d.domain}`
+          d.value = d.name + ' | ' + d.domain
           return d
         })
         callback(data)
