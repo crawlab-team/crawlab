@@ -5,17 +5,25 @@
                :title="$t('Preview Results')"
                width="90%"
                :before-close="onDialogClose">
+      <el-table class="table-header" :data="[{}]" :show-header="false">
+        <el-table-column v-for="(f, index) in fields"
+                         :key="f.name + '-' + index"
+                         min-width="100px">
+          <template>
+            <el-input v-model="columnsDict[f.name]" size="mini" style="width: calc(100% - 15px)"></el-input>
+            <a href="javascript:" style="margin-left: 2px;" @click="onDeleteField(index)">X</a>
+            <!--<el-button size="mini" type="danger" icon="el-icon-delete" style="width:45px;margin-left:2px"></el-button>-->
+          </template>
+        </el-table-column>
+      </el-table>
       <el-table :data="previewCrawlData"
-                :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
+                :show-header="false"
                 border>
         <el-table-column v-for="(f, index) in fields"
                          :key="f.name + '-' + index"
                          :label="f.name"
                          min-width="100px">
-          <template slot="header" slot-scope="scope">
-            {{ span.column.label }}
-            <el-input v-model="scope.column.label" size="mini"></el-input>
-          </template>
+
           <template slot-scope="scope">
             {{scope.row[f.name] ? scope.row[f.name].trim() : ''}}
           </template>
@@ -138,7 +146,8 @@ export default {
       extractFieldsLoading: false,
       previewLoading: false,
       saveLoading: false,
-      dialogVisible: false
+      dialogVisible: false,
+      columnsDict: {}
     }
   },
   computed: {
@@ -193,6 +202,9 @@ export default {
     },
     onDialogClose () {
       this.dialogVisible = false
+      this.fields.forEach(f => {
+        f.name = this.columnsDict[f.name]
+      })
     },
     onPreview () {
       this.onSave()
@@ -200,6 +212,9 @@ export default {
           this.previewLoading = true
           this.$store.dispatch('spider/getPreviewCrawlData')
             .then(() => {
+              this.fields.forEach(f => {
+                this.columnsDict[f.name] = f.name
+              })
               this.dialogVisible = true
             })
             .catch(() => {
@@ -245,18 +260,8 @@ export default {
           this.$st.sendEv('爬虫详情-配置', '提取字段')
         })
     },
-    renderHeader (h, { column }) {
-      return h(
-        'el-input',
-        {
-          'v-model': 'column.label',
-          on: {
-            change: () => {
-            }
-          }
-        },
-        column.label
-      )
+    onDeleteField (index) {
+      this.fields.splice(index, 1)
     }
   },
   created () {
@@ -285,7 +290,7 @@ export default {
     }
 
     if (!this.spiderForm.crawl_type) this.$set(this.spiderForm, 'crawl_type', 'list')
-    if (!this.spiderForm.start_url) this.$set(this.spiderForm, 'start_url', 'http://example.com')
+    // if (!this.spiderForm.start_url) this.$set(this.spiderForm, 'start_url', 'http://example.com')
     if (!this.spiderForm.item_selector_type) this.$set(this.spiderForm, 'item_selector_type', 'css')
     if (!this.spiderForm.pagination_selector_type) this.$set(this.spiderForm, 'pagination_selector_type', 'css')
     if (this.spiderForm.obey_robots_txt === undefined) this.$set(this.spiderForm, 'obey_robots_txt', true)
@@ -318,5 +323,17 @@ export default {
   .title {
     color: #606266;
     font-size: 14px;
+  }
+
+  .el-table.table-header >>> td {
+    padding: 0;
+  }
+
+  .el-table.table-header >>> .cell {
+    padding: 0;
+  }
+
+  .el-table.table-header >>> .el-input .el-input__inner {
+    border-radius: 0;
   }
 </style>

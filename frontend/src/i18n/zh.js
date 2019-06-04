@@ -122,6 +122,8 @@ export default {
   'Query': '查询',
   'Extract Type': '提取类别',
   'CSS Selector': 'CSS选择器',
+  'CSS': 'CSS',
+  'XPath': 'Xpath',
   'Crawl Type': '抓取类别',
   'List Only': '仅列表',
   'Detail Only': '仅详情页',
