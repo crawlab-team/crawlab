@@ -81,9 +81,16 @@
                width="40%"
                :visible.sync="addCustomizedDialogVisible"
                :before-close="onAddCustomizedDialogClose">
-      <p>
-        {{$t('Please go to the source folder of your spiders, create a sub-folder and add your spider codes into it')}}
-      </p>
+      <el-form :model="spiderForm" ref="addConfigurableForm" inline-message>
+        <el-form-item :label="$t('Upload Zip File')" label-width="120px" name="site">
+          <el-upload
+            :action="$request.baseUrl + '/spiders/manage/upload'"
+            :on-success="onUploadSuccess"
+            :file-list="fileList">
+            <el-button type="primary" icon="el-icon-upload">{{$t('Upload')}}</el-button>
+          </el-upload>
+        </el-form-item>
+      </el-form>
     </el-dialog>
     <!--./customized spider dialog-->
 
@@ -244,7 +251,8 @@ export default {
       ],
       spiderFormRules: {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
-      }
+      },
+      fileList: []
     }
   },
   computed: {
@@ -260,6 +268,9 @@ export default {
             return d.site === this.filterSite
           }
           return true
+        })
+        .filter((d, index) => {
+          return (this.pagination.pageSize * (this.pagination.pageNum - 1)) <= index && (index < this.pagination.pageSize * this.pagination.pageNum)
         })
       // .filter(d => {
       //   if (!this.filter.keyword) return true
@@ -390,7 +401,7 @@ export default {
         })
     },
     onView (row) {
-      this.$router.push(`/spiders/${row._id}`)
+      this.$router.push('/spiders/' + row._id)
       this.$st.sendEv('爬虫', '查看')
     },
     onPageChange () {
@@ -456,7 +467,7 @@ export default {
         page_size: 100
       }).then(response => {
         const data = response.data.items.map(d => {
-          d.value = `${d.name} | ${d.domain}`
+          d.value = d.name + ' | ' + d.domain
           return d
         })
         callback(data)
@@ -480,6 +491,18 @@ export default {
             })
         }
       })
+    },
+    onUploadSuccess () {
+      // clear fileList
+      this.fileList = []
+
+      // fetch spider list
+      setTimeout(() => {
+        this.$store.dispatch('spider/getSpiderList')
+      }, 500)
+
+      // close popup
+      this.addCustomizedDialogVisible = false
     }
   },
   created () {

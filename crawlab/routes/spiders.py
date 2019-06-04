@@ -103,6 +103,9 @@ class SpiderApi(BaseApi):
 
         # whether to obey robots.txt
         ('obey_robots_txt', bool),
+
+        # item threshold to filter out non-relevant list items
+        ('item_threshold', int),
     )
 
     def get(self, id=None, action=None):
@@ -371,7 +374,6 @@ class SpiderApi(BaseApi):
 
         # make source / destination
         src = os.path.join(dir_path, os.listdir(dir_path)[0])
-        # src = dir_path
         dst = os.path.join(PROJECT_DEPLOY_FILE_FOLDER, str(spider.get('_id')))
 
         # logging info
@@ -509,13 +511,24 @@ class SpiderApi(BaseApi):
         # get html parse tree
         sel = etree.HTML(r.content)
 
+        # remove unnecessary tags
+        unnecessary_tags = [
+            'script'
+        ]
+        for t in unnecessary_tags:
+            etree.strip_tags(sel, t)
+
         return sel
+
+    @staticmethod
+    def _get_children(sel):
+        return [tag for tag in sel.getchildren() if type(tag) != etree._Comment]
 
     @staticmethod
     def _get_text_child_tags(sel):
         tags = []
         for tag in sel.iter():
-            if tag.text is not None and tag.text.strip() != '':
+            if type(tag) != etree._Comment and tag.text is not None and tag.text.strip() != '':
                 tags.append(tag)
         return tags
 
@@ -529,6 +542,19 @@ class SpiderApi(BaseApi):
                     tags.append(tag)
 
         return tags
+
+    @staticmethod
+    def _get_next_page_tag(sel):
+        next_page_text_list = [
+            '下一页',
+            '下页',
+            'next page',
+            'next',
+        ]
+        for tag in sel.iter():
+            if tag.text is not None and tag.text.lower().strip() in next_page_text_list:
+                return tag
+        return None
 
     def preview_crawl(self, id: str):
         spider = db_manager.get(col_name='spiders', id=id)
@@ -597,11 +623,11 @@ class SpiderApi(BaseApi):
             return sel
 
         list_tag_list = []
-        threshold = 10
+        threshold = spider.get('item_threshold') or 10
         # iterate all child nodes in a top-down direction
         for tag in sel.iter():
             # get child tags
-            child_tags = tag.getchildren()
+            child_tags = self._get_children(tag)
 
             if len(child_tags) < threshold:
                 # if number of child tags is below threshold, skip
@@ -618,11 +644,10 @@ class SpiderApi(BaseApi):
                 list_tag_list.append(tag)
 
         # find the list tag with the most child text tags
-        _tag_list = []
         max_tag = None
         max_num = 0
         for tag in list_tag_list:
-            _child_text_tags = self._get_text_child_tags(tag[0])
+            _child_text_tags = self._get_text_child_tags(self._get_children(tag)[0])
             if len(_child_text_tags) > max_num:
                 max_tag = tag
                 max_num = len(_child_text_tags)
@@ -630,18 +655,26 @@ class SpiderApi(BaseApi):
         # get list item selector
         item_selector = None
         if max_tag.get('id') is not None:
-            item_selector = f'#{max_tag.get("id")} > {max_tag.getchildren()[0].tag}'
+            item_selector = f'#{max_tag.get("id")} > {self._get_children(max_tag)[0].tag}'
         elif max_tag.get('class') is not None:
-            if len(sel.cssselect(f'.{max_tag.get("class")}')) == 1:
-                item_selector = f'.{max_tag.get("class")} > {max_tag.getchildren()[0].tag}'
+            cls_str = '.'.join([x for x in max_tag.get("class").split(' ') if x != ''])
+            if len(sel.cssselect(f'.{cls_str}')) == 1:
+                item_selector = f'.{cls_str} > {self._get_children(max_tag)[0].tag}'
 
         # get list fields
         fields = []
         if item_selector is not None:
-            for i, tag in enumerate(self._get_text_child_tags(max_tag[0])):
-                if tag.get('class') is not None:
+            first_tag = self._get_children(max_tag)[0]
+            for i, tag in enumerate(self._get_text_child_tags(first_tag)):
+                if len(first_tag.cssselect(f'{tag.tag}')) == 1:
+                    fields.append({
+                        'name': f'field{i + 1}',
+                        'type': 'css',
+                        'extract_type': 'text',
+                        'query': f'{tag.tag}',
+                    })
+                elif tag.get('class') is not None:
                     cls_str = '.'.join([x for x in tag.get("class").split(' ') if x != ''])
-                    # print(tag.tag + '.' + cls_str)
                     if len(tag.cssselect(f'{tag.tag}.{cls_str}')) == 1:
                         fields.append({
                             'name': f'field{i + 1}',
@@ -650,7 +683,7 @@ class SpiderApi(BaseApi):
                             'query': f'{tag.tag}.{cls_str}',
                         })
 
-            for i, tag in enumerate(self._get_a_child_tags(max_tag[0])):
+            for i, tag in enumerate(self._get_a_child_tags(self._get_children(max_tag)[0])):
                 # if the tag is <a...></a>, extract its href
                 if tag.get('class') is not None:
                     cls_str = '.'.join([x for x in tag.get("class").split(' ') if x != ''])
@@ -662,9 +695,19 @@ class SpiderApi(BaseApi):
                         'query': f'{tag.tag}.{cls_str}',
                     })
 
+        # get pagination tag
+        pagination_selector = None
+        pagination_tag = self._get_next_page_tag(sel)
+        if pagination_tag is not None:
+            if pagination_tag.get('id') is not None:
+                pagination_selector = f'#{pagination_tag.get("id")}'
+            elif pagination_tag.get('class') is not None and len(sel.cssselect(f'.{pagination_tag.get("id")}')) == 1:
+                pagination_selector = f'.{pagination_tag.get("id")}'
+
         return {
             'status': 'ok',
             'item_selector': item_selector,
+            'pagination_selector': pagination_selector,
             'fields': fields
         }
 
@@ -796,6 +839,38 @@ class SpiderManageApi(Resource):
                     spider_id,
                     node_id,
                 ), files=files)
+
+        return {
+            'status': 'ok',
+            'message': 'success'
+        }
+
+    def upload(self):
+        f = request.files['file']
+
+        if get_file_suffix(f.filename) != 'zip':
+            return {
+                       'status': 'ok',
+                       'error': 'file type mismatch'
+                   }, 400
+
+        # save zip file on temp folder
+        file_path = '%s/%s' % (PROJECT_TMP_FOLDER, f.filename)
+        with open(file_path, 'wb') as fw:
+            fw.write(f.stream.read())
+
+        # unzip zip file
+        dir_path = file_path.replace('.zip', '')
+        if os.path.exists(dir_path):
+            shutil.rmtree(dir_path)
+        unzip_file(file_path, dir_path)
+
+        # copy to source folder
+        output_path = os.path.join(PROJECT_SOURCE_FILE_FOLDER, f.filename.replace('.zip', ''))
+        print(output_path)
+        if os.path.exists(output_path):
+            shutil.rmtree(output_path)
+        shutil.copytree(dir_path, output_path)
 
         return {
             'status': 'ok',

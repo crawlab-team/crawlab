@@ -1,6 +1,11 @@
 # 0.2.3 (unreleased)
 ### Features / Enhancement
-- **CLI**. Allow user to use command-line interface to execute Crawlab programs.
+- **CLI**: Allow user to use command-line interface to execute Crawlab programs.
+- **Upload Spider**: Allow user to upload Customized Spider to Crawlab.
+- **Edit Fields on Preview**: Allow user to edit fields when previewing data in Configurable Spider.
+
+### Bugs ###
+- **Spiders Pagination**
 
 # 0.2.2 (2019-05-30)
 ### Features / Enhancement

@@ -33,13 +33,15 @@ Vue.use(ElementUI, { locale })
 Vue.config.productionTip = false
 
 // 百度统计
-window._hmt = window._hmt || [];
-(function () {
-  let hm = document.createElement('script')
-  hm.src = 'https://hm.baidu.com/hm.js?c35e3a563a06caee2524902c81975add'
-  let s = document.getElementsByTagName('script')[0]
-  s.parentNode.insertBefore(hm, s)
-})()
+if (localStorage.getItem('useStats') !== '0') {
+  window._hmt = window._hmt || [];
+  (function () {
+    let hm = document.createElement('script')
+    hm.src = 'https://hm.baidu.com/hm.js?c35e3a563a06caee2524902c81975add'
+    let s = document.getElementsByTagName('script')[0]
+    s.parentNode.insertBefore(hm, s)
+  })()
+}
 
 // inject request api
 Vue.prototype.$request = request

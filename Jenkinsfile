@@ -50,9 +50,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying....'
-                sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 restart app"
-                sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 restart run_flower"
-                sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 restart run_worker"
+                sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 reload all"
             }
         }
     }

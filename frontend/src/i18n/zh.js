@@ -58,6 +58,9 @@ export default {
   'Extract Fields': '提取字段',
   'Download': '下载',
   'Download CSV': '下载CSV',
+  'Upload Zip File': '上传Zip文件',
+  'Upload': '上传',
+  'Item Threshold': '子项阈值',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -120,6 +123,8 @@ export default {
   'Query': '查询',
   'Extract Type': '提取类别',
   'CSS Selector': 'CSS选择器',
+  'CSS': 'CSS',
+  'XPath': 'Xpath',
   'Crawl Type': '抓取类别',
   'List Only': '仅列表',
   'Detail Only': '仅详情页',
