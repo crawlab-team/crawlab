@@ -401,7 +401,7 @@ export default {
         })
     },
     onView (row) {
-      this.$router.push('/spiders/' +  row._id)
+      this.$router.push('/spiders/' + row._id)
       this.$st.sendEv('爬虫', '查看')
     },
     onPageChange () {
