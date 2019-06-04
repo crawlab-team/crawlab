@@ -36,24 +36,18 @@ FLASK_PORT = 8000
 启动后端API，也就是一个Flask App，可以直接启动，或者用gunicorn代替。
 
 ```bash
-python app.py
-```
-
-启动Flower服务（抱歉目前集成Flower到App服务中，必须单独启动来获取节点信息，后面的版本不需要这个操作）。
-
-```bash
-python ./bin/run_flower.py
+python manage.py app
 ```
 
 启动本地Worker。在其他节点中如果想只是想执行任务的话，只需要启动这一个服务就可以了。
 
 ```bash
-python ./bin/run_worker.py
+python manage.py worker
 ```
 
 启动前端服务器。
 
 ```bash
-cd ../frontend
+cd frontend
 npm run serve
 ```
