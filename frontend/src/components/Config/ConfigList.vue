@@ -25,7 +25,7 @@
                          min-width="100px">
 
           <template slot-scope="scope">
-            {{scope.row[f.name] ? scope.row[f.name].trim() : ''}}
+            {{getDisplayStr(scope.row[f.name])}}
           </template>
         </el-table-column>
       </el-table>
@@ -34,8 +34,8 @@
 
     <!--config detail-->
     <el-row>
-      <el-col :span="11" :offset="1">
-        <el-form label-width="150px">
+      <el-form label-width="150px" ref="form" :model="spiderForm">
+        <el-col :span="11" :offset="1">
           <el-form-item :label="$t('Crawl Type')">
             <el-button-group>
               <el-button v-for="type in crawlTypeList"
@@ -46,7 +46,7 @@
               </el-button>
             </el-button-group>
           </el-form-item>
-          <el-form-item :label="$t('Start URL')" required>
+          <el-form-item :label="$t('Start URL')" prop="start_url" required>
             <el-input v-model="spiderForm.start_url" :placeholder="$t('Start URL')"></el-input>
           </el-form-item>
           <el-form-item :label="$t('Obey robots.txt')">
@@ -55,10 +55,8 @@
           <!--<el-form-item :label="$t('URL Pattern')">-->
           <!--<el-input v-model="spiderForm.url_pattern" :placeholder="$t('URL Pattern')"></el-input>-->
           <!--</el-form-item>-->
-        </el-form>
-      </el-col>
-      <el-col :span="11" :offset="1">
-        <el-form label-width="150px">
+        </el-col>
+        <el-col :span="11" :offset="1">
           <el-form-item :label="$t('Item Selector')"
                         v-if="['list','list-detail'].includes(spiderForm.crawl_type)">
             <el-select style="width: 35%;margin-right: 10px;"
@@ -85,8 +83,12 @@
                       :placeholder="$t('Pagination Selector')">
             </el-input>
           </el-form-item>
-        </el-form>
-      </el-col>
+          <el-form-item :label="$t('Item Threshold')"
+                        v-if="['list','list-detail'].includes(spiderForm.crawl_type)">
+            <el-input-number v-model="spiderForm.item_threshold"/>
+          </el-form-item>
+        </el-col>
+      </el-form>
     </el-row>
     <!--./config detail-->
 
@@ -207,24 +209,28 @@ export default {
       })
     },
     onPreview () {
-      this.onSave()
-        .then(() => {
-          this.previewLoading = true
-          this.$store.dispatch('spider/getPreviewCrawlData')
+      this.$refs['form'].validate(res => {
+        if (res) {
+          this.onSave()
             .then(() => {
-              this.fields.forEach(f => {
-                this.columnsDict[f.name] = f.name
-              })
-              this.dialogVisible = true
+              this.previewLoading = true
+              this.$store.dispatch('spider/getPreviewCrawlData')
+                .then(() => {
+                  this.fields.forEach(f => {
+                    this.columnsDict[f.name] = f.name
+                  })
+                  this.dialogVisible = true
+                })
+                .catch(() => {
+                  this.$message.error(this.$t('Something wrong happened'))
+                })
+                .finally(() => {
+                  this.previewLoading = false
+                })
+              this.$st.sendEv('爬虫详情-配置', '预览')
             })
-            .catch(() => {
-              this.$message.error(this.$t('Something wrong happened'))
-            })
-            .finally(() => {
-              this.previewLoading = false
-            })
-          this.$st.sendEv('爬虫详情-配置', '预览')
-        })
+        }
+      })
     },
     onCrawl () {
       this.$confirm(this.$t('Are you sure to run this spider?'), this.$t('Notification'), {
@@ -240,28 +246,42 @@ export default {
         })
     },
     onExtractFields () {
-      this.onSave()
-        .then(() => {
-          this.extractFieldsLoading = true
-          this.$store.dispatch('spider/extractFields')
-            .then(response => {
-              if (response.data.item_selector) {
-                this.$set(this.spiderForm, 'item_selector', response.data.item_selector)
-                this.$set(this.spiderForm, 'item_selector_type', 'css')
-              }
+      this.$refs['form'].validate(res => {
+        if (res) {
+          this.onSave()
+            .then(() => {
+              this.extractFieldsLoading = true
+              this.$store.dispatch('spider/extractFields')
+                .then(response => {
+                  if (response.data.item_selector) {
+                    this.$set(this.spiderForm, 'item_selector', response.data.item_selector)
+                    this.$set(this.spiderForm, 'item_selector_type', 'css')
+                  }
 
-              if (response.data.fields && response.data.fields.length) {
-                this.spiderForm.fields = response.data.fields
-              }
+                  if (response.data.fields && response.data.fields.length) {
+                    this.spiderForm.fields = response.data.fields
+                  }
+
+                  if (response.data.pagination_selector) {
+                    this.spiderForm.pagination_selector = response.data.pagination_selector
+                  }
+                })
+                .finally(() => {
+                  this.extractFieldsLoading = false
+                })
+              this.$st.sendEv('爬虫详情-配置', '提取字段')
             })
-            .finally(() => {
-              this.extractFieldsLoading = false
-            })
-          this.$st.sendEv('爬虫详情-配置', '提取字段')
-        })
+        }
+      })
     },
     onDeleteField (index) {
       this.fields.splice(index, 1)
+    },
+    getDisplayStr (value) {
+      if (!value) return value
+      value = value.trim()
+      if (value.length > 20) return value.substr(0, 20) + '...'
+      return value
     }
   },
   created () {
@@ -293,7 +313,8 @@ export default {
     // if (!this.spiderForm.start_url) this.$set(this.spiderForm, 'start_url', 'http://example.com')
     if (!this.spiderForm.item_selector_type) this.$set(this.spiderForm, 'item_selector_type', 'css')
     if (!this.spiderForm.pagination_selector_type) this.$set(this.spiderForm, 'pagination_selector_type', 'css')
-    if (this.spiderForm.obey_robots_txt === undefined) this.$set(this.spiderForm, 'obey_robots_txt', true)
+    if (this.spiderForm.obey_robots_txt == null) this.$set(this.spiderForm, 'obey_robots_txt', true)
+    if (this.spiderForm.item_threshold == null) this.$set(this.spiderForm, 'item_threshold', 10)
   }
 }
 </script>

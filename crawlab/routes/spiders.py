@@ -103,6 +103,9 @@ class SpiderApi(BaseApi):
 
         # whether to obey robots.txt
         ('obey_robots_txt', bool),
+
+        # item threshold to filter out non-relevant list items
+        ('item_threshold', int),
     )
 
     def get(self, id=None, action=None):
@@ -508,6 +511,13 @@ class SpiderApi(BaseApi):
         # get html parse tree
         sel = etree.HTML(r.content)
 
+        # remove unnecessary tags
+        unnecessary_tags = [
+            'script'
+        ]
+        for t in unnecessary_tags:
+            etree.strip_tags(sel, t)
+
         return sel
 
     @staticmethod
@@ -613,11 +623,11 @@ class SpiderApi(BaseApi):
             return sel
 
         list_tag_list = []
-        threshold = 10
+        threshold = spider.get('item_threshold') or 10
         # iterate all child nodes in a top-down direction
         for tag in sel.iter():
             # get child tags
-            child_tags = [t for t in tag.getchildren() if type(t) != etree._Comment]
+            child_tags = self._get_children(tag)
 
             if len(child_tags) < threshold:
                 # if number of child tags is below threshold, skip
@@ -634,7 +644,6 @@ class SpiderApi(BaseApi):
                 list_tag_list.append(tag)
 
         # find the list tag with the most child text tags
-        _tag_list = []
         max_tag = None
         max_num = 0
         for tag in list_tag_list:
@@ -648,8 +657,9 @@ class SpiderApi(BaseApi):
         if max_tag.get('id') is not None:
             item_selector = f'#{max_tag.get("id")} > {self._get_children(max_tag)[0].tag}'
         elif max_tag.get('class') is not None:
-            if len(sel.cssselect(f'.{max_tag.get("class")}')) == 1:
-                item_selector = f'.{max_tag.get("class")} > {self._get_children(max_tag)[0].tag}'
+            cls_str = '.'.join([x for x in max_tag.get("class").split(' ') if x != ''])
+            if len(sel.cssselect(f'.{cls_str}')) == 1:
+                item_selector = f'.{cls_str} > {self._get_children(max_tag)[0].tag}'
 
         # get list fields
         fields = []
@@ -665,7 +675,6 @@ class SpiderApi(BaseApi):
                     })
                 elif tag.get('class') is not None:
                     cls_str = '.'.join([x for x in tag.get("class").split(' ') if x != ''])
-                    # print(tag.tag + '.' + cls_str)
                     if len(tag.cssselect(f'{tag.tag}.{cls_str}')) == 1:
                         fields.append({
                             'name': f'field{i + 1}',

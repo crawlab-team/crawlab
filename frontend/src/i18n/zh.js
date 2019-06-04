@@ -60,6 +60,7 @@ export default {
   'Download CSV': '下载CSV',
   'Upload Zip File': '上传Zip文件',
   'Upload': '上传',
+  'Item Threshold': '子项阈值',
 
   // 主页
   'Total Tasks': '总任务数',

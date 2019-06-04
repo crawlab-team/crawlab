@@ -110,7 +110,8 @@ const actions = {
       item_selector_type: state.spiderForm.item_selector_type,
       pagination_selector: state.spiderForm.pagination_selector,
       pagination_selector_type: state.spiderForm.pagination_selector_type,
-      obey_robots_txt: state.spiderForm.obey_robots_txt
+      obey_robots_txt: state.spiderForm.obey_robots_txt,
+      item_threshold: state.spiderForm.item_threshold
     })
       .then(() => {
         dispatch('getSpiderList')
