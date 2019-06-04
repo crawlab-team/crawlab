@@ -50,7 +50,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying....'
-                sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 restart app"
+                sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 delete app"
+                sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 start ${ROOT_DIR}/crawlab/app.py"
                 sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 restart run_flower"
                 sh "${NODE_HOME}/bin/node ${NODE_HOME}/bin/pm2 restart run_worker"
             }
