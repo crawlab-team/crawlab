@@ -497,7 +497,9 @@ export default {
       this.fileList = []
 
       // fetch spider list
-      this.$store.dispatch('spider/getSpiderList')
+      setTimeout(() => {
+        this.$store.dispatch('spider/getSpiderList')
+      }, 500)
 
       // close popup
       this.addCustomizedDialogVisible = false
