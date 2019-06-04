@@ -837,8 +837,7 @@ class SpiderManageApi(Resource):
         }
 
     def upload(self):
-        args = self.parser.parse_args()
-        f = request.files[0]
+        f = request.files['file']
 
         if get_file_suffix(f.filename) != 'zip':
             return {
@@ -856,3 +855,15 @@ class SpiderManageApi(Resource):
         if os.path.exists(dir_path):
             shutil.rmtree(dir_path)
         unzip_file(file_path, dir_path)
+
+        # copy to source folder
+        output_path = os.path.join(PROJECT_SOURCE_FILE_FOLDER, f.filename.replace('.zip', ''))
+        print(output_path)
+        if os.path.exists(output_path):
+            shutil.rmtree(output_path)
+        shutil.copytree(dir_path, output_path)
+
+        return {
+            'status': 'ok',
+            'message': 'success'
+        }

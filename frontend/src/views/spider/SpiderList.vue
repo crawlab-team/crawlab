@@ -87,7 +87,7 @@
             :action="$request.baseUrl + '/spiders/manage/upload'"
             :on-success="onUploadSuccess"
             :file-list="fileList">
-            <el-button size="small" type="primary">{{$t('Upload')}}</el-button>
+            <el-button type="primary" icon="el-icon-upload">{{$t('Upload')}}</el-button>
           </el-upload>
         </el-form-item>
       </el-form>
@@ -493,6 +493,14 @@ export default {
       })
     },
     onUploadSuccess () {
+      // clear fileList
+      this.fileList = []
+
+      // fetch spider list
+      this.$store.dispatch('spider/getSpiderList')
+
+      // close popup
+      this.addCustomizedDialogVisible = false
     }
   },
   created () {
