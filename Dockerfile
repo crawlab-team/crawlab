@@ -2,7 +2,7 @@
 FROM ubuntu:latest
 
 # set as non-interactive
-RUN DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND noninteractive
 
 # source files
 ADD . /opt/crawlab
