@@ -6,7 +6,7 @@ ADD . /opt/crawlab
 
 # install python
 RUN apt-get update
-RUN apt-get install -y python3 python3-pip net-tools iputils-ping git nginx
+RUN apt-get install -y python3 python3-pip net-tools iputils-ping git nginx curl
 
 # soft link
 RUN ln -s /usr/bin/pip3 /usr/local/bin/pip
