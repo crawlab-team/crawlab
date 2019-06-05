@@ -14,7 +14,7 @@ RUN ln -s /usr/bin/python3 /usr/local/bin/python
 
 # install backend
 RUN pip install -U setuptools
-RUN pip install -r /opt/crawlab/crawlab/requirements.txt
+RUN pip install -r /opt/crawlab/crawlab/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # install nvm
 RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
