@@ -1,6 +1,9 @@
 # images
 FROM ubuntu:latest
 
+# set as non-interactive
+RUN DEBIAN_FRONTEND=noninteractive
+
 # source files
 ADD . /opt/crawlab
 
@@ -13,6 +16,7 @@ RUN ln -s /usr/bin/pip3 /usr/local/bin/pip
 RUN ln -s /usr/bin/python3 /usr/local/bin/python
 
 # install mongodb
+RUN echo "Asia/Shanghai" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
 RUN echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
 RUN apt-get update
