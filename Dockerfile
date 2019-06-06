@@ -28,7 +28,7 @@ RUN apt-get update
 RUN apt-get install -y mongodb-org
 
 # install backend
-RUN pip install -U setuptools
+RUN pip install -U setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple
 RUN pip install -r /opt/crawlab/crawlab/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # install nvm
