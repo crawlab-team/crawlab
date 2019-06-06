@@ -37,8 +37,8 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.24.0/install.sh | b
     && nvm install v$NODE_VERSION \
     && nvm use v$NODE_VERSION \
     && nvm alias default v$NODE_VERSION
-ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules  
-ENV PATH      $NVM_DIR/v$NODE_VERSION/bin:$PATH
+RUN export NODE_PATH=$NVM_DIR/v$NODE_VERSION/lib/node_modules  
+RUN export PATH=$NVM_DIR/v$NODE_VERSION/bin:$PATH
 
 # install frontend
 RUN npm install -g yarn pm2
