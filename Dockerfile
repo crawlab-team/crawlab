@@ -33,7 +33,7 @@ RUN pip install -r /opt/crawlab/crawlab/requirements.txt -i https://pypi.tuna.ts
 
 # install nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.24.0/install.sh | bash \  
-    && . $NVM_DIR/nvm.sh \
+    && bash $NVM_DIR/nvm.sh \
     && nvm install v$NODE_VERSION \
     && nvm use v$NODE_VERSION \
     && nvm alias default v$NODE_VERSION
