@@ -509,7 +509,7 @@ class SpiderApi(BaseApi):
                    }, r.status_code
 
         # get html parse tree
-        sel = etree.HTML(r.content)
+        sel = etree.HTML(r.content.decode('utf-8'))
 
         # remove unnecessary tags
         unnecessary_tags = [
