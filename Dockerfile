@@ -4,6 +4,11 @@ FROM ubuntu:latest
 # set as non-interactive
 ENV DEBIAN_FRONTEND noninteractive
 
+# environment variables
+ENV NVM_DIR /usr/local/nvm  
+ENV NODE_VERSION 8.12
+ENV WORK_DIR /opt/crawlab
+
 # source files
 ADD . /opt/crawlab
 
@@ -27,32 +32,34 @@ RUN pip install -U setuptools
 RUN pip install -r /opt/crawlab/crawlab/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # install nvm
-#RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
-#RUN export NVM_DIR="$HOME/.nvm"
-#RUN [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-#RUN nvm install 8.12
-#RUN nvm use 8.12
+RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.24.0/install.sh | bash \  
+    && source $NVM_DIR/nvm.sh \
+    && nvm install v$NODE_VERSION \
+    && nvm use v$NODE_VERSION \
+    && nvm alias default v$NODE_VERSION
 
 # install frontend
-WORKDIR /opt/crawlab/frontend
-#RUN npm install -g yarn pm2
-#RUN yarn install
+RUN npm install -g yarn pm2
+RUN cd /opt/crawlab/frontend && yarn install
 
 # nginx config & start frontend
-RUN cp /opt/crawlab/crawlab.conf /etc/nginx/conf.d
+RUN cp $WORK_DIR/crawlab.conf /etc/nginx/conf.d
 RUN service nginx reload
-
-# start backend
-WORKDIR /opt/crawlab/crawlab
-CMD python app.py 
-CMD python flower.py 
-CMD python worker.py 
-#CMD pm2 start app.py
-#CMD pm2 start flower.py
-#CMD pm2 start worker.py
 
 # start mongodb
 CMD mongod
 
 # start redis
 CMD redis-server
+
+# start backend
+WORKDIR /opt/crawlab/crawlab
+CMD python $WORK_DIR/crawlab/app.py 
+CMD python $WORK_DIR/crawlab/flower.py 
+CMD python $WORK_DIR/crawlab/worker.py 
+#CMD pm2 start $WORK_DIR/crawlab/app.py 
+#CMD pm2 start $WORK_DIR/crawlab/flower.py 
+#CMD pm2 start $WORK_DIR/crawlab/worker.py 
+
+EXPOSE 8080
+EXPOSE 8000
