@@ -26,8 +26,8 @@ ENV NODE_PATH $NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 # install frontend
-RUN npm install -g yarn pm2
-RUN cd /opt/crawlab/frontend && yarn install
+RUN npm install -g yarn pm2 --registry=https://registry.npm.taobao.org
+RUN cd /opt/crawlab/frontend && yarn install --registry=https://registry.npm.taobao.org
 
 # install python
 RUN apt-get install -y python3 python3-pip net-tools iputils-ping nginx ntp
