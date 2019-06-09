@@ -73,7 +73,10 @@ def get_next_url(response):
         if next_url is not None:
             if not next_url.startswith('http') and not next_url.startswith('//'):
                 u = urlparse(response.url)
-                next_url = f'{u.scheme}://{u.netloc}{next_url}'
+                if next_url.startswith('/'):
+                    next_url = f'{u.scheme}://{u.netloc}{next_url}'
+                else:
+                    next_url = f'{u.scheme}://{u.netloc}{u.path}/{next_url}'
                 return next_url
     return None
 
