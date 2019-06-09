@@ -32,6 +32,17 @@ RUN cd /opt/crawlab/frontend && yarn install --registry=https://registry.npm.tao
 # install python
 RUN apt-get install -y python3 python3-pip net-tools iputils-ping nginx ntp
 
+# install redis
+RUN apt-get install redis-server
+RUN service redis-server start
+
+# install mongodb
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
+RUN echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.0.list
+RUN apt-get update
+RUN apt-get install -y mongodb-org
+RUN service mongod start
+
 # python soft link
 RUN ln -s /usr/bin/pip3 /usr/local/bin/pip
 RUN ln -s /usr/bin/python3 /usr/local/bin/python
@@ -46,7 +57,9 @@ RUN service nginx reload
 
 # start backend
 WORKDIR /opt/crawlab/crawlab
-ENTRYPOINT python $WORK_DIR/manage.py 
+ENTRYPOINT cd /opt/crawlab/crawlab/frontend \
+	&& npm run build:prod \
+	&& python $WORK_DIR/manage.py 
 
 EXPOSE 8080
 EXPOSE 8000
