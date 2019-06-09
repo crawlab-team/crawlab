@@ -16,6 +16,9 @@ ENV WORK_DIR /opt/crawlab
 RUN apt-get update
 RUN apt-get install -y curl git
 
+# install python
+RUN apt-get install -y python3 python3-pip net-tools iputils-ping ntp
+
 # install nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.24.0/install.sh | bash \  
     && . $NVM_DIR/nvm.sh \
@@ -29,8 +32,8 @@ ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 RUN npm install -g yarn pm2 --registry=https://registry.npm.taobao.org
 RUN cd /opt/crawlab/frontend && yarn install --registry=https://registry.npm.taobao.org
 
-# install python
-RUN apt-get install -y python3 python3-pip net-tools iputils-ping nginx ntp
+# install nginx 
+RUN apt-get install -y nginx
 
 # install redis
 RUN apt-get install redis-server
