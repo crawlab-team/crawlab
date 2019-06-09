@@ -62,7 +62,7 @@ RUN service nginx reload
 WORKDIR /opt/crawlab/crawlab
 ENTRYPOINT cd /opt/crawlab/crawlab/frontend \
 	&& npm run build:prod \
-	&& python $WORK_DIR/manage.py 
+	&& python3 $WORK_DIR/manage.py 
 
 EXPOSE 8080
 EXPOSE 8000
