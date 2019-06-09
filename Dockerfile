@@ -36,7 +36,7 @@ RUN cd /opt/crawlab/frontend && yarn install --registry=https://registry.npm.tao
 RUN apt-get install -y nginx
 
 # install redis
-RUN apt-get install redis-server
+RUN apt-get install -y redis-server
 RUN service redis-server start
 
 # install mongodb
