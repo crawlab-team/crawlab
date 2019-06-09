@@ -12,9 +12,9 @@ ENV NVM_DIR /usr/local/nvm
 ENV NODE_VERSION 8.12.0
 ENV WORK_DIR /opt/crawlab
 
-# install curl git
+# install pkg
 RUN apt-get update
-RUN apt-get install -y curl git
+RUN apt-get install -y curl git net-tools iputils-ping ntp
 
 # install mongodb
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
@@ -24,7 +24,7 @@ RUN apt-get install -y mongodb-org
 RUN service mongod start
 
 # install python
-RUN apt-get install -y python python3 python3-pip net-tools iputils-ping ntp
+RUN apt-get install -y python python3 python3-pip 
 
 # install nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.24.0/install.sh | bash \  
