@@ -41,8 +41,8 @@ RUN export NODE_PATH=$NVM_DIR/v$NODE_VERSION/lib/node_modules
 RUN export PATH=$NVM_DIR/v$NODE_VERSION/bin:$PATH
 
 # install frontend
-RUN npm install -g yarn pm2
-RUN cd /opt/crawlab/frontend && yarn install
+RUN $NVM_DIR/v$NODE_VERSION/bin/npm install -g yarn pm2
+RUN cd /opt/crawlab/frontend && $NVM_DIR/v$NODE_VERSION/bin/yarn install
 
 # nginx config & start frontend
 RUN cp $WORK_DIR/crawlab.conf /etc/nginx/conf.d
