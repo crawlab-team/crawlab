@@ -60,7 +60,7 @@ RUN service nginx reload
 
 # start backend
 WORKDIR /opt/crawlab/crawlab
-ENTRYPOINT cd /opt/crawlab/crawlab/frontend \
+ENTRYPOINT cd /opt/crawlab/frontend \
 	&& npm run build:prod \
 	&& python3 $WORK_DIR/manage.py 
 
