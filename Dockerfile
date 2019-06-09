@@ -14,18 +14,11 @@ ADD . /opt/crawlab
 
 # install python
 RUN apt-get update
-RUN apt-get install -y python3 python3-pip net-tools iputils-ping redis-server git nginx ntp curl
+RUN apt-get install -y python3 python3-pip net-tools iputils-ping git nginx ntp curl
 
 # python soft link
 RUN ln -s /usr/bin/pip3 /usr/local/bin/pip
 RUN ln -s /usr/bin/python3 /usr/local/bin/python
-
-# install mongodb
-RUN echo "Asia/Shanghai" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
-RUN echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
-RUN apt-get update
-RUN apt-get install -y mongodb-org
 
 # install backend
 RUN pip install -U setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple
@@ -47,12 +40,6 @@ RUN cd /opt/crawlab/frontend && $NVM_DIR/v$NODE_VERSION/bin/yarn install
 # nginx config & start frontend
 RUN cp $WORK_DIR/crawlab.conf /etc/nginx/conf.d
 RUN service nginx reload
-
-# start mongodb
-CMD mongod
-
-# start redis
-CMD redis-server
 
 # start backend
 WORKDIR /opt/crawlab/crawlab

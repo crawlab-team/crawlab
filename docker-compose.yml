@@ -1,11 +1,11 @@
 version: '3.3' # 表示该 Docker-Compose 文件使用的是 Version 2 file
 services:
-  web:  # 指定服务名称
+  app:  # 指定服务名称
     build: .  # 指定 Dockerfile 所在路径
     ports:    # 指定端口映射
       - "5001:5000"
   task:
-    image: crawlab:v3
+    image: crawlab:latest
   db:
     image: mongo
     restart: always
