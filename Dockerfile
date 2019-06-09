@@ -1,6 +1,9 @@
 # images
 FROM ubuntu:latest
 
+# source files
+ADD . /opt/crawlab
+
 # set as non-interactive
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -8,21 +11,6 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV NVM_DIR /usr/local/nvm  
 ENV NODE_VERSION 8.12.0
 ENV WORK_DIR /opt/crawlab
-
-# source files
-ADD . /opt/crawlab
-
-# install python
-RUN apt-get update
-RUN apt-get install -y python3 python3-pip net-tools iputils-ping git nginx ntp curl
-
-# python soft link
-RUN ln -s /usr/bin/pip3 /usr/local/bin/pip
-RUN ln -s /usr/bin/python3 /usr/local/bin/python
-
-# install backend
-RUN pip install -U setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple
-RUN pip install -r /opt/crawlab/crawlab/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # install nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.24.0/install.sh | bash \  
@@ -38,6 +26,18 @@ RUN ls $NVM_DIR/versions/v$NODE_VERSION/bin
 # install frontend
 RUN $NVM_DIR/versions/v$NODE_VERSION/bin/npm install -g yarn pm2
 RUN cd /opt/crawlab/frontend && $NVM_DIR/versions/v$NODE_VERSION/bin/yarn install
+
+# install python
+RUN apt-get update
+RUN apt-get install -y python3 python3-pip net-tools iputils-ping git nginx ntp curl
+
+# python soft link
+RUN ln -s /usr/bin/pip3 /usr/local/bin/pip
+RUN ln -s /usr/bin/python3 /usr/local/bin/python
+
+# install backend
+RUN pip install -U setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip install -r /opt/crawlab/crawlab/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # nginx config & start frontend
 RUN cp $WORK_DIR/crawlab.conf /etc/nginx/conf.d
