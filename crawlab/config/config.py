@@ -13,7 +13,7 @@ PYTHON_ENV_PATH = '/Users/yeqing/.pyenv/shims/python'
 PROJECT_DEPLOY_FILE_FOLDER = '/var/crawlab'
 
 # 爬虫日志路径
-PROJECT_LOGS_FOLDER = '../deployfile/logs'
+PROJECT_LOGS_FOLDER = '/var/log/crawlab'
 
 # 打包临时文件夹
 PROJECT_TMP_FOLDER = '/tmp'
