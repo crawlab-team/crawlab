@@ -12,6 +12,11 @@ ENV NVM_DIR /usr/local/nvm
 ENV NODE_VERSION 8.12.0
 ENV WORK_DIR /opt/crawlab
 
+# install curl git
+RUN apt-get update
+RUN apt-get install curl git
+
+
 # install nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.24.0/install.sh | bash \  
     && . $NVM_DIR/nvm.sh \
@@ -28,8 +33,7 @@ RUN $NVM_DIR/versions/v$NODE_VERSION/bin/npm install -g yarn pm2
 RUN cd /opt/crawlab/frontend && $NVM_DIR/versions/v$NODE_VERSION/bin/yarn install
 
 # install python
-RUN apt-get update
-RUN apt-get install -y python3 python3-pip net-tools iputils-ping git nginx ntp curl
+RUN apt-get install -y python3 python3-pip net-tools iputils-ping nginx ntp
 
 # python soft link
 RUN ln -s /usr/bin/pip3 /usr/local/bin/pip
