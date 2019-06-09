@@ -255,7 +255,9 @@ export default {
                 .then(response => {
                   if (response.data.item_selector) {
                     this.$set(this.spiderForm, 'item_selector', response.data.item_selector)
-                    this.$set(this.spiderForm, 'item_selector_type', 'css')
+                  }
+                  if (response.data.item_selector_type) {
+                    this.$set(this.spiderForm, 'item_selector_type', response.data.item_selector_type)
                   }
 
                   if (response.data.fields && response.data.fields.length) {

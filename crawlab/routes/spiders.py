@@ -553,6 +553,7 @@ class SpiderApi(BaseApi):
             '下页',
             'next page',
             'next',
+            '>'
         ]
         for tag in sel.iter():
             if tag.text is not None and tag.text.lower().strip() in next_page_text_list:
