@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # environment variables
 ENV NVM_DIR /usr/local/nvm  
-ENV NODE_VERSION 8.12
+ENV NODE_VERSION 8.12.0
 ENV WORK_DIR /opt/crawlab
 
 # source files
@@ -30,8 +30,10 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.24.0/install.sh | b
     && nvm install v$NODE_VERSION \
     && nvm use v$NODE_VERSION \
     && nvm alias default v$NODE_VERSION
-RUN export NODE_PATH=$NVM_DIR/v$NODE_VERSION/lib/node_modules  
-RUN export PATH=$NVM_DIR/v$NODE_VERSION/bin:$PATH
+ENV NODE_PATH $NVM_DIR/versions/v$NODE_VERSION/lib/node_modules  
+ENV PATH $NVM_DIR/versions/v$NODE_VERSION/bin:$PATH
+
+RUN ls $NVM_DIR/versions/v$NODE_VERSION/bin
 
 # install frontend
 RUN $NVM_DIR/v$NODE_VERSION/bin/npm install -g yarn pm2
