@@ -36,8 +36,8 @@ ENV PATH $NVM_DIR/versions/v$NODE_VERSION/bin:$PATH
 RUN ls $NVM_DIR/versions/v$NODE_VERSION/bin
 
 # install frontend
-RUN $NVM_DIR/v$NODE_VERSION/bin/npm install -g yarn pm2
-RUN cd /opt/crawlab/frontend && $NVM_DIR/v$NODE_VERSION/bin/yarn install
+RUN $NVM_DIR/versions/v$NODE_VERSION/bin/npm install -g yarn pm2
+RUN cd /opt/crawlab/frontend && $NVM_DIR/versions/v$NODE_VERSION/bin/yarn install
 
 # nginx config & start frontend
 RUN cp $WORK_DIR/crawlab.conf /etc/nginx/conf.d
