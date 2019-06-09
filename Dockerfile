@@ -14,7 +14,7 @@ ENV WORK_DIR /opt/crawlab
 
 # install curl git
 RUN apt-get update
-RUN apt-get install curl git
+RUN apt-get install -y curl git
 
 
 # install nvm
