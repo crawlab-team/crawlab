@@ -25,6 +25,14 @@ RUN mongod >> /var/log/mongod.log 2>&1 &
 
 # install python
 RUN apt-get install -y python python3 python3-pip 
+RUN ln -s /usr/bin/pip3 /usr/local/bin/pip
+RUN ln -s /usr/bin/python3 /usr/local/bin/python
+#RUN git clone git://github.com/yyuu/pyenv.git ~/.pyenv
+#ENV PYENV_ROOT "$HOME/.pyenv"
+#ENV PATH "$PYENV_ROOT/bin:$PATH"
+#RUN eval "$(pyenv init -)"
+#RUN pyenv install 3.6.8
+#RUN pyenv local 3.6.8
 
 # install nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.24.0/install.sh | bash \  
@@ -46,10 +54,6 @@ RUN apt-get install -y nginx
 RUN apt-get install -y redis-server
 RUN service redis-server start
 
-# python soft link
-RUN ln -s /usr/bin/pip3 /usr/local/bin/pip
-RUN ln -s /usr/bin/python3 /usr/local/bin/python
-
 # install backend
 RUN pip install -U setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple
 RUN pip install -r /opt/crawlab/crawlab/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
@@ -59,10 +63,7 @@ RUN cp $WORK_DIR/crawlab.conf /etc/nginx/conf.d
 RUN service nginx reload
 
 # start backend
-WORKDIR /opt/crawlab/crawlab
-ENTRYPOINT cd /opt/crawlab/frontend \
-	&& npm run build:prod \
-	&& python3 $WORK_DIR/manage.py 
-
 EXPOSE 8080
 EXPOSE 8000
+WORKDIR /opt/crawlab
+ENTRYPOINT ["/bin/sh", "docker_init.sh"]
