@@ -32,11 +32,6 @@ CELERY_TIMEZONE = 'Asia/Shanghai'
 # 是否启用UTC
 CELERY_ENABLE_UTC = True
 
-# Celery Scheduler Redis URL
-CELERY_BEAT_SCHEDULER = 'utils.redisbeat.RedisScheduler'
-CELERY_REDIS_SCHEDULER_URL = 'redis://localhost:6379'
-CELERY_REDIS_SCHEDULER_KEY = 'celery:beat:order_tasks'
-
 # flower variables
 FLOWER_API_ENDPOINT = 'http://localhost:5555/api'
 
