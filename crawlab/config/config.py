@@ -5,11 +5,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 # 爬虫源码路径
 PROJECT_SOURCE_FILE_FOLDER = os.path.join(BASE_DIR, "spiders")
 
-# 配置python虚拟环境的路径
-PYTHON_ENV_PATH = '/Users/yeqing/.pyenv/shims/python'
-
 # 爬虫部署路径
-# PROJECT_DEPLOY_FILE_FOLDER = '../deployfile'
 PROJECT_DEPLOY_FILE_FOLDER = '/var/crawlab'
 
 # 爬虫日志路径
