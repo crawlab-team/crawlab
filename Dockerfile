@@ -46,12 +46,7 @@ RUN service nginx reload
 
 # start backend
 WORKDIR /opt/crawlab/crawlab
-CMD python $WORK_DIR/crawlab/app.py 
-CMD python $WORK_DIR/crawlab/flower.py 
-CMD python $WORK_DIR/crawlab/worker.py 
-#CMD pm2 start $WORK_DIR/crawlab/app.py 
-#CMD pm2 start $WORK_DIR/crawlab/flower.py 
-#CMD pm2 start $WORK_DIR/crawlab/worker.py 
+ENTRYPOINT python $WORK_DIR/manage.py 
 
 EXPOSE 8080
 EXPOSE 8000
