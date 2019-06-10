@@ -10,8 +10,7 @@ ADD . /opt/crawlab/frontend
 #ENV WORK_DIR /opt/crawlab/frontend
 
 # install git curl
-RUN apt-get update
-RUN apt-get install -y nginx
+RUN apt-get update && apt-get install -y nginx
 #RUN apt-get install -y git curl
 
 # install nvm
@@ -28,7 +27,6 @@ RUN npm install -g yarn pm2 --registry=https://registry.npm.taobao.org
 RUN cd /opt/crawlab/frontend && yarn install --registry=https://registry.npm.taobao.org
 
 # nginx config & start frontend
-RUN cp $WORK_DIR/conf/crawlab.conf /etc/nginx/conf.d
-RUN service nginx reload
+RUN cp $WORK_DIR/conf/crawlab.conf /etc/nginx/conf.d && service nginx reload
 
 CMD ["npm", "run", "build:prod"]
