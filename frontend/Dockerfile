@@ -5,11 +5,8 @@ FROM node:8.12
 ADD . /opt/crawlab/frontend
 
 #更新apt-get源 使用163的源
-RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak && \
-    echo "deb http://mirrors.163.com/debian/ jessie main non-free contrib" >/etc/apt/sources.list && \
-    echo "deb http://mirrors.163.com/debian/ jessie-proposed-updates main non-free contrib" >>/etc/apt/sources.list && \
-    echo "deb-src http://mirrors.163.com/debian/ jessie main non-free contrib" >>/etc/apt/sources.list && \
-    echo "deb-src http://mirrors.163.com/debian/ jessie-proposed-updates main non-free contrib" >>/etc/apt/sources.list
+RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak
+COPY sources.list /etc/apt/sources.list
 
 # environment variables
 #ENV NVM_DIR /usr/local/nvm
