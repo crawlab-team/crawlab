@@ -11,7 +11,7 @@ ENV WORK_DIR /opt/crawlab/frontend
 
 # install git curl
 RUN apt-get update
-RUN apt-get install git curl
+RUN apt-get install -y git curl
 
 # install nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.24.0/install.sh | bash \
