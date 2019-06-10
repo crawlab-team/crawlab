@@ -66,4 +66,4 @@ RUN service nginx reload
 EXPOSE 8080
 EXPOSE 8000
 WORKDIR /opt/crawlab
-ENTRYPOINT ["/bin/sh", "docker_init.sh"]
+ENTRYPOINT ["/bin/sh", "/opt/crawlab/docker_init.sh"]
