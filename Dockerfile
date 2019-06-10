@@ -1,6 +1,10 @@
 # images
 FROM python:3.6
 
+#用ubuntu国内源替换默认源
+RUN rm /etc/apt/sources.list
+COPY sources.list /etc/apt/sources.list
+
 # source files
 ADD . /opt/crawlab
 

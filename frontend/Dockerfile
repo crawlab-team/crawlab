@@ -4,10 +4,6 @@ FROM nginx:latest
 # source files
 ADD . /opt/crawlab/frontend
 
-#用ubuntu国内源替换默认源
-RUN rm /etc/apt/sources.list
-COPY sources.list /etc/apt/sources.list
-
 # environment variables
 ENV NVM_DIR /usr/local/nvm
 ENV NODE_VERSION 8.12.0
