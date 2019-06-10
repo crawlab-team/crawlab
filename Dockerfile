@@ -15,9 +15,8 @@ ENV WORK_DIR /opt/crawlab
 # install pkg
 RUN apt-get update \
 	&& apt-get install -y curl git net-tools iputils-ping ntp gnupg2 nginx redis python python3 python3-pip \
-	&& service redis-server start \
+	&& apt-get clean \
 	&& cp $WORK_DIR/crawlab.conf /etc/nginx/conf.d \
-	&& service nginx reload \
 	&& ln -s /usr/bin/pip3 /usr/local/bin/pip \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
 
@@ -26,8 +25,8 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75
 	&& echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list \
 	&& apt-get update \
 	&& apt-get install -y mongodb-org \
-	&& mkdir -p /data/db \
-	&& mongod --fork --logpath /var/log/mongod.log
+	&& apt-get clean \
+	&& mkdir -p /data/db
 
 # install nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.24.0/install.sh | bash \  
