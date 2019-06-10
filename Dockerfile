@@ -1,5 +1,5 @@
 # images
-FROM ubuntu:latest
+FROM python:3.6
 
 # source files
 ADD . /opt/crawlab
@@ -24,9 +24,9 @@ RUN apt-get install -y mongodb-org
 RUN mongod >> /var/log/mongod.log 2>&1 &
 
 # install python
-RUN apt-get install -y python python3 python3-pip 
-RUN ln -s /usr/bin/pip3 /usr/local/bin/pip
-RUN ln -s /usr/bin/python3 /usr/local/bin/python
+#RUN apt-get install -y python python3 python3-pip 
+#RUN ln -s /usr/bin/pip3 /usr/local/bin/pip
+#RUN ln -s /usr/bin/python3 /usr/local/bin/python
 #RUN git clone git://github.com/yyuu/pyenv.git ~/.pyenv
 #ENV PYENV_ROOT "$HOME/.pyenv"
 #ENV PATH "$PYENV_ROOT/bin:$PATH"
