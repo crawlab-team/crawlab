@@ -5,8 +5,8 @@ FROM node:8.12
 ADD . /opt/crawlab/frontend
 
 #更新apt-get源 使用163的源
-RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak
-COPY sources.list /etc/apt/sources.list
+#RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak
+#COPY sources.list /etc/apt/sources.list
 
 # environment variables
 #ENV NVM_DIR /usr/local/nvm
