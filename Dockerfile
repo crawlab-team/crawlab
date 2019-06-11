@@ -30,7 +30,7 @@ ENV NODE_PATH $NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 # install frontend
-RUN npm install -g yarn pm2 --registry=https://registry.npm.taobao.org \
+RUN npm install -g yarn --registry=https://registry.npm.taobao.org \
 	&& cd /opt/crawlab/frontend \
 	&& yarn install --registry=https://registry.npm.taobao.org
 
