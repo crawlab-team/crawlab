@@ -159,6 +159,7 @@ export const constantRouterMap = [
     name: 'Deploy',
     path: '/deploys',
     component: Layout,
+    hidden: true,
     meta: {
       title: 'Deploy',
       icon: 'fa fa-cloud'

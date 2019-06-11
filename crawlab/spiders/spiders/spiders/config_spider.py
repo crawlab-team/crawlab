@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 import scrapy
 
@@ -72,8 +72,8 @@ def get_next_url(response):
         # found next url
         if next_url is not None:
             if not next_url.startswith('http') and not next_url.startswith('//'):
-                u = urlparse(response.url)
-                next_url = f'{u.scheme}://{u.netloc}{next_url}'
+                return urljoin(response.url, next_url)
+            else:
                 return next_url
     return None
 

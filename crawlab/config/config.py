@@ -5,15 +5,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 # 爬虫源码路径
 PROJECT_SOURCE_FILE_FOLDER = os.path.join(BASE_DIR, "spiders")
 
-# 配置python虚拟环境的路径
-PYTHON_ENV_PATH = '/Users/yeqing/.pyenv/shims/python'
-
 # 爬虫部署路径
-# PROJECT_DEPLOY_FILE_FOLDER = '../deployfile'
 PROJECT_DEPLOY_FILE_FOLDER = '/var/crawlab'
 
 # 爬虫日志路径
-PROJECT_LOGS_FOLDER = '../deployfile/logs'
+PROJECT_LOGS_FOLDER = '/var/log/crawlab'
 
 # 打包临时文件夹
 PROJECT_TMP_FOLDER = '/tmp'
@@ -35,11 +31,6 @@ CELERY_TIMEZONE = 'Asia/Shanghai'
 
 # 是否启用UTC
 CELERY_ENABLE_UTC = True
-
-# Celery Scheduler Redis URL
-CELERY_BEAT_SCHEDULER = 'utils.redisbeat.RedisScheduler'
-CELERY_REDIS_SCHEDULER_URL = 'redis://localhost:6379'
-CELERY_REDIS_SCHEDULER_KEY = 'celery:beat:order_tasks'
 
 # flower variables
 FLOWER_API_ENDPOINT = 'http://localhost:5555/api'

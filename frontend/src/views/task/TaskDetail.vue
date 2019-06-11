@@ -7,11 +7,7 @@
       </el-tab-pane>
       <el-tab-pane :label="$t('Log')" name="log">
         <el-card>
-          <div class="log-view">
-            <pre>
-              {{taskLog}}
-            </pre>
-          </div>
+          <log-view :data="taskLog"/>
         </el-card>
       </el-tab-pane>
       <el-tab-pane :label="$t('Results')" name="results">
@@ -37,10 +33,12 @@ import {
 } from 'vuex'
 import TaskOverview from '../../components/Overview/TaskOverview'
 import GeneralTableView from '../../components/TableView/GeneralTableView'
+import LogView from '../../components/ScrollView/LogView'
 
 export default {
   name: 'TaskDetail',
   components: {
+    LogView,
     GeneralTableView,
     TaskOverview
   },

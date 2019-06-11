@@ -6,7 +6,7 @@ from time import sleep
 from bson import ObjectId
 from pymongo import ASCENDING, DESCENDING
 
-from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_LOGS_FOLDER, PYTHON_ENV_PATH, MONGO_HOST, MONGO_PORT, MONGO_DB
+from config import PROJECT_DEPLOY_FILE_FOLDER, PROJECT_LOGS_FOLDER, MONGO_HOST, MONGO_PORT, MONGO_DB
 from constants.task import TaskStatus
 from db.manager import db_manager
 from .celery import celery_app

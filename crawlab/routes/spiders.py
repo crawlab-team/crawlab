@@ -509,7 +509,10 @@ class SpiderApi(BaseApi):
                    }, r.status_code
 
         # get html parse tree
-        sel = etree.HTML(r.content)
+        try:
+            sel = etree.HTML(r.content.decode('utf-8'))
+        except Exception as err:
+            sel = etree.HTML(r.content)
 
         # remove unnecessary tags
         unnecessary_tags = [
@@ -550,6 +553,7 @@ class SpiderApi(BaseApi):
             '下页',
             'next page',
             'next',
+            '>'
         ]
         for tag in sel.iter():
             if tag.text is not None and tag.text.lower().strip() in next_page_text_list:
@@ -654,19 +658,24 @@ class SpiderApi(BaseApi):
 
         # get list item selector
         item_selector = None
+        item_selector_type = 'css'
         if max_tag.get('id') is not None:
             item_selector = f'#{max_tag.get("id")} > {self._get_children(max_tag)[0].tag}'
         elif max_tag.get('class') is not None:
             cls_str = '.'.join([x for x in max_tag.get("class").split(' ') if x != ''])
             if len(sel.cssselect(f'.{cls_str}')) == 1:
                 item_selector = f'.{cls_str} > {self._get_children(max_tag)[0].tag}'
+        else:
+            item_selector = max_tag.getroottree().getpath(max_tag)
+            item_selector_type = 'xpath'
 
         # get list fields
         fields = []
         if item_selector is not None:
             first_tag = self._get_children(max_tag)[0]
             for i, tag in enumerate(self._get_text_child_tags(first_tag)):
-                if len(first_tag.cssselect(f'{tag.tag}')) == 1:
+                el_list = first_tag.cssselect(f'{tag.tag}')
+                if len(el_list) == 1:
                     fields.append({
                         'name': f'field{i + 1}',
                         'type': 'css',
@@ -682,6 +691,15 @@ class SpiderApi(BaseApi):
                             'extract_type': 'text',
                             'query': f'{tag.tag}.{cls_str}',
                         })
+                else:
+                    for j, el in enumerate(el_list):
+                        if tag == el:
+                            fields.append({
+                                'name': f'field{i + 1}',
+                                'type': 'css',
+                                'extract_type': 'text',
+                                'query': f'{tag.tag}:nth-of-type({j + 1})',
+                            })
 
             for i, tag in enumerate(self._get_a_child_tags(self._get_children(max_tag)[0])):
                 # if the tag is <a...></a>, extract its href
@@ -707,6 +725,7 @@ class SpiderApi(BaseApi):
         return {
             'status': 'ok',
             'item_selector': item_selector,
+            'item_selector_type': item_selector_type,
             'pagination_selector': pagination_selector,
             'fields': fields
         }
