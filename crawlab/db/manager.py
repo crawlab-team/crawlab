@@ -1,7 +1,7 @@
 from bson import ObjectId
 from mongoengine import connect
 from pymongo import MongoClient, DESCENDING
-from config import MONGO_HOST, MONGO_PORT, MONGO_DB
+from config import MONGO_HOST, MONGO_PORT, MONGO_DB, MONGO_USERNAME, MONGO_PASSWORD
 from utils import is_object_id
 
 connect(db=MONGO_DB, host=MONGO_HOST, port=MONGO_PORT)
@@ -13,7 +13,11 @@ class DbManager(object):
     """
 
     def __init__(self):
-        self.mongo = MongoClient(host=MONGO_HOST, port=MONGO_PORT, connect=False)
+        self.mongo = MongoClient(host=MONGO_HOST,
+                                 port=MONGO_PORT,
+                                 username=MONGO_USERNAME,
+                                 password=MONGO_PASSWORD,
+                                 connect=False)
         self.db = self.mongo[MONGO_DB]
 
     def save(self, col_name: str, item: dict, **kwargs) -> None:

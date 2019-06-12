@@ -14,11 +14,21 @@ PROJECT_LOGS_FOLDER = '/var/log/crawlab'
 # 打包临时文件夹
 PROJECT_TMP_FOLDER = '/tmp'
 
+# MongoDB 变量
+MONGO_HOST = '127.0.0.1'
+MONGO_PORT = 27017
+MONGO_USERNAME = None
+MONGO_PASSWORD = None
+MONGO_DB = 'crawlab_test'
+
 # Celery中间者URL
 BROKER_URL = 'redis://127.0.0.1:6379/0'
 
 # Celery后台URL
-CELERY_RESULT_BACKEND = 'mongodb://127.0.0.1:27017/'
+if MONGO_USERNAME is not None:
+    CELERY_RESULT_BACKEND = f'mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}/'
+else:
+    CELERY_RESULT_BACKEND = f'mongodb://{MONGO_HOST}:{MONGO_PORT}/'
 
 # Celery MongoDB设置
 CELERY_MONGODB_BACKEND_SETTINGS = {
@@ -34,11 +44,6 @@ CELERY_ENABLE_UTC = True
 
 # flower variables
 FLOWER_API_ENDPOINT = 'http://localhost:5555/api'
-
-# MongoDB 变量
-MONGO_HOST = '127.0.0.1'
-MONGO_PORT = 27017
-MONGO_DB = 'crawlab_test'
 
 # Flask 变量
 DEBUG = False

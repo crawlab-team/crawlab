@@ -1,18 +1,24 @@
-version: '3.3' # 表示该 Docker-Compose 文件使用的是 Version 2 file
+version: '3.3'
 services:
-  app:  # 指定服务名称
-    build: .  # 指定 Dockerfile 所在路径
-    ports:    # 指定端口映射
-      - "5001:5000"
-  task:
+  master: 
     image: crawlab:latest
-  db:
-    image: mongo
+    restart: always
+    volumns:
+      - /home/yeqing/config.py:/opt/crawlab/crawlab/config/config.py # 后端配置文件
+      - /home/yeqing/.env.production:/opt/crawlab/frontend/.env.production # 前端配置文件
+    ports:    
+      - "8080:8080" # nginx
+      - "8000:8000" # app
+    depends_on:
+      - mongo
+      - redis
+  mongo:
+    image: mongo:latest
     restart: always
     ports:
       - "27017:27017"
   redis:
-    image: redis
+    image: redis:latest
     restart: always
     ports:
       - "6379:6379"
