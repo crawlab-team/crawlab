@@ -1,11 +1,12 @@
-# 0.2.3 (unreleased)
+# 0.2.3 (2019-06-12)
 ### Features / Enhancement
+- **Docker**: User can run docker image to speed up deployment.
 - **CLI**: Allow user to use command-line interface to execute Crawlab programs.
 - **Upload Spider**: Allow user to upload Customized Spider to Crawlab.
 - **Edit Fields on Preview**: Allow user to edit fields when previewing data in Configurable Spider.
 
 ### Bugs ###
-- **Spiders Pagination**
+- **Spiders Pagination**. Fixed pagination problem in spider page.
 
 # 0.2.2 (2019-05-30)
 ### Features / Enhancement
