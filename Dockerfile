@@ -30,13 +30,13 @@ ENV NODE_PATH $NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 # install frontend
-RUN npm install -g yarn --registry=https://registry.npm.taobao.org \
+RUN npm install -g yarn \
 	&& cd /opt/crawlab/frontend \
-	&& yarn install --registry=https://registry.npm.taobao.org
+	&& yarn install
 
 # install backend
-RUN pip install -U setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple \
-	&& pip install -r /opt/crawlab/crawlab/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip install -U setuptools \
+	&& pip install -r /opt/crawlab/crawlab/requirements.txt
 
 # start backend
 EXPOSE 8080
