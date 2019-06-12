@@ -9,6 +9,9 @@ services:
     ports:    
       - "8080:8080" # nginx
       - "8000:8000" # app
+    depends_on:
+      - mongo
+      - redis
   mongo:
     image: mongo:latest
     restart: always
