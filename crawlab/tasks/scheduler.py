@@ -23,6 +23,9 @@ class Scheduler(object):
     scheduler = BackgroundScheduler(jobstores=jobstores)
 
     def execute_spider(self, id: str, params: str = None):
+        print(f'executing spider {id}')
+        print(f'params: {params}')
+        self.scheduler.print_jobs(jobstore='mongo')
         query = {}
         if params is not None:
             query['params'] = params
@@ -33,6 +36,7 @@ class Scheduler(object):
         ), query)
 
     def update(self):
+        print('updating...')
         # remove all existing periodic jobs
         self.scheduler.remove_all_jobs()
         self.mongo[MONGO_DB][self.task_col].remove()
@@ -57,6 +61,9 @@ class Scheduler(object):
                                    hour=hour,
                                    minute=minute,
                                    second=second)
+        self.scheduler.print_jobs(jobstore='mongo')
+        print(f'state: {self.scheduler.state}')
+        print(f'running: {self.scheduler.running}')
 
     def run(self):
         self.update()

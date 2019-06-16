@@ -1,8 +1,8 @@
 version: '3.3'
 services:
   master: 
-    image: crawlab:latest
-    restart: always
+    image: tikazyq/crawlab:latest
+    container_name: crawlab
     volumns:
       - /home/yeqing/config.py:/opt/crawlab/crawlab/config/config.py # 后端配置文件
       - /home/yeqing/.env.production:/opt/crawlab/frontend/.env.production # 前端配置文件
@@ -12,6 +12,10 @@ services:
     depends_on:
       - mongo
       - redis
+    entrypoint:
+      - /bin/sh
+      - /opt/crawlab/docker_init.sh
+      - master
   mongo:
     image: mongo:latest
     restart: always
