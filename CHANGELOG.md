@@ -1,3 +1,7 @@
+# 0.2.4 (unreleased)
+- **Documentation**: Better and much more detailed documentation.
+
+
 # 0.2.3 (2019-06-12)
 ### Features / Enhancement
 - **Docker**: User can run docker image to speed up deployment.
