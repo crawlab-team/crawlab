@@ -1,0 +1,602 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>自定义爬虫 · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="ConfigurableSpider.html" />
+    
+    
+    <link rel="prev" href="Create.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../../">
+            
+                <a href="../../">
+            
+                    
+                    Crawlab简介
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../../Installation/">
+            
+                <a href="../../Installation/">
+            
+                    
+                    安装Crawlab
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="../../Installation/Docker.html">
+            
+                <a href="../../Installation/Docker.html">
+            
+                    
+                    Docker
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="../../Installation/Direct.html">
+            
+                <a href="../../Installation/Direct.html">
+            
+                    
+                    直接部署
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.3" data-path="../../Installation/Preview.html">
+            
+                <a href="../../Installation/Preview.html">
+            
+                    
+                    预览模式
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    使用Crawlab
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="../Node/">
+            
+                <a href="../Node/">
+            
+                    
+                    节点
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1.1" data-path="../Node/View.html">
+            
+                <a href="../Node/View.html">
+            
+                    
+                    查看节点列表
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.1.2" data-path="../Node/Edit.html">
+            
+                <a href="../Node/Edit.html">
+            
+                    
+                    修改节点信息
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    爬虫
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.2.1" data-path="Create.html">
+            
+                <a href="Create.html">
+            
+                    
+                    创建爬虫
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter active" data-level="1.3.2.1.1" data-path="CustomizedSpider.html">
+            
+                <a href="CustomizedSpider.html">
+            
+                    
+                    自定义爬虫
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2.1.2" data-path="ConfigurableSpider.html">
+            
+                <a href="ConfigurableSpider.html">
+            
+                    
+                    可配置爬虫
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2.2" data-path="Deploy.html">
+            
+                <a href="Deploy.html">
+            
+                    
+                    部署爬虫
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2.3" data-path="Run.html">
+            
+                <a href="Run.html">
+            
+                    
+                    运行爬虫
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2.4" data-path="Analytics.html">
+            
+                <a href="Analytics.html">
+            
+                    
+                    统计数据
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="../Task/">
+            
+                <a href="../Task/">
+            
+                    
+                    任务
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.3.1" data-path="../Task/View.html">
+            
+                <a href="../Task/View.html">
+            
+                    
+                    查看任务
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3.2" data-path="../Task/Action.html">
+            
+                <a href="../Task/Action.html">
+            
+                    
+                    操作任务
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3.3" data-path="../Task/DownloadResults.html">
+            
+                <a href="../Task/DownloadResults.html">
+            
+                    
+                    下载结果
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.4" data-path="../Schedule/">
+            
+                <a href="../Schedule/">
+            
+                    
+                    定时任务
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.5" data-path="../Site/">
+            
+                <a href="../Site/">
+            
+                    
+                    网站
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../../Architecture/">
+            
+                <a href="../../Architecture/">
+            
+                    
+                    架构
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="../../Examples/">
+            
+                <a href="../../Examples/">
+            
+                    
+                    样例
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.1" data-path="../../Examples/ScrapyIntegration.html">
+            
+                <a href="../../Examples/ScrapyIntegration.html">
+            
+                    
+                    与Scrapy集成
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../.." >自定义爬虫</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h2 id="&#x81EA;&#x5B9A;&#x4E49;&#x722C;&#x866B;">&#x81EA;&#x5B9A;&#x4E49;&#x722C;&#x866B;</h2>
+<p>&#x81EA;&#x5B9A;&#x4E49;&#x722C;&#x866B;&#x662F;&#x6307;&#x7528;&#x6237;&#x53EF;&#x4EE5;&#x6DFB;&#x52A0;&#x7684;&#x4EFB;&#x4F55;&#x8BED;&#x8A00;&#x4EFB;&#x4F55;&#x6846;&#x67B6;&#x7684;&#x722C;&#x866B;&#xFF0C;&#x9AD8;&#x5EA6;&#x81EA;&#x5B9A;&#x4E49;&#x5316;&#x3002;&#x5F53;&#x7528;&#x6237;&#x6DFB;&#x52A0;&#x597D;&#x81EA;&#x5B9A;&#x4E49;&#x722C;&#x866B;&#x4E4B;&#x540E;&#xFF0C;Crawlab&#x5C31;&#x53EF;&#x4EE5;&#x5C06;&#x5176;&#x96C6;&#x6210;&#x5230;&#x722C;&#x866B;&#x7BA1;&#x7406;&#x7684;&#x7CFB;&#x7EDF;&#x4E2D;&#x6765;&#x3002;</p>
+<p>&#x81EA;&#x5B9A;&#x4E49;&#x722C;&#x866B;&#x7684;&#x6DFB;&#x52A0;&#x6709;&#x4E24;&#x79CD;&#x65B9;&#x5F0F;&#xFF1A;</p>
+<ol>
+<li>&#x901A;&#x8FC7;Web&#x754C;&#x9762;&#x4E0A;&#x4F20;&#x722C;&#x866B;</li>
+<li>&#x901A;&#x8FC7;&#x521B;&#x5EFA;&#x9879;&#x76EE;&#x76EE;&#x5F55;</li>
+</ol>
+<h3 id="&#x901A;&#x8FC7;web&#x754C;&#x9762;&#x4E0A;&#x4F20;">&#x901A;&#x8FC7;Web&#x754C;&#x9762;&#x4E0A;&#x4F20;</h3>
+<p>&#x5728;&#x901A;&#x8FC7;Web&#x754C;&#x9762;&#x4E0A;&#x4F20;&#x4E4B;&#x524D;&#xFF0C;&#x9700;&#x8981;&#x5C06;&#x722C;&#x866B;&#x9879;&#x76EE;&#x6587;&#x4EF6;&#x6253;&#x5305;&#x6210;<code>zip</code>&#x683C;&#x5F0F;&#x3002;</p>
+<p><img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/spider-list.png" alt=""></p>
+<p>&#x7136;&#x540E;&#xFF0C;&#x5728;<code>&#x4FA7;&#x8FB9;&#x680F;</code>&#x70B9;&#x51FB;<code>&#x722C;&#x866B;</code>&#x5BFC;&#x822A;&#x81F3;<code>&#x722C;&#x866B;&#x5217;&#x8868;</code>&#xFF0C;&#x70B9;&#x51FB;<code>&#x6DFB;&#x52A0;&#x722C;&#x866B;</code>&#x6309;&#x94AE;&#xFF0C;&#x9009;&#x62E9;<code>&#x81EA;&#x5B9A;&#x4E49;&#x722C;&#x866B;</code>&#xFF0C;&#x70B9;&#x51FB;<code>&#x4E0A;&#x4F20;</code>&#x6309;&#x94AE;&#xFF0C;&#x9009;&#x62E9;&#x521A;&#x521A;&#x6253;&#x5305;&#x597D;&#x7684;<code>zip</code>&#x6587;&#x4EF6;&#x3002;&#x4E0A;&#x4F20;&#x6210;&#x529F;&#x540E;&#xFF0C;<code>&#x722C;&#x866B;&#x5217;&#x8868;</code>&#x4E2D;&#x4F1A;&#x51FA;&#x73B0;&#x65B0;&#x6DFB;&#x52A0;&#x7684;&#x81EA;&#x5B9A;&#x4E49;&#x722C;&#x866B;&#x3002;&#x8FD9;&#x6837;&#x5C31;&#x7B97;&#x6DFB;&#x52A0;&#x597D;&#x4E86;&#x3002;</p>
+<p>&#x8FD9;&#x4E2A;&#x65B9;&#x5F0F;&#x7A0D;&#x5FAE;&#x6709;&#x4E9B;&#x7E41;&#x7410;&#xFF0C;&#x4F46;&#x662F;&#x5BF9;&#x4E8E;&#x65E0;&#x6CD5;&#x8F7B;&#x677E;&#x83B7;&#x53D6;&#x670D;&#x52A1;&#x5668;&#x7684;&#x8BFB;&#x5199;&#x6743;&#x9650;&#x65F6;&#x662F;&#x975E;&#x5E38;&#x6709;&#x7528;&#x7684;&#xFF0C;&#x9002;&#x5408;&#x5728;&#x751F;&#x4EA7;&#x73AF;&#x5883;&#x4E0A;&#x4F7F;&#x7528;&#x3002;</p>
+<h3 id="&#x901A;&#x8FC7;&#x6DFB;&#x52A0;&#x9879;&#x76EE;&#x76EE;&#x5F55;">&#x901A;&#x8FC7;&#x6DFB;&#x52A0;&#x9879;&#x76EE;&#x76EE;&#x5F55;</h3>
+<p>Crawlab&#x4F1A;&#x81EA;&#x52A8;&#x53D1;&#x73B0;<code>PROJECT_SOURCE_FILE_FOLDER</code>&#x76EE;&#x5F55;&#x4E0B;&#x7684;&#x6240;&#x6709;&#x722C;&#x866B;&#x76EE;&#x5F55;&#xFF0C;&#x5E76;&#x5C06;&#x8FD9;&#x4E9B;&#x76EE;&#x5F55;&#x751F;&#x6210;&#x81EA;&#x5B9A;&#x4E49;&#x722C;&#x866B;&#x5E76;&#x96C6;&#x6210;&#x5230;Crawlab&#x4E2D;&#x3002;&#x56E0;&#x6B64;&#xFF0C;&#x5C06;&#x722C;&#x866B;&#x9879;&#x76EE;&#x76EE;&#x5F55;&#x62F7;&#x8D1D;&#x5230;<code>PROJECT_SOURCE_FILE_FOLDER</code>&#x76EE;&#x5F55;&#x4E0B;&#xFF0C;&#x5C31;&#x53EF;&#x4EE5;&#x6DFB;&#x52A0;&#x4E00;&#x4E2A;&#x722C;&#x866B;&#x4E86;&#x3002;</p>
+<p>&#x8FD9;&#x79CD;&#x65B9;&#x5F0F;&#x975E;&#x5E38;&#x65B9;&#x4FBF;&#xFF0C;&#x4F46;&#x662F;&#x9700;&#x8981;&#x83B7;&#x5F97;&#x4E3B;&#x673A;&#x670D;&#x52A1;&#x5668;&#x7684;&#x8BFB;&#x5199;&#x6743;&#x9650;&#xFF0C;&#x56E0;&#x800C;&#x6BD4;&#x8F83;&#x9002;&#x5408;&#x5728;&#x5F00;&#x53D1;&#x73AF;&#x5883;&#x4E0A;&#x91C7;&#x7528;&#x3002;</p>
+<h3 id="&#x914D;&#x7F6E;&#x722C;&#x866B;">&#x914D;&#x7F6E;&#x722C;&#x866B;</h3>
+<p>&#x5728;&#x5B9A;&#x4E49;&#x722C;&#x866B;&#x4E2D;&#xFF0C;&#x6211;&#x4EEC;&#x9700;&#x8981;&#x914D;&#x7F6E;&#x4E00;&#x4E0B;<code>&#x6267;&#x884C;&#x547D;&#x4EE4;</code>&#xFF08;&#x8FD0;&#x884C;&#x722C;&#x866B;&#x65F6;&#x540E;&#x53F0;&#x6267;&#x884C;&#x7684;<code>shell</code>&#x547D;&#x4EE4;&#xFF09;&#x548C;<code>&#x7ED3;&#x679C;&#x96C6;</code>&#xFF08;&#x901A;&#x8FC7;<code>CRAWLAB_COLLECTION</code>&#x4F20;&#x9012;&#x7ED9;&#x722C;&#x866B;&#x7A0B;&#x5E8F;&#xFF0C;&#x722C;&#x866B;&#x7A0B;&#x5E8F;&#x5B58;&#x50A8;&#x7ED3;&#x679C;&#x7684;&#x5730;&#x65B9;&#xFF09;&#xFF0C;&#x7136;&#x540E;&#x70B9;&#x51FB;<code>&#x4FDD;&#x5B58;</code>&#x6309;&#x94AE;&#x4FDD;&#x5B58;&#x722C;&#x866B;&#x4FE1;&#x606F;&#x3002;</p>
+<p><img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/spider-detail-overview.png" alt=""></p>
+<p>&#x63A5;&#x4E0B;&#x6765;&#xFF0C;&#x6211;&#x4EEC;&#x5C31;&#x53EF;&#x4EE5;&#x90E8;&#x7F72;&#x3001;&#x8FD0;&#x884C;&#x81EA;&#x5B9A;&#x4E49;&#x722C;&#x866B;&#x4E86;&#x3002;</p>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="Create.html" class="navigation navigation-prev " aria-label="Previous page: 创建爬虫">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="ConfigurableSpider.html" class="navigation navigation-next " aria-label="Next page: 可配置爬虫">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"自定义爬虫","level":"1.3.2.1.1","depth":4,"next":{"title":"可配置爬虫","level":"1.3.2.1.2","depth":4,"path":"Usage/Spider/ConfigurableSpider.md","ref":"Usage/Spider/ConfigurableSpider.md","articles":[]},"previous":{"title":"创建爬虫","level":"1.3.2.1","depth":3,"path":"Usage/Spider/Create.md","ref":"Usage/Spider/Create.md","articles":[{"title":"自定义爬虫","level":"1.3.2.1.1","depth":4,"path":"Usage/Spider/CustomizedSpider.md","ref":"Usage/Spider/CustomizedSpider.md","articles":[]},{"title":"可配置爬虫","level":"1.3.2.1.2","depth":4,"path":"Usage/Spider/ConfigurableSpider.md","ref":"Usage/Spider/ConfigurableSpider.md","articles":[]}]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"Usage/Spider/CustomizedSpider.md","mtime":"2019-06-16T04:40:31.000Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-06-16T14:03:57.361Z"},"basePath":"../..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../../gitbook/gitbook.js"></script>
+    <script src="../../gitbook/theme.js"></script>
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

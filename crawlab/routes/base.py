@@ -107,11 +107,12 @@ class BaseApi(Resource):
         for k in args.keys():
             if k not in DEFAULT_ARGS:
                 item[k] = args.get(k)
-        item = db_manager.save(col_name=self.col_name, item=item)
+        id = db_manager.save(col_name=self.col_name, item=item)
 
-        self.after_update()
+        # execute after_update hook
+        self.after_update(id)
 
-        return jsonify(item)
+        return jsonify(id)
 
     def update(self, id: str = None) -> (dict, tuple):
         """
@@ -169,6 +170,10 @@ class BaseApi(Resource):
         """
         # perform delete action
         db_manager.remove_one(col_name=self.col_name, id=id)
+
+        # execute after_update hook
+        self.after_update(id)
+
         return {
             'status': 'ok',
             'message': 'deleted successfully',
