@@ -60,7 +60,7 @@
     <link rel="next" href="../Site/" />
     
     
-    <link rel="prev" href="../Task/DownloadResults.md" />
+    <link rel="prev" href="../Task/DownloadResults.html" />
     
 
     </head>
@@ -336,9 +336,9 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="1.3.3.1" data-path="../Task/View.md">
+        <li class="chapter " data-level="1.3.3.1" data-path="../Task/View.html">
             
-                <span>
+                <a href="../Task/View.html">
             
                     
                     查看任务
@@ -349,12 +349,12 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.3.2" data-path="../Task/Delete.md">
+        <li class="chapter " data-level="1.3.3.2" data-path="../Task/Action.html">
             
-                <span>
+                <a href="../Task/Action.html">
             
                     
-                    删除任务
+                    操作任务
             
                 </a>
             
@@ -362,9 +362,9 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.3.3" data-path="../Task/DownloadResults.md">
+        <li class="chapter " data-level="1.3.3.3" data-path="../Task/DownloadResults.html">
             
-                <span>
+                <a href="../Task/DownloadResults.html">
             
                     
                     下载结果
@@ -422,38 +422,6 @@
             
 
             
-            <ul class="articles">
-                
-    
-        <li class="chapter " data-level="1.4.1" data-path="../../Architecture/Celery.html">
-            
-                <a href="../../Architecture/Celery.html">
-            
-                    
-                    Celery
-            
-                </a>
-            
-
-            
-        </li>
-    
-        <li class="chapter " data-level="1.4.2" data-path="../../Architecture/App.html">
-            
-                <a href="../../Architecture/App.html">
-            
-                    
-                    App
-            
-                </a>
-            
-
-            
-        </li>
-    
-
-            </ul>
-            
         </li>
     
         <li class="chapter " data-level="1.5" data-path="../../Examples/">
@@ -470,25 +438,12 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="1.5.1" data-path="../../Examples/">
+        <li class="chapter " data-level="1.5.1" data-path="../../Examples/ScrapyIntegration.html">
             
-                <a href="../../Examples/">
+                <a href="../../Examples/ScrapyIntegration.html">
             
                     
                     与Scrapy集成
-            
-                </a>
-            
-
-            
-        </li>
-    
-        <li class="chapter " data-level="1.5.2" data-path="../../Examples/">
-            
-                <a href="../../Examples/">
-            
-                    
-                    与Puppeteer集成
             
                 </a>
             
@@ -546,7 +501,20 @@
     
                                 <section class="normal markdown-section">
                                 
-                                
+                                <h2 id="&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;">&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;</h2>
+<p>&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;&#x662F;&#x6307;&#x5B9A;&#x67D0;&#x4E2A;&#x65F6;&#x523B;&#xFF0C;&#x91CD;&#x590D;&#x6027;&#x5730;&#x6267;&#x884C;&#x7684;&#x4EFB;&#x52A1;&#xFF0C;&#x82F1;&#x6587;&#x53EB;&#x505A;<code>Periodical Tasks</code>&#xFF0C;&#x5728;<code>Linux</code>&#x4E2D;&#x4E5F;&#x88AB;&#x79F0;&#x4E3A;<code>Crontab</code>&#x3002;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;&#x53EF;&#x4EE5;&#x8BA9;&#x4EFB;&#x52A1;&#x53EF;&#x4EE5;&#x88AB;&#x6267;&#x884C;&#x591A;&#x6B21;&#xFF0C;&#x800C;&#x7528;&#x6237;&#x5219;&#x4E0D;&#x7528;&#x624B;&#x52A8;&#x7684;&#x64CD;&#x4F5C;&#x6765;&#x6267;&#x884C;&#x4EFB;&#x52A1;&#x3002;&#x5728;&#x751F;&#x4EA7;&#x73AF;&#x5883;&#x4E2D;&#xFF0C;&#x8FD9;&#x975E;&#x5E38;&#x5E38;&#x89C1;&#x3002;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;&#x5BF9;&#x4E8E;&#x5BF9;&#x589E;&#x91CF;&#x6293;&#x53D6;&#x6216;&#x5BF9;&#x6570;&#x636E;&#x5B9E;&#x65F6;&#x6027;&#x6709;&#x8981;&#x6C42;&#x7684;&#x7528;&#x6237;&#x6765;&#x8BF4;&#x975E;&#x5E38;&#x6709;&#x7528;&#x3002;</p>
+<p>&#x5728;Crawlab&#x4E2D;&#xFF0C;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;&#x662F;&#x901A;&#x8FC7;<code>apscheduler</code>&#x6765;&#x5B9E;&#x73B0;&#x7684;&#x3002;&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;&#x4E4B;&#x540E;&#xFF0C;&#x4F1A;&#x5728;&#x540D;&#x4E3A;<code>mongo</code>&#x7684;<code>jobstore</code>&#x4E2D;&#x521B;&#x5EFA;&#x4E00;&#x4E2A;<code>periodical job</code>&#xFF0C;<code>apscheduler</code>&#x8C03;&#x5EA6;&#x5F15;&#x64CE;&#x5C06;&#x4F1A;&#x4E0D;&#x65AD;&#x7684;&#x53BB;&#x6570;&#x636E;&#x5E93;&#x4E2D;&#x5339;&#x914D;&#x4EFB;&#x52A1;&#x7684;&#x6267;&#x884C;&#x65F6;&#x95F4;&#xFF0C;&#x5982;&#x679C;&#x6267;&#x884C;&#x65F6;&#x95F4;&#x6EE1;&#x8DB3;&#x8981;&#x6C42;&#xFF0C;&#x5219;&#x4F1A;&#x5728;&#x540E;&#x53F0;&#x89E6;&#x53D1;&#x4E00;&#x6B21;&#x4EFB;&#x52A1;&#x8FD0;&#x884C;&#x3002;</p>
+<p>&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;&#x5217;&#x8868;&#x4F1A;&#x8FDB;&#x884C;&#x66F4;&#x65B0;&#x3002;&#x6BCF;&#x4E00;&#x6B21;&#x722C;&#x866B;&#x66F4;&#x65B0;&#x3001;&#x5220;&#x9664;&#x3001;&#x521B;&#x5EFA;&#xFF0C;&#x4EE5;&#x53CA;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;&#x7684;&#x66F4;&#x65B0;&#x3001;&#x5220;&#x9664;&#x3001;&#x521B;&#x5EFA;&#xFF0C;&#x90FD;&#x4F1A;&#x89E6;&#x53D1;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;&#x5217;&#x8868;&#x7684;&#x66F4;&#x65B0;&#x3002;</p>
+<h3 id="&#x521B;&#x5EFA;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;">&#x521B;&#x5EFA;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;</h3>
+<p>&#x5BFC;&#x822A;&#x81F3;<code>&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;</code>&#x9875;&#x9762;&#xFF0C;&#x53EF;&#x4EE5;&#x770B;&#x5230;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;&#x7684;&#x5217;&#x8868;&#x3002;</p>
+<p>&#x70B9;&#x51FB;<code>&#x6DFB;&#x52A0;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;</code>&#xFF0C;&#x5F39;&#x51FA;&#x521B;&#x5EFA;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;&#x7684;&#x5F39;&#x6846;&#x3002;&#x586B;&#x5199;&#x76F8;&#x5E94;&#x7684;&#x5185;&#x5BB9;&#xFF0C;&#x70B9;&#x51FB;<code>&#x63D0;&#x4EA4;</code>&#x6309;&#x94AE;&#x521B;&#x5EFA;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;&#x3002;</p>
+<p><img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/schedule-list-add.png" alt=""></p>
+<p>&#x8FD9;&#x91CC;&#x7684;<code>Cron</code>&#x8DDF;<code>Linux</code>&#x4E2D;&#x7684;<code>crontab</code>&#x662F;&#x4E00;&#x81F4;&#x7684;&#x3002;&#x5982;&#x679C;&#x5BF9;<code>crontab</code>&#x4E0D;&#x4E86;&#x89E3;&#xFF0C;&#x53EF;&#x4EE5;&#x53C2;&#x8003;<a href="https://www.cnblogs.com/longjshz/p/5779215.html" target="_blank">&#x8FD9;&#x7BC7;&#x6587;&#x7AE0;</a>&#x3002;</p>
+<h3 id="&#x4FEE;&#x6539;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;">&#x4FEE;&#x6539;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;</h3>
+<p>&#x5BFC;&#x822A;&#x81F3;<code>&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;</code>&#x9875;&#x9762;&#xFF0C;&#x70B9;&#x51FB;<code>&#x64CD;&#x4F5C;</code>&#x5217;&#x7684;<code>&#x4FEE;&#x6539;</code>&#x6309;&#x94AE;&#xFF0C;&#x5F39;&#x51FA;&#x4FEE;&#x6539;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;&#x7684;&#x5F39;&#x6846;&#x3002;&#x586B;&#x5199;&#x76F8;&#x5E94;&#x7684;&#x5185;&#x5BB9;&#xFF0C;&#x70B9;&#x51FB;<code>&#x63D0;&#x4EA4;</code>&#x6309;&#x94AE;&#x4FEE;&#x6539;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;&#x3002;</p>
+<h3 id="&#x5220;&#x9664;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;">&#x5220;&#x9664;&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;</h3>
+<p>&#x5BFC;&#x822A;&#x81F3;<code>&#x5B9A;&#x65F6;&#x4EFB;&#x52A1;</code>&#x9875;&#x9762;&#xFF0C;&#x70B9;&#x51FB;<code>&#x64CD;&#x4F5C;</code>&#x5217;&#x7684;<code>&#x5220;&#x9664;</code>&#x6309;&#x94AE;&#xFF0C;&#x786E;&#x8BA4;&#x5220;&#x9664;&#x8BE5;&#x4EFB;&#x52A1;&#x3002;</p>
+
                                 
                                 </section>
                             
@@ -573,7 +541,7 @@
 
             
                 
-                <a href="../Task/DownloadResults.md" class="navigation navigation-prev " aria-label="Previous page: 下载结果">
+                <a href="../Task/DownloadResults.html" class="navigation navigation-prev " aria-label="Previous page: 下载结果">
                     <i class="fa fa-angle-left"></i>
                 </a>
                 
@@ -589,7 +557,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"定时任务","level":"1.3.4","depth":2,"next":{"title":"网站","level":"1.3.5","depth":2,"path":"Usage/Site/README.md","ref":"Usage/Site/README.md","articles":[]},"previous":{"title":"下载结果","level":"1.3.3.3","depth":3,"path":"Usage/Task/DownloadResults.md","ref":"Usage/Task/DownloadResults.md","articles":[]},"dir":"neutral"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"Usage/Schedule/README.md","mtime":"2019-06-16T03:24:02.000Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-06-16T04:54:16.720Z"},"basePath":"../..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"定时任务","level":"1.3.4","depth":2,"next":{"title":"网站","level":"1.3.5","depth":2,"path":"Usage/Site/README.md","ref":"Usage/Site/README.md","articles":[]},"previous":{"title":"下载结果","level":"1.3.3.3","depth":3,"path":"Usage/Task/DownloadResults.md","ref":"Usage/Task/DownloadResults.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"Usage/Schedule/README.md","mtime":"2019-06-16T13:33:59.000Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-06-16T14:01:12.578Z"},"basePath":"../..","book":{"language":""}});
         });
     </script>
 </div>

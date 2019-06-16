@@ -20,25 +20,10 @@
 
 ## 安装
 
-```bash
-# 安装后台类库
-pip install -r requirements.txt
-```
-
-```bash
-# 安装前台类库
-cd frontend
-npm install
-```
-
-## 配置
-
-请更改配置文件`config.py`，配置API和数据库连接.
-
-## 快速开始
-```bash
-python manage.py serve
-```
+三种方式:
+1. [Docker](https://tikazyq.github.io/crawlab/Installation/Docker.md)（推荐）
+2. [直接部署](https://tikazyq.github.io/crawlab/Installation/Direct.md)
+3. [预览模式](https://tikazyq.github.io/crawlab/Installation/Direct.md)（快速体验）
 
 ## 截图
 
@@ -48,7 +33,7 @@ python manage.py serve
 
 #### 爬虫列表
 
-![](https://user-gold-cdn.xitu.io/2019/3/6/169524daf9c8ccef?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/spider-list.png)
 
 #### 爬虫详情 - 概览
 
@@ -56,51 +41,41 @@ python manage.py serve
 
 #### 任务详情 - 抓取结果
 
-![](https://user-gold-cdn.xitu.io/2019/3/6/169524e4064c7f0a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-## 使用流程
-
-![user-process](./docs/img/用户使用流程图.png)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/task-detail-results.png)
 
 ## 架构
 
-Crawlab的架构跟Celery非常相似，但是加入了包括前端、爬虫、Flower在内的额外模块，以支持爬虫管理的功能。
+Crawlab的架构跟Celery非常相似，但是加入了包括前端、爬虫、Flower在内的额外模块，以支持爬虫管理的功能。架构图如下。
 
-![crawlab-architecture](./docs/img/crawlab-architecture.png)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/architecture.png)
 
-### 节点
+### 节点 Node
 
-节点其实就是Celery中的Worker。一个节点运行时会连接到一个任务队列（例如Redis）来接收和运行任务。所有爬虫需要在运行时被部署到节点上，用户在部署前需要定义节点的IP地址和端口。
+节点其实就是Celery中的`worker`。一个节点运行时会连接到一个任务队列（例如`Redis`）来接收和运行任务。所有爬虫需要在运行时被部署到节点上，用户在部署前需要定义节点的IP地址和端口。
 
-### 爬虫
+### 后台应用 Backend App
 
-##### 自动发现
+这是一个Flask应用，提供了必要的API来支持常规操作，例如CRUD、爬虫部署以及任务运行。每一个节点需要启动Flask应用来支持爬虫部署。运行`python app.py`来启动应用。
 
-在`config.py`文件中，修改变量`PROJECT_SOURCE_FILE_FOLDER`作为爬虫项目所在的目录。Crawlab后台程序会自动发现这些爬虫项目并储存到数据库中。是不是很方便？
+### 爬虫 Spider
 
-##### 部署爬虫
+爬虫源代码或配置规则储存在`App`上，需要被部署到各个`worker`节点中。
 
-所有爬虫需要在抓取前被部署当相应当节点中。在"爬虫详情"页面点击"Deploy"按钮，爬虫将被部署到所有有效到节点中。
-
-##### 运行爬虫
-
-部署爬虫之后，你可以在"爬虫详情"页面点击"Run"按钮来启动爬虫。一个爬虫任务将被触发，你可以在任务列表页面中看到这个任务。
-
-### 任务
+### 任务 Task
 
 任务被触发并被节点执行。用户可以在任务详情页面中看到任务到状态、日志和抓取结果。
 
-### 后台应用
-
-这是一个Flask应用，提供了必要的API来支持常规操作，例如CRUD、爬虫部署以及任务运行。每一个节点需要启动Flask应用来支持爬虫部署。运行`python manage.py app`或`python ./bin/run_app.py`来启动应用。
-
-### 中间者
+### 中间者 Broker
 
 中间者跟Celery中定义的一样，作为运行异步任务的队列。
 
-### 前端
+### 前端 Frontend
 
 前端其实就是一个基于[Vue-Element-Admin](https://github.com/PanJiaChen/vue-element-admin)的单页应用。其中重用了很多Element-UI的控件来支持相应的展示。
+
+### Flower
+
+一个Celery的插件，用于监控Celery节点。
 
 ## 与其他框架的集成
 
@@ -151,26 +126,11 @@ Crawlab使用起来很方便，也很通用，可以适用于几乎任何主流�
 | [ScrapydWeb](https://github.com/my8100/scrapydweb) | 管理平台 | Y | Y | Y
 | [Scrapyd](https://github.com/scrapy/scrapyd) | 网络服务 | Y | N | N/A
 
-## TODOs
-##### 后端
-- [ ] 文件管理
-- [ ] MySQL数据库支持
-- [ ] 重跑任务
-- [ ] 节点监控
-- [ ] 更多爬虫例子
-
-##### 前端
-- [x] 任务数据统计
-- [x] 表格过滤
-- [x] 多语言支持 (中文)
-- [ ] 登录和用户管理
-- [ ] 全局搜索
-
 ## 社区 & 赞助
 
 如果您觉得Crawlab对您的日常开发或公司有帮助，请加作者微信 tikazyq1 并注明"Crawlab"，作者会将你拉入群。或者，您可以扫下方支付宝二维码给作者打赏去升级团队协作软件或买一杯咖啡。
 
 <p align="center">
-    <img src="https://user-gold-cdn.xitu.io/2019/3/15/169814cbd5e600e9?imageslim" height="360">
-    <img src="https://raw.githubusercontent.com/tikazyq/crawlab/master/docs/img/payment.jpg" height="360">
+    <img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/qrcode.png" height="360">
+    <img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/payment.jpg" height="360">
 </p>
