@@ -119,7 +119,7 @@ export default {
       for (let i = 0; i < 6; i++) {
         patArr.push('[/*,0-9-]+')
       }
-      const pat = '^' + patArr.join(' ') + '$'
+      const pat = '^' + patArr.join(' ') + '( [/*,0-9-]+)?' + '$'
       if (!value) {
         callback(new Error('cron cannot be empty'))
       } else if (!value.match(pat)) {
@@ -217,11 +217,18 @@ export default {
     onCrawl () {
     },
     onCrontabFill (value) {
+      value = value.replace(/[?]/g, '*')
       this.$set(this.scheduleForm, 'cron', value)
     },
     onShowCronDialog () {
       this.showCron = true
-      this.expression = this.scheduleForm.cron
+      if (this.expression.split(' ').length < 7) {
+        // this.expression = (this.scheduleForm.cron + ' ').replace(/[?]/g, '*')
+        this.expression = this.scheduleForm.cron + ' '
+      } else {
+        // this.expression = this.scheduleForm.cron.replace(/[?]/g, '*')
+        this.expression = this.scheduleForm.cron
+      }
     }
   },
   created () {
