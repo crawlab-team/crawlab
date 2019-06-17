@@ -1,5 +1,6 @@
 # 0.2.4 (unreleased)
 - **Documentation**: Better and much more detailed documentation.
+- **Better Crontab**: Make crontab expression through crontab UI.
 
 
 # 0.2.3 (2019-06-12)
