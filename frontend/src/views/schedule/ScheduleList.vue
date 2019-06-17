@@ -117,7 +117,7 @@ export default {
     const cronValidator = (rule, value, callback) => {
       let patArr = []
       for (let i = 0; i < 6; i++) {
-        patArr.push('[/*,0-9-]+')
+        patArr.push('[/*,0-9-\?]+')
       }
       const pat = '^' + patArr.join(' ') + '$'
       if (!value) {
