@@ -219,6 +219,8 @@ export default {
     onCrontabFill (value) {
       value = value.replace(/[?]/g, '*')
       this.$set(this.scheduleForm, 'cron', value)
+
+      this.$st.sendEv('定时任务', '提交生成Cron', 'cron', this.scheduleForm.cron)
     },
     onShowCronDialog () {
       this.showCron = true
@@ -229,6 +231,8 @@ export default {
         // this.expression = this.scheduleForm.cron.replace(/[?]/g, '*')
         this.expression = this.scheduleForm.cron
       }
+
+      this.$st.sendEv('定时任务', '点击生成Cron', 'cron', this.scheduleForm.cron)
     }
   },
   created () {
