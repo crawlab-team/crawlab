@@ -29,12 +29,17 @@
               </span>
             </el-tooltip>
           </template>
-          <el-input v-model="scheduleForm.cron" :placeholder="$t('Cron')"></el-input>
+          <el-input style="width:calc(100% - 100px);padding-right:10px"
+                    v-model="scheduleForm.cron"
+                    :placeholder="$t('Cron')">
+          </el-input>
+          <el-button style="width:100px" type="primary" @click="onShowCronDialog">{{$t('生成Cron')}}</el-button>
         </el-form-item>
         <el-form-item :label="$t('Execute Command')" prop="params">
           <el-input v-model="spider.cmd"
                     :placeholder="$t('Execute Command')"
-                    disabled></el-input>
+                    disabled>
+          </el-input>
         </el-form-item>
         <el-form-item :label="$t('Parameters')" prop="params">
           <el-input v-model="scheduleForm.params"
@@ -49,6 +54,11 @@
         <el-button @click="onCancel">{{$t('Cancel')}}</el-button>
         <el-button type="primary" @click="onAddSubmit">{{$t('Submit')}}</el-button>
       </span>
+    </el-dialog>
+
+    <!--cron generation popup-->
+    <el-dialog title="生成 Cron" :visible.sync="showCron">
+      <vcrontab @hide="showCron=false" @fill="onCrontabFill" :expression="expression"></vcrontab>
     </el-dialog>
 
     <!--filter-->
@@ -95,19 +105,21 @@
 </template>
 
 <script>
+import vcrontab from 'vcrontab'
 import {
   mapState
 } from 'vuex'
 
 export default {
   name: 'ScheduleList',
+  components: { vcrontab },
   data () {
     const cronValidator = (rule, value, callback) => {
       let patArr = []
       for (let i = 0; i < 6; i++) {
-        patArr.push('[/*,0-9]+')
+        patArr.push('[/*,0-9-]+')
       }
-      const pat = '^' + patArr.join(' ') + '$'
+      const pat = '^' + patArr.join(' ') + '( [/*,0-9-]+)?' + '$'
       if (!value) {
         callback(new Error('cron cannot be empty'))
       } else if (!value.match(pat)) {
@@ -126,7 +138,9 @@ export default {
       dialogVisible: false,
       cronRules: [
         { validator: cronValidator, trigger: 'blur' }
-      ]
+      ],
+      showCron: false,
+      expression: ''
     }
   },
   computed: {
@@ -201,6 +215,24 @@ export default {
       this.$st.sendEv('定时任务', '删除', 'id', row._id)
     },
     onCrawl () {
+    },
+    onCrontabFill (value) {
+      value = value.replace(/[?]/g, '*')
+      this.$set(this.scheduleForm, 'cron', value)
+
+      this.$st.sendEv('定时任务', '提交生成Cron', 'cron', this.scheduleForm.cron)
+    },
+    onShowCronDialog () {
+      this.showCron = true
+      if (this.expression.split(' ').length < 7) {
+        // this.expression = (this.scheduleForm.cron + ' ').replace(/[?]/g, '*')
+        this.expression = this.scheduleForm.cron + ' '
+      } else {
+        // this.expression = this.scheduleForm.cron.replace(/[?]/g, '*')
+        this.expression = this.scheduleForm.cron
+      }
+
+      this.$st.sendEv('定时任务', '点击生成Cron', 'cron', this.scheduleForm.cron)
     }
   },
   created () {

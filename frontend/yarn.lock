@@ -2910,6 +2910,18 @@ element-ui@2.4.6:
     resize-observer-polyfill "^1.5.0"
     throttle-debounce "^1.0.1"
 
+element-ui@^2.4.11:
+  version "2.9.1"
+  resolved "https://registry.npm.taobao.org/element-ui/download/element-ui-2.9.1.tgz#a05f2e76023d529ba0dfa2d03ae16e5134b20c4e"
+  integrity sha1-oF8udgI9Upug36LQOuFuUTSyDE4=
+  dependencies:
+    async-validator "~1.8.1"
+    babel-helper-vue-jsx-merge-props "^2.0.0"
+    deepmerge "^1.2.0"
+    normalize-wheel "^1.0.1"
+    resize-observer-polyfill "^1.5.0"
+    throttle-debounce "^1.0.1"
+
 elliptic@^6.0.0:
   version "6.4.1"
   resolved "http://registry.npm.taobao.org/elliptic/download/elliptic-6.4.1.tgz#c2d0b7776911b86722c632c3c06c60f2f819939a"
@@ -8382,6 +8394,14 @@ validate-npm-package-license@^3.0.1:
 vary@~1.1.2:
   version "1.1.2"
   resolved "http://registry.npm.taobao.org/vary/download/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
+
+vcrontab@^0.3.3:
+  version "0.3.3"
+  resolved "https://registry.npm.taobao.org/vcrontab/download/vcrontab-0.3.3.tgz#c4cd48e6d1a74c9bb8d693f7b732463e8eebdef5"
+  integrity sha1-xM1I5tGnTJu41pP3tzJGPo7r3vU=
+  dependencies:
+    element-ui "^2.4.11"
+    vue "^2.5.17"
 
 vendors@^1.0.0:
   version "1.0.2"
