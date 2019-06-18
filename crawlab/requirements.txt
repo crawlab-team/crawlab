@@ -22,6 +22,7 @@ constantly==15.1.0
 cryptography==2.6.1
 cssselect==1.0.3
 csvalidate==1.1.1
+eventlet==0.25.0
 Flask==1.0.2
 Flask-APScheduler==1.11.0
 Flask-Cors==3.0.7
