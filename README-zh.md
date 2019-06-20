@@ -10,7 +10,7 @@
 
 基于Celery的爬虫分布式爬虫管理平台，支持多种编程语言以及多种爬虫框架.
 
-[查看演示 Demo](http://114.67.75.98:8080) | [文档](https://tikazyq.github.io/crawlab)
+[查看演示 Demo](http://114.67.75.98:8080) | [文档](https://tikazyq.github.io/crawlab-docs)
 
 ## 要求
 - Python 3.6+
@@ -29,7 +29,7 @@
 
 #### 首页
 
-![](https://user-gold-cdn.xitu.io/2019/3/6/169524d4c7f117f7?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/home.png)
 
 #### 爬虫列表
 
@@ -37,11 +37,19 @@
 
 #### 爬虫详情 - 概览
 
-![](https://user-gold-cdn.xitu.io/2019/3/6/169524e0794d6be1?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/spider-detail-overview.png)
+
+#### 爬虫详情 - 分析
+
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/spider-detail-analytics.png)
 
 #### 任务详情 - 抓取结果
 
 ![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/task-detail-results.png)
+
+#### 定时任务
+
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/schedule-generate-cron.png)
 
 ## 架构
 

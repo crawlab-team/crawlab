@@ -193,6 +193,31 @@ class TaskApi(BaseApi):
 
     def stop(self, id):
         """
+        Send stop signal to a specific node
+        :param id: task_id
+        """
+        task = db_manager.get('tasks', id=id)
+        node = db_manager.get('nodes', id=task['node_id'])
+        r = requests.get('http://%s:%s/api/tasks/%s/on_stop' % (
+            node['ip'],
+            node['port'],
+            id
+        ))
+        if r.status_code == 200:
+            return {
+                'status': 'ok',
+                'message': 'success'
+            }
+        else:
+            data = json.loads(r.content)
+            return {
+                       'code': 500,
+                       'status': 'ok',
+                       'error': data['error']
+                   }, 500
+
+    def on_stop(self, id):
+        """
         Stop the task in progress.
         :param id:
         :return:

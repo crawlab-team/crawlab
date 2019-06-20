@@ -10,7 +10,7 @@
 
 Celery-based web crawler admin platform for managing distributed web spiders regardless of languages and frameworks. 
 
-[Demo](http://114.67.75.98:8080) | [Documentation](https://tikazyq.github.io/crawlab)
+[Demo](http://114.67.75.98:8080) | [Documentation](https://tikazyq.github.io/crawlab-docs)
 
 ## Pre-requisite
 - Python 3.6+
@@ -20,49 +20,42 @@ Celery-based web crawler admin platform for managing distributed web spiders reg
 
 ## Installation
 
-```bash
-# install the requirements for backend
-pip install -r requirements.txt
-```
-
-```bash
-# install frontend node modules
-cd frontend
-npm install
-```
-
-## Configure
-
-Please edit configuration file `config.py` to configure api and database connections.
-
-## Quick Start
-```bash
-python manage.py serve
-```
+Threee methods:
+1. [Docker](https://tikazyq.github.io/crawlab/Installation/Docker.md) (Recommended)
+2. [Direct Deploy](https://tikazyq.github.io/crawlab/Installation/Direct.md)
+3. [Preview](https://tikazyq.github.io/crawlab/Installation/Direct.md) (Quick start)
 
 ## Screenshot
 
 #### Home Page
 
-![](https://user-gold-cdn.xitu.io/2019/3/6/169524d4c7f117f7?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/home.png)
 
 #### Spider List
 
-![](https://user-gold-cdn.xitu.io/2019/3/6/169524daf9c8ccef?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/spider-list.png)
 
 #### Spider Detail - Overview
 
-![](https://user-gold-cdn.xitu.io/2019/3/6/169524e0794d6be1?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/spider-detail-overview.png)
+
+#### Spider Detail - Analytics
+
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/spider-detail-analytics.png)
 
 #### Task Detail - Results
 
-![](https://user-gold-cdn.xitu.io/2019/3/6/169524e4064c7f0a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/task-detail-results.png)
+
+#### Cron Schedule
+
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/schedule-generate-cron.png)
 
 ## Architecture
 
 Crawlab's architecture is very similar to Celery's, but a few more modules including Frontend, Spiders and Flower are added to feature the crawling management functionality. 
 
-![crawlab-architecture](./docs/img/crawlab-architecture.png)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/architecture.png)
 
 ### Nodes
 
@@ -70,16 +63,7 @@ Nodes are actually the workers defined in Celery. A node is running and connecte
 
 ### Spiders
 
-##### Auto Discovery
-In `config.py` file, edit `PROJECT_SOURCE_FILE_FOLDER` as the directory where the spiders projects are located. The web app will discover spider projects automatically. How simple is that!
-
-##### Deploy Spiders
-
-All spiders need to be deployed to a specific node before crawling. Simply click "Deploy" button on spider detail page and the spiders will be deployed to all active nodes. 
-
-##### Run Spiders
-
-After deploying the spider, you can click "Run" button on spider detail page and select a specific node to start crawling. It will triggers a task for the crawling, where you can see in detail in tasks page.
+The spider source codes and configured crawling rules are stored on `App`, which need to be deployed to each `worker` node.
 
 ### Tasks
 
@@ -146,26 +130,11 @@ Crawlab is easy to use, general enough to adapt spiders in any language and any 
 | [ScrapydWeb](https://github.com/my8100/scrapydweb) | Admin Platform | Y | Y | Y
 | [Scrapyd](https://github.com/scrapy/scrapyd) | Web Service | Y | N | N/A
 
-## TODOs
-##### Backend
-- [ ] File Management
-- [ ] MySQL Database Support
-- [ ] Task Restart
-- [ ] Node Monitoring
-- [ ] More spider examples
-
-##### Frontend
-- [x] Task Stats/Analytics
-- [x] Table Filters
-- [x] Multi-Language Support (中文)
-- [ ] Login & User Management
-- [ ] General Search
-
 ## Community & Sponsorship
 
 If you feel Crawlab could benefit your daily work or your company, please add the author's Wechat account noting "Crawlab" to enter the discussion group. Or you scan the Alipay QR code below to give us a reward to upgrade our teamwork software or buy a coffee.
 
 <p align="center">
-    <img src="https://user-gold-cdn.xitu.io/2019/3/15/169814cbd5e600e9?imageslim" height="360">
-    <img src="https://raw.githubusercontent.com/tikazyq/crawlab/master/docs/img/payment.jpg" height="360">
+    <img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/qrcode.png" height="360">
+    <img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/payment.jpg" height="360">
 </p>

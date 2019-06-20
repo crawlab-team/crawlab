@@ -4,7 +4,6 @@ from apscheduler.jobstores.mongodb import MongoDBJobStore
 from pymongo import MongoClient
 
 from config import MONGO_DB, MONGO_HOST, MONGO_PORT, FLASK_HOST, FLASK_PORT
-from constants.spider import CronEnabled
 from db.manager import db_manager
 
 
