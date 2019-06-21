@@ -6,25 +6,29 @@ from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 # from flask_restplus import Api
-from routes.sites import SiteApi
+from gevent import monkey, pywsgi
+
+file_dir = os.path.dirname(os.path.realpath(__file__))
+root_path = os.path.abspath(os.path.join(file_dir, '.'))
+sys.path.append(root_path)
+
 from utils.log import other
 from constants.node import NodeStatus
 from db.manager import db_manager
 from routes.schedules import ScheduleApi
 from tasks.celery import celery_app
 from tasks.scheduler import scheduler
-
-file_dir = os.path.dirname(os.path.realpath(__file__))
-root_path = os.path.abspath(os.path.join(file_dir, '.'))
-sys.path.append(root_path)
-
 from config import FLASK_HOST, FLASK_PORT, PROJECT_LOGS_FOLDER
+from routes.sites import SiteApi
 from routes.deploys import DeployApi
 from routes.files import FileApi
 from routes.nodes import NodeApi
 from routes.spiders import SpiderApi, SpiderImportApi, SpiderManageApi
 from routes.stats import StatsApi
 from routes.tasks import TaskApi
+
+# 打上猴子补丁
+monkey.patch_all()
 
 # flask app instance
 app = Flask(__name__)
@@ -103,4 +107,6 @@ if not os.path.exists(PROJECT_LOGS_FOLDER):
 
 if __name__ == '__main__':
     # run app instance
-    app.run(host=FLASK_HOST, port=FLASK_PORT, threaded=False, processes=4)
+    # app.run(host=FLASK_HOST, port=FLASK_PORT)
+    server = pywsgi.WSGIServer((FLASK_HOST, FLASK_PORT), app)
+    server.serve_forever()
