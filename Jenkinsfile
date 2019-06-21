@@ -18,13 +18,16 @@ pipeline {
                         env.MODE = 'test'
                     }
                 }
+                sh """
+                echo `whoami`
+                newgrp docker
+                """
             }
         }
         stage('Build') {
             steps {
                 echo "Building..."
                 sh """
-                echo `whoami`
                 docker build -t crawlab:latest .
                 """
             }
