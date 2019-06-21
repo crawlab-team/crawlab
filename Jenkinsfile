@@ -5,9 +5,6 @@ pipeline {
         }
     }
 
-    environment {
-    }
-
     stages {
         stage('Setup') {
             steps {
