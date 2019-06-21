@@ -18,10 +18,6 @@ pipeline {
                         env.MODE = 'test'
                     }
                 }
-                sh """
-                echo `whoami`
-                newgrp docker
-                """
             }
         }
         stage('Build') {
