@@ -6,7 +6,6 @@ from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 # from flask_restplus import Api
-from gevent import monkey, pywsgi
 
 file_dir = os.path.dirname(os.path.realpath(__file__))
 root_path = os.path.abspath(os.path.join(file_dir, '.'))
@@ -104,5 +103,4 @@ if not os.path.exists(PROJECT_LOGS_FOLDER):
 
 if __name__ == '__main__':
     # run app instance
-    server = pywsgi.WSGIServer((FLASK_HOST, FLASK_PORT), app)
-    server.serve_forever()
+    app.run(host=FLASK_HOST, port=FLASK_PORT, threaded=True)
