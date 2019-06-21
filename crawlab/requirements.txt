@@ -10,3 +10,4 @@ Flask==1.0.2
 lxml==4.3.3
 Flask_Cors==3.0.7
 Werkzeug==0.15.2
+eventlet
