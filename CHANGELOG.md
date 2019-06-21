@@ -5,6 +5,7 @@
 - **High Concurrency**: `gevent` + `flask` to support high concurrency. [#70](https://github.com/tikazyq/crawlab/issues/70)
 
 ### Bugs Fixes
+- **Deleting Spider**. Deleting a spider does not only remove record in db but also removing related folder, tasks and schedules. [#69](https://github.com/tikazyq/crawlab/issues/69)
 - **MongoDB Auth**. Allow user to specify `authenticationDatabase` to connect to `mongodb`. [#68](https://github.com/tikazyq/crawlab/issues/68)
 - **Windows Compatibility**. Added `eventlet` to `requirements.txt`. [#59](https://github.com/tikazyq/crawlab/issues/59)
 
