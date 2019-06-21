@@ -1,6 +1,12 @@
 # 0.2.4 (unreleased)
+### Features / Enhancement
 - **Documentation**: Better and much more detailed documentation.
 - **Better Crontab**: Make crontab expression through crontab UI.
+- **High Concurrency**: `gevent` + `flask` to support high concurrency. [#70](https://github.com/tikazyq/crawlab/issues/70)
+
+### Bugs Fixes
+- **MongoDB Auth**. Allow user to specify `authenticationDatabase` to connect to `mongodb`. [#68](https://github.com/tikazyq/crawlab/issues/68)
+- **Windows Compatibility**. Added `eventlet` to `requirements.txt`. [#59](https://github.com/tikazyq/crawlab/issues/59)
 
 
 # 0.2.3 (2019-06-12)
@@ -10,7 +16,7 @@
 - **Upload Spider**: Allow user to upload Customized Spider to Crawlab.
 - **Edit Fields on Preview**: Allow user to edit fields when previewing data in Configurable Spider.
 
-### Bugs ###
+### Bugs Fixes
 - **Spiders Pagination**. Fixed pagination problem in spider page.
 
 # 0.2.2 (2019-05-30)
