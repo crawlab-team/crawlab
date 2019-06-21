@@ -107,6 +107,5 @@ if not os.path.exists(PROJECT_LOGS_FOLDER):
 
 if __name__ == '__main__':
     # run app instance
-    # app.run(host=FLASK_HOST, port=FLASK_PORT)
     server = pywsgi.WSGIServer((FLASK_HOST, FLASK_PORT), app)
     server.serve_forever()
