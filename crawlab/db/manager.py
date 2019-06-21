@@ -1,10 +1,7 @@
 from bson import ObjectId
-from mongoengine import connect
 from pymongo import MongoClient, DESCENDING
-from config import MONGO_HOST, MONGO_PORT, MONGO_DB, MONGO_USERNAME, MONGO_PASSWORD
+from config import MONGO_HOST, MONGO_PORT, MONGO_DB, MONGO_USERNAME, MONGO_PASSWORD, MONGO_AUTH_DB
 from utils import is_object_id
-
-connect(db=MONGO_DB, host=MONGO_HOST, port=MONGO_PORT)
 
 
 class DbManager(object):
@@ -17,6 +14,7 @@ class DbManager(object):
                                  port=MONGO_PORT,
                                  username=MONGO_USERNAME,
                                  password=MONGO_PASSWORD,
+                                 authSource=MONGO_AUTH_DB or MONGO_DB,
                                  connect=False)
         self.db = self.mongo[MONGO_DB]
 

@@ -153,13 +153,14 @@ class SpiderApi(BaseApi):
                 if spider is None:
                     stats = get_file_suffix_stats(dir_path)
                     lang = get_lang_by_stats(stats)
-                    spider = db_manager.save('spiders', {
+                    spider_id = db_manager.save('spiders', {
                         'name': dir_name,
                         'src': dir_path,
                         'lang': lang,
                         'suffix_stats': stats,
                         'type': SpiderType.CUSTOMIZED
                     })
+                    spider = db_manager.get('spiders', id=spider_id)
 
                 # existing spider
                 else:
@@ -214,10 +215,49 @@ class SpiderApi(BaseApi):
                 items[i]['last_5_errors'] = get_last_n_run_errors_count(spider_id=spider['_id'], n=5)
                 items[i]['last_7d_tasks'] = get_last_n_day_tasks_count(spider_id=spider['_id'], n=5)
 
+            # sort spiders by _id descending
+            items = reversed(sorted(items, key=lambda x: x['_id']))
+
             return {
                 'status': 'ok',
                 'items': jsonify(items)
             }
+
+    def delete(self, id: str = None) -> (dict, tuple):
+        """
+        DELETE method of given id for deleting an spider.
+        :param id:
+        :return:
+        """
+        # get spider from db
+        spider = db_manager.get(col_name=self.col_name, id=id)
+
+        # delete spider folder
+        if spider.get('type') == SpiderType.CUSTOMIZED:
+            try:
+                shutil.rmtree(os.path.abspath(os.path.join(PROJECT_SOURCE_FILE_FOLDER, spider['src'])))
+            except Exception as err:
+                return {
+                           'status': 'ok',
+                           'error': str(err)
+                       }, 500
+
+        # perform delete action
+        db_manager.remove_one(col_name=self.col_name, id=id)
+
+        # remove related tasks
+        db_manager.remove(col_name='tasks', cond={'spider_id': spider['_id']})
+
+        # remove related schedules
+        db_manager.remove(col_name='schedules', cond={'spider_id': spider['_id']})
+
+        # execute after_update hook
+        self.after_update(id)
+
+        return {
+            'status': 'ok',
+            'message': 'deleted successfully',
+        }
 
     def crawl(self, id: str) -> (dict, tuple):
         """

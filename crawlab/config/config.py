@@ -20,6 +20,7 @@ MONGO_PORT = 27017
 MONGO_USERNAME = None
 MONGO_PASSWORD = None
 MONGO_DB = 'crawlab_test'
+MONGO_AUTH_DB = 'crawlab_test'
 
 # Celery中间者URL
 BROKER_URL = 'redis://127.0.0.1:6379/0'
