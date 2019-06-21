@@ -27,9 +27,6 @@ from routes.spiders import SpiderApi, SpiderImportApi, SpiderManageApi
 from routes.stats import StatsApi
 from routes.tasks import TaskApi
 
-# 打上猴子补丁
-monkey.patch_all()
-
 # flask app instance
 app = Flask(__name__)
 app.config.from_object('config')
