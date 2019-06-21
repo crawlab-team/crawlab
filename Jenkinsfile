@@ -24,6 +24,7 @@ pipeline {
             steps {
                 echo "Building..."
                 sh """
+                echo `whoami`
                 docker build -t crawlab:latest .
                 """
             }
