@@ -38,7 +38,7 @@ pipeline {
                 echo 'Deploying....'
                 sh """
                 docker stop crawlab | true
-                docker run -d --rm --restart always --name crawlab \
+                docker run -d --rm --name crawlab \
                     -p 8080:8080 \
                     -p 8000:8000 \
                     -v /home/yeqing/.env.production:/opt/crawlab/frontend/.env.production \
