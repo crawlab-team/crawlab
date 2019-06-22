@@ -37,7 +37,7 @@ pipeline {
             steps {
                 echo 'Deploying....'
                 sh """
-                docker stop crawlab | true
+                docker rm -f crawlab | true
                 docker run -d --rm --name crawlab \
                     -p 8080:8080 \
                     -p 8000:8000 \
