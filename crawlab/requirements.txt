@@ -13,3 +13,4 @@ Werkzeug==0.15.2
 eventlet
 Celery
 Flower
+redis
