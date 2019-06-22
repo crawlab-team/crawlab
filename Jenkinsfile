@@ -24,7 +24,7 @@ pipeline {
             steps {
                 echo "Building..."
                 sh """
-                docker build -t crawlab:latest .
+                docker build -t tikazyq/crawlab:latest .
                 """
             }
         }
