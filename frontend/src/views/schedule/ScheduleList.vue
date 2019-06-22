@@ -16,7 +16,14 @@
         </el-form-item>
         <el-form-item :label="$t('Spider')" prop="spider_id" required>
           <el-select v-model="scheduleForm.spider_id" filterable>
-            <el-option v-for="op in spiderList" :key="op._id" :value="op._id" :label="op.name"></el-option>
+            <el-option
+              v-for="op in spiderList"
+              :key="op._id"
+              :value="op._id"
+              :label="op.name"
+              :disabled="!op.cmd || !op.deploy_ts"
+            >
+            </el-option>
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('Cron')" prop="cron" :rules="cronRules" required>

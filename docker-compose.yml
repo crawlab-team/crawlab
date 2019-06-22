@@ -3,7 +3,7 @@ services:
   master: 
     image: tikazyq/crawlab:latest
     container_name: crawlab
-    volumns:
+    volumes:
       - /home/yeqing/config.py:/opt/crawlab/crawlab/config/config.py # 后端配置文件
       - /home/yeqing/.env.production:/opt/crawlab/frontend/.env.production # 前端配置文件
     ports:    
