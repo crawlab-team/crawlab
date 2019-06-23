@@ -9,8 +9,6 @@ import os
 from pymongo import MongoClient
 
 
-
-
 class XueqiuPipeline(object):
     mongo = MongoClient(
         host='localhost',
