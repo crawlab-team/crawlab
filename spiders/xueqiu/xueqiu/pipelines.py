@@ -11,10 +11,10 @@ from pymongo import MongoClient
 
 class XueqiuPipeline(object):
     mongo = MongoClient(
-        host='localhost',
-        port=27017
+        host=os.environ.get('MONGO_HOST') or 'localhost',
+        port=int(os.environ.get('MONGO_DB')) or 27017
     )
-    db = mongo['crawlab_test']
+    db = mongo[os.environ.get('MONGO_DB') or 'crawlab_test']
     col = db.get_collection(os.environ.get('CRAWLAB_COLLECTION') or 'results_xueqiu')
 
     def process_item(self, item, spider):
