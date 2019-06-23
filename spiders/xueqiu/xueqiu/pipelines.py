@@ -22,4 +22,4 @@ class XueqiuPipeline(object):
         item['_id'] = item['id']
         if self.col.find_one({'_id': item['_id']}) is None:
             self.col.save(item)
-        return item
+            return item
