@@ -12,7 +12,7 @@ from pymongo import MongoClient
 class XueqiuPipeline(object):
     mongo = MongoClient(
         host=os.environ.get('MONGO_HOST') or 'localhost',
-        port=int(os.environ.get('MONGO_PORT')) or 27017
+        port=int(os.environ.get('MONGO_PORT') or 27017)
     )
     db = mongo[os.environ.get('MONGO_DB') or 'crawlab_test']
     col = db.get_collection(os.environ.get('CRAWLAB_COLLECTION') or 'results_xueqiu')
