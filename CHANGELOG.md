@@ -2,7 +2,6 @@
 ### Features / Enhancement
 - **Documentation**: Better and much more detailed documentation.
 - **Better Crontab**: Make crontab expression through crontab UI.
-- **High Concurrency**: `gevent` + `flask` to support high concurrency. [#70](https://github.com/tikazyq/crawlab/issues/70)
 
 ### Bugs Fixes
 - **Deleting Spider**. Deleting a spider does not only remove record in db but also removing related folder, tasks and schedules. [#69](https://github.com/tikazyq/crawlab/issues/69)

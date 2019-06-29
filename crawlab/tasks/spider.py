@@ -2,6 +2,7 @@ import os
 import sys
 from datetime import datetime
 from time import sleep
+import traceback
 
 from bson import ObjectId
 from pymongo import ASCENDING, DESCENDING
@@ -213,8 +214,10 @@ def execute_config_spider(self, id: str, params: str = None):
     env['MONGO_HOST'] = MONGO_HOST
     env['MONGO_PORT'] = str(MONGO_PORT)
     env['MONGO_DB'] = MONGO_DB
-    env['MONGO_USERNAME'] = MONGO_USERNAME
-    env['MONGO_PASSWORD'] = MONGO_PASSWORD
+    if MONGO_USERNAME is not None:
+        env['MONGO_USERNAME'] = MONGO_USERNAME
+    if MONGO_PASSWORD:
+        env['MONGO_PASSWORD'] = MONGO_PASSWORD
 
     cmd_arr = [
         sys.executable,
@@ -246,6 +249,7 @@ def execute_config_spider(self, id: str, params: str = None):
         else:
             status = TaskStatus.FAILURE
     except Exception as err:
+        traceback.print_exc()
         logger.error(err)
         stderr.write(str(err))
         status = TaskStatus.FAILURE

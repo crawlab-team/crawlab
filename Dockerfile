@@ -35,8 +35,8 @@ RUN npm install -g yarn \
 	&& yarn install
 
 # install backend
-RUN pip install -U setuptools \
-	&& pip install -r /opt/crawlab/crawlab/requirements.txt
+RUN pip install -U setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple \
+	&& pip install -r /opt/crawlab/crawlab/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # start backend
 EXPOSE 8080
