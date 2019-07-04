@@ -17,9 +17,12 @@ class SinastockPipeline(object):
     db = mongo[os.environ.get('MONGO_DB') or 'crawlab_test']
     col = db.get_collection(os.environ.get('CRAWLAB_COLLECTION') or 'stock_news')
 
+    # create indexes
+    col.create_index('stocks')
+    col.create_index('url')
+
     def process_item(self, item, spider):
         item['task_id'] = os.environ.get('CRAWLAB_TASK_ID')
-        item['_id'] = item['url']
-        if self.col.find_one({'_id': item['_id']}) is None:
+        if self.col.find_one({'url': item['url']}) is None:
             self.col.save(item)
             return item

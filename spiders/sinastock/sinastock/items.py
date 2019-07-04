@@ -17,3 +17,5 @@ class NewsItem(scrapy.Item):
     url = scrapy.Field()
     text = scrapy.Field()
     task_id = scrapy.Field()
+    source = scrapy.Field()
+    stocks = scrapy.Field()

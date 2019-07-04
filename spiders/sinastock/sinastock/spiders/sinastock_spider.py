@@ -27,7 +27,8 @@ class SinastockSpiderSpider(scrapy.Spider):
                 url = f'http://vip.stock.finance.sina.com.cn/corp/view/vCB_AllNewsStock.php?symbol={ex.lower()}{code}&Page={i + 1}'
                 yield scrapy.Request(
                     url=url,
-                    callback=self.parse
+                    callback=self.parse,
+                    meta={'ts_code': s['ts_code']}
                 )
 
     def parse(self, response):
@@ -36,6 +37,8 @@ class SinastockSpiderSpider(scrapy.Spider):
             item = NewsItem(
                 title=a.css('a::text').extract_first(),
                 url=url,
+                source='sina',
+                stocks=[response.meta['ts_code']]
             )
             yield scrapy.Request(
                 url=url,
