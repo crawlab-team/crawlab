@@ -89,7 +89,7 @@ Crawlab的架构跟Celery非常相似，但是加入了包括前端、爬虫、F
 
 任务是利用python的`subprocess`模块中的`Popen`来实现的。任务ID将以环境变量`CRAWLAB_TASK_ID`的形式存在于爬虫任务运行的进程中，并以此来关联抓取数据。
 
-在你的爬虫程序中，你需要将`CRAWLAB_TASK_ID`的值以`task_id`作为可以存入数据库中。这样Crawlab就直到如何将爬虫任务与抓取数据关联起来了。当前，Crawlab只支持MongoDB。
+在你的爬虫程序中，你需要将`CRAWLAB_TASK_ID`的值以`task_id`作为可以存入数据库中。这样Crawlab就知道如何将爬虫任务与抓取数据关联起来了。当前，Crawlab只支持MongoDB。
 
 ### Scrapy
 
