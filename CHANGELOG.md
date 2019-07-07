@@ -2,6 +2,7 @@
 ### Features / Enhancement
 - **Documentation**: Better and much more detailed documentation.
 - **Better Crontab**: Make crontab expression through crontab UI.
+- **Better Performance**: Switched from native flask engine to `gunicorn`. [#78](https://github.com/tikazyq/crawlab/issues/78)
 
 ### Bugs Fixes
 - **Deleting Spider**. Deleting a spider does not only remove record in db but also removing related folder, tasks and schedules. [#69](https://github.com/tikazyq/crawlab/issues/69)
