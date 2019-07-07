@@ -14,3 +14,4 @@ eventlet
 Celery
 Flower
 redis
+gunicorn
