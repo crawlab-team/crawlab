@@ -18,7 +18,7 @@ class SinastockSpiderSpider(scrapy.Spider):
     )
     db = mongo[os.environ.get('MONGO_DB') or 'crawlab_test']
     col = db.get_collection(os.environ.get('CRAWLAB_COLLECTION') or 'stock_news')
-    page_num = os.environ.get('PAGE_NUM') or 3
+    page_num = int(os.environ.get('PAGE_NUM')) or 3
 
     def start_requests(self):
         col = self.db['stocks']
