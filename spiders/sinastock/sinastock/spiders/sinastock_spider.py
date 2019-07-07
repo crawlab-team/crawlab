@@ -5,8 +5,12 @@ from datetime import datetime
 
 import scrapy
 from pymongo import MongoClient
+import pytz
 
 from sinastock.items import NewsItem
+
+# 时区
+tz = pytz.timezone('Asia/Shanghai')
 
 
 class SinastockSpiderSpider(scrapy.Spider):
@@ -57,5 +61,7 @@ class SinastockSpiderSpider(scrapy.Spider):
         if item['text'] is None or item['ts_str'] is None:
             pass
         else:
-            item['ts'] = datetime.strptime(item['ts_str'], '%Y年%m月%d日 %H:%M')
+            ts = datetime.strptime(item['ts_str'], '%Y年%m月%d日 %H:%M')
+            ts = tz.localize(ts)
+            item['ts'] = ts
             yield item
