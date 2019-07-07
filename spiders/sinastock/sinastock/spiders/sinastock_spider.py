@@ -18,12 +18,13 @@ class SinastockSpiderSpider(scrapy.Spider):
     )
     db = mongo[os.environ.get('MONGO_DB') or 'crawlab_test']
     col = db.get_collection(os.environ.get('CRAWLAB_COLLECTION') or 'stock_news')
+    page_num = os.environ.get('PAGE_NUM') or 3
 
     def start_requests(self):
         col = self.db['stocks']
         for s in col.find({}):
             code, ex = s['ts_code'].split('.')
-            for i in range(10):
+            for i in range(self.page_num):
                 url = f'http://vip.stock.finance.sina.com.cn/corp/view/vCB_AllNewsStock.php?symbol={ex.lower()}{code}&Page={i + 1}'
                 yield scrapy.Request(
                     url=url,
