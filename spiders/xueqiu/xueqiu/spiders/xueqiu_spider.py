@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+from datetime import datetime
 from time import sleep
 
 import scrapy
@@ -32,9 +33,11 @@ class XueqiuSpiderSpider(scrapy.Spider):
                 id=d['id'],
                 text=d['text'],
                 mark=d['mark'],
-                target=d['target'],
+                url=d['target'],
                 created_at=d['created_at'],
+                ts=datetime.fromtimestamp(d['created_at'] / 1e3),
                 view_count=d['view_count'],
+                source='xueqiu'
             )
             yield item
 

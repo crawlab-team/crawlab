@@ -8,16 +8,14 @@
 import scrapy
 
 
-class XueqiuItem(scrapy.Item):
+class NewsItem(scrapy.Item):
     # define the fields for your item here like:
     _id = scrapy.Field()
-    task_id = scrapy.Field()
-    id = scrapy.Field()
-    text = scrapy.Field()
-    url = scrapy.Field()
-    target = scrapy.Field()
-    view_count = scrapy.Field()
-    mark = scrapy.Field()
-    created_at = scrapy.Field()
+    title = scrapy.Field()
+    ts_str = scrapy.Field()
     ts = scrapy.Field()
+    url = scrapy.Field()
+    text = scrapy.Field()
+    task_id = scrapy.Field()
     source = scrapy.Field()
+    stocks = scrapy.Field()

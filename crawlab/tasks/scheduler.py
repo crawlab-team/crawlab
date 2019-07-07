@@ -1,3 +1,6 @@
+import atexit
+import fcntl
+
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.mongodb import MongoDBJobStore
@@ -65,8 +68,19 @@ class Scheduler(object):
         print(f'running: {self.scheduler.running}')
 
     def run(self):
-        self.update()
-        self.scheduler.start()
+        f = open("scheduler.lock", "wb")
+        try:
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            self.update()
+            self.scheduler.start()
+        except:
+            pass
+
+        def unlock():
+            fcntl.flock(f, fcntl.LOCK_UN)
+            f.close()
+
+        atexit.register(unlock)
 
 
 scheduler = Scheduler()
