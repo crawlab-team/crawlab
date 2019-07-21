@@ -7,13 +7,13 @@
                class="node-form"
                label-position="right">
         <el-form-item :label="$t('Node Name')">
-          <el-input v-model="nodeForm.name" :placeholder="$t('Node Name')" disabled></el-input>
+          <el-input v-model="nodeForm.name" :placeholder="$t('Node Name')" :disabled="isView"></el-input>
         </el-form-item>
         <el-form-item :label="$t('Node IP')" prop="ip" required>
-          <el-input v-model="nodeForm.ip" :placeholder="$t('Node IP')" :disabled="isView"></el-input>
+          <el-input v-model="nodeForm.ip" :placeholder="$t('Node IP')" disabled></el-input>
         </el-form-item>
-        <el-form-item :label="$t('Node Port')" prop="port" required>
-          <el-input v-model="nodeForm.port" :placeholder="$t('Node Port')" :disabled="isView"></el-input>
+        <el-form-item :label="$t('Node MAC')" prop="ip" required>
+          <el-input v-model="nodeForm.mac" :placeholder="$t('Node MAC')" disabled></el-input>
         </el-form-item>
         <el-form-item :label="$t('Description')">
           <el-input type="textarea" v-model="nodeForm.description" :placeholder="$t('Description')" :disabled="isView">

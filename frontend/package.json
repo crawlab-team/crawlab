@@ -3,8 +3,8 @@
   "version": "0.2.3",
   "private": true,
   "scripts": {
-    "serve": "cross-env NODE_ENV=development vue-cli-service serve --ip=0.0.0.0",
-    "serve:prod": "cross-env NODE_ENV=production vue-cli-service serve --mode=production --ip=0.0.0.0",
+    "serve": "vue-cli-service serve --ip=0.0.0.0",
+    "serve:prod": "vue-cli-service serve --mode=production --ip=0.0.0.0",
     "config": "vue ui",
     "build:prod": "vue-cli-service build --mode production",
     "lint": "vue-cli-service lint",

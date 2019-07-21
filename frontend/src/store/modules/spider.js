@@ -76,43 +76,13 @@ const actions = {
     if (state.filterSite) {
       params.site = state.filterSite
     }
-    console.log(params)
     return request.get('/spiders', params)
       .then(response => {
-        commit('SET_SPIDER_LIST', response.data.items)
-      })
-  },
-  addSpider ({ state, dispatch }) {
-    return request.put('/spiders', {
-      name: state.spiderForm.name,
-      col: state.spiderForm.col,
-      type: 'configurable',
-      site: state.spiderForm.site
-    })
-      .then(() => {
-        dispatch('getSpiderList')
+        commit('SET_SPIDER_LIST', response.data.data)
       })
   },
   editSpider ({ state, dispatch }) {
-    return request.post(`/spiders/${state.spiderForm._id}`, {
-      name: state.spiderForm.name,
-      src: state.spiderForm.src,
-      cmd: state.spiderForm.cmd,
-      type: state.spiderForm.type,
-      lang: state.spiderForm.lang,
-      col: state.spiderForm.col,
-      site: state.spiderForm.site,
-      // configurable spider
-      crawl_type: state.spiderForm.crawl_type,
-      start_url: state.spiderForm.start_url,
-      url_pattern: state.spiderForm.url_pattern,
-      item_selector: state.spiderForm.item_selector,
-      item_selector_type: state.spiderForm.item_selector_type,
-      pagination_selector: state.spiderForm.pagination_selector,
-      pagination_selector_type: state.spiderForm.pagination_selector_type,
-      obey_robots_txt: state.spiderForm.obey_robots_txt,
-      item_threshold: state.spiderForm.item_threshold
-    })
+    return request.post(`/spiders/${state.spiderForm._id}`, state.spiderForm)
       .then(() => {
         dispatch('getSpiderList')
       })
@@ -123,60 +93,24 @@ const actions = {
         dispatch('getSpiderList')
       })
   },
-  updateSpiderEnvs ({ state }) {
-    return request.post(`/spiders/${state.spiderForm._id}/update_envs`, {
-      envs: JSON.stringify(state.spiderForm.envs)
-    })
-  },
-  updateSpiderFields ({ state }) {
-    return request.post(`/spiders/${state.spiderForm._id}/update_fields`, {
-      fields: JSON.stringify(state.spiderForm.fields)
-    })
-  },
-  updateSpiderDetailFields ({ state }) {
-    return request.post(`/spiders/${state.spiderForm._id}/update_detail_fields`, {
-      detail_fields: JSON.stringify(state.spiderForm.detail_fields)
-    })
-  },
   getSpiderData ({ state, commit }, id) {
     return request.get(`/spiders/${id}`)
       .then(response => {
-        let data = response.data
-        data.cron_enabled = !!data.cron_enabled
+        let data = response.data.data
         commit('SET_SPIDER_FORM', data)
       })
   },
-  deploySpider ({ state, dispatch }, id) {
-    return request.post(`/spiders/${id}/deploy`)
-      .then(response => {
-        console.log(response.data)
-      })
-      .then(response => {
-        dispatch('getSpiderData', id)
-        dispatch('getSpiderList')
-      })
-  },
   crawlSpider ({ state, dispatch }, id) {
-    return request.post(`/spiders/${id}/on_crawl`)
-      .then(response => {
-        console.log(response.data)
-      })
-  },
-  getDeployList ({ state, commit }, id) {
-    return request.get(`/spiders/${id}/get_deploys`)
-      .then(response => {
-        commit('deploy/SET_DEPLOY_LIST',
-          response.data.items.map(d => {
-            return d
-          }).sort((a, b) => a.finish_ts < b.finish_ts ? 1 : -1),
-          { root: true })
-      })
+    return request.put(`/tasks`, {
+      spider_id: id
+      // TODO: node_id
+    })
   },
   getTaskList ({ state, commit }, id) {
-    return request.get(`/spiders/${id}/get_tasks`)
+    return request.get(`/spiders/${id}/tasks`)
       .then(response => {
         commit('task/SET_TASK_LIST',
-          response.data.items.map(d => {
+          response.data.data.map(d => {
             return d
           }).sort((a, b) => a.create_ts < b.create_ts ? 1 : -1),
           { root: true })
@@ -185,15 +119,6 @@ const actions = {
   importGithub ({ state }) {
     const url = state.importForm.url
     return request.post('/spiders/import/github', { url })
-      .then(response => {
-        console.log(response)
-      })
-  },
-  deployAll () {
-    return request.post('/spiders/manage/deploy_all')
-      .then(response => {
-        console.log(response)
-      })
   },
   getSpiderStats ({ state, commit }) {
     return request.get('/stats/get_spider_stats?spider_id=' + state.spiderForm._id)

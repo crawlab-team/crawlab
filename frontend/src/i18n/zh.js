@@ -30,13 +30,13 @@ export default {
   'Latest Tasks': '最近任务',
   'Latest Deploys': '最近部署',
 
-  // 状态
-  PENDING: '待定',
-  STARTED: '已开始',
-  SUCCESS: '成功',
-  FAILURE: '错误',
-  UNAVAILABLE: '未知',
-  REVOKED: '已取消',
+  // 任务状态
+  Pending: '待定',
+  Running: '进行中',
+  Finished: '已完成',
+  Error: '错误',
+  NA: '未知',
+  Cancelled: '已取消',
 
   // 操作
   Add: '添加',
@@ -72,6 +72,7 @@ export default {
   'Node Info': '节点信息',
   'Node Name': '节点名称',
   'Node IP': '节点IP',
+  'Node MAC': '节点MAC',
   'Node Port': '节点端口',
   'Description': '描述',
 

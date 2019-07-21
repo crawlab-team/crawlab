@@ -10,16 +10,10 @@
           <el-input v-model="taskForm._id" placeholder="Task ID" disabled></el-input>
         </el-form-item>
         <el-form-item :label="$t('Status')">
-          <el-tag type="success" v-if="taskForm.status === 'SUCCESS'">{{$t('SUCCESS')}}</el-tag>
-          <el-tag type="warning" v-else-if="taskForm.status === 'STARTED'">{{$t('STARTED')}}</el-tag>
-          <el-tag type="danger" v-else-if="taskForm.status === 'FAILURE'">{{$t('FAILURE')}}</el-tag>
-          <el-tag type="info" v-else>{{$t(taskForm.status)}}</el-tag>
+          <status-tag :status="taskForm.status"/>
         </el-form-item>
-        <!--<el-form-item label="Spider Version">-->
-        <!--<el-input v-model="taskForm.spider_version" placeholder="Spider Version" disabled></el-input>-->
-        <!--</el-form-item>-->
         <el-form-item :label="$t('Log File Path')">
-          <el-input v-model="taskForm.log_file_path" placeholder="Log File Path" disabled></el-input>
+          <el-input v-model="taskForm.log_stdout_path" placeholder="Log File Path" disabled></el-input>
         </el-form-item>
         <el-form-item :label="$t('Create Timestamp')">
           <el-input v-model="taskForm.create_ts" placeholder="Create Timestamp" disabled></el-input>
@@ -37,9 +31,9 @@
           <el-input v-model="taskForm.avg_num_results" placeholder="Average Results Count per Second" disabled>
           </el-input>
         </el-form-item>
-        <el-form-item :label="$t('Error Message')" v-if="taskForm.status === 'FAILURE'">
+        <el-form-item :label="$t('Error Message')" v-if="taskForm.status === 'error'">
           <div class="error-message">
-            {{taskForm.log}}
+            {{ taskForm.error }}
           </div>
         </el-form-item>
       </el-form>
@@ -55,15 +49,17 @@
 import {
   mapState
 } from 'vuex'
+import StatusTag from '../Status/StatusTag'
 
 export default {
   name: 'NodeInfoView',
+  components: { StatusTag },
   computed: {
     ...mapState('task', [
       'taskForm'
     ]),
     isRunning () {
-      return !['SUCCESS', 'FAILURE'].includes(this.taskForm.status)
+      return ['pending', 'running'].includes(this.taskForm.status)
     }
   },
   methods: {

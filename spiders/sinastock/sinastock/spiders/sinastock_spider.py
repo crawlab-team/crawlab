@@ -5,12 +5,8 @@ from datetime import datetime
 
 import scrapy
 from pymongo import MongoClient
-import pytz
 
 from sinastock.items import NewsItem
-
-# 时区
-tz = pytz.timezone('Asia/Shanghai')
 
 
 class SinastockSpiderSpider(scrapy.Spider):
@@ -22,13 +18,12 @@ class SinastockSpiderSpider(scrapy.Spider):
     )
     db = mongo[os.environ.get('MONGO_DB') or 'crawlab_test']
     col = db.get_collection(os.environ.get('CRAWLAB_COLLECTION') or 'stock_news')
-    page_num = int(os.environ.get('PAGE_NUM')) or 3
 
     def start_requests(self):
         col = self.db['stocks']
         for s in col.find({}):
             code, ex = s['ts_code'].split('.')
-            for i in range(self.page_num):
+            for i in range(10):
                 url = f'http://vip.stock.finance.sina.com.cn/corp/view/vCB_AllNewsStock.php?symbol={ex.lower()}{code}&Page={i + 1}'
                 yield scrapy.Request(
                     url=url,
@@ -61,7 +56,5 @@ class SinastockSpiderSpider(scrapy.Spider):
         if item['text'] is None or item['ts_str'] is None:
             pass
         else:
-            ts = datetime.strptime(item['ts_str'], '%Y年%m月%d日 %H:%M')
-            ts = tz.localize(ts)
-            item['ts'] = ts
+            item['ts'] = datetime.strptime(item['ts_str'], '%Y年%m月%d日 %H:%M')
             yield item

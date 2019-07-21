@@ -10,7 +10,7 @@
           <el-input v-model="spiderForm._id" :placeholder="$t('Spider ID')" disabled></el-input>
         </el-form-item>
         <el-form-item :label="$t('Spider Name')">
-          <el-input v-model="spiderForm.name" :placeholder="$t('Spider Name')" :disabled="isView"></el-input>
+          <el-input v-model="spiderForm.display_name" :placeholder="$t('Spider Name')" :disabled="isView"></el-input>
         </el-form-item>
         <el-form-item v-if="isCustomized" :label="$t('Source Folder')">
           <el-input v-model="spiderForm.src" :placeholder="$t('Source Folder')" disabled></el-input>
@@ -28,6 +28,7 @@
                            :placeholder="$t('Site')"
                            :fetch-suggestions="fetchSiteSuggestions"
                            clearable
+                           :disabled="isView"
                            @select="onSiteSelect">
           </el-autocomplete>
         </el-form-item>
@@ -49,7 +50,6 @@
     </el-row>
     <el-row class="button-container" v-if="!isView">
       <el-button v-if="isShowRun" type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
-      <el-button v-if="isCustomized" type="primary" @click="onDeploy">{{$t('Deploy')}}</el-button>
       <el-button type="success" @click="onSave">{{$t('Save')}}</el-button>
     </el-row>
   </div>
@@ -100,9 +100,6 @@ export default {
     isShowRun () {
       if (this.isCustomized) {
         // customized spider
-        if (!this.spiderForm.deploy_ts) {
-          return false
-        }
         return !!this.spiderForm.cmd
       } else {
         // configurable spider
@@ -128,29 +125,6 @@ export default {
                   this.$message.success(this.$t(`Spider task has been scheduled`))
                 })
               this.$st.sendEv('爬虫详情-概览', '运行')
-            })
-        }
-      })
-    },
-    onDeploy () {
-      const row = this.spiderForm
-
-      // save spider
-      this.$store.dispatch('spider/editSpider', row._id)
-
-      // validate fields
-      this.$refs['spiderForm'].validate(res => {
-        if (res) {
-          this.$confirm(this.$t('Are you sure to deploy this spider?'), this.$t('Notification'), {
-            confirmButtonText: this.$t('Confirm'),
-            cancelButtonText: this.$t('Cancel')
-          })
-            .then(() => {
-              this.$store.dispatch('spider/deploySpider', row._id)
-                .then(() => {
-                  this.$message.success(this.$t(`Spider has been deployed`))
-                })
-              this.$st.sendEv('爬虫详情-概览', '部署')
             })
         }
       })

@@ -40,7 +40,7 @@ import SpiderStats from '../../components/Stats/SpiderStats'
 import ConfigList from '../../components/Config/ConfigList'
 
 export default {
-  name: 'NodeDetail',
+  name: 'SpiderDetail',
   components: {
     ConfigList,
     SpiderStats,
@@ -95,9 +95,6 @@ export default {
         // get spider file info
         this.$store.dispatch('file/getFileList', this.spiderForm.src)
       })
-
-    // get spider deploys
-    this.$store.dispatch('spider/getDeployList', this.$route.params.id)
 
     // get spider tasks
     this.$store.dispatch('spider/getTaskList', this.$route.params.id)

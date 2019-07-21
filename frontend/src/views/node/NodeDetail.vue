@@ -57,9 +57,6 @@ export default {
     // get node basic info
     this.$store.dispatch('node/getNodeData', this.$route.params.id)
 
-    // get node deploy list
-    this.$store.dispatch('node/getDeployList', this.$route.params.id)
-
     // get node task list
     this.$store.dispatch('node/getTaskList', this.$route.params.id)
   }

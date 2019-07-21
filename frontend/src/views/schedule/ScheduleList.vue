@@ -14,6 +14,18 @@
         <el-form-item :label="$t('Schedule Name')" prop="name" required>
           <el-input v-model="scheduleForm.name" :placeholder="$t('Schedule Name')"></el-input>
         </el-form-item>
+        <el-form-item :label="$t('Node')" prop="node_id">
+          <el-select v-model="scheduleForm.node_id">
+            <el-option :label="$t('All Nodes')" value="000000000000000000000000"></el-option>
+            <el-option
+              v-for="op in nodeList"
+              :key="op._id"
+              :value="op._id"
+              :label="op.name"
+              :disabled="op.status === 'offline'"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item :label="$t('Spider')" prop="spider_id" required>
           <el-select v-model="scheduleForm.spider_id" filterable>
             <el-option
@@ -21,7 +33,7 @@
               :key="op._id"
               :value="op._id"
               :label="op.name"
-              :disabled="!op.cmd || !op.deploy_ts"
+              :disabled="!op.cmd"
             >
             </el-option>
           </el-select>
@@ -90,11 +102,11 @@
                          :property="col.name"
                          :label="$t(col.label)"
                          :sortable="col.sortable"
-                         align="center"
+                         :align="col.align"
                          :width="col.width">
         </el-table-column>
       </template>
-      <el-table-column :label="$t('Action')" align="left" width="250">
+      <el-table-column :label="$t('Action')" align="left" width="250" fixed="right">
         <template slot-scope="scope">
           <el-tooltip :content="$t('Edit')" placement="top">
             <el-button type="warning" icon="el-icon-edit" size="mini" @click="onEdit(scope.row)"></el-button>
@@ -136,8 +148,10 @@ export default {
     }
     return {
       columns: [
-        { name: 'name', label: 'Name', width: '220' },
-        { name: 'cron', label: 'Cron', width: '220' },
+        { name: 'name', label: 'Name', width: '180' },
+        { name: 'cron', label: 'Cron', width: '120' },
+        { name: 'node_name', label: 'Node', width: '150' },
+        { name: 'spider_name', label: 'Spider', width: '150' },
         { name: 'description', label: 'Description', width: 'auto' }
       ],
       isEdit: false,
@@ -157,6 +171,9 @@ export default {
     ]),
     ...mapState('spider', [
       'spiderList'
+    ]),
+    ...mapState('node', [
+      'nodeList'
     ]),
     filteredTableData () {
       return this.scheduleList
@@ -245,6 +262,7 @@ export default {
   created () {
     this.$store.dispatch('schedule/getScheduleList')
     this.$store.dispatch('spider/getSpiderList')
+    this.$store.dispatch('node/getNodeList')
   }
 }
 </script>

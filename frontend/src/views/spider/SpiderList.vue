@@ -111,9 +111,6 @@
         </el-autocomplete>
       </div>
       <div class="right">
-        <el-button type="primary" icon="fa fa-cloud" @click="onDeployAll">
-          {{$t('Deploy All')}}
-        </el-button>
         <el-button type="primary" icon="fa fa-download" @click="openImportDialog">
           {{$t('Import Spiders')}}
         </el-button>
@@ -173,6 +170,15 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column v-else-if="col.name === 'cmd'"
+                         :key="col.name"
+                         :label="$t(col.label)"
+                         :width="col.width"
+                         align="left">
+          <template slot-scope="scope">
+            <el-input v-model="scope.row[col.name]"></el-input>
+          </template>
+        </el-table-column>
         <el-table-column v-else
                          :key="col.name"
                          :property="col.name"
@@ -182,21 +188,18 @@
                          :width="col.width">
         </el-table-column>
       </template>
-      <el-table-column :label="$t('Action')" align="left" width="auto" fixed="right">
+      <el-table-column :label="$t('Action')" align="left" width="150" fixed="right">
         <template slot-scope="scope">
           <el-tooltip :content="$t('View')" placement="top">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
           </el-tooltip>
-          <!--<el-tooltip :content="$t('Edit')" placement="top">-->
-          <!--<el-button type="warning" icon="el-icon-edit" size="mini" @click="onView(scope.row)"></el-button>-->
-          <!--</el-tooltip>-->
           <el-tooltip :content="$t('Remove')" placement="top">
             <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
           </el-tooltip>
-          <el-tooltip v-if="scope.row.type === 'customized'" :content="$t('Deploy')" placement="top">
-            <el-button type="primary" icon="fa fa-cloud" size="mini" @click="onDeploy(scope.row)"></el-button>
+          <el-tooltip v-if="!isShowRun(scope.row)" :content="$t('No command line')" placement="top">
+            <el-button disabled type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
           </el-tooltip>
-          <el-tooltip v-if="isShowRun(scope.row)" :content="$t('Run')" placement="top">
+          <el-tooltip v-else :content="$t('Run')" placement="top">
             <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
           </el-tooltip>
         </template>
@@ -244,7 +247,8 @@ export default {
         { name: 'name', label: 'Name', width: '180', align: 'left' },
         { name: 'site_name', label: 'Site', width: '140', align: 'left' },
         { name: 'type', label: 'Spider Type', width: '120' },
-        { name: 'lang', label: 'Language', width: '120', sortable: true },
+        // { name: 'cmd', label: 'Command Line', width: '200' },
+        // { name: 'lang', label: 'Language', width: '120', sortable: true },
         { name: 'task_ts', label: 'Last Run', width: '160' },
         { name: 'last_7d_tasks', label: 'Last 7-Day Tasks', width: '80' },
         { name: 'last_5_errors', label: 'Last 5-Run Errors', width: '80' }
@@ -371,22 +375,6 @@ export default {
         this.$st.sendEv('爬虫', '删除')
       })
     },
-    onDeploy (row) {
-      this.$confirm(this.$t('Are you sure to deploy this spider?'), this.$t('Notification'), {
-        confirmButtonText: this.$t('Confirm'),
-        cancelButtonText: this.$t('Cancel'),
-        type: 'warning'
-      }).then(() => {
-        this.$store.dispatch('spider/deploySpider', row._id)
-          .then(() => {
-            this.$message({
-              type: 'success',
-              message: 'Deployed successfully'
-            })
-          })
-        this.$st.sendEv('爬虫', '部署')
-      })
-    },
     onCrawl (row) {
       this.$confirm(this.$t('Are you sure to run this spider?'), this.$t('Notification'), {
         confirmButtonText: this.$t('Confirm'),
@@ -431,26 +419,9 @@ export default {
     openImportDialog () {
       this.dialogVisible = true
     },
-    onDeployAll () {
-      this.$confirm(this.$t('Are you sure to deploy all spiders to active nodes?'), this.$t('Notification'), {
-        confirmButtonText: this.$t('Confirm'),
-        cancelButtonText: this.$t('Cancel'),
-        type: 'warning'
-      })
-        .then(() => {
-          this.$store.dispatch('spider/deployAll')
-            .then(() => {
-              this.$message.success(this.$t('Deployed all spiders successfully'))
-            })
-          this.$st.sendEv('爬虫', '部署所有爬虫')
-        })
-    },
     isShowRun (row) {
       if (this.isCustomized(row)) {
         // customized spider
-        if (!row.deploy_ts) {
-          return false
-        }
         return !!row.cmd
       } else {
         // configurable spider

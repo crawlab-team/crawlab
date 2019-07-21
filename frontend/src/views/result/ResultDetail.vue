@@ -28,7 +28,7 @@ import FileList from '../../components/FileList/FileList'
 import SpiderOverview from '../../components/Overview/SpiderOverview'
 
 export default {
-  name: 'NodeDetail',
+  name: 'ResultDetail',
   components: {
     FileList,
     SpiderOverview
