@@ -93,7 +93,9 @@ func GetNodeTaskList(c *gin.Context) {
 }
 
 func GetSystemInfo(c *gin.Context) {
-	sysInfo, _ := services.GetSystemInfo()
+	id := c.Param("id")
+
+	sysInfo, _ := services.GetSystemInfo(id)
 
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",

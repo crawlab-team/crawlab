@@ -22,6 +22,27 @@ type Data struct {
 	UpdateTs time.Time `json:"update_ts"`
 }
 
+type NodeMessage struct {
+	// 通信类别
+	Type string `json:"type"`
+
+	// 任务相关
+	TaskId string `json:"task_id"` // 任务ID
+
+	// 节点相关
+	NodeId string `json:"node_id"` // 节点ID
+
+	// 日志相关
+	LogPath string `json:"log_path"` // 日志路径
+	Log     string `json:"log"`      // 日志
+
+	// 系统信息
+	SysInfo model.SystemInfo `json:"sys_info"`
+
+	// 错误相关
+	Error string `json:"error"`
+}
+
 const (
 	Yes = "Y"
 	No  = "N"
@@ -65,23 +86,49 @@ func GetCurrentNode() (model.Node, error) {
 	// 获取本机MAC地址
 	mac, err := GetMac()
 	if err != nil {
+		debug.PrintStack()
 		return model.Node{}, err
 	}
 
-	s, c := database.GetCol("nodes")
-	defer s.Close()
-
 	// 从数据库中获取当前节点
-	var n model.Node
-	if err := c.Find(bson.M{"mac": mac}).One(&n); err != nil {
-		return n, err
+	var node model.Node
+	errNum := 0
+	for {
+		// 如果错误次数超过10次
+		if errNum >= 10 {
+			panic("cannot get current node")
+		}
+
+		// 尝试获取节点
+		node, err = model.GetNodeByMac(mac)
+
+		// 如果获取失败
+		if err != nil {
+			// 增加错误次数
+			errNum++
+
+			// 5秒后重试
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		// 跳出循环
+		break
 	}
-	return n, nil
+
+	return node, nil
 }
 
-// 是否为主节点
+// 当前节点是否为主节点
 func IsMaster() bool {
 	return viper.GetString("server.master") == Yes
+}
+
+// 该ID的节点是否为主节点
+func IsMasterNode(id string) bool {
+	curNode, _ := GetCurrentNode()
+	node, _ := model.GetNode(bson.ObjectIdHex(id))
+	return curNode.Id == node.Id
 }
 
 // 获取节点数据
@@ -127,6 +174,7 @@ func UpdateNodeStatus() {
 		// 如果记录的更新时间超过60秒，该节点被认为离线
 		if time.Now().Sub(data.UpdateTs) > 60*time.Second {
 			// 在Redis中删除该节点
+
 			if err := database.RedisClient.HDel("nodes", data.Mac); err != nil {
 				log.Errorf(err.Error())
 				return
@@ -214,29 +262,6 @@ func UpdateNodeData() {
 	}
 }
 
-// TODO: 查看节点PATH
-func GetNodePath() {
-	//os.Environ()
-}
-
-type NodeMessage struct {
-	// 通信类别
-	Type string `json:"type"`
-
-	// 任务相关
-	TaskId string `json:"task_id"` // 任务ID
-
-	// 日志相关
-	LogPath string `json:"log_path"` // 日志路径
-	Log     string `json:"log"`      // 日志
-
-	// 环境变量
-	Env string `json:"env"`
-
-	// 错误相关
-	Error string `json:"error"`
-}
-
 func MasterNodeCallback(channel string, msgStr string) {
 	// 反序列化
 	var msg NodeMessage
@@ -247,10 +272,18 @@ func MasterNodeCallback(channel string, msgStr string) {
 	}
 
 	if msg.Type == constants.MsgTypeGetLog {
+		// 获取日志
 		fmt.Println(msg)
 		time.Sleep(10 * time.Millisecond)
 		ch := TaskLogChanMap.ChanBlocked(msg.TaskId)
 		ch <- msg.Log
+	} else if msg.Type == constants.MsgTypeGetSystemInfo {
+		// 获取系统信息
+		fmt.Println(msg)
+		time.Sleep(10 * time.Millisecond)
+		ch := SystemInfoChanMap.ChanBlocked(msg.NodeId)
+		sysInfoBytes, _ := json.Marshal(&msg.SysInfo)
+		ch <- string(sysInfoBytes)
 	}
 }
 
@@ -267,6 +300,7 @@ func WorkerNodeCallback(channel string, msgStr string) {
 	if msg.Type == constants.MsgTypeGetLog {
 		// 消息类型为获取日志
 
+		// 发出的消息
 		msgSd := NodeMessage{
 			Type:   constants.MsgTypeGetLog,
 			TaskId: msg.TaskId,
@@ -296,8 +330,32 @@ func WorkerNodeCallback(channel string, msgStr string) {
 			return
 		}
 	} else if msg.Type == constants.MsgTypeCancelTask {
+		// 取消任务
 		ch := TaskExecChanMap.ChanBlocked(msg.TaskId)
 		ch <- constants.TaskCancel
+	} else if msg.Type == constants.MsgTypeGetSystemInfo {
+		// 获取环境信息
+		sysInfo, err := GetLocalSystemInfo()
+		if err != nil {
+			log.Errorf(err.Error())
+			return
+		}
+		msgSd := NodeMessage{
+			Type:    constants.MsgTypeGetSystemInfo,
+			NodeId:  msg.NodeId,
+			SysInfo: sysInfo,
+		}
+		msgSdBytes, err := json.Marshal(&msgSd)
+		if err != nil {
+			log.Errorf(err.Error())
+			debug.PrintStack()
+			return
+		}
+		fmt.Println(msgSd)
+		if err := database.Publish("nodes:master", string(msgSdBytes)); err != nil {
+			log.Errorf(err.Error())
+			return
+		}
 	}
 }
 
@@ -312,6 +370,9 @@ func InitNodeService() error {
 		debug.PrintStack()
 		return err
 	}
+
+	// 首次更新节点数据（注册到Redis）
+	UpdateNodeData()
 
 	// 消息订阅
 	var sub database.Subscriber

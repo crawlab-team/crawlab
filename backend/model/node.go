@@ -39,6 +39,7 @@ func (n *Node) Add() error {
 	n.UpdateTs = time.Now()
 	n.CreateTs = time.Now()
 	if err := c.Insert(&n); err != nil {
+		debug.PrintStack()
 		return err
 	}
 	return nil
@@ -48,6 +49,7 @@ func (n *Node) Delete() error {
 	s, c := database.GetCol("nodes")
 	defer s.Close()
 	if err := c.RemoveId(n.Id); err != nil {
+		debug.PrintStack()
 		return err
 	}
 	return nil
@@ -57,6 +59,7 @@ func (n *Node) GetTasks() ([]Task, error) {
 	tasks, err := GetTaskList(bson.M{"node_id": n.Id}, 0, 10, "-create_ts")
 	//tasks, err := GetTaskList(nil, 0, 10, "-create_ts")
 	if err != nil {
+		debug.PrintStack()
 		return []Task{}, err
 	}
 
@@ -69,6 +72,7 @@ func GetNodeList(filter interface{}) ([]Node, error) {
 
 	var results []Node
 	if err := c.Find(filter).All(&results); err != nil {
+		debug.PrintStack()
 		return results, err
 	}
 	return results, nil
@@ -78,15 +82,30 @@ func GetNode(id bson.ObjectId) (Node, error) {
 	s, c := database.GetCol("nodes")
 	defer s.Close()
 
-	var result Node
-	if err := c.FindId(id).One(&result); err != nil {
+	var node Node
+	if err := c.FindId(id).One(&node); err != nil {
 		if err != mgo.ErrNotFound {
 			log.Errorf(err.Error())
 			debug.PrintStack()
 		}
-		return result, err
+		return node, err
 	}
-	return result, nil
+	return node, nil
+}
+
+func GetNodeByMac(mac string) (Node, error) {
+	s, c := database.GetCol("nodes")
+	defer s.Close()
+
+	var node Node
+	if err := c.Find(bson.M{"mac": mac}).One(&node); err != nil {
+		if err != mgo.ErrNotFound {
+			log.Errorf(err.Error())
+			debug.PrintStack()
+		}
+		return node, err
+	}
+	return node, nil
 }
 
 func UpdateNode(id bson.ObjectId, item Node) error {

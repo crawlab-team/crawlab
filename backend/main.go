@@ -60,7 +60,6 @@ func main() {
 
 	// 初始化节点服务
 	if err := services.InitNodeService(); err != nil {
-		debug.PrintStack()
 		panic(err)
 	}
 	log.Info("初始化节点配置成功")

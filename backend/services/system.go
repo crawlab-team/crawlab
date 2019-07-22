@@ -1,13 +1,21 @@
 package services
 
 import (
+	"crawlab/constants"
+	"crawlab/database"
 	"crawlab/model"
+	"crawlab/utils"
+	"encoding/json"
+	"github.com/apex/log"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 	"strings"
 )
+
+var SystemInfoChanMap = utils.NewChanMap()
 
 var executableNameMap = map[string]string{
 	// python
@@ -49,7 +57,9 @@ func GetExecutables() (executables []model.Executable, err error) {
 	for _, path := range pathValues {
 		fileList, err := ioutil.ReadDir(path)
 		if err != nil {
-			return executables, err
+			log.Errorf(err.Error())
+			debug.PrintStack()
+			continue
 		}
 
 		for _, file := range fileList {
@@ -71,13 +81,14 @@ func GetExecutables() (executables []model.Executable, err error) {
 	return executables, nil
 }
 
-func GetSystemInfo() (sysInfo model.SystemInfo, err error) {
+func GetLocalSystemInfo() (sysInfo model.SystemInfo, err error) {
 	executables, err := GetExecutables()
 	if err != nil {
 		return sysInfo, err
 	}
 	hostname, err := os.Hostname()
 	if err != nil {
+		debug.PrintStack()
 		return sysInfo, err
 	}
 
@@ -88,4 +99,40 @@ func GetSystemInfo() (sysInfo model.SystemInfo, err error) {
 		Hostname:    hostname,
 		Executables: executables,
 	}, nil
+}
+
+func GetRemoteSystemInfo(id string) (sysInfo model.SystemInfo, err error) {
+	// 发送消息
+	msg := NodeMessage{
+		Type:   constants.MsgTypeGetSystemInfo,
+		NodeId: id,
+	}
+
+	// 序列化
+	msgBytes, _ := json.Marshal(&msg)
+	if err := database.Publish("nodes:"+id, string(msgBytes)); err != nil {
+		return model.SystemInfo{}, err
+	}
+
+	// 通道
+	ch := SystemInfoChanMap.ChanBlocked(id)
+
+	// 等待响应，阻塞
+	sysInfoStr := <-ch
+
+	// 反序列化
+	if err := json.Unmarshal([]byte(sysInfoStr), &sysInfo); err != nil {
+		return sysInfo, err
+	}
+
+	return sysInfo, nil
+}
+
+func GetSystemInfo(id string) (sysInfo model.SystemInfo, err error) {
+	if IsMasterNode(id) {
+		sysInfo, err = GetLocalSystemInfo()
+	} else {
+		sysInfo, err = GetRemoteSystemInfo(id)
+	}
+	return
 }
