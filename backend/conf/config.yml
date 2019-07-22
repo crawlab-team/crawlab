@@ -1,0 +1,20 @@
+mongo:
+  host: localhost
+  port: 27017
+  db: crawlab_test
+redis:
+  network: tcp
+  address: "localhost:6379"
+log:
+  level: info
+  path: "/var/logs/crawlab"
+server:
+  host: 0.0.0.0
+  port: 8000
+  master: "Y"
+spider:
+  path: "/Users/yeqing/projects/crawlab/spiders"
+task:
+  workers: 4
+other:
+  tmppath: "/tmp"
