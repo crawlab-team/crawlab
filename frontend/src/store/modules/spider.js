@@ -110,9 +110,9 @@ const actions = {
     return request.get(`/spiders/${id}/tasks`)
       .then(response => {
         commit('task/SET_TASK_LIST',
-          response.data.data.map(d => {
+          response.data.data ? response.data.data.map(d => {
             return d
-          }).sort((a, b) => a.create_ts < b.create_ts ? 1 : -1),
+          }).sort((a, b) => a.create_ts < b.create_ts ? 1 : -1) : [],
           { root: true })
       })
   },

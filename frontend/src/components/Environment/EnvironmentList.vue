@@ -56,7 +56,7 @@ export default {
       this.$st.sendEv('爬虫详情-环境', '删除')
     },
     save () {
-      this.$store.dispatch('spider/updateSpiderEnvs')
+      this.$store.dispatch('spider/editSpider')
         .then(() => {
           this.$message.success(this.$t('Spider info has been saved successfully'))
         })

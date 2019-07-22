@@ -8,9 +8,9 @@ import os
 
 from pymongo import MongoClient
 
-MONGO_HOST = os.environ['MONGO_HOST']
-MONGO_PORT = int(os.environ['MONGO_PORT'])
-MONGO_DB = os.environ['MONGO_DB']
+MONGO_HOST = os.environ.get('MONGO_HOST') or 'localhost'
+MONGO_PORT = int(os.environ.get('MONGO_PORT') or '27017')
+MONGO_DB = os.environ.get('MONGO_DB') or 'crawlab_test'
 
 
 class MongoPipeline(object):

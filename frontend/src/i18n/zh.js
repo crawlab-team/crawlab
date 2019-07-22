@@ -75,6 +75,7 @@ export default {
   'Node MAC': '节点MAC',
   'Node Port': '节点端口',
   'Description': '描述',
+  'All Nodes': '所有节点',
 
   // 节点列表
   'IP': 'IP地址',

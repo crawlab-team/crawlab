@@ -66,7 +66,7 @@ export default {
     onRestart () {
     },
     onStop () {
-      this.$store.dispatch('task/stopTask', this.$route.params.id)
+      this.$store.dispatch('task/cancelTask', this.$route.params.id)
         .then(() => {
           this.$message.success(`Task "${this.$route.params.id}" has been sent signal to stop`)
         })

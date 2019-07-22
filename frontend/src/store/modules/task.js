@@ -24,7 +24,7 @@ const state = {
 
 const getters = {
   taskResultsColumns (state) {
-    if (!state.taskResultsData.length) {
+    if (!state.taskResultsData || !state.taskResultsData.length) {
       return []
     }
     const keys = []
@@ -80,7 +80,6 @@ const actions = {
       .then(response => {
         let data = response.data.data
         commit('SET_TASK_FORM', data)
-        console.log(data)
         dispatch('spider/getSpiderData', data.spider_id, { root: true })
         dispatch('node/getNodeData', data.node_id, { root: true })
       })
@@ -103,13 +102,8 @@ const actions = {
         dispatch('getTaskList')
       })
   },
-  stopTask ({ state, dispatch }, id) {
-    return request.post(`/tasks/${id}/stop`)
-      .then(() => {
-        dispatch('getTaskList')
-      })
-  },
   getTaskLog ({ state, commit }, id) {
+    commit('SET_TASK_LOG', '')
     return request.get(`/tasks/${id}/log`)
       .then(response => {
         commit('SET_TASK_LOG', response.data.data)
@@ -124,6 +118,12 @@ const actions = {
         commit('SET_TASK_RESULTS_DATA', response.data.data)
         // commit('SET_TASK_RESULTS_COLUMNS', response.data.fields)
         commit('SET_TASK_RESULTS_TOTAL_COUNT', response.data.total)
+      })
+  },
+  cancelTask ({ state, dispatch }, id) {
+    return request.post(`/tasks/${id}/cancel`)
+      .then(() => {
+        dispatch('getTaskData')
       })
   }
 }

@@ -104,9 +104,11 @@ export default {
     this.$store.dispatch('task/getTaskLog', this.$route.params.id)
     this.$store.dispatch('task/getTaskResults', this.$route.params.id)
 
-    this.handle = setInterval(() => {
-      this.$store.dispatch('task/getTaskLog', this.$route.params.id)
-    }, 5000)
+    if (['running'].includes(this.taskForm.status)) {
+      this.handle = setInterval(() => {
+        this.$store.dispatch('task/getTaskLog', this.$route.params.id)
+      }, 5000)
+    }
   },
   destroyed () {
     clearInterval(this.handle)

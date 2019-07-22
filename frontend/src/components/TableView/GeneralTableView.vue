@@ -5,7 +5,7 @@
       :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
       border>
       <template v-for="col in columns">
-        <el-table-column :key="col" :label="col" :property="col" align="center">
+        <el-table-column :key="col" :label="col" :property="col" min-width="120">
         </el-table-column>
       </template>
     </el-table>

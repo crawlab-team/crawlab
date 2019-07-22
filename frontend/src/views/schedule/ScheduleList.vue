@@ -104,6 +104,9 @@
                          :sortable="col.sortable"
                          :align="col.align"
                          :width="col.width">
+          <template slot-scope="scope">
+            {{$t(scope.row[col.name])}}
+          </template>
         </el-table-column>
       </template>
       <el-table-column :label="$t('Action')" align="left" width="250" fixed="right">

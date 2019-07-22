@@ -179,6 +179,16 @@
             <el-input v-model="scope.row[col.name]"></el-input>
           </template>
         </el-table-column>
+        <el-table-column v-else-if="col.name.match(/_ts$/)"
+                         :key="col.name"
+                         :label="$t(col.label)"
+                         :sortable="col.sortable"
+                         :align="col.align"
+                         :width="col.width">
+          <template slot-scope="scope">
+            {{getTime(scope.row[col.name])}}
+          </template>
+        </el-table-column>
         <el-table-column v-else
                          :key="col.name"
                          :property="col.name"
@@ -188,7 +198,7 @@
                          :width="col.width">
         </el-table-column>
       </template>
-      <el-table-column :label="$t('Action')" align="left" width="150" fixed="right">
+      <el-table-column :label="$t('Action')" align="left" width="auto" fixed="right">
         <template slot-scope="scope">
           <el-tooltip :content="$t('View')" placement="top">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
@@ -223,6 +233,7 @@
 import {
   mapState
 } from 'vuex'
+import dayjs from 'dayjs'
 
 export default {
   name: 'SpiderList',
@@ -249,9 +260,9 @@ export default {
         { name: 'type', label: 'Spider Type', width: '120' },
         // { name: 'cmd', label: 'Command Line', width: '200' },
         // { name: 'lang', label: 'Language', width: '120', sortable: true },
-        { name: 'task_ts', label: 'Last Run', width: '160' },
-        { name: 'last_7d_tasks', label: 'Last 7-Day Tasks', width: '80' },
-        { name: 'last_5_errors', label: 'Last 5-Run Errors', width: '80' }
+        { name: 'last_run_ts', label: 'Last Run', width: '160' }
+        // { name: 'last_7d_tasks', label: 'Last 7-Day Tasks', width: '80' },
+        // { name: 'last_5_errors', label: 'Last 5-Run Errors', width: '80' }
       ],
       spiderFormRules: {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
@@ -474,6 +485,10 @@ export default {
 
       // close popup
       this.addCustomizedDialogVisible = false
+    },
+    getTime (str) {
+      if (!str || str.match('^0001')) return 'NA'
+      return dayjs(str).format('YYYY-MM-DD HH:mm:ss')
     }
   },
   created () {
