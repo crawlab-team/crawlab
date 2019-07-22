@@ -83,6 +83,7 @@ func main() {
 		app.GET("/nodes/:id", routes.GetNode)               // 节点详情
 		app.POST("/nodes/:id", routes.PostNode)             // 修改节点
 		app.GET("/nodes/:id/tasks", routes.GetNodeTaskList) // 节点任务列表
+		app.GET("/nodes/:id/system", routes.GetSystemInfo)  // 节点任务列表
 		// 爬虫
 		app.GET("/spiders", routes.GetSpiderList)              // 爬虫列表
 		app.GET("/spiders/:id", routes.GetSpider)              // 爬虫详情

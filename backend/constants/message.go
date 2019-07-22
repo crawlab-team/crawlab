@@ -2,6 +2,6 @@ package constants
 
 const (
 	MsgTypeGetLog     = "get-log"
-	MsgTypeGetEnv     = "get-env"
+	MsgTypeGetSystemInfo     = "get-sys-info"
 	MsgTypeCancelTask = "cancel-task"
 )

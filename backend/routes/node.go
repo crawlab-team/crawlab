@@ -91,3 +91,13 @@ func GetNodeTaskList(c *gin.Context) {
 		Data:    tasks,
 	})
 }
+
+func GetSystemInfo(c *gin.Context) {
+	sysInfo, _ := services.GetSystemInfo()
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    sysInfo,
+	})
+}
