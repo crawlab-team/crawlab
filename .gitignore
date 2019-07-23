@@ -114,3 +114,9 @@ node_modules/
 
 .docks
 .docs
+
+logs/
+tmp/
+_book/
+.idea
+*.lock
