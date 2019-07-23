@@ -45,24 +45,26 @@
                   :key="index"
                   class="executable-item"
                 >
-                  <template v-if="ex.file_name.match(/^python/)">
-                    <font-awesome-icon :icon="['fab','python']" size="md"/>
-                  </template>
-                  <template v-else-if="ex.file_name.match(/^java/)">
-                    <font-awesome-icon :icon="['fab','java']" size="md"/>
-                  </template>
-                  <template v-else-if="ex.file_name.match(/^bash$|^sh$/)">
-                    <font-awesome-icon :icon="['fab','linux']" size="md"/>
-                  </template>
-                  <template v-else-if="ex.file_name.match(/^node/)">
-                    <font-awesome-icon :icon="['fab','node-js']" size="md"/>
-                  </template>
-                  <template v-else>
-                    <font-awesome-icon :icon="['fas', 'terminal']" size="md"/>
-                  </template>
-                  <span>
-                    {{ex.display_name}}
-                  </span>
+                  <el-tooltip :content="ex.path">
+                    <div>
+                      <template v-if="ex.file_name.match(/^python/)">
+                        <font-awesome-icon :icon="['fab','python']" size="md"/>
+                      </template>
+                      <template v-else-if="ex.file_name.match(/^java/)">
+                        <font-awesome-icon :icon="['fab','java']" size="md"/>
+                      </template>
+                      <template v-else-if="ex.file_name.match(/^bash$|^sh$/)">
+                        <font-awesome-icon :icon="['fab','linux']" size="md"/>
+                      </template>
+                      <template v-else-if="ex.file_name.match(/^node/)">
+                        <font-awesome-icon :icon="['fab','node-js']" size="md"/>
+                      </template>
+                      <template v-else>
+                        <font-awesome-icon :icon="['fas', 'terminal']" size="md"/>
+                      </template>
+                      <span class="executable-label">{{ex.display_name}}</span>
+                    </div>
+                  </el-tooltip>
                 </li>
               </ul>
             </el-form-item>
@@ -306,5 +308,14 @@ export default {
 
   .node-detail .executable-list .executable-item {
     margin-right: 10px;
+    cursor: pointer;
+  }
+
+  .node-detail .executable-list .executable-item:hover {
+    text-decoration: underline;
+  }
+
+  .node-detail .executable-list .executable-label {
+    margin-left: 5px;
   }
 </style>
