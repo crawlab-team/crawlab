@@ -32,6 +32,14 @@
     </el-dialog>
     <!--./preview results-->
 
+    <!--crawl confirm dialog-->
+    <crawl-confirm-dialog
+      :visible="crawlConfirmDialogVisible"
+      :spider-id="spiderForm._id"
+      @close="crawlConfirmDialogVisible = false"
+    />
+    <!--./crawl confirm dialog-->
+
     <!--config detail-->
     <el-row>
       <el-form label-width="150px" ref="form" :model="spiderForm">
@@ -134,10 +142,11 @@ import {
   mapState
 } from 'vuex'
 import FieldsTableView from '../TableView/FieldsTableView'
+import CrawlConfirmDialog from '../Common/CrawlConfirmDialog'
 
 export default {
   name: 'ConfigList',
-  components: { FieldsTableView },
+  components: { CrawlConfirmDialog, FieldsTableView },
   data () {
     return {
       crawlTypeList: [
@@ -149,6 +158,7 @@ export default {
       previewLoading: false,
       saveLoading: false,
       dialogVisible: false,
+      crawlConfirmDialogVisible: false,
       columnsDict: {}
     }
   },

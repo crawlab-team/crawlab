@@ -146,6 +146,7 @@ export default {
   'Name': '名称',
   'Last Run': '上次运行',
   'Action': '操作',
+  'No command line': '没有执行命令',
 
   // 任务
   'Task Info': '任务信息',
@@ -218,6 +219,7 @@ export default {
   'Are you sure to delete this node?': '你确定要删除该节点?',
   'Are you sure to run this spider?': '你确定要运行该爬虫?',
   'Node info has been saved successfully': '节点信息已成功保存',
+  'A task has been scheduled successfully': '已经成功派发一个任务',
   'Are you sure to deploy this spider?': '你确定要部署该爬虫?',
   'Are you sure to delete this spider?': '你确定要删除该爬虫?',
   'Spider info has been saved successfully': '爬虫信息已成功保存',

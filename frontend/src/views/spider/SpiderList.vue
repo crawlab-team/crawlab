@@ -129,6 +129,14 @@
       </div>
     </div>
 
+    <!--crawl confirm dialog-->
+    <crawl-confirm-dialog
+      :visible="crawlConfirmDialogVisible"
+      :spider-id="activeSpiderId"
+      @close="crawlConfirmDialogVisible = false"
+    />
+    <!--./crawl confirm dialog-->
+
     <!--table list-->
     <el-table :data="filteredTableData"
               class="table"
@@ -138,25 +146,11 @@
         <el-table-column v-if="col.name === 'type'"
                          :key="col.name"
                          :label="$t(col.label)"
-                         align="center"
+                         align="left"
                          :width="col.width">
           <template slot-scope="scope">
             <el-tag type="success" v-if="scope.row.type === 'configurable'">{{$t('Configurable')}}</el-tag>
             <el-tag type="primary" v-else-if="scope.row.type === 'customized'">{{$t('Customized')}}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column v-else-if="col.name === 'lang'"
-                         :key="col.name"
-                         :label="$t(col.label)"
-                         :sortable="col.sortable"
-                         align="center"
-                         :width="col.width">
-          <template slot-scope="scope">
-            <el-tag type="warning" v-if="scope.row.lang === 'python'">Python</el-tag>
-            <el-tag type="primary" v-else-if="scope.row.lang === 'javascript'">JavaScript</el-tag>
-            <el-tag type="info" v-else-if="scope.row.lang === 'java'">Java</el-tag>
-            <el-tag type="danger" v-else-if="scope.row.lang === 'go'">Go</el-tag>
-            <el-tag type="success" v-else-if="scope.row.lang">{{scope.row.lang}}</el-tag>
           </template>
         </el-table-column>
         <el-table-column v-else-if="col.name === 'last_5_errors'"
@@ -194,7 +188,7 @@
                          :property="col.name"
                          :label="$t(col.label)"
                          :sortable="col.sortable"
-                         align="center"
+                         :align="col.align || 'left'"
                          :width="col.width">
         </el-table-column>
       </template>
@@ -234,9 +228,11 @@ import {
   mapState
 } from 'vuex'
 import dayjs from 'dayjs'
+import CrawlConfirmDialog from '../../components/Common/CrawlConfirmDialog'
 
 export default {
   name: 'SpiderList',
+  components: { CrawlConfirmDialog },
   data () {
     return {
       pagination: {
@@ -250,6 +246,8 @@ export default {
       addDialogVisible: false,
       addConfigurableDialogVisible: false,
       addCustomizedDialogVisible: false,
+      crawlConfirmDialogVisible: false,
+      activeSpiderId: undefined,
       filter: {
         keyword: ''
       },
@@ -387,17 +385,9 @@ export default {
       })
     },
     onCrawl (row) {
-      this.$confirm(this.$t('Are you sure to run this spider?'), this.$t('Notification'), {
-        confirmButtonText: this.$t('Confirm'),
-        cancelButtonText: this.$t('Cancel')
-      })
-        .then(() => {
-          this.$store.dispatch('spider/crawlSpider', row._id)
-            .then(() => {
-              this.$message.success(this.$t(`Spider task has been scheduled`))
-            })
-          this.$st.sendEv('爬虫', '运行')
-        })
+      this.crawlConfirmDialogVisible = true
+      this.activeSpiderId = row._id
+      this.$st.sendEv('爬虫', '点击运行')
     },
     onView (row) {
       this.$router.push('/spiders/' + row._id)

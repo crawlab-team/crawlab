@@ -1,5 +1,11 @@
 <template>
   <div class="info-view">
+    <crawl-confirm-dialog
+      :visible="crawlConfirmDialogVisible"
+      :spider-id="spiderForm._id"
+      @close="crawlConfirmDialogVisible = false"
+    />
+
     <el-row>
       <el-form label-width="150px"
                :model="spiderForm"
@@ -38,14 +44,6 @@
             <el-option value="customized" :label="$t('Customized')"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item v-if="isCustomized" :label="$t('Language')">
-          <el-select v-model="spiderForm.lang" :placeholder="$t('Language')" :disabled="isView" clearable>
-            <el-option value="python" label="Python"></el-option>
-            <el-option value="javascript" label="JavaScript"></el-option>
-            <el-option value="java" label="Java"></el-option>
-            <el-option value="go" label="Go"></el-option>
-          </el-select>
-        </el-form-item>
       </el-form>
     </el-row>
     <el-row class="button-container" v-if="!isView">
@@ -59,9 +57,11 @@
 import {
   mapState
 } from 'vuex'
+import CrawlConfirmDialog from '../Common/CrawlConfirmDialog'
 
 export default {
   name: 'SpiderInfoView',
+  components: { CrawlConfirmDialog },
   props: {
     isView: {
       default: false,
@@ -85,6 +85,7 @@ export default {
       callback()
     }
     return {
+      crawlConfirmDialogVisible: false,
       cmdRule: [
         { message: 'Execute Command should not be empty', required: true }
       ],
@@ -112,22 +113,8 @@ export default {
   },
   methods: {
     onCrawl () {
-      const row = this.spiderForm
-      this.$refs['spiderForm'].validate(res => {
-        if (res) {
-          this.$confirm(this.$t('Are you sure to run this spider?'), this.$t('Notification'), {
-            confirmButtonText: this.$t('Confirm'),
-            cancelButtonText: this.$t('Cancel')
-          })
-            .then(() => {
-              this.$store.dispatch('spider/crawlSpider', row._id)
-                .then(() => {
-                  this.$message.success(this.$t(`Spider task has been scheduled`))
-                })
-              this.$st.sendEv('爬虫详情-概览', '运行')
-            })
-        }
-      })
+      this.crawlConfirmDialogVisible = true
+      this.$st.sendEv('爬虫详情-概览', '点击运行')
     },
     onSave () {
       this.$refs['spiderForm'].validate(res => {

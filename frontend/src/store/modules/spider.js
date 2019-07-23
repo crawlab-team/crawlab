@@ -100,10 +100,11 @@ const actions = {
         commit('SET_SPIDER_FORM', data)
       })
   },
-  crawlSpider ({ state, dispatch }, id) {
+  crawlSpider ({ state, dispatch }, payload) {
+    const { id, nodeId } = payload
     return request.put(`/tasks`, {
-      spider_id: id
-      // TODO: node_id
+      spider_id: id,
+      node_id: nodeId
     })
   },
   getTaskList ({ state, commit }, id) {

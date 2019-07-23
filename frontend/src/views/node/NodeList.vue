@@ -28,7 +28,7 @@
         <template slot-scope="scope">
           <el-form class="node-detail" :model="scope.row" label-width="120px" inline>
             <el-form-item :label="$t('OS')">
-              <span>{{scope.row.systemInfo ? scope.row.systemInfo.os : ''}}</span>
+              <span>{{scope.row.systemInfo ? getOSName(scope.row.systemInfo.os) : ''}}</span>
             </el-form-item>
             <el-form-item :label="$t('ARCH')">
               <span>{{scope.row.systemInfo ? scope.row.systemInfo.arch : ''}}</span>
@@ -48,19 +48,19 @@
                   <el-tooltip :content="ex.path">
                     <div>
                       <template v-if="ex.file_name.match(/^python/)">
-                        <font-awesome-icon :icon="['fab','python']" size="md"/>
+                        <font-awesome-icon :icon="['fab','python']"/>
                       </template>
                       <template v-else-if="ex.file_name.match(/^java/)">
-                        <font-awesome-icon :icon="['fab','java']" size="md"/>
+                        <font-awesome-icon :icon="['fab','java']"/>
                       </template>
                       <template v-else-if="ex.file_name.match(/^bash$|^sh$/)">
-                        <font-awesome-icon :icon="['fab','linux']" size="md"/>
+                        <font-awesome-icon :icon="['fab','linux']"/>
                       </template>
                       <template v-else-if="ex.file_name.match(/^node/)">
-                        <font-awesome-icon :icon="['fab','node-js']" size="md"/>
+                        <font-awesome-icon :icon="['fab','node-js']"/>
                       </template>
                       <template v-else>
-                        <font-awesome-icon :icon="['fas', 'terminal']" size="md"/>
+                        <font-awesome-icon :icon="['fas', 'terminal']"/>
                       </template>
                       <span class="executable-label">{{ex.display_name}}</span>
                     </div>
@@ -76,7 +76,6 @@
                          :key="col.name"
                          :label="$t(col.label)"
                          :sortable="col.sortable"
-                         align="center"
                          :width="col.width">
           <template slot-scope="scope">
             <el-tag type="info" v-if="scope.row.status === 'offline'">{{$t('Offline')}}</el-tag>
@@ -93,7 +92,7 @@
                          :width="col.width">
         </el-table-column>
       </template>
-      <el-table-column :label="$t('Action')" align="center" width="160">
+      <el-table-column :label="$t('Action')" align="left" width="160" fixed="right">
         <template slot-scope="scope">
           <el-tooltip :content="$t('View')" placement="top">
             <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
@@ -238,6 +237,17 @@ export default {
     getExecutables (row) {
       if (!row.systemInfo || !row.systemInfo.executables) return []
       return row.systemInfo.executables
+    },
+    getOSName (os) {
+      if (os === 'linux') {
+        return 'Linux'
+      } else if (os === 'windows') {
+        return 'Windows'
+      } else if (os === 'darwin') {
+        return 'Mac OS (darwin)'
+      } else {
+        return os
+      }
     }
   },
   created () {
