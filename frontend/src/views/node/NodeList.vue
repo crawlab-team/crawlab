@@ -22,7 +22,53 @@
     <el-table :data="filteredTableData"
               class="table"
               :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
-              border>
+              border
+              @expand-change="onRowExpand">
+      <el-table-column type="expand">
+        <template slot-scope="scope">
+          <el-form class="node-detail" :model="scope.row" label-width="120px" inline>
+            <el-form-item :label="$t('OS')">
+              <span>{{scope.row.systemInfo ? scope.row.systemInfo.os : ''}}</span>
+            </el-form-item>
+            <el-form-item :label="$t('ARCH')">
+              <span>{{scope.row.systemInfo ? scope.row.systemInfo.arch : ''}}</span>
+            </el-form-item>
+            <el-form-item :label="$t('Number of CPU')">
+              <span>{{scope.row.systemInfo ? scope.row.systemInfo.num_cpu : ''}}</span>
+            </el-form-item>
+          </el-form>
+          <el-form class="node-detail executable" :model="scope.row" label-width="120px">
+            <el-form-item :label="$t('Executables')">
+              <ul v-if="true" class="executable-list">
+                <li
+                  v-for="(ex, index) in getExecutables(scope.row)"
+                  :key="index"
+                  class="executable-item"
+                >
+                  <template v-if="ex.file_name.match(/^python/)">
+                    <font-awesome-icon :icon="['fab','python']" size="md"/>
+                  </template>
+                  <template v-else-if="ex.file_name.match(/^java/)">
+                    <font-awesome-icon :icon="['fab','java']" size="md"/>
+                  </template>
+                  <template v-else-if="ex.file_name.match(/^bash$|^sh$/)">
+                    <font-awesome-icon :icon="['fab','linux']" size="md"/>
+                  </template>
+                  <template v-else-if="ex.file_name.match(/^node/)">
+                    <font-awesome-icon :icon="['fab','node-js']" size="md"/>
+                  </template>
+                  <template v-else>
+                    <font-awesome-icon :icon="['fas', 'terminal']" size="md"/>
+                  </template>
+                  <span>
+                    {{ex.display_name}}
+                  </span>
+                </li>
+              </ul>
+            </el-form-item>
+          </el-form>
+        </template>
+      </el-table-column>
       <template v-for="col in columns">
         <el-table-column v-if="col.name === 'status'"
                          :key="col.name"
@@ -183,6 +229,13 @@ export default {
     },
     onPageChange () {
       this.$store.dispatch('node/getNodeList')
+    },
+    onRowExpand (row) {
+      this.$store.dispatch('node/getNodeSystemInfo', row._id)
+    },
+    getExecutables (row) {
+      if (!row.systemInfo || !row.systemInfo.executables) return []
+      return row.systemInfo.executables
     }
   },
   created () {
@@ -215,5 +268,43 @@ export default {
 
   .el-table .el-button {
     padding: 7px;
+  }
+
+</style>
+<style>
+  .node-detail .el-form-item {
+    height: 25px;
+    margin-bottom: 0;
+  }
+
+  .node-detail .el-form-item .el-form-item__label {
+    line-height: 25px;
+    height: 25px;
+    font-size: 12px;
+  }
+
+  .node-detail .el-form-item .el-form-item__content {
+    line-height: 25px;
+    height: 25px;
+    font-size: 12px;
+  }
+
+  .node-detail.executable .el-form-item,
+  .node-detail.executable .el-form-item .el-form-item__label,
+  .node-detail.executable .el-form-item .el-form-item__content {
+    line-height: 25px;
+    height: auto;
+  }
+
+  .node-detail .executable-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .node-detail .executable-list .executable-item {
+    margin-right: 10px;
   }
 </style>

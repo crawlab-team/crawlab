@@ -20,6 +20,23 @@ const mutations = {
   },
   SET_ACTIVE_SPIDER (state, value) {
     state.activeSpider = value
+  },
+  SET_NODE_SYSTEM_INFO (state, payload) {
+    const { id, systemInfo } = payload
+    for (let i = 0; i < state.nodeList.length; i++) {
+      if (state.nodeList[i]._id === id) {
+        // Vue.set(state.nodeList[i], 'systemInfo', {})
+        state.nodeList[i].systemInfo = systemInfo
+        // for (const key in systemInfo) {
+        //   if (systemInfo.hasOwnProperty(key)) {
+        //     console.log(key)
+        //     state.nodeList[i].systemInfo[key] = systemInfo[key]
+        //     // Vue.set(state.nodeList[i].systemInfo, key, systemInfo[key])
+        //   }
+        // }
+        break
+      }
+    }
   }
 }
 
@@ -27,7 +44,15 @@ const actions = {
   getNodeList ({ state, commit }) {
     request.get('/nodes', {})
       .then(response => {
-        commit('SET_NODE_LIST', response.data.data)
+        commit('SET_NODE_LIST', response.data.data.map(d => {
+          d.systemInfo = {
+            os: '',
+            arch: '',
+            num_cpu: '',
+            executables: []
+          }
+          return d
+        }))
       })
   },
   editNode ({ state, dispatch }) {
@@ -55,6 +80,12 @@ const actions = {
           response.data.data.map(d => d)
             .sort((a, b) => a.create_ts < b.create_ts ? 1 : -1),
           { root: true })
+      })
+  },
+  getNodeSystemInfo ({ state, commit }, id) {
+    return request.get(`/nodes/${id}/system`)
+      .then(response => {
+        commit('SET_NODE_SYSTEM_INFO', { id, systemInfo: response.data.data })
       })
   }
 }

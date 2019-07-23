@@ -207,6 +207,12 @@ export default {
   'Yes': '是',
   'No': '否',
 
+  // 系统
+  'OS': '操作系统',
+  'ARCH': '操作架构',
+  'Number of CPU': 'CPU数',
+  'Executables': '执行文件',
+
   // 弹出框
   Notification: '提示',
   'Are you sure to delete this node?': '你确定要删除该节点?',
