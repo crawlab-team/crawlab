@@ -223,6 +223,26 @@ func UpdateNodeStatus() {
 			}
 		}
 	}
+
+	// 遍历数据库中的节点列表
+	nodes, err := model.GetNodeList(nil)
+	for _, node := range nodes {
+		hasNode := false
+		for _, mac := range list {
+			if mac == node.Mac {
+				hasNode = true
+				break
+			}
+		}
+		if !hasNode {
+			node.Status = constants.StatusOffline
+			if err := node.Save(); err != nil {
+				log.Errorf(err.Error())
+				return
+			}
+			continue
+		}
+	}
 }
 
 // 更新节点数据

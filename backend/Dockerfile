@@ -13,7 +13,6 @@ FROM alpine:latest
 WORKDIR /root
 COPY --from=build /go/src/app .
 COPY --from=build /go/bin/crawlab /usr/local/bin
-RUN ls
 
 EXPOSE 8000
 CMD ["crawlab"]
