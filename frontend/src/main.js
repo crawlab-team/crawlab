@@ -15,7 +15,9 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 import { far } from '@fortawesome/free-regular-svg-icons'
 import { FontAwesomeIcon, FontAwesomeLayers, FontAwesomeLayersText } from '@fortawesome/vue-fontawesome'
 
+import { codemirror } from 'vue-codemirror'
 import 'codemirror/lib/codemirror.css'
+import 'codemirror/theme/darcula.css'
 
 import App from './App'
 import store from './store'
@@ -28,8 +30,13 @@ import request from './api/request'
 import i18n from './i18n'
 import utils from './utils'
 
+// code mirror
+Vue.use(codemirror)
+
+// element-ui
 Vue.use(ElementUI, { locale })
 
+// font-awesome
 library.add(fab)
 library.add(far)
 library.add(fas)

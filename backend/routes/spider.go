@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -235,5 +236,73 @@ func GetSpiderTasks(c *gin.Context) {
 		Status:  "ok",
 		Message: "success",
 		Data:    tasks,
+	})
+}
+
+func GetSpiderDir(c *gin.Context) {
+	// 爬虫ID
+	id := c.Param("id")
+
+	// 目录相对路径
+	path := c.Query("path")
+
+	// 获取爬虫
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 获取目录下文件列表
+	f, err := ioutil.ReadDir(filepath.Join(spider.Src, path))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 遍历文件列表
+	var fileList []model.File
+	for _, file := range f {
+		fileList = append(fileList, model.File{
+			Name:  file.Name(),
+			IsDir: file.IsDir(),
+			Size:  file.Size(),
+			Path:  filepath.Join(path, file.Name()),
+		})
+	}
+
+	// 返回结果
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    fileList,
+	})
+}
+
+func GetSpiderFile(c *gin.Context) {
+	// 爬虫ID
+	id := c.Param("id")
+
+	// 文件相对路径
+	path := c.Query("path")
+
+	// 获取爬虫
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 读取文件
+	fileBytes, err := ioutil.ReadFile(filepath.Join(spider.Src, path))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+	}
+
+	// 返回结果
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    string(fileBytes),
 	})
 }

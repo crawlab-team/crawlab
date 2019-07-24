@@ -33,7 +33,7 @@
 import {
   mapState
 } from 'vuex'
-import FileList from '../../components/FileList/FileList'
+import FileList from '../../components/File/FileList'
 import SpiderOverview from '../../components/Overview/SpiderOverview'
 import EnvironmentList from '../../components/Environment/EnvironmentList'
 import SpiderStats from '../../components/Stats/SpiderStats'

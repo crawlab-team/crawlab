@@ -117,6 +117,13 @@ const actions = {
           { root: true })
       })
   },
+  getDir ({ state, commit }, path) {
+    const id = state.spiderForm._id
+    return request.get(`/spiders/${id}/dir`)
+      .then(response => {
+        commit('')
+      })
+  },
   importGithub ({ state }) {
     const url = state.importForm.url
     return request.post('/spiders/import/github', { url })
