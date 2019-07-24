@@ -42,6 +42,12 @@ const actions = {
       .then(response => {
         commit('SET_FILE_CONTENT', response.data.data)
       })
+  },
+  saveFileContent ({ state, rootState }, payload) {
+    const { path } = payload
+    const spiderId = rootState.spider.spiderForm._id
+    const content = state.fileContent
+    return request.post(`/spiders/${spiderId}/file`, { content, path })
   }
 }
 

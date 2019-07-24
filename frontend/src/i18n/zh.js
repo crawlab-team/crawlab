@@ -61,6 +61,8 @@ export default {
   'Upload Zip File': '上传Zip文件',
   'Upload': '上传',
   'Item Threshold': '子项阈值',
+  'Back': '返回',
+  'New File': '新建文件',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -223,5 +225,6 @@ export default {
   'Are you sure to deploy this spider?': '你确定要部署该爬虫?',
   'Are you sure to delete this spider?': '你确定要删除该爬虫?',
   'Spider info has been saved successfully': '爬虫信息已成功保存',
-  'Do you allow us to collect some statistics to improve Crawlab?': '您允许我们收集统计数据以更好地优化Crawlab？'
+  'Do you allow us to collect some statistics to improve Crawlab?': '您允许我们收集统计数据以更好地优化Crawlab？',
+  'Saved file successfully': '成功保存文件'
 }

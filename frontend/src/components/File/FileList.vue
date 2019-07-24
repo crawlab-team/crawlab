@@ -2,10 +2,19 @@
   <div class="file-list-container">
     <div class="top-part">
       <!--back-->
-      <div class="action-container" v-if="showFile">
-        <el-button type="primary" size="small" style="margin-right: 10px;" @click="showFile=false">
+      <div class="action-container">
+        <el-button v-if="showFile" type="primary" size="small" style="margin-right: 10px;" @click="onBackFile">
           <font-awesome-icon :icon="['fa', 'arrow-left']"/>
           {{$t('Back')}}
+        </el-button>
+        <el-button v-if="showFile" type="primary" size="small" style="margin-right: 10px;" @click="onFileSave">
+          <font-awesome-icon :icon="['fa', 'save']"/>
+          {{$t('Save')}}
+        </el-button>
+        <!--TODO: new files/directories-->
+        <el-button v-if="false" type="primary" size="small" style="margin-right: 10px;">
+          <font-awesome-icon :icon="['fa', 'file-alt']"/>
+          {{$t('New File')}}
         </el-button>
       </div>
       <!--./back-->
@@ -15,16 +24,6 @@
         <div class="file-path">. / {{currentPath}}</div>
       </div>
       <!--./file path-->
-
-      <!--action-->
-      <div class="action-container">
-        <el-button type="primary" size="small">
-          <font-awesome-icon :icon="['fa', 'upload']"/>
-          {{$t('Upload')}}
-        </el-button>
-      </div>
-      <!--./action-->
-
     </div>
 
     <!--file list-->
@@ -37,6 +36,12 @@
             <span class="item-icon">
               <font-awesome-icon v-if="item.is_dir" :icon="['fa', 'folder']" color="rgba(3,47,98,.5)"/>
               <font-awesome-icon v-else-if="item.path.match(/\.py$/)" :icon="['fab','python']"
+                                 color="rgba(3,47,98,.5)"/>
+              <font-awesome-icon v-else-if="item.path.match(/\.js$/)" :icon="['fab','node-js']"
+                                 color="rgba(3,47,98,.5)"/>
+              <font-awesome-icon v-else-if="item.path.match(/\.(java|jar|class)$/)" :icon="['fab','java']"
+                                 color="rgba(3,47,98,.5)"/>
+              <font-awesome-icon v-else-if="item.path.match(/\.go$/)" :icon="['fab','go']"
                                  color="rgba(3,47,98,.5)"/>
               <font-awesome-icon v-else-if="item.path.match(/\.zip$/)" :icon="['fa','file-archive']"
                                  color="rgba(3,47,98,.5)"/>
@@ -65,7 +70,7 @@ export default {
     return {
       code: 'var hello = \'world\'',
       isEdit: false,
-      showFile: false,
+      showFile: false
     }
   },
   computed: {
@@ -106,6 +111,7 @@ export default {
       } else {
         // 文件
         this.showFile = true
+        this.$store.commit('file/SET_CURRENT_CONTENT', '')
         this.$store.commit('file/SET_CURRENT_PATH', item.path)
         this.$store.dispatch('file/getFileContent', { path: item.path })
       }
@@ -117,6 +123,16 @@ export default {
       const path = arr.join(sep)
       this.$store.commit('file/SET_CURRENT_PATH', path)
       this.$store.dispatch('file/getFileList', { path: this.currentPath })
+    },
+    onFileSave () {
+      this.$store.dispatch('file/saveFileContent', { path: this.currentPath })
+        .then(() => {
+          this.$message.success(this.$t('Saved file successfully'))
+        })
+    },
+    onBackFile () {
+      this.showFile = false
+      this.onBack()
     }
   }
 }
@@ -125,6 +141,7 @@ export default {
 <style scoped lang="scss">
   .file-list-container {
     height: 100%;
+    min-height: 100%;
 
     .top-part {
       display: flex;

@@ -3,13 +3,11 @@
     class="file-content"
     :options="options"
     v-model="fileContent"
+    @change="onChange"
   />
 </template>
 
 <script>
-import {
-  mapState
-} from 'vuex'
 import { codemirror } from 'vue-codemirror'
 
 require('codemirror/mode/python/python.js')
@@ -32,8 +30,11 @@ export default {
       internalFileContent: '',
       options: {
         theme: 'darcula',
-        mode: 'python',
-        lineNumbers: true
+        // mode: 'javascript',
+        mode: { name: 'javascript', json: true },
+        lineNumbers: true,
+        line: true,
+        matchBrackets: true
       }
     }
   },
@@ -56,6 +57,10 @@ export default {
 <style scoped>
   .file-content {
     border: 1px solid #eaecef;
+    height: 480px;
+  }
+
+  .file-content >>> .CodeMirror {
     min-height: 100%;
   }
 </style>
