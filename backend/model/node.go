@@ -18,6 +18,9 @@ type Node struct {
 	Mac         string        `json:"mac" bson:"mac"`
 	Description string        `json:"description" bson:"description"`
 
+	// 前端展示
+	IsMaster bool `json:"is_master"`
+
 	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
 	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
 }

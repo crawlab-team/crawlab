@@ -9,15 +9,20 @@ import (
 )
 
 func GetNodeList(c *gin.Context) {
-	results, err := model.GetNodeList(nil)
+	nodes, err := model.GetNodeList(nil)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
+
+	for i, node := range nodes {
+		nodes[i].IsMaster = services.IsMasterNode(node.Id.Hex())
+	}
+
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
-		Data:    results,
+		Data:    nodes,
 	})
 }
 
