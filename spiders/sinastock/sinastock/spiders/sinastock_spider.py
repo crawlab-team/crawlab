@@ -8,7 +8,6 @@ from pymongo import MongoClient
 
 from sinastock.items import NewsItem
 
-
 class SinastockSpiderSpider(scrapy.Spider):
     name = 'sinastock_spider'
     allowed_domains = ['finance.sina.com.cn']

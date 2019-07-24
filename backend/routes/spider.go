@@ -306,3 +306,39 @@ func GetSpiderFile(c *gin.Context) {
 		Data:    string(fileBytes),
 	})
 }
+
+type SpiderFileReqBody struct {
+	Path    string `json:"path"`
+	Content string `json:"content"`
+}
+
+func PostSpiderFile(c *gin.Context) {
+	// 爬虫ID
+	id := c.Param("id")
+
+	// 文件相对路径
+	var reqBody SpiderFileReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+
+	// 获取爬虫
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 写文件
+	if err := ioutil.WriteFile(filepath.Join(spider.Src, reqBody.Path), []byte(reqBody.Content), os.ModePerm); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 返回结果
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
