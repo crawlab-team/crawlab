@@ -78,6 +78,11 @@ export default {
   'Node Port': '节点端口',
   'Description': '描述',
   'All Nodes': '所有节点',
+  'Node List': '节点列表',
+  'Network': '拓扑图',
+  'Node Network': '节点拓扑图',
+  'Master': '主节点',
+  'Worker': '工作节点',
 
   // 节点列表
   'IP': 'IP地址',
