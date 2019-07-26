@@ -82,6 +82,7 @@ func main() {
 	if services.IsMaster() {
 		// 中间件
 		app.Use(middlewares.CORSMiddleware())
+		app.Use(middlewares.AuthorizationMiddleware())
 
 		// 路由
 		// 节点

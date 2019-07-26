@@ -2,6 +2,7 @@
 github.com/apex/log
 # github.com/dgrijalva/jwt-go v3.2.0+incompatible
 github.com/dgrijalva/jwt-go
+github.com/dgrijalva/jwt-go/request
 # github.com/fsnotify/fsnotify v1.4.7
 github.com/fsnotify/fsnotify
 # github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab6dad3

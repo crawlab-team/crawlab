@@ -9,6 +9,7 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"github.com/pkg/errors"
 	"net/http"
+	"strings"
 )
 
 type UserListRequestData struct {
@@ -83,7 +84,7 @@ func PutUser(c *gin.Context) {
 
 	// 添加用户
 	user := model.User{
-		Username: reqData.Username,
+		Username: strings.ToLower(reqData.Username),
 		Password: utils.EncryptPassword(reqData.Password),
 		Role:     constants.RoleNormal,
 	}
@@ -113,7 +114,7 @@ func Login(c *gin.Context) {
 	}
 
 	// 获取用户
-	user, err := model.GetUserByUsername(reqData.Username)
+	user, err := model.GetUserByUsername(strings.ToLower(reqData.Username))
 	if err != nil {
 		HandleError(http.StatusUnauthorized, c, errors.New("not authorized"))
 		return

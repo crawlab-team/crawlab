@@ -5,11 +5,15 @@ let baseUrl = process.env.VUE_APP_BASE_URL ? process.env.VUE_APP_BASE_URL : 'htt
 const request = (method, path, params, data) => {
   return new Promise((resolve, reject) => {
     const url = baseUrl + path
+    const headers = {
+      'Authorization': window.localStorage.getItem('token')
+    }
     axios({
       method,
       url,
       params,
-      data
+      data,
+      headers
     })
       .then(resolve)
       .catch(reject)
