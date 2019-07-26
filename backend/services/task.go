@@ -142,9 +142,6 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 				return
 			}
 			t.Status = constants.StatusCancelled
-		} else if signal == constants.TaskFinish {
-			// 完成进程
-			t.Status = constants.StatusFinished
 		}
 
 		// 保存任务
@@ -203,6 +200,17 @@ func GetExecuteTaskFunc(id int) func() {
 
 func GetWorkerPrefix(id int) string {
 	return "[Worker " + strconv.Itoa(id) + "] "
+}
+
+// 统计任务结果数
+func SaveTaskResultCount(id string) func() {
+	return func() {
+		if err := model.UpdateTaskResultCount(id); err != nil {
+			log.Errorf(err.Error())
+			debug.PrintStack()
+			return
+		}
+	}
 }
 
 // 执行任务
@@ -315,9 +323,10 @@ func ExecuteTask(id int) {
 	}
 
 	// 任务赋值
-	t.NodeId = node.Id                 // 任务节点信息
-	t.StartTs = time.Now()             // 任务开始时间
-	t.Status = constants.StatusRunning // 任务状态
+	t.NodeId = node.Id                                   // 任务节点信息
+	t.StartTs = time.Now()                               // 任务开始时间
+	t.Status = constants.StatusRunning                   // 任务状态
+	t.WaitDuration = t.StartTs.Sub(t.CreateTs).Seconds() // 等待时长
 
 	// 开始执行任务
 	log.Infof(GetWorkerPrefix(id) + "开始执行任务(ID:" + t.Id + ")")
@@ -329,8 +338,41 @@ func ExecuteTask(id int) {
 		return
 	}
 
+	// 起一个cron执行器来统计任务结果数
+	cronExec := cron.New(cron.WithSeconds())
+	_, err = cronExec.AddFunc("*/5 * * * * *", SaveTaskResultCount(t.Id))
+	if err != nil {
+		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		return
+	}
+	cronExec.Start()
+	defer cronExec.Stop()
+
 	// 执行Shell命令
 	if err := ExecuteShellCmd(cmd, cwd, t, spider); err != nil {
+		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		return
+	}
+
+	// 更新任务结果数
+	if err := model.UpdateTaskResultCount(t.Id); err != nil {
+		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		return
+	}
+
+	// 完成进程
+	t, err = model.GetTask(t.Id)
+	if err != nil {
+		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		return
+	}
+	t.Status = constants.StatusFinished                     // 任务状态: 已完成
+	t.FinishTs = time.Now()                                 // 结束时间
+	t.RuntimeDuration = t.FinishTs.Sub(t.StartTs).Seconds() // 运行时长
+	t.TotalDuration = t.FinishTs.Sub(t.CreateTs).Seconds()  // 总时长
+
+	// 保存任务
+	if err := t.Save(); err != nil {
 		log.Errorf(GetWorkerPrefix(id) + err.Error())
 		return
 	}

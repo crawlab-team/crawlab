@@ -94,41 +94,6 @@
     </el-dialog>
     <!--./customized spider dialog-->
 
-    <!--filter-->
-    <div class="filter">
-      <!--<el-input prefix-icon="el-icon-search"-->
-      <!--:placeholder="$t('Search')"-->
-      <!--class="filter-search"-->
-      <!--v-model="filter.keyword"-->
-      <!--@change="onSearch">-->
-      <!--</el-input>-->
-      <div class="left">
-        <el-autocomplete v-model="filterSite"
-                         :placeholder="$t('Site')"
-                         clearable
-                         :fetch-suggestions="fetchSiteSuggestions"
-                         @select="onSiteSelect">
-        </el-autocomplete>
-      </div>
-      <div class="right">
-        <el-button type="primary" icon="fa fa-download" @click="openImportDialog">
-          {{$t('Import Spiders')}}
-        </el-button>
-        <el-button type="success"
-                   icon="el-icon-plus"
-                   class="btn add"
-                   @click="onAdd">
-          {{$t('Add Spider')}}
-        </el-button>
-        <el-button type="success"
-                   icon="el-icon-refresh"
-                   class="btn refresh"
-                   @click="onRefresh">
-          {{$t('Refresh')}}
-        </el-button>
-      </div>
-    </div>
-
     <!--crawl confirm dialog-->
     <crawl-confirm-dialog
       :visible="crawlConfirmDialogVisible"
@@ -137,89 +102,128 @@
     />
     <!--./crawl confirm dialog-->
 
-    <!--table list-->
-    <el-table :data="filteredTableData"
-              class="table"
-              :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
-              border>
-      <template v-for="col in columns">
-        <el-table-column v-if="col.name === 'type'"
-                         :key="col.name"
-                         :label="$t(col.label)"
-                         align="left"
-                         :width="col.width">
-          <template slot-scope="scope">
-            <el-tag type="success" v-if="scope.row.type === 'configurable'">{{$t('Configurable')}}</el-tag>
-            <el-tag type="primary" v-else-if="scope.row.type === 'customized'">{{$t('Customized')}}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column v-else-if="col.name === 'last_5_errors'"
-                         :key="col.name"
-                         :label="$t(col.label)"
-                         :width="col.width"
-                         align="center">
-          <template slot-scope="scope">
-            <div :style="{color:scope.row[col.name]>0?'red':''}">
-              {{scope.row[col.name]}}
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column v-else-if="col.name === 'cmd'"
-                         :key="col.name"
-                         :label="$t(col.label)"
-                         :width="col.width"
-                         align="left">
-          <template slot-scope="scope">
-            <el-input v-model="scope.row[col.name]"></el-input>
-          </template>
-        </el-table-column>
-        <el-table-column v-else-if="col.name.match(/_ts$/)"
-                         :key="col.name"
-                         :label="$t(col.label)"
-                         :sortable="col.sortable"
-                         :align="col.align"
-                         :width="col.width">
-          <template slot-scope="scope">
-            {{getTime(scope.row[col.name])}}
-          </template>
-        </el-table-column>
-        <el-table-column v-else
-                         :key="col.name"
-                         :property="col.name"
-                         :label="$t(col.label)"
-                         :sortable="col.sortable"
-                         :align="col.align || 'left'"
-                         :width="col.width">
-        </el-table-column>
-      </template>
-      <el-table-column :label="$t('Action')" align="left" width="auto" fixed="right">
-        <template slot-scope="scope">
-          <el-tooltip :content="$t('View')" placement="top">
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
-          </el-tooltip>
-          <el-tooltip :content="$t('Remove')" placement="top">
-            <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
-          </el-tooltip>
-          <el-tooltip v-if="!isShowRun(scope.row)" :content="$t('No command line')" placement="top">
-            <el-button disabled type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
-          </el-tooltip>
-          <el-tooltip v-else :content="$t('Run')" placement="top">
-            <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
-          </el-tooltip>
+    <el-card style="border-radius: 0">
+      <!--filter-->
+      <div class="filter">
+        <!--<el-input prefix-icon="el-icon-search"-->
+        <!--:placeholder="$t('Search')"-->
+        <!--class="filter-search"-->
+        <!--v-model="filter.keyword"-->
+        <!--@change="onSearch">-->
+        <!--</el-input>-->
+        <div class="left">
+          <el-autocomplete v-model="filterSite"
+                           :placeholder="$t('Site')"
+                           clearable
+                           :fetch-suggestions="fetchSiteSuggestions"
+                           @select="onSiteSelect">
+          </el-autocomplete>
+        </div>
+        <div class="right">
+          <el-button v-if="false" type="primary" icon="fa fa-download" @click="openImportDialog">
+            {{$t('Import Spiders')}}
+          </el-button>
+          <el-button type="success"
+                     icon="el-icon-plus"
+                     class="btn add"
+                     @click="onAdd">
+            {{$t('Add Spider')}}
+          </el-button>
+          <el-button type="success"
+                     icon="el-icon-refresh"
+                     class="btn refresh"
+                     @click="onRefresh">
+            {{$t('Refresh')}}
+          </el-button>
+        </div>
+      </div>
+      <!--./filter-->
+
+      <!--table list-->
+      <el-table :data="filteredTableData"
+                class="table"
+                :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
+                border>
+        <template v-for="col in columns">
+          <el-table-column v-if="col.name === 'type'"
+                           :key="col.name"
+                           :label="$t(col.label)"
+                           align="left"
+                           :width="col.width">
+            <template slot-scope="scope">
+              <el-tag type="success" v-if="scope.row.type === 'configurable'">{{$t('Configurable')}}</el-tag>
+              <el-tag type="primary" v-else-if="scope.row.type === 'customized'">{{$t('Customized')}}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column v-else-if="col.name === 'last_5_errors'"
+                           :key="col.name"
+                           :label="$t(col.label)"
+                           :width="col.width"
+                           align="center">
+            <template slot-scope="scope">
+              <div :style="{color:scope.row[col.name]>0?'red':''}">
+                {{scope.row[col.name]}}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column v-else-if="col.name === 'cmd'"
+                           :key="col.name"
+                           :label="$t(col.label)"
+                           :width="col.width"
+                           align="left">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row[col.name]"></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column v-else-if="col.name.match(/_ts$/)"
+                           :key="col.name"
+                           :label="$t(col.label)"
+                           :sortable="col.sortable"
+                           :align="col.align"
+                           :width="col.width">
+            <template slot-scope="scope">
+              {{getTime(scope.row[col.name])}}
+            </template>
+          </el-table-column>
+          <el-table-column v-else
+                           :key="col.name"
+                           :property="col.name"
+                           :label="$t(col.label)"
+                           :sortable="col.sortable"
+                           :align="col.align || 'left'"
+                           :width="col.width">
+          </el-table-column>
         </template>
-      </el-table-column>
-    </el-table>
-    <div class="pagination">
-      <el-pagination
-        @current-change="onPageChange"
-        @size-change="onPageChange"
-        :current-page.sync="pagination.pageNum"
-        :page-sizes="[10, 20, 50, 100]"
-        :page-size.sync="pagination.pageSize"
-        layout="sizes, prev, pager, next"
-        :total="spiderList.length">
-      </el-pagination>
-    </div>
+        <el-table-column :label="$t('Action')" align="left" width="auto" fixed="right">
+          <template slot-scope="scope">
+            <el-tooltip :content="$t('View')" placement="top">
+              <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
+            </el-tooltip>
+            <el-tooltip :content="$t('Remove')" placement="top">
+              <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
+            </el-tooltip>
+            <el-tooltip v-if="!isShowRun(scope.row)" :content="$t('No command line')" placement="top">
+              <el-button disabled type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
+            </el-tooltip>
+            <el-tooltip v-else :content="$t('Run')" placement="top">
+              <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagination">
+        <el-pagination
+          @current-change="onPageChange"
+          @size-change="onPageChange"
+          :current-page.sync="pagination.pageNum"
+          :page-sizes="[10, 20, 50, 100]"
+          :page-size.sync="pagination.pageSize"
+          layout="sizes, prev, pager, next"
+          :total="spiderList.length">
+        </el-pagination>
+      </div>
+      <!--./table list-->
+    </el-card>
   </div>
 </template>
 

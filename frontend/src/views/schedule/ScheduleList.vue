@@ -80,49 +80,53 @@
       <vcrontab @hide="showCron=false" @fill="onCrontabFill" :expression="expression"></vcrontab>
     </el-dialog>
 
-    <!--filter-->
-    <div class="filter">
-      <div class="right">
-        <el-button type="primary"
-                   icon="el-icon-plus"
-                   class="refresh"
-                   @click="onAdd">
-          {{$t('Add Schedule')}}
-        </el-button>
+    <el-card style="border-radius: 0">
+      <!--filter-->
+      <div class="filter">
+        <div class="right">
+          <el-button type="primary"
+                     icon="el-icon-plus"
+                     class="refresh"
+                     @click="onAdd">
+            {{$t('Add Schedule')}}
+          </el-button>
+        </div>
       </div>
-    </div>
+      <!--./filter-->
 
-    <!--table list-->
-    <el-table :data="filteredTableData"
-              class="table"
-              :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
-              border>
-      <template v-for="col in columns">
-        <el-table-column :key="col.name"
-                         :property="col.name"
-                         :label="$t(col.label)"
-                         :sortable="col.sortable"
-                         :align="col.align"
-                         :width="col.width">
+      <!--table list-->
+      <el-table :data="filteredTableData"
+                class="table"
+                :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
+                border>
+        <template v-for="col in columns">
+          <el-table-column :key="col.name"
+                           :property="col.name"
+                           :label="$t(col.label)"
+                           :sortable="col.sortable"
+                           :align="col.align"
+                           :width="col.width">
+            <template slot-scope="scope">
+              {{$t(scope.row[col.name])}}
+            </template>
+          </el-table-column>
+        </template>
+        <el-table-column :label="$t('Action')" align="left" width="250" fixed="right">
           <template slot-scope="scope">
-            {{$t(scope.row[col.name])}}
+            <el-tooltip :content="$t('Edit')" placement="top">
+              <el-button type="warning" icon="el-icon-edit" size="mini" @click="onEdit(scope.row)"></el-button>
+            </el-tooltip>
+            <el-tooltip :content="$t('Remove')" placement="top">
+              <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
+            </el-tooltip>
+            <el-tooltip v-if="isShowRun(scope.row)" :content="$t('Run')" placement="top">
+              <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
+            </el-tooltip>
           </template>
         </el-table-column>
-      </template>
-      <el-table-column :label="$t('Action')" align="left" width="250" fixed="right">
-        <template slot-scope="scope">
-          <el-tooltip :content="$t('Edit')" placement="top">
-            <el-button type="warning" icon="el-icon-edit" size="mini" @click="onEdit(scope.row)"></el-button>
-          </el-tooltip>
-          <el-tooltip :content="$t('Remove')" placement="top">
-            <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
-          </el-tooltip>
-          <el-tooltip v-if="isShowRun(scope.row)" :content="$t('Run')" placement="top">
-            <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
-          </el-tooltip>
-        </template>
-      </el-table-column>
-    </el-table>
+      </el-table>
+      <!--./table list-->
+    </el-card>
   </div>
 </template>
 
@@ -276,6 +280,7 @@ export default {
   }
 
   .table {
+    min-height: 360px;
     margin-top: 10px;
   }
 </style>

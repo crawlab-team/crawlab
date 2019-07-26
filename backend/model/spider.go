@@ -92,6 +92,8 @@ func (spider *Spider) GetLastTask() (Task, error) {
 	return tasks[0], nil
 }
 
+
+
 func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -164,4 +166,16 @@ func RemoveSpider(id bson.ObjectId) error {
 	}
 
 	return nil
+}
+
+func GetSpiderCount() (int, error) {
+	s, c := database.GetCol("spiders")
+	defer s.Close()
+
+	count, err := c.Count()
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }

@@ -137,3 +137,15 @@ func GetNodeTaskList(id bson.ObjectId) ([]Task, error) {
 	}
 	return tasks, nil
 }
+
+func GetNodeCount(query interface{}) (int, error) {
+	s, c := database.GetCol("nodes")
+	defer s.Close()
+
+	count, err := c.Find(query).Count()
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}

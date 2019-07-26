@@ -5,7 +5,8 @@
         <li class="metric-item" v-for="m in metrics" @click="onClickMetric(m)" :key="m.name">
           <el-card class="metric-card" shadow="hover">
             <el-col :span="6" class="icon-col">
-              <i :class="m.icon" :style="{color:m.color}"></i>
+              <font-awesome-icon :icon="m.icon" :color="m.color"/>
+              <!--<i :class="m.icon" :style="{color:m.color}"></i>-->
             </el-col>
             <el-col :span="18" class="text-col">
               <el-row>
@@ -40,10 +41,10 @@ export default {
       overviewStats: {},
       dailyTasks: [],
       metrics: [
-        { name: 'task_count', label: 'Total Tasks', icon: 'fa fa-play', color: '#f56c6c', path: 'tasks' },
-        { name: 'spider_count', label: 'Spiders', icon: 'fa fa-bug', color: '#67c23a', path: 'spiders' },
-        { name: 'node_count', label: 'Active Nodes', icon: 'fa fa-server', color: '#409EFF', path: 'nodes' },
-        { name: 'deploy_count', label: 'Total Deploys', icon: 'fa fa-cloud', color: '#409EFF', path: 'deploys' }
+        { name: 'task_count', label: 'Total Tasks', icon: ['fa', 'play'], color: '#f56c6c', path: 'tasks' },
+        { name: 'spider_count', label: 'Spiders', icon: ['fa', 'bug'], color: '#67c23a', path: 'spiders' },
+        { name: 'active_node_count', label: 'Active Nodes', icon: ['fa', 'server'], color: '#409EFF', path: 'nodes' },
+        { name: 'schedule_count', label: 'Schedules', icon: ['fa', 'clock'], color: '#409EFF', path: 'schedules' }
       ]
     }
   },
@@ -58,7 +59,7 @@ export default {
           type: 'value'
         },
         series: [{
-          data: this.dailyTasks.map(d => d.count),
+          data: this.dailyTasks.map(d => d.task_count),
           type: 'line',
           areaStyle: {},
           smooth: true
@@ -76,13 +77,13 @@ export default {
     }
   },
   created () {
-    request.get('/stats/get_home_stats')
+    request.get('/stats/home')
       .then(response => {
         // overview stats
-        this.overviewStats = response.data.overview_stats
+        this.overviewStats = response.data.data.overview
 
         // daily tasks
-        this.dailyTasks = response.data.daily_tasks
+        this.dailyTasks = response.data.data.daily
         this.initEchartsDailyTasks()
       })
   },
@@ -159,5 +160,10 @@ export default {
 
   .el-card {
     /*border: 1px solid lightgrey;*/
+  }
+
+  .svg-inline--fa {
+    width: 100%;
+    height: 100%;
   }
 </style>

@@ -9,7 +9,7 @@
     </div>
 
     <!--tabs-->
-    <el-tabs v-model="activeTabName" @tab-click="onTabClick" type="card">
+    <el-tabs v-model="activeTabName" @tab-click="onTabClick" type="border-card">
       <el-tab-pane :label="$t('Overview')" name="overview">
         <spider-overview/>
       </el-tab-pane>
@@ -107,18 +107,31 @@ export default {
     display: flex;
     align-items: center;
     position: absolute;
-    right: 20px;
+    right: 48px;
     /*float: right;*/
     z-index: 999;
-    margin-top: -7px;
+    margin-top: 5px;
   }
 
   .selector .el-select {
+    height: 30px;
+    line-height: 30px;
     padding-left: 10px;
+    width: 180px;
+    border-radius: 0;
+  }
+
+  .selector .el-select >>> .el-input__icon,
+  .selector .el-select >>> .el-input__inner {
+    border-radius: 0;
+    height: 30px;
+    line-height: 30px;
   }
 
   .label {
     text-align: right;
     width: 80px;
+    color: #909399;
+    font-weight: 100;
   }
 </style>

@@ -87,22 +87,8 @@ export default {
     }
   },
   methods: {
-    getIcon (type) {
-      if (type === 1) {
-        return 'fa-file-o'
-      } else if (type === 2) {
-        return 'fa-folder'
-      }
-    },
     onEdit () {
       this.isEdit = true
-    },
-    onChange (path) {
-      this.$store.commit('file/SET_CURRENT_PATH', path)
-    },
-    onChangeSubmit () {
-      this.isEdit = false
-      this.$store.dispatch('file/getFileList', { path: this.currentPath })
     },
     onItemClick (item) {
       if (item.is_dir) {

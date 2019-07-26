@@ -4,7 +4,7 @@
       <h5 class="title">{{title}}</h5>
       <el-button type="success" plain class="small-btn" size="mini" icon="fa fa-refresh" @click="onRefresh"></el-button>
     </el-row>
-    <el-table border height="480px" :data="taskList">
+    <el-table border height="480px" :data="taskList" @row-click="onClickTask">
       <el-table-column property="node" :label="$t('Node')" width="120" align="left">
         <template slot-scope="scope">
           <a class="a-tag" @click="onClickNode(scope.row)">{{scope.row.node_name}}</a>
@@ -15,6 +15,11 @@
           <a class="a-tag" @click="onClickSpider(scope.row)">{{scope.row.spider_name}}</a>
         </template>
       </el-table-column>
+      <el-table-column property="result_count" :label="$t('Results Count')" width="60" align="right">
+        <template slot-scope="scope">
+          <span>{{scope.row.result_count}}</span>
+        </template>
+      </el-table-column>
       <el-table-column :label="$t('Status')"
                        align="left"
                        width="100">
@@ -23,7 +28,7 @@
         </template>
       </el-table-column>
       <!--<el-table-column property="create_ts" label="Create Time" width="auto" align="center"></el-table-column>-->
-      <el-table-column property="create_ts" :label="$t('Create Time')" width="auto" align="left">
+      <el-table-column property="create_ts" :label="$t('Create Time')" width="150" align="left">
         <template slot-scope="scope">
           <a href="javascript:" class="a-tag" @click="onClickTask(scope.row)">
             {{getTime(scope.row.create_ts).format('YYYY-MM-DD HH:mm:ss')}}
@@ -48,7 +53,9 @@ export default {
   data () {
     return {
       // setInterval handle
-      handle: undefined
+      handle: undefined,
+      // 防抖
+      clicked: false
     }
   },
   props: {
@@ -64,13 +71,21 @@ export default {
   },
   methods: {
     onClickSpider (row) {
+      this.clicked = true
+      setTimeout(() => {
+        this.clicked = false
+      }, 100)
       this.$router.push(`/spiders/${row.spider_id}`)
     },
     onClickNode (row) {
+      this.clicked = true
+      setTimeout(() => {
+        this.clicked = false
+      }, 100)
       this.$router.push(`/nodes/${row.node_id}`)
     },
     onClickTask (row) {
-      this.$router.push(`/tasks/${row._id}`)
+      if (!this.clicked) this.$router.push(`/tasks/${row._id}`)
     },
     onRefresh () {
       if (this.$route.path.split('/')[1] === 'spiders') {
@@ -113,5 +128,9 @@ export default {
     width: 24px;
     margin: 0;
     padding: 5px;
+  }
+
+  .el-table >>> tr {
+    cursor: pointer;
   }
 </style>

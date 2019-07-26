@@ -95,6 +95,7 @@ func main() {
 		app.GET("/spiders/:id/file", routes.GetSpiderFile)     // 爬虫文件读取
 		app.POST("/spiders/:id/file", routes.PostSpiderFile)   // 爬虫目录写入
 		app.GET("/spiders/:id/dir", routes.GetSpiderDir)       // 爬虫目录
+		app.GET("/spiders/:id/stats", routes.GetSpiderStats)   // 爬虫统计数据
 		// 任务
 		app.GET("/tasks", routes.GetTaskList)                                 // 任务列表
 		app.GET("/tasks/:id", routes.GetTask)                                 // 任务详情
@@ -110,6 +111,8 @@ func main() {
 		app.PUT("/schedules", routes.PutSchedule)           // 创建定时任务
 		app.POST("/schedules/:id", routes.PostSchedule)     // 修改定时任务
 		app.DELETE("/schedules/:id", routes.DeleteSchedule) // 删除定时任务
+		// 统计数据
+		app.GET("/stats/home", routes.GetHomeStats) // 首页统计数据
 	}
 
 	// 路由ping

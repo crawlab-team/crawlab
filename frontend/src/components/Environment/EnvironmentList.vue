@@ -74,4 +74,8 @@ export default {
     width: 100%;
     text-align: right;
   }
+
+  .el-table {
+    min-height: 360px;
+  }
 </style>

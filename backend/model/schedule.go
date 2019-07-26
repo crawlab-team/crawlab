@@ -129,3 +129,15 @@ func RemoveSchedule(id bson.ObjectId) error {
 
 	return nil
 }
+
+func GetScheduleCount() (int, error) {
+	s, c := database.GetCol("schedules")
+	defer s.Close()
+
+	count, err := c.Count()
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}

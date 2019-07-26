@@ -129,12 +129,12 @@ const actions = {
     return request.post('/spiders/import/github', { url })
   },
   getSpiderStats ({ state, commit }) {
-    return request.get('/stats/get_spider_stats?spider_id=' + state.spiderForm._id)
+    return request.get(`/spiders/${state.spiderForm._id}/stats`)
       .then(response => {
-        commit('SET_OVERVIEW_STATS', response.data.overview)
-        commit('SET_STATUS_STATS', response.data.task_count_by_status)
-        commit('SET_DAILY_STATS', response.data.daily_stats)
-        commit('SET_NODE_STATS', response.data.task_count_by_node)
+        commit('SET_OVERVIEW_STATS', response.data.data.overview)
+        // commit('SET_STATUS_STATS', response.data.task_count_by_status)
+        commit('SET_DAILY_STATS', response.data.data.daily)
+        // commit('SET_NODE_STATS', response.data.task_count_by_node)
       })
   },
   getPreviewCrawlData ({ state, commit }) {

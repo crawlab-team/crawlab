@@ -100,14 +100,14 @@ export default {
         if (this.masterNode.id === this.nodes[i].id) continue
 
         // master
-        links.push({
-          source: this.masterNode.id,
-          target: this.nodes[i].id,
-          value: 0.5,
-          lineStyle: {
-            color: '#409EFF'
-          }
-        })
+        // links.push({
+        //   source: this.masterNode.id,
+        //   target: this.nodes[i].id,
+        //   value: 0.5,
+        //   lineStyle: {
+        //     color: '#409EFF'
+        //   }
+        // })
       }
       return links
     }
@@ -120,6 +120,7 @@ export default {
         },
         tooltip: {
           formatter: params => {
+            if (!params.data.name) return
             let str = '<span style="margin-right:5px;display:inline-block;height:12px;width:12px;border-radius:6px;background:' + params.color + '"></span>'
             if (params.data.name) str += '<span>' + params.data.name + '</span><br>'
             if (params.data.ip) str += '<span>IP: ' + params.data.ip + '</span><br>'

@@ -166,6 +166,9 @@ export default {
   'Error Message': '错误信息',
   'Results Count': '结果数',
   'Average Results Count per Second': '抓取速度(个/秒)',
+  'Wait Duration (sec)': '等待时长(秒)',
+  'Runtime Duration (sec)': '运行时长(秒)',
+  'Total Duration (sec)': '总时长(秒)',
 
   // 任务列表
   'Node': '节点',
@@ -231,5 +234,6 @@ export default {
   'Are you sure to delete this spider?': '你确定要删除该爬虫?',
   'Spider info has been saved successfully': '爬虫信息已成功保存',
   'Do you allow us to collect some statistics to improve Crawlab?': '您允许我们收集统计数据以更好地优化Crawlab？',
-  'Saved file successfully': '成功保存文件'
+  'Saved file successfully': '成功保存文件',
+  'An error happened when fetching the data': '请求数据时出错'
 }

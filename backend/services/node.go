@@ -104,6 +104,27 @@ func GetCurrentNode() (model.Node, error) {
 
 		// 如果获取失败
 		if err != nil {
+			// 如果为主节点，表示为第一次注册，插入节点信息
+			if IsMaster() {
+				// 获取本机IP地址
+				ip, err := GetIp()
+				if err != nil {
+					debug.PrintStack()
+					return model.Node{}, err
+				}
+				// 生成节点
+				node = model.Node{
+					Id:       bson.NewObjectId(),
+					Ip:       ip,
+					Name:     mac,
+					Mac:      mac,
+					IsMaster: true,
+				}
+				if err := node.Add(); err != nil {
+					return node, err
+				}
+				return node, nil
+			}
 			// 增加错误次数
 			errNum++
 
