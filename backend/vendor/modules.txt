@@ -1,5 +1,7 @@
 # github.com/apex/log v1.1.1
 github.com/apex/log
+# github.com/dgrijalva/jwt-go v3.2.0+incompatible
+github.com/dgrijalva/jwt-go
 # github.com/fsnotify/fsnotify v1.4.7
 github.com/fsnotify/fsnotify
 # github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab6dad3
@@ -47,8 +49,6 @@ github.com/modern-go/reflect2
 github.com/pelletier/go-toml
 # github.com/pkg/errors v0.8.1
 github.com/pkg/errors
-# github.com/robfig/cron v1.2.0
-github.com/robfig/cron
 # github.com/satori/go.uuid v1.2.0
 github.com/satori/go.uuid
 # github.com/spf13/afero v1.1.2

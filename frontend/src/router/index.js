@@ -26,6 +26,7 @@ Vue.use(Router)
  **/
 export const constantRouterMap = [
   { path: '/login', component: () => import('../views/login/index'), hidden: true },
+  { path: '/signup', component: () => import('../views/login/index'), hidden: true },
   { path: '/404', component: () => import('../views/404'), hidden: true },
   { path: '/', redirect: '/home' },
 
@@ -222,7 +223,16 @@ router.beforeEach((to, from, next) => {
   } else {
     window.document.title = 'Crawlab'
   }
-  next()
+
+  if (['/login', '/signup'].includes(to.path)) {
+    next()
+  } else {
+    if (window.localStorage.getItem('token')) {
+      next()
+    } else {
+      next('/login')
+    }
+  }
 })
 
 router.afterEach((to, from, next) => {

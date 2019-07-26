@@ -33,6 +33,8 @@ var executableNameMap = map[string]string{
 	"go": "Go",
 	// node
 	"node": "NodeJS",
+	// php
+	"php": "PHP",
 	// windows command
 	"cmd": "Windows Command Prompt",
 	// linux shell

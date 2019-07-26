@@ -71,6 +71,13 @@ func main() {
 	}
 	log.Info("初始化爬虫服务成功")
 
+	// 初始化用户服务
+	if err := services.InitUserService(); err != nil {
+		debug.PrintStack()
+		panic(err)
+	}
+	log.Info("初始化用户服务成功")
+
 	// 以下为主节点服务
 	if services.IsMaster() {
 		// 中间件
@@ -113,6 +120,13 @@ func main() {
 		app.DELETE("/schedules/:id", routes.DeleteSchedule) // 删除定时任务
 		// 统计数据
 		app.GET("/stats/home", routes.GetHomeStats) // 首页统计数据
+		// 用户
+		app.GET("/users", routes.GetUserList)       // 用户列表
+		app.GET("/users/:id", routes.GetUser)       // 用户详情
+		app.PUT("/users", routes.PutUser)           // 添加用户
+		app.POST("/users/:id", routes.PostUser)     // 更改用户
+		app.DELETE("/users/:id", routes.DeleteUser) // 删除用户
+		app.POST("/login", routes.Login)            // 用户登录
 	}
 
 	// 路由ping

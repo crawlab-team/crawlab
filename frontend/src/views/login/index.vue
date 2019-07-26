@@ -50,9 +50,9 @@
         </div>
         <div class="right">
           <span v-if="isSignUp">{{$t('Has Account')}}, </span>
-          <span v-if="isSignUp" class="sign-in" @click="isSignUp=false">{{$t('Sign-in')}} ></span>
+          <span v-if="isSignUp" class="sign-in" @click="$router.push('/login')">{{$t('Sign-in')}} ></span>
           <span v-if="!isSignUp">{{$t('New to Crawlab')}}, </span>
-          <span v-if="!isSignUp" class="sign-up" @click="isSignUp=true">{{$t('Sign-up')}} ></span>
+          <span v-if="!isSignUp" class="sign-up" @click="$router.push('/signup')">{{$t('Sign-up')}} ></span>
         </div>
       </div>
       <div class="tips">
@@ -66,21 +66,29 @@
 </template>
 
 <script>
-import { isvalidUsername } from '@/utils/validate'
+import { isValidUsername } from '../../utils/validate'
 
 export default {
   name: 'Login',
   data () {
     const validateUsername = (rule, value, callback) => {
-      if (!isvalidUsername(value)) {
-        callback(new Error('请输入正确的用户名'))
+      if (!isValidUsername(value)) {
+        callback(new Error(this.$t('Please enter the correct username')))
       } else {
         callback()
       }
     }
     const validatePass = (rule, value, callback) => {
       if (value.length < 5) {
-        callback(new Error('密码不能小于5位'))
+        callback(new Error(this.$t('Password length should be no shorter than 5')))
+      } else {
+        callback()
+      }
+    }
+    const validateConfirmPass = (rule, value, callback) => {
+      if (!this.isSignUp) return callback()
+      if (value !== this.loginForm.password) {
+        callback(new Error(this.$t('Two passwords must be the same')))
       } else {
         callback()
       }
@@ -93,41 +101,47 @@ export default {
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePass }]
+        password: [{ required: true, trigger: 'blur', validator: validatePass }],
+        confirmPassword: [{ required: true, trigger: 'blur', validator: validateConfirmPass }]
       },
       loading: false,
       pwdType: 'password',
-      redirect: undefined,
-      isSignUp: false
+      redirect: undefined
+    }
+  },
+  computed: {
+    isSignUp () {
+      return this.$route.path === '/signup'
     }
   },
   methods: {
-    showPwd () {
-      if (this.pwdType === 'password') {
-        this.pwdType = ''
-      } else {
-        this.pwdType = 'password'
-      }
-    },
     handleLogin () {
-      this.$router.push('/')
-
-      // this.$refs.loginForm.validate(valid => {
-      //   if (valid) {
-      //     this.loading = true
-      //     this.$store.dispatch('Login', this.loginForm).then(() => {
-      //       this.loading = false
-      //       this.$router.push({ path: this.redirect || '/' })
-      //     }).catch(() => {
-      //       this.loading = false
-      //     })
-      //   } else {
-      //     console.log('error submit!!')
-      //     return false
-      //   }
-      // })
+      this.$refs.loginForm.validate(valid => {
+        if (valid) {
+          this.loading = true
+          this.$store.dispatch('user/login', this.loginForm).then(() => {
+            this.loading = false
+            this.$router.push({ path: this.redirect || '/' })
+          }).catch(() => {
+            this.$message.error(this.$t('Error when logging in (Please check username and password)'))
+            this.loading = false
+          })
+        }
+      })
     },
     handleSignup () {
+      this.$refs.loginForm.validate(valid => {
+        if (valid) {
+          this.loading = true
+          this.$store.dispatch('user/register', this.loginForm).then(() => {
+            this.handleLogin()
+            this.loading = false
+          }).catch(err => {
+            this.$message.error(this.$t(err))
+            this.loading = false
+          })
+        }
+      })
     }
   },
   mounted () {
@@ -289,17 +303,17 @@ const initCanvas = () => {
         line-height: 44px;
       }
     }
-  }
 
-  .el-button {
-    height: 44px;
-    border-radius: 22px;
-  }
+    .el-button {
+      height: 44px;
+      border-radius: 22px;
+    }
 
-  #canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
+    #canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
   }
 </style>
 

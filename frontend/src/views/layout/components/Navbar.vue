@@ -51,6 +51,7 @@ export default {
       this.$store.dispatch('ToggleSideBar')
     },
     logout () {
+      this.$store.dispatch('user/logout')
       this.$router.push('/login')
     },
     setLang (lang) {
