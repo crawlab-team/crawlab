@@ -60,10 +60,15 @@ func GetUserList(c *gin.Context) {
 	}
 
 	// 获取总用户数
-	total, err := model.GetTaskListTotal(nil)
+	total, err := model.GetUserListTotal(nil)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
+	}
+
+	// 去除密码
+	for i := range users {
+		users[i].Password = ""
 	}
 
 	c.JSON(http.StatusOK, ListResponse{
@@ -100,9 +105,47 @@ func PutUser(c *gin.Context) {
 }
 
 func PostUser(c *gin.Context) {
+	id := c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+	}
+
+	var item model.User
+	if err := c.ShouldBindJSON(&item); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+
+	if err := model.UpdateUser(bson.ObjectIdHex(id), item); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
 }
 
 func DeleteUser(c *gin.Context) {
+	id := c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
+
+	// 从数据库中删除该爬虫
+	if err := model.RemoveUser(bson.ObjectIdHex(id)); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
 }
 
 func Login(c *gin.Context) {

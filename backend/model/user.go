@@ -20,6 +20,19 @@ type User struct {
 	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
 }
 
+func (user *User) Save() error {
+	s, c := database.GetCol("users")
+	defer s.Close()
+
+	user.UpdateTs = time.Now()
+
+	if err := c.UpdateId(user.Id, user); err != nil {
+		debug.PrintStack()
+		return err
+	}
+	return nil
+}
+
 func (user *User) Add() error {
 	s, c := database.GetCol("users")
 	defer s.Close()
@@ -81,7 +94,7 @@ func GetUserByUsername(username string) (User, error) {
 }
 
 func GetUserList(filter interface{}, skip int, limit int, sortKey string) ([]User, error) {
-	s, c := database.GetCol("tasks")
+	s, c := database.GetCol("users")
 	defer s.Close()
 
 	var users []User
@@ -102,4 +115,36 @@ func GetUserListTotal(filter interface{}) (int, error) {
 		return result, err
 	}
 	return result, nil
+}
+
+func UpdateUser(id bson.ObjectId, item User) error {
+	s, c := database.GetCol("users")
+	defer s.Close()
+
+	var result User
+	if err := c.FindId(id).One(&result); err != nil {
+		debug.PrintStack()
+		return err
+	}
+
+	if err := item.Save(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func RemoveUser(id bson.ObjectId) error {
+	s, c := database.GetCol("users")
+	defer s.Close()
+
+	var result User
+	if err := c.FindId(id).One(&result); err != nil {
+		return err
+	}
+
+	if err := c.RemoveId(id); err != nil {
+		return err
+	}
+
+	return nil
 }
