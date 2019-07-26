@@ -7,7 +7,12 @@ const user = {
     // token: getToken(),
     name: '',
     avatar: '',
-    roles: []
+    roles: [],
+    userList: [],
+    userForm: {},
+    pageNum: 1,
+    pageSize: 10,
+    totalCount: 0
   },
 
   mutations: {
@@ -22,6 +27,21 @@ const user = {
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles
+    },
+    SET_USER_LIST: (state, value) => {
+      state.userList = value
+    },
+    SET_USER_FORM: (state, value) => {
+      state.userForm = value
+    },
+    SET_PAGE_NUM: (state, value) => {
+      state.pageNum = value
+    },
+    SET_PAGE_SIZE: (state, value) => {
+      state.pageSize = value
+    },
+    SET_TOTAL_COUNT: (state, value) => {
+      state.totalCount = value
     }
   },
 
@@ -83,6 +103,30 @@ const user = {
         commit('SET_ROLES', [])
         resolve()
       })
+    },
+
+    // 获取用户列表
+    getUserList ({ commit, state }) {
+      return new Promise((resolve, reject) => {
+        request.get('/users', {
+          page_num: state.pageNum,
+          page_size: state.pageSize
+        })
+          .then(response => {
+            commit('SET_USER_LIST', response.data.data)
+            commit('SET_TOTAL_COUNT', response.data.total)
+          })
+      })
+    },
+
+    // 删除用户
+    deleteUser ({ state }, id) {
+      return request.delete(`/users/${id}`)
+    },
+
+    // 编辑用户
+    editUser ({ state }) {
+      return request.post(`/users/${state.userForm._id}`, state.userForm)
     }
   }
 }

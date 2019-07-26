@@ -157,37 +157,6 @@ export const constantRouterMap = [
     ]
   },
   {
-    name: 'Deploy',
-    path: '/deploys',
-    component: Layout,
-    hidden: true,
-    meta: {
-      title: 'Deploy',
-      icon: 'fa fa-cloud'
-    },
-    children: [
-      {
-        path: '',
-        name: 'DeployList',
-        component: () => import('../views/deploy/DeployList'),
-        meta: {
-          title: 'Deploys',
-          icon: 'fa fa-cloud'
-        }
-      },
-      {
-        path: ':id',
-        name: 'DeployDetail',
-        component: () => import('../views/deploy/DeployDetail'),
-        meta: {
-          title: 'Deploy Detail',
-          icon: 'fa fa-circle-o'
-        },
-        hidden: true
-      }
-    ]
-  },
-  {
     name: 'Site',
     path: '/sites',
     component: Layout,
@@ -203,6 +172,26 @@ export const constantRouterMap = [
         meta: {
           title: 'Sites',
           icon: 'fa fa-sitemap'
+        }
+      }
+    ]
+  },
+  {
+    name: 'User',
+    path: '/users',
+    component: Layout,
+    meta: {
+      title: 'User',
+      icon: 'fa fa-user'
+    },
+    children: [
+      {
+        path: '',
+        name: 'UserList',
+        component: () => import('../views/user/UserList'),
+        meta: {
+          title: 'Users',
+          icon: 'fa fa-user'
         }
       }
     ]

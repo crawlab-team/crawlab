@@ -230,8 +230,8 @@ export default {
   'Are you sure to run this spider?': '你确定要运行该爬虫?',
   'Node info has been saved successfully': '节点信息已成功保存',
   'A task has been scheduled successfully': '已经成功派发一个任务',
-  'Are you sure to deploy this spider?': '你确定要部署该爬虫?',
   'Are you sure to delete this spider?': '你确定要删除该爬虫?',
+  'Are you sure to delete this user?': '你确定要删除该用户?',
   'Spider info has been saved successfully': '爬虫信息已成功保存',
   'Do you allow us to collect some statistics to improve Crawlab?': '您允许我们收集统计数据以更好地优化Crawlab？',
   'Saved file successfully': '成功保存文件',
@@ -241,6 +241,8 @@ export default {
   'Password length should be no shorter than 5': '密码长度不能小于5',
   'Two passwords must be the same': '两个密码必须要一致',
   'username already exists': '用户名已存在',
+  'Deleted successfully': '成功删除',
+  'Saved successfully': '成功保存',
 
   // 登录
   'Sign in': '登录',
@@ -255,5 +257,10 @@ export default {
   'Initial Username/Password': '初始用户名/密码',
   'Username': '用户名',
   'Password': '密码',
-  'Confirm Password': '确认密码'
+  'Confirm Password': '确认密码',
+  'normal': '正常用户',
+  'admin': '管理用户',
+  'Role': '角色',
+  'Edit User': '更改用户',
+  'Users': '用户'
 }
