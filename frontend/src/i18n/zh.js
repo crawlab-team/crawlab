@@ -235,5 +235,20 @@ export default {
   'Spider info has been saved successfully': '爬虫信息已成功保存',
   'Do you allow us to collect some statistics to improve Crawlab?': '您允许我们收集统计数据以更好地优化Crawlab？',
   'Saved file successfully': '成功保存文件',
-  'An error happened when fetching the data': '请求数据时出错'
+  'An error happened when fetching the data': '请求数据时出错',
+
+  // 登录
+  'Sign in': '登录',
+  'Sign-in': '登录',
+  'Sign out': '退出登录',
+  'Sign-out': '退出登录',
+  'Sign up': '注册',
+  'Sign-up': '注册',
+  'Forgot Password': '忘记密码',
+  'Has Account': '已有账号',
+  'New to Crawlab': 'Crawlab新用户',
+  'Initial Username/Password': '初始用户名/密码',
+  'Username': '用户名',
+  'Password': '密码',
+  'Confirm Password': '确认密码'
 }
