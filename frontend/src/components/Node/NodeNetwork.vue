@@ -36,15 +36,17 @@ export default {
     },
     nodes () {
       let nodes = this.$store.state.node.nodeList
-      nodes = nodes.map(d => {
-        d.id = d._id
-        d.x = Math.floor(100 * Math.random())
-        d.y = Math.floor(100 * Math.random())
-        d.itemStyle = {
-          color: d.is_master ? '#409EFF' : '#e6a23c'
-        }
-        return d
-      })
+      nodes = nodes
+        .filter(d => d.status !== 'offline')
+        .map(d => {
+          d.id = d._id
+          d.x = Math.floor(100 * Math.random())
+          d.y = Math.floor(100 * Math.random())
+          d.itemStyle = {
+            color: d.is_master ? '#409EFF' : '#e6a23c'
+          }
+          return d
+        })
 
       // mongodb
       nodes.push({
@@ -73,6 +75,7 @@ export default {
     links () {
       const links = []
       for (let i = 0; i < this.nodes.length; i++) {
+        if (this.nodes[i].status === 'offline') continue
         if (['redis', 'mongodb'].includes(this.nodes[i].id)) continue
         // mongodb
         links.push({
@@ -115,7 +118,15 @@ export default {
         title: {
           text: this.$t('Node Network')
         },
-        tooltip: {},
+        tooltip: {
+          formatter: params => {
+            let str = '<span style="margin-right:5px;display:inline-block;height:12px;width:12px;border-radius:6px;background:' + params.color + '"></span>'
+            if (params.data.name) str += '<span>' + params.data.name + '</span><br>'
+            if (params.data.ip) str += '<span>IP: ' + params.data.ip + '</span><br>'
+            if (params.data.mac) str += '<span>MAC: ' + params.data.mac + '</span><br>'
+            return str
+          }
+        },
         animationDurationUpdate: 1500,
         animationEasingUpdate: 'quinticInOut',
         series: [
@@ -141,9 +152,9 @@ export default {
             focusOneNodeAdjacency: true,
             force: {
               initLayout: 'force',
-              repulsion: 50,
+              repulsion: 30,
               gravity: 0.001,
-              edgeLength: 40
+              edgeLength: 30
             },
             draggable: true,
             data: this.nodes,

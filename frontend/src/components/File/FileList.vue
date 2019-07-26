@@ -111,7 +111,7 @@ export default {
       } else {
         // 文件
         this.showFile = true
-        this.$store.commit('file/SET_CURRENT_CONTENT', '')
+        this.$store.commit('file/SET_FILE_CONTENT', '')
         this.$store.commit('file/SET_CURRENT_PATH', item.path)
         this.$store.dispatch('file/getFileContent', { path: item.path })
       }

@@ -8479,7 +8479,8 @@ vue-ba@^1.2.5:
 
 vue-codemirror-lite@^1.0.4:
   version "1.0.4"
-  resolved "http://registry.npm.taobao.org/vue-codemirror-lite/download/vue-codemirror-lite-1.0.4.tgz#48a5cd7d17c0914503c8cd9d9b56b438e49c3410"
+  resolved "https://registry.npm.taobao.org/vue-codemirror-lite/download/vue-codemirror-lite-1.0.4.tgz#48a5cd7d17c0914503c8cd9d9b56b438e49c3410"
+  integrity sha1-SKXNfRfAkUUDyM2dm1a0OOScNBA=
   dependencies:
     codemirror "^5.22.0"
 

@@ -3,39 +3,28 @@
     class="file-content"
     :options="options"
     v-model="fileContent"
-    @change="onChange"
   />
 </template>
 
 <script>
-import { codemirror } from 'vue-codemirror'
+import { codemirror } from 'vue-codemirror-lite'
 
-require('codemirror/mode/python/python.js')
-require('codemirror/mode/javascript/javascript.js')
-require('codemirror/mode/go/go.js')
-require('codemirror/mode/shell/shell.js')
-require('codemirror/addon/fold/foldcode.js')
-require('codemirror/addon/fold/foldgutter.js')
-require('codemirror/addon/fold/brace-fold.js')
-require('codemirror/addon/fold/xml-fold.js')
-require('codemirror/addon/fold/indent-fold.js')
-require('codemirror/addon/fold/markdown-fold.js')
-require('codemirror/addon/fold/comment-fold.js')
+import 'codemirror/lib/codemirror.js'
+
+// language
+import 'codemirror/mode/python/python.js'
+import 'codemirror/mode/javascript/javascript.js'
+import 'codemirror/mode/go/go.js'
+import 'codemirror/mode/shell/shell.js'
+import 'codemirror/mode/markdown/markdown.js'
+import 'codemirror/mode/php/php.js'
 
 export default {
   name: 'FileDetail',
   components: { codemirror },
   data () {
     return {
-      internalFileContent: '',
-      options: {
-        theme: 'darcula',
-        // mode: 'javascript',
-        mode: { name: 'javascript', json: true },
-        lineNumbers: true,
-        line: true,
-        matchBrackets: true
-      }
+      internalFileContent: ''
     }
   },
   computed: {
@@ -45,6 +34,34 @@ export default {
       },
       set (value) {
         return this.$store.commit('file/SET_FILE_CONTENT', value)
+      }
+    },
+    options () {
+      return {
+        mode: this.lanaguage,
+        theme: 'darcula',
+        styleActiveLine: true,
+        lineNumbers: true,
+        line: true,
+        matchBrackets: true
+      }
+    },
+    lanaguage () {
+      const fileName = this.$store.state.file.currentPath
+      if (fileName.match(/\.js$/)) {
+        return 'text/javascript'
+      } else if (fileName.match(/\.py$/)) {
+        return 'text/x-python'
+      } else if (fileName.match(/\.go$/)) {
+        return 'text/x-go'
+      } else if (fileName.match(/\.sh$/)) {
+        return 'text/x-shell'
+      } else if (fileName.match(/\.php$/)) {
+        return 'text/x-php'
+      } else if (fileName.match(/\.md$/)) {
+        return 'text/x-markdown'
+      } else {
+        return 'text'
       }
     }
   },

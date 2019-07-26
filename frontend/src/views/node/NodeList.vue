@@ -62,6 +62,9 @@
                           <template v-else-if="ex.file_name.match(/^node/)">
                             <font-awesome-icon :icon="['fab','node-js']"/>
                           </template>
+                          <template v-else-if="ex.file_name.match(/^php/)">
+                            <font-awesome-icon :icon="['fab','php']"/>
+                          </template>
                           <template v-else>
                             <font-awesome-icon :icon="['fas', 'terminal']"/>
                           </template>
