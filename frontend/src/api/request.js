@@ -1,4 +1,5 @@
 import axios from 'axios'
+import router from '../router'
 
 let baseUrl = process.env.VUE_APP_BASE_URL ? process.env.VUE_APP_BASE_URL : 'http://localhost:8000/api'
 
@@ -16,7 +17,13 @@ const request = (method, path, params, data) => {
       headers
     })
       .then(resolve)
-      .catch(reject)
+      .catch(error => {
+        console.log(error)
+        if (error.response.status === 401) {
+          router.push('/login')
+        }
+        reject(error)
+      })
   })
 }
 

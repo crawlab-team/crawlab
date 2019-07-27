@@ -15,13 +15,16 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import variables from '@/styles/variables.scss'
 import SidebarItem from './SidebarItem'
 
 export default {
   components: { SidebarItem },
   computed: {
+    ...mapState('user', [
+      'adminPaths'
+    ]),
     ...mapGetters([
       'sidebar'
     ]),
@@ -30,8 +33,12 @@ export default {
       return `/${pathArray[1]}`
     },
     routes () {
-      // console.log(this.$router.options.routes.filter(d => !d.hidden))
-      return this.$router.options.routes
+      return this.$router.options.routes.filter(d => {
+        const role = this.$store.getters['user/userInfo'].role
+        if (role === 'admin') return true
+        console.log(role)
+        return !this.adminPaths.includes(d.path)
+      })
     },
     variables () {
       return variables

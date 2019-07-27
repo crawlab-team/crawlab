@@ -2,13 +2,13 @@
   <div class="app-container">
     <!--dialog-->
     <el-dialog :visible.sync="dialogVisible" :title="$t('Edit User')">
-      <el-form label-width="80px">
+      <el-form ref="form" :model="userForm" label-width="80px" :rules="rules" inline-message>
         <el-form-item :label="$t('Username')">
           <el-input v-model="userForm.username" disabled></el-input>
         </el-form-item>
-        <!--<el-form-item :label="$t('Password')">-->
-        <!--<el-input type="password" v-model="userForm.password" :placeholder="$t('Password')"></el-input>-->
-        <!--</el-form-item>-->
+        <el-form-item prop="password" :label="$t('Password')">
+          <el-input type="password" v-model="userForm.password" :placeholder="$t('Password')"></el-input>
+        </el-form-item>
         <el-form-item :label="$t('Role')">
           <el-select v-model="userForm.role">
             <el-option value="admin" :label="$t('admin')"></el-option>
@@ -92,8 +92,19 @@ import dayjs from 'dayjs'
 export default {
   name: 'UserList',
   data () {
+    const validatePass = (rule, value, callback) => {
+      if (!value) return callback()
+      if (value.length < 5) {
+        callback(new Error(this.$t('Password length should be no shorter than 5')))
+      } else {
+        callback()
+      }
+    }
     return {
-      dialogVisible: false
+      dialogVisible: false,
+      rules: {
+        password: [{ validator: validatePass }]
+      }
     }
   },
   computed: {
@@ -149,13 +160,17 @@ export default {
     },
     onConfirm () {
       this.dialogVisible = false
-      this.$store.dispatch('user/editUser')
-        .then(() => {
-          this.$message({
-            type: 'success',
-            message: this.$t('Saved successfully')
-          })
-        })
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          this.$store.dispatch('user/editUser')
+            .then(() => {
+              this.$message({
+                type: 'success',
+                message: this.$t('Saved successfully')
+              })
+            })
+        }
+      })
       this.$st.sendEv('用户', '编辑')
     }
   },

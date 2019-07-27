@@ -95,7 +95,7 @@ export default {
       this.$store.dispatch('task/getTaskResults', this.$route.params.id)
     },
     downloadCSV () {
-      window.location.href = this.$request.baseUrl + '/tasks/' + this.$route.params.id + '/download_results'
+      window.location.href = this.$request.baseUrl + '/tasks/' + this.$route.params.id + '/results/download'
       this.$st.sendEv('任务详情-结果', '下载CSV')
     }
   },

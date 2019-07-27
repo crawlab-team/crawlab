@@ -2,6 +2,7 @@ package model
 
 import (
 	"crawlab/database"
+	"crawlab/utils"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
@@ -125,6 +126,12 @@ func UpdateUser(id bson.ObjectId, item User) error {
 	if err := c.FindId(id).One(&result); err != nil {
 		debug.PrintStack()
 		return err
+	}
+
+	if item.Password == "" {
+		item.Password = result.Password
+	} else {
+		item.Password = utils.EncryptPassword(item.Password)
 	}
 
 	if err := item.Save(); err != nil {

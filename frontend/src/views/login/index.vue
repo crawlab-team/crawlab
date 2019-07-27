@@ -22,7 +22,7 @@
           name="password"
           auto-complete="on"
           :placeholder="$t('Password')"
-          @keyup.enter.native="isSignUp ? handleSignup : handleLogin"/>
+          @keyup.enter.native="onKeyEnter"/>
       </el-form-item>
       <el-form-item v-if="isSignUp" prop="confirmPassword" style="margin-bottom: 28px;">
         <el-input
@@ -31,7 +31,7 @@
           name="password"
           auto-complete="on"
           :placeholder="$t('Confirm Password')"
-          @keyup.enter.native="isSignUp ? handleSignup : handleLogin"
+          @keyup.enter.native="onKeyEnter"
         />
       </el-form-item>
       <el-form-item style="border: none">
@@ -105,13 +105,15 @@ export default {
         confirmPassword: [{ required: true, trigger: 'blur', validator: validateConfirmPass }]
       },
       loading: false,
-      pwdType: 'password',
-      redirect: undefined
+      pwdType: 'password'
     }
   },
   computed: {
     isSignUp () {
       return this.$route.path === '/signup'
+    },
+    redirect () {
+      return this.$route.query.redirect
     }
   },
   methods: {
@@ -122,6 +124,7 @@ export default {
           this.$store.dispatch('user/login', this.loginForm).then(() => {
             this.loading = false
             this.$router.push({ path: this.redirect || '/' })
+            this.$store.dispatch('user/getInfo')
           }).catch(() => {
             this.$message.error(this.$t('Error when logging in (Please check username and password)'))
             this.loading = false
@@ -142,6 +145,10 @@ export default {
           })
         }
       })
+    },
+    onKeyEnter () {
+      const func = this.isSignUp ? this.handleSignup : this.handleLogin
+      func()
     }
   },
   mounted () {
