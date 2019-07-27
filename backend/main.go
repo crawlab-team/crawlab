@@ -128,6 +128,7 @@ func main() {
 		app.POST("/users/:id", routes.PostUser)     // 更改用户
 		app.DELETE("/users/:id", routes.DeleteUser) // 删除用户
 		app.POST("/login", routes.Login)            // 用户登录
+		app.GET("/me", routes.GetMe)                // 获取自己账户
 	}
 
 	// 路由ping

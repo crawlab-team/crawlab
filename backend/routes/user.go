@@ -183,3 +183,22 @@ func Login(c *gin.Context) {
 		Data:    tokenStr,
 	})
 }
+
+func GetMe(c *gin.Context) {
+	// 获取token string
+	tokenStr := c.GetHeader("Authorization")
+
+	// 校验token
+	user, err := services.CheckToken(tokenStr)
+	if err != nil {
+		HandleError(http.StatusUnauthorized, c, errors.New("not authorized"))
+		return
+	}
+	user.Password = ""
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    user,
+	})
+}
