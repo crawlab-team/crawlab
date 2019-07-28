@@ -368,10 +368,10 @@ const initCanvas = () => {
 
     .title {
       font-family: "Verdana", serif;
-      font-style: italic;
+      /*font-style: italic;*/
       font-weight: 600;
-      font-size: 32px;
-      /*color: ;*/
+      font-size: 48px;
+      color: #409EFF;
       margin: 0px auto 20px auto;
       text-align: center;
     }
