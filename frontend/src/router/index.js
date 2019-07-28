@@ -26,6 +26,7 @@ Vue.use(Router)
  **/
 export const constantRouterMap = [
   { path: '/login', component: () => import('../views/login/index'), hidden: true },
+  { path: '/signup', component: () => import('../views/login/index'), hidden: true },
   { path: '/404', component: () => import('../views/404'), hidden: true },
   { path: '/', redirect: '/home' },
 
@@ -156,37 +157,6 @@ export const constantRouterMap = [
     ]
   },
   {
-    name: 'Deploy',
-    path: '/deploys',
-    component: Layout,
-    hidden: true,
-    meta: {
-      title: 'Deploy',
-      icon: 'fa fa-cloud'
-    },
-    children: [
-      {
-        path: '',
-        name: 'DeployList',
-        component: () => import('../views/deploy/DeployList'),
-        meta: {
-          title: 'Deploys',
-          icon: 'fa fa-cloud'
-        }
-      },
-      {
-        path: ':id',
-        name: 'DeployDetail',
-        component: () => import('../views/deploy/DeployDetail'),
-        meta: {
-          title: 'Deploy Detail',
-          icon: 'fa fa-circle-o'
-        },
-        hidden: true
-      }
-    ]
-  },
-  {
     name: 'Site',
     path: '/sites',
     component: Layout,
@@ -202,6 +172,26 @@ export const constantRouterMap = [
         meta: {
           title: 'Sites',
           icon: 'fa fa-sitemap'
+        }
+      }
+    ]
+  },
+  {
+    name: 'User',
+    path: '/users',
+    component: Layout,
+    meta: {
+      title: 'User',
+      icon: 'fa fa-user'
+    },
+    children: [
+      {
+        path: '',
+        name: 'UserList',
+        component: () => import('../views/user/UserList'),
+        meta: {
+          title: 'Users',
+          icon: 'fa fa-user'
         }
       }
     ]
@@ -222,7 +212,16 @@ router.beforeEach((to, from, next) => {
   } else {
     window.document.title = 'Crawlab'
   }
-  next()
+
+  if (['/login', '/signup'].includes(to.path)) {
+    next()
+  } else {
+    if (window.localStorage.getItem('token')) {
+      next()
+    } else {
+      next('/login')
+    }
+  }
 })
 
 router.afterEach((to, from, next) => {

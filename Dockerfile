@@ -1,45 +1,59 @@
+FROM golang:1.12 AS backend-build
+
+WORKDIR /go/src/app
+COPY ./backend .
+
+ENV GO111MODULE on
+ENV GOPROXY https://mirrors.aliyun.com/goproxy/
+
+RUN go install -v ./...
+
+FROM node:8.16.0-alpine AS frontend-build
+
+ADD ./frontend /app
+WORKDIR /app
+
+# install frontend
+RUN npm install -g yarn && yarn install --registry=https://registry.npm.taobao.org
+
+RUN npm run build:prod
+
 # images
 FROM ubuntu:latest
 
-# source files
-ADD . /opt/crawlab
+ADD . /app
 
 # set as non-interactive
 ENV DEBIAN_FRONTEND noninteractive
 
-# environment variables
-ENV NVM_DIR /usr/local/nvm  
-ENV NODE_VERSION 8.12.0
-ENV WORK_DIR /opt/crawlab
-
-# install pkg
+# install packages
 RUN apt-get update \
-	&& apt-get install -y curl git net-tools iputils-ping ntp nginx python3 python3-pip \
-	&& apt-get clean \
-	&& cp $WORK_DIR/crawlab.conf /etc/nginx/conf.d \
+	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip \
 	&& ln -s /usr/bin/pip3 /usr/local/bin/pip \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
 
-# install nvm
-RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.24.0/install.sh | bash \  
-    && . $NVM_DIR/nvm.sh \
-    && nvm install v$NODE_VERSION \
-    && nvm use v$NODE_VERSION \
-    && nvm alias default v$NODE_VERSION
-ENV NODE_PATH $NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules  
-ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
-
-# install frontend
-RUN npm install -g yarn \
-	&& cd /opt/crawlab/frontend \
-	&& yarn install
-
 # install backend
-RUN pip install -U setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple \
-	&& pip install -r /opt/crawlab/crawlab/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip install scrapy pymongo bs4 requests -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# copy backend files
+COPY --from=backend-build /go/src/app .
+COPY --from=backend-build /go/bin/crawlab /usr/local/bin
+
+# install nginx
+RUN apt-get -y install nginx
+
+# copy frontend files
+COPY --from=frontend-build /app/dist /app/dist
+COPY --from=frontend-build /app/conf/crawlab.conf /etc/nginx/conf.d
+
+# working directory
+WORKDIR /app/backend
+
+# frontend port
+EXPOSE 8080
+
+# backend port
+EXPOSE 8000
 
 # start backend
-EXPOSE 8080
-EXPOSE 8000
-WORKDIR /opt/crawlab
-ENTRYPOINT ["/bin/sh", "/opt/crawlab/docker_init.sh"]
+CMD ["/bin/sh", "/app/docker_init.sh"]

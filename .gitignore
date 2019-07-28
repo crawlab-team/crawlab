@@ -16,8 +16,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -116,3 +114,9 @@ node_modules/
 
 .docks
 .docs
+
+logs/
+tmp/
+_book/
+.idea
+*.lock

@@ -1,0 +1,25 @@
+api:
+  address: "localhost:8000"
+mongo:
+  host: localhost
+  port: 27017
+  db: crawlab_test
+  username: ""
+  password: ""
+redis:
+  network: tcp
+  address: "localhost:6379"
+log:
+  level: info
+  path: "/var/logs/crawlab"
+server:
+  host: 0.0.0.0
+  port: 8000
+  master: "N"
+  secret: "crawlab"
+spider:
+  path: "/app/spiders"
+task:
+  workers: 4
+other:
+  tmppath: "/tmp"

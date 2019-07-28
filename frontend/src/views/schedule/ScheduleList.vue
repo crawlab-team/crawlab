@@ -14,6 +14,18 @@
         <el-form-item :label="$t('Schedule Name')" prop="name" required>
           <el-input v-model="scheduleForm.name" :placeholder="$t('Schedule Name')"></el-input>
         </el-form-item>
+        <el-form-item :label="$t('Node')" prop="node_id">
+          <el-select v-model="scheduleForm.node_id">
+            <el-option :label="$t('All Nodes')" value="000000000000000000000000"></el-option>
+            <el-option
+              v-for="op in nodeList"
+              :key="op._id"
+              :value="op._id"
+              :label="op.name"
+              :disabled="op.status === 'offline'"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item :label="$t('Spider')" prop="spider_id" required>
           <el-select v-model="scheduleForm.spider_id" filterable>
             <el-option
@@ -21,7 +33,7 @@
               :key="op._id"
               :value="op._id"
               :label="op.name"
-              :disabled="!op.cmd || !op.deploy_ts"
+              :disabled="!op.cmd"
             >
             </el-option>
           </el-select>
@@ -68,46 +80,53 @@
       <vcrontab @hide="showCron=false" @fill="onCrontabFill" :expression="expression"></vcrontab>
     </el-dialog>
 
-    <!--filter-->
-    <div class="filter">
-      <div class="right">
-        <el-button type="primary"
-                   icon="el-icon-plus"
-                   class="refresh"
-                   @click="onAdd">
-          {{$t('Add Schedule')}}
-        </el-button>
+    <el-card style="border-radius: 0">
+      <!--filter-->
+      <div class="filter">
+        <div class="right">
+          <el-button type="primary"
+                     icon="el-icon-plus"
+                     class="refresh"
+                     @click="onAdd">
+            {{$t('Add Schedule')}}
+          </el-button>
+        </div>
       </div>
-    </div>
+      <!--./filter-->
 
-    <!--table list-->
-    <el-table :data="filteredTableData"
-              class="table"
-              :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
-              border>
-      <template v-for="col in columns">
-        <el-table-column :key="col.name"
-                         :property="col.name"
-                         :label="$t(col.label)"
-                         :sortable="col.sortable"
-                         align="center"
-                         :width="col.width">
-        </el-table-column>
-      </template>
-      <el-table-column :label="$t('Action')" align="left" width="250">
-        <template slot-scope="scope">
-          <el-tooltip :content="$t('Edit')" placement="top">
-            <el-button type="warning" icon="el-icon-edit" size="mini" @click="onEdit(scope.row)"></el-button>
-          </el-tooltip>
-          <el-tooltip :content="$t('Remove')" placement="top">
-            <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
-          </el-tooltip>
-          <el-tooltip v-if="isShowRun(scope.row)" :content="$t('Run')" placement="top">
-            <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
-          </el-tooltip>
+      <!--table list-->
+      <el-table :data="filteredTableData"
+                class="table"
+                :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
+                border>
+        <template v-for="col in columns">
+          <el-table-column :key="col.name"
+                           :property="col.name"
+                           :label="$t(col.label)"
+                           :sortable="col.sortable"
+                           :align="col.align"
+                           :width="col.width">
+            <template slot-scope="scope">
+              {{$t(scope.row[col.name])}}
+            </template>
+          </el-table-column>
         </template>
-      </el-table-column>
-    </el-table>
+        <el-table-column :label="$t('Action')" align="left" width="250" fixed="right">
+          <template slot-scope="scope">
+            <el-tooltip :content="$t('Edit')" placement="top">
+              <el-button type="warning" icon="el-icon-edit" size="mini" @click="onEdit(scope.row)"></el-button>
+            </el-tooltip>
+            <el-tooltip :content="$t('Remove')" placement="top">
+              <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
+            </el-tooltip>
+            <el-tooltip v-if="isShowRun(scope.row)" :content="$t('Run')" placement="top">
+              <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!--./table list-->
+    </el-card>
   </div>
 </template>
 
@@ -136,8 +155,10 @@ export default {
     }
     return {
       columns: [
-        { name: 'name', label: 'Name', width: '220' },
-        { name: 'cron', label: 'Cron', width: '220' },
+        { name: 'name', label: 'Name', width: '180' },
+        { name: 'cron', label: 'Cron', width: '120' },
+        { name: 'node_name', label: 'Node', width: '150' },
+        { name: 'spider_name', label: 'Spider', width: '150' },
         { name: 'description', label: 'Description', width: 'auto' }
       ],
       isEdit: false,
@@ -157,6 +178,9 @@ export default {
     ]),
     ...mapState('spider', [
       'spiderList'
+    ]),
+    ...mapState('node', [
+      'nodeList'
     ]),
     filteredTableData () {
       return this.scheduleList
@@ -245,6 +269,7 @@ export default {
   created () {
     this.$store.dispatch('schedule/getScheduleList')
     this.$store.dispatch('spider/getSpiderList')
+    this.$store.dispatch('node/getNodeList')
   }
 }
 </script>
@@ -255,6 +280,7 @@ export default {
   }
 
   .table {
+    min-height: 360px;
     margin-top: 10px;
   }
 </style>

@@ -20,7 +20,7 @@ const actions = {
   getScheduleList ({ state, commit }) {
     request.get('/schedules')
       .then(response => {
-        commit('SET_SCHEDULE_LIST', response.data.items)
+        commit('SET_SCHEDULE_LIST', response.data.data)
       })
   },
   addSchedule ({ state }) {

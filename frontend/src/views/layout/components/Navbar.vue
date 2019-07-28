@@ -4,7 +4,7 @@
     <breadcrumb class="breadcrumb"/>
     <el-dropdown class="avatar-container" trigger="click">
       <span class="el-dropdown-link">
-        {{$t('User')}}
+        {{username}}
         <i class="el-icon-arrow-down el-icon--right"></i>
       </span>
       <el-dropdown-menu slot="dropdown" class="user-dropdown">
@@ -19,11 +19,11 @@
         <i class="el-icon-arrow-down el-icon--right"></i>
       </span>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item @click.native="setLang('en')">
-          <span>English</span>
-        </el-dropdown-item>
         <el-dropdown-item @click.native="setLang('zh')">
           <span>中文</span>
+        </el-dropdown-item>
+        <el-dropdown-item @click.native="setLang('en')">
+          <span>English</span>
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
@@ -44,13 +44,19 @@ export default {
     ...mapGetters([
       'sidebar',
       'avatar'
-    ])
+    ]),
+    username () {
+      if (!this.$store.getters['user/userInfo']) return this.$t('User')
+      if (!this.$store.getters['user/userInfo'].username) return this.$t('User')
+      return this.$store.getters['user/userInfo'].username
+    }
   },
   methods: {
     toggleSideBar () {
       this.$store.dispatch('ToggleSideBar')
     },
     logout () {
+      this.$store.dispatch('user/logout')
       this.$router.push('/login')
     },
     setLang (lang) {

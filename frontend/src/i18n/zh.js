@@ -30,13 +30,13 @@ export default {
   'Latest Tasks': '最近任务',
   'Latest Deploys': '最近部署',
 
-  // 状态
-  PENDING: '待定',
-  STARTED: '已开始',
-  SUCCESS: '成功',
-  FAILURE: '错误',
-  UNAVAILABLE: '未知',
-  REVOKED: '已取消',
+  // 任务状态
+  Pending: '待定',
+  Running: '进行中',
+  Finished: '已完成',
+  Error: '错误',
+  NA: '未知',
+  Cancelled: '已取消',
 
   // 操作
   Add: '添加',
@@ -61,6 +61,8 @@ export default {
   'Upload Zip File': '上传Zip文件',
   'Upload': '上传',
   'Item Threshold': '子项阈值',
+  'Back': '返回',
+  'New File': '新建文件',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -72,8 +74,15 @@ export default {
   'Node Info': '节点信息',
   'Node Name': '节点名称',
   'Node IP': '节点IP',
+  'Node MAC': '节点MAC',
   'Node Port': '节点端口',
   'Description': '描述',
+  'All Nodes': '所有节点',
+  'Node List': '节点列表',
+  'Network': '拓扑图',
+  'Node Network': '节点拓扑图',
+  'Master': '主节点',
+  'Worker': '工作节点',
 
   // 节点列表
   'IP': 'IP地址',
@@ -144,6 +153,7 @@ export default {
   'Name': '名称',
   'Last Run': '上次运行',
   'Action': '操作',
+  'No command line': '没有执行命令',
 
   // 任务
   'Task Info': '任务信息',
@@ -156,6 +166,9 @@ export default {
   'Error Message': '错误信息',
   'Results Count': '结果数',
   'Average Results Count per Second': '抓取速度(个/秒)',
+  'Wait Duration (sec)': '等待时长(秒)',
+  'Runtime Duration (sec)': '运行时长(秒)',
+  'Total Duration (sec)': '总时长(秒)',
 
   // 任务列表
   'Node': '节点',
@@ -205,13 +218,49 @@ export default {
   'Yes': '是',
   'No': '否',
 
+  // 系统
+  'OS': '操作系统',
+  'ARCH': '操作架构',
+  'Number of CPU': 'CPU数',
+  'Executables': '执行文件',
+
   // 弹出框
   Notification: '提示',
   'Are you sure to delete this node?': '你确定要删除该节点?',
   'Are you sure to run this spider?': '你确定要运行该爬虫?',
   'Node info has been saved successfully': '节点信息已成功保存',
-  'Are you sure to deploy this spider?': '你确定要部署该爬虫?',
+  'A task has been scheduled successfully': '已经成功派发一个任务',
   'Are you sure to delete this spider?': '你确定要删除该爬虫?',
+  'Are you sure to delete this user?': '你确定要删除该用户?',
   'Spider info has been saved successfully': '爬虫信息已成功保存',
-  'Do you allow us to collect some statistics to improve Crawlab?': '您允许我们收集统计数据以更好地优化Crawlab？'
+  'Do you allow us to collect some statistics to improve Crawlab?': '您允许我们收集统计数据以更好地优化Crawlab？',
+  'Saved file successfully': '成功保存文件',
+  'An error happened when fetching the data': '请求数据时出错',
+  'Error when logging in (Please check username and password)': '登录时出错（请检查用户名密码）',
+  'Please enter the correct username': '请输入正确用户名',
+  'Password length should be no shorter than 5': '密码长度不能小于5',
+  'Two passwords must be the same': '两个密码必须要一致',
+  'username already exists': '用户名已存在',
+  'Deleted successfully': '成功删除',
+  'Saved successfully': '成功保存',
+
+  // 登录
+  'Sign in': '登录',
+  'Sign-in': '登录',
+  'Sign out': '退出登录',
+  'Sign-out': '退出登录',
+  'Sign up': '注册',
+  'Sign-up': '注册',
+  'Forgot Password': '忘记密码',
+  'Has Account': '已有账号',
+  'New to Crawlab': 'Crawlab新用户',
+  'Initial Username/Password': '初始用户名/密码',
+  'Username': '用户名',
+  'Password': '密码',
+  'Confirm Password': '确认密码',
+  'normal': '正常用户',
+  'admin': '管理用户',
+  'Role': '角色',
+  'Edit User': '更改用户',
+  'Users': '用户'
 }

@@ -9,8 +9,16 @@ import locale from 'element-ui/lib/locale/lang/en' // lang i18n
 import '@/styles/index.scss' // global css
 
 import 'font-awesome/scss/font-awesome.scss'// FontAwesome
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fab } from '@fortawesome/free-brands-svg-icons'
+import { fas } from '@fortawesome/free-solid-svg-icons'
+import { far } from '@fortawesome/free-regular-svg-icons'
+import { FontAwesomeIcon, FontAwesomeLayers, FontAwesomeLayersText } from '@fortawesome/vue-fontawesome'
 
+import 'codemirror/lib/codemirror.js'
+import { codemirror } from 'vue-codemirror-lite'
 import 'codemirror/lib/codemirror.css'
+import 'codemirror/theme/darcula.css'
 
 import App from './App'
 import store from './store'
@@ -23,12 +31,19 @@ import request from './api/request'
 import i18n from './i18n'
 import utils from './utils'
 
+// code mirror
+Vue.use(codemirror)
+
+// element-ui
 Vue.use(ElementUI, { locale })
 
-// Vue.use(ba, 'c35e3a563a06caee2524902c81975add')
-// Vue.use(ba, {
-//   siteId: 'c35e3a563a06caee2524902c81975add'
-// })
+// font-awesome
+library.add(fab)
+library.add(far)
+library.add(fas)
+Vue.component('font-awesome-icon', FontAwesomeIcon)
+Vue.component('font-awesome-layers', FontAwesomeLayers)
+Vue.component('font-awesome-layers-text', FontAwesomeLayersText)
 
 Vue.config.productionTip = false
 

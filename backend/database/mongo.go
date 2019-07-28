@@ -1,0 +1,45 @@
+package database
+
+import (
+	"github.com/globalsign/mgo"
+	"github.com/spf13/viper"
+)
+
+var Session *mgo.Session
+
+func GetSession() *mgo.Session {
+	return Session.Copy()
+}
+
+func GetDb() (*mgo.Session, *mgo.Database) {
+	s := GetSession()
+	return s, s.DB(viper.GetString("mongo.db"))
+}
+
+func GetCol(collectionName string) (*mgo.Session, *mgo.Collection) {
+	s := GetSession()
+	db := s.DB(viper.GetString("mongo.db"))
+	col := db.C(collectionName)
+	return s, col
+}
+
+func GetGridFs(prefix string) (*mgo.Session, *mgo.GridFS) {
+	s, db := GetDb()
+	gf := db.GridFS(prefix)
+	return s, gf
+}
+
+func InitMongo() error {
+	var mongoHost = viper.GetString("mongo.host")
+	var mongoPort = viper.GetString("mongo.port")
+	var mongoDb = viper.GetString("mongo.db")
+
+	if Session == nil {
+		sess, err := mgo.Dial("mongodb://" + mongoHost + ":" + mongoPort + "/" + mongoDb)
+		if err != nil {
+			return err
+		}
+		Session = sess
+	}
+	return nil
+}

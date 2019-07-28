@@ -1,4 +1,5 @@
 .idea
 logs
 *.log
-node_modules/
+dist/
+**/node_modules/

@@ -1,5 +1,8 @@
 <template>
   <el-scrollbar wrap-class="scrollbar-wrapper">
+    <div class="sidebar-logo" :class="isCollapse ? 'collapsed' : ''">
+      <span>C</span><span v-show="!isCollapse">rawlab</span>
+    </div>
     <el-menu
       :show-timeout="200"
       :default-active="routeLevel1"
@@ -15,13 +18,16 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import variables from '@/styles/variables.scss'
 import SidebarItem from './SidebarItem'
 
 export default {
   components: { SidebarItem },
   computed: {
+    ...mapState('user', [
+      'adminPaths'
+    ]),
     ...mapGetters([
       'sidebar'
     ]),
@@ -30,8 +36,11 @@ export default {
       return `/${pathArray[1]}`
     },
     routes () {
-      // console.log(this.$router.options.routes.filter(d => !d.hidden))
-      return this.$router.options.routes
+      return this.$router.options.routes.filter(d => {
+        const role = this.$store.getters['user/userInfo'].role
+        if (role === 'admin') return true
+        return !this.adminPaths.includes(d.path)
+      })
     },
     variables () {
       return variables
@@ -42,3 +51,26 @@ export default {
   }
 }
 </script>
+
+<style>
+  #app .sidebar-container .el-menu {
+    height: calc(100% - 50px);
+  }
+
+  .sidebar-container .sidebar-logo {
+    height: 50px;
+    display: flex;
+    /*justify-content: center;*/
+    align-items: center;
+    padding-left: 20px;
+    color: #fff;
+    background: rgb(48, 65, 86);
+    font-size: 24px;
+    font-weight: 600;
+    font-family: "Verdana", serif;
+  }
+
+  .sidebar-container .sidebar-logo.collapsed {
+    padding-left: 8px;
+  }
+</style>

@@ -15,14 +15,28 @@ const state = {
     spider_id: ''
   },
   // pagination
-  pageNum: 0,
+  pageNum: 1,
   pageSize: 10,
   // results
   resultsPageNum: 1,
   resultsPageSize: 10
 }
 
-const getters = {}
+const getters = {
+  taskResultsColumns (state) {
+    if (!state.taskResultsData || !state.taskResultsData.length) {
+      return []
+    }
+    const keys = []
+    const item = state.taskResultsData[0]
+    for (const key in item) {
+      if (item.hasOwnProperty(key)) {
+        keys.push(key)
+      }
+    }
+    return keys
+  }
+}
 
 const mutations = {
   SET_TASK_FORM (state, value) {
@@ -64,7 +78,7 @@ const actions = {
   getTaskData ({ state, dispatch, commit }, id) {
     return request.get(`/tasks/${id}`)
       .then(response => {
-        let data = response.data
+        let data = response.data.data
         commit('SET_TASK_FORM', data)
         dispatch('spider/getSpiderData', data.spider_id, { root: true })
         dispatch('node/getNodeData', data.node_id, { root: true })
@@ -74,14 +88,12 @@ const actions = {
     return request.get('/tasks', {
       page_num: state.pageNum,
       page_size: state.pageSize,
-      filter: {
-        node_id: state.filter.node_id || undefined,
-        spider_id: state.filter.spider_id || undefined
-      }
+      node_id: state.filter.node_id || undefined,
+      spider_id: state.filter.spider_id || undefined
     })
       .then(response => {
-        commit('SET_TASK_LIST', response.data.items)
-        commit('SET_TASK_LIST_TOTAL_COUNT', response.data.total_count)
+        commit('SET_TASK_LIST', response.data.data || [])
+        commit('SET_TASK_LIST_TOTAL_COUNT', response.data.total)
       })
   },
   deleteTask ({ state, dispatch }, id) {
@@ -90,28 +102,28 @@ const actions = {
         dispatch('getTaskList')
       })
   },
-  stopTask ({ state, dispatch }, id) {
-    return request.post(`/tasks/${id}/stop`)
-      .then(() => {
-        dispatch('getTaskList')
-      })
-  },
   getTaskLog ({ state, commit }, id) {
-    return request.get(`/tasks/${id}/get_log`)
+    commit('SET_TASK_LOG', '')
+    return request.get(`/tasks/${id}/log`)
       .then(response => {
-        commit('SET_TASK_LOG', response.data.log)
+        commit('SET_TASK_LOG', response.data.data)
       })
   },
   getTaskResults ({ state, commit }, id) {
-    return request.get(`/tasks/${id}/get_results`, {
+    return request.get(`/tasks/${id}/results`, {
       page_num: state.resultsPageNum,
       page_size: state.resultsPageSize
     })
       .then(response => {
-        commit('SET_TASK_RESULTS_DATA', response.data.items)
-        commit('SET_TASK_RESULTS_COLUMNS', response.data.fields)
-        commit('SET_TASK_RESULTS_COLUMNS', response.data.fields)
-        commit('SET_TASK_RESULTS_TOTAL_COUNT', response.data.total_count)
+        commit('SET_TASK_RESULTS_DATA', response.data.data)
+        // commit('SET_TASK_RESULTS_COLUMNS', response.data.fields)
+        commit('SET_TASK_RESULTS_TOTAL_COUNT', response.data.total)
+      })
+  },
+  cancelTask ({ state, dispatch }, id) {
+    return request.post(`/tasks/${id}/cancel`)
+      .then(() => {
+        dispatch('getTaskData')
       })
   }
 }

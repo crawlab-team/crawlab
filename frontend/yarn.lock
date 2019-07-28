@@ -591,6 +591,44 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
+"@fortawesome/fontawesome-common-types@^0.2.19":
+  version "0.2.19"
+  resolved "https://registry.npm.taobao.org/@fortawesome/fontawesome-common-types/download/@fortawesome/fontawesome-common-types-0.2.19.tgz#754a0f85e1290858152e1c05700ab502b11197f1"
+  integrity sha1-dUoPheEpCFgVLhwFcAq1ArERl/E=
+
+"@fortawesome/fontawesome-svg-core@^1.2.19":
+  version "1.2.19"
+  resolved "https://registry.npm.taobao.org/@fortawesome/fontawesome-svg-core/download/@fortawesome/fontawesome-svg-core-1.2.19.tgz#0eca1ce9285c3d99e6e340633ee8f615f9d1a2e0"
+  integrity sha1-Dsoc6ShcPZnm40BjPuj2FfnRouA=
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.19"
+
+"@fortawesome/free-brands-svg-icons@^5.9.0":
+  version "5.9.0"
+  resolved "https://registry.npm.taobao.org/@fortawesome/free-brands-svg-icons/download/@fortawesome/free-brands-svg-icons-5.9.0.tgz#4ebedba0ea026368f8c21f2c598b4458c32236e5"
+  integrity sha1-Tr7boOoCY2j4wh8sWYtEWMMiNuU=
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.19"
+
+"@fortawesome/free-regular-svg-icons@^5.9.0":
+  version "5.9.0"
+  resolved "https://registry.npm.taobao.org/@fortawesome/free-regular-svg-icons/download/@fortawesome/free-regular-svg-icons-5.9.0.tgz#b16b325bdcdf51abebc547313cb75c3ef722ca04"
+  integrity sha1-sWsyW9zfUavrxUcxPLdcPvciygQ=
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.19"
+
+"@fortawesome/free-solid-svg-icons@^5.9.0":
+  version "5.9.0"
+  resolved "https://registry.npm.taobao.org/@fortawesome/free-solid-svg-icons/download/@fortawesome/free-solid-svg-icons-5.9.0.tgz#1c73e7bac17417d23f934d83f7fff5b100a7fda9"
+  integrity sha1-HHPnusF0F9I/k02D9//1sQCn/ak=
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.19"
+
+"@fortawesome/vue-fontawesome@^0.1.6":
+  version "0.1.6"
+  resolved "https://registry.npm.taobao.org/@fortawesome/vue-fontawesome/download/@fortawesome/vue-fontawesome-0.1.6.tgz#18a0f4263b90f65180fc927325ba01896276ea04"
+  integrity sha1-GKD0JjuQ9lGA/JJzJboBiWJ26gQ=
+
 "@intervolga/optimize-cssnano-plugin@^1.0.5":
   version "1.0.6"
   resolved "http://registry.npm.taobao.org/@intervolga/optimize-cssnano-plugin/download/@intervolga/optimize-cssnano-plugin-1.0.6.tgz#be7c7846128b88f6a9b1d1261a0ad06eb5c0fdf8"
@@ -2078,6 +2116,11 @@ codemirror@^5.22.0:
   version "5.44.0"
   resolved "http://registry.npm.taobao.org/codemirror/download/codemirror-5.44.0.tgz#80dc2a231eeb7aab25ec2405cdca37e693ccf9cc"
 
+codemirror@^5.41.0:
+  version "5.48.2"
+  resolved "https://registry.npm.taobao.org/codemirror/download/codemirror-5.48.2.tgz#a9dd3d426dea4cd59efd59cd98e20a9152a30922"
+  integrity sha1-qd09Qm3qTNWe/VnNmOIKkVKjCSI=
+
 collection-visit@^1.0.0:
   version "1.0.0"
   resolved "http://registry.npm.taobao.org/collection-visit/download/collection-visit-1.0.0.tgz#4bc0373c164bc3291b4d368c829cf1a80a59dca0"
@@ -2728,6 +2771,11 @@ detect-newline@^2.1.0:
 detect-node@^2.0.4:
   version "2.0.4"
   resolved "http://registry.npm.taobao.org/detect-node/download/detect-node-2.0.4.tgz#014ee8f8f669c5c58023da64b8179c083a28c46c"
+
+diff-match-patch@^1.0.0:
+  version "1.0.4"
+  resolved "https://registry.npm.taobao.org/diff-match-patch/download/diff-match-patch-1.0.4.tgz#6ac4b55237463761c4daf0dc603eb869124744b1"
+  integrity sha1-asS1UjdGN2HE2vDcYD64aRJHRLE=
 
 diff@^3.2.0:
   version "3.5.0"
@@ -8431,9 +8479,18 @@ vue-ba@^1.2.5:
 
 vue-codemirror-lite@^1.0.4:
   version "1.0.4"
-  resolved "http://registry.npm.taobao.org/vue-codemirror-lite/download/vue-codemirror-lite-1.0.4.tgz#48a5cd7d17c0914503c8cd9d9b56b438e49c3410"
+  resolved "https://registry.npm.taobao.org/vue-codemirror-lite/download/vue-codemirror-lite-1.0.4.tgz#48a5cd7d17c0914503c8cd9d9b56b438e49c3410"
+  integrity sha1-SKXNfRfAkUUDyM2dm1a0OOScNBA=
   dependencies:
     codemirror "^5.22.0"
+
+vue-codemirror@^4.0.6:
+  version "4.0.6"
+  resolved "https://registry.npm.taobao.org/vue-codemirror/download/vue-codemirror-4.0.6.tgz#b786bb80d8d762a93aab8e46f79a81006f0437c4"
+  integrity sha1-t4a7gNjXYqk6q45G95qBAG8EN8Q=
+  dependencies:
+    codemirror "^5.41.0"
+    diff-match-patch "^1.0.0"
 
 vue-eslint-parser@^2.0.3:
   version "2.0.3"

@@ -29,7 +29,8 @@
 
 <script>
 import {
-  mapState
+  mapState,
+  mapGetters
 } from 'vuex'
 import TaskOverview from '../../components/Overview/TaskOverview'
 import GeneralTableView from '../../components/TableView/GeneralTableView'
@@ -44,15 +45,18 @@ export default {
   },
   data () {
     return {
-      activeTabName: 'overview'
+      activeTabName: 'overview',
+      handle: undefined
     }
   },
   computed: {
     ...mapState('task', [
       'taskLog',
       'taskResultsData',
-      'taskResultsColumns',
       'taskResultsTotalCount'
+    ]),
+    ...mapGetters('task', [
+      'taskResultsColumns'
     ]),
     ...mapState('file', [
       'currentPath'
@@ -91,7 +95,7 @@ export default {
       this.$store.dispatch('task/getTaskResults', this.$route.params.id)
     },
     downloadCSV () {
-      window.location.href = this.$request.baseUrl + '/tasks/' + this.$route.params.id + '/download_results'
+      window.location.href = this.$request.baseUrl + '/tasks/' + this.$route.params.id + '/results/download'
       this.$st.sendEv('任务详情-结果', '下载CSV')
     }
   },
@@ -99,6 +103,15 @@ export default {
     this.$store.dispatch('task/getTaskData', this.$route.params.id)
     this.$store.dispatch('task/getTaskLog', this.$route.params.id)
     this.$store.dispatch('task/getTaskResults', this.$route.params.id)
+
+    if (['running'].includes(this.taskForm.status)) {
+      this.handle = setInterval(() => {
+        this.$store.dispatch('task/getTaskLog', this.$route.params.id)
+      }, 5000)
+    }
+  },
+  destroyed () {
+    clearInterval(this.handle)
   }
 }
 </script>
