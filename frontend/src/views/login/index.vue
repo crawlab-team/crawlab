@@ -4,7 +4,7 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on"
              label-position="left">
       <h3 class="title">
-        Crawlab
+        CRAWLAB
       </h3>
       <el-form-item prop="username" style="margin-bottom: 28px;">
         <el-input
@@ -367,11 +367,13 @@ const initCanvas = () => {
     }
 
     .title {
+      font-family: "Verdana", serif;
+      font-style: italic;
+      font-weight: 600;
       font-size: 32px;
-      color: #666;
+      /*color: ;*/
       margin: 0px auto 20px auto;
       text-align: center;
-      font-weight: bolder;
     }
 
     .show-pwd {
