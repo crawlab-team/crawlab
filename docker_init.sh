@@ -1,16 +1,10 @@
 #!/bin/sh
-case $1 in
-	master)
-		cd $WORK_DIR/frontend \
-			&& npm run build:prod \
-			&& service nginx start
-		python $WORK_DIR/crawlab/flower.py >> /opt/crawlab/flower.log 2>&1 &
-		python $WORK_DIR/crawlab/worker.py >> /opt/crawlab/worker.log 2>&1 &
-		cd $WORK_DIR/crawlab \
-			&& gunicorn --log-level=DEBUG -b 0.0.0.0 -w 8 app:app
-			;;
-	worker)
-		python $WORK_DIR/crawlab/app.py >> /opt/crawlab/app.log 2>&1 &
-		python $WORK_DIR/crawlab/worker.py	
-		;;
-esac
+
+# replace default api path to new one
+jspath=`ls /app/dist/js/app.*.js`
+cat ${jspath} | sed "s/localhost:8000/${CRAWLAB_API_ADDRESS}/g" > ${jspath}
+
+# start nginx
+service nginx start
+
+crawlab

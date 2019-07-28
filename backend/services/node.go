@@ -16,10 +16,11 @@ import (
 )
 
 type Data struct {
-	Mac      string    `json:"mac"`
-	Ip       string    `json:"ip"`
-	Master   bool      `json:"master"`
-	UpdateTs time.Time `json:"update_ts"`
+	Mac          string    `json:"mac"`
+	Ip           string    `json:"ip"`
+	Master       bool      `json:"master"`
+	UpdateTs     time.Time `json:"update_ts"`
+	UpdateTsUnix int64     `json:"update_ts_unix"`
 }
 
 type NodeMessage struct {
@@ -193,9 +194,8 @@ func UpdateNodeStatus() {
 		}
 
 		// 如果记录的更新时间超过60秒，该节点被认为离线
-		if time.Now().Sub(data.UpdateTs) > 60*time.Second {
+		if time.Now().Unix()-data.UpdateTsUnix > 60 {
 			// 在Redis中删除该节点
-
 			if err := database.RedisClient.HDel("nodes", data.Mac); err != nil {
 				log.Errorf(err.Error())
 				return
@@ -284,10 +284,11 @@ func UpdateNodeData() {
 
 	// 构造节点数据
 	data := Data{
-		Mac:      mac,
-		Ip:       ip,
-		Master:   IsMaster(),
-		UpdateTs: time.Now(),
+		Mac:          mac,
+		Ip:           ip,
+		Master:       IsMaster(),
+		UpdateTs:     time.Now(),
+		UpdateTsUnix: time.Now().Unix(),
 	}
 
 	// 注册节点到Redis

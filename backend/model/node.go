@@ -21,8 +21,9 @@ type Node struct {
 	// 前端展示
 	IsMaster bool `json:"is_master"`
 
-	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
-	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
+	UpdateTs     time.Time `json:"update_ts" bson:"update_ts"`
+	CreateTs     time.Time `json:"create_ts" bson:"create_ts"`
+	UpdateTsUnix int64       `json:"update_ts_unix" bson:"update_ts_unix"`
 }
 
 func (n *Node) Save() error {
@@ -40,6 +41,7 @@ func (n *Node) Add() error {
 	defer s.Close()
 	n.Id = bson.NewObjectId()
 	n.UpdateTs = time.Now()
+	n.UpdateTsUnix = time.Now().Unix()
 	n.CreateTs = time.Now()
 	if err := c.Insert(&n); err != nil {
 		debug.PrintStack()

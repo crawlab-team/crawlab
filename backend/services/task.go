@@ -124,9 +124,14 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	cmd.Stdout = fLog
 	cmd.Stderr = fLog
 
-	// 添加环境变量
+	// 添加默认环境变量
 	cmd.Env = append(cmd.Env, "CRAWLAB_TASK_ID="+t.Id)
 	cmd.Env = append(cmd.Env, "CRAWLAB_COLLECTION="+s.Col)
+
+	// 添加任务环境变量
+	for _, env := range s.Envs {
+		cmd.Env = append(cmd.Env, env.Name + "=" + env.Value)
+	}
 
 	// 起一个goroutine来监控进程
 	ch := TaskExecChanMap.ChanBlocked(t.Id)
@@ -393,7 +398,7 @@ func GetTaskLog(id string) (logStr string, err error) {
 	}
 
 	logStr = ""
-	if IsMaster() {
+	if IsMasterNode(task.NodeId.Hex()) {
 		// 若为主节点，获取本机日志
 		logBytes, err := GetLocalLog(task.LogPath)
 		logStr = string(logBytes)
