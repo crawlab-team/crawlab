@@ -160,6 +160,7 @@ export const constantRouterMap = [
     name: 'Site',
     path: '/sites',
     component: Layout,
+    hidden: true,
     meta: {
       title: 'Site',
       icon: 'fa fa-sitemap'
