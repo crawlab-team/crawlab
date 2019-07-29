@@ -3,19 +3,16 @@ services:
   master: 
     image: tikazyq/crawlab:latest
     container_name: crawlab
-    volumes:
-      - /home/yeqing/config.py:/opt/crawlab/crawlab/config/config.py # 后端配置文件
-      - /home/yeqing/.env.production:/opt/crawlab/frontend/.env.production # 前端配置文件
+    environment:
+      CRAWLAB_SERVER_MASTER: "Y"
+      CRAWLAB_MONGO_HOST: "mongo"
+      CRAWLAB_REDIS_ADDRESS: "redis:6379"
     ports:    
-      - "8080:8080" # nginx
-      - "8000:8000" # app
+      - "8080:8080" # frontend
+      - "8000:8000" # backend
     depends_on:
       - mongo
       - redis
-    entrypoint:
-      - /bin/sh
-      - /opt/crawlab/docker_init.sh
-      - master
   mongo:
     image: mongo:latest
     restart: always
