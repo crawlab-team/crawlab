@@ -13,9 +13,9 @@ Celery-based web crawler admin platform for managing distributed web spiders reg
 [Demo](http://114.67.75.98:8080) | [Documentation](https://tikazyq.github.io/crawlab-docs)
 
 ## Pre-requisite
-- Python 3.6+
+- Go 1.12+
 - Node.js 8.12+
-- MongoDB
+- MongoDB 3.6+
 - Redis
 
 ## Installation
