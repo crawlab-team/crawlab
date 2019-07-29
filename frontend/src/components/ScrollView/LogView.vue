@@ -1,6 +1,7 @@
 <template>
   <virtual-list
-    :size="18"
+    class="log-view"
+    :size="6"
     :remain="100"
     :item="item"
     :itemcount="logData.length"
@@ -60,19 +61,12 @@ export default {
 
 <style scoped>
   .log-view {
+    margin-top: 0!important;
     min-height: 100%;
     overflow-y: scroll;
     list-style: none;
-  }
-
-  .log-view .log-line {
-    display: flex;
-  }
-
-  .log-view .log-line:nth-child(odd) {
-  }
-
-  .log-view .log-line:nth-child(even) {
+    color: #A9B7C6;
+    background: #2B2B2B;
   }
 
 </style>
