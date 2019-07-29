@@ -130,7 +130,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 
 	// 添加任务环境变量
 	for _, env := range s.Envs {
-		cmd.Env = append(cmd.Env, env.Name + "=" + env.Value)
+		cmd.Env = append(cmd.Env, env.Name+"="+env.Value)
 	}
 
 	// 起一个goroutine来监控进程
@@ -344,14 +344,16 @@ func ExecuteTask(id int) {
 	}
 
 	// 起一个cron执行器来统计任务结果数
-	cronExec := cron.New(cron.WithSeconds())
-	_, err = cronExec.AddFunc("*/5 * * * * *", SaveTaskResultCount(t.Id))
-	if err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
-		return
+	if spider.Col != "" {
+		cronExec := cron.New(cron.WithSeconds())
+		_, err = cronExec.AddFunc("*/5 * * * * *", SaveTaskResultCount(t.Id))
+		if err != nil {
+			log.Errorf(GetWorkerPrefix(id) + err.Error())
+			return
+		}
+		cronExec.Start()
+		defer cronExec.Stop()
 	}
-	cronExec.Start()
-	defer cronExec.Stop()
 
 	// 执行Shell命令
 	if err := ExecuteShellCmd(cmd, cwd, t, spider); err != nil {
@@ -360,9 +362,11 @@ func ExecuteTask(id int) {
 	}
 
 	// 更新任务结果数
-	if err := model.UpdateTaskResultCount(t.Id); err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
-		return
+	if spider.Col != "" {
+		if err := model.UpdateTaskResultCount(t.Id); err != nil {
+			log.Errorf(GetWorkerPrefix(id) + err.Error())
+			return
+		}
 	}
 
 	// 完成进程
