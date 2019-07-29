@@ -4,7 +4,8 @@ WORKDIR /go/src/app
 COPY ./backend .
 
 ENV GO111MODULE on
-ENV GOPROXY https://mirrors.aliyun.com/goproxy/
+#ENV GOPROXY https://mirrors.aliyun.com/goproxy/
+ENV GOPROXY https://goproxy.io
 
 RUN go install -v ./...
 
@@ -14,7 +15,8 @@ ADD ./frontend /app
 WORKDIR /app
 
 # install frontend
-RUN npm install -g yarn && yarn install --registry=https://registry.npm.taobao.org
+#RUN npm install -g yarn && yarn install --registry=https://registry.npm.taobao.org
+RUN npm install -g yarn && yarn install
 
 RUN npm run build:prod
 

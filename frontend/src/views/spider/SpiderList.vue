@@ -314,7 +314,8 @@ export default {
       console.log(value)
     },
     onAdd () {
-      this.addDialogVisible = true
+      // this.addDialogVisible = true
+      this.onAddCustomized()
     },
     onAddConfigurable () {
       this.$store.commit('spider/SET_SPIDER_FORM', {})
@@ -559,6 +560,13 @@ export default {
       background: rgba(103, 194, 58, .1);
       border: 1px solid rgba(103, 194, 58, .1);
     }
+
+    .add-spider-item.info {
+      color: #909399;
+      background: #f4f4f5;
+      border: 1px solid #e9e9eb;
+    }
+
   }
 
   .el-autocomplete {
