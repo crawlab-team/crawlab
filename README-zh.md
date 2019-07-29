@@ -1,21 +1,21 @@
 # Crawlab
 
 ![](http://114.67.75.98:8081/buildStatus/icon?job=crawlab%2Fdevelop)
-![](https://img.shields.io/badge/版本-v0.2.3-blue.svg)
+![](https://img.shields.io/badge/版本-v0.3.0-blue.svg)
 <a href="https://github.com/tikazyq/crawlab/blob/master/LICENSE" target="_blank">
     <img src="https://img.shields.io/badge/License-BSD-blue.svg">
 </a>
 
 中文 | [English](https://github.com/tikazyq/crawlab/blob/master/README.md)
 
-基于Celery的爬虫分布式爬虫管理平台，支持多种编程语言以及多种爬虫框架.
+基于Golang的分布式爬虫管理平台，支持Python、NodeJS、Go、Java、PHP等多种编程语言以及多种爬虫框架。
 
 [查看演示 Demo](http://114.67.75.98:8080) | [文档](https://tikazyq.github.io/crawlab-docs)
 
 ## 要求
-- Python 3.6+
+- Go 1.12+
 - Node.js 8.12+
-- MongoDB
+- MongoDB 3.6+
 - Redis
 
 ## 安装
@@ -53,17 +53,27 @@
 
 ## 架构
 
-Crawlab的架构跟Celery非常相似，但是加入了包括前端、爬虫、Flower在内的额外模块，以支持爬虫管理的功能。架构图如下。
+Crawlab的架构包括了一个主节点（Master Node）和多个工作节点（Worker Node），以及负责通信和数据储存的Redis和MongoDB数据库。
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/architecture.png)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/architecture.png)
 
-### 节点 Node
+前端应用向主节点请求数据，主节点通过MongoDB和Redis来执行任务派发调度以及部署，工作节点收到任务之后，开始执行爬虫任务，并将任务结果储存到MongoDB。架构相对于`v0.3.0`之前的Celery版本有所精简，去除了不必要的节点监控模块Flower，节点监控主要由Redis完成。
 
-节点其实就是Celery中的`worker`。一个节点运行时会连接到一个任务队列（例如`Redis`）来接收和运行任务。所有爬虫需要在运行时被部署到节点上，用户在部署前需要定义节点的IP地址和端口。
+### 主节点 Master Node
 
-### 后台应用 Backend App
+主节点是整个Crawlab架构的核心，属于Crawlab的中控系统。
 
-这是一个Flask应用，提供了必要的API来支持常规操作，例如CRUD、爬虫部署以及任务运行。每一个节点需要启动Flask应用来支持爬虫部署。运行`python app.py`来启动应用。
+主节点主要负责以下功能:
+1. 爬虫任务调度
+2. 工作节点管理和通信
+3. 爬虫部署
+4. 前端以及API服务
+
+主节点负责与前端应用进行通信，并通过Redis将爬虫任务派发给工作节点。同时，主节点会同步（部署）爬虫给工作节点，通过Redis和MongoDB的GridFS。
+
+### 工作节点
+
+工作节点的主要功能是执行爬虫任务和储存抓取数据与日志，并且通过Redis的PubSub跟主节点通信。
 
 ### 爬虫 Spider
 
@@ -73,13 +83,9 @@ Crawlab的架构跟Celery非常相似，但是加入了包括前端、爬虫、F
 
 任务被触发并被节点执行。用户可以在任务详情页面中看到任务到状态、日志和抓取结果。
 
-### 中间者 Broker
-
-中间者跟Celery中定义的一样，作为运行异步任务的队列。
-
 ### 前端 Frontend
 
-前端其实就是一个基于[Vue-Element-Admin](https://github.com/PanJiaChen/vue-element-admin)的单页应用。其中重用了很多Element-UI的控件来支持相应的展示。
+前端是一个基于[Vue-Element-Admin](https://github.com/PanJiaChen/vue-element-admin)的单页应用。其中重用了很多Element-UI的控件来支持相应的展示。
 
 ### Flower
 

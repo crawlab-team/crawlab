@@ -1,7 +1,7 @@
 import axios from 'axios'
 import router from '../router'
 
-let baseUrl = process.env.VUE_APP_BASE_URL ? process.env.VUE_APP_BASE_URL : 'http://localhost:8000/api'
+let baseUrl = process.env.VUE_APP_BASE_URL ? process.env.VUE_APP_BASE_URL : 'http://localhost:8000'
 
 const request = (method, path, params, data) => {
   return new Promise((resolve, reject) => {
