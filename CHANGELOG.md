@@ -1,4 +1,10 @@
-# 0.2.4 (unreleased)
+# 0.3.0 (2019-07-31)
+### Features / Enhancement
+- **Golang**: Refactored code from Python backend to Golang, much more stability and performance.
+- **Node Network Graph**: Visualization of node typology.
+- **Node System Info**: Available to see system info including OS, CPUs and executables.
+
+# 0.2.4 (2019-07-07)
 ### Features / Enhancement
 - **Documentation**: Better and much more detailed documentation.
 - **Better Crontab**: Make crontab expression through crontab UI.
