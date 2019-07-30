@@ -1,29 +1,62 @@
 # Crawlab
 
 ![](http://114.67.75.98:8081/buildStatus/icon?job=crawlab%2Fdevelop)
-![](https://img.shields.io/badge/version-v0.2.3-blue.svg)
+![](https://img.shields.io/badge/version-v0.3.0-blue.svg)
 <a href="https://github.com/tikazyq/crawlab/blob/master/LICENSE" target="_blank">
     <img src="https://img.shields.io/badge/license-BSD-blue.svg">
 </a>
 
 [中文](https://github.com/tikazyq/crawlab/blob/master/README-zh.md) | English
 
-Celery-based web crawler admin platform for managing distributed web spiders regardless of languages and frameworks. 
+基于Golang的分布式爬虫管理平台，支持Python、NodeJS、Go、Java、PHP等多种编程语言以及多种爬虫框架。
+Golang-based distributed web crawler management platform, supporting various languages including Python, NodeJS, Go, Java, PHP and various web crawler frameworks including Scrapy, Puppeteer, Selenium.
 
 [Demo](http://114.67.75.98:8080) | [Documentation](https://tikazyq.github.io/crawlab-docs)
 
-## Pre-requisite
-- Go 1.12+
-- Node.js 8.12+
-- MongoDB 3.6+
-- Redis
-
 ## Installation
 
-Threee methods:
+Two methods:
 1. [Docker](https://tikazyq.github.io/crawlab/Installation/Docker.md) (Recommended)
-2. [Direct Deploy](https://tikazyq.github.io/crawlab/Installation/Direct.md)
-3. [Preview](https://tikazyq.github.io/crawlab/Installation/Direct.md) (Quick start)
+2. [Direct Deploy](https://tikazyq.github.io/crawlab/Installation/Direct.md) (Check Internal Kernel)
+
+### Pre-requisite (Docker)
+- Docker 18.03+
+- Redis
+- MongoDB 3.6+
+
+### Pre-requisite (Direct Deploy)
+- Go 1.12+
+- Node 8.12+
+- Redis
+- MongoDB 3.6+
+
+## Run
+
+### Docker
+
+Run Master Node for example. `192.168.99.1` is the host machine IP address in Docker Machine network. `192.168.99.100` is the Master Node's IP address. 
+
+```bash
+docker run -d --rm --name crawlab \
+        -e CRAWLAB_REDIS_ADDRESS=192.168.99.1:6379 \
+        -e CRAWLAB_MONGO_HOST=192.168.99.1 \
+        -e CRAWLAB_SERVER_MASTER=Y \
+        -e CRAWLAB_API_ADDRESS=192.168.99.100:8000 \
+        -e CRAWLAB_SPIDER_PATH=/app/spiders \
+        -p 8080:8080 \
+        -p 8000:8000 \
+        -v /var/logs/crawlab:/var/logs/crawlab \
+        tikazyq/crawlab:0.3.0
+```
+
+Surely you can use `docker-compose` to one-click to start up. By doing so, you don't even have to configure MongoDB and Redis databases.
+
+```bash
+docker-compose up
+```
+
+For Docker Deployment details, please refer to [relevant documentation](https://tikazyq.github.io/crawlab/Installation/Docker.md).
+
 
 ## Screenshot
 
