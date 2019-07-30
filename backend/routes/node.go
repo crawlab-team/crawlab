@@ -108,3 +108,21 @@ func GetSystemInfo(c *gin.Context) {
 		Data:    sysInfo,
 	})
 }
+
+func DeleteNode(c *gin.Context)  {
+	id := c.Param("id")
+	node, err := model.GetNode(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c ,err)
+		return
+	}
+	err = node.Delete()
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}

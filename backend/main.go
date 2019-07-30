@@ -91,6 +91,7 @@ func main() {
 		app.POST("/nodes/:id", routes.PostNode)             // 修改节点
 		app.GET("/nodes/:id/tasks", routes.GetNodeTaskList) // 节点任务列表
 		app.GET("/nodes/:id/system", routes.GetSystemInfo)  // 节点任务列表
+		app.DELETE("/nodes/:id", routes.DeleteNode)			// 删除节点
 		// 爬虫
 		app.GET("/spiders", routes.GetSpiderList)              // 爬虫列表
 		app.GET("/spiders/:id", routes.GetSpider)              // 爬虫详情
