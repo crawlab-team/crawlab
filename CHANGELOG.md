@@ -1,4 +1,22 @@
-# 0.2.4 (unreleased)
+# 0.3.0 (2019-07-31)
+### Features / Enhancement
+- **Golang Backend**: Refactored code from Python backend to Golang, much more stability and performance.
+- **Node Network Graph**: Visualization of node typology.
+- **Node System Info**: Available to see system info including OS, CPUs and executables.
+- **Node Monitoring Enhancement**: Nodes are monitored and registered through Redis.
+- **File Management**: Available to edit spider files online, including code highlight.
+- **Login/Regiser/User Management**: Require users to login to use Crawlab, allow user registration and user management, some role-based authorization.
+- **Automatic Spider Deployment**: Spiders are deployed/synchronized to all online nodes automatically.
+- **Smaller Docker Image**: Slimmed Docker image and reduced Docker image size from 1.3G to \~700M by applying Multi-Stage Build.
+
+### Bug Fixes
+- **Node Status**. Node status does not change even though it goes offline actually. [#87](https://github.com/tikazyq/crawlab/issues/87) 
+- **Spider Deployment Error**. Fixed through Automatic Spider Deployment [#83](https://github.com/tikazyq/crawlab/issues/83) 
+- **Node not showing**. Node not able to show online [#81](https://github.com/tikazyq/crawlab/issues/81) 
+- **Cron Job not working**. Fixed through new Golang backend [#64](https://github.com/tikazyq/crawlab/issues/64) 
+- **Flower Error**. Fixed through new Golang backend [#57](https://github.com/tikazyq/crawlab/issues/57) 
+
+# 0.2.4 (2019-07-07)
 ### Features / Enhancement
 - **Documentation**: Better and much more detailed documentation.
 - **Better Crontab**: Make crontab expression through crontab UI.
