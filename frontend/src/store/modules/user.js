@@ -25,6 +25,9 @@ const user = {
       const userInfoStr = window.localStorage.getItem('user_info')
       if (!userInfoStr) return {}
       return JSON.parse(userInfoStr)
+    },
+    token () {
+      return window.localStorage.getItem('token')
     }
   },
 

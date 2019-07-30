@@ -84,7 +84,9 @@
       <el-form :model="spiderForm" ref="addConfigurableForm" inline-message>
         <el-form-item :label="$t('Upload Zip File')" label-width="120px" name="site">
           <el-upload
-            :action="$request.baseUrl + '/spiders/manage/upload'"
+            :action="$request.baseUrl + '/spiders'"
+            :headers="{Authorization:token}"
+            :on-change="onUploadChange"
             :on-success="onUploadSuccess"
             :file-list="fileList">
             <el-button type="primary" icon="el-icon-upload">{{$t('Upload')}}</el-button>
@@ -229,7 +231,8 @@
 
 <script>
 import {
-  mapState
+  mapState,
+  mapGetters
 } from 'vuex'
 import dayjs from 'dayjs'
 import CrawlConfirmDialog from '../../components/Common/CrawlConfirmDialog'
@@ -258,11 +261,13 @@ export default {
       // tableData,
       columns: [
         { name: 'name', label: 'Name', width: '180', align: 'left' },
-        { name: 'site_name', label: 'Site', width: '140', align: 'left' },
+        // { name: 'site_name', label: 'Site', width: '140', align: 'left' },
         { name: 'type', label: 'Spider Type', width: '120' },
         // { name: 'cmd', label: 'Command Line', width: '200' },
         // { name: 'lang', label: 'Language', width: '120', sortable: true },
-        { name: 'last_run_ts', label: 'Last Run', width: '160' }
+        { name: 'last_run_ts', label: 'Last Run', width: '160' },
+        { name: 'create_ts', label: 'Create Time', width: '160' },
+        { name: 'update_ts', label: 'Update Time', width: '160' }
         // { name: 'last_7d_tasks', label: 'Last 7-Day Tasks', width: '80' },
         // { name: 'last_5_errors', label: 'Last 5-Run Errors', width: '80' }
       ],
@@ -277,6 +282,9 @@ export default {
       'importForm',
       'spiderList',
       'spiderForm'
+    ]),
+    ...mapGetters('user', [
+      'token'
     ]),
     filteredTableData () {
       return this.spiderList
@@ -468,6 +476,8 @@ export default {
             })
         }
       })
+    },
+    onUploadChange () {
     },
     onUploadSuccess () {
       // clear fileList

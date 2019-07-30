@@ -175,6 +175,7 @@ export default {
   'Create Time': '创建时间',
   'Start Time': '开始时间',
   'Finish Time': '结束时间',
+  'Update Time': '更新时间',
 
   // 部署
   'Time': '时间',
