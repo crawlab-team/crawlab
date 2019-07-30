@@ -19,7 +19,7 @@
 2. [直接部署](https://tikazyq.github.io/crawlab/Installation/Direct.md)（了解内核）
 
 ### 要求（Docker）
-- Docker
+- Docker 18.03+
 - Redis
 - MongoDB 3.6+
 
@@ -48,9 +48,17 @@ docker run -d --rm --name crawlab \
         tikazyq/crawlab:0.3.0
 ```
 
+当然也可以用`docker-compose`来一键启动，甚至不用配置MongoDB和Redis数据库。
+
+```bash
+docker-compose up
+```
+
+Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab/Installation/Docker.md)。
+
 ### 直接部署
 
-请参考文档。
+请参考[相关文档](https://tikazyq.github.io/crawlab/Installation/Direct.md)。
 
 ## 截图
 
