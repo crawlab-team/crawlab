@@ -8,6 +8,8 @@
 
 中文 | [English](https://github.com/tikazyq/crawlab)
 
+[安装](#安装) | [运行](#运行) | [截图](#截图) | [架构](#架构) | [集成](#与其他框架的集成) | [比较](#与其他框架比较) | [相关文章](#相关文章) | [社区&赞助](#社区--赞助)
+
 基于Golang的分布式爬虫管理平台，支持Python、NodeJS、Go、Java、PHP等多种编程语言以及多种爬虫框架。
 
 [查看演示 Demo](http://114.67.75.98:8080) | [文档](https://tikazyq.github.io/crawlab-docs)
@@ -48,7 +50,38 @@ docker run -d --rm --name crawlab \
         tikazyq/crawlab:0.3.0
 ```
 
-当然也可以用`docker-compose`来一键启动，甚至不用配置MongoDB和Redis数据库。
+当然也可以用`docker-compose`来一键启动，甚至不用配置MongoDB和Redis数据库。在当前目录中创建`docker-compose.yml`文件，输入以下内容。
+
+```bash
+version: '3.3'
+services:
+  master: 
+    image: tikazyq/crawlab:latest
+    container_name: crawlab-master
+    environment:
+      CRAWLAB_API_ADDRESS: "192.168.99.100:8000"
+      CRAWLAB_SERVER_MASTER: "Y"
+      CRAWLAB_MONGO_HOST: "mongo"
+      CRAWLAB_REDIS_ADDRESS: "redis:6379"
+    ports:    
+      - "8080:8080" # frontend
+      - "8000:8000" # backend
+    depends_on:
+      - mongo
+      - redis
+  mongo:
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27017:27017"
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+```
+
+然后执行以下命令，Crawlab主节点＋MongoDB＋Redis就启动了。打开`http://localhost:8080`就能看到界面。
 
 ```bash
 docker-compose up
@@ -64,43 +97,43 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab/I
 
 #### 登录
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/login.png)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/login.png?v0.3.0)
 
 #### 首页
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/home.png)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/home.png?v0.3.0)
 
 #### 节点列表
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-list.png)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-list.png?v0.3.0)
 
 #### 节点拓扑图
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-network.png)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-network.png?v0.3.0)
 
 #### 爬虫列表
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-list.png)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-list.png?v0.3.0)
 
 #### 爬虫概览
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-overview.png)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-overview.png?v0.3.0)
 
 #### 爬虫分析
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-analytics.png)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-analytics.png?v0.3.0)
 
 #### 爬虫文件
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-file.png)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-file.png?v0.3.0)
 
 #### 任务详情 - 抓取结果
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/task-results.png)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/task-results.png?v0.3.0)
 
 #### 定时任务
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/schedule.png)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/schedule.png?v0.3.0)
 
 ## 架构
 
