@@ -7,7 +7,7 @@ mongo:
   username: ""
   password: ""
 redis:
-  address: 127.0.0.1
+  address: localhost
   password: ""
   database: 1
   port: 6379

@@ -69,16 +69,6 @@ services:
     depends_on:
       - mongo
       - redis
-  worker:
-    image: tikazyq/crawlab:latest
-    container_name: worker
-    environment:
-      CRAWLAB_SERVER_MASTER: "N"
-      CRAWLAB_MONGO_HOST: "mongo"
-      CRAWLAB_REDIS_ADDRESS: "redis"
-    depends_on:
-      - mongo
-      - redis
   mongo:
     image: mongo:latest
     restart: always
