@@ -24,7 +24,7 @@ pipeline {
             steps {
                 echo "Building..."
                 sh """
-                docker build -t tikazyq/crawlab:latest .
+                docker build -t tikazyq/crawlab:latest -f Dockerfile.local .
                 """
             }
         }
@@ -37,13 +37,7 @@ pipeline {
             steps {
                 echo 'Deploying....'
                 sh """
-                docker rm -f crawlab | true
-                docker run -d --rm --name crawlab \
-                    -p 8080:8080 \
-                    -p 8000:8000 \
-                    -v /home/yeqing/.env.production:/opt/crawlab/frontend/.env.production \
-                    -v /home/yeqing/config.py:/opt/crawlab/crawlab/config/config.py \
-                    tikazyq/crawlab master
+                docker-compose up
                 """
             }
         }
