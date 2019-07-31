@@ -1,4 +1,3 @@
-
 FROM golang:1.12 AS backend-build
 
 WORKDIR /go/src/app
@@ -9,7 +8,7 @@ ENV GOPROXY https://mirrors.aliyun.com/goproxy/
 
 RUN go install -v ./...
 
-FROM node:8.16.0-alpine AS frontend-build
+FROM node:8.16.0 AS frontend-build
 
 ADD ./frontend /app
 WORKDIR /app

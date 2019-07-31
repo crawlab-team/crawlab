@@ -1,6 +1,6 @@
 # Crawlab
 
-![](http://114.67.75.98:8081/buildStatus/icon?job=crawlab%2Fdevelop)
+![](http://114.67.75.98:8082/buildStatus/icon?job=crawlab%2Fdevelop)
 ![](https://img.shields.io/badge/version-v0.3.0-blue.svg)
 <a href="https://github.com/tikazyq/crawlab/blob/master/LICENSE" target="_blank">
     <img src="https://img.shields.io/badge/license-BSD-blue.svg">
@@ -58,12 +58,12 @@ version: '3.3'
 services:
   master: 
     image: tikazyq/crawlab:latest
-    container_name: crawlab-master
+    container_name: master
     environment:
-      CRAWLAB_API_ADDRESS: "192.168.99.100:8000"
+      CRAWLAB_API_ADDRESS: "localhost:8000"
       CRAWLAB_SERVER_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
-      CRAWLAB_REDIS_ADDRESS: "redis:6379"
+      CRAWLAB_REDIS_ADDRESS: "redis"
     ports:    
       - "8080:8080" # frontend
       - "8000:8000" # backend

@@ -7,8 +7,10 @@ mongo:
   username: ""
   password: ""
 redis:
-  network: tcp
-  address: "localhost:6379"
+  address: localhost
+  password: ""
+  database: 1
+  port: 6379
 log:
   level: info
   path: "/var/logs/crawlab"
