@@ -23,17 +23,28 @@ export default {
 
 <style scoped>
   .log-item {
-    display: flex;
+    display: table;
+  }
+
+  .log-item:first-child .line-no {
+    padding-top: 10px;
   }
 
   .log-item .line-no {
-    margin-right: 10px;
+    display: table-cell;
+    color: #A9B7C6;
+    background: #313335;
+    padding-right: 10px;
     text-align: right;
     flex-basis: 40px;
+    width: 70px;
   }
 
   .log-item .line-content {
-    display: inline-block;
+    padding-left: 10px;
+    display: table-cell;
+    /*display: inline-block;*/
+    word-break: break-word;
     flex-basis: calc(100% - 50px);
   }
 </style>

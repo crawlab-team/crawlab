@@ -95,8 +95,7 @@ func main() {
 		// 爬虫
 		app.GET("/spiders", routes.GetSpiderList)              // 爬虫列表
 		app.GET("/spiders/:id", routes.GetSpider)              // 爬虫详情
-		app.PUT("/spiders", routes.PutSpider)                  // 上传爬虫
-		app.POST("/spiders", routes.PublishAllSpiders)         // 发布所有爬虫
+		app.POST("/spiders", routes.PutSpider)                 // 上传爬虫
 		app.POST("/spiders/:id", routes.PostSpider)            // 修改爬虫
 		app.POST("/spiders/:id/publish", routes.PublishSpider) // 发布爬虫
 		app.DELETE("/spiders/:id", routes.DeleteSpider)        // 删除爬虫

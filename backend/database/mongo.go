@@ -33,9 +33,17 @@ func InitMongo() error {
 	var mongoHost = viper.GetString("mongo.host")
 	var mongoPort = viper.GetString("mongo.port")
 	var mongoDb = viper.GetString("mongo.db")
+	var mongoUsername = viper.GetString("mongo.username")
+	var mongoPassword = viper.GetString("mongo.password")
 
 	if Session == nil {
-		sess, err := mgo.Dial("mongodb://" + mongoHost + ":" + mongoPort + "/" + mongoDb)
+		var uri string
+		if mongoUsername == "" {
+			uri = "mongodb://" + mongoHost + ":" + mongoPort + "/" + mongoDb
+		} else {
+			uri = "mongodb://" + mongoUsername + ":" + mongoPassword + "@" + mongoHost + ":" + mongoPort + "/" + mongoDb
+		}
+		sess, err := mgo.Dial(uri)
 		if err != nil {
 			return err
 		}
