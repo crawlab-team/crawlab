@@ -129,7 +129,7 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab/I
 
 #### 任务详情 - 抓取结果
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/task-results.png?v0.3.0)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/task-results.png?v0.3.0_1)
 
 #### 定时任务
 

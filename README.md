@@ -126,7 +126,7 @@ For Docker Deployment details, please refer to [relevant documentation](https://
 
 #### Task Results
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/task-results.png?v0.3.0)
+![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/task-results.png?v0.3.0_1)
 
 #### Cron Job
 
