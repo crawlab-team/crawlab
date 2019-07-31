@@ -103,10 +103,18 @@ func (r *Redis) HKeys(collection string) ([]string, error) {
 }
 
 func GetRedisConn() (redis.Conn, error) {
-	c, err := redis.Dial(
-		viper.GetString("redis.network"),
-		viper.GetString("redis.address"),
-	)
+	var address = viper.GetString("redis.address")
+	var port = viper.GetString("redis.port")
+	var database = viper.GetString("redis.database")
+	var password = viper.GetString("redis.password")
+
+	var url string
+	if password == "" {
+		url = "redis://" + address + ":" + port + "/" + database
+	} else {
+		url = "redis://x:" + password + "@" + address + ":" + port + "/" + database
+	}
+	c, err := redis.DialURL(url)
 	if err != nil {
 		debug.PrintStack()
 		return c, err
