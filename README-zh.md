@@ -50,22 +50,32 @@ docker run -d --rm --name crawlab \
         tikazyq/crawlab:0.3.0
 ```
 
-当然也可以用`docker-compose`来一键启动，甚至不用配置MongoDB和Redis数据库。在当前目录中创建`docker-compose.yml`文件，输入以下内容。
+当然也可以用`docker-compose`来一键启动，甚至不用配置MongoDB和Redis数据库，**当然我们推荐这样做**。在当前目录中创建`docker-compose.yml`文件，输入以下内容。
 
 ```bash
 version: '3.3'
 services:
   master: 
     image: tikazyq/crawlab:latest
-    container_name: crawlab-master
+    container_name: master
     environment:
-      CRAWLAB_API_ADDRESS: "192.168.99.100:8000"
+      CRAWLAB_API_ADDRESS: "localhost:8000"
       CRAWLAB_SERVER_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
-      CRAWLAB_REDIS_ADDRESS: "redis:6379"
+      CRAWLAB_REDIS_ADDRESS: "redis"
     ports:    
       - "8080:8080" # frontend
       - "8000:8000" # backend
+    depends_on:
+      - mongo
+      - redis
+  worker:
+    image: tikazyq/crawlab:latest
+    container_name: worker
+    environment:
+      CRAWLAB_SERVER_MASTER: "N"
+      CRAWLAB_MONGO_HOST: "mongo"
+      CRAWLAB_REDIS_ADDRESS: "redis"
     depends_on:
       - mongo
       - redis

@@ -11,7 +11,7 @@ pipeline {
                 echo "Running Setup..."
                 script {
                     if (env.GIT_BRANCH == 'develop') {
-                        env.MODE = 'test'
+                        env.MODE = 'develop'
                     } else if (env.GIT_BRANCH == 'master') {
                         env.MODE = 'production'
                     } else {
@@ -37,6 +37,7 @@ pipeline {
             steps {
                 echo 'Deploying....'
                 sh """
+                cd ./jenkins
                 docker-compose stop | true
                 docker-compose up -d
                 """
