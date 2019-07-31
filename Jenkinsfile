@@ -37,6 +37,7 @@ pipeline {
             steps {
                 echo 'Deploying....'
                 sh """
+                docker-compose stop | true
                 docker-compose up
                 """
             }
