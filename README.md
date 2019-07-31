@@ -39,7 +39,7 @@ Run Master Node for example. `192.168.99.1` is the host machine IP address in Do
 
 ```bash
 docker run -d --rm --name crawlab \
-        -e CRAWLAB_REDIS_ADDRESS=192.168.99.1:6379 \
+        -e CRAWLAB_REDIS_ADDRESS=192.168.99.1 \
         -e CRAWLAB_MONGO_HOST=192.168.99.1 \
         -e CRAWLAB_SERVER_MASTER=Y \
         -e CRAWLAB_API_ADDRESS=192.168.99.100:8000 \
@@ -95,49 +95,49 @@ For Docker Deployment details, please refer to [relevant documentation](https://
 
 #### Login
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/login.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/login.png?v0.3.0">
 
 #### Home Page
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/home.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/home.png?v0.3.0">
 
 #### Node List
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-list.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-list.png?v0.3.0">
 
 #### Node Network
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-network.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-network.png?v0.3.0">
 
 #### Spider List
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-list.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-list.png?v0.3.0">
 
 #### Spider Overview
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-overview.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-overview.png?v0.3.0">
 
 #### Spider Analytics
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-analytics.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-analytics.png?v0.3.0">
 
 #### Spider Files
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-file.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-file.png?v0.3.0">
 
 #### Task Results
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/task-results.png?v0.3.0_1)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/task-results.png?v0.3.0_1">
 
 #### Cron Job
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/schedule.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/schedule.png?v0.3.0">
 
 ## Architecture
 
 The architecture of Crawlab is consisted of the Master Node and multiple Worker Nodes, and Redis and MongoDB databases which are mainly for nodes communication and data storage.
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/architecture.png)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/architecture.png">
 
 The frontend app makes requests to the Master Node, which assigns tasks and deploys spiders through MongoDB and Redis. When a Worker Node receives a task, it begins to execute the crawling task, and stores the results to MongoDB. The architecture is much more concise compared with versions before `v0.3.0`. It has removed unnecessary Flower module which offers node monitoring services. They are now done by Redis.
 

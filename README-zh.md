@@ -39,7 +39,7 @@
 
 ```bash
 docker run -d --rm --name crawlab \
-        -e CRAWLAB_REDIS_ADDRESS=192.168.99.1:6379 \
+        -e CRAWLAB_REDIS_ADDRESS=192.168.99.1 \
         -e CRAWLAB_MONGO_HOST=192.168.99.1 \
         -e CRAWLAB_SERVER_MASTER=Y \
         -e CRAWLAB_API_ADDRESS=192.168.99.100:8000 \
@@ -97,43 +97,43 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab/I
 
 #### 登录
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/login.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/login.png?v0.3.0">
 
 #### 首页
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/home.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/home.png?v0.3.0">
 
 #### 节点列表
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-list.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-list.png?v0.3.0">
 
 #### 节点拓扑图
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-network.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-network.png?v0.3.0">
 
 #### 爬虫列表
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-list.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-list.png?v0.3.0">
 
 #### 爬虫概览
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-overview.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-overview.png?v0.3.0">
 
 #### 爬虫分析
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-analytics.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-analytics.png?v0.3.0">
 
 #### 爬虫文件
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-file.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-file.png?v0.3.0">
 
 #### 任务详情 - 抓取结果
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/task-results.png?v0.3.0_1)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/task-results.png?v0.3.0_1">
 
 #### 定时任务
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/schedule.png?v0.3.0)
+<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/schedule.png?v0.3.0">
 
 ## 架构
 
