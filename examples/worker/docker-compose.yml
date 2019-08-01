@@ -1,0 +1,8 @@
+version: '3'
+services:
+  worker:
+    image: crawlab:worker
+    container_name: crawlab-worker
+    volumes:
+    - $PWD/conf/config.yml:/opt/crawlab/conf/config.yml
+    - $PWD/crawlab:/usr/local/bin/crawlab

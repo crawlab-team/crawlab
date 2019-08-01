@@ -12,7 +12,7 @@
 
 Golang-based distributed web crawler management platform, supporting various languages including Python, NodeJS, Go, Java, PHP and various web crawler frameworks including Scrapy, Puppeteer, Selenium.
 
-[Demo](http://114.67.75.98:8080) | [Documentation](https://tikazyq.github.io/crawlab-docs)
+[Demo](http://crawlab.cn:8080) | [Documentation](https://tikazyq.github.io/crawlab-docs)
 
 ## Installation
 

@@ -2,7 +2,7 @@
   <div class="navbar">
     <hamburger :toggle-click="toggleSideBar" :is-active="sidebar.opened" class="hamburger-container"/>
     <breadcrumb class="breadcrumb"/>
-    <el-dropdown class="avatar-container" trigger="click">
+    <el-dropdown class="avatar-container right" trigger="click">
       <span class="el-dropdown-link">
         {{username}}
         <i class="el-icon-arrow-down el-icon--right"></i>
@@ -13,7 +13,7 @@
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
-    <el-dropdown class="lang-list" trigger="click">
+    <el-dropdown class="lang-list right" trigger="click">
       <span class="el-dropdown-link">
         {{$t($store.getters['lang/lang'])}}
         <i class="el-icon-arrow-down el-icon--right"></i>
@@ -26,6 +26,12 @@
           <span>English</span>
         </el-dropdown-item>
       </el-dropdown-menu>
+    </el-dropdown>
+    <el-dropdown class="documentation right">
+      <a href="https://tikazyq.github.io/crawlab-docs" target="_blank">
+        <font-awesome-icon :icon="['far', 'question-circle']"/>
+        <span style="margin-left: 5px;">文档</span>
+      </a>
     </el-dropdown>
   </div>
 </template>
@@ -86,7 +92,6 @@ export default {
     .lang-list {
       cursor: pointer;
       display: inline-block;
-      float: right;
       margin-right: 35px;
       /*position: absolute;*/
       /*right: 80px;*/
@@ -103,10 +108,21 @@ export default {
       cursor: pointer;
       height: 50px;
       display: inline-block;
-      float: right;
       margin-right: 35px;
       /*position: absolute;*/
       /*right: 35px;*/
+    }
+
+    .documentation {
+      margin-right: 35px;
+
+      .span {
+        margin-left: 5px;
+      }
+    }
+
+    .right {
+      float: right
     }
   }
 </style>
