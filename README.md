@@ -17,8 +17,8 @@ Golang-based distributed web crawler management platform, supporting various lan
 ## Installation
 
 Two methods:
-1. [Docker](https://tikazyq.github.io/crawlab/Installation/Docker.md) (Recommended)
-2. [Direct Deploy](https://tikazyq.github.io/crawlab/Installation/Direct.md) (Check Internal Kernel)
+1. [Docker](https://tikazyq.github.io/crawlab/Installation/Docker.html) (Recommended)
+2. [Direct Deploy](https://tikazyq.github.io/crawlab/Installation/Direct.html) (Check Internal Kernel)
 
 ### Pre-requisite (Docker)
 - Docker 18.03+
@@ -88,7 +88,7 @@ Then execute the command below, and Crawlab Master Node + MongoDB + Redis will s
 docker-compose up
 ```
 
-For Docker Deployment details, please refer to [relevant documentation](https://tikazyq.github.io/crawlab/Installation/Docker.md).
+For Docker Deployment details, please refer to [relevant documentation](https://tikazyq.github.io/crawlab/Installation/Docker.html).
 
 
 ## Screenshot
