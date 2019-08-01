@@ -43,5 +43,14 @@ pipeline {
                 """
             }
         }
+        stage('Cleanup') {
+            steps {
+                echo 'Cleanup...'
+                sh """
+                docker rmi `docker images | grep '<none>' | grep -v IMAGE | awk '{ print \$3 }' | xargs`
+                docker rm `docker ps -a | grep Exited | awk '{ print \$1 }' | xargs`
+                """
+            }
+        }
     }
 }
