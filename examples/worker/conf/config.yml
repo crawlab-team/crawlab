@@ -1,0 +1,25 @@
+mongo:
+  host: 127.0.0.1
+  port: 27017
+  db: crawlab_test
+  username: ""
+  password: ""
+redis:
+  address: 127.0.0.1
+  password: ""
+  database: 1
+  port: 6379
+log:
+  level: info
+  path: "/opt/crawlab/logs"
+server:
+  host: 0.0.0.0
+  port: 8000
+  master: "N"
+  secret: "crawlab"
+spider:
+  path: "/opt/crawlab/spiders"
+task:
+  workers: 4
+other:
+  tmppath: "/tmp"
