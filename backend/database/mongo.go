@@ -35,7 +35,7 @@ func InitMongo() error {
 	var mongoDb = viper.GetString("mongo.db")
 	var mongoUsername = viper.GetString("mongo.username")
 	var mongoPassword = viper.GetString("mongo.password")
-	var mongoAuth = viper.GetString("mongo.authSource")
+	var mongoAuth = viper.GetString("mongo.auth-source")
 
 	if Session == nil {
 		var uri string

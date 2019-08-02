@@ -6,7 +6,7 @@ mongo:
   db: crawlab_test
   username: ""
   password: ""
-  authSource: "admin"
+  auth-source: "admin"
 redis:
   address: localhost
   password: ""
