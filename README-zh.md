@@ -52,7 +52,7 @@ docker run -d --rm --name crawlab \
 
 当然也可以用`docker-compose`来一键启动，甚至不用配置MongoDB和Redis数据库，**当然我们推荐这样做**。在当前目录中创建`docker-compose.yml`文件，输入以下内容。
 
-```bash
+```yaml
 version: '3.3'
 services:
   master: 
