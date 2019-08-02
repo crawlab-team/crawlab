@@ -53,7 +53,7 @@ docker run -d --rm --name crawlab \
 Surely you can use `docker-compose` to one-click to start up. By doing so, you don't even have to configure MongoDB and Redis databases. Create a file named `docker-compose.yml` and input the code below.
 
 
-```bash
+```yaml
 version: '3.3'
 services:
   master: 
