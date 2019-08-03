@@ -5,4 +5,14 @@ services:
     container_name: crawlab-worker
     volumes:
     - $PWD/conf/config.yml:/opt/crawlab/conf/config.yml
+    # 二进制包使用源码生成
     - $PWD/crawlab:/usr/local/bin/crawlab
+    networks:
+      - crawlabnet
+
+networks:
+  crawlabnet:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.0.0/16
