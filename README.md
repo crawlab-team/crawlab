@@ -53,7 +53,7 @@ docker run -d --rm --name crawlab \
 Surely you can use `docker-compose` to one-click to start up. By doing so, you don't even have to configure MongoDB and Redis databases. Create a file named `docker-compose.yml` and input the code below.
 
 
-```bash
+```yaml
 version: '3.3'
 services:
   master: 
@@ -169,7 +169,7 @@ Redis is a very popular Key-Value database. It offers node communication service
 ### Frontend
 
 Frontend is a SPA based on 
-[Vue-Element-Admin](https://github.com/PanJiaChen/vue-element-admin). It has re-used many Element-UI components to support correspoinding display. 
+[Vue-Element-Admin](https://github.com/PanJiaChen/vue-element-admin). It has re-used many Element-UI components to support corresponding display. 
 
 ## Integration with Other Frameworks
 
@@ -206,7 +206,7 @@ class JuejinPipeline(object):
 
 There are existing spider management frameworks. So why use Crawlab? 
 
-The reason is that most of the existing platforms are depending on Scrapyd, which limits the choice only within python and scrapy. Surely scrapy is a great web crawl frameowrk, but it cannot do everything. 
+The reason is that most of the existing platforms are depending on Scrapyd, which limits the choice only within python and scrapy. Surely scrapy is a great web crawl framework, but it cannot do everything. 
 
 Crawlab is easy to use, general enough to adapt spiders in any language and any framework. It has also a beautiful frontend interface for users to manage spiders much more easily. 
 
