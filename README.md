@@ -95,49 +95,49 @@ For Docker Deployment details, please refer to [relevant documentation](https://
 
 #### Login
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/login.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/login.png)
 
 #### Home Page
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/home.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/home.png)
 
 #### Node List
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-list.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/node-list.png)
 
 #### Node Network
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-network.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/node-network.png)
 
 #### Spider List
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-list.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-list.png)
 
 #### Spider Overview
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-overview.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-overview.png)
 
 #### Spider Analytics
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-analytics.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-analytics.png)
 
 #### Spider Files
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-file.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-file.png)
 
 #### Task Results
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/task-results.png?v0.3.0_1">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/task-results.png)
 
 #### Cron Job
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/schedule.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/schedule.png)
 
 ## Architecture
 
 The architecture of Crawlab is consisted of the Master Node and multiple Worker Nodes, and Redis and MongoDB databases which are mainly for nodes communication and data storage.
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/architecture.png">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/architecture.png)
 
 The frontend app makes requests to the Master Node, which assigns tasks and deploys spiders through MongoDB and Redis. When a Worker Node receives a task, it begins to execute the crawling task, and stores the results to MongoDB. The architecture is much more concise compared with versions before `v0.3.0`. It has removed unnecessary Flower module which offers node monitoring services. They are now done by Redis.
 
