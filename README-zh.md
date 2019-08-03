@@ -97,49 +97,49 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab/I
 
 #### 登录
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/login.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/login.png)
 
 #### 首页
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/home.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/home.png)
 
 #### 节点列表
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-list.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/node-list.png)
 
 #### 节点拓扑图
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-network.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/node-network.png)
 
 #### 爬虫列表
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-list.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-list.png)
 
 #### 爬虫概览
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-overview.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-overview.png)
 
 #### 爬虫分析
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-analytics.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-analytics.png)
 
 #### 爬虫文件
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-file.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-file.png)
 
 #### 任务详情 - 抓取结果
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/task-results.png?v0.3.0_1">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/task-results.png)
 
 #### 定时任务
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/schedule.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/schedule.png)
 
 ## 架构
 
 Crawlab的架构包括了一个主节点（Master Node）和多个工作节点（Worker Node），以及负责通信和数据储存的Redis和MongoDB数据库。
 
-![](https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/architecture.png)
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/architecture.png)
 
 前端应用向主节点请求数据，主节点通过MongoDB和Redis来执行任务派发调度以及部署，工作节点收到任务之后，开始执行爬虫任务，并将任务结果储存到MongoDB。架构相对于`v0.3.0`之前的Celery版本有所精简，去除了不必要的节点监控模块Flower，节点监控主要由Redis完成。
 
