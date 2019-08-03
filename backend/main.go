@@ -17,6 +17,7 @@ func main() {
 
 	// 初始化配置
 	if err := config.InitConfig(""); err != nil {
+		log.Error("init config error:" + err.Error())
 		panic(err)
 	}
 	log.Info("初始化配置成功")
@@ -30,6 +31,7 @@ func main() {
 
 	// 初始化Mongodb数据库
 	if err := database.InitMongo(); err != nil {
+		log.Error("init mongodb error:" + err.Error())
 		debug.PrintStack()
 		panic(err)
 	}
@@ -37,6 +39,7 @@ func main() {
 
 	// 初始化Redis数据库
 	if err := database.InitRedis(); err != nil {
+		log.Error("init redis error:" + err.Error())
 		debug.PrintStack()
 		panic(err)
 	}
@@ -45,6 +48,7 @@ func main() {
 	if services.IsMaster() {
 		// 初始化定时任务
 		if err := services.InitScheduler(); err != nil {
+			log.Error("init scheduler error:" + err.Error())
 			debug.PrintStack()
 			panic(err)
 		}
@@ -53,6 +57,7 @@ func main() {
 
 	// 初始化任务执行器
 	if err := services.InitTaskExecutor(); err != nil {
+		log.Error("init task executor error:" + err.Error())
 		debug.PrintStack()
 		panic(err)
 	}
@@ -60,12 +65,14 @@ func main() {
 
 	// 初始化节点服务
 	if err := services.InitNodeService(); err != nil {
+		log.Error("init node service error:" + err.Error())
 		panic(err)
 	}
 	log.Info("初始化节点配置成功")
 
 	// 初始化爬虫服务
 	if err := services.InitSpiderService(); err != nil {
+		log.Error("init spider service error:" + err.Error())
 		debug.PrintStack()
 		panic(err)
 	}
@@ -73,6 +80,7 @@ func main() {
 
 	// 初始化用户服务
 	if err := services.InitUserService(); err != nil {
+		log.Error("init user service error:" + err.Error())
 		debug.PrintStack()
 		panic(err)
 	}
@@ -91,7 +99,7 @@ func main() {
 		app.POST("/nodes/:id", routes.PostNode)             // 修改节点
 		app.GET("/nodes/:id/tasks", routes.GetNodeTaskList) // 节点任务列表
 		app.GET("/nodes/:id/system", routes.GetSystemInfo)  // 节点任务列表
-		app.DELETE("/nodes/:id", routes.DeleteNode)			// 删除节点
+		app.DELETE("/nodes/:id", routes.DeleteNode)         // 删除节点
 		// 爬虫
 		app.GET("/spiders", routes.GetSpiderList)              // 爬虫列表
 		app.GET("/spiders/:id", routes.GetSpider)              // 爬虫详情
@@ -138,6 +146,7 @@ func main() {
 	host := viper.GetString("server.host")
 	port := viper.GetString("server.port")
 	if err := app.Run(host + ":" + port); err != nil {
+		log.Error("run server error:" + err.Error())
 		panic(err)
 	}
 }
