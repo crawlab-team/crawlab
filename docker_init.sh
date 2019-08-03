@@ -7,7 +7,7 @@ then
 else
 	jspath=`ls /app/dist/js/app.*.js`
 	cp ${jspath} ${jspath}.bak
-	sed -i "s/localhost:8000/${CRAWLAB_API_ADDRESS}/g" ${jspath}
+	sed -i "s?localhost:8000?${CRAWLAB_API_ADDRESS}?g" ${jspath}
 fi
 
 # start nginx
