@@ -35,13 +35,14 @@ func InitMongo() error {
 	var mongoDb = viper.GetString("mongo.db")
 	var mongoUsername = viper.GetString("mongo.username")
 	var mongoPassword = viper.GetString("mongo.password")
+	var mongoAuth = viper.GetString("mongo.authSource")
 
 	if Session == nil {
 		var uri string
 		if mongoUsername == "" {
 			uri = "mongodb://" + mongoHost + ":" + mongoPort + "/" + mongoDb
 		} else {
-			uri = "mongodb://" + mongoUsername + ":" + mongoPassword + "@" + mongoHost + ":" + mongoPort + "/" + mongoDb
+			uri = "mongodb://" + mongoUsername + ":" + mongoPassword + "@" + mongoHost + ":" + mongoPort + "/" + mongoDb + "?authSource=" + mongoAuth
 		}
 		sess, err := mgo.Dial(uri)
 		if err != nil {
