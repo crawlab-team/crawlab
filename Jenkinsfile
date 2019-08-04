@@ -39,7 +39,7 @@ pipeline {
                 sh """
                 cd ./jenkins
                 docker-compose stop | true
-                docker-compose up -d
+                docker-compose up -d --scale worker=3
                 """
             }
         }
