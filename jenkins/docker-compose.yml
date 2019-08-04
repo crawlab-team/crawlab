@@ -25,6 +25,7 @@ services:
     depends_on:
       - mongo
       - redis
+    replicas: 3
   mongo:
     image: mongo:latest
     restart: always

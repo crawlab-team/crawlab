@@ -21,3 +21,6 @@ docker build -t crawlab:worker .
 ```
 docker-compose up -d
 ```
+
+如果在多台服务器使用`docker-compose.yml`进行编排，可能出现节点注册不上的问题，因为mac地址冲突了。
+可以使用`networks`定义当前节点的IP段，这样就可以正常注册到redis
