@@ -2,7 +2,6 @@ version: '3.3'
 services:
   master: 
     image: tikazyq/crawlab:latest
-    container_name: master
     environment:
       CRAWLAB_API_ADDRESS: "crawlab.cn/dev/api"
       CRAWLAB_SERVER_MASTER: "Y"
