@@ -83,7 +83,7 @@ export default {
   },
   methods: {
     onTabClick (tab) {
-      this.$st.sendEv('任务详情', '切换标签', 'tabName', tab.name)
+      this.$st.sendEv('任务详情', '切换标签', tab.name)
     },
     onSpiderChange (id) {
       this.$router.push(`/spiders/${id}`)
