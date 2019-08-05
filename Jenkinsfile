@@ -37,7 +37,10 @@ pipeline {
             steps {
                 echo 'Deploying....'
                 sh """
-                cd ./jenkins
+                echo ${ENV:GIT_BRANCH}
+                """
+                sh """
+                cd ./jenkins/${ENV:GIT_BRANCH}
                 docker-compose stop | true
                 docker-compose up -d --scale worker=3
                 """
