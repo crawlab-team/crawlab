@@ -12,11 +12,11 @@ pipeline {
                 script {
                     if (env.GIT_BRANCH == 'develop') {
                         env.MODE = 'develop'
+                        env.BASE_URL = '/dev'
                     } else if (env.GIT_BRANCH == 'master') {
                         env.MODE = 'production'
-                    } else {
-                        env.MODE = 'test'
-                    }
+                        env.BASE_URL = '/demo'
+                    } 
                 }
             }
         }
