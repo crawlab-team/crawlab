@@ -1,7 +1,7 @@
 version: '3.3'
 services:
   master: 
-    image: tikazyq/crawlab:latest
+    image: "tikazyq/crawlab:master"
     environment:
       CRAWLAB_API_ADDRESS: "crawlab.cn/api"
       CRAWLAB_SERVER_MASTER: "Y"
@@ -15,7 +15,7 @@ services:
       - mongo
       - redis
   worker:
-    image: tikazyq/crawlab:latest
+    image: "tikazyq/crawlab:master"
     environment:
       CRAWLAB_SERVER_MASTER: "N"
       CRAWLAB_MONGO_HOST: "mongo"

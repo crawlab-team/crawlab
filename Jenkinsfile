@@ -12,9 +12,11 @@ pipeline {
                 script {
                     if (env.GIT_BRANCH == 'develop') {
                         env.MODE = 'develop'
+                        env.TAG = 'develop'
                         env.BASE_URL = '/dev'
                     } else if (env.GIT_BRANCH == 'master') {
                         env.MODE = 'production'
+                        env.TAG = 'master'
                         env.BASE_URL = '/demo'
                     } 
                 }
@@ -24,7 +26,7 @@ pipeline {
             steps {
                 echo "Building..."
                 sh """
-                docker build -t tikazyq/crawlab:latest -f Dockerfile.local .
+                docker build -t tikazyq/crawlab:${ENV:TAG} -f Dockerfile.local .
                 """
             }
         }
