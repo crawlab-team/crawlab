@@ -1,0 +1,35 @@
+version: '3.3'
+services:
+  master: 
+    image: "tikazyq/crawlab:develop"
+    environment:
+      CRAWLAB_API_ADDRESS: "crawlab.cn/dev/api"
+      CRAWLAB_SERVER_MASTER: "Y"
+      CRAWLAB_MONGO_HOST: "mongo"
+      CRAWLAB_REDIS_ADDRESS: "redis"
+      CRAWLAB_LOG_PATH: "/var/logs/crawlab"
+    ports:
+      - "8090:8080" # frontend
+      - "8010:8000" # backend
+    depends_on:
+      - mongo
+      - redis
+  worker:
+    image: "tikazyq/crawlab:develop"
+    environment:
+      CRAWLAB_SERVER_MASTER: "N"
+      CRAWLAB_MONGO_HOST: "mongo"
+      CRAWLAB_REDIS_ADDRESS: "redis"
+    depends_on:
+      - mongo
+      - redis
+  mongo:
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27027:27017"
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6389:6379"

@@ -78,7 +78,7 @@ export default {
           this.$refs['spider-stats'].update()
         }, 0)
       }
-      this.$st.sendEv('爬虫详情', '切换标签', 'tabName', tab.name)
+      this.$st.sendEv('爬虫详情', '切换标签', tab.name)
     },
     onSpiderChange (id) {
       this.$router.push(`/spiders/${id}`)

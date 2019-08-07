@@ -29,7 +29,7 @@
           <el-input v-model="spiderForm.col" :placeholder="$t('Results Collection')"
                     :disabled="isView"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('Site')">
+        <el-form-item v-if="false" :label="$t('Site')">
           <el-autocomplete v-model="spiderForm.site"
                            :placeholder="$t('Site')"
                            :fetch-suggestions="fetchSiteSuggestions"
