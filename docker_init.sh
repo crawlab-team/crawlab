@@ -15,7 +15,7 @@ then
 	:
 else
 	indexpath=/app/dist/index.html
-	sed -i "s?/js/?${CRAWLAB_BASE_URL}/css/?g" ${indexpath}
+	sed -i "s?/js/?${CRAWLAB_BASE_URL}/js/?g" ${indexpath}
 	sed -i "s?/css/?${CRAWLAB_BASE_URL}/css/?g" ${indexpath}
 fi
 
