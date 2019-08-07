@@ -4,6 +4,7 @@ services:
     image: "tikazyq/crawlab:master"
     environment:
       CRAWLAB_API_ADDRESS: "crawlab.cn/api"
+      CRAWLAB_BASE_URL: "/demo"
       CRAWLAB_SERVER_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
       CRAWLAB_REDIS_ADDRESS: "redis"
