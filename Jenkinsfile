@@ -48,16 +48,5 @@ pipeline {
                 """
             }
         }
-        stage('Cleanup') {
-            steps {
-                echo 'Cleanup...'
-                sh """
-                # remove unused containers
-
-                # remove unused images
-                
-                """
-            }
-        }
     }
 }
