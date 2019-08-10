@@ -44,7 +44,7 @@ pipeline {
                 sh """
                 cd ./jenkins/${ENV:GIT_BRANCH}
                 docker-compose stop | true
-                docker-compose up -d --scale worker=3
+                docker-compose up -d
                 """
             }
         }
@@ -52,8 +52,10 @@ pipeline {
             steps {
                 echo 'Cleanup...'
                 sh """
-                docker rmi `docker images | grep '<none>' | grep -v IMAGE | awk '{ print \$3 }' | xargs` | true
-                docker rm `docker ps -a | grep Exited | awk '{ print \$1 }' | xargs` | true
+                # remove unused containers
+
+                # remove unused images
+                
                 """
             }
         }
