@@ -44,7 +44,7 @@ pipeline {
                 sh """
                 cd ./jenkins/${ENV:GIT_BRANCH}
                 docker-compose stop | true
-                docker-compose up -d --scale worker=3
+                docker-compose up -d
                 """
             }
         }
