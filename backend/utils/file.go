@@ -77,7 +77,7 @@ func DeCompress(srcFile *os.File, dstPath string) error {
 
 		// 如果是目录，则创建一个
 		if info.IsDir() {
-			err = os.MkdirAll(filepath.Join(dstPath, innerFile.Name), os.ModePerm)
+			err = os.MkdirAll(filepath.Join(dstPath, innerFile.Name), os.ModeDir|os.ModePerm)
 			if err != nil {
 				log.Errorf("Unzip File Error : " + err.Error())
 				debug.PrintStack()
@@ -89,7 +89,7 @@ func DeCompress(srcFile *os.File, dstPath string) error {
 		// 如果文件目录不存在，则创建一个
 		dirPath := filepath.Dir(innerFile.Name)
 		if !Exists(dirPath) {
-			err = os.MkdirAll(filepath.Join(dstPath, dirPath), os.ModePerm)
+			err = os.MkdirAll(filepath.Join(dstPath, dirPath), os.ModeDir|os.ModePerm)
 			if err != nil {
 				log.Errorf("Unzip File Error : " + err.Error())
 				debug.PrintStack()
