@@ -54,7 +54,7 @@ pipeline {
                 sh """
                 # remove unused containers
                 container_ids=`docker ps -a | grep Exited | awk '{ print \$1 }' | xargs`
-                if [ \$container_ids -eq "" ];
+                if [ \\$container_ids -eq "" ];
                 then
                     :
                 else
@@ -63,7 +63,7 @@ pipeline {
 
                 # remove unused images
                 image_ids=`docker images | grep '<none>' | grep -v IMAGE | awk '{ print \$3 }' | xargs`
-                if [ \$image_ids -eq "" ];
+                if [ \\$image_ids -eq "" ];
                 then
                     :
                 else
