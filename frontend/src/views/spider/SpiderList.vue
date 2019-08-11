@@ -145,7 +145,9 @@
       <el-table :data="filteredTableData"
                 class="table"
                 :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
-                border>
+                border
+                @row-click="onRowClick"
+      >
         <template v-for="col in columns">
           <el-table-column v-if="col.name === 'type'"
                            :key="col.name"
@@ -494,6 +496,11 @@ export default {
     getTime (str) {
       if (!str || str.match('^0001')) return 'NA'
       return dayjs(str).format('YYYY-MM-DD HH:mm:ss')
+    },
+    onRowClick (row, event, column) {
+      if (column.label !== this.$t('Action')) {
+        this.onView(row)
+      }
     }
   },
   created () {
@@ -583,4 +590,10 @@ export default {
     width: 100%;
   }
 
+</style>
+
+<style scoped>
+  .el-table >>> tr {
+    cursor: pointer;
+  }
 </style>

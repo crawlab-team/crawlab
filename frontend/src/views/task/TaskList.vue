@@ -36,7 +36,9 @@
       <el-table :data="filteredTableData"
                 class="table"
                 :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
-                border>
+                border
+                @row-click="onRowClick"
+      >
         <template v-for="col in columns">
           <el-table-column v-if="col.name === 'spider_name'"
                            :key="col.name"
@@ -295,6 +297,11 @@ export default {
     getTotalDuration (row) {
       if (row.finish_ts.match('^0001')) return 'NA'
       return dayjs(row.finish_ts).diff(row.create_ts, 'second')
+    },
+    onRowClick (row, event, column) {
+      if (column.label !== this.$t('Action')) {
+        this.onView(row)
+      }
     }
   },
   created () {
@@ -360,5 +367,11 @@ export default {
   .pagination {
     margin-top: 10px;
     text-align: right;
+  }
+</style>
+
+<style scoped>
+  .el-table >>> tr {
+    cursor: pointer;
   }
 </style>
