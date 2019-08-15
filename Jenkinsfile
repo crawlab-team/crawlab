@@ -45,16 +45,18 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying....'
-                if (env.GIT_BRANCH == 'master' || env.GIT_BRANCH == 'develop') {
-                    sh """
-                    cd ./jenkins/${ENV:GIT_BRANCH}
-                    docker-compose stop | true
-                    docker-compose up -d
-                    """
-                } else {
-                    sh """
-                    docker push tikazyq/crawlab:${ENV:TAG}
-                    """
+                script {
+                    if (env.GIT_BRANCH == 'master' || env.GIT_BRANCH == 'develop') {
+                        sh """
+                        cd ./jenkins/${ENV:GIT_BRANCH}
+                        docker-compose stop | true
+                        docker-compose up -d
+                        """
+                    } else {
+                        sh """
+                        docker push tikazyq/crawlab:${ENV:TAG}
+                        """
+                    }
                 }
             }
         }
