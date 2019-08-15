@@ -18,13 +18,13 @@ pipeline {
                         env.DOCKERFILE = 'Dockerfile.local'
                     } else if (env.GIT_BRANCH == 'frontend') {
                         env.TAG = 'frontend-alpine'
-                        env.DOCKERFILE = 'frontend/Dockerfile.frontend.alpine'
+                        env.DOCKERFILE = 'docker/Dockerfile.frontend.alpine'
                     } else if (env.GIT_BRANCH == 'backend-master') {
                         env.TAG = 'master-alpine'
-                        env.DOCKERFILE = 'frontend/Dockerfile.master.alpine'
+                        env.DOCKERFILE = 'docker/Dockerfile.master.alpine'
                     } else if (env.GIT_BRANCH == 'backend-worker') {
                         env.TAG = 'worker-alpine'
-                        env.DOCKERFILE = 'frontend/Dockerfile.worker.alpine'
+                        env.DOCKERFILE = 'docker/Dockerfile.worker.alpine'
                     } 
                 }
             }
@@ -33,7 +33,7 @@ pipeline {
             steps {
                 echo "Building..."
                 sh """
-                docker build -t tikazyq/crawlab:${ENV:TAG} -f ${ENV.DOCKERFILE} .
+                docker build -t tikazyq/crawlab:${ENV:TAG} -f ${ENV:DOCKERFILE} .
                 """
             }
         }
