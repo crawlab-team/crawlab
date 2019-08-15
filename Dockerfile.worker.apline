@@ -1,0 +1,43 @@
+FROM golang:1.12-alpine AS backend-build
+
+WORKDIR /go/src/app
+COPY ./backend .
+
+ENV GO111MODULE on
+ENV GOPROXY https://mirrors.aliyun.com/goproxy/
+
+RUN go install -v ./...
+
+# images
+FROM python:alpine
+
+ADD . /app
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+
+RUN apk update && apk add --no-cache --virtual .build-deps \
+        gcc \
+        linux-headers \
+        musl-dev \
+        libffi-dev \
+        libxml2-dev \
+        libxslt-dev \
+        openssl-dev
+
+# install backend
+RUN pip install scrapy pymongo bs4 requests -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# copy backend files
+COPY --from=backend-build /go/src/app/conf ./conf
+COPY --from=backend-build /go/bin/crawlab /usr/local/bin
+
+RUN apk del .build-deps
+
+# working directory
+WORKDIR /app/backend
+
+# backend port
+EXPOSE 8000
+
+# start backend
+CMD crawlab
