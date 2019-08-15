@@ -33,7 +33,7 @@ pipeline {
             steps {
                 echo "Building..."
                 sh """
-                docker build -t tikazyq/crawlab:${ENV:TAG} -f ${ENV.DOCKERFILE} .
+                docker build -t tikazyq/crawlab:${ENV:TAG} -f ${ENV:DOCKERFILE} .
                 """
             }
         }
