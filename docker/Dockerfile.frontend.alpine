@@ -1,20 +1,10 @@
-FROM node:8.16.0-alpine AS build
-
-ADD ./frontend /app
-WORKDIR /app
-
-# install frontend
-RUN npm install -g yarn && yarn install
-
-RUN npm run build:prod
-
 FROM alpine:latest
 
 # 安装nginx
 RUN mkdir /run/nginx && apk add nginx
 
 # 拷贝编译文件
-COPY --from=build /app/dist /app/dist
+COPY dist  /app/dist
 
 # 拷贝nginx代理文件
 COPY crawlab.conf /etc/nginx/conf.d
