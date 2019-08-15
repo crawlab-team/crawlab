@@ -1,10 +1,10 @@
 # Crawlab
 
 ![](http://114.67.75.98:8082/buildStatus/icon?job=crawlab%2Fmaster)
-![](https://img.shields.io/badge/version-v0.3.0-blue.svg)
-<a href="https://github.com/tikazyq/crawlab/blob/master/LICENSE" target="_blank">
-    <img src="https://img.shields.io/badge/license-BSD-blue.svg">
-</a>
+![](https://img.shields.io/github/release/tikazyq/crawlab.svg)
+![](https://img.shields.io/github/last-commit/tikazyq/crawlab.svg)
+![](https://img.shields.io/github/issues/tikazyq/crawlab.svg)
+![](https://img.shields.io/github/license/tikazyq/crawlab.svg)
 
 [中文](https://github.com/tikazyq/crawlab/blob/master/README-zh.md) | English
 
