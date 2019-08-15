@@ -45,19 +45,17 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying....'
-                script {
-                    if (env.GIT_BRANCH == 'master' || env.GIT_BRANCH == 'develop') {
-                        sh """
-                        cd ./jenkins/${ENV:GIT_BRANCH}
-                        docker-compose stop | true
-                        docker-compose up -d
-                        """
-                    } else {
-                        sh """
-                        docker push tikazyq/crawlab:${ENV:TAG}
-                        """
-                    }
-                }
+                sh """
+                if [ ${ENV:GIT_BRANCH} -eq master ] || [ ${ENV:GIT_BRANCH} -eq develop ]; then
+                    # 重启docker compose
+                    cd ./jenkins/${ENV:GIT_BRANCH}
+                    docker-compose stop | true
+                    docker-compose up -d
+                else
+                    # 发布到Dockerhub
+                    docker push tikazyq/crawlab:${ENV:TAG}
+                fi
+                """
             }
         }
         stage('Cleanup') {
