@@ -5,12 +5,12 @@ import (
 	"crawlab/database"
 	"crawlab/lib/cron"
 	"crawlab/model"
+	"crawlab/services/register"
 	"encoding/json"
 	"fmt"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
 	"github.com/spf13/viper"
-	"net"
 	"runtime/debug"
 	"time"
 )
@@ -49,43 +49,10 @@ const (
 	No  = "N"
 )
 
-// 获取本机的IP地址
-// TODO: 考虑多个IP地址的情况
-func GetIp() (string, error) {
-	addrList, err := net.InterfaceAddrs()
-	if err != nil {
-		return "", err
-	}
-	for _, value := range addrList {
-		if ipNet, ok := value.(*net.IPNet); ok && !ipNet.IP.IsLoopback() {
-			if ipNet.IP.To4() != nil {
-				return ipNet.IP.String(), nil
-			}
-		}
-	}
-	return "", nil
-}
-
-// 获取本机的MAC地址
-func GetMac() (string, error) {
-	interfaces, err := net.Interfaces()
-	if err != nil {
-		debug.PrintStack()
-		return "", err
-	}
-	for _, inter := range interfaces {
-		if inter.HardwareAddr != nil {
-			mac := inter.HardwareAddr.String()
-			return mac, nil
-		}
-	}
-	return "", nil
-}
-
 // 获取本机节点
 func GetCurrentNode() (model.Node, error) {
 	// 获取本机MAC地址
-	mac, err := GetMac()
+	value, err := register.GetRegister().GetValue()
 	if err != nil {
 		debug.PrintStack()
 		return model.Node{}, err
@@ -101,14 +68,14 @@ func GetCurrentNode() (model.Node, error) {
 		}
 
 		// 尝试获取节点
-		node, err = model.GetNodeByMac(mac)
+		node, err = model.GetNodeByMac(value)
 
 		// 如果获取失败
 		if err != nil {
 			// 如果为主节点，表示为第一次注册，插入节点信息
 			if IsMaster() {
 				// 获取本机IP地址
-				ip, err := GetIp()
+				ip, err := register.GetRegister().GetIp()
 				if err != nil {
 					debug.PrintStack()
 					return model.Node{}, err
@@ -117,8 +84,8 @@ func GetCurrentNode() (model.Node, error) {
 				node = model.Node{
 					Id:       bson.NewObjectId(),
 					Ip:       ip,
-					Name:     mac,
-					Mac:      mac,
+					Name:     value,
+					Mac:      value,
 					IsMaster: true,
 				}
 				if err := node.Add(); err != nil {
@@ -155,12 +122,12 @@ func IsMasterNode(id string) bool {
 
 // 获取节点数据
 func GetNodeData() (Data, error) {
-	mac, err := GetMac()
+	val, err := register.GetRegister().GetValue()
 	if err != nil {
 		return Data{}, err
 	}
 
-	value, err := database.RedisClient.HGet("nodes", mac)
+	value, err := database.RedisClient.HGet("nodes", val)
 	data := Data{}
 	if err := json.Unmarshal([]byte(value), &data); err != nil {
 		return data, err
@@ -269,14 +236,14 @@ func UpdateNodeStatus() {
 // 更新节点数据
 func UpdateNodeData() {
 	// 获取MAC地址
-	mac, err := GetMac()
+	val, err := register.GetRegister().GetValue()
 	if err != nil {
 		log.Errorf(err.Error())
 		return
 	}
 
 	// 获取IP地址
-	ip, err := GetIp()
+	ip, err := register.GetRegister().GetIp()
 	if err != nil {
 		log.Errorf(err.Error())
 		return
@@ -284,7 +251,7 @@ func UpdateNodeData() {
 
 	// 构造节点数据
 	data := Data{
-		Mac:          mac,
+		Mac:          val,
 		Ip:           ip,
 		Master:       IsMaster(),
 		UpdateTs:     time.Now(),
@@ -298,7 +265,7 @@ func UpdateNodeData() {
 		debug.PrintStack()
 		return
 	}
-	if err := database.RedisClient.HSet("nodes", mac, string(dataBytes)); err != nil {
+	if err := database.RedisClient.HSet("nodes", val, string(dataBytes)); err != nil {
 		log.Errorf(err.Error())
 		return
 	}
