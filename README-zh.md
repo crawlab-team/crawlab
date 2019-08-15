@@ -17,8 +17,8 @@
 ## 安装
 
 三种方式:
-1. [Docker](https://tikazyq.github.io/crawlab/Installation/Docker.html)（推荐）
-2. [直接部署](https://tikazyq.github.io/crawlab/Installation/Direct.html)（了解内核）
+1. [Docker](https://tikazyq.github.io/crawlab-docs/Installation/Docker.html)（推荐）
+2. [直接部署](https://tikazyq.github.io/crawlab-docs/Installation/Direct.html)（了解内核）
 
 ### 要求（Docker）
 - Docker 18.03+
@@ -87,11 +87,11 @@ services:
 docker-compose up
 ```
 
-Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab/Installation/Docker.html)。
+Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-docs/Installation/Docker.html)。
 
 ### 直接部署
 
-请参考[相关文档](https://tikazyq.github.io/crawlab/Installation/Direct.html)。
+请参考[相关文档](https://tikazyq.github.io/crawlab-docs/Installation/Direct.html)。
 
 ## 截图
 

@@ -1,4 +1,4 @@
-# worker节点
+# 本地开发环境worker节点制作
 由于master和worker节点的存储信息是在redis上，并且使用节点所在的mac地址作为key，所以在开发本地需要启动master和worker节点会比较麻烦。
 这里是一个运行worker节点的一个例子。
 
