@@ -1,0 +1,80 @@
+FROM golang:1.12-alpine AS backend-build
+
+WORKDIR /go/src/app
+COPY ./backend .
+
+ENV GO111MODULE on
+ENV GOPROXY https://mirrors.aliyun.com/goproxy/
+
+RUN go install -v ./...
+
+FROM node:8.16.0-alpine AS frontend-build
+
+ADD ./frontend /app
+WORKDIR /app
+
+# install frontend
+RUN npm install -g yarn && yarn install --registry=https://registry.npm.taobao.org
+
+RUN npm run build:prod
+
+# images
+FROM python:alpine
+
+ADD . /app
+
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+
+# install packages
+#RUN apt-get update \
+#	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip \
+#	&& ln -s /usr/bin/pip3 /usr/local/bin/pip \
+#	&& ln -s /usr/bin/python3 /usr/local/bin/python
+RUN apk update && apk add --no-cache --virtual .build-deps \
+        gcc \
+        linux-headers \
+        musl-dev \
+        libffi-dev \
+        libxml2-dev \
+        libxslt-dev \
+        openssl-dev
+
+# install backend
+RUN pip install scrapy pymongo bs4 requests -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# copy backend files
+COPY --from=backend-build /go/src/app/conf ./conf
+COPY --from=backend-build /go/bin/crawlab /usr/local/bin
+
+# install nginx
+RUN apk add --no-cache nginx  openrc
+
+RUN apk del .build-deps
+# copy frontend files
+COPY --from=frontend-build /app/dist /app/dist
+COPY --from=frontend-build /app/conf/crawlab.conf /etc/nginx/conf.d
+
+RUN sed -i 's/#rc_sys=""/rc_sys="lxc"/g' /etc/rc.conf && \
+    echo 'rc_provide="loopback net"' >> /etc/rc.conf && \
+    sed -i 's/^#\(rc_logger="YES"\)$/\1/' /etc/rc.conf && \
+    sed -i '/tty/d' /etc/inittab && \
+    sed -i 's/hostname $opts/# hostname $opts/g' /etc/init.d/hostname && \
+    sed -i 's/mount -t tmpfs/# mount -t tmpfs/g' /lib/rc/sh/init.sh && \
+    sed -i 's/cgroup_add_service /# cgroup_add_service /g' /lib/rc/sh/openrc-run.sh && \
+    rm -rf /var/cache/apk/* && \
+    mkdir -p /run/openrc && \
+    touch /run/openrc/softlevel && \
+    /sbin/openrc
+
+# working directory
+WORKDIR /app/backend
+
+# frontend port
+EXPOSE 8080
+
+# backend port
+EXPOSE 8000
+
+# start backend
+CMD ["/bin/sh", "/app/docker_init.sh"]
