@@ -11,5 +11,6 @@ require (
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/pkg/errors v0.8.1
 	github.com/satori/go.uuid v1.2.0
+	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337
 	github.com/spf13/viper v1.4.0
 )
