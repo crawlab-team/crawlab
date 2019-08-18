@@ -4,6 +4,7 @@
 ![](https://img.shields.io/github/release/tikazyq/crawlab.svg)
 ![](https://img.shields.io/github/last-commit/tikazyq/crawlab.svg)
 ![](https://img.shields.io/github/issues/tikazyq/crawlab.svg)
+![](https://img.shields.io/docker/pulls/tikazyq/crawlab)
 ![](https://img.shields.io/github/license/tikazyq/crawlab.svg)
 
 [中文](https://github.com/tikazyq/crawlab/blob/master/README-zh.md) | English
