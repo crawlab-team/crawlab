@@ -131,10 +131,22 @@ func PutSpider(c *gin.Context) {
 		return
 	}
 
+	// 以防tmp目录不存在
+	tmpPath := viper.GetString("other.tmppath")
+	if !utils.Exists(tmpPath) {
+		if err := os.Mkdir(tmpPath, os.ModePerm); err != nil {
+			log.Error("mkdir other.tmppath dir error:" + err.Error())
+			debug.PrintStack()
+			HandleError(http.StatusBadRequest, c, errors.New("Mkdir other.tmppath dir error"))
+			return
+		}
+	}
+
 	// 保存到本地临时文件
 	randomId := uuid.NewV4()
-	tmpFilePath := filepath.Join(viper.GetString("other.tmppath"), randomId.String()+".zip")
+	tmpFilePath := filepath.Join(tmpPath, randomId.String()+".zip")
 	if err := c.SaveUploadedFile(file, tmpFilePath); err != nil {
+		log.Error("save upload file error: " + err.Error())
 		debug.PrintStack()
 		HandleError(http.StatusInternalServerError, c, err)
 		return
