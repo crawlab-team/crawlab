@@ -4,6 +4,7 @@
 ![](https://img.shields.io/github/release/tikazyq/crawlab.svg)
 ![](https://img.shields.io/github/last-commit/tikazyq/crawlab.svg)
 ![](https://img.shields.io/github/issues/tikazyq/crawlab.svg)
+![](https://img.shields.io/github/contributers/tikazyq/crawlab.svg)
 ![](https://img.shields.io/docker/pulls/tikazyq/crawlab)
 ![](https://img.shields.io/github/license/tikazyq/crawlab.svg)
 
@@ -242,8 +243,6 @@ Crawlab使用起来很方便，也很通用，可以适用于几乎任何主流�
 
 注意，Crawlab将取文件名作为爬虫名称，这个您可以后期更改。另外，请不要将zip文件名设置为中文，可能会导致上传不成功。
 
-#### 
-
 ## 相关文章
 
 - [爬虫管理平台Crawlab v0.3.0发布(Golang版本)](https://juejin.im/post/5d418deff265da03c926d75c)
@@ -255,6 +254,20 @@ Crawlab使用起来很方便，也很通用，可以适用于几乎任何主流�
 - [手把手教你如何用Crawlab构建技术文章聚合平台(一)](https://juejin.im/user/5a1ba6def265da430b7af463/posts)
 
 **注意: v0.3.0版本已将基于Celery的Python版本切换为了Golang版本，如何部署请参照文档**
+
+## 贡献者
+<a href="https://github.com/tikazyq">
+  <img src="https://avatars3.githubusercontent.com/u/3393101?s=460&v=4" height="80">
+</a>
+<a href="https://github.com/wo10378931">
+  <img src="https://avatars2.githubusercontent.com/u/8297691?s=460&v=4" height="80">
+</a>
+<a href="https://github.com/yaziming">
+  <img src="https://avatars2.githubusercontent.com/u/54052849?s=460&v=4" height="80">
+</a>
+<a href="https://github.com/hantmac">
+  <img src="https://avatars2.githubusercontent.com/u/7600925?s=460&v=4" height="80">
+</a>
 
 ## 社区 & 赞助
 

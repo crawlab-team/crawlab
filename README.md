@@ -4,6 +4,7 @@
 ![](https://img.shields.io/github/release/tikazyq/crawlab.svg)
 ![](https://img.shields.io/github/last-commit/tikazyq/crawlab.svg)
 ![](https://img.shields.io/github/issues/tikazyq/crawlab.svg)
+![](https://img.shields.io/github/contributers/tikazyq/crawlab.svg)
 ![](https://img.shields.io/docker/pulls/tikazyq/crawlab)
 ![](https://img.shields.io/github/license/tikazyq/crawlab.svg)
 
@@ -218,6 +219,20 @@ Crawlab is easy to use, general enough to adapt spiders in any language and any 
 | [SpiderKeeper](https://github.com/DormyMo/SpiderKeeper) | Admin Platform | Y | Y | Y
 | [Gerapy](https://github.com/Gerapy/Gerapy) | Admin Platform | Y | Y | Y
 | [Scrapyd](https://github.com/scrapy/scrapyd) | Web Service | Y | N | N/A
+
+## Contributors
+<a href="https://github.com/tikazyq">
+  <img src="https://avatars3.githubusercontent.com/u/3393101?s=460&v=4" height="80">
+</a>
+<a href="https://github.com/wo10378931">
+  <img src="https://avatars2.githubusercontent.com/u/8297691?s=460&v=4" height="80">
+</a>
+<a href="https://github.com/yaziming">
+  <img src="https://avatars2.githubusercontent.com/u/54052849?s=460&v=4" height="80">
+</a>
+<a href="https://github.com/hantmac">
+  <img src="https://avatars2.githubusercontent.com/u/7600925?s=460&v=4" height="80">
+</a>
 
 ## Community & Sponsorship
 
