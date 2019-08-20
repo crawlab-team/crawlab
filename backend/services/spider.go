@@ -183,7 +183,11 @@ func UploadToGridFs(spider model.Spider, fileName string, filePath string) (fid 
 	}
 
 	//分片读取爬虫zip文件
-	ReadFileByStep(filePath, WriteToGridFS, f)
+	err = ReadFileByStep(filePath, WriteToGridFS, f)
+	if err != nil {
+		debug.PrintStack()
+		return "", err
+	}
 
 	// 删除zip文件
 	if err = os.Remove(filePath); err != nil {
