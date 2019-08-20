@@ -7,10 +7,12 @@ import (
 	"crawlab/model"
 	"crawlab/utils"
 	"encoding/json"
+	"fmt"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"io"
 	"io/ioutil"
@@ -162,24 +164,6 @@ func ZipSpider(spider model.Spider) (filePath string, err error) {
 func UploadToGridFs(spider model.Spider, fileName string, filePath string) (fid bson.ObjectId, err error) {
 	fid = ""
 
-	// 读取zip文件
-	file, err := os.OpenFile(filePath, os.O_RDONLY, 0777)
-	fileBytes, err := ioutil.ReadAll(file)
-	if err != nil {
-		debug.PrintStack()
-		return
-	}
-	if err = file.Close(); err != nil {
-		debug.PrintStack()
-		return
-	}
-
-	// 删除zip文件
-	if err = os.Remove(filePath); err != nil {
-		debug.PrintStack()
-		return
-	}
-
 	// 获取MongoDB GridFS连接
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
@@ -198,21 +182,52 @@ func UploadToGridFs(spider model.Spider, fileName string, filePath string) (fid 
 		return
 	}
 
-	// 将文件写入到GridFS
-	if _, err = f.Write(fileBytes); err != nil {
+	//分片读取爬虫zip文件
+	ReadFileByStep(filePath, WriteToGridFS, f)
+
+	// 删除zip文件
+	if err = os.Remove(filePath); err != nil {
 		debug.PrintStack()
 		return
 	}
-
 	// 关闭文件，提交写入
 	if err = f.Close(); err != nil {
 		return "", err
 	}
-
 	// 文件ID
 	fid = f.Id().(bson.ObjectId)
 
 	return fid, nil
+}
+
+func WriteToGridFS(content []byte, f *mgo.GridFile) {
+	if _, err := f.Write(content); err != nil {
+		debug.PrintStack()
+		return
+	}
+}
+
+//分片读取大文件
+func ReadFileByStep(filePath string, handle func([]byte, *mgo.GridFile), fileCreate *mgo.GridFile) error {
+	f, err := os.OpenFile(filePath, os.O_RDONLY, 0777)
+	if err != nil {
+		log.Infof("can't opened this file")
+		return err
+	}
+	defer f.Close()
+	s := make([]byte, 4096)
+	for {
+		switch nr, err := f.Read(s[:]); true {
+		case nr < 0:
+			fmt.Fprintf(os.Stderr, "cat: error reading: %s\n", err.Error())
+			debug.PrintStack()
+		case nr == 0: // EOF
+			return nil
+		case nr > 0:
+			handle(s[0:nr], fileCreate)
+		}
+	}
+	return nil
 }
 
 // 发布所有爬虫
