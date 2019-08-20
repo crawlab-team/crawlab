@@ -1,8 +1,9 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
 	"runtime/debug"
+
+	"github.com/gin-gonic/gin"
 )
 
 func HandleError(statusCode int, c *gin.Context, err error) {

@@ -1,18 +1,20 @@
 package services
 
 import (
-	"crawlab/constants"
-	"crawlab/database"
-	"crawlab/model"
-	"crawlab/utils"
 	"encoding/json"
-	"github.com/apex/log"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
 	"runtime/debug"
 	"strings"
+
+	"crawlab/constants"
+	"crawlab/database"
+	"crawlab/model"
+	"crawlab/utils"
+
+	"github.com/apex/log"
 )
 
 var SystemInfoChanMap = utils.NewChanMap()

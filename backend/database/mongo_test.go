@@ -1,13 +1,15 @@
 package database
 
 import (
+	"reflect"
+	"testing"
+
 	"crawlab/config"
+
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
-	"reflect"
-	"testing"
 )
 
 func init() {

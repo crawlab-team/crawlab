@@ -1,12 +1,14 @@
 package model
 
 import (
+	"runtime/debug"
+	"time"
+
 	"crawlab/database"
+
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"runtime/debug"
-	"time"
 )
 
 type Env struct {
@@ -91,8 +93,6 @@ func (spider *Spider) GetLastTask() (Task, error) {
 	}
 	return tasks[0], nil
 }
-
-
 
 func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, error) {
 	s, c := database.GetCol("spiders")

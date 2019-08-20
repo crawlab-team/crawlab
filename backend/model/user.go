@@ -1,14 +1,16 @@
 package model
 
 import (
+	"runtime/debug"
+	"time"
+
 	"crawlab/database"
 	"crawlab/utils"
+
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/pkg/errors"
-	"runtime/debug"
-	"time"
 )
 
 type User struct {

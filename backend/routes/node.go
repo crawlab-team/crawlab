@@ -1,11 +1,13 @@
 package routes
 
 import (
+	"net/http"
+
 	"crawlab/model"
 	"crawlab/services"
+
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
-	"net/http"
 )
 
 func GetNodeList(c *gin.Context) {
@@ -109,11 +111,11 @@ func GetSystemInfo(c *gin.Context) {
 	})
 }
 
-func DeleteNode(c *gin.Context)  {
+func DeleteNode(c *gin.Context) {
 	id := c.Param("id")
 	node, err := model.GetNode(bson.ObjectIdHex(id))
 	if err != nil {
-		HandleError(http.StatusInternalServerError, c ,err)
+		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 	err = node.Delete()

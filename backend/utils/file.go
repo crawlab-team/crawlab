@@ -2,11 +2,12 @@ package utils
 
 import (
 	"archive/zip"
-	"github.com/apex/log"
 	"io"
 	"os"
 	"path/filepath"
 	"runtime/debug"
+
+	"github.com/apex/log"
 )
 
 // 判断所给路径文件/文件夹是否存在

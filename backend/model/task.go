@@ -1,13 +1,15 @@
 package model
 
 import (
+	"runtime/debug"
+	"time"
+
 	"crawlab/constants"
 	"crawlab/database"
+
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"runtime/debug"
-	"time"
 )
 
 type Task struct {
@@ -207,7 +209,7 @@ func GetDailyTaskStats(query bson.M) ([]TaskDailyItem, error) {
 	defer s.Close()
 
 	// 起始日期
-	startDate := time.Now().Add(- 30 * 24 * time.Hour)
+	startDate := time.Now().Add(-30 * 24 * time.Hour)
 	endDate := time.Now()
 
 	// query

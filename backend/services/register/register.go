@@ -1,11 +1,12 @@
 package register
 
 import (
-	"github.com/apex/log"
-	"github.com/spf13/viper"
 	"net"
 	"reflect"
 	"runtime/debug"
+
+	"github.com/apex/log"
+	"github.com/spf13/viper"
 )
 
 type Register interface {

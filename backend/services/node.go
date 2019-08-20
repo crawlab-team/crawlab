@@ -1,18 +1,20 @@
 package services
 
 import (
+	"encoding/json"
+	"fmt"
+	"runtime/debug"
+	"time"
+
 	"crawlab/constants"
 	"crawlab/database"
 	"crawlab/lib/cron"
 	"crawlab/model"
 	"crawlab/services/register"
-	"encoding/json"
-	"fmt"
+
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
 	"github.com/spf13/viper"
-	"runtime/debug"
-	"time"
 )
 
 type Data struct {

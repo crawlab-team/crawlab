@@ -1,12 +1,14 @@
 package services
 
 import (
+	"runtime/debug"
+
 	"crawlab/constants"
 	"crawlab/lib/cron"
 	"crawlab/model"
+
 	"github.com/apex/log"
 	uuid "github.com/satori/go.uuid"
-	"runtime/debug"
 )
 
 var Sched *Scheduler

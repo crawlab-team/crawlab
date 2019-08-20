@@ -1,12 +1,14 @@
 package middlewares
 
 import (
+	"net/http"
+	"strings"
+
 	"crawlab/constants"
 	"crawlab/routes"
 	"crawlab/services"
+
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strings"
 )
 
 func AuthorizationMiddleware() gin.HandlerFunc {

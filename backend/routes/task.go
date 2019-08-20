@@ -2,15 +2,17 @@ package routes
 
 import (
 	"bytes"
+	"encoding/csv"
+	"net/http"
+
 	"crawlab/constants"
 	"crawlab/model"
 	"crawlab/services"
 	"crawlab/utils"
-	"encoding/csv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
 	uuid "github.com/satori/go.uuid"
-	"net/http"
 )
 
 type TaskListRequestData struct {
