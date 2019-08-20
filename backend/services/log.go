@@ -1,14 +1,16 @@
 package services
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"runtime/debug"
+
 	"crawlab/constants"
 	"crawlab/database"
 	"crawlab/model"
 	"crawlab/utils"
-	"encoding/json"
+
 	"github.com/apex/log"
-	"io/ioutil"
-	"runtime/debug"
 )
 
 // 任务日志频道映射

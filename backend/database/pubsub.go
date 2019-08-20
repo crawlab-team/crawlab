@@ -2,9 +2,10 @@ package database
 
 import (
 	"fmt"
+	"unsafe"
+
 	"github.com/apex/log"
 	"github.com/gomodule/redigo/redis"
-	"unsafe"
 )
 
 type SubscribeCallback func(channel, message string)

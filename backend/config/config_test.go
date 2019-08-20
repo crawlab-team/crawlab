@@ -1,8 +1,9 @@
 package config
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestInitConfig(t *testing.T) {

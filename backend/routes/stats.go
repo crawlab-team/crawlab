@@ -1,11 +1,13 @@
 package routes
 
 import (
+	"net/http"
+
 	"crawlab/constants"
 	"crawlab/model"
+
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
-	"net/http"
 )
 
 func GetHomeStats(c *gin.Context) {

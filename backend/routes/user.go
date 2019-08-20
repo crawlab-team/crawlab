@@ -1,15 +1,17 @@
 package routes
 
 import (
+	"net/http"
+	"strings"
+
 	"crawlab/constants"
 	"crawlab/model"
 	"crawlab/services"
 	"crawlab/utils"
+
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
 	"github.com/pkg/errors"
-	"net/http"
-	"strings"
 )
 
 type UserListRequestData struct {

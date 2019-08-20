@@ -1,15 +1,17 @@
 package main
 
 import (
+	"runtime/debug"
+
 	"crawlab/config"
 	"crawlab/database"
 	"crawlab/middlewares"
 	"crawlab/routes"
 	"crawlab/services"
+
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
-	"runtime/debug"
 )
 
 func main() {

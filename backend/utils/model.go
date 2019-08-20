@@ -1,10 +1,12 @@
 package utils
 
 import (
-	"crawlab/constants"
-	"github.com/globalsign/mgo/bson"
 	"strconv"
 	"time"
+
+	"crawlab/constants"
+
+	"github.com/globalsign/mgo/bson"
 )
 
 func IsObjectIdNull(id bson.ObjectId) bool {

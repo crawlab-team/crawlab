@@ -1,13 +1,15 @@
 package model
 
 import (
+	"runtime/debug"
+	"time"
+
 	"crawlab/constants"
 	"crawlab/database"
 	"crawlab/lib/cron"
+
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
-	"runtime/debug"
-	"time"
 )
 
 type Schedule struct {

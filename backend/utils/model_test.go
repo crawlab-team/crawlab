@@ -1,11 +1,12 @@
 package utils
 
 import (
-	"github.com/globalsign/mgo/bson"
-	. "github.com/smartystreets/goconvey/convey"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/globalsign/mgo/bson"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestIsObjectIdNull(t *testing.T) {

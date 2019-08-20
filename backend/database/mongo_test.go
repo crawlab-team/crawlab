@@ -1,9 +1,10 @@
 package database
 
 import (
+	"testing"
+
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
-	"testing"
 )
 
 func TestGetDb(t *testing.T) {

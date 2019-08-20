@@ -1,16 +1,18 @@
 package services
 
 import (
+	"errors"
+	"runtime/debug"
+	"time"
+
 	"crawlab/constants"
 	"crawlab/model"
 	"crawlab/utils"
-	"errors"
+
 	"github.com/apex/log"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo/bson"
 	"github.com/spf13/viper"
-	"runtime/debug"
-	"time"
 )
 
 func InitUserService() error {

@@ -1,18 +1,6 @@
 package routes
 
 import (
-	"crawlab/constants"
-	"crawlab/database"
-	"crawlab/model"
-	"crawlab/services"
-	"crawlab/utils"
-	"github.com/apex/log"
-	"github.com/gin-gonic/gin"
-	"github.com/globalsign/mgo"
-	"github.com/globalsign/mgo/bson"
-	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
-	"github.com/spf13/viper"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -21,6 +9,20 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"crawlab/constants"
+	"crawlab/database"
+	"crawlab/model"
+	"crawlab/services"
+	"crawlab/utils"
+
+	"github.com/apex/log"
+	"github.com/gin-gonic/gin"
+	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
+	"github.com/pkg/errors"
+	uuid "github.com/satori/go.uuid"
+	"github.com/spf13/viper"
 )
 
 func GetSpiderList(c *gin.Context) {

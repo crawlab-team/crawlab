@@ -1,23 +1,25 @@
 package services
 
 import (
-	"crawlab/constants"
-	"crawlab/database"
-	"crawlab/lib/cron"
-	"crawlab/model"
-	"crawlab/utils"
 	"encoding/json"
-	"github.com/apex/log"
-	"github.com/globalsign/mgo/bson"
-	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
-	"github.com/spf13/viper"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime/debug"
 	"strings"
+
+	"crawlab/constants"
+	"crawlab/database"
+	"crawlab/lib/cron"
+	"crawlab/model"
+	"crawlab/utils"
+
+	"github.com/apex/log"
+	"github.com/globalsign/mgo/bson"
+	"github.com/pkg/errors"
+	uuid "github.com/satori/go.uuid"
+	"github.com/spf13/viper"
 )
 
 type SpiderFileData struct {

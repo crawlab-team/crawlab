@@ -1,9 +1,10 @@
 package database
 
 import (
+	"runtime/debug"
+
 	"github.com/gomodule/redigo/redis"
 	"github.com/spf13/viper"
-	"runtime/debug"
 )
 
 var RedisClient = Redis{}
