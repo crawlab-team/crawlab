@@ -10,50 +10,44 @@ import (
 
 type Register interface {
 	// 注册的key类型
-	GetKey() string
+	GetType() string
 	// 注册的key的值，唯一标识节点
-	GetValue() (string, error)
+	GetKey() (string, error)
 	// 注册的节点IP
 	GetIp() (string, error)
+	// 注册节点的mac地址
+	GetMac() (string, error)
 }
 
-// mac 地址注册
+// ===================== mac 地址注册 =====================
 type MacRegister struct{}
 
-func (mac *MacRegister) GetKey() string {
+func (mac *MacRegister) GetType() string {
 	return "mac"
 }
 
-func (mac *MacRegister) GetValue() (string, error) {
-	interfaces, err := net.Interfaces()
-	if err != nil {
-		log.Errorf("get interfaces error:" + err.Error())
-		debug.PrintStack()
-		return "", err
-	}
-	for _, inter := range interfaces {
-		if inter.HardwareAddr != nil {
-			mac := inter.HardwareAddr.String()
-			return mac, nil
-		}
-	}
-	return "", nil
+func (mac *MacRegister) GetKey() (string, error) {
+	return mac.GetMac()
+}
+
+func (mac *MacRegister) GetMac() (string, error) {
+	return getMac()
 }
 
 func (mac *MacRegister) GetIp() (string, error) {
 	return getIp()
 }
 
-// ip 注册
+// ===================== ip 地址注册 =====================
 type IpRegister struct {
 	Ip string
 }
 
-func (ip *IpRegister) GetKey() string {
+func (ip *IpRegister) GetType() string {
 	return "ip"
 }
 
-func (ip *IpRegister) GetValue() (string, error) {
+func (ip *IpRegister) GetKey() (string, error) {
 	return ip.Ip, nil
 }
 
@@ -61,6 +55,11 @@ func (ip *IpRegister) GetIp() (string, error) {
 	return ip.Ip, nil
 }
 
+func (ip *IpRegister) GetMac() (string, error) {
+	return getMac()
+}
+
+// ===================== 公共方法 =====================
 // 获取本机的IP地址
 // TODO: 考虑多个IP地址的情况
 func getIp() (string, error) {
@@ -78,6 +77,23 @@ func getIp() (string, error) {
 	return "", nil
 }
 
+func getMac() (string, error) {
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		log.Errorf("get interfaces error:" + err.Error())
+		debug.PrintStack()
+		return "", err
+	}
+	for _, inter := range interfaces {
+		if inter.HardwareAddr != nil {
+			mac := inter.HardwareAddr.String()
+			return mac, nil
+		}
+	}
+	return "", nil
+}
+
+// ===================== 获得注册简单工厂 =====================
 var register Register
 
 // 获得注册器

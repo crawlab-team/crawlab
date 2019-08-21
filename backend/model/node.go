@@ -17,13 +17,15 @@ type Node struct {
 	Port        string        `json:"port" bson:"port"`
 	Mac         string        `json:"mac" bson:"mac"`
 	Description string        `json:"description" bson:"description"`
+	// 用于唯一标识节点，可能是mac地址，可能是ip地址
+	Key string `json:"key" bson:"key"`
 
 	// 前端展示
 	IsMaster bool `json:"is_master"`
 
 	UpdateTs     time.Time `json:"update_ts" bson:"update_ts"`
 	CreateTs     time.Time `json:"create_ts" bson:"create_ts"`
-	UpdateTsUnix int64       `json:"update_ts_unix" bson:"update_ts_unix"`
+	UpdateTsUnix int64     `json:"update_ts_unix" bson:"update_ts_unix"`
 }
 
 func (n *Node) Save() error {
@@ -98,12 +100,12 @@ func GetNode(id bson.ObjectId) (Node, error) {
 	return node, nil
 }
 
-func GetNodeByMac(mac string) (Node, error) {
+func GetNodeByKey(key string) (Node, error) {
 	s, c := database.GetCol("nodes")
 	defer s.Close()
 
 	var node Node
-	if err := c.Find(bson.M{"mac": mac}).One(&node); err != nil {
+	if err := c.Find(bson.M{"key": key}).One(&node); err != nil {
 		if err != mgo.ErrNotFound {
 			log.Errorf(err.Error())
 			debug.PrintStack()
