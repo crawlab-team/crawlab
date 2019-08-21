@@ -46,7 +46,7 @@ pipeline {
             steps {
                 echo 'Deploying....'
                 sh """
-                if [ ${ENV:GIT_BRANCH} -eq master ] || [ ${ENV:GIT_BRANCH} -eq develop ]; then
+                if [[ ${ENV:GIT_BRANCH} = master ]] || [[ ${ENV:GIT_BRANCH} = develop ]]; then
                     # 重启docker compose
                     cd ./jenkins/${ENV:GIT_BRANCH}
                     docker-compose stop | true
