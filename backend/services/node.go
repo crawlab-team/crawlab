@@ -16,6 +16,7 @@ import (
 )
 
 type Data struct {
+	Key          string    `json:"key"`
 	Mac          string    `json:"mac"`
 	Ip           string    `json:"ip"`
 	Master       bool      `json:"master"`
@@ -51,10 +52,9 @@ const (
 
 // 获取本机节点
 func GetCurrentNode() (model.Node, error) {
-	// 获取本机MAC地址
-	value, err := register.GetRegister().GetValue()
+	// 获得注册的key值
+	key, err := register.GetRegister().GetKey()
 	if err != nil {
-		debug.PrintStack()
 		return model.Node{}, err
 	}
 
@@ -68,8 +68,7 @@ func GetCurrentNode() (model.Node, error) {
 		}
 
 		// 尝试获取节点
-		node, err = model.GetNodeByMac(value)
-
+		node, err = model.GetNodeByKey(key)
 		// 如果获取失败
 		if err != nil {
 			// 如果为主节点，表示为第一次注册，插入节点信息
@@ -80,12 +79,26 @@ func GetCurrentNode() (model.Node, error) {
 					debug.PrintStack()
 					return model.Node{}, err
 				}
+
+				mac, err := register.GetRegister().GetMac()
+				if err != nil {
+					debug.PrintStack()
+					return model.Node{}, err
+				}
+
+				key, err := register.GetRegister().GetKey()
+				if err != nil {
+					debug.PrintStack()
+					return model.Node{}, err
+				}
+
 				// 生成节点
 				node = model.Node{
+					Key:      key,
 					Id:       bson.NewObjectId(),
 					Ip:       ip,
-					Name:     value,
-					Mac:      value,
+					Name:     key,
+					Mac:      mac,
 					IsMaster: true,
 				}
 				if err := node.Add(); err != nil {
@@ -100,11 +113,9 @@ func GetCurrentNode() (model.Node, error) {
 			time.Sleep(5 * time.Second)
 			continue
 		}
-
 		// 跳出循环
 		break
 	}
-
 	return node, nil
 }
 
@@ -122,12 +133,12 @@ func IsMasterNode(id string) bool {
 
 // 获取节点数据
 func GetNodeData() (Data, error) {
-	val, err := register.GetRegister().GetValue()
-	if err != nil {
+	key, err := register.GetRegister().GetKey()
+	if key == "" {
 		return Data{}, err
 	}
 
-	value, err := database.RedisClient.HGet("nodes", val)
+	value, err := database.RedisClient.HGet("nodes", key)
 	data := Data{}
 	if err := json.Unmarshal([]byte(value), &data); err != nil {
 		return data, err
@@ -145,9 +156,9 @@ func UpdateNodeStatus() {
 	}
 
 	// 遍历节点keys
-	for _, mac := range list {
+	for _, key := range list {
 		// 获取节点数据
-		value, err := database.RedisClient.HGet("nodes", mac)
+		value, err := database.RedisClient.HGet("nodes", key)
 		if err != nil {
 			log.Errorf(err.Error())
 			return
@@ -163,7 +174,7 @@ func UpdateNodeStatus() {
 		// 如果记录的更新时间超过60秒，该节点被认为离线
 		if time.Now().Unix()-data.UpdateTsUnix > 60 {
 			// 在Redis中删除该节点
-			if err := database.RedisClient.HDel("nodes", data.Mac); err != nil {
+			if err := database.RedisClient.HDel("nodes", data.Key); err != nil {
 				log.Errorf(err.Error())
 				return
 			}
@@ -172,7 +183,7 @@ func UpdateNodeStatus() {
 			s, c := database.GetCol("nodes")
 			defer s.Close()
 			var node model.Node
-			if err := c.Find(bson.M{"mac": mac}).One(&node); err != nil {
+			if err := c.Find(bson.M{"key": key}).One(&node); err != nil {
 				log.Errorf(err.Error())
 				debug.PrintStack()
 				return
@@ -189,14 +200,16 @@ func UpdateNodeStatus() {
 		s, c := database.GetCol("nodes")
 		defer s.Close()
 		var node model.Node
-		if err := c.Find(bson.M{"mac": mac}).One(&node); err != nil {
+		if err := c.Find(bson.M{"key": key}).One(&node); err != nil {
 			// 数据库不存在该节点
 			node = model.Node{
-				Name:   data.Mac,
-				Ip:     data.Ip,
-				Port:   "8000",
-				Mac:    data.Mac,
-				Status: constants.StatusOnline,
+				Key:      key,
+				Name:     key,
+				Ip:       data.Ip,
+				Port:     "8000",
+				Mac:      data.Mac,
+				Status:   constants.StatusOnline,
+				IsMaster: data.Master,
 			}
 			if err := node.Add(); err != nil {
 				log.Errorf(err.Error())
@@ -216,8 +229,8 @@ func UpdateNodeStatus() {
 	nodes, err := model.GetNodeList(nil)
 	for _, node := range nodes {
 		hasNode := false
-		for _, mac := range list {
-			if mac == node.Mac {
+		for _, key := range list {
+			if key == node.Key {
 				hasNode = true
 				break
 			}
@@ -236,7 +249,7 @@ func UpdateNodeStatus() {
 // 更新节点数据
 func UpdateNodeData() {
 	// 获取MAC地址
-	val, err := register.GetRegister().GetValue()
+	mac, err := register.GetRegister().GetMac()
 	if err != nil {
 		log.Errorf(err.Error())
 		return
@@ -248,10 +261,13 @@ func UpdateNodeData() {
 		log.Errorf(err.Error())
 		return
 	}
+	// 获取redis的key
+	key, err := register.GetRegister().GetKey()
 
 	// 构造节点数据
 	data := Data{
-		Mac:          val,
+		Key:          key,
+		Mac:          mac,
 		Ip:           ip,
 		Master:       IsMaster(),
 		UpdateTs:     time.Now(),
@@ -265,7 +281,7 @@ func UpdateNodeData() {
 		debug.PrintStack()
 		return
 	}
-	if err := database.RedisClient.HSet("nodes", val, string(dataBytes)); err != nil {
+	if err := database.RedisClient.HSet("nodes", key, string(dataBytes)); err != nil {
 		log.Errorf(err.Error())
 		return
 	}
