@@ -37,22 +37,7 @@
 
 ### Docker
 
-运行主节点示例。`192.168.99.1`是在Docker Machine网络中的宿主机IP地址。`192.168.99.100`是Docker主节点的IP地址。
-
-```bash
-docker run -d --rm --name crawlab \
-        -e CRAWLAB_REDIS_ADDRESS=192.168.99.1 \
-        -e CRAWLAB_MONGO_HOST=192.168.99.1 \
-        -e CRAWLAB_SERVER_MASTER=Y \
-        -e CRAWLAB_API_ADDRESS=192.168.99.100:8000 \
-        -e CRAWLAB_SPIDER_PATH=/app/spiders \
-        -p 8080:8080 \
-        -p 8000:8000 \
-        -v /var/logs/crawlab:/var/logs/crawlab \
-        tikazyq/crawlab:0.3.0
-```
-
-当然也可以用`docker-compose`来一键启动，甚至不用配置MongoDB和Redis数据库，**当然我们推荐这样做**。在当前目录中创建`docker-compose.yml`文件，输入以下内容。
+请用`docker-compose`来一键启动，甚至不用配置MongoDB和Redis数据库，**当然我们推荐这样做**。在当前目录中创建`docker-compose.yml`文件，输入以下内容。
 
 ```yaml
 version: '3.3'
