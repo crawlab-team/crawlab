@@ -46,15 +46,10 @@ pipeline {
             steps {
                 echo 'Deploying....'
                 sh """
-                if [[ ${ENV:GIT_BRANCH} = master ]] || [[ ${ENV:GIT_BRANCH} = develop ]]; then
-                    # 重启docker compose
-                    cd ./jenkins/${ENV:GIT_BRANCH}
-                    docker-compose stop | true
-                    docker-compose up -d
-                else
-                    # 发布到Dockerhub
-                    docker push tikazyq/crawlab:${ENV:TAG}
-                fi
+                # 重启docker compose
+                cd ./jenkins/${ENV:GIT_BRANCH}
+                docker-compose stop | true
+                docker-compose up -d
                 """
             }
         }
