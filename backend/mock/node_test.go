@@ -1,17 +1,17 @@
-package routes
+package mock
 
 import (
-	"crawlab/config"
-	"crawlab/database"
+	"crawlab/model"
 	"encoding/json"
-	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
+	"github.com/globalsign/mgo/bson"
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/spf13/viper"
 	"net/http"
 	"net/http/httptest"
-	"runtime/debug"
+	"strings"
 	"testing"
+	"time"
+	"ucloudBilling/ucloud/log"
 )
 
 var app *gin.Engine
@@ -19,34 +19,7 @@ var app *gin.Engine
 func init() {
 	app = gin.Default()
 
-	// 初始化配置
-	if err := config.InitConfig("../conf/config.yml"); err != nil {
-		panic(err)
-	}
-	log.Info("初始化配置成功")
-
-	// 初始化日志设置
-	logLevel := viper.GetString("log.level")
-	if logLevel != "" {
-		log.SetLevelFromString(logLevel)
-	}
-	log.Info("初始化日志设置成功")
-
-	// 初始化Mongodb数据库
-	if err := database.InitMongo(); err != nil {
-		debug.PrintStack()
-		panic(err)
-	}
-	log.Info("初始化Mongodb数据库成功")
-
-	// 初始化Redis数据库
-	if err := database.InitRedis(); err != nil {
-		debug.PrintStack()
-		panic(err)
-	}
-	log.Info("初始化Redis数据库成功")
-
-	// 路由
+	// mock Test
 	// 节点相关的API
 	app.GET("/ping", Ping)
 	app.GET("/nodes", GetNodeList)               // 节点列表
@@ -55,20 +28,27 @@ func init() {
 	app.GET("/nodes/:id/tasks", GetNodeTaskList) // 节点任务列表
 	app.GET("/nodes/:id/system", GetSystemInfo)  // 节点任务列表
 	app.DELETE("/nodes/:id", DeleteNode)         // 删除节点
-	// 爬虫
+	//// 爬虫
+	// 定时任务
+	app.GET("/schedules", GetScheduleList)       // 定时任务列表
+	app.GET("/schedules/:id", GetSchedule)       // 定时任务详情
+	app.PUT("/schedules", PutSchedule)           // 创建定时任务
+	app.POST("/schedules/:id", PostSchedule)     // 修改定时任务
+	app.DELETE("/schedules/:id", DeleteSchedule) // 删除定时任务
 }
 
-//先测试GetNodeList得到一个节点的ID，再继续测试下面的API
+//mock test, test data in ./mock
 func TestGetNodeList(t *testing.T) {
 	var resp Response
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/nodes", nil)
 	app.ServeHTTP(w, req)
 	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	t.Log(resp.Data)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
 	}
-	t.Log(resp.Data)
+
 	Convey("Test API GetNodeList", t, func() {
 		Convey("Test response status", func() {
 			So(resp.Status, ShouldEqual, "ok")
@@ -77,10 +57,9 @@ func TestGetNodeList(t *testing.T) {
 	})
 }
 
-//依赖MongoDB中的数据,_id=5d429e6c19f7abede924fee2,实际测试时需替换
 func TestGetNode(t *testing.T) {
 	var resp Response
-	var mongoId = "5d5a658319f7ab423585b0b0"
+	var mongoId = "5d429e6c19f7abede924fee2"
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/nodes/"+mongoId, nil)
 	app.ServeHTTP(w, req)
@@ -93,7 +72,7 @@ func TestGetNode(t *testing.T) {
 		Convey("Test response status", func() {
 			So(resp.Status, ShouldEqual, "ok")
 			So(resp.Message, ShouldEqual, "success")
-			So(resp.Data.(map[string]interface{})["_id"], ShouldEqual, mongoId)
+			So(resp.Data.(map[string]interface{})["_id"], ShouldEqual, bson.ObjectId(mongoId).Hex())
 		})
 	})
 }
@@ -117,7 +96,7 @@ func TestPing(t *testing.T) {
 
 func TestGetNodeTaskList(t *testing.T) {
 	var resp Response
-	var mongoId = "5d5a658319f7ab423585b0b0"
+	var mongoId = "5d429e6c19f7abede924fee2"
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "nodes/"+mongoId+"/tasks", nil)
 	app.ServeHTTP(w, req)
@@ -135,7 +114,8 @@ func TestGetNodeTaskList(t *testing.T) {
 
 func TestDeleteNode(t *testing.T) {
 	var resp Response
-	var mongoId = "5d5a658319f7ab423585b0b0"
+
+	var mongoId = "5d429e6c19f7abede924fee2"
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("DELETE", "nodes/"+mongoId, nil)
 	app.ServeHTTP(w, req)
@@ -144,6 +124,61 @@ func TestDeleteNode(t *testing.T) {
 		t.Fatal("Unmarshal resp failed")
 	}
 	Convey("Test API DeleteNode", t, func() {
+		Convey("Test response status", func() {
+			So(resp.Status, ShouldEqual, "ok")
+			So(resp.Message, ShouldEqual, "success")
+		})
+	})
+}
+
+func TestPostNode(t *testing.T) {
+	var newItem = model.Node{
+		Id:           bson.ObjectIdHex("5d429e6c19f7abede924fee2"),
+		Ip:           "10.32.35.15",
+		Name:         "test1",
+		Status:       "online",
+		Port:         "8081",
+		Mac:          "ac:12:df:12:fd",
+		Description:  "For test1",
+		IsMaster:     true,
+		UpdateTs:     time.Now(),
+		CreateTs:     time.Now(),
+		UpdateTsUnix: time.Now().Unix(),
+	}
+
+	var resp Response
+	body, _ := json.Marshal(newItem)
+	log.Info(strings.NewReader(string(body)))
+
+	var mongoId = "5d429e6c19f7abede924fee2"
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "nodes/"+mongoId, strings.NewReader(string(body)))
+
+	app.ServeHTTP(w, req)
+	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	t.Log(resp)
+	if err != nil {
+		t.Fatal("Unmarshal resp failed")
+	}
+	Convey("Test API PostNode", t, func() {
+		Convey("Test response status", func() {
+			So(resp.Status, ShouldEqual, "ok")
+			So(resp.Message, ShouldEqual, "success")
+		})
+	})
+}
+
+func TestGetSystemInfo(t *testing.T) {
+	var resp Response
+	var mongoId = "5d429e6c19f7abede924fee2"
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "nodes/"+mongoId+"/system", nil)
+	app.ServeHTTP(w, req)
+	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	if err != nil {
+		t.Fatal("Unmarshal resp failed")
+	}
+	Convey("Test API GetSystemInfo", t, func() {
 		Convey("Test response status", func() {
 			So(resp.Status, ShouldEqual, "ok")
 			So(resp.Message, ShouldEqual, "success")
