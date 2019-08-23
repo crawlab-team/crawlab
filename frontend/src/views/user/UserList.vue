@@ -24,6 +24,12 @@
     <!--./dialog-->
 
     <el-card>
+      <div class="filter">
+        <div class="left"></div>
+        <div class="right">
+          <el-button type="primary" size="small">新增用户</el-button>
+        </div>
+      </div>
       <!--table-->
       <el-table
         :data="userList"
@@ -67,6 +73,7 @@
           </template>
         </el-table-column>
       </el-table>
+
       <div class="pagination">
         <el-pagination
           @current-change="onPageChange"
@@ -181,6 +188,21 @@ export default {
 </script>
 
 <style scoped>
+  .filter {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    .filter-search {
+      width: 240px;
+    }
+
+    .right {
+      .btn {
+        margin-left: 10px;
+      }
+    }
+  }
+
   .el-table {
     border-radius: 5px;
   }

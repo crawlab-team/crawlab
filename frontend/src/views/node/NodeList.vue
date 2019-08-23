@@ -165,7 +165,7 @@ export default {
         { name: 'ip', label: 'IP', width: '160' },
         { name: 'type', label: 'Type', width: '120' },
         // { name: 'port', label: 'Port', width: '80' },
-        { name: 'status', label: 'Status', width: '120', sortable: true },
+        { name: 'status', label: 'Status', width: '120' },
         { name: 'description', label: 'Description', width: 'auto' }
       ],
       nodeFormRules: {
