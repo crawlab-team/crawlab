@@ -47,8 +47,8 @@
       </el-form>
     </el-row>
     <el-row class="button-container" v-if="!isView">
-      <el-button v-if="isShowRun" type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
-      <el-button type="success" @click="onSave">{{$t('Save')}}</el-button>
+      <el-button size="small" v-if="isShowRun" type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
+      <el-button size="small" type="success" @click="onSave">{{$t('Save')}}</el-button>
     </el-row>
   </div>
 </template>

@@ -27,7 +27,7 @@
       <div class="filter">
         <div class="left"></div>
         <div class="right">
-          <el-button type="primary" size="small">新增用户</el-button>
+          <!--<el-button type="primary" size="small">新增用户</el-button>-->
         </div>
       </div>
       <!--table-->

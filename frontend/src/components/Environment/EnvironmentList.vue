@@ -2,8 +2,8 @@
   <div class="environment-list">
     <el-row>
       <div class="button-group">
-        <el-button type="primary" @click="addEnv" icon="el-icon-plus">{{$t('Add Environment Variables')}}</el-button>
-        <el-button type="success" @click="save">{{$t('Save')}}</el-button>
+        <el-button size="small" type="primary" @click="addEnv" icon="el-icon-plus">{{$t('Add Environment Variables')}}</el-button>
+        <el-button size="small" type="success" @click="save">{{$t('Save')}}</el-button>
       </div>
     </el-row>
     <el-row>

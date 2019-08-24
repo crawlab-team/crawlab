@@ -89,10 +89,11 @@
             :on-change="onUploadChange"
             :on-success="onUploadSuccess"
             :file-list="fileList">
-            <el-button type="primary" icon="el-icon-upload">{{$t('Upload')}}</el-button>
+            <el-button size="small" type="primary" icon="el-icon-upload">{{$t('Upload')}}</el-button>
           </el-upload>
         </el-form-item>
       </el-form>
+      <el-alert type="error" title="爬虫文件请从根目录下开始压缩。" :closable="false"></el-alert>
     </el-dialog>
     <!--./customized spider dialog-->
 
