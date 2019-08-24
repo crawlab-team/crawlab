@@ -11,7 +11,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-	"ucloudBilling/ucloud/log"
 )
 
 var app *gin.Engine
@@ -29,12 +28,19 @@ func init() {
 	app.GET("/nodes/:id/system", GetSystemInfo)  // 节点任务列表
 	app.DELETE("/nodes/:id", DeleteNode)         // 删除节点
 	//// 爬虫
+	app.GET("/stats/home",GetHomeStats) // 首页统计数据
 	// 定时任务
 	app.GET("/schedules", GetScheduleList)       // 定时任务列表
 	app.GET("/schedules/:id", GetSchedule)       // 定时任务详情
 	app.PUT("/schedules", PutSchedule)           // 创建定时任务
 	app.POST("/schedules/:id", PostSchedule)     // 修改定时任务
 	app.DELETE("/schedules/:id", DeleteSchedule) // 删除定时任务
+	app.GET("/tasks", GetTaskList)                                 // 任务列表
+	app.GET("/tasks/:id", GetTask)                                 // 任务详情
+	app.PUT("/tasks", PutTask)                                     // 派发任务
+	app.DELETE("/tasks/:id", DeleteTask)                           // 删除任务
+	app.GET("/tasks/:id/results",GetTaskResults)                  // 任务结果
+	app.GET("/tasks/:id/results/download", DownloadTaskResultsCsv) // 下载任务结果
 }
 
 //mock test, test data in ./mock
@@ -44,7 +50,6 @@ func TestGetNodeList(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/nodes", nil)
 	app.ServeHTTP(w, req)
 	err := json.Unmarshal([]byte(w.Body.String()), &resp)
-	t.Log(resp.Data)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
 	}
@@ -148,7 +153,6 @@ func TestPostNode(t *testing.T) {
 
 	var resp Response
 	body, _ := json.Marshal(newItem)
-	log.Info(strings.NewReader(string(body)))
 
 	var mongoId = "5d429e6c19f7abede924fee2"
 	w := httptest.NewRecorder()
