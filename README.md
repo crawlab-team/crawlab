@@ -5,7 +5,7 @@
 ![](https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg)
 ![](https://img.shields.io/github/issues/crawlab-team/crawlab.svg)
 ![](https://img.shields.io/github/contributors/crawlab-team/crawlab.svg)
-![](https://img.shields.io/docker/pulls/crawlab-team/crawlab)
+![](https://img.shields.io/docker/pulls/tikazyq/crawlab)
 ![](https://img.shields.io/github/license/crawlab-team/crawlab.svg)
 
 [中文](https://github.com/crawlab-team/crawlab/blob/master/README-zh.md) | English
