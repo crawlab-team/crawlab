@@ -1,0 +1,14 @@
+<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="150" cy="150" r="150" fill="#409eff">
+    </circle>
+    <circle cx="150" cy="150" r="110" fill="#fff">
+    </circle>
+    <circle cx="150" cy="150" r="70" fill="#409eff">
+    </circle>
+    <path d="
+        M 150,150
+        L 280,225
+        A 150,150 90 0 0 280,75
+        " fill="#409eff">
+    </path>
+</svg>

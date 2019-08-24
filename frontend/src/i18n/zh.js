@@ -214,6 +214,7 @@ export default {
   // 下拉框
   User: '用户',
   Logout: '退出登录',
+  Documentation: '文档',
 
   // 选择
   'Yes': '是',

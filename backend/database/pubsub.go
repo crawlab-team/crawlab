@@ -32,6 +32,7 @@ func (c *Subscriber) Connect() {
 			log.Debug("wait...")
 			switch res := c.client.Receive().(type) {
 			case redis.Message:
+				i = 0
 				channel := (*string)(unsafe.Pointer(&res.Channel))
 				message := (*string)(unsafe.Pointer(&res.Data))
 				c.cbMap[*channel](*channel, *message)
@@ -39,17 +40,17 @@ func (c *Subscriber) Connect() {
 				fmt.Printf("%s: %s %d\n", res.Channel, res.Kind, res.Count)
 			case error:
 				log.Error("error handle redis connection...")
-				con, err := GetRedisConn()
-				if err != nil {
-					log.Fatal("redis dial failed")
-					continue
-				}
-				c.client = redis.PubSubConn{Conn: con}
-				c.cbMap = make(map[string]SubscribeCallback)
+
 				time.Sleep(2 * time.Second)
 				if i > 5 {
 					panic(errors.New("redis connection failed too many times, panic"))
 				}
+				con, err := GetRedisConn()
+				if err != nil {
+					log.Error("redis dial failed")
+					continue
+				}
+				c.client = redis.PubSubConn{Conn: con}
 				i += 1
 
 				continue

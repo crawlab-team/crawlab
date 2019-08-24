@@ -4,7 +4,7 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on"
              label-position="left">
       <h3 class="title">
-        CRAWLAB
+        <span><img style="width:48px;margin-bottom:-5px;margin-right:2px" src="../../assets/logo.svg"></span>RAWLAB
       </h3>
       <el-form-item prop="username" style="margin-bottom: 28px;">
         <el-input
@@ -61,11 +61,18 @@
           <img src="https://img.shields.io/badge/github-crawlab-blue">
         </a>
       </div>
+      <div class="lang">
+        <span @click="setLang('zh')" :class="lang==='zh'?'active':''">中文</span>
+        <span @click="setLang('en')" :class="lang==='en'?'active':''">English</span>
+      </div>
     </el-form>
   </div>
 </template>
 
 <script>
+import {
+  mapState
+} from 'vuex'
 import { isValidUsername } from '../../utils/validate'
 
 export default {
@@ -109,6 +116,9 @@ export default {
     }
   },
   computed: {
+    ...mapState('lang', [
+      'lang'
+    ]),
     isSignUp () {
       return this.$route.path === '/signup'
     },
@@ -149,6 +159,11 @@ export default {
     onKeyEnter () {
       const func = this.isSignUp ? this.handleSignup : this.handleLogin
       func()
+    },
+    setLang (lang) {
+      window.localStorage.setItem('lang', lang)
+      this.$set(this.$i18n, 'locale', lang)
+      this.$store.commit('lang/SET_LANG', lang)
     }
   },
   mounted () {
@@ -374,6 +389,7 @@ const initCanvas = () => {
       color: #409EFF;
       margin: 0px auto 20px auto;
       text-align: center;
+      cursor: default;
     }
 
     .show-pwd {
@@ -405,6 +421,26 @@ const initCanvas = () => {
         cursor: pointer;
         color: #409EFF;
         font-weight: 600;
+      }
+    }
+
+    .lang {
+      margin-top: 20px;
+      text-align: center;
+
+      span {
+        cursor: pointer;
+        margin: 10px;
+        color: #666;
+        font-size: 14px;
+      }
+
+      span.active {
+        font-weight: 600;
+      }
+
+      span:hover {
+        text-decoration: underline;
       }
     }
   }
