@@ -10,7 +10,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-	"ucloudBilling/ucloud/log"
 )
 
 func TestGetScheduleList(t *testing.T) {
@@ -58,7 +57,6 @@ func TestDeleteSchedule(t *testing.T) {
 	app.ServeHTTP(w, req)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &resp)
-	log.Info(w.Body.String())
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
 	}
@@ -89,7 +87,6 @@ func TestPostSchedule(t *testing.T) {
 	var resp Response
 	var mongoId = "5d429e6c19f7abede924fee2"
 	body,_ := json.Marshal(newItem)
-	log.Info(strings.NewReader(string(body)))
 	w := httptest.NewRecorder()
 	req,_ := http.NewRequest("POST", "/schedules/"+mongoId,strings.NewReader(string(body)))
 	app.ServeHTTP(w, req)
@@ -125,7 +122,6 @@ func TestPutSchedule(t *testing.T) {
 
 	var resp Response
 	body,_ := json.Marshal(newItem)
-	log.Info(strings.NewReader(string(body)))
 	w := httptest.NewRecorder()
 	req,_ := http.NewRequest("PUT", "/schedules",strings.NewReader(string(body)))
 	app.ServeHTTP(w, req)
