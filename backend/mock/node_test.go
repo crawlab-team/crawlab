@@ -35,6 +35,12 @@ func init() {
 	app.PUT("/schedules", PutSchedule)           // 创建定时任务
 	app.POST("/schedules/:id", PostSchedule)     // 修改定时任务
 	app.DELETE("/schedules/:id", DeleteSchedule) // 删除定时任务
+	app.GET("/tasks", GetTaskList)                                 // 任务列表
+	app.GET("/tasks/:id", GetTask)                                 // 任务详情
+	app.PUT("/tasks", PutTask)                                     // 派发任务
+	app.DELETE("/tasks/:id", DeleteTask)                           // 删除任务
+	app.GET("/tasks/:id/results",GetTaskResults)                  // 任务结果
+	app.GET("/tasks/:id/results/download", DownloadTaskResultsCsv) // 下载任务结果
 }
 
 //mock test, test data in ./mock
