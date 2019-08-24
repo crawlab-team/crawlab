@@ -1,14 +1,14 @@
 # Crawlab
 
 ![](http://114.67.75.98:8082/buildStatus/icon?job=crawlab%2Fmaster)
-![](https://img.shields.io/github/release/tikazyq/crawlab.svg)
-![](https://img.shields.io/github/last-commit/tikazyq/crawlab.svg)
-![](https://img.shields.io/github/issues/tikazyq/crawlab.svg)
-![](https://img.shields.io/github/contributors/tikazyq/crawlab.svg)
+![](https://img.shields.io/github/release/crawlab-team/crawlab.svg)
+![](https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg)
+![](https://img.shields.io/github/issues/crawlab-team/crawlab.svg)
+![](https://img.shields.io/github/contributors/crawlab-team/crawlab.svg)
 ![](https://img.shields.io/docker/pulls/tikazyq/crawlab)
-![](https://img.shields.io/github/license/tikazyq/crawlab.svg)
+![](https://img.shields.io/github/license/crawlab-team/crawlab.svg)
 
-中文 | [English](https://github.com/tikazyq/crawlab)
+中文 | [English](https://github.com/crawlab-team/crawlab)
 
 [安装](#安装) | [运行](#运行) | [截图](#截图) | [架构](#架构) | [集成](#与其他框架的集成) | [比较](#与其他框架比较) | [相关文章](#相关文章) | [社区&赞助](#社区--赞助)
 
@@ -202,7 +202,7 @@ Crawlab使用起来很方便，也很通用，可以适用于几乎任何主流�
 
 |框架 | 类型 | 分布式 | 前端 | 依赖于Scrapyd |
 |:---:|:---:|:---:|:---:|:---:|
-| [Crawlab](https://github.com/tikazyq/crawlab) | 管理平台 | Y | Y | N
+| [Crawlab](https://github.com/crawlab-team/crawlab) | 管理平台 | Y | Y | N
 | [ScrapydWeb](https://github.com/my8100/scrapydweb) | 管理平台 | Y | Y | Y
 | [SpiderKeeper](https://github.com/DormyMo/SpiderKeeper) | 管理平台 | Y | Y | Y
 | [Gerapy](https://github.com/Gerapy/Gerapy) | 管理平台 | Y | Y | Y
