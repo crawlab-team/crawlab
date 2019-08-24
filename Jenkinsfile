@@ -48,8 +48,11 @@ pipeline {
                 sh """
                 # 重启docker compose
                 cd ./jenkins/${ENV:GIT_BRANCH}
-                docker-compose stop | true
-                docker-compose up -d
+                docker-compose stop master | true
+                docker-compose rm -f master | true
+                docker-compose stop worker | true
+                docker-compose rm -f worker | true
+                docker-compose up -d | true
                 """
             }
         }
@@ -57,7 +60,7 @@ pipeline {
             steps {
                 echo 'Cleanup...'
                 sh """
-                docker rmi `docker images | grep '<none>' | grep -v IMAGE | awk '{ print \$3 }' | xargs`
+                docker rmi -f `docker images | grep '<none>' | grep -v IMAGE | awk '{ print \$3 }' | xargs`
                 """
             }
         }
