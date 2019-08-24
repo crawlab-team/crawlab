@@ -4,7 +4,7 @@
       <!--filter-->
       <div class="filter">
         <div class="left">
-          <el-select class="filter-select"
+          <el-select size="small" class="filter-select"
                      v-model="filter.node_id"
                      :placeholder="$t('Node')"
                      filterable
@@ -12,7 +12,7 @@
                      @change="onSelectNode">
             <el-option v-for="op in nodeList" :key="op._id" :value="op._id" :label="op.name"></el-option>
           </el-select>
-          <el-select class="filter-select"
+          <el-select size="small" class="filter-select"
                      v-model="filter.spider_id"
                      :placeholder="$t('Spider')"
                      filterable
@@ -20,7 +20,7 @@
                      @change="onSelectSpider">
             <el-option v-for="op in spiderList" :key="op._id" :value="op._id" :label="op.name"></el-option>
           </el-select>
-          <el-button type="success"
+          <el-button size="small" type="success"
                      icon="el-icon-search"
                      class="refresh"
                      @click="onRefresh">
@@ -119,7 +119,7 @@
                            :width="col.width">
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" width="150" fixed="right">
+        <el-table-column :label="$t('Action')" align="left" width="120" fixed="right">
           <template slot-scope="scope">
             <el-tooltip :content="$t('View')" placement="top">
               <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
@@ -172,11 +172,11 @@ export default {
         { name: 'node_name', label: 'Node', width: '120' },
         { name: 'spider_name', label: 'Spider', width: '120' },
         { name: 'status', label: 'Status', width: '120' },
-        { name: 'create_ts', label: 'Create Time', width: '100' },
+        // { name: 'create_ts', label: 'Create Time', width: '100' },
         { name: 'start_ts', label: 'Start Time', width: '100' },
         { name: 'finish_ts', label: 'Finish Time', width: '100' },
-        { name: 'wait_duration', label: 'Wait Duration (sec)', width: '80', align: 'right' },
-        { name: 'runtime_duration', label: 'Runtime Duration (sec)', width: '80', align: 'right' },
+        { name: 'wait_duration', label: 'Wait Duration (sec)', align: 'right' },
+        { name: 'runtime_duration', label: 'Runtime Duration (sec)', align: 'right' },
         { name: 'total_duration', label: 'Total Duration (sec)', width: '80', align: 'right' },
         { name: 'result_count', label: 'Results Count', width: '80' }
         // { name: 'avg_num_results', label: 'Average Results Count per Second', width: '80' }
@@ -348,7 +348,7 @@ export default {
   }
 
   .table {
-    margin-top: 20px;
+    margin-top: 8px;
     border-radius: 5px;
 
     .el-button {

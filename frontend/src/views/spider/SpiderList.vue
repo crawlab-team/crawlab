@@ -89,10 +89,11 @@
             :on-change="onUploadChange"
             :on-success="onUploadSuccess"
             :file-list="fileList">
-            <el-button type="primary" icon="el-icon-upload">{{$t('Upload')}}</el-button>
+            <el-button size="small" type="primary" icon="el-icon-upload">{{$t('Upload')}}</el-button>
           </el-upload>
         </el-form-item>
       </el-form>
+      <el-alert type="error" title="爬虫文件请从根目录下开始压缩。" :closable="false"></el-alert>
     </el-dialog>
     <!--./customized spider dialog-->
 
@@ -114,7 +115,7 @@
         <!--@change="onSearch">-->
         <!--</el-input>-->
         <div class="left">
-          <el-autocomplete v-model="filterSite"
+          <el-autocomplete size="small" v-model="filterSite"
                            :placeholder="$t('Site')"
                            clearable
                            :fetch-suggestions="fetchSiteSuggestions"
@@ -122,16 +123,16 @@
           </el-autocomplete>
         </div>
         <div class="right">
-          <el-button v-if="false" type="primary" icon="fa fa-download" @click="openImportDialog">
+          <el-button size="small" v-if="false" type="primary" icon="fa fa-download" @click="openImportDialog">
             {{$t('Import Spiders')}}
           </el-button>
-          <el-button type="success"
+          <el-button size="small" type="success"
                      icon="el-icon-plus"
                      class="btn add"
                      @click="onAdd">
             {{$t('Add Spider')}}
           </el-button>
-          <el-button type="success"
+          <el-button size="small" type="success"
                      icon="el-icon-refresh"
                      class="btn refresh"
                      @click="onRefresh">
@@ -538,7 +539,7 @@ export default {
   }
 
   .table {
-    margin-top: 20px;
+    margin-top: 8px;
     border-radius: 5px;
 
     .el-button {
