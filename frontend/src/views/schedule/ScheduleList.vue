@@ -52,7 +52,7 @@
                     v-model="scheduleForm.cron"
                     :placeholder="$t('Cron')">
           </el-input>
-          <el-button style="width:100px" type="primary" @click="onShowCronDialog">{{$t('生成Cron')}}</el-button>
+          <el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('生成Cron')}}</el-button>
         </el-form-item>
         <el-form-item :label="$t('Execute Command')" prop="params">
           <el-input v-model="spider.cmd"
@@ -70,8 +70,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="onCancel">{{$t('Cancel')}}</el-button>
-        <el-button type="primary" @click="onAddSubmit">{{$t('Submit')}}</el-button>
+        <el-button size="small" @click="onCancel">{{$t('Cancel')}}</el-button>
+        <el-button size="small" type="primary" @click="onAddSubmit">{{$t('Submit')}}</el-button>
       </span>
     </el-dialog>
 
@@ -84,7 +84,7 @@
       <!--filter-->
       <div class="filter">
         <div class="right">
-          <el-button type="primary"
+          <el-button size="small" type="primary"
                      icon="el-icon-plus"
                      class="refresh"
                      @click="onAdd">
