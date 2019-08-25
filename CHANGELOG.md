@@ -1,3 +1,16 @@
+# 0.3.1 (2019-08-25)
+### Features / Enhancement
+- **Docker Image Optimization**. Split docker further into master, worker, frontend with alpine image.
+- **Unit Tests**. Covered part of the backend code with unit tests.
+- **Frontend Optimization**. Login page, button size, hints of upload UI optimization. 
+- **More Flexible Node Registration**. Allow users to pass a variable as key for node registration instead of MAC by default.
+
+### Bug Fixes
+- **Uploading Large Spider Files Error**. Memory crash issue when uploading large spider files. [#150](https://github.com/crawlab-team/crawlab/issues/150)
+- **Unable to Sync Spiders**. Fixes through increasing level of write permission when synchronizing spider files. [#114](https://github.com/crawlab-team/crawlab/issues/114)
+- **Spider Page Issue**. Fixes through removing the field "Site". [#112](https://github.com/crawlab-team/crawlab/issues/112)
+- **Node Display Issue**. Nodes do not display correctly when running docker containers on multiple machines. [#99](https://github.com/crawlab-team/crawlab/issues/99)
+
 # 0.3.0 (2019-07-31)
 ### Features / Enhancement
 - **Golang Backend**: Refactored code from Python backend to Golang, much more stability and performance.
