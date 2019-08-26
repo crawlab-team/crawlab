@@ -39,6 +39,8 @@ func GetSpidersFromDir() ([]model.Spider, error) {
 
 	// 如果爬虫项目目录不存在，则创建一个
 	if !utils.Exists(srcPath) {
+        mask := syscall.Umask(0)  // 改为 0000 八进制
+		defer syscall.Umask(mask) // 改为原来的 umask
 		if err := os.MkdirAll(srcPath, 0666); err != nil {
 			debug.PrintStack()
 			return []model.Spider{}, err
