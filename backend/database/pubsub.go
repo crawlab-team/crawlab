@@ -46,12 +46,12 @@ func (c *Subscriber) Connect() {
 					panic(errors.New("redis connection failed too many times, panic"))
 				}
 				con, err := GetRedisConn()
+				i += 1
 				if err != nil {
 					log.Error("redis dial failed")
 					continue
 				}
 				c.client = redis.PubSubConn{Conn: con}
-				i += 1
 
 				continue
 			}
