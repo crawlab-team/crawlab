@@ -472,6 +472,7 @@ func CancelTask(id string) (err error) {
 }
 
 func HandleTaskError(t model.Task, err error) {
+	log.Error("handle task error:" + err.Error())
 	t.Status = constants.StatusError
 	t.Error = err.Error()
 	t.FinishTs = time.Now()

@@ -320,7 +320,7 @@ func OnFileUpload(channel string, msgStr string) {
 	// 从GridFS获取该文件
 	f, err := gf.OpenId(bson.ObjectIdHex(msg.FileId))
 	if err != nil {
-		log.Errorf(err.Error())
+		log.Errorf("open file id" + msg.FileId + ", error: " + err.Error())
 		debug.PrintStack()
 		return
 	}
