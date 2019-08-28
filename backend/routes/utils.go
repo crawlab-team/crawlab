@@ -9,7 +9,7 @@ import (
 func HandleError(statusCode int, c *gin.Context, err error) {
 	log.Errorf("handle error:" + err.Error())
 	debug.PrintStack()
-	c.JSON(statusCode, Response{
+	c.AbortWithStatusJSON(statusCode, Response{
 		Status:  "ok",
 		Message: "error",
 		Error:   err.Error(),
@@ -18,7 +18,7 @@ func HandleError(statusCode int, c *gin.Context, err error) {
 
 func HandleErrorF(statusCode int, c *gin.Context, err string) {
 	debug.PrintStack()
-	c.JSON(statusCode, Response{
+	c.AbortWithStatusJSON(statusCode, Response{
 		Status:  "ok",
 		Message: "error",
 		Error:   err,
