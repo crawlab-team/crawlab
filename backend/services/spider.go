@@ -295,6 +295,7 @@ func PublishSpider(spider model.Spider) (err error) {
 		return
 	}
 	channel := "files:upload"
+	log.Info("publish files.upload event, file id:" + msg.FileId)
 	if err = database.Publish(channel, string(msgStr)); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
@@ -306,6 +307,7 @@ func PublishSpider(spider model.Spider) (err error) {
 
 // 上传爬虫回调
 func OnFileUpload(channel string, msgStr string) {
+	log.Info("received files.upload event, msgStr:" + msgStr)
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
 
@@ -320,7 +322,7 @@ func OnFileUpload(channel string, msgStr string) {
 	// 从GridFS获取该文件
 	f, err := gf.OpenId(bson.ObjectIdHex(msg.FileId))
 	if err != nil {
-		log.Errorf("open file id" + msg.FileId + ", error: " + err.Error())
+		log.Errorf("open file id: " + msg.FileId + ", error: " + err.Error())
 		debug.PrintStack()
 		return
 	}
