@@ -7,7 +7,7 @@ import (
 	"crawlab/utils"
 	"encoding/json"
 	"github.com/apex/log"
-	"io/ioutil"
+	"os"
 	"runtime/debug"
 )
 
@@ -16,13 +16,29 @@ var TaskLogChanMap = utils.NewChanMap()
 
 // 获取本地日志
 func GetLocalLog(logPath string) (fileBytes []byte, err error) {
-	fileBytes, err = ioutil.ReadFile(logPath)
+
+	f, err := os.Open(logPath)
 	if err != nil {
-		log.Errorf(err.Error())
+		log.Error(err.Error())
 		debug.PrintStack()
-		return fileBytes, err
+		return nil, err
 	}
-	return fileBytes, nil
+	fi, err := f.Stat()
+	if err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return nil, err
+	}
+	defer f.Close()
+	logBuf := make([]byte, 2048)
+	n, err := f.ReadAt(logBuf, fi.Size()-int64(len(logBuf)))
+	if err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return nil, err
+	}
+	logBuf = logBuf[:n]
+	return logBuf, nil
 }
 
 // 获取远端日志
