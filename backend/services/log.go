@@ -35,6 +35,7 @@ func GetLocalLog(logPath string) (fileBytes []byte, err error) {
 	if err != nil {
 		log.Error(err.Error())
 		debug.PrintStack()
+		return nil, err
 	}
 	logBuf = logBuf[:n]
 	return logBuf, nil
