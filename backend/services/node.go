@@ -97,7 +97,7 @@ func GetCurrentNode() (model.Node, error) {
 					Key:      key,
 					Id:       bson.NewObjectId(),
 					Ip:       ip,
-					Name:     key,
+					Name:     ip,
 					Mac:      mac,
 					IsMaster: true,
 				}
@@ -205,7 +205,7 @@ func UpdateNodeStatus() {
 			// 数据库不存在该节点
 			node = model.Node{
 				Key:      key,
-				Name:     key,
+				Name:     data.Ip,
 				Ip:       data.Ip,
 				Port:     "8000",
 				Mac:      data.Mac,

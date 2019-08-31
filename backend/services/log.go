@@ -35,8 +35,13 @@ func GetLocalLog(logPath string) (fileBytes []byte, err error) {
 	}
 	defer f.Close()
 	logBuf := make([]byte, 2048)
-	n, err := f.ReadAt(logBuf, fi.Size()-int64(len(logBuf)))
-	if err != nil {
+	off := int64(0)
+	if fi.Size() > int64(len(logBuf)) {
+		off = fi.Size() - int64(len(logBuf))
+	}
+	n, err := f.ReadAt(logBuf, off)
+	// 到文件结尾会有EOF的报错
+	if err.Error() != "EOF" && err != nil {
 		log.Error(err.Error())
 		debug.PrintStack()
 		return nil, err
