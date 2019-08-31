@@ -3,11 +3,15 @@ package services
 import (
 	"crawlab/constants"
 	"crawlab/database"
+	"crawlab/lib/cron"
 	"crawlab/model"
 	"crawlab/utils"
 	"encoding/json"
 	"github.com/apex/log"
+	"github.com/spf13/viper"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"runtime/debug"
 )
 
@@ -70,4 +74,37 @@ func GetRemoteLog(task model.Task) (logStr string, err error) {
 	logStr = <-ch
 
 	return logStr, nil
+}
+
+func DeleteLogPeriodically() {
+	logDir := viper.GetString("log.path")
+	if !utils.Exists(logDir) {
+		log.Error("Can Not Set Delete Logs Periodically,No Log Dir")
+		return
+	}
+	rd, err := ioutil.ReadDir(logDir)
+	if err != nil {
+		log.Error("Read Log Dir Failed")
+		return
+	}
+
+	for _, fi := range rd {
+		if fi.IsDir() {
+			log.Info(filepath.Join(logDir, fi.Name()))
+			os.RemoveAll(filepath.Join(logDir, fi.Name()))
+			log.Info("Delete Log File Success")
+		}
+	}
+
+}
+
+func InitDeleteLogPeriodically() error {
+	c := cron.New(cron.WithSeconds())
+	if _, err := c.AddFunc(viper.GetString("log.deleteFrequency"), DeleteLogPeriodically); err != nil {
+		return err
+	}
+
+	c.Start()
+	return nil
+
 }
