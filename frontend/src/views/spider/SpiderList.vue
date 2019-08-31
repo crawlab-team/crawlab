@@ -190,6 +190,14 @@
               {{getTime(scope.row[col.name])}}
             </template>
           </el-table-column>
+          <el-table-column v-else-if="col.name === 'last_status'"
+                           :key="col.name"
+                           :label="$t(col.label)"
+                           align="left" :width="col.width">
+            <template slot-scope="scope">
+              <status-tag :status="scope.row.last_status"/>
+            </template>
+          </el-table-column>
           <el-table-column v-else
                            :key="col.name"
                            :property="col.name"
@@ -239,10 +247,14 @@ import {
 } from 'vuex'
 import dayjs from 'dayjs'
 import CrawlConfirmDialog from '../../components/Common/CrawlConfirmDialog'
+import StatusTag from '../../components/Status/StatusTag'
 
 export default {
   name: 'SpiderList',
-  components: { CrawlConfirmDialog },
+  components: {
+    CrawlConfirmDialog,
+    StatusTag
+  },
   data () {
     return {
       pagination: {
