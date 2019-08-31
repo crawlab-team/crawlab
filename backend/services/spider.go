@@ -40,7 +40,7 @@ func GetSpidersFromDir() ([]model.Spider, error) {
 
 	// 如果爬虫项目目录不存在，则创建一个
 	if !utils.Exists(srcPath) {
-        mask := syscall.Umask(0)  // 改为 0000 八进制
+		mask := syscall.Umask(0)  // 改为 0000 八进制
 		defer syscall.Umask(mask) // 改为原来的 umask
 		if err := os.MkdirAll(srcPath, 0666); err != nil {
 			debug.PrintStack()
@@ -301,7 +301,6 @@ func PublishSpider(spider model.Spider) (err error) {
 		return
 	}
 	channel := "files:upload"
-	log.Info("publish files.upload event, file id:" + msg.FileId)
 	if err = database.Publish(channel, string(msgStr)); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
@@ -313,7 +312,6 @@ func PublishSpider(spider model.Spider) (err error) {
 
 // 上传爬虫回调
 func OnFileUpload(channel string, msgStr string) {
-	log.Info("received files.upload event, msgStr:" + msgStr)
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
 
