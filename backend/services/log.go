@@ -41,7 +41,7 @@ func GetLocalLog(logPath string) (fileBytes []byte, err error) {
 	}
 	n, err := f.ReadAt(logBuf, off)
 	// 到文件结尾会有EOF的报错
-	if err.Error() != "EOF" && err != nil {
+	if err != nil && err.Error() != "EOF" {
 		log.Error(err.Error())
 		debug.PrintStack()
 		return nil, err

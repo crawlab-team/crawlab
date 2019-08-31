@@ -308,8 +308,10 @@ func WorkerNodeCallback(channel string, msgStr string) {
 			log.Errorf(err.Error())
 			debug.PrintStack()
 			msgSd.Error = err.Error()
+			msgSd.Log = err.Error()
+		} else {
+			msgSd.Log = string(logStr)
 		}
-		msgSd.Log = string(logStr)
 
 		// 序列化
 		msgSdBytes, err := json.Marshal(&msgSd)
