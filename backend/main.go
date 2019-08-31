@@ -29,6 +29,15 @@ func main() {
 	}
 	log.Info("初始化日志设置成功")
 
+	if viper.GetString("log.isDeletePeriodically") == "Y" {
+		err := services.InitDeleteLogPeriodically()
+		if err != nil {
+			log.Error("Init DeletePeriodically Failed")
+			panic(err)
+		}
+		log.Info("初始化定期清理日志配置成功")
+	}
+
 	// 初始化Mongodb数据库
 	if err := database.InitMongo(); err != nil {
 		log.Error("init mongodb error:" + err.Error())
