@@ -154,6 +154,8 @@ export default {
   'Last Run': '上次运行',
   'Action': '操作',
   'No command line': '没有执行命令',
+  'Last Status': '上次运行状态',
+  'Remark': '备注',
 
   // 任务
   'Task Info': '任务信息',

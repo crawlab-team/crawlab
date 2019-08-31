@@ -267,10 +267,11 @@ export default {
         // { name: 'site_name', label: 'Site', width: '140', align: 'left' },
         { name: 'type', label: 'Spider Type', width: '120' },
         // { name: 'cmd', label: 'Command Line', width: '200' },
-        // { name: 'lang', label: 'Language', width: '120', sortable: true },
+        { name: 'last_status', label: 'Last Status', width: '120' },
         { name: 'last_run_ts', label: 'Last Run', width: '160' },
         { name: 'create_ts', label: 'Create Time', width: '160' },
-        { name: 'update_ts', label: 'Update Time', width: '160' }
+        { name: 'update_ts', label: 'Update Time', width: '160' },
+        { name: 'remark', label: 'Remark', width: '160' }
         // { name: 'last_7d_tasks', label: 'Last 7-Day Tasks', width: '80' },
         // { name: 'last_5_errors', label: 'Last 5-Run Errors', width: '80' }
       ],
