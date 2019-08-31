@@ -20,6 +20,7 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"strings"
+	"syscall"
 )
 
 type SpiderFileData struct {
@@ -133,6 +134,8 @@ func ZipSpider(spider model.Spider) (filePath string, err error) {
 	// 如果源文件夹不存在，抛错
 	if !utils.Exists(spider.Src) {
 		debug.PrintStack()
+		// 删除该爬虫，否则会一直报错
+		_ = model.RemoveSpider(spider.Id)
 		return "", errors.New("source path does not exist")
 	}
 
@@ -173,6 +176,7 @@ func UploadToGridFs(spider model.Spider, fileName string, filePath string) (fid 
 	// 如果存在FileId删除GridFS上的老文件
 	if !utils.IsObjectIdNull(spider.FileId) {
 		if err = gf.RemoveId(spider.FileId); err != nil {
+			log.Error("remove gf file:" + err.Error())
 			debug.PrintStack()
 		}
 	}
