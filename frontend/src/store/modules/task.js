@@ -120,6 +120,22 @@ const actions = {
         commit('SET_TASK_RESULTS_TOTAL_COUNT', response.data.total)
       })
   },
+  async getTaskResultExcel ({ state, commit }, id) {
+    const { data } = await request.request('GET', '/tasks/' + id + '/results/download', {}, {
+      responseType: 'blob' // important
+    })
+    const downloadUrl = window.URL.createObjectURL(new Blob([data]))
+
+    const link = document.createElement('a')
+
+    link.href = downloadUrl
+
+    link.setAttribute('download', 'data.csv') // any other extension
+
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+  },
   cancelTask ({ state, dispatch }, id) {
     return request.post(`/tasks/${id}/cancel`)
       .then(() => {
