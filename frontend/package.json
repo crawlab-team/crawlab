@@ -6,6 +6,7 @@
     "serve": "vue-cli-service serve --ip=0.0.0.0",
     "serve:prod": "vue-cli-service serve --mode=production --ip=0.0.0.0",
     "config": "vue ui",
+    "build:dev": "vue-cli-service build --mode development",
     "build:prod": "vue-cli-service build --mode production",
     "lint": "vue-cli-service lint",
     "test:unit": "vue-cli-service test:unit"

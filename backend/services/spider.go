@@ -31,6 +31,7 @@ type SpiderFileData struct {
 type SpiderUploadMessage struct {
 	FileId   string
 	FileName string
+	SpiderId string
 }
 
 // 从项目目录中获取爬虫列表
@@ -40,9 +41,9 @@ func GetSpidersFromDir() ([]model.Spider, error) {
 
 	// 如果爬虫项目目录不存在，则创建一个
 	if !utils.Exists(srcPath) {
-        mask := syscall.Umask(0)  // 改为 0000 八进制
+		mask := syscall.Umask(0)  // 改为 0000 八进制
 		defer syscall.Umask(mask) // 改为原来的 umask
-		if err := os.MkdirAll(srcPath, 0666); err != nil {
+		if err := os.MkdirAll(srcPath, 0766); err != nil {
 			debug.PrintStack()
 			return []model.Spider{}, err
 		}
@@ -295,13 +296,13 @@ func PublishSpider(spider model.Spider) (err error) {
 	msg := SpiderUploadMessage{
 		FileId:   fid.Hex(),
 		FileName: fileName,
+		SpiderId: spider.Id.Hex(),
 	}
 	msgStr, err := json.Marshal(msg)
 	if err != nil {
 		return
 	}
 	channel := "files:upload"
-	log.Info("publish files.upload event, file id:" + msg.FileId)
 	if err = database.Publish(channel, string(msgStr)); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
@@ -313,7 +314,6 @@ func PublishSpider(spider model.Spider) (err error) {
 
 // 上传爬虫回调
 func OnFileUpload(channel string, msgStr string) {
-	log.Info("received files.upload event, msgStr:" + msgStr)
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
 
@@ -328,7 +328,7 @@ func OnFileUpload(channel string, msgStr string) {
 	// 从GridFS获取该文件
 	f, err := gf.OpenId(bson.ObjectIdHex(msg.FileId))
 	if err != nil {
-		log.Errorf("open file id: " + msg.FileId + ", error: " + err.Error())
+		log.Errorf("open file id: " + msg.FileId + ", spider id:" + msg.SpiderId + ", error: " + err.Error())
 		debug.PrintStack()
 		return
 	}

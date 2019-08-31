@@ -44,6 +44,9 @@
             <el-option value="customized" :label="$t('Customized')"></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item :label="$t('Remark')">
+          <el-input v-model="spiderForm.remark"/>
+        </el-form-item>
       </el-form>
     </el-row>
     <el-row class="button-container" v-if="!isView">
