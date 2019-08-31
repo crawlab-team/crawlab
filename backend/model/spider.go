@@ -23,13 +23,14 @@ type Spider struct {
 	Col         string        `json:"col"`                              // 结果储存位置
 	Site        string        `json:"site"`                             // 爬虫网站
 	Envs        []Env         `json:"envs" bson:"envs"`                 // 环境变量
-
+	Remark      string        `json:"remark"`                           // 备注
 	// 自定义爬虫
 	Src string `json:"src" bson:"src"` // 源码位置
 	Cmd string `json:"cmd" bson:"cmd"` // 执行命令
 
 	// 前端展示
-	LastRunTs time.Time `json:"last_run_ts"` // 最后一次执行时间
+	LastRunTs  time.Time `json:"last_run_ts"` // 最后一次执行时间
+	LastStatus string    `json:"last_status"` // 最后执行状态
 
 	// TODO: 可配置爬虫
 	//Fields                 []interface{} `json:"fields"`
@@ -115,6 +116,7 @@ func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, error) {
 
 		// 赋值
 		spiders[i].LastRunTs = task.CreateTs
+		spiders[i].LastStatus = task.Status
 	}
 
 	return spiders, nil

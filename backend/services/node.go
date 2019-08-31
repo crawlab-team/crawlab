@@ -304,6 +304,7 @@ func WorkerNodeCallback(channel string, msgStr string) {
 
 		// 获取本地日志
 		logStr, err := GetLocalLog(msg.LogPath)
+		log.Info(string(logStr))
 		if err != nil {
 			log.Errorf(err.Error())
 			debug.PrintStack()
@@ -322,7 +323,7 @@ func WorkerNodeCallback(channel string, msgStr string) {
 		}
 
 		// 发布消息给主节点
-		fmt.Println(msgSd)
+		log.Info("publish get log msg to master")
 		if err := database.Publish("nodes:master", string(msgSdBytes)); err != nil {
 			log.Errorf(err.Error())
 			return
