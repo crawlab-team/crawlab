@@ -230,7 +230,7 @@ func ReadFileByStep(filePath string, handle func([]byte, *mgo.GridFile), fileCre
 	for {
 		switch nr, err := f.Read(s[:]); true {
 		case nr < 0:
-			fmt.Fprintf(os.Stderr, "cat: error reading: %s\n", err.Error())
+			_, _ = fmt.Fprintf(os.Stderr, "cat: error reading: %s\n", err.Error())
 			debug.PrintStack()
 		case nr == 0: // EOF
 			return nil
@@ -238,7 +238,6 @@ func ReadFileByStep(filePath string, handle func([]byte, *mgo.GridFile), fileCre
 			handle(s[0:nr], fileCreate)
 		}
 	}
-	return nil
 }
 
 // 发布所有爬虫
