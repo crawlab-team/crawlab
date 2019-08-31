@@ -73,23 +73,11 @@ func GetCurrentNode() (model.Node, error) {
 		if err != nil {
 			// 如果为主节点，表示为第一次注册，插入节点信息
 			if IsMaster() {
-				// 获取本机IP地址
-				ip, err := register.GetRegister().GetIp()
+				// 获取本机信息
+				ip, mac, key, err := model.GetNodeBaseInfo()
 				if err != nil {
 					debug.PrintStack()
-					return model.Node{}, err
-				}
-
-				mac, err := register.GetRegister().GetMac()
-				if err != nil {
-					debug.PrintStack()
-					return model.Node{}, err
-				}
-
-				key, err := register.GetRegister().GetKey()
-				if err != nil {
-					debug.PrintStack()
-					return model.Node{}, err
+					return node, err
 				}
 
 				// 生成节点
@@ -97,7 +85,7 @@ func GetCurrentNode() (model.Node, error) {
 					Key:      key,
 					Id:       bson.NewObjectId(),
 					Ip:       ip,
-					Name:     key,
+					Name:     ip,
 					Mac:      mac,
 					IsMaster: true,
 				}
@@ -124,6 +112,7 @@ func IsMaster() bool {
 	return viper.GetString("server.master") == Yes
 }
 
+// 所有调用IsMasterNode的方法，都永远会在master节点执行，所以GetCurrentNode方法返回永远是master节点
 // 该ID的节点是否为主节点
 func IsMasterNode(id string) bool {
 	curNode, _ := GetCurrentNode()
@@ -176,72 +165,54 @@ func UpdateNodeStatus() {
 			// 在Redis中删除该节点
 			if err := database.RedisClient.HDel("nodes", data.Key); err != nil {
 				log.Errorf(err.Error())
-				return
-			}
-
-			// 在MongoDB中该节点设置状态为离线
-			s, c := database.GetCol("nodes")
-			defer s.Close()
-			var node model.Node
-			if err := c.Find(bson.M{"key": key}).One(&node); err != nil {
-				log.Errorf(err.Error())
-				debug.PrintStack()
-				return
-			}
-			node.Status = constants.StatusOffline
-			if err := node.Save(); err != nil {
-				log.Errorf(err.Error())
-				return
 			}
 			continue
 		}
 
-		// 更新节点信息到数据库
-		s, c := database.GetCol("nodes")
-		defer s.Close()
-		var node model.Node
-		if err := c.Find(bson.M{"key": key}).One(&node); err != nil {
-			// 数据库不存在该节点
-			node = model.Node{
-				Key:      key,
-				Name:     key,
-				Ip:       data.Ip,
-				Port:     "8000",
-				Mac:      data.Mac,
-				Status:   constants.StatusOnline,
-				IsMaster: data.Master,
-			}
-			if err := node.Add(); err != nil {
-				log.Errorf(err.Error())
-				return
-			}
-		} else {
-			// 数据库存在该节点
-			node.Status = constants.StatusOnline
-			if err := node.Save(); err != nil {
-				log.Errorf(err.Error())
-				return
-			}
+		// 处理node信息
+		handleNodeInfo(key, data)
+	}
+
+	// 重置不在redis的key为offline
+	model.ResetNodeStatusToOffline(list)
+}
+
+func handleNodeInfo(key string, data Data) {
+	// 更新节点信息到数据库
+	s, c := database.GetCol("nodes")
+	defer s.Close()
+
+	// 同个key可能因为并发，被注册多次
+	var nodes []model.Node
+	_ = c.Find(bson.M{"key": key}).All(&nodes)
+	if nodes != nil && len(nodes) > 1 {
+		for _, node := range nodes {
+			_ = c.RemoveId(node.Id)
 		}
 	}
 
-	// 遍历数据库中的节点列表
-	nodes, err := model.GetNodeList(nil)
-	for _, node := range nodes {
-		hasNode := false
-		for _, key := range list {
-			if key == node.Key {
-				hasNode = true
-				break
-			}
+	var node model.Node
+	if err := c.Find(bson.M{"key": key}).One(&node); err != nil {
+		// 数据库不存在该节点
+		node = model.Node{
+			Key:      key,
+			Name:     data.Ip,
+			Ip:       data.Ip,
+			Port:     "8000",
+			Mac:      data.Mac,
+			Status:   constants.StatusOnline,
+			IsMaster: data.Master,
 		}
-		if !hasNode {
-			node.Status = constants.StatusOffline
-			if err := node.Save(); err != nil {
-				log.Errorf(err.Error())
-				return
-			}
-			continue
+		if err := node.Add(); err != nil {
+			log.Errorf(err.Error())
+			return
+		}
+	} else {
+		// 数据库存在该节点
+		node.Status = constants.StatusOnline
+		if err := node.Save(); err != nil {
+			log.Errorf(err.Error())
+			return
 		}
 	}
 }
@@ -333,12 +304,15 @@ func WorkerNodeCallback(channel string, msgStr string) {
 
 		// 获取本地日志
 		logStr, err := GetLocalLog(msg.LogPath)
+		log.Info(string(logStr))
 		if err != nil {
 			log.Errorf(err.Error())
 			debug.PrintStack()
 			msgSd.Error = err.Error()
+			msgSd.Log = err.Error()
+		} else {
+			msgSd.Log = string(logStr)
 		}
-		msgSd.Log = string(logStr)
 
 		// 序列化
 		msgSdBytes, err := json.Marshal(&msgSd)
@@ -349,7 +323,7 @@ func WorkerNodeCallback(channel string, msgStr string) {
 		}
 
 		// 发布消息给主节点
-		fmt.Println(msgSd)
+		log.Info("publish get log msg to master")
 		if err := database.Publish("nodes:master", string(msgSdBytes)); err != nil {
 			log.Errorf(err.Error())
 			return

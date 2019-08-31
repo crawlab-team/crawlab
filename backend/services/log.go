@@ -34,8 +34,10 @@ func GetLocalLog(logPath string) (fileBytes []byte, err error) {
 		return nil, err
 	}
 	defer f.Close()
+
 	const bufLen = 2048
 	logBuf := make([]byte, bufLen)
+
 	off := int64(0)
 	if fi.Size() > int64(len(logBuf)) {
 		off = fi.Size() - int64(len(logBuf))

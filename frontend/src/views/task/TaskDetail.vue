@@ -95,16 +95,16 @@ export default {
       this.$store.dispatch('task/getTaskResults', this.$route.params.id)
     },
     downloadCSV () {
-      window.location.href = this.$request.baseUrl + '/tasks/' + this.$route.params.id + '/results/download'
+      this.$store.dispatch('task/getTaskResultExcel', this.$route.params.id)
       this.$st.sendEv('任务详情-结果', '下载CSV')
     }
   },
-  created () {
-    this.$store.dispatch('task/getTaskData', this.$route.params.id)
+  async created () {
+    await this.$store.dispatch('task/getTaskData', this.$route.params.id)
     this.$store.dispatch('task/getTaskLog', this.$route.params.id)
     this.$store.dispatch('task/getTaskResults', this.$route.params.id)
 
-    if (['running'].includes(this.taskForm.status)) {
+    if (this.taskForm && ['running'].includes(this.taskForm.status)) {
       this.handle = setInterval(() => {
         this.$store.dispatch('task/getTaskLog', this.$route.params.id)
       }, 5000)

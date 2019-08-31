@@ -20,6 +20,7 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"strings"
+	"syscall"
 )
 
 type SpiderFileData struct {
@@ -30,6 +31,7 @@ type SpiderFileData struct {
 type SpiderUploadMessage struct {
 	FileId   string
 	FileName string
+	SpiderId string
 }
 
 // 从项目目录中获取爬虫列表
@@ -39,9 +41,9 @@ func GetSpidersFromDir() ([]model.Spider, error) {
 
 	// 如果爬虫项目目录不存在，则创建一个
 	if !utils.Exists(srcPath) {
-        mask := syscall.Umask(0)  // 改为 0000 八进制
+		mask := syscall.Umask(0)  // 改为 0000 八进制
 		defer syscall.Umask(mask) // 改为原来的 umask
-		if err := os.MkdirAll(srcPath, 0666); err != nil {
+		if err := os.MkdirAll(srcPath, 0766); err != nil {
 			debug.PrintStack()
 			return []model.Spider{}, err
 		}
@@ -133,6 +135,8 @@ func ZipSpider(spider model.Spider) (filePath string, err error) {
 	// 如果源文件夹不存在，抛错
 	if !utils.Exists(spider.Src) {
 		debug.PrintStack()
+		// 删除该爬虫，否则会一直报错
+		_ = model.RemoveSpider(spider.Id)
 		return "", errors.New("source path does not exist")
 	}
 
@@ -173,6 +177,7 @@ func UploadToGridFs(spider model.Spider, fileName string, filePath string) (fid 
 	// 如果存在FileId删除GridFS上的老文件
 	if !utils.IsObjectIdNull(spider.FileId) {
 		if err = gf.RemoveId(spider.FileId); err != nil {
+			log.Error("remove gf file:" + err.Error())
 			debug.PrintStack()
 		}
 	}
@@ -225,7 +230,7 @@ func ReadFileByStep(filePath string, handle func([]byte, *mgo.GridFile), fileCre
 	for {
 		switch nr, err := f.Read(s[:]); true {
 		case nr < 0:
-			fmt.Fprintf(os.Stderr, "cat: error reading: %s\n", err.Error())
+			_, _ = fmt.Fprintf(os.Stderr, "cat: error reading: %s\n", err.Error())
 			debug.PrintStack()
 		case nr == 0: // EOF
 			return nil
@@ -233,7 +238,6 @@ func ReadFileByStep(filePath string, handle func([]byte, *mgo.GridFile), fileCre
 			handle(s[0:nr], fileCreate)
 		}
 	}
-	return nil
 }
 
 // 发布所有爬虫
@@ -291,6 +295,7 @@ func PublishSpider(spider model.Spider) (err error) {
 	msg := SpiderUploadMessage{
 		FileId:   fid.Hex(),
 		FileName: fileName,
+		SpiderId: spider.Id.Hex(),
 	}
 	msgStr, err := json.Marshal(msg)
 	if err != nil {
@@ -322,7 +327,7 @@ func OnFileUpload(channel string, msgStr string) {
 	// 从GridFS获取该文件
 	f, err := gf.OpenId(bson.ObjectIdHex(msg.FileId))
 	if err != nil {
-		log.Errorf(err.Error())
+		log.Errorf("open file id: " + msg.FileId + ", spider id:" + msg.SpiderId + ", error: " + err.Error())
 		debug.PrintStack()
 		return
 	}

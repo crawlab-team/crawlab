@@ -3,7 +3,7 @@ import router from '../router'
 
 let baseUrl = process.env.VUE_APP_BASE_URL ? process.env.VUE_APP_BASE_URL : 'http://localhost:8000'
 
-const request = (method, path, params, data) => {
+const request = (method, path, params, data, others = {}) => {
   return new Promise((resolve, reject) => {
     const url = baseUrl + path
     const headers = {
@@ -14,7 +14,8 @@ const request = (method, path, params, data) => {
       url,
       params,
       data,
-      headers
+      headers,
+      ...others
     })
       .then(resolve)
       .catch(error => {
