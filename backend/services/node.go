@@ -124,6 +124,7 @@ func IsMaster() bool {
 	return viper.GetString("server.master") == Yes
 }
 
+// 所有调用IsMasterNode的方法，都永远会在master节点执行，所以GetCurrentNode方法返回永远是master节点
 // 该ID的节点是否为主节点
 func IsMasterNode(id string) bool {
 	curNode, _ := GetCurrentNode()

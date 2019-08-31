@@ -86,15 +86,15 @@ export default {
       return dayjs(str).format('YYYY-MM-DD HH:mm:ss')
     },
     getWaitDuration (row) {
-      if (row.start_ts.match('^0001')) return 'NA'
+      if (!row.start_ts || row.start_ts.match('^0001')) return 'NA'
       return dayjs(row.start_ts).diff(row.create_ts, 'second')
     },
     getRuntimeDuration (row) {
-      if (row.finish_ts.match('^0001')) return 'NA'
+      if (!row.finish_ts || row.finish_ts.match('^0001')) return 'NA'
       return dayjs(row.finish_ts).diff(row.start_ts, 'second')
     },
     getTotalDuration (row) {
-      if (row.finish_ts.match('^0001')) return 'NA'
+      if (!row.finish_ts || row.finish_ts.match('^0001')) return 'NA'
       return dayjs(row.finish_ts).diff(row.create_ts, 'second')
     }
   }

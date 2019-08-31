@@ -92,8 +92,6 @@ func (spider *Spider) GetLastTask() (Task, error) {
 	return tasks[0], nil
 }
 
-
-
 func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -162,6 +160,15 @@ func RemoveSpider(id bson.ObjectId) error {
 	}
 
 	if err := c.RemoveId(id); err != nil {
+		return err
+	}
+
+	// gf上的文件
+	s, gf := database.GetGridFs("files")
+	defer s.Close()
+
+	if err := gf.RemoveId(result.FileId); err != nil {
+		log.Error("remove file error, id:" + result.FileId.Hex())
 		return err
 	}
 
