@@ -31,6 +31,7 @@ type SpiderFileData struct {
 type SpiderUploadMessage struct {
 	FileId   string
 	FileName string
+	SpiderId string
 }
 
 // 从项目目录中获取爬虫列表
@@ -295,6 +296,7 @@ func PublishSpider(spider model.Spider) (err error) {
 	msg := SpiderUploadMessage{
 		FileId:   fid.Hex(),
 		FileName: fileName,
+		SpiderId: spider.Id.Hex(),
 	}
 	msgStr, err := json.Marshal(msg)
 	if err != nil {
@@ -326,7 +328,7 @@ func OnFileUpload(channel string, msgStr string) {
 	// 从GridFS获取该文件
 	f, err := gf.OpenId(bson.ObjectIdHex(msg.FileId))
 	if err != nil {
-		log.Errorf("open file id: " + msg.FileId + ", error: " + err.Error())
+		log.Errorf("open file id: " + msg.FileId + ", spider id:" + msg.SpiderId + ", error: " + err.Error())
 		debug.PrintStack()
 		return
 	}
