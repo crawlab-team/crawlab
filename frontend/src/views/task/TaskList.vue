@@ -45,7 +45,7 @@
                            :label="$t(col.label)"
                            :sortable="col.sortable"
                            :align="col.align"
-                           :width="col.width">
+          >
             <template slot-scope="scope">
               <a href="javascript:" class="a-tag" @click="onClickSpider(scope.row)">{{scope.row[col.name]}}</a>
             </template>
