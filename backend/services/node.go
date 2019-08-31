@@ -165,11 +165,7 @@ func UpdateNodeStatus() {
 			// 在Redis中删除该节点
 			if err := database.RedisClient.HDel("nodes", data.Key); err != nil {
 				log.Errorf(err.Error())
-				return
 			}
-			// 在MongoDB中该节点设置状态为离线
-			keys, _ := database.RedisClient.HKeys("nodes")
-			model.ResetNodeStatusToOffline(keys)
 			continue
 		}
 
