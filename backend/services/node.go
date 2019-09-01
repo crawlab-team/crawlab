@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"crawlab/constants"
 	"crawlab/database"
 	"crawlab/lib/cron"
@@ -10,6 +11,7 @@ import (
 	"fmt"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
+	"github.com/gomodule/redigo/redis"
 	"github.com/spf13/viper"
 	"runtime/debug"
 	"time"
@@ -258,13 +260,12 @@ func UpdateNodeData() {
 	}
 }
 
-func MasterNodeCallback(channel string, msgStr string) {
+func MasterNodeCallback(message redis.Message) (err error) {
 	// 反序列化
 	var msg NodeMessage
-	if err := json.Unmarshal([]byte(msgStr), &msg); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
+	if err := json.Unmarshal(message.Data, &msg); err != nil {
+
+		return err
 	}
 
 	if msg.Type == constants.MsgTypeGetLog {
@@ -281,16 +282,15 @@ func MasterNodeCallback(channel string, msgStr string) {
 		sysInfoBytes, _ := json.Marshal(&msg.SysInfo)
 		ch <- string(sysInfoBytes)
 	}
+	return nil
 }
 
-func WorkerNodeCallback(channel string, msgStr string) {
+func WorkerNodeCallback(message redis.Message) (err error) {
 	// 反序列化
 	msg := NodeMessage{}
-	fmt.Println(msgStr)
-	if err := json.Unmarshal([]byte(msgStr), &msg); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
+	if err := json.Unmarshal(message.Data, &msg); err != nil {
+
+		return err
 	}
 
 	if msg.Type == constants.MsgTypeGetLog {
@@ -317,16 +317,14 @@ func WorkerNodeCallback(channel string, msgStr string) {
 		// 序列化
 		msgSdBytes, err := json.Marshal(&msgSd)
 		if err != nil {
-			log.Errorf(err.Error())
-			debug.PrintStack()
-			return
+			return err
 		}
 
 		// 发布消息给主节点
 		log.Info("publish get log msg to master")
-		if err := database.Publish("nodes:master", string(msgSdBytes)); err != nil {
-			log.Errorf(err.Error())
-			return
+		if _, err := database.RedisClient.Publish("nodes:master", string(msgSdBytes)); err != nil {
+
+			return err
 		}
 	} else if msg.Type == constants.MsgTypeCancelTask {
 		// 取消任务
@@ -336,8 +334,7 @@ func WorkerNodeCallback(channel string, msgStr string) {
 		// 获取环境信息
 		sysInfo, err := GetLocalSystemInfo()
 		if err != nil {
-			log.Errorf(err.Error())
-			return
+			return err
 		}
 		msgSd := NodeMessage{
 			Type:    constants.MsgTypeGetSystemInfo,
@@ -348,14 +345,14 @@ func WorkerNodeCallback(channel string, msgStr string) {
 		if err != nil {
 			log.Errorf(err.Error())
 			debug.PrintStack()
-			return
+			return err
 		}
-		fmt.Println(msgSd)
-		if err := database.Publish("nodes:master", string(msgSdBytes)); err != nil {
+		if _, err := database.RedisClient.Publish("nodes:master", string(msgSdBytes)); err != nil {
 			log.Errorf(err.Error())
-			return
+			return err
 		}
 	}
+	return
 }
 
 // 初始化节点服务
@@ -373,25 +370,27 @@ func InitNodeService() error {
 	// 首次更新节点数据（注册到Redis）
 	UpdateNodeData()
 
-	// 消息订阅
-	var sub database.Subscriber
-	sub.Connect()
-
 	// 获取当前节点
 	node, err := GetCurrentNode()
 	if err != nil {
 		log.Errorf(err.Error())
 		return err
 	}
-
+	ctx := context.Background()
 	if IsMaster() {
 		// 如果为主节点，订阅主节点通信频道
 		channel := "nodes:master"
-		sub.Subscribe(channel, MasterNodeCallback)
+		err := database.RedisClient.Subscribe(ctx, MasterNodeCallback, channel)
+		if err != nil {
+			return err
+		}
 	} else {
 		// 若为工作节点，订阅单独指定通信频道
 		channel := "nodes:" + node.Id.Hex()
-		sub.Subscribe(channel, WorkerNodeCallback)
+		err := database.RedisClient.Subscribe(ctx, WorkerNodeCallback, channel)
+		if err != nil {
+			return err
+		}
 	}
 
 	// 如果为主节点，每30秒刷新所有节点信息

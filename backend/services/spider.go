@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"crawlab/constants"
 	"crawlab/database"
 	"crawlab/lib/cron"
@@ -11,6 +12,7 @@ import (
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
+	"github.com/gomodule/redigo/redis"
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
@@ -142,10 +144,7 @@ func ZipSpider(spider model.Spider) (filePath string, err error) {
 
 	// 临时文件路径
 	randomId := uuid.NewV4()
-	if err != nil {
-		debug.PrintStack()
-		return "", err
-	}
+
 	filePath = filepath.Join(
 		viper.GetString("other.tmppath"),
 		randomId.String()+".zip",
@@ -302,7 +301,7 @@ func PublishSpider(spider model.Spider) (err error) {
 		return
 	}
 	channel := "files:upload"
-	if err = database.Publish(channel, string(msgStr)); err != nil {
+	if _, err = database.RedisClient.Publish(channel, string(msgStr)); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
 		return
@@ -312,16 +311,16 @@ func PublishSpider(spider model.Spider) (err error) {
 }
 
 // 上传爬虫回调
-func OnFileUpload(channel string, msgStr string) {
+func OnFileUpload(message redis.Message) (err error) {
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
 
 	// 反序列化消息
 	var msg SpiderUploadMessage
-	if err := json.Unmarshal([]byte(msgStr), &msg); err != nil {
+	if err := json.Unmarshal(message.Data, &msg); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return
+		return err
 	}
 
 	// 从GridFS获取该文件
@@ -329,7 +328,7 @@ func OnFileUpload(channel string, msgStr string) {
 	if err != nil {
 		log.Errorf("open file id: " + msg.FileId + ", spider id:" + msg.SpiderId + ", error: " + err.Error())
 		debug.PrintStack()
-		return
+		return err
 	}
 	defer f.Close()
 
@@ -342,7 +341,7 @@ func OnFileUpload(channel string, msgStr string) {
 	if err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return
+		return err
 	}
 	defer tmpFile.Close()
 
@@ -350,7 +349,7 @@ func OnFileUpload(channel string, msgStr string) {
 	if _, err := io.Copy(tmpFile, f); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return
+		return err
 	}
 
 	// 解压缩临时文件到目标文件夹
@@ -361,22 +360,23 @@ func OnFileUpload(channel string, msgStr string) {
 	if err := utils.DeCompress(tmpFile, dstPath); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return
+		return err
 	}
 
 	// 关闭临时文件
 	if err := tmpFile.Close(); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return
+		return err
 	}
 
 	// 删除临时文件
 	if err := os.Remove(tmpFilePath); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return
+		return err
 	}
+	return nil
 }
 
 // 启动爬虫服务
@@ -401,9 +401,11 @@ func InitSpiderService() error {
 
 		// 订阅文件上传
 		channel := "files:upload"
-		var sub database.Subscriber
-		sub.Connect()
-		sub.Subscribe(channel, OnFileUpload)
+
+		//sub.Connect()
+		ctx := context.Background()
+		return database.RedisClient.Subscribe(ctx, OnFileUpload, channel)
+
 	}
 
 	// 启动定时任务
