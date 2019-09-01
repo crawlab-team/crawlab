@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"github.com/apex/log"
 	"github.com/spf13/viper"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -39,13 +40,13 @@ func GetLocalLog(logPath string) (fileBytes []byte, err error) {
 	logBuf := make([]byte, bufLen)
 
 	off := int64(0)
-	if fi.Size() > int64(len(logBuf)) {
-		off = fi.Size() - int64(len(logBuf))
+	if fi.Size() > bufLen {
+		off = fi.Size() - bufLen
 	}
 	n, err := f.ReadAt(logBuf, off)
 
 	//到文件结尾会有EOF标识
-	if err != nil && err.Error() != "EOF" {
+	if err != nil && err != io.EOF {
 		log.Error(err.Error())
 		debug.PrintStack()
 		return nil, err
@@ -99,9 +100,14 @@ func DeleteLogPeriodically() {
 
 	for _, fi := range rd {
 		if fi.IsDir() {
-			log.Info(filepath.Join(logDir, fi.Name()))
-			os.RemoveAll(filepath.Join(logDir, fi.Name()))
-			log.Info("Delete Log File Success")
+			logFile := filepath.Join(logDir, fi.Name())
+			log.Info(logFile)
+			err := os.RemoveAll(logFile)
+			if err != nil {
+				log.WithError(err).Error("Delete Log File Failed")
+			} else {
+				log.Info("Delete Log File Success")
+			}
 		}
 	}
 

@@ -8,7 +8,6 @@ import (
 	"crawlab/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
-	"github.com/pkg/errors"
 	"net/http"
 	"strings"
 )
@@ -151,37 +150,44 @@ func DeleteUser(c *gin.Context) {
 
 func Login(c *gin.Context) {
 	// 绑定请求数据
-	var reqData UserRequestData
+	var reqData struct {
+		Username string `json:"username"`
+		Password string `json:"password" binding:"min=5"`
+	}
+	ctx := context.WithGinContext(c)
+
 	if err := c.ShouldBindJSON(&reqData); err != nil {
-		HandleError(http.StatusUnauthorized, c, errors.New("not authorized"))
+		ctx.Failed(err)
+		//HandleError(http.StatusUnauthorized, c, errors.New("not authorized"))
 		return
 	}
-
 	// 获取用户
 	user, err := model.GetUserByUsername(strings.ToLower(reqData.Username))
 	if err != nil {
-		HandleError(http.StatusUnauthorized, c, errors.New("not authorized"))
+		ctx.Failed(constants.ErrorMongoError, err)
+		//HandleError(http.StatusUnauthorized, c, errors.New("not authorized"))
+		return
+	}
+	if user == (model.User{}) {
+		ctx.Failed(constants.ErrorUsernameOrPasswordInvalid)
 		return
 	}
 
 	// 校验密码
 	encPassword := utils.EncryptPassword(reqData.Password)
 	if user.Password != encPassword {
-		HandleError(http.StatusUnauthorized, c, errors.New("not authorized"))
+		ctx.FailedWithError(constants.ErrorUsernameOrPasswordInvalid)
 		return
 	}
 
 	// 获取token
 	tokenStr, err := services.MakeToken(&user)
 	if err != nil {
-		HandleError(http.StatusUnauthorized, c, errors.New("not authorized"))
+		ctx.FailedWithError(constants.ErrorUsernameOrPasswordInvalid)
 		return
 	}
-
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-		Data:    tokenStr,
+	ctx.Success(gin.H{
+		"token": tokenStr,
 	})
 }
 

@@ -71,7 +71,7 @@ const user = {
       return new Promise((resolve, reject) => {
         request.post('/login', { username, password: userInfo.password })
           .then(response => {
-            const token = response.data.data
+            const token = response.data.data.token
             commit('SET_TOKEN', token)
             window.localStorage.setItem('token', token)
             resolve()

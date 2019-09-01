@@ -1,6 +1,9 @@
 package errors
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+)
 
 type Scope int
 
@@ -10,9 +13,10 @@ const (
 )
 
 type OPError struct {
-	Message string
-	Code    int
-	Scope   Scope
+	HttpCode int
+	Message  string
+	Code     int
+	Scope    Scope
 }
 
 func (O OPError) Error() string {
@@ -24,20 +28,28 @@ func (O OPError) Error() string {
 	case ScopeBusiness:
 		scope = "business"
 	}
-	return fmt.Sprintf("%s : %d -> %s.", scope, O.Code, O.Message)
+	return fmt.Sprintf("%s error: [%d]%s.", scope, O.Code, O.Message)
 }
 
-func NewSystemOPError(code int, message string) *OPError {
+func NewSystemOPError(code int, message string, httpCodes ...int) *OPError {
+	httpCode := http.StatusOK
+	if len(httpCodes) > 0 {
+		httpCode = httpCodes[0]
+	}
+	return NewOpError(code, message, ScopeSystem, httpCode)
+}
+func NewOpError(code int, message string, scope Scope, httpCode int) *OPError {
 	return &OPError{
-		Message: message,
-		Code:    code,
-		Scope:   ScopeSystem,
+		Message:  message,
+		Code:     code,
+		Scope:    scope,
+		HttpCode: httpCode,
 	}
 }
-func NewBusinessError(code int, message string) *OPError {
-	return &OPError{
-		Message: message,
-		Code:    code,
-		Scope:   ScopeBusiness,
+func NewBusinessError(code int, message string, httpCodes ...int) *OPError {
+	httpCode := http.StatusOK
+	if len(httpCodes) > 0 {
+		httpCode = httpCodes[0]
 	}
+	return NewOpError(code, message, ScopeBusiness, httpCode)
 }
