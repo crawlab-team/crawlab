@@ -3,16 +3,19 @@ package main
 import (
 	"crawlab/config"
 	"crawlab/database"
+	"crawlab/lib/validate_bridge"
 	"crawlab/middlewares"
 	"crawlab/routes"
 	"crawlab/services"
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/viper"
 	"runtime/debug"
 )
 
 func main() {
+	binding.Validator = new(validate_bridge.DefaultValidator)
 	app := gin.Default()
 
 	// 初始化配置
