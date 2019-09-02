@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"github.com/gomodule/redigo/redis"
 	"github.com/spf13/viper"
 	"runtime/debug"
@@ -94,7 +93,6 @@ func NewRedisPool() *redis.Pool {
 	} else {
 		url = "redis://x:" + password + "@" + address + ":" + port + "/" + database
 	}
-	fmt.Println(url)
 	return &redis.Pool{
 		Dial: func() (conn redis.Conn, e error) {
 			return redis.DialURL(url,
