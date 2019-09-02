@@ -46,6 +46,7 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 				return
 			}
 		}
+		c.Set(constants.ContextUser, &user)
 
 		// 校验成功
 		c.Next()
