@@ -99,7 +99,7 @@ func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, error) {
 
 	// 获取爬虫列表
 	spiders := []Spider{}
-	if err := c.Find(filter).Skip(skip).Limit(limit).Sort("name asc").All(&spiders); err != nil {
+	if err := c.Find(filter).Skip(skip).Limit(limit).Sort("+name").All(&spiders); err != nil {
 		debug.PrintStack()
 		return spiders, err
 	}
