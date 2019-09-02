@@ -259,8 +259,8 @@ func PublishAllSpiders() error {
 	for _, spider := range spiders {
 		// 发布爬虫
 		if err := PublishSpider(spider); err != nil {
-			log.Errorf(err.Error())
-			return err
+			log.Errorf("publish spider error:" + err.Error())
+			// return err
 		}
 	}
 
