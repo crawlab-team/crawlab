@@ -362,7 +362,7 @@ func OnFileUpload(channel string, msgStr string) {
 	// 解压缩临时文件到目标文件夹
 	dstPath := filepath.Join(
 		viper.GetString("spider.path"),
-		//strings.Replace(msg.FileName, ".zip", "", -1),
+		strings.Replace(msg.FileName, ".zip", "", -1),
 	)
 	if err := utils.DeCompress(tmpFile, dstPath); err != nil {
 		log.Errorf(err.Error())
