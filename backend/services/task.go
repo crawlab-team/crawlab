@@ -36,7 +36,7 @@ func (m *TaskMessage) ToString() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(data), err
+	return utils.BytesToString(data), err
 }
 
 // 任务执行器
@@ -405,13 +405,13 @@ func GetTaskLog(id string) (logStr string, err error) {
 	if IsMasterNode(task.NodeId.Hex()) {
 		// 若为主节点，获取本机日志
 		logBytes, err := GetLocalLog(task.LogPath)
-		logStr = string(logBytes)
+		logStr = utils.BytesToString(logBytes)
 		if err != nil {
 			log.Errorf(err.Error())
-			logStr = string(err.Error())
+			logStr = err.Error()
 			// return "", err
 		} else {
-			logStr = string(logBytes)
+			logStr = utils.BytesToString(logBytes)
 		}
 
 	} else {
@@ -466,7 +466,7 @@ func CancelTask(id string) (err error) {
 		}
 
 		// 发布消息
-		if _, err := database.RedisClient.Publish("nodes:"+task.NodeId.Hex(), string(msgBytes)); err != nil {
+		if _, err := database.RedisClient.Publish("nodes:"+task.NodeId.Hex(), utils.BytesToString(msgBytes)); err != nil {
 			return err
 		}
 	}

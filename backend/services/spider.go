@@ -307,7 +307,7 @@ func PublishSpider(spider model.Spider) (err error) {
 		return
 	}
 	channel := "files:upload"
-	if _, err = database.RedisClient.Publish(channel, string(msgStr)); err != nil {
+	if _, err = database.RedisClient.Publish(channel, utils.BytesToString(msgStr)); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
 		return
