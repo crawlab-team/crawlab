@@ -40,11 +40,11 @@ func (r *Redis) subscribe(ctx context.Context, consume ConsumeFunc, channel ...s
 				}
 			case redis.Subscription:
 				fmt.Println(msg)
-				//
-				//if msg.Count == 0 {
-				//	// all channels are unsubscribed
-				//	return
-				//}
+
+				if msg.Count == 0 {
+					// all channels are unsubscribed
+					return
+				}
 			}
 
 		}
@@ -54,9 +54,9 @@ func (r *Redis) subscribe(ctx context.Context, consume ConsumeFunc, channel ...s
 		select {
 		case <-ctx.Done():
 			if err := psc.Unsubscribe(); err != nil {
-				fmt.Printf("redis pubsub unsubscribe err: %v", err)
+				fmt.Printf("redis pubsub unsubscribe err: %v \n", err)
 			}
-			return nil
+			done <- nil
 		case <-tick.C:
 			//fmt.Printf("ping message  \n")
 			if err := psc.Ping(""); err != nil {
