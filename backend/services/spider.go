@@ -89,16 +89,25 @@ func GetSpidersFromDir() ([]model.Spider, error) {
 
 // 将爬虫保存到数据库
 func SaveSpiders(spiders []model.Spider) error {
-	// 遍历爬虫列表
+	s, c := database.GetCol("spiders")
+	defer s.Close()
+
+	if len(spiders) == 0 {
+		err := model.RemoveAllSpider()
+		if err != nil {
+			log.Error("remove all spider error:" + err.Error())
+			return err
+		}
+		log.Info("get spider from dir is empty,removed all spider")
+		return nil
+	}
+	// 如果该爬虫不存在于数据库，则保存爬虫到数据库
 	for _, spider := range spiders {
 		// 忽略非自定义爬虫
 		if spider.Type != constants.Customized {
 			continue
 		}
 
-		// 如果该爬虫不存在于数据库，则保存爬虫到数据库
-		s, c := database.GetCol("spiders")
-		defer s.Close()
 		var spider_ *model.Spider
 		if err := c.Find(bson.M{"src": spider.Src}).One(&spider_); err != nil {
 			// 不存在
@@ -106,11 +115,8 @@ func SaveSpiders(spiders []model.Spider) error {
 				debug.PrintStack()
 				return err
 			}
-		} else {
-			// 存在
 		}
 	}
-
 	return nil
 }
 

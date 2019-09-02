@@ -177,6 +177,24 @@ func RemoveSpider(id bson.ObjectId) error {
 	return nil
 }
 
+func RemoveAllSpider() error {
+	s, c := database.GetCol("spiders")
+	defer s.Close()
+
+	spiders := []Spider{}
+	err := c.Find(nil).All(&spiders)
+	if err != nil {
+		log.Error("get all spiders error:" + err.Error())
+		return err
+	}
+	for _, spider := range spiders {
+		if err := RemoveSpider(spider.Id); err != nil {
+			log.Error("remove spider error:" + err.Error())
+		}
+	}
+	return nil
+}
+
 func GetSpiderCount() (int, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
