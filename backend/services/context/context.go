@@ -8,6 +8,7 @@ import (
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
 	errors2 "github.com/pkg/errors"
+	"gopkg.in/go-playground/validator.v9"
 	"net/http"
 	"runtime/debug"
 )
@@ -27,9 +28,12 @@ func (c *Context) User() *model.User {
 	}
 	return user
 }
-func (c *Context) Success(data interface{}, meta interface{}) {
-	if meta == nil {
+func (c *Context) Success(data interface{}, metas ...interface{}) {
+	var meta interface{}
+	if len(metas) == 0 {
 		meta = gin.H{}
+	} else {
+		meta = metas[0]
 	}
 	if data == nil {
 		data = gin.H{}
@@ -38,8 +42,48 @@ func (c *Context) Success(data interface{}, meta interface{}) {
 		"status":  "ok",
 		"message": "success",
 		"data":    data,
+		"meta":    meta,
 		"error":   "",
 	})
+}
+func (c *Context) Failed(err error, variables ...interface{}) {
+	c.failed(err, http.StatusOK, variables...)
+}
+func (c *Context) failed(err error, httpCode int, variables ...interface{}) {
+	errStr := err.Error()
+	if len(variables) > 0 {
+		errStr = fmt.Sprintf(errStr, variables...)
+	}
+	log.Errorf("handle error:" + errStr)
+	debug.PrintStack()
+	causeError := errors2.Cause(err)
+	switch causeError.(type) {
+	case errors.OPError:
+		opError := causeError.(errors.OPError)
+
+		c.AbortWithStatusJSON(opError.HttpCode, gin.H{
+			"status":  "ok",
+			"message": "error",
+			"error":   errStr,
+		})
+		break
+	case validator.ValidationErrors:
+		validatorErrors := causeError.(validator.ValidationErrors)
+		//firstError := validatorErrors[0].(validator.FieldError)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  "ok",
+			"message": "error",
+			"error":   validatorErrors.Error(),
+		})
+		break
+	default:
+		fmt.Println("deprecated....")
+		c.AbortWithStatusJSON(httpCode, gin.H{
+			"status":  "ok",
+			"message": "error",
+			"error":   errStr,
+		})
+	}
 }
 func (c *Context) FailedWithError(err error, httpCode ...int) {
 
@@ -47,24 +91,7 @@ func (c *Context) FailedWithError(err error, httpCode ...int) {
 	if len(httpCode) > 0 {
 		code = httpCode[0]
 	}
-	log.Errorf("handle error:" + err.Error())
-	debug.PrintStack()
-	switch errors2.Cause(err).(type) {
-	case errors.OPError:
-		c.AbortWithStatusJSON(code, gin.H{
-			"status":  "ok",
-			"message": "error",
-			"error":   err.Error(),
-		})
-		break
-	default:
-		fmt.Println("deprecated....")
-		c.AbortWithStatusJSON(code, gin.H{
-			"status":  "ok",
-			"message": "error",
-			"error":   err.Error(),
-		})
-	}
+	c.failed(err, code)
 
 }
 
