@@ -112,7 +112,7 @@ func GetRemoteSystemInfo(id string) (sysInfo model.SystemInfo, err error) {
 
 	// 序列化
 	msgBytes, _ := json.Marshal(&msg)
-	if err := database.Publish("nodes:"+id, string(msgBytes)); err != nil {
+	if _, err := database.RedisClient.Publish("nodes:"+id, string(msgBytes)); err != nil {
 		return model.SystemInfo{}, err
 	}
 

@@ -71,7 +71,7 @@ func GetRemoteLog(task model.Task) (logStr string, err error) {
 
 	// 发布获取日志消息
 	channel := "nodes:" + task.NodeId.Hex()
-	if err := database.Publish(channel, string(msgBytes)); err != nil {
+	if _, err := database.RedisClient.Publish(channel, string(msgBytes)); err != nil {
 		log.Errorf(err.Error())
 		return "", err
 	}
