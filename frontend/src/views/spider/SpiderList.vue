@@ -190,14 +190,6 @@
               {{getTime(scope.row[col.name])}}
             </template>
           </el-table-column>
-          <el-table-column v-else-if="col.name === 'last_status'"
-                           :key="col.name"
-                           :label="$t(col.label)"
-                           align="left" :width="col.width">
-            <template slot-scope="scope">
-              <status-tag :status="scope.row.last_status"/>
-            </template>
-          </el-table-column>
           <el-table-column v-else
                            :key="col.name"
                            :property="col.name"
@@ -247,14 +239,10 @@ import {
 } from 'vuex'
 import dayjs from 'dayjs'
 import CrawlConfirmDialog from '../../components/Common/CrawlConfirmDialog'
-import StatusTag from '../../components/Status/StatusTag'
 
 export default {
   name: 'SpiderList',
-  components: {
-    CrawlConfirmDialog,
-    StatusTag
-  },
+  components: { CrawlConfirmDialog },
   data () {
     return {
       pagination: {
@@ -275,15 +263,14 @@ export default {
       },
       // tableData,
       columns: [
-        { name: 'name', label: 'Name', width: '160', align: 'left' },
+        { name: 'name', label: 'Name', width: '180', align: 'left' },
         // { name: 'site_name', label: 'Site', width: '140', align: 'left' },
         { name: 'type', label: 'Spider Type', width: '120' },
         // { name: 'cmd', label: 'Command Line', width: '200' },
-        { name: 'last_status', label: 'Last Status', width: '120' },
-        { name: 'last_run_ts', label: 'Last Run', width: '140' },
-        { name: 'create_ts', label: 'Create Time', width: '140' },
-        { name: 'update_ts', label: 'Update Time', width: '140' },
-        { name: 'remark', label: 'Remark', width: '140' }
+        // { name: 'lang', label: 'Language', width: '120', sortable: true },
+        { name: 'last_run_ts', label: 'Last Run', width: '160' },
+        { name: 'create_ts', label: 'Create Time', width: '160' },
+        { name: 'update_ts', label: 'Update Time', width: '160' }
         // { name: 'last_7d_tasks', label: 'Last 7-Day Tasks', width: '80' },
         // { name: 'last_5_errors', label: 'Last 5-Run Errors', width: '80' }
       ],

@@ -38,21 +38,21 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('schedules.cron')" prop="cron" :rules="cronRules" required>
+        <el-form-item :label="$t('Cron')" prop="cron" :rules="cronRules" required>
           <template slot="label">
-            <el-tooltip :content="$t('schedules.cron_format')"
+            <el-tooltip :content="$t('Cron Format: [second] [minute] [hour] [day of month] [month] [day of week]')"
                         placement="top">
               <span>
-                {{$t('schedules.cron')}}
+                {{$t('Cron')}}
                 <i class="fa fa-exclamation-circle"></i>
               </span>
             </el-tooltip>
           </template>
           <el-input style="width:calc(100% - 100px);padding-right:10px"
                     v-model="scheduleForm.cron"
-                    :placeholder="$t('schedules.cron')">
+                    :placeholder="$t('Cron')">
           </el-input>
-          <el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('schedules.add_cron')}}</el-button>
+          <el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('生成Cron')}}</el-button>
         </el-form-item>
         <el-form-item :label="$t('Execute Command')" prop="params">
           <el-input v-model="spider.cmd"
@@ -156,7 +156,7 @@ export default {
     return {
       columns: [
         { name: 'name', label: 'Name', width: '180' },
-        { name: 'cron', label: 'schedules.cron', width: '120' },
+        { name: 'cron', label: 'Cron', width: '120' },
         { name: 'node_name', label: 'Node', width: '150' },
         { name: 'spider_name', label: 'Spider', width: '150' },
         { name: 'description', label: 'Description', width: 'auto' }

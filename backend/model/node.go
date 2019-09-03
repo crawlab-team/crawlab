@@ -1,9 +1,7 @@
 package model
 
 import (
-	"crawlab/constants"
 	"crawlab/database"
-	"crawlab/services/register"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
@@ -81,7 +79,6 @@ func GetNodeList(filter interface{}) ([]Node, error) {
 
 	var results []Node
 	if err := c.Find(filter).All(&results); err != nil {
-		log.Error("get node list error: " + err.Error())
 		debug.PrintStack()
 		return results, err
 	}
@@ -155,48 +152,4 @@ func GetNodeCount(query interface{}) (int, error) {
 	}
 
 	return count, nil
-}
-
-// 节点基本信息
-func GetNodeBaseInfo() (ip string, mac string, key string, error error) {
-	ip, err := register.GetRegister().GetIp()
-	if err != nil {
-		debug.PrintStack()
-		return "", "", "", err
-	}
-
-	mac, err = register.GetRegister().GetMac()
-	if err != nil {
-		debug.PrintStack()
-		return "", "", "", err
-	}
-
-	key, err = register.GetRegister().GetKey()
-	if err != nil {
-		debug.PrintStack()
-		return "", "", "", err
-	}
-	return ip, mac, key, nil
-}
-
-// 根据redis的key值，重置node节点为offline
-func ResetNodeStatusToOffline(list []string) {
-	nodes, _ := GetNodeList(nil)
-	for _, node := range nodes {
-		hasNode := false
-		for _, key := range list {
-			if key == node.Key {
-				hasNode = true
-				break
-			}
-		}
-		if !hasNode || node.Status == "" {
-			node.Status = constants.StatusOffline
-			if err := node.Save(); err != nil {
-				log.Errorf(err.Error())
-				return
-			}
-			continue
-		}
-	}
 }

@@ -163,7 +163,7 @@ export default {
       columns: [
         { name: 'name', label: 'Name', width: '220' },
         { name: 'ip', label: 'IP', width: '160' },
-        { name: 'type', label: 'nodeList.type', width: '120' },
+        { name: 'type', label: 'Type', width: '120' },
         // { name: 'port', label: 'Port', width: '80' },
         { name: 'status', label: 'Status', width: '120' },
         { name: 'description', label: 'Description', width: 'auto' }

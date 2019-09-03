@@ -46,6 +46,7 @@ export const constantRouterMap = [
     ]
   },
   {
+    name: 'Node',
     path: '/nodes',
     component: Layout,
     meta: {
@@ -75,6 +76,7 @@ export const constantRouterMap = [
     ]
   },
   {
+    name: 'Spider',
     path: '/spiders',
     component: Layout,
     meta: {
@@ -104,6 +106,7 @@ export const constantRouterMap = [
     ]
   },
   {
+    name: 'Task',
     path: '/tasks',
     component: Layout,
     meta: {
@@ -133,6 +136,7 @@ export const constantRouterMap = [
     ]
   },
   {
+    name: 'Schedule',
     path: '/schedules',
     component: Layout,
     meta: {
@@ -153,6 +157,7 @@ export const constantRouterMap = [
     ]
   },
   {
+    name: 'Site',
     path: '/sites',
     component: Layout,
     hidden: true,
@@ -173,6 +178,7 @@ export const constantRouterMap = [
     ]
   },
   {
+    name: 'User',
     path: '/users',
     component: Layout,
     meta: {

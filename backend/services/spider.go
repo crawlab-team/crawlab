@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"crawlab/constants"
 	"crawlab/database"
 	"crawlab/lib/cron"
@@ -12,7 +11,6 @@ import (
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"github.com/gomodule/redigo/redis"
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
@@ -22,7 +20,6 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"strings"
-	"syscall"
 )
 
 type SpiderFileData struct {
@@ -33,7 +30,6 @@ type SpiderFileData struct {
 type SpiderUploadMessage struct {
 	FileId   string
 	FileName string
-	SpiderId string
 }
 
 // 从项目目录中获取爬虫列表
@@ -43,9 +39,7 @@ func GetSpidersFromDir() ([]model.Spider, error) {
 
 	// 如果爬虫项目目录不存在，则创建一个
 	if !utils.Exists(srcPath) {
-		mask := syscall.Umask(0)  // 改为 0000 八进制
-		defer syscall.Umask(mask) // 改为原来的 umask
-		if err := os.MkdirAll(srcPath, 0766); err != nil {
+		if err := os.MkdirAll(srcPath, 0666); err != nil {
 			debug.PrintStack()
 			return []model.Spider{}, err
 		}
@@ -91,25 +85,16 @@ func GetSpidersFromDir() ([]model.Spider, error) {
 
 // 将爬虫保存到数据库
 func SaveSpiders(spiders []model.Spider) error {
-	s, c := database.GetCol("spiders")
-	defer s.Close()
-
-	if len(spiders) == 0 {
-		err := model.RemoveAllSpider()
-		if err != nil {
-			log.Error("remove all spider error:" + err.Error())
-			return err
-		}
-		log.Info("get spider from dir is empty,removed all spider")
-		return nil
-	}
-	// 如果该爬虫不存在于数据库，则保存爬虫到数据库
+	// 遍历爬虫列表
 	for _, spider := range spiders {
 		// 忽略非自定义爬虫
 		if spider.Type != constants.Customized {
 			continue
 		}
 
+		// 如果该爬虫不存在于数据库，则保存爬虫到数据库
+		s, c := database.GetCol("spiders")
+		defer s.Close()
 		var spider_ *model.Spider
 		if err := c.Find(bson.M{"src": spider.Src}).One(&spider_); err != nil {
 			// 不存在
@@ -117,8 +102,11 @@ func SaveSpiders(spiders []model.Spider) error {
 				debug.PrintStack()
 				return err
 			}
+		} else {
+			// 存在
 		}
 	}
+
 	return nil
 }
 
@@ -143,14 +131,15 @@ func ZipSpider(spider model.Spider) (filePath string, err error) {
 	// 如果源文件夹不存在，抛错
 	if !utils.Exists(spider.Src) {
 		debug.PrintStack()
-		// 删除该爬虫，否则会一直报错
-		_ = model.RemoveSpider(spider.Id)
 		return "", errors.New("source path does not exist")
 	}
 
 	// 临时文件路径
 	randomId := uuid.NewV4()
-
+	if err != nil {
+		debug.PrintStack()
+		return "", err
+	}
 	filePath = filepath.Join(
 		viper.GetString("other.tmppath"),
 		randomId.String()+".zip",
@@ -182,7 +171,6 @@ func UploadToGridFs(spider model.Spider, fileName string, filePath string) (fid 
 	// 如果存在FileId删除GridFS上的老文件
 	if !utils.IsObjectIdNull(spider.FileId) {
 		if err = gf.RemoveId(spider.FileId); err != nil {
-			log.Error("remove gf file:" + err.Error())
 			debug.PrintStack()
 		}
 	}
@@ -235,7 +223,7 @@ func ReadFileByStep(filePath string, handle func([]byte, *mgo.GridFile), fileCre
 	for {
 		switch nr, err := f.Read(s[:]); true {
 		case nr < 0:
-			_, _ = fmt.Fprintf(os.Stderr, "cat: error reading: %s\n", err.Error())
+			fmt.Fprintf(os.Stderr, "cat: error reading: %s\n", err.Error())
 			debug.PrintStack()
 		case nr == 0: // EOF
 			return nil
@@ -243,6 +231,7 @@ func ReadFileByStep(filePath string, handle func([]byte, *mgo.GridFile), fileCre
 			handle(s[0:nr], fileCreate)
 		}
 	}
+	return nil
 }
 
 // 发布所有爬虫
@@ -258,8 +247,8 @@ func PublishAllSpiders() error {
 	for _, spider := range spiders {
 		// 发布爬虫
 		if err := PublishSpider(spider); err != nil {
-			log.Errorf("publish spider error:" + err.Error())
-			// return err
+			log.Errorf(err.Error())
+			return err
 		}
 	}
 
@@ -300,14 +289,13 @@ func PublishSpider(spider model.Spider) (err error) {
 	msg := SpiderUploadMessage{
 		FileId:   fid.Hex(),
 		FileName: fileName,
-		SpiderId: spider.Id.Hex(),
 	}
 	msgStr, err := json.Marshal(msg)
 	if err != nil {
 		return
 	}
 	channel := "files:upload"
-	if _, err = database.RedisClient.Publish(channel, string(msgStr)); err != nil {
+	if err = database.Publish(channel, string(msgStr)); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
 		return
@@ -317,24 +305,24 @@ func PublishSpider(spider model.Spider) (err error) {
 }
 
 // 上传爬虫回调
-func OnFileUpload(message redis.Message) (err error) {
+func OnFileUpload(channel string, msgStr string) {
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
 
 	// 反序列化消息
 	var msg SpiderUploadMessage
-	if err := json.Unmarshal(message.Data, &msg); err != nil {
+	if err := json.Unmarshal([]byte(msgStr), &msg); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return err
+		return
 	}
 
 	// 从GridFS获取该文件
 	f, err := gf.OpenId(bson.ObjectIdHex(msg.FileId))
 	if err != nil {
-		log.Errorf("open file id: " + msg.FileId + ", spider id:" + msg.SpiderId + ", error: " + err.Error())
+		log.Errorf(err.Error())
 		debug.PrintStack()
-		return err
+		return
 	}
 	defer f.Close()
 
@@ -347,7 +335,7 @@ func OnFileUpload(message redis.Message) (err error) {
 	if err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return err
+		return
 	}
 	defer tmpFile.Close()
 
@@ -355,34 +343,33 @@ func OnFileUpload(message redis.Message) (err error) {
 	if _, err := io.Copy(tmpFile, f); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return err
+		return
 	}
 
 	// 解压缩临时文件到目标文件夹
 	dstPath := filepath.Join(
 		viper.GetString("spider.path"),
-		// strings.Replace(msg.FileName, ".zip", "", -1),
+		//strings.Replace(msg.FileName, ".zip", "", -1),
 	)
 	if err := utils.DeCompress(tmpFile, dstPath); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return err
+		return
 	}
 
 	// 关闭临时文件
 	if err := tmpFile.Close(); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return err
+		return
 	}
 
 	// 删除临时文件
 	if err := os.Remove(tmpFilePath); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return err
+		return
 	}
-	return nil
 }
 
 // 启动爬虫服务
@@ -407,11 +394,9 @@ func InitSpiderService() error {
 
 		// 订阅文件上传
 		channel := "files:upload"
-
-		//sub.Connect()
-		ctx := context.Background()
-		return database.RedisClient.Subscribe(ctx, OnFileUpload, channel)
-
+		var sub database.Subscriber
+		sub.Connect()
+		sub.Subscribe(channel, OnFileUpload)
 	}
 
 	// 启动定时任务

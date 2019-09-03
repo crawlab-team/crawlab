@@ -3,51 +3,28 @@ import router from '../router'
 
 let baseUrl = process.env.VUE_APP_BASE_URL ? process.env.VUE_APP_BASE_URL : 'http://localhost:8000'
 
-const request = async (method, path, params, data, others = {}) => {
-  try {
+const request = (method, path, params, data) => {
+  return new Promise((resolve, reject) => {
     const url = baseUrl + path
     const headers = {
       'Authorization': window.localStorage.getItem('token')
     }
-    const response = await axios({
+    axios({
       method,
       url,
       params,
       data,
-      headers,
-      ...others
+      headers
     })
-    // console.log(response)
-    return response
-  } catch (e) {
-    if (e.response.status === 401 && router.currentRoute.path !== '/login') {
-      router.push('/login')
-    }
-    await Promise.reject(e)
-  }
-
-  // return new Promise((resolve, reject) => {
-  //   const url = baseUrl + path
-  //   const headers = {
-  //     'Authorization': window.localStorage.getItem('token')
-  //   }
-  //   axios({
-  //     method,
-  //     url,
-  //     params,
-  //     data,
-  //     headers,
-  //     ...others
-  //   })
-  //     .then(resolve)
-  //     .catch(error => {
-  //       console.log(error)
-  //       if (error.response.status === 401) {
-  //         router.push('/login')
-  //       }
-  //       reject(error)
-  //     })
-  // })
+      .then(resolve)
+      .catch(error => {
+        console.log(error)
+        if (error.response.status === 401) {
+          router.push('/login')
+        }
+        reject(error)
+      })
+  })
 }
 
 const get = (path, params) => {

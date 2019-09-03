@@ -4,20 +4,21 @@ import (
 	"github.com/gomodule/redigo/redis"
 	"github.com/spf13/viper"
 	"runtime/debug"
-	"time"
 )
 
-var RedisClient *Redis
+var RedisClient = Redis{}
+
+type ConsumeFunc func(channel string, message []byte) error
 
 type Redis struct {
-	pool *redis.Pool
 }
 
-func NewRedisClient() *Redis {
-	return &Redis{pool: NewRedisPool()}
-}
 func (r *Redis) RPush(collection string, value interface{}) error {
-	c := r.pool.Get()
+	c, err := GetRedisConn()
+	if err != nil {
+		debug.PrintStack()
+		return err
+	}
 	defer c.Close()
 
 	if _, err := c.Do("RPUSH", collection, value); err != nil {
@@ -28,7 +29,11 @@ func (r *Redis) RPush(collection string, value interface{}) error {
 }
 
 func (r *Redis) LPop(collection string) (string, error) {
-	c := r.pool.Get()
+	c, err := GetRedisConn()
+	if err != nil {
+		debug.PrintStack()
+		return "", err
+	}
 	defer c.Close()
 
 	value, err2 := redis.String(c.Do("LPOP", collection))
@@ -39,7 +44,11 @@ func (r *Redis) LPop(collection string) (string, error) {
 }
 
 func (r *Redis) HSet(collection string, key string, value string) error {
-	c := r.pool.Get()
+	c, err := GetRedisConn()
+	if err != nil {
+		debug.PrintStack()
+		return err
+	}
 	defer c.Close()
 
 	if _, err := c.Do("HSET", collection, key, value); err != nil {
@@ -50,7 +59,11 @@ func (r *Redis) HSet(collection string, key string, value string) error {
 }
 
 func (r *Redis) HGet(collection string, key string) (string, error) {
-	c := r.pool.Get()
+	c, err := GetRedisConn()
+	if err != nil {
+		debug.PrintStack()
+		return "", err
+	}
 	defer c.Close()
 
 	value, err2 := redis.String(c.Do("HGET", collection, key))
@@ -61,7 +74,11 @@ func (r *Redis) HGet(collection string, key string) (string, error) {
 }
 
 func (r *Redis) HDel(collection string, key string) error {
-	c := r.pool.Get()
+	c, err := GetRedisConn()
+	if err != nil {
+		debug.PrintStack()
+		return err
+	}
 	defer c.Close()
 
 	if _, err := c.Do("HDEL", collection, key); err != nil {
@@ -71,7 +88,11 @@ func (r *Redis) HDel(collection string, key string) error {
 }
 
 func (r *Redis) HKeys(collection string) ([]string, error) {
-	c := r.pool.Get()
+	c, err := GetRedisConn()
+	if err != nil {
+		debug.PrintStack()
+		return []string{}, err
+	}
 	defer c.Close()
 
 	value, err2 := redis.Strings(c.Do("HKeys", collection))
@@ -81,7 +102,7 @@ func (r *Redis) HKeys(collection string) ([]string, error) {
 	return value, nil
 }
 
-func NewRedisPool() *redis.Pool {
+func GetRedisConn() (redis.Conn, error) {
 	var address = viper.GetString("redis.address")
 	var port = viper.GetString("redis.port")
 	var database = viper.GetString("redis.database")
@@ -93,30 +114,14 @@ func NewRedisPool() *redis.Pool {
 	} else {
 		url = "redis://x:" + password + "@" + address + ":" + port + "/" + database
 	}
-	return &redis.Pool{
-		Dial: func() (conn redis.Conn, e error) {
-			return redis.DialURL(url,
-				redis.DialConnectTimeout(time.Second*10),
-				redis.DialReadTimeout(time.Second*10),
-				redis.DialWriteTimeout(time.Second*10),
-			)
-		},
-		TestOnBorrow: func(c redis.Conn, t time.Time) error {
-			if time.Since(t) < time.Minute {
-				return nil
-			}
-			_, err := c.Do("PING")
-			return err
-		},
-		MaxIdle:         10,
-		MaxActive:       0,
-		IdleTimeout:     300 * time.Second,
-		Wait:            false,
-		MaxConnLifetime: 0,
+	c, err := redis.DialURL(url)
+	if err != nil {
+		debug.PrintStack()
+		return c, err
 	}
+	return c, nil
 }
 
 func InitRedis() error {
-	RedisClient = NewRedisClient()
 	return nil
 }

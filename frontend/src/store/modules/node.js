@@ -25,7 +25,15 @@ const mutations = {
     const { id, systemInfo } = payload
     for (let i = 0; i < state.nodeList.length; i++) {
       if (state.nodeList[i]._id === id) {
+        // Vue.set(state.nodeList[i], 'systemInfo', {})
         state.nodeList[i].systemInfo = systemInfo
+        // for (const key in systemInfo) {
+        //   if (systemInfo.hasOwnProperty(key)) {
+        //     console.log(key)
+        //     state.nodeList[i].systemInfo[key] = systemInfo[key]
+        //     // Vue.set(state.nodeList[i].systemInfo, key, systemInfo[key])
+        //   }
+        // }
         break
       }
     }
@@ -68,12 +76,10 @@ const actions = {
   getTaskList ({ state, commit }, id) {
     return request.get(`/nodes/${id}/tasks`)
       .then(response => {
-        if (response.data.data) {
-          commit('task/SET_TASK_LIST',
-            response.data.data.map(d => d)
-              .sort((a, b) => a.create_ts < b.create_ts ? 1 : -1),
-            { root: true })
-        }
+        commit('task/SET_TASK_LIST',
+          response.data.data.map(d => d)
+            .sort((a, b) => a.create_ts < b.create_ts ? 1 : -1),
+          { root: true })
       })
   },
   getNodeSystemInfo ({ state, commit }, id) {

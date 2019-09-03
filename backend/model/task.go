@@ -190,21 +190,6 @@ func RemoveTask(id string) error {
 	return nil
 }
 
-func RemoveTaskBySpiderId(id string) error {
-	tasks, err := GetTaskList(bson.M{"spider_id": id}, 0, constants.Infinite, "-create_ts")
-	if err != nil {
-		log.Error("get tasks error:" + err.Error())
-	}
-
-	for _, task := range tasks {
-		if err := RemoveTask(task.Id); err != nil {
-			log.Error("remove task error:" + err.Error())
-			continue
-		}
-	}
-	return nil
-}
-
 func GetTaskCount(query interface{}) (int, error) {
 	s, c := database.GetCol("tasks")
 	defer s.Close()
@@ -222,7 +207,7 @@ func GetDailyTaskStats(query bson.M) ([]TaskDailyItem, error) {
 	defer s.Close()
 
 	// 起始日期
-	startDate := time.Now().Add(-30 * 24 * time.Hour)
+	startDate := time.Now().Add(- 30 * 24 * time.Hour)
 	endDate := time.Now()
 
 	// query

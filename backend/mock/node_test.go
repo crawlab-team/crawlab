@@ -41,12 +41,6 @@ func init() {
 	app.DELETE("/tasks/:id", DeleteTask)                           // 删除任务
 	app.GET("/tasks/:id/results",GetTaskResults)                  // 任务结果
 	app.GET("/tasks/:id/results/download", DownloadTaskResultsCsv) // 下载任务结果
-	app.GET("/spiders", GetSpiderList)              // 爬虫列表
-	app.GET("/spiders/:id", GetSpider)              // 爬虫详情
-	app.POST("/spiders/:id", PostSpider)            // 修改爬虫
-	app.DELETE("/spiders/:id",DeleteSpider)        // 删除爬虫
-	app.GET("/spiders/:id/tasks",GetSpiderTasks)   // 爬虫任务列表
-	app.GET("/spiders/:id/dir",GetSpiderDir)       // 爬虫目录
 }
 
 //mock test, test data in ./mock
