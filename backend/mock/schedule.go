@@ -113,7 +113,7 @@ func PutSchedule(c *gin.Context) {
 func DeleteSchedule(c *gin.Context) {
 	id := bson.ObjectIdHex("5d429e6c19f7abede924fee2")
 	for _, sch := range scheduleList {
-		if sch.Id == bson.ObjectId(id) {
+		if sch.Id == id {
 			fmt.Println("delete a schedule")
 		}
 	}

@@ -45,7 +45,7 @@
                            :label="$t(col.label)"
                            :sortable="col.sortable"
                            :align="col.align"
-                           :width="col.width">
+          >
             <template slot-scope="scope">
               <a href="javascript:" class="a-tag" @click="onClickSpider(scope.row)">{{scope.row[col.name]}}</a>
             </template>
@@ -119,7 +119,7 @@
                            :width="col.width">
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" width="120" fixed="right">
+        <el-table-column :label="$t('Action')" align="left" fixed="right">
           <template slot-scope="scope">
             <el-tooltip :content="$t('View')" placement="top">
               <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>

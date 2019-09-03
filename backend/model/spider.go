@@ -23,13 +23,14 @@ type Spider struct {
 	Col         string        `json:"col"`                              // 结果储存位置
 	Site        string        `json:"site"`                             // 爬虫网站
 	Envs        []Env         `json:"envs" bson:"envs"`                 // 环境变量
-
+	Remark      string        `json:"remark"`                           // 备注
 	// 自定义爬虫
 	Src string `json:"src" bson:"src"` // 源码位置
 	Cmd string `json:"cmd" bson:"cmd"` // 执行命令
 
 	// 前端展示
-	LastRunTs time.Time `json:"last_run_ts"` // 最后一次执行时间
+	LastRunTs  time.Time `json:"last_run_ts"` // 最后一次执行时间
+	LastStatus string    `json:"last_status"` // 最后执行状态
 
 	// TODO: 可配置爬虫
 	//Fields                 []interface{} `json:"fields"`
@@ -92,15 +93,13 @@ func (spider *Spider) GetLastTask() (Task, error) {
 	return tasks[0], nil
 }
 
-
-
 func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 
 	// 获取爬虫列表
 	spiders := []Spider{}
-	if err := c.Find(filter).Skip(skip).Limit(limit).All(&spiders); err != nil {
+	if err := c.Find(filter).Skip(skip).Limit(limit).Sort("+name").All(&spiders); err != nil {
 		debug.PrintStack()
 		return spiders, err
 	}
@@ -117,6 +116,7 @@ func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, error) {
 
 		// 赋值
 		spiders[i].LastRunTs = task.CreateTs
+		spiders[i].LastStatus = task.Status
 	}
 
 	return spiders, nil
@@ -165,6 +165,33 @@ func RemoveSpider(id bson.ObjectId) error {
 		return err
 	}
 
+	// gf上的文件
+	s, gf := database.GetGridFs("files")
+	defer s.Close()
+
+	if err := gf.RemoveId(result.FileId); err != nil {
+		log.Error("remove file error, id:" + result.FileId.Hex())
+		return err
+	}
+
+	return nil
+}
+
+func RemoveAllSpider() error {
+	s, c := database.GetCol("spiders")
+	defer s.Close()
+
+	spiders := []Spider{}
+	err := c.Find(nil).All(&spiders)
+	if err != nil {
+		log.Error("get all spiders error:" + err.Error())
+		return err
+	}
+	for _, spider := range spiders {
+		if err := RemoveSpider(spider.Id); err != nil {
+			log.Error("remove spider error:" + err.Error())
+		}
+	}
 	return nil
 }
 
