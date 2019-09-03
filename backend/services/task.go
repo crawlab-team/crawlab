@@ -466,7 +466,7 @@ func CancelTask(id string) (err error) {
 		}
 
 		// 发布消息
-		if err := database.Publish("nodes:"+task.NodeId.Hex(), string(msgBytes)); err != nil {
+		if _, err := database.RedisClient.Publish("nodes:"+task.NodeId.Hex(), string(msgBytes)); err != nil {
 			return err
 		}
 	}
