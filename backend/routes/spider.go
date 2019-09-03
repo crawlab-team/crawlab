@@ -327,7 +327,7 @@ func GetSpiderFile(c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
-		Data:    string(fileBytes),
+		Data:    utils.BytesToString(fileBytes),
 	})
 }
 

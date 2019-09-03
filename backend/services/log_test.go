@@ -2,6 +2,7 @@ package services
 
 import (
 	"crawlab/config"
+	"crawlab/utils"
 	"fmt"
 	"github.com/apex/log"
 	. "github.com/smartystreets/goconvey/convey"
@@ -32,13 +33,13 @@ func TestGetLocalLog(t *testing.T) {
 		fmt.Println(err.Error())
 
 	} else {
-		_, err = f.Write([]byte("This is for test"))
+		_, err = f.WriteString("This is for test")
 	}
 
 	Convey("Test GetLocalLog", t, func() {
 		Convey("Test response", func() {
 			logStr, err := GetLocalLog(logPath)
-			log.Info(string(logStr))
+			log.Info(utils.BytesToString(logStr))
 			fmt.Println(err)
 			So(err, ShouldEqual, nil)
 

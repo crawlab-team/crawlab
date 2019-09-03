@@ -1,13 +1,13 @@
 package mock
 
 import (
+	"bytes"
 	"crawlab/model"
 	"encoding/json"
 	"github.com/globalsign/mgo/bson"
 	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 )
@@ -24,7 +24,7 @@ func TestGetTaskList(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/tasks?PageNum=2&PageSize=10&NodeId=342dfsff&SpiderId=f8dsf", nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
 	}
@@ -44,7 +44,7 @@ func TestGetTask(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/tasks/"+taskId, nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
 	}
@@ -80,9 +80,9 @@ func TestPutTask(t *testing.T) {
 	var resp Response
 	body, _ := json.Marshal(&newItem)
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PUT", "/tasks", strings.NewReader(string(body)))
+	req, _ := http.NewRequest("PUT", "/tasks", bytes.NewReader(body))
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("unmarshal resp failed")
 	}
@@ -100,7 +100,7 @@ func TestDeleteTask(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("DELETE", "/tasks/"+taskId, nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("unmarshal resp failed")
 	}
@@ -123,7 +123,7 @@ func TestGetTaskResults(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/tasks/"+taskId+"/results?PageNum=2&PageSize=1", nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
 	}

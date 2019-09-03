@@ -1,13 +1,13 @@
 package mock
 
 import (
+	"bytes"
 	"crawlab/model"
 	"encoding/json"
 	"github.com/globalsign/mgo/bson"
 	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 )
@@ -17,7 +17,7 @@ func TestGetSpiderList(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/spiders", nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("unmarshal resp faild")
 	}
@@ -35,7 +35,7 @@ func TestGetSpider(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/spiders/"+spiderId, nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("unmarshal resp failed")
 	}
@@ -66,9 +66,9 @@ func TestPostSpider(t *testing.T) {
 	var spiderId = "5d429e6c19f7abede924fee2"
 	w := httptest.NewRecorder()
 	body, _ := json.Marshal(spider)
-	req, _ := http.NewRequest("POST", "/spiders/"+spiderId, strings.NewReader(string(body)))
+	req, _ := http.NewRequest("POST", "/spiders/"+spiderId, bytes.NewReader(body))
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("unmarshal resp failed")
 	}
@@ -87,7 +87,7 @@ func TestGetSpiderDir(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/spiders/"+spiderId+"/dir", nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("unmarshal resp failed")
 	}
@@ -106,7 +106,7 @@ func TestGetSpiderTasks(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/spiders/"+spiderId+"/tasks", nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("unmarshal resp failed")
 	}
@@ -124,7 +124,7 @@ func TestDeleteSpider(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("DELETE", "/spiders/"+spiderId, nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("unmarshal resp failed")
 	}
