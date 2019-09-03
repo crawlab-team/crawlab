@@ -99,7 +99,7 @@ func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, error) {
 
 	// 获取爬虫列表
 	spiders := []Spider{}
-	if err := c.Find(filter).Skip(skip).Limit(limit).Sort("name asc").All(&spiders); err != nil {
+	if err := c.Find(filter).Skip(skip).Limit(limit).Sort("+name").All(&spiders); err != nil {
 		debug.PrintStack()
 		return spiders, err
 	}
@@ -174,6 +174,24 @@ func RemoveSpider(id bson.ObjectId) error {
 		return err
 	}
 
+	return nil
+}
+
+func RemoveAllSpider() error {
+	s, c := database.GetCol("spiders")
+	defer s.Close()
+
+	spiders := []Spider{}
+	err := c.Find(nil).All(&spiders)
+	if err != nil {
+		log.Error("get all spiders error:" + err.Error())
+		return err
+	}
+	for _, spider := range spiders {
+		if err := RemoveSpider(spider.Id); err != nil {
+			log.Error("remove spider error:" + err.Error())
+		}
+	}
 	return nil
 }
 
