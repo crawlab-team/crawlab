@@ -75,7 +75,7 @@ RUN sed -i 's/#rc_sys=""/rc_sys="lxc"/g' /etc/rc.conf && \
 
 # working directory
 WORKDIR /app/backend
-ENV PYTHONIOENCODING utf-8
+
 # frontend port
 EXPOSE 8080
 

@@ -179,11 +179,11 @@ func _Compress(file *os.File, prefix string, zw *zip.Writer) error {
 		}
 	} else {
 		header, err := zip.FileInfoHeader(info)
+		header.Name = prefix + "/" + header.Name
 		if err != nil {
 			debug.PrintStack()
 			return err
 		}
-		header.Name = prefix + "/" + header.Name
 		writer, err := zw.CreateHeader(header)
 		if err != nil {
 			debug.PrintStack()

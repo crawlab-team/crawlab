@@ -12,12 +12,12 @@ import (
 func AuthorizationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 如果为登录或注册，不用校验
-		//if c.Request.URL.Path == "/login" ||
-		//	(c.Request.URL.Path == "/users" && c.Request.Method == "PUT") ||
-		//	strings.HasSuffix(c.Request.URL.Path, "download") {
-		//	c.Next()
-		//	return
-		//}
+		if c.Request.URL.Path == "/login" ||
+			(c.Request.URL.Path == "/users" && c.Request.Method == "PUT") ||
+			strings.HasSuffix(c.Request.URL.Path, "download") {
+			c.Next()
+			return
+		}
 
 		// 获取token string
 		tokenStr := c.GetHeader("Authorization")
@@ -46,7 +46,6 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 				return
 			}
 		}
-		c.Set(constants.ContextUser, &user)
 
 		// 校验成功
 		c.Next()

@@ -408,12 +408,9 @@ func GetTaskLog(id string) (logStr string, err error) {
 		logStr = string(logBytes)
 		if err != nil {
 			log.Errorf(err.Error())
-			logStr = string(err.Error())
-			// return "", err
-		} else {
-			logStr = string(logBytes)
+			return "", err
 		}
-
+		logStr = string(logBytes)
 	} else {
 		// 若不为主节点，获取远端日志
 		logStr, err = GetRemoteLog(task)
@@ -466,7 +463,7 @@ func CancelTask(id string) (err error) {
 		}
 
 		// 发布消息
-		if _, err := database.RedisClient.Publish("nodes:"+task.NodeId.Hex(), string(msgBytes)); err != nil {
+		if err := database.Publish("nodes:"+task.NodeId.Hex(), string(msgBytes)); err != nil {
 			return err
 		}
 	}
@@ -475,7 +472,6 @@ func CancelTask(id string) (err error) {
 }
 
 func HandleTaskError(t model.Task, err error) {
-	log.Error("handle task error:" + err.Error())
 	t.Status = constants.StatusError
 	t.Error = err.Error()
 	t.FinishTs = time.Now()

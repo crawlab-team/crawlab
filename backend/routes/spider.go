@@ -229,12 +229,6 @@ func DeleteSpider(c *gin.Context) {
 		return
 	}
 
-	// 删除爬虫对应的task任务
-	if err := model.RemoveTaskBySpiderId(spider.Id.Hex()); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",

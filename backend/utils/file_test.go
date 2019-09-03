@@ -1,12 +1,8 @@
 package utils
 
 import (
-	"archive/zip"
 	. "github.com/smartystreets/goconvey/convey"
-	"io"
-	"log"
 	"os"
-	"runtime/debug"
 	"testing"
 )
 
@@ -42,13 +38,9 @@ func TestIsDir(t *testing.T) {
 }
 
 func TestCompress(t *testing.T) {
-	err := os.Mkdir("testCompress", os.ModePerm)
-	if err != nil {
-		t.Error("create testCompress failed")
-	}
-	var pathString = "testCompress"
+	var pathString = "../utils"
 	var files []*os.File
-	var disPath = "testCompress"
+	var disPath = "../utils/test"
 	file, err := os.Open(pathString)
 	if err != nil {
 		t.Error("open source path failed")
@@ -60,60 +52,15 @@ func TestCompress(t *testing.T) {
 			So(er, ShouldEqual, nil)
 		})
 	})
-	os.RemoveAll("testCompress")
 
 }
-func Zip(zipFile string, fileList []string) error {
-	// 创建 zip 包文件
-	fw, err := os.Create(zipFile)
-	if err != nil {
-		log.Fatal()
-	}
-	defer fw.Close()
 
-	// 实例化新的 zip.Writer
-	zw := zip.NewWriter(fw)
-	defer func() {
-		// 检测一下是否成功关闭
-		if err := zw.Close(); err != nil {
-			log.Fatalln(err)
-		}
-	}()
-
-	for _, fileName := range fileList {
-		fr, err := os.Open(fileName)
-		if err != nil {
-			return err
-		}
-		fi, err := fr.Stat()
-		if err != nil {
-			return err
-		}
-		// 写入文件的头信息
-		fh, err := zip.FileInfoHeader(fi)
-		w, err := zw.CreateHeader(fh)
-		if err != nil {
-			return err
-		}
-		// 写入文件内容
-		_, err = io.Copy(w, fr)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
+// 测试之前需存在有效的test(.zip)文件
 func TestDeCompress(t *testing.T) {
-	err := os.Mkdir("testDeCompress", os.ModePerm)
-	err = Zip("demo.zip", []string{})
+	var tmpFilePath = "./test"
+	tmpFile, err := os.OpenFile(tmpFilePath, os.O_RDONLY, 0777)
 	if err != nil {
-		t.Error("create zip file failed")
-	}
-	tmpFile, err := os.OpenFile("demo.zip", os.O_RDONLY, 0777)
-	if err != nil {
-		debug.PrintStack()
-		t.Error("open demo.zip failed")
+		t.Fatal("open zip file failed")
 	}
 	var dstPath = "./testDeCompress"
 	Convey("Test DeCopmress func", t, func() {
@@ -121,7 +68,5 @@ func TestDeCompress(t *testing.T) {
 		err := DeCompress(tmpFile, dstPath)
 		So(err, ShouldEqual, nil)
 	})
-	os.RemoveAll("testDeCompress")
-	os.Remove("demo.zip")
 
 }

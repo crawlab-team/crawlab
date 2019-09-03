@@ -32,7 +32,6 @@
         <font-awesome-icon :icon="['far', 'question-circle']"/>
         <span style="margin-left: 5px;">{{$t('Documentation')}}</span>
       </a>
-      <el-dropdown-menu slot="dropdown"></el-dropdown-menu>
     </el-dropdown>
   </div>
 </template>

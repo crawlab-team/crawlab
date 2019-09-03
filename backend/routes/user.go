@@ -4,7 +4,6 @@ import (
 	"crawlab/constants"
 	"crawlab/model"
 	"crawlab/services"
-	"crawlab/services/context"
 	"crawlab/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
@@ -172,7 +171,7 @@ func Login(c *gin.Context) {
 	}
 
 	// 获取token
-	tokenStr, err := services.MakeToken(&user)
+	tokenStr, err := services.GetToken(user.Username)
 	if err != nil {
 		HandleError(http.StatusUnauthorized, c, errors.New("not authorized"))
 		return
@@ -186,16 +185,20 @@ func Login(c *gin.Context) {
 }
 
 func GetMe(c *gin.Context) {
-	ctx := context.WithGinContext(c)
-	user := ctx.User()
-	if user == nil {
-		ctx.FailedWithError(constants.ErrorUserNotFound, http.StatusUnauthorized)
+	// 获取token string
+	tokenStr := c.GetHeader("Authorization")
+
+	// 校验token
+	user, err := services.CheckToken(tokenStr)
+	if err != nil {
+		HandleError(http.StatusUnauthorized, c, errors.New("not authorized"))
 		return
 	}
-	ctx.Success(struct {
-		*model.User
-		Password string `json:"password,omitempty"`
-	}{
-		User: user,
-	}, nil)
+	user.Password = ""
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    user,
+	})
 }
