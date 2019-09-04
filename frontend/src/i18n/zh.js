@@ -154,6 +154,8 @@ export default {
   'Last Run': '上次运行',
   'Action': '操作',
   'No command line': '没有执行命令',
+  'Last Status': '上次运行状态',
+  'Remark': '备注',
 
   // 任务
   'Task Info': '任务信息',
@@ -245,7 +247,7 @@ export default {
   'username already exists': '用户名已存在',
   'Deleted successfully': '成功删除',
   'Saved successfully': '成功保存',
-
+  'English': 'English',
   // 登录
   'Sign in': '登录',
   'Sign-in': '登录',
@@ -264,5 +266,20 @@ export default {
   'admin': '管理用户',
   'Role': '角色',
   'Edit User': '更改用户',
-  'Users': '用户'
+  'Users': '用户',
+  tagsView: {
+    closeOthers: '关闭其他',
+    close: '关闭',
+    refresh: '刷新',
+    closeAll: '关闭所有'
+  },
+  nodeList: {
+    type: '节点类型'
+  },
+  schedules: {
+    cron: 'Cron',
+    add_cron: '生成Cron',
+    // Cron Format: [second] [minute] [hour] [day of month] [month] [day of week]
+    cron_format: 'Cron 格式: [秒] [分] [小时] [日] [月] [周]'
+  }
 }

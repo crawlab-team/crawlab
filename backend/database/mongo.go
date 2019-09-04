@@ -3,6 +3,7 @@ package database
 import (
 	"github.com/globalsign/mgo"
 	"github.com/spf13/viper"
+	"time"
 )
 
 var Session *mgo.Session
@@ -44,7 +45,7 @@ func InitMongo() error {
 		} else {
 			uri = "mongodb://" + mongoUsername + ":" + mongoPassword + "@" + mongoHost + ":" + mongoPort + "/" + mongoDb + "?authSource=" + mongoAuth
 		}
-		sess, err := mgo.Dial(uri)
+		sess, err := mgo.DialWithTimeout(uri, time.Second*5)
 		if err != nil {
 			return err
 		}
