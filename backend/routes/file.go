@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"crawlab/utils"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
@@ -15,6 +16,6 @@ func GetFile(c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
-		Data:    string(fileBytes),
+		Data:    utils.BytesToString(fileBytes),
 	})
 }

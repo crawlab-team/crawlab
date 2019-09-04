@@ -14,7 +14,7 @@ func TestGetHomeStats(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/stats/home", nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	fmt.Println(resp.Data)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")

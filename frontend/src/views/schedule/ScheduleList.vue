@@ -60,8 +60,8 @@
                     disabled>
           </el-input>
         </el-form-item>
-        <el-form-item :label="$t('Parameters')" prop="params">
-          <el-input v-model="scheduleForm.params"
+        <el-form-item :label="$t('Parameters')" prop="param">
+          <el-input v-model="scheduleForm.param"
                     :placeholder="$t('Parameters')"></el-input>
         </el-form-item>
         <el-form-item :label="$t('Schedule Description')" prop="description">
@@ -111,7 +111,7 @@
             </template>
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" width="250" fixed="right">
+        <el-table-column :label="$t('Action')" align="left" width="150px" fixed="right">
           <template slot-scope="scope">
             <el-tooltip :content="$t('Edit')" placement="top">
               <el-button type="warning" icon="el-icon-edit" size="mini" @click="onEdit(scope.row)"></el-button>
@@ -159,6 +159,7 @@ export default {
         { name: 'cron', label: 'schedules.cron', width: '120' },
         { name: 'node_name', label: 'Node', width: '150' },
         { name: 'spider_name', label: 'Spider', width: '150' },
+        { name: 'param', label: 'Parameters', width: '150' },
         { name: 'description', label: 'Description', width: 'auto' }
       ],
       isEdit: false,

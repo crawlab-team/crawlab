@@ -215,7 +215,7 @@ func DownloadTaskResultsCsv(c *gin.Context) {
 	bytesBuffer := &bytes.Buffer{}
 
 	// 写入UTF-8 BOM，避免使用Microsoft Excel打开乱码
-	bytesBuffer.Write([]byte("\xEF\xBB\xBF"))
+	bytesBuffer.WriteString("\xEF\xBB\xBF")
 
 	writer := csv.NewWriter(bytesBuffer)
 

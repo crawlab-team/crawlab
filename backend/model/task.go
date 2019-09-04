@@ -19,6 +19,7 @@ type Task struct {
 	NodeId          bson.ObjectId `json:"node_id" bson:"node_id"`
 	LogPath         string        `json:"log_path" bson:"log_path"`
 	Cmd             string        `json:"cmd" bson:"cmd"`
+	Param           string        `json:"param" bson:"param"`
 	Error           string        `json:"error" bson:"error"`
 	ResultCount     int           `json:"result_count" bson:"result_count"`
 	WaitDuration    float64       `json:"wait_duration" bson:"wait_duration"`

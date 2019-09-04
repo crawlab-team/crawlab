@@ -7,6 +7,7 @@ import (
 	"crawlab/lib/cron"
 	"crawlab/model"
 	"crawlab/services/register"
+	"crawlab/utils"
 	"encoding/json"
 	"fmt"
 	"github.com/apex/log"
@@ -254,7 +255,7 @@ func UpdateNodeData() {
 		debug.PrintStack()
 		return
 	}
-	if err := database.RedisClient.HSet("nodes", key, string(dataBytes)); err != nil {
+	if err := database.RedisClient.HSet("nodes", key, utils.BytesToString(dataBytes)); err != nil {
 		log.Errorf(err.Error())
 		return
 	}
@@ -280,7 +281,7 @@ func MasterNodeCallback(message redis.Message) (err error) {
 		time.Sleep(10 * time.Millisecond)
 		ch := SystemInfoChanMap.ChanBlocked(msg.NodeId)
 		sysInfoBytes, _ := json.Marshal(&msg.SysInfo)
-		ch <- string(sysInfoBytes)
+		ch <- utils.BytesToString(sysInfoBytes)
 	}
 	return nil
 }
@@ -304,14 +305,14 @@ func WorkerNodeCallback(message redis.Message) (err error) {
 
 		// 获取本地日志
 		logStr, err := GetLocalLog(msg.LogPath)
-		log.Info(string(logStr))
+		log.Info(utils.BytesToString(logStr))
 		if err != nil {
 			log.Errorf(err.Error())
 			debug.PrintStack()
 			msgSd.Error = err.Error()
 			msgSd.Log = err.Error()
 		} else {
-			msgSd.Log = string(logStr)
+			msgSd.Log = utils.BytesToString(logStr)
 		}
 
 		// 序列化
@@ -322,7 +323,7 @@ func WorkerNodeCallback(message redis.Message) (err error) {
 
 		// 发布消息给主节点
 		log.Info("publish get log msg to master")
-		if _, err := database.RedisClient.Publish("nodes:master", string(msgSdBytes)); err != nil {
+		if _, err := database.RedisClient.Publish("nodes:master", utils.BytesToString(msgSdBytes)); err != nil {
 
 			return err
 		}
@@ -347,7 +348,7 @@ func WorkerNodeCallback(message redis.Message) (err error) {
 			debug.PrintStack()
 			return err
 		}
-		if _, err := database.RedisClient.Publish("nodes:master", string(msgSdBytes)); err != nil {
+		if _, err := database.RedisClient.Publish("nodes:master", utils.BytesToString(msgSdBytes)); err != nil {
 			log.Errorf(err.Error())
 			return err
 		}

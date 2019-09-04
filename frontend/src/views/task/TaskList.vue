@@ -119,7 +119,7 @@
                            :width="col.width">
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" fixed="right">
+        <el-table-column :label="$t('Action')" align="left" fixed="right" width="150px">
           <template slot-scope="scope">
             <el-tooltip :content="$t('View')" placement="top">
               <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
@@ -172,6 +172,7 @@ export default {
         { name: 'node_name', label: 'Node', width: '120' },
         { name: 'spider_name', label: 'Spider', width: '120' },
         { name: 'status', label: 'Status', width: '120' },
+        { name: 'param', label: 'Parameters', width: '120' },
         // { name: 'create_ts', label: 'Create Time', width: '100' },
         { name: 'start_ts', label: 'Start Time', width: '100' },
         { name: 'finish_ts', label: 'Finish Time', width: '100' },
