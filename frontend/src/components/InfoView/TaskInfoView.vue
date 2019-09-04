@@ -15,6 +15,9 @@
         <el-form-item :label="$t('Log File Path')">
           <el-input v-model="taskForm.log_path" placeholder="Log File Path" disabled></el-input>
         </el-form-item>
+        <el-form-item :label="$t('Parameters')">
+          <el-input v-model="taskForm.param" placeholder="Parameters" disabled></el-input>
+        </el-form-item>
         <el-form-item :label="$t('Create Time')">
           <el-input :value="getTime(taskForm.create_ts)" placeholder="Create Time" disabled></el-input>
         </el-form-item>

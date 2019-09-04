@@ -247,6 +247,7 @@ export default {
   'username already exists': '用户名已存在',
   'Deleted successfully': '成功删除',
   'Saved successfully': '成功保存',
+  'Please zip your spider files from the root directory': '爬虫文件请从根目录下开始压缩。',
   'English': 'English',
   // 登录
   'Sign in': '登录',
