@@ -28,6 +28,7 @@ func AddTask(s model.Schedule) func() {
 			SpiderId: s.SpiderId,
 			NodeId:   nodeId,
 			Status:   constants.StatusPending,
+			Param:    s.Param,
 		}
 
 		// 将任务存入数据库

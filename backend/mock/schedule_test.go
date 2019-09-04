@@ -1,7 +1,9 @@
 package mock
 
 import (
+	"bytes"
 	"crawlab/model"
+	"crawlab/utils"
 	"encoding/json"
 	"github.com/globalsign/mgo/bson"
 	. "github.com/smartystreets/goconvey/convey"
@@ -17,7 +19,7 @@ func TestGetScheduleList(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/schedules", nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
 	}
@@ -36,7 +38,7 @@ func TestGetSchedule(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/schedules/"+mongoId, nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
 	}
@@ -56,7 +58,7 @@ func TestDeleteSchedule(t *testing.T) {
 	req, _ := http.NewRequest("DELETE", "/schedules/"+mongoId, nil)
 	app.ServeHTTP(w, req)
 
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
 	}
@@ -86,11 +88,12 @@ func TestPostSchedule(t *testing.T) {
 
 	var resp Response
 	var mongoId = "5d429e6c19f7abede924fee2"
-	body,_ := json.Marshal(newItem)
+	body, _ := json.Marshal(newItem)
 	w := httptest.NewRecorder()
-	req,_ := http.NewRequest("POST", "/schedules/"+mongoId,strings.NewReader(string(body)))
+	req, _ := http.NewRequest("POST", "/schedules/"+mongoId, strings.NewReader(utils.BytesToString(body)))
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()),&resp)
+
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	t.Log(resp)
 	if err != nil {
 		t.Fatal("unmarshal resp failed")
@@ -121,11 +124,11 @@ func TestPutSchedule(t *testing.T) {
 	}
 
 	var resp Response
-	body,_ := json.Marshal(newItem)
+	body, _ := json.Marshal(newItem)
 	w := httptest.NewRecorder()
-	req,_ := http.NewRequest("PUT", "/schedules",strings.NewReader(string(body)))
+	req, _ := http.NewRequest("PUT", "/schedules", bytes.NewReader(body))
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()),&resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	t.Log(resp)
 	if err != nil {
 		t.Fatal("unmarshal resp failed")

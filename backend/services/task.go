@@ -16,14 +16,15 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strconv"
+	"sync"
 	"time"
 )
 
 var Exec *Executor
 
 // 任务执行锁
-var LockList []bool
-
+//Added by cloud: 2019/09/04,solve data race
+var LockList sync.Map
 // 任务消息
 type TaskMessage struct {
 	Id  string
@@ -36,7 +37,7 @@ func (m *TaskMessage) ToString() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(data), err
+	return utils.BytesToString(data), err
 }
 
 // 任务执行器
@@ -56,7 +57,7 @@ func (ex *Executor) Start() error {
 		id := i
 
 		// 初始化任务锁
-		LockList = append(LockList, false)
+		LockList.Store(id, false)
 
 		// 加入定时任务
 		_, err := ex.Cron.AddFunc(spec, GetExecuteTaskFunc(id))
@@ -220,17 +221,18 @@ func SaveTaskResultCount(id string) func() {
 
 // 执行任务
 func ExecuteTask(id int) {
-	if LockList[id] {
+	if flag, _ := LockList.Load(id); flag.(bool) {
 		log.Debugf(GetWorkerPrefix(id) + "正在执行任务...")
 		return
 	}
 
 	// 上锁
-	LockList[id] = true
+	LockList.Store(id, true)
 
 	// 解锁（延迟执行）
 	defer func() {
-		LockList[id] = false
+		LockList.Delete(id)
+		LockList.Store(id, false)
 	}()
 
 	// 开始计时
@@ -323,8 +325,10 @@ func ExecuteTask(id int) {
 
 	// 执行命令
 	cmd := spider.Cmd
-	if t.Cmd != "" {
-		cmd = t.Cmd
+
+	// 加入参数
+	if t.Param != "" {
+		cmd += " " + t.Param
 	}
 
 	// 任务赋值
@@ -405,12 +409,15 @@ func GetTaskLog(id string) (logStr string, err error) {
 	if IsMasterNode(task.NodeId.Hex()) {
 		// 若为主节点，获取本机日志
 		logBytes, err := GetLocalLog(task.LogPath)
-		logStr = string(logBytes)
+		logStr = utils.BytesToString(logBytes)
 		if err != nil {
 			log.Errorf(err.Error())
-			return "", err
+			logStr = err.Error()
+			// return "", err
+		} else {
+			logStr = utils.BytesToString(logBytes)
 		}
-		logStr = string(logBytes)
+
 	} else {
 		// 若不为主节点，获取远端日志
 		logStr, err = GetRemoteLog(task)
@@ -463,7 +470,7 @@ func CancelTask(id string) (err error) {
 		}
 
 		// 发布消息
-		if err := database.Publish("nodes:"+task.NodeId.Hex(), string(msgBytes)); err != nil {
+		if _, err := database.RedisClient.Publish("nodes:"+task.NodeId.Hex(), utils.BytesToString(msgBytes)); err != nil {
 			return err
 		}
 	}
@@ -472,6 +479,7 @@ func CancelTask(id string) (err error) {
 }
 
 func HandleTaskError(t model.Task, err error) {
+	log.Error("handle task error:" + err.Error())
 	t.Status = constants.StatusError
 	t.Error = err.Error()
 	t.FinishTs = time.Now()

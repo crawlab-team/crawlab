@@ -38,21 +38,21 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('Cron')" prop="cron" :rules="cronRules" required>
+        <el-form-item :label="$t('schedules.cron')" prop="cron" :rules="cronRules" required>
           <template slot="label">
-            <el-tooltip :content="$t('Cron Format: [second] [minute] [hour] [day of month] [month] [day of week]')"
+            <el-tooltip :content="$t('schedules.cron_format')"
                         placement="top">
               <span>
-                {{$t('Cron')}}
+                {{$t('schedules.cron')}}
                 <i class="fa fa-exclamation-circle"></i>
               </span>
             </el-tooltip>
           </template>
           <el-input style="width:calc(100% - 100px);padding-right:10px"
                     v-model="scheduleForm.cron"
-                    :placeholder="$t('Cron')">
+                    :placeholder="$t('schedules.cron')">
           </el-input>
-          <el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('生成Cron')}}</el-button>
+          <el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('schedules.add_cron')}}</el-button>
         </el-form-item>
         <el-form-item :label="$t('Execute Command')" prop="params">
           <el-input v-model="spider.cmd"
@@ -60,8 +60,8 @@
                     disabled>
           </el-input>
         </el-form-item>
-        <el-form-item :label="$t('Parameters')" prop="params">
-          <el-input v-model="scheduleForm.params"
+        <el-form-item :label="$t('Parameters')" prop="param">
+          <el-input v-model="scheduleForm.param"
                     :placeholder="$t('Parameters')"></el-input>
         </el-form-item>
         <el-form-item :label="$t('Schedule Description')" prop="description">
@@ -111,7 +111,7 @@
             </template>
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" width="250" fixed="right">
+        <el-table-column :label="$t('Action')" align="left" width="150px" fixed="right">
           <template slot-scope="scope">
             <el-tooltip :content="$t('Edit')" placement="top">
               <el-button type="warning" icon="el-icon-edit" size="mini" @click="onEdit(scope.row)"></el-button>
@@ -156,9 +156,10 @@ export default {
     return {
       columns: [
         { name: 'name', label: 'Name', width: '180' },
-        { name: 'cron', label: 'Cron', width: '120' },
+        { name: 'cron', label: 'schedules.cron', width: '120' },
         { name: 'node_name', label: 'Node', width: '150' },
         { name: 'spider_name', label: 'Spider', width: '150' },
+        { name: 'param', label: 'Parameters', width: '150' },
         { name: 'description', label: 'Description', width: 'auto' }
       ],
       isEdit: false,
