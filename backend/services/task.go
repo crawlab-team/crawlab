@@ -16,14 +16,15 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strconv"
+	"sync"
 	"time"
 )
 
 var Exec *Executor
 
 // 任务执行锁
-var LockList []bool
-
+//Added by cloud: 2019/09/04,solve data race
+var LockList sync.Map
 // 任务消息
 type TaskMessage struct {
 	Id  string
@@ -56,7 +57,7 @@ func (ex *Executor) Start() error {
 		id := i
 
 		// 初始化任务锁
-		LockList = append(LockList, false)
+		LockList.Store(id, false)
 
 		// 加入定时任务
 		_, err := ex.Cron.AddFunc(spec, GetExecuteTaskFunc(id))
@@ -220,17 +221,18 @@ func SaveTaskResultCount(id string) func() {
 
 // 执行任务
 func ExecuteTask(id int) {
-	if LockList[id] {
+	if flag, _ := LockList.Load(id); flag.(bool) {
 		log.Debugf(GetWorkerPrefix(id) + "正在执行任务...")
 		return
 	}
 
 	// 上锁
-	LockList[id] = true
+	LockList.Store(id, true)
 
 	// 解锁（延迟执行）
 	defer func() {
-		LockList[id] = false
+		LockList.Delete(id)
+		LockList.Store(id, false)
 	}()
 
 	// 开始计时
