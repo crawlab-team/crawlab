@@ -325,8 +325,10 @@ func ExecuteTask(id int) {
 
 	// 执行命令
 	cmd := spider.Cmd
-	if t.Cmd != "" {
-		cmd = t.Cmd
+
+	// 加入参数
+	if t.Param != "" {
+		cmd += " " + t.Param
 	}
 
 	// 任务赋值
