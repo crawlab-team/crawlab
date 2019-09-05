@@ -207,7 +207,7 @@
                            :width="col.width">
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" width="150px" fixed="right">
+        <el-table-column :label="$t('Action')" align="left" fixed="right">
           <template slot-scope="scope">
             <el-tooltip :content="$t('View')" placement="top">
               <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
