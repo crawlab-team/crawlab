@@ -64,6 +64,14 @@
           </template>
         </el-table-column>
         <el-table-column
+          width="150px"
+          :label="$t('userList.LastLoginTime')"
+        >
+          <template slot-scope="scope">
+            {{getTime(scope.row.last_login_ts)}}
+          </template>
+        </el-table-column>
+        <el-table-column
           :label="$t('Action')"
           fixed="right"
         >

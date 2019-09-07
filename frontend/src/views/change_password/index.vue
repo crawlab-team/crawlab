@@ -1,66 +1,52 @@
 <template>
   <div class="login-container">
     <canvas id="canvas"></canvas>
-    <el-form :model="loginForm" :rules="loginRules" auto-complete="on" class="login-form" label-position="left"
-             ref="loginForm">
+    <el-form :model="changePasswordForm" :rules="changePasswordRules" auto-complete="on" class="login-form"
+             label-position="left"
+             ref="changePasswordForm">
       <h3 class="title">
         <span><img src="../../assets/logo.svg" style="width:48px;margin-bottom:-5px;margin-right:2px"></span>RAWLAB
       </h3>
-      <el-form-item prop="username" style="margin-bottom: 28px;">
+      <el-form-item prop="oldPassword" style="margin-bottom: 28px;">
         <el-input
-          :placeholder="$t('Username')"
+          :placeholder="$t('change_password.old_password')"
           auto-complete="on"
-          name="username"
           type="text"
-          v-model="loginForm.username"
+          v-model="changePasswordForm.oldPassword"
         />
       </el-form-item>
-      <el-form-item prop="password" style="margin-bottom: 28px;">
+      <el-form-item prop="newPassword" style="margin-bottom: 28px;">
         <el-input
-          :placeholder="$t('Password')"
+          :placeholder="$t('change_password.new_password')"
           :type="pwdType"
-          @keyup.enter.native="onKeyEnter"
           auto-complete="on"
-          name="password"
-          v-model="loginForm.password"/>
+          v-model="changePasswordForm.newPassword"/>
       </el-form-item>
-      <el-form-item prop="confirmPassword" style="margin-bottom: 28px;" v-if="isSignUp">
+      <el-form-item prop="confirmNewPassword" style="margin-bottom: 28px;">
         <el-input
-          :placeholder="$t('Confirm Password')"
+          :placeholder="$t('change_password.confirm_new_password')"
           :type="pwdType"
-          @keyup.enter.native="onKeyEnter"
+          @keyup.enter.native="handleChangePassword"
           auto-complete="on"
-          name="password"
-          v-model="loginForm.confirmPassword"
+          v-model="changePasswordForm.confirmNewPassword"
         />
       </el-form-item>
       <el-form-item style="border: none">
-        <el-button :loading="loading" @click.native.prevent="handleSignup" style="width:100%;" type="primary"
-                   v-if="isSignUp">
-          {{$t('Sign up')}}
-        </el-button>
-        <el-button :loading="loading" @click.native.prevent="handleLogin" style="width:100%;" type="primary"
-                   v-if="!isSignUp">
-          {{$t('Sign in')}}
+
+        <el-button :loading="loading" @click.native.prevent="handleChangePassword()" style="width:100%;" type="primary">
+          {{$t('change_password.change_password_button')}}
         </el-button>
       </el-form-item>
       <div class="alternatives">
         <div class="left">
-          <span class="forgot-password" v-if="!isSignUp">{{$t('Forgot Password')}}</span>
+          <span class="forgot-password">{{$t('Forgot Password')}}</span>
         </div>
         <div class="right">
-          <span v-if="isSignUp">{{$t('Has Account')}}, </span>
-          <span @click="$router.push('/login')" class="sign-in" v-if="isSignUp">{{$t('Sign-in')}} ></span>
-          <span v-if="!isSignUp&&canShowSignUpPage">{{$t('New to Crawlab')}}, </span>
-          <span @click="$router.push('/signup')" class="sign-up" v-if="!isSignUp&&canShowSignUpPage">{{$t('Sign-up')}} ></span>
+          <span>{{$t('New to Crawlab')}}, </span>
+          <span @click="$router.push('/signup')" class="sign-up">{{$t('Sign-up')}} ></span>
         </div>
       </div>
-      <div class="tips">
-        <span>{{$t('Initial Username/Password')}}: admin/admin</span>
-        <a href="https://github.com/tikazyq/crawlab" style="float:right" target="_blank">
-          <img src="https://img.shields.io/badge/github-crawlab-blue">
-        </a>
-      </div>
+
       <div class="lang">
         <span :class="lang==='zh'?'active':''" @click="setLang('zh')">中文</span>
         <span :class="lang==='en'?'active':''" @click="setLang('en')">English</span>
@@ -71,18 +57,10 @@
 
 <script>
 import { mapState } from 'vuex'
-import { isValidUsername } from '../../utils/validate'
 
 export default {
   name: 'Login',
   data () {
-    const validateUsername = (rule, value, callback) => {
-      if (!isValidUsername(value)) {
-        callback(new Error(this.$t('Please enter the correct username')))
-      } else {
-        callback()
-      }
-    }
     const validatePass = (rule, value, callback) => {
       if (value.length < 5) {
         callback(new Error(this.$t('Password length should be no shorter than 5')))
@@ -90,24 +68,32 @@ export default {
         callback()
       }
     }
-    const validateConfirmPass = (rule, value, callback) => {
-      if (!this.isSignUp) return callback()
-      if (value !== this.loginForm.password) {
-        callback(new Error(this.$t('Two passwords must be the same')))
+    const validateNewPass = (rule, value, callback) => {
+      if (value.length < 5) {
+        callback(new Error(this.$t('Password length should be no shorter than 5')))
+      } else if (value === this.changePasswordForm.oldPassword) {
+        callback(new Error(this.$t('change_password.errors.should_change_new_password')))
+      } else {
+        callback()
+      }
+    }
+    const validateNewConfirmPass = (rule, value, callback) => {
+      if (value !== this.changePasswordForm.newPassword) {
+        callback(new Error(this.$t('change_password.errors.confirm_new_password')))
       } else {
         callback()
       }
     }
     return {
-      loginForm: {
-        username: '',
-        password: '',
-        confirmPassword: ''
+      changePasswordForm: {
+        oldPassword: '',
+        newPassword: '',
+        confirmNewPassword: ''
       },
-      loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePass }],
-        confirmPassword: [{ required: true, trigger: 'blur', validator: validateConfirmPass }]
+      changePasswordRules: {
+        oldPassword: [{ required: true, trigger: 'blur', validator: validatePass }],
+        newPassword: [{ required: true, trigger: 'blur', validator: validateNewPass }],
+        confirmNewPassword: [{ required: true, trigger: 'blur', validator: validateNewConfirmPass }]
       },
       loading: false,
       pwdType: 'password'
@@ -116,65 +102,27 @@ export default {
   computed: {
     ...mapState('lang', [
       'lang'
-    ]),
-    ...mapState('settings', [
-      'settings'
-    ]),
-    canShowSignUpPage () {
-      return this.settings.can_register
-    },
-    isSignUp () {
-      return this.$route.path === '/signup'
-    },
-    redirect () {
-      return this.$route.query.redirect
-    }
-  },
-  beforeRouteEnter (to, from, next) {
-    next((vm) => {
-      vm.$refs.loginForm.clearValidate()
-    })
+    ])
+    // redirect () {
+    //   return this.$route.query.redirect
+    // }
   },
   methods: {
-
-    handleLogin () {
-      this.$refs.loginForm.validate(async valid => {
+    handleChangePassword () {
+      this.$refs.changePasswordForm.validate(async valid => {
+        console.log(valid, this.changePasswordForm)
         if (valid) {
           this.loading = true
           try {
-            const result = await this.$store.dispatch('user/login', this.loginForm)
+            await this.$store.dispatch('user/changePassword', this.changePasswordForm)
             this.loading = false
-
-            if (result.reset_password) {
-              await this.$router.push({ path: '/change_password' })
-            } else {
-              await this.$router.push({ path: this.redirect || '/' })
-              await this.$store.dispatch('user/getInfo')
-            }
+            await this.$router.push('/')
           } catch (e) {
-            this.$message.error(this.$t('Error when logging in (Please check username and password)'))
+            this.$message.error(this.$t('Error when changePassword'))
             this.loading = false
           }
         }
       })
-    },
-    handleSignup () {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/register', this.loginForm).then(() => {
-            this.handleLogin()
-            this.loading = false
-          }).catch(err => {
-            this.$message.error(this.$t(err))
-            this.loading = false
-          })
-        }
-      })
-    },
-    onKeyEnter () {
-      const func = this.isSignUp ? this.handleSignup : this.handleLogin
-      func()
     },
     setLang (lang) {
       window.localStorage.setItem('lang', lang)

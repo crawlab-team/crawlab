@@ -76,16 +76,30 @@ export default {
       this.$router.push(`/${m.path}`)
     }
   },
-  created () {
-    request.get('/stats/home')
-      .then(response => {
-        // overview stats
-        this.overviewStats = response.data.data.overview
+  async beforeRouteEnter (to, from, next) {
+    try {
+      const { data: { data } } = await request.get('/stats/home')
+      next((vm) => {
+        vm.overviewStats = data.overview
 
         // daily tasks
-        this.dailyTasks = response.data.data.daily
-        this.initEchartsDailyTasks()
+        vm.dailyTasks = data.daily
+        vm.initEchartsDailyTasks()
       })
+    } catch (e) {
+      console.log(e)
+    }
+  },
+  created () {
+    // request.get('/stats/home')
+    //   .then(response => {
+    //     // overview stats
+    //     this.overviewStats = response.data.data.overview
+    //
+    //     // daily tasks
+    //     this.dailyTasks = response.data.data.daily
+    //     this.initEchartsDailyTasks()
+    //   })
   },
   mounted () {
     // this.$ba.trackPageview('/')

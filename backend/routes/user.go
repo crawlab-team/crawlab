@@ -7,10 +7,11 @@ import (
 	"crawlab/services/context"
 	"crawlab/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"github.com/pkg/errors"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type UserListRequestData struct {
@@ -81,28 +82,35 @@ func GetUserList(c *gin.Context) {
 }
 
 func PutUser(c *gin.Context) {
+	ctx := context.WithGinContext(c)
 	// 绑定请求数据
-	var reqData UserRequestData
+	var reqData struct {
+		Username        string `json:"username" binding:"required,min=5"`
+		Password        string `json:"password" binding:"required,min=5"`
+		ConfirmPassword string `json:"confirm_password" binding:"eqfield=Password"`
+	}
 	if err := c.ShouldBindJSON(&reqData); err != nil {
-		HandleError(http.StatusBadRequest, c, err)
+		ctx.Failed(err)
 		return
 	}
-
+	salt := utils.RandomString(10)
 	// 添加用户
-	user := model.User{
+	user := &model.User{
 		Username: strings.ToLower(reqData.Username),
-		Password: utils.EncryptPassword(reqData.Password),
 		Role:     constants.RoleNormal,
+		Enable:   true,
+		Salt:     salt,
+		Password: utils.EncryptPasswordV2(reqData.Password, salt),
 	}
 	if err := user.Add(); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
+		if mgo.IsDup(err) {
+			ctx.Failed(constants.ErrorAccountHasExisted)
+			return
+		}
+		ctx.Failed(err)
 		return
 	}
-
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-	})
+	ctx.Success(nil)
 }
 
 func PostUser(c *gin.Context) {
@@ -151,45 +159,58 @@ func DeleteUser(c *gin.Context) {
 
 func Login(c *gin.Context) {
 	// 绑定请求数据
-	var reqData UserRequestData
-	if err := c.ShouldBindJSON(&reqData); err != nil {
-		HandleError(http.StatusUnauthorized, c, errors.New("not authorized"))
+	var reqData struct {
+		Username string `json:"username" binding:"required,min=5"`
+		Password string `json:"password" binding:"required,min=5"`
+	}
+	ctx := context.WithGinContext(c)
+	if err := ctx.ShouldBindJSON(&reqData); err != nil {
+		ctx.Failed(err)
 		return
 	}
 
 	// 获取用户
 	user, err := model.GetUserByUsername(strings.ToLower(reqData.Username))
 	if err != nil {
-		HandleError(http.StatusUnauthorized, c, errors.New("not authorized"))
-		return
+		if err == mgo.ErrNotFound {
+			ctx.Failed(constants.ErrorUsernameOrPasswordInvalid)
+			return
+		} else {
+			ctx.Failed(constants.ErrorMongoError)
+			return
+		}
 	}
-
 	// 校验密码
-	encPassword := utils.EncryptPassword(reqData.Password)
-	if user.Password != encPassword {
-		HandleError(http.StatusUnauthorized, c, errors.New("not authorized"))
+	isLoggedIn := user.LoginWithPassword(reqData.Password)
+	if !isLoggedIn {
+		ctx.Failed(constants.ErrorUsernameOrPasswordInvalid)
 		return
 	}
-
+	if !user.Enable {
+		ctx.Failed(constants.ErrorAccountDisabled)
+		return
+	}
+	//if user.RePasswordTs.Before(time.Now()){
+	//	ctx.Failed(constants.ErrorNeedResetPassword)
+	//	return
+	//}
 	// 获取token
 	tokenStr, err := services.MakeToken(&user)
 	if err != nil {
-		HandleError(http.StatusUnauthorized, c, errors.New("not authorized"))
+		ctx.Failed(constants.ErrorUsernameOrPasswordInvalid)
 		return
 	}
 
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-		Data:    tokenStr,
+	ctx.Success(gin.H{
+		"token":          tokenStr,
+		"reset_password": user.RePasswordTs.Before(time.Now()),
 	})
 }
-
 func GetMe(c *gin.Context) {
 	ctx := context.WithGinContext(c)
 	user := ctx.User()
 	if user == nil {
-		ctx.FailedWithError(constants.ErrorUserNotFound, http.StatusUnauthorized)
+		ctx.Failed(constants.ErrorUserNotFound)
 		return
 	}
 	ctx.Success(struct {
@@ -198,4 +219,31 @@ func GetMe(c *gin.Context) {
 	}{
 		User: user,
 	}, nil)
+}
+func ChangePassword(c *gin.Context) {
+	ctx := context.WithGinContext(c)
+	var requestData struct {
+		OldPassword        string `json:"old_password" binding:"required,min=5"`
+		NewPassword        string `json:"new_password" binding:"required,min=5,nefield=OldPassword"`
+		NewConfirmPassword string `json:"confirm_new_password" binding:"required,min=5,eqfield=NewPassword"`
+	}
+	if err := ctx.ShouldBindJSON(&requestData); err != nil {
+		ctx.Failed(err)
+		return
+	}
+	currentUser := ctx.User()
+	if currentUser == nil {
+		ctx.Failed(constants.ErrorUserNotFound)
+		return
+	}
+	if !currentUser.ValidatePassword(requestData.OldPassword) {
+		ctx.Failed(constants.ErrorUsernameOrPasswordInvalid)
+		return
+	}
+
+	if err := model.ChangePassword(currentUser, requestData.NewPassword); err != nil {
+		ctx.Failed(constants.ErrorMongoError)
+		return
+	}
+	ctx.Success(nil)
 }

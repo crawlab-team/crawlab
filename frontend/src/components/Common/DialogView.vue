@@ -150,9 +150,14 @@ export default {
       }
     }
   },
-  mounted () {
-    // if (!this.spiderList || !this.spiderList.length) this.$store.dispatch('spider/getSpiderList')
-    if (!this.nodeList || !this.nodeList.length) this.$store.dispatch('node/getNodeList')
+  async mounted () {
+    try {
+      //为啥要注释掉。 基于b994cd49223ca629005582406453018244638864重构
+      //if (!this.spiderList || !this.spiderList.length) await this.$store.dispatch('spider/getSpiderList')
+      if (!this.nodeList || !this.nodeList.length) await this.$store.dispatch('node/getNodeList')
+    } catch (e) {
+
+    }
   }
 }
 </script>

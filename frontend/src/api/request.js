@@ -20,8 +20,14 @@ const request = async (method, path, params, data, others = {}) => {
     // console.log(response)
     return response
   } catch (e) {
-    if (e.response.status === 401 && router.currentRoute.path !== '/login') {
-      router.push('/login')
+    if (e.response.status === 401) {
+      if (e.response.data.code === 11006) {
+        if (router.currentRoute.path !== '/change_password') {
+          await router.push('/change_password')
+        }
+      } else if (router.currentRoute.path !== '/login') {
+        await router.push('/login')
+      }
     }
     await Promise.reject(e)
   }

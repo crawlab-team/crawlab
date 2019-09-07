@@ -6,21 +6,30 @@ import (
 	"crawlab/utils"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/spf13/viper"
 	"time"
 )
 
 func InitUserService() error {
-	adminUser := model.User{
-		Username: "admin",
-		Password: utils.EncryptPassword("admin"),
-		Role:     constants.RoleAdmin,
+	if err := model.CreateUserIndex(); err != nil {
+		return err
 	}
-	if err := adminUser.Add(); err != nil {
-		// pass
+	salt := utils.RandomString(10)
+	adminUser := &model.User{
+		Username:     "admin",
+		Password:     utils.EncryptPasswordV2("admin", salt),
+		Role:         constants.RoleAdmin,
+		Salt:         salt,
+		Enable:       true,
+		RePasswordTs: time.Now().AddDate(0, -3, 0),
 	}
-	return nil
+	err := adminUser.Add()
+	if mgo.IsDup(err) {
+		return nil
+	}
+	return err
 }
 func MakeToken(user *model.User) (tokenStr string, err error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{

@@ -101,7 +101,7 @@ func main() {
 	// 初始化用户服务
 	if err := services.InitUserService(); err != nil {
 		log.Error("init user service error:" + err.Error())
-		debug.PrintStack()
+
 		panic(err)
 	}
 	log.Info("初始化用户服务成功")
@@ -109,15 +109,28 @@ func main() {
 	// 以下为主节点服务
 	if model.IsMaster() {
 		// 中间件
-		app.Use(middlewares.CORSMiddleware())
+		app.Use(middlewares.CORSMiddleware(), middlewares.TryAttachCurrentUser())
 		//app.Use(middlewares.AuthorizationMiddleware())
 		anonymousGroup := app.Group("/")
 		{
 			anonymousGroup.POST("/login", routes.Login)  // 用户登录
 			anonymousGroup.PUT("/users", routes.PutUser) // 添加用户
+			anonymousGroup.GET("/settings", routes.GetSettings)
 
 		}
-		authGroup := app.Group("/", middlewares.AuthorizationMiddleware())
+		authGroup0 := app.Group("/", middlewares.AuthorizationMiddleware(
+			middlewares.CheckAccountEnabled,
+			middlewares.CheckUserPermission,
+		))
+		{
+			authGroup0.POST("/me/change_password", routes.ChangePassword) // 更改密码
+
+		}
+		authGroup := app.Group("/", middlewares.AuthorizationMiddleware(
+			middlewares.CheckAccountEnabled,
+			middlewares.CheckNeedResetPassword,
+			middlewares.CheckUserPermission,
+		))
 		{
 			// 路由
 			// 节点

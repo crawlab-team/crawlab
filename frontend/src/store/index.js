@@ -13,6 +13,7 @@ import schedule from './modules/schedule'
 import lang from './modules/lang'
 import site from './modules/site'
 import stats from './modules/stats'
+import settings from './modules/settings'
 import getters from './getters'
 
 Vue.use(Vuex)
@@ -23,6 +24,7 @@ const store = new Vuex.Store({
     user,
     tagsView,
     dialogView,
+    settings,
     node,
     spider,
     deploy,
