@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-
+import store from '../store'
 import stats from '../utils/stats'
 
 /* Layout */
@@ -26,7 +26,7 @@ Vue.use(Router)
  **/
 export const constantRouterMap = [
   { path: '/login', component: () => import('../views/login/index'), hidden: true },
-  { path: '/signup', component: () => import('../views/login/index'), hidden: true },
+  { path: '/change_password', component: () => import('../views/change_password/index'), hidden: true },
   { path: '/404', component: () => import('../views/404'), hidden: true },
   { path: '/', redirect: '/home' },
 
@@ -190,9 +190,7 @@ export const constantRouterMap = [
         }
       }
     ]
-  },
-
-  { path: '*', redirect: '/404', hidden: true }
+  }
 ]
 
 const router = new Router({
@@ -200,13 +198,47 @@ const router = new Router({
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })
+router.onReady(async () => {
+  const settings = await store.dispatch('settings/getSettings')
+  let routes = []
+  if (settings.can_register) {
+    routes = [
+      ...routes,
+      ...[
+        { path: '/signup', component: () => import('../views/login/index'), hidden: true }
+      ]
+    ]
+  }
 
-router.beforeEach((to, from, next) => {
+  routes.push({ path: '*', redirect: '/404', hidden: true })
+  router.addRoutes(routes)
+  console.log('ready')
+})
+
+router.beforeEach(async (to, from, next) => {
   if (to.meta && to.meta.title) {
     window.document.title = `Crawlab - ${to.meta.title}`
   } else {
     window.document.title = 'Crawlab'
   }
+  // try {
+  // switch (to.path) {
+  //   case '/signup':
+  //     const settings = await store.dispatch('settings/getSettings')
+  //     console.log(settings)
+  //     if (settings.can_register) {
+  //       router.addRoutes([
+  //         { path: '/signup', component: () => import('../views/login/index'), hidden: true }
+  //
+  //       ])
+  //       router.options.routes = store.getters.routers
+  //       // next({ ...to, replace: true })// hack方法 确保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
+  //     }
+  //     break
+  // }
+  // } catch (e) {
+  //
+  // }
 
   if (['/login', '/signup'].includes(to.path)) {
     next()

@@ -66,22 +66,42 @@ const user = {
 
   actions: {
     // 登录
-    login ({ commit }, userInfo) {
+    async login ({ commit }, userInfo) {
       const username = userInfo.username.trim()
-      return new Promise((resolve, reject) => {
-        request.post('/login', { username, password: userInfo.password })
-          .then(response => {
-            const token = response.data.data
-            commit('SET_TOKEN', token)
-            window.localStorage.setItem('token', token)
-            resolve()
-          })
-          .catch(error => {
-            reject(error)
-          })
-      })
+      try {
+        const { data: { data } } = await request.post('/login', { username, password: userInfo.password })
+        const token = data.token
+        commit('SET_TOKEN', token)
+        window.localStorage.setItem('token', token)
+        return data
+      } catch (e) {
+        return Promise.reject(e)
+      }
+      // return new Promise((resolve, reject) => {
+      //   request.post('/login', { username, password: userInfo.password })
+      //     .then(response => {
+      //       const token = response.data.data
+      //       commit('SET_TOKEN', token)
+      //       window.localStorage.setItem('token', token)
+      //       resolve()
+      //     })
+      //     .catch(error => {
+      //       reject(error)
+      //     })
+      // })
     },
-
+    async changePassword ({ commit, state }, form) {
+      try {
+        const { data: { data } } = await request.post('/me/change_password', {
+          old_password: form.oldPassword,
+          new_password: form.newPassword,
+          confirm_new_password: form.confirmNewPassword
+        })
+        return data
+      } catch (e) {
+        return Promise.reject(e)
+      }
+    },
     // 获取用户信息
     getInfo ({ commit, state }) {
       return request.get('/me')

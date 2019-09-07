@@ -150,9 +150,13 @@ export default {
       }
     }
   },
-  mounted () {
-    if (!this.spiderList || !this.spiderList.length) this.$store.dispatch('spider/getSpiderList')
-    if (!this.nodeList || !this.nodeList.length) this.$store.dispatch('node/getNodeList')
+  async mounted () {
+    try {
+      if (!this.spiderList || !this.spiderList.length) await this.$store.dispatch('spider/getSpiderList')
+      if (!this.nodeList || !this.nodeList.length) await this.$store.dispatch('node/getNodeList')
+    } catch (e) {
+
+    }
   }
 }
 </script>

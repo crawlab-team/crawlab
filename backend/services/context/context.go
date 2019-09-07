@@ -28,12 +28,13 @@ func (c *Context) User() *model.User {
 	}
 	return user
 }
-func (c *Context) Success(data interface{}, metas ...interface{}) {
-	var meta interface{}
-	if len(metas) == 0 {
-		meta = gin.H{}
-	} else {
+func (c *Context) Success(data interface{}, metas ...gin.H) {
+	var meta gin.H
+	if len(metas) > 0 {
 		meta = metas[0]
+	}
+	if meta == nil {
+		meta = gin.H{}
 	}
 	if data == nil {
 		data = gin.H{}
@@ -56,25 +57,19 @@ func (c *Context) failed(err error, httpCode int, variables ...interface{}) {
 	}
 	log.Errorf("handle error:" + errStr)
 	debug.PrintStack()
-	causeError := errors2.Cause(err)
-	switch causeError.(type) {
-	case errors.OPError:
-		opError := causeError.(errors.OPError)
+	switch innerError := errors2.Cause(err).(type) {
+	case *errors.OPError:
 
-		c.AbortWithStatusJSON(opError.HttpCode, gin.H{
+		c.AbortWithStatusJSON(innerError.HttpCode, gin.H{
 			"status":  "ok",
 			"message": "error",
 			"error":   errStr,
+			"code":    innerError.Code,
 		})
 		break
-	case validator.ValidationErrors:
-		validatorErrors := causeError.(validator.ValidationErrors)
-		//firstError := validatorErrors[0].(validator.FieldError)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  "ok",
-			"message": "error",
-			"error":   validatorErrors.Error(),
-		})
+	case *validator.ValidationErrors:
+
+		c.Failed(constants.ErrorBadRequest)
 		break
 	default:
 		fmt.Println("deprecated....")

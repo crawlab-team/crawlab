@@ -18,6 +18,12 @@ log:
   isDeletePeriodically: "Y"
   deleteFrequency: "@hourly"
 server:
+  master_settings:
+    auth:
+      register:
+        enable: false
+        deafult_roles:
+          - normal
   host: 0.0.0.0
   port: 8000
   master: "N"

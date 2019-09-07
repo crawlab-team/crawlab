@@ -6,7 +6,6 @@ import (
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"github.com/pkg/errors"
 	"runtime/debug"
 	"time"
 )
@@ -16,9 +15,13 @@ type User struct {
 	Username string        `json:"username" bson:"username"`
 	Password string        `json:"password" bson:"password"`
 	Role     string        `json:"role" bson:"role"`
+	Salt     string        `json:"-"`
+	Enable   bool          `json:"enable"`
 
-	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
-	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
+	RePasswordTs time.Time `json:"-" bson:"re_password_ts"`
+	LastLoginTs  time.Time `json:"-" bson:"last_login_ts"`
+	CreateTs     time.Time `json:"create_ts" bson:"create_ts"`
+	UpdateTs     time.Time `json:"update_ts" bson:"update_ts"`
 }
 
 func (user *User) Save() error {
@@ -33,37 +36,43 @@ func (user *User) Save() error {
 	}
 	return nil
 }
+func (user *User) ShouldUpgradeSecurityLevel() bool {
+	return len(user.Salt) == 0
+}
+func (user *User) ValidatePassword(password string) bool {
+	if user.ShouldUpgradeSecurityLevel() {
+		if utils.EncryptPasswordV1(password) != user.Password {
+			return false
+		}
+		user.Salt = utils.RandomString(10)
+		user.Enable = true
+		user.Password = utils.EncryptPasswordV2(password, user.Salt)
+	} else if utils.EncryptPasswordV2(password, user.Salt) != user.Password {
 
+		return false
+	}
+	return true
+}
+func (user *User) LoginWithPassword(password string) bool {
+
+	if !user.ValidatePassword(password) {
+		return false
+	}
+	user.LastLoginTs = time.Now()
+	_ = user.Save()
+	return true
+}
 func (user *User) Add() error {
 	s, c := database.GetCol("users")
 	defer s.Close()
 
-	// 如果存在用户名相同的用户，抛错
-	user2, err := GetUserByUsername(user.Username)
-	if err != nil {
-		if err == mgo.ErrNotFound {
-			// pass
-		} else {
-			log.Errorf(err.Error())
-			debug.PrintStack()
-			return err
-		}
-	} else {
-		if user2.Username == user.Username {
-			return errors.New("username already exists")
-		}
-	}
-
 	user.Id = bson.NewObjectId()
+	if user.RePasswordTs == (time.Time{}) {
+		user.RePasswordTs = time.Now().AddDate(0, 3, 0)
+	}
 	user.UpdateTs = time.Now()
 	user.CreateTs = time.Now()
-	if err := c.Insert(user); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return err
-	}
-
-	return nil
+	return c.Insert(user)
 }
 
 func GetUser(id bson.ObjectId) (User, error) {
@@ -139,7 +148,13 @@ func UpdateUser(id bson.ObjectId, item User) error {
 	}
 	return nil
 }
-
+func ChangePassword(user *User, unencryptedPassword string) (err error) {
+	user.Salt = utils.RandomString(10)
+	user.Password = utils.EncryptPasswordV2(unencryptedPassword, user.Salt)
+	user.RePasswordTs = time.Now().AddDate(0, 3, 0)
+	user.UpdateTs = time.Now()
+	return user.Save()
+}
 func RemoveUser(id bson.ObjectId) error {
 	s, c := database.GetCol("users")
 	defer s.Close()
@@ -154,4 +169,30 @@ func RemoveUser(id bson.ObjectId) error {
 	}
 
 	return nil
+}
+func CreateUserIndex() error {
+	s, c := database.GetCol("users")
+	defer s.Close()
+	usernameUniqueIndex := mgo.Index{
+		Key:              []string{"username"},
+		Unique:           true,
+		DropDups:         false,
+		Background:       true,
+		Sparse:           false,
+		PartialFilter:    nil,
+		ExpireAfter:      0,
+		Name:             "",
+		Min:              0,
+		Max:              0,
+		Minf:             0,
+		Maxf:             0,
+		BucketSize:       0,
+		Bits:             0,
+		DefaultLanguage:  "",
+		LanguageOverride: "",
+		Weights:          nil,
+		Collation:        nil,
+	}
+
+	return c.EnsureIndex(usernameUniqueIndex)
 }
