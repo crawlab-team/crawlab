@@ -106,18 +106,34 @@ func RemoveRemoteLog(task model.Task) error {
 }
 
 // 删除日志文件
+func RemoveLogByTaskId(id string) error {
+	t, err := model.GetTask(id)
+	if err != nil {
+		log.Error("get task error:" + err.Error())
+		return err
+	}
+	removeLog(t)
+
+	return nil
+}
+
+func removeLog(t model.Task) {
+	if err := RemoveLocalLog(t.LogPath); err != nil {
+		log.Error("remove local log error:" + err.Error())
+	}
+	if err := RemoveRemoteLog(t); err != nil {
+		log.Error("remove remote log error:" + err.Error())
+	}
+}
+
+// 删除日志文件
 func RemoveLogBySpiderId(id bson.ObjectId) error {
 	tasks, err := model.GetTaskList(bson.M{"spider_id": id}, 0, constants.Infinite, "-create_ts")
 	if err != nil {
 		log.Error("get tasks error:" + err.Error())
 	}
 	for _, task := range tasks {
-		if err := RemoveLocalLog(task.LogPath); err != nil {
-			log.Error("remove local log error:" + err.Error())
-		}
-		if err := RemoveRemoteLog(task); err != nil {
-			log.Error("remove remote log error:" + err.Error())
-		}
+		removeLog(task)
 	}
 	return nil
 }
