@@ -5,9 +5,11 @@ import (
 	"crawlab/database"
 	"crawlab/lib/cron"
 	"crawlab/model"
+	"crawlab/services/msg_handler"
 	"crawlab/utils"
 	"encoding/json"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo/bson"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"os"
@@ -18,46 +20,10 @@ import (
 // 任务日志频道映射
 var TaskLogChanMap = utils.NewChanMap()
 
-// 获取本地日志
-func GetLocalLog(logPath string) (fileBytes []byte, err error) {
-
-	f, err := os.Open(logPath)
-	if err != nil {
-		log.Error(err.Error())
-		debug.PrintStack()
-		return nil, err
-	}
-	fi, err := f.Stat()
-	if err != nil {
-		log.Error(err.Error())
-		debug.PrintStack()
-		return nil, err
-	}
-	defer f.Close()
-
-	const bufLen = 2 * 1024 * 1024
-	logBuf := make([]byte, bufLen)
-
-	off := int64(0)
-	if fi.Size() > int64(len(logBuf)) {
-		off = fi.Size() - int64(len(logBuf))
-	}
-	n, err := f.ReadAt(logBuf, off)
-
-	//到文件结尾会有EOF标识
-	if err != nil && err.Error() != "EOF" {
-		log.Error(err.Error())
-		debug.PrintStack()
-		return nil, err
-	}
-	logBuf = logBuf[:n]
-	return logBuf, nil
-}
-
 // 获取远端日志
 func GetRemoteLog(task model.Task) (logStr string, err error) {
 	// 序列化消息
-	msg := NodeMessage{
+	msg := msg_handler.NodeMessage{
 		Type:    constants.MsgTypeGetLog,
 		LogPath: task.LogPath,
 		TaskId:  task.Id,
@@ -85,6 +51,7 @@ func GetRemoteLog(task model.Task) (logStr string, err error) {
 	return logStr, nil
 }
 
+// 定时删除日志
 func DeleteLogPeriodically() {
 	logDir := viper.GetString("log.path")
 	if !utils.Exists(logDir) {
@@ -107,6 +74,71 @@ func DeleteLogPeriodically() {
 
 }
 
+// 删除本地日志
+func RemoveLocalLog(path string) error {
+	if err := model.RemoveFile(path); err != nil {
+		log.Error("remove local file error: " + err.Error())
+		return err
+	}
+	return nil
+}
+
+// 删除远程日志
+func RemoveRemoteLog(task model.Task) error {
+	msg := msg_handler.NodeMessage{
+		Type:    constants.MsgTypeRemoveLog,
+		LogPath: task.LogPath,
+		TaskId:  task.Id,
+	}
+	msgBytes, err := json.Marshal(&msg)
+	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+	// 发布获取日志消息
+	channel := "nodes:" + task.NodeId.Hex()
+	if _, err := database.RedisClient.Publish(channel, utils.BytesToString(msgBytes)); err != nil {
+		log.Errorf(err.Error())
+		return err
+	}
+	return nil
+}
+
+// 删除日志文件
+func RemoveLogByTaskId(id string) error {
+	t, err := model.GetTask(id)
+	if err != nil {
+		log.Error("get task error:" + err.Error())
+		return err
+	}
+	removeLog(t)
+
+	return nil
+}
+
+func removeLog(t model.Task) {
+	if err := RemoveLocalLog(t.LogPath); err != nil {
+		log.Error("remove local log error:" + err.Error())
+	}
+	if err := RemoveRemoteLog(t); err != nil {
+		log.Error("remove remote log error:" + err.Error())
+	}
+}
+
+// 删除日志文件
+func RemoveLogBySpiderId(id bson.ObjectId) error {
+	tasks, err := model.GetTaskList(bson.M{"spider_id": id}, 0, constants.Infinite, "-create_ts")
+	if err != nil {
+		log.Error("get tasks error:" + err.Error())
+	}
+	for _, task := range tasks {
+		removeLog(task)
+	}
+	return nil
+}
+
+// 初始化定时删除日志
 func InitDeleteLogPeriodically() error {
 	c := cron.New(cron.WithSeconds())
 	if _, err := c.AddFunc(viper.GetString("log.deleteFrequency"), DeleteLogPeriodically); err != nil {

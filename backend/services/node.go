@@ -6,6 +6,7 @@ import (
 	"crawlab/database"
 	"crawlab/lib/cron"
 	"crawlab/model"
+	"crawlab/services/msg_handler"
 	"crawlab/services/register"
 	"crawlab/utils"
 	"encoding/json"
@@ -25,27 +26,6 @@ type Data struct {
 	Master       bool      `json:"master"`
 	UpdateTs     time.Time `json:"update_ts"`
 	UpdateTsUnix int64     `json:"update_ts_unix"`
-}
-
-type NodeMessage struct {
-	// 通信类别
-	Type string `json:"type"`
-
-	// 任务相关
-	TaskId string `json:"task_id"` // 任务ID
-
-	// 节点相关
-	NodeId string `json:"node_id"` // 节点ID
-
-	// 日志相关
-	LogPath string `json:"log_path"` // 日志路径
-	Log     string `json:"log"`      // 日志
-
-	// 系统信息
-	SysInfo model.SystemInfo `json:"sys_info"`
-
-	// 错误相关
-	Error string `json:"error"`
 }
 
 const (
@@ -263,7 +243,7 @@ func UpdateNodeData() {
 
 func MasterNodeCallback(message redis.Message) (err error) {
 	// 反序列化
-	var msg NodeMessage
+	var msg msg_handler.NodeMessage
 	if err := json.Unmarshal(message.Data, &msg); err != nil {
 
 		return err
@@ -288,72 +268,17 @@ func MasterNodeCallback(message redis.Message) (err error) {
 
 func WorkerNodeCallback(message redis.Message) (err error) {
 	// 反序列化
-	msg := NodeMessage{}
+	msg := msg_handler.NodeMessage{}
 	if err := json.Unmarshal(message.Data, &msg); err != nil {
 
 		return err
 	}
 
-	if msg.Type == constants.MsgTypeGetLog {
-		// 消息类型为获取日志
-
-		// 发出的消息
-		msgSd := NodeMessage{
-			Type:   constants.MsgTypeGetLog,
-			TaskId: msg.TaskId,
-		}
-
-		// 获取本地日志
-		logStr, err := GetLocalLog(msg.LogPath)
-		log.Info(utils.BytesToString(logStr))
-		if err != nil {
-			log.Errorf(err.Error())
-			debug.PrintStack()
-			msgSd.Error = err.Error()
-			msgSd.Log = err.Error()
-		} else {
-			msgSd.Log = utils.BytesToString(logStr)
-		}
-
-		// 序列化
-		msgSdBytes, err := json.Marshal(&msgSd)
-		if err != nil {
-			return err
-		}
-
-		// 发布消息给主节点
-		log.Info("publish get log msg to master")
-		if _, err := database.RedisClient.Publish("nodes:master", utils.BytesToString(msgSdBytes)); err != nil {
-
-			return err
-		}
-	} else if msg.Type == constants.MsgTypeCancelTask {
-		// 取消任务
-		ch := TaskExecChanMap.ChanBlocked(msg.TaskId)
-		ch <- constants.TaskCancel
-	} else if msg.Type == constants.MsgTypeGetSystemInfo {
-		// 获取环境信息
-		sysInfo, err := GetLocalSystemInfo()
-		if err != nil {
-			return err
-		}
-		msgSd := NodeMessage{
-			Type:    constants.MsgTypeGetSystemInfo,
-			NodeId:  msg.NodeId,
-			SysInfo: sysInfo,
-		}
-		msgSdBytes, err := json.Marshal(&msgSd)
-		if err != nil {
-			log.Errorf(err.Error())
-			debug.PrintStack()
-			return err
-		}
-		if _, err := database.RedisClient.Publish("nodes:master", utils.BytesToString(msgSdBytes)); err != nil {
-			log.Errorf(err.Error())
-			return err
-		}
+	// worker message handle
+	if err := msg_handler.GetMsgHandler(msg).Handle(); err != nil {
+		return err
 	}
-	return
+	return nil
 }
 
 // 初始化节点服务

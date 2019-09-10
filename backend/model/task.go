@@ -191,7 +191,7 @@ func RemoveTask(id string) error {
 	return nil
 }
 
-func RemoveTaskBySpiderId(id string) error {
+func RemoveTaskBySpiderId(id bson.ObjectId) error {
 	tasks, err := GetTaskList(bson.M{"spider_id": id}, 0, constants.Infinite, "-create_ts")
 	if err != nil {
 		log.Error("get tasks error:" + err.Error())
