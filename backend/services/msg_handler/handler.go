@@ -10,7 +10,7 @@ type Handler interface {
 }
 
 func GetMsgHandler(msg NodeMessage) Handler {
-	if msg.Type == constants.MsgTypeGetLog {
+	if msg.Type == constants.MsgTypeGetLog || msg.Type == constants.MsgTypeRemoveLog {
 		return &Log{
 			msg: msg,
 		}
