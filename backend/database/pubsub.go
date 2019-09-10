@@ -19,7 +19,7 @@ func (r *Redis) Close() {
 }
 func (r *Redis) subscribe(ctx context.Context, consume ConsumeFunc, channel ...string) error {
 	psc := redis.PubSubConn{Conn: r.pool.Get()}
-	if err := psc.Subscribe(redis.Args{}.AddFlat(channel)); err != nil {
+	if err := psc.Subscribe(redis.Args{}.AddFlat(channel)...); err != nil {
 		return err
 	}
 	done := make(chan error, 1)
