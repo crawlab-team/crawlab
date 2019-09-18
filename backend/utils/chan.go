@@ -1,5 +1,7 @@
 package utils
 
+var TaskExecChanMap = NewChanMap()
+
 type ChanMap struct {
 	m map[string]chan string
 }

@@ -124,6 +124,13 @@ func PutTask(c *gin.Context) {
 func DeleteTask(c *gin.Context) {
 	id := c.Param("id")
 
+	// 删除日志文件
+	if err := services.RemoveLogByTaskId(id); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 删除task
 	if err := model.RemoveTask(id); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return

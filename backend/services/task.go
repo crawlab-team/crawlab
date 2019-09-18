@@ -5,6 +5,7 @@ import (
 	"crawlab/database"
 	"crawlab/lib/cron"
 	"crawlab/model"
+	"crawlab/services/msg_handler"
 	"crawlab/utils"
 	"encoding/json"
 	"errors"
@@ -25,6 +26,7 @@ var Exec *Executor
 // 任务执行锁
 //Added by cloud: 2019/09/04,solve data race
 var LockList sync.Map
+
 // 任务消息
 type TaskMessage struct {
 	Id  string
@@ -68,8 +70,6 @@ func (ex *Executor) Start() error {
 
 	return nil
 }
-
-var TaskExecChanMap = utils.NewChanMap()
 
 // 派发任务
 func AssignTask(task model.Task) error {
@@ -135,7 +135,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	}
 
 	// 起一个goroutine来监控进程
-	ch := TaskExecChanMap.ChanBlocked(t.Id)
+	ch := utils.TaskExecChanMap.ChanBlocked(t.Id)
 	go func() {
 		// 传入信号，此处阻塞
 		signal := <-ch
@@ -408,7 +408,7 @@ func GetTaskLog(id string) (logStr string, err error) {
 	logStr = ""
 	if IsMasterNode(task.NodeId.Hex()) {
 		// 若为主节点，获取本机日志
-		logBytes, err := GetLocalLog(task.LogPath)
+		logBytes, err := model.GetLocalLog(task.LogPath)
 		logStr = utils.BytesToString(logBytes)
 		if err != nil {
 			log.Errorf(err.Error())
@@ -452,7 +452,7 @@ func CancelTask(id string) (err error) {
 		// 任务节点为主节点
 
 		// 获取任务执行频道
-		ch := TaskExecChanMap.ChanBlocked(id)
+		ch := utils.TaskExecChanMap.ChanBlocked(id)
 
 		// 发出取消进程信号
 		ch <- constants.TaskCancel
@@ -460,7 +460,7 @@ func CancelTask(id string) (err error) {
 		// 任务节点为工作节点
 
 		// 序列化消息
-		msg := NodeMessage{
+		msg := msg_handler.NodeMessage{
 			Type:   constants.MsgTypeCancelTask,
 			TaskId: id,
 		}
