@@ -447,6 +447,8 @@ func CancelTask(id string) (err error) {
 	// 获取任务
 	task, err := model.GetTask(id)
 	if err != nil {
+		log.Errorf("task not found, task id : %s, error: %s", id, err.Error())
+		debug.PrintStack()
 		return err
 	}
 
@@ -458,6 +460,8 @@ func CancelTask(id string) (err error) {
 	// 获取当前节点（默认当前节点为主节点）
 	node, err := GetCurrentNode()
 	if err != nil {
+		log.Errorf("get current node error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
 
@@ -466,9 +470,13 @@ func CancelTask(id string) (err error) {
 
 		// 获取任务执行频道
 		ch := utils.TaskExecChanMap.ChanBlocked(id)
+		if ch != nil {
+			// 发出取消进程信号
+			ch <- constants.TaskCancel
+		} else {
+			model.
+		}
 
-		// 发出取消进程信号
-		ch <- constants.TaskCancel
 	} else {
 		// 任务节点为工作节点
 

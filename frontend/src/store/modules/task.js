@@ -139,7 +139,7 @@ const actions = {
   cancelTask ({ state, dispatch }, id) {
     return request.post(`/tasks/${id}/cancel`)
       .then(() => {
-        dispatch('getTaskData')
+        dispatch('getTaskData', id)
       })
   }
 }
