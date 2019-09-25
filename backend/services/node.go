@@ -328,6 +328,12 @@ func InitNodeService() error {
 		}
 	}
 
+	// 更新在当前节点执行的任务状态为：abnormal
+	if err := model.UpdateTaskToAbnormal(node.Id); err != nil {
+		debug.PrintStack()
+		return err
+	}
+
 	c.Start()
 	return nil
 }

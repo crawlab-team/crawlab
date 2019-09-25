@@ -159,13 +159,26 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 		}
 	}()
 
-	// 开始执行
-	if err := cmd.Run(); err != nil {
-		HandleTaskError(t, err)
+	// 异步启动进程
+	if err := cmd.Start(); err != nil {
+		log.Errorf("start spider error:{}", err.Error())
+		debug.PrintStack()
+		return err
+	}
+	// 保存pid到task
+	t.Pid = cmd.Process.Pid
+	if err := t.Save(); err != nil {
+		log.Errorf("save task pid error: %s", err.Error())
+		debug.PrintStack()
+		return err
+	}
+	// 同步等待进程完成
+	if err := cmd.Wait(); err != nil {
+		log.Errorf("wait process finish error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
 	ch <- constants.TaskFinish
-
 	return nil
 }
 

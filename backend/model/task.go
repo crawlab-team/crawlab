@@ -25,6 +25,7 @@ type Task struct {
 	WaitDuration    float64       `json:"wait_duration" bson:"wait_duration"`
 	RuntimeDuration float64       `json:"runtime_duration" bson:"runtime_duration"`
 	TotalDuration   float64       `json:"total_duration" bson:"total_duration"`
+	Pid             int           `json:"pid" bson:"pid"`
 
 	// 前端数据
 	SpiderName string `json:"spider_name"`
@@ -191,6 +192,7 @@ func RemoveTask(id string) error {
 	return nil
 }
 
+// 删除task by spider_id
 func RemoveTaskBySpiderId(id bson.ObjectId) error {
 	tasks, err := GetTaskList(bson.M{"spider_id": id}, 0, constants.Infinite, "-create_ts")
 	if err != nil {
@@ -206,6 +208,7 @@ func RemoveTaskBySpiderId(id bson.ObjectId) error {
 	return nil
 }
 
+// task 总数
 func GetTaskCount(query interface{}) (int, error) {
 	s, c := database.GetCol("tasks")
 	defer s.Close()
@@ -308,6 +311,7 @@ func GetDailyTaskStats(query bson.M) ([]TaskDailyItem, error) {
 	return dailyItems, nil
 }
 
+// 更新task的结果数
 func UpdateTaskResultCount(id string) (err error) {
 	// 获取任务
 	task, err := GetTask(id)
@@ -338,6 +342,28 @@ func UpdateTaskResultCount(id string) (err error) {
 	task.ResultCount = resultCount
 	if err := task.Save(); err != nil {
 		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+	return nil
+}
+
+func UpdateTaskToAbnormal(nodeId bson.ObjectId) error {
+	s, c := database.GetCol("tasks")
+	defer s.Close()
+
+	selector := bson.M{
+		"node_id": nodeId,
+		"status":  constants.StatusRunning,
+	}
+	update := bson.M{
+		"$set": bson.M{
+			"status": constants.StatusAbnormal,
+		},
+	}
+	_, err := c.UpdateAll(selector, update)
+	if err != nil {
+		log.Errorf("update task to abnormal error: %s,  node_id : %s", err.Error(), nodeId.Hex())
 		debug.PrintStack()
 		return err
 	}
