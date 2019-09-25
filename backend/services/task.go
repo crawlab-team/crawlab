@@ -465,6 +465,9 @@ func CancelTask(id string) (err error) {
 		return err
 	}
 
+	log.Infof("current node id is: %s", node.Id.Hex())
+	log.Infof("task node id is: %s", task.NodeId.Hex())
+
 	if node.Id == task.NodeId {
 		// 任务节点为主节点
 
@@ -474,7 +477,11 @@ func CancelTask(id string) (err error) {
 			// 发出取消进程信号
 			ch <- constants.TaskCancel
 		} else {
-			model.
+			if err := model.UpdateTaskToAbnormal(node.Id); err != nil {
+				log.Errorf("update task to abnormal : {}", err.Error())
+				debug.PrintStack()
+				return
+			}
 		}
 
 	} else {
