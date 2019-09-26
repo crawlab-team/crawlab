@@ -148,9 +148,10 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 				return
 			}
 			t.Status = constants.StatusCancelled
+		} else {
+			// 保存任务
+			t.Status = constants.StatusFinished
 		}
-
-		// 保存任务
 		t.FinishTs = time.Now()
 		if err := t.Save(); err != nil {
 			log.Infof("save task error: %s", err.Error())
@@ -176,6 +177,12 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	if err := cmd.Wait(); err != nil {
 		log.Errorf("wait process finish error: %s", err.Error())
 		debug.PrintStack()
+
+		// 发生一次也需要保存
+		t.Error = err.Error()
+		t.FinishTs = time.Now()
+		t.Status = constants.TaskFinish
+		_ = t.Save()
 		return err
 	}
 	ch <- constants.TaskFinish
