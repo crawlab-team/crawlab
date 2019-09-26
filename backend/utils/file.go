@@ -25,7 +25,7 @@ func ReadFile(fileName string) string {
 
 // 创建文件
 func OpenFile(fileName string) *os.File {
-	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModePerm)
 	if err != nil {
 		log.Errorf("create file error: %s, file_name: %s", err.Error(), fileName)
 		debug.PrintStack()
