@@ -171,50 +171,6 @@ func PutSpider(c *gin.Context) {
 	}
 	_ = spider.Save()
 
-	// 读取临时文件
-	//tmpFile, err := os.OpenFile(tmpFilePath, os.O_RDONLY, 0777)
-	//if err != nil {
-	//	debug.PrintStack()
-	//	HandleError(http.StatusInternalServerError, c, err)
-	//	return
-	//}
-	//if err = tmpFile.Close(); err != nil {
-	//	debug.PrintStack()
-	//	HandleError(http.StatusInternalServerError, c, err)
-	//	return
-	//}
-
-	// 目标目录
-	//dstPath := filepath.Join(
-	//	viper.GetString("spider.path"),
-	//	strings.Replace(file.Filename, ".zip", "", 1),
-	//)
-
-	// 如果目标目录已存在，删除目标目录
-	//if utils.Exists(dstPath) {
-	//	if err := os.RemoveAll(dstPath); err != nil {
-	//		debug.PrintStack()
-	//		HandleError(http.StatusInternalServerError, c, err)
-	//	}
-	//}
-
-	// 将临时文件解压到爬虫目录
-	//if err := utils.DeCompress(tmpFile, dstPath); err != nil {
-	//	debug.PrintStack()
-	//	HandleError(http.StatusInternalServerError, c, err)
-	//	return
-	//}
-
-	// 删除临时文件
-	//if err = os.Remove(tmpFilePath); err != nil {
-	//	debug.PrintStack()
-	//	HandleError(http.StatusInternalServerError, c, err)
-	//	return
-	//}
-
-	// 更新爬虫
-	// services.UpdateSpiders()
-
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
