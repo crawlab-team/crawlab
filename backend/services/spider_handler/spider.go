@@ -56,7 +56,6 @@ func (s *SpiderSync) RemoveSpiderFile() {
 func (s *SpiderSync) CheckDownLoading(spiderId string, fileId string) (bool, string) {
 	key := s.GetLockDownloadKey(spiderId)
 	if _, err := database.RedisClient.HGet("spider", key); err == nil {
-		log.Infof("downloading spider file, spider_id: %s, file_id:%s", spiderId, fileId)
 		return true, key
 	}
 	return false, key
@@ -68,7 +67,6 @@ func (s *SpiderSync) Download() {
 	fileId := s.Spider.FileId.Hex()
 	isDownloading, key := s.CheckDownLoading(spiderId, fileId)
 	if isDownloading {
-		log.Infof("spider is downloading, spider_id: %s", spiderId)
 		return
 	} else {
 		_ = database.RedisClient.HSet("spider", key, key)
@@ -131,6 +129,5 @@ func (s *SpiderSync) Download() {
 		return
 	}
 
-	log.Infof("del key : %s", key)
 	_ = database.RedisClient.HDel("spider", key)
 }

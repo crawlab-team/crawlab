@@ -24,7 +24,14 @@ import (
 )
 
 func GetSpiderList(c *gin.Context) {
-	results, err := model.GetSpiderList(nil, 0, 0)
+	pageNumStr, _ := c.GetQuery("pageNum")
+	pageSizeStr, _ := c.GetQuery("pageSize")
+	keyword, _ := c.GetQuery("keyword")
+	pageNum, _ := strconv.Atoi(pageNumStr)
+	pageSize, _ := strconv.Atoi(pageSizeStr)
+	skip := pageSize * (pageNum - 1)
+	filter := bson.M{"name": bson.M{"$regex": bson.RegEx{Pattern: keyword, Options: "im"}}}
+	results, count, err := model.GetSpiderList(filter, skip, pageSize)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
@@ -32,7 +39,7 @@ func GetSpiderList(c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
-		Data:    results,
+		Data:    bson.M{"list": results, "total": count},
 	})
 }
 

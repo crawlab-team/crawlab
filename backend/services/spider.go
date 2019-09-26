@@ -97,7 +97,7 @@ func ReadFileByStep(filePath string, handle func([]byte, *mgo.GridFile), fileCre
 // 发布所有爬虫
 func PublishAllSpiders() {
 	// 获取爬虫列表
-	spiders, _ := model.GetSpiderList(nil, 0, constants.Infinite)
+	spiders, _, _ := model.GetSpiderList(nil, 0, constants.Infinite)
 	if len(spiders) == 0 {
 		return
 	}
@@ -143,7 +143,6 @@ func PublishSpider(spider model.Spider) {
 	// md5值不一样，则下载
 	md5Str := utils.ReadFile(md5)
 	if gfFile.Md5 != md5Str {
-		log.Infof("md5 is different, fileName=%s,  file-md5=%s , gf-file-md5=%s ", spider.Name, md5Str, gfFile.Md5)
 		spiderSync.RemoveSpiderFile()
 		spiderSync.Download()
 		spiderSync.CreateMd5File(gfFile.Md5)
@@ -155,7 +154,7 @@ func PublishSpider(spider model.Spider) {
 func InitSpiderService() error {
 	// 构造定时任务执行器
 	c := cron.New(cron.WithSeconds())
-	if _, err := c.AddFunc("0/15 * * * * *", PublishAllSpiders); err != nil {
+	if _, err := c.AddFunc("0 * * * * *", PublishAllSpiders); err != nil {
 		return err
 	}
 	// 启动定时任务

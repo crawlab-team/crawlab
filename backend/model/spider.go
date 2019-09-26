@@ -93,7 +93,7 @@ func (spider *Spider) GetLastTask() (Task, error) {
 	return tasks[0], nil
 }
 
-func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, error) {
+func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, int, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 
@@ -101,7 +101,7 @@ func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, error) {
 	spiders := []Spider{}
 	if err := c.Find(filter).Skip(skip).Limit(limit).Sort("+name").All(&spiders); err != nil {
 		debug.PrintStack()
-		return spiders, err
+		return spiders, 0, err
 	}
 
 	// 遍历爬虫列表
@@ -119,7 +119,9 @@ func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, error) {
 		spiders[i].LastStatus = task.Status
 	}
 
-	return spiders, nil
+	count, _ := c.Find(filter).Count()
+
+	return spiders, count, nil
 }
 
 func GetSpiderByName(name string) *Spider {
