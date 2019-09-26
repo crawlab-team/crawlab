@@ -148,7 +148,7 @@ func PutSpider(c *gin.Context) {
 	}
 
 	// 上传到GridFs
-	fid, md5, err := services.UploadToGridFs(uploadFile.Filename, tmpFilePath)
+	fid, err := services.UploadToGridFs(uploadFile.Filename, tmpFilePath)
 	if err != nil {
 		log.Errorf("upload to grid fs error: %s", err.Error())
 		debug.PrintStack()
@@ -166,13 +166,8 @@ func PutSpider(c *gin.Context) {
 			Type:        constants.Customized,
 			Src:         filepath.Join(srcPath, spiderName),
 			FileId:      fid,
-			Md5:         md5,
 		}
 		_ = spider.Add()
-	} else {
-		spider.OldMd5 = spider.Md5
-		spider.Md5 = md5
-		_ = spider.Save()
 	}
 
 	c.JSON(http.StatusOK, Response{

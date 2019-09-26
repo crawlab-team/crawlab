@@ -19,17 +19,18 @@ const (
 )
 
 type SpiderSync struct {
+	Spider model.Spider
 }
 
-func (s *SpiderSync) CreateMd5File(md5 string, spiderName string) {
-	path := filepath.Join(viper.GetString("spider.path"), spiderName)
+func (s *SpiderSync) CreateMd5File(md5 string) {
+	path := filepath.Join(viper.GetString("spider.path"), s.Spider.Name)
 	utils.CreateFilePath(path)
 
 	fileName := filepath.Join(path, Md5File)
 	file := utils.OpenFile(fileName)
 	defer file.Close()
 	if file != nil {
-		if _, err := file.WriteString(md5); err != nil {
+		if _, err := file.WriteString(md5 + "\n"); err != nil {
 			log.Errorf("file write string error: %s", err.Error())
 			debug.PrintStack()
 		}
@@ -43,11 +44,11 @@ func (s *SpiderSync) GetLockDownloadKey(spiderId string) string {
 }
 
 // 删除本地文件
-func (s *SpiderSync) RemoveSpiderFile(spiderName string) {
+func (s *SpiderSync) RemoveSpiderFile() {
 	//爬虫文件有变化，先删除本地文件
 	_ = os.Remove(filepath.Join(
 		viper.GetString("spider.path"),
-		spiderName,
+		s.Spider.Name,
 	))
 }
 
@@ -62,7 +63,16 @@ func (s *SpiderSync) CheckDownLoading(spiderId string, fileId string) (bool, str
 }
 
 // 下载爬虫
-func (s *SpiderSync) Download(spiderId string, fileId string) {
+func (s *SpiderSync) Download() {
+	spiderId := s.Spider.Id.Hex()
+	fileId := s.Spider.FileId.Hex()
+	isDownloading, key := s.CheckDownLoading(spiderId, fileId)
+	if isDownloading {
+		log.Infof("spider is downloading, spider_id: %s", spiderId)
+		return
+	} else {
+		_ = database.RedisClient.HSet("spider", key, key)
+	}
 
 	session, gf := database.GetGridFs("files")
 	defer session.Close()
@@ -85,18 +95,14 @@ func (s *SpiderSync) Download(spiderId string, fileId string) {
 		}
 	}
 	// 创建临时文件
+
 	tmpFilePath := filepath.Join(tmpPath, randomId.String()+".zip")
-	tmpFile, err := os.OpenFile(tmpFilePath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
-	if err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
-	}
+	tmpFile := utils.OpenFile(tmpFilePath)
 	defer tmpFile.Close()
 
 	// 将该文件写入临时文件
 	if _, err := io.Copy(tmpFile, f); err != nil {
-		log.Errorf(err.Error())
+		log.Errorf("copy file error: %s, file_id: %s", err.Error(), f.Id())
 		debug.PrintStack()
 		return
 	}
@@ -124,4 +130,7 @@ func (s *SpiderSync) Download(spiderId string, fileId string) {
 		debug.PrintStack()
 		return
 	}
+
+	log.Infof("del key : %s", key)
+	_ = database.RedisClient.HDel("spider", key)
 }

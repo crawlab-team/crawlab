@@ -24,8 +24,6 @@ type Spider struct {
 	Site        string        `json:"site"`                             // 爬虫网站
 	Envs        []Env         `json:"envs" bson:"envs"`                 // 环境变量
 	Remark      string        `json:"remark"`                           // 备注
-	Md5         string        `json:"md_5" bson:"md5"`                  // ZIP文件的MD5
-	OldMd5      string        `json:"old_md_5" bson:"old_md5"`          //上一次的MD5值
 	// 自定义爬虫
 	Src string `json:"src" bson:"src"` // 源码位置
 	Cmd string `json:"cmd" bson:"cmd"` // 执行命令

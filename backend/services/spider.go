@@ -29,7 +29,7 @@ type SpiderUploadMessage struct {
 }
 
 // 上传zip文件到GridFS
-func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, md5 string, err error) {
+func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, err error) {
 	fid = ""
 
 	// 获取MongoDB GridFS连接
@@ -47,7 +47,7 @@ func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, md5 st
 	err = ReadFileByStep(filePath, WriteToGridFS, f)
 	if err != nil {
 		debug.PrintStack()
-		return "", "", err
+		return "", err
 	}
 
 	// 删除zip文件
@@ -57,12 +57,12 @@ func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, md5 st
 	}
 	// 关闭文件，提交写入
 	if err = f.Close(); err != nil {
-		return "", "", err
+		return "", err
 	}
 	// 文件ID
 	fid = f.Id().(bson.ObjectId)
 
-	return fid, f.MD5(), nil
+	return fid, nil
 }
 
 func WriteToGridFS(content []byte, f *mgo.GridFile) {
@@ -105,9 +105,9 @@ func PublishAllSpiders() {
 	// 遍历爬虫列表
 	for _, spider := range spiders {
 		// 异步发布爬虫
-		go func() {
-			PublishSpider(spider)
-		}()
+		go func(s model.Spider) {
+			PublishSpider(s)
+		}(spider)
 	}
 }
 
@@ -119,30 +119,34 @@ func PublishSpider(spider model.Spider) {
 		_ = model.RemoveSpider(spider.FileId)
 		return
 	}
-	spiderSync := spider_handler.SpiderSync{}
-	defer spiderSync.CreateMd5File(gfFile.Md5, spider.Name)
+	spiderSync := spider_handler.SpiderSync{
+		Spider: spider,
+	}
 
 	//目录不存在，则直接下载
 	path := filepath.Join(viper.GetString("spider.path"), spider.Name)
 	if !utils.Exists(path) {
 		log.Infof("path not found: %s", path)
-		spiderSync.Download(spider.Id.Hex(), spider.FileId.Hex())
+		spiderSync.Download()
+		spiderSync.CreateMd5File(gfFile.Md5)
 		return
 	}
 	// md5文件不存在，则下载
 	md5 := filepath.Join(path, spider_handler.Md5File)
 	if !utils.Exists(md5) {
-		log.Infof("md5.txt file not found: %s", md5)
-		spiderSync.RemoveSpiderFile(spider.Name)
-		spiderSync.Download(spider.Id.Hex(), spider.FileId.Hex())
+		log.Infof("md5 file not found: %s", md5)
+		spiderSync.RemoveSpiderFile()
+		spiderSync.Download()
+		spiderSync.CreateMd5File(gfFile.Md5)
 		return
 	}
 	// md5值不一样，则下载
 	md5Str := utils.ReadFile(md5)
-	if spider.Md5 != md5Str {
-		log.Infof("md5 is different: %s:%s ", md5Str, md5)
-		spiderSync.RemoveSpiderFile(spider.Name)
-		spiderSync.Download(spider.Id.Hex(), spider.FileId.Hex())
+	if gfFile.Md5 != md5Str {
+		log.Infof("md5 is different, fileName=%s,  file-md5=%s , gf-file-md5=%s ", spider.Name, md5Str, gfFile.Md5)
+		spiderSync.RemoveSpiderFile()
+		spiderSync.Download()
+		spiderSync.CreateMd5File(gfFile.Md5)
 		return
 	}
 }
