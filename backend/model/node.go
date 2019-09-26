@@ -7,6 +7,7 @@ import (
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
+	"github.com/spf13/viper"
 	"runtime/debug"
 	"time"
 )
@@ -28,6 +29,73 @@ type Node struct {
 	UpdateTs     time.Time `json:"update_ts" bson:"update_ts"`
 	CreateTs     time.Time `json:"create_ts" bson:"create_ts"`
 	UpdateTsUnix int64     `json:"update_ts_unix" bson:"update_ts_unix"`
+}
+
+const (
+	Yes = "Y"
+	No  = "N"
+)
+
+// 当前节点是否为主节点
+func IsMaster() bool {
+	return viper.GetString("server.master") == Yes
+}
+
+// 获取本机节点
+func GetCurrentNode() (Node, error) {
+	// 获得注册的key值
+	key, err := register.GetRegister().GetKey()
+	if err != nil {
+		return Node{}, err
+	}
+
+	// 从数据库中获取当前节点
+	var node Node
+	errNum := 0
+	for {
+		// 如果错误次数超过10次
+		if errNum >= 10 {
+			panic("cannot get current node")
+		}
+
+		// 尝试获取节点
+		node, err = GetNodeByKey(key)
+		// 如果获取失败
+		if err != nil {
+			// 如果为主节点，表示为第一次注册，插入节点信息
+			if IsMaster() {
+				// 获取本机信息
+				ip, mac, key, err := GetNodeBaseInfo()
+				if err != nil {
+					debug.PrintStack()
+					return node, err
+				}
+
+				// 生成节点
+				node = Node{
+					Key:      key,
+					Id:       bson.NewObjectId(),
+					Ip:       ip,
+					Name:     ip,
+					Mac:      mac,
+					IsMaster: true,
+				}
+				if err := node.Add(); err != nil {
+					return node, err
+				}
+				return node, nil
+			}
+			// 增加错误次数
+			errNum++
+
+			// 5秒后重试
+			time.Sleep(5 * time.Second)
+			continue
+		}
+		// 跳出循环
+		break
+	}
+	return node, nil
 }
 
 func (n *Node) Save() error {

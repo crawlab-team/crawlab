@@ -258,7 +258,7 @@ func ExecuteTask(id int) {
 	tic := time.Now()
 
 	// 获取当前节点
-	node, err := GetCurrentNode()
+	node, err := model.GetCurrentNode()
 	if err != nil {
 		log.Errorf(GetWorkerPrefix(id) + err.Error())
 		return
@@ -464,7 +464,7 @@ func CancelTask(id string) (err error) {
 	}
 
 	// 获取当前节点（默认当前节点为主节点）
-	node, err := GetCurrentNode()
+	node, err := model.GetCurrentNode()
 	if err != nil {
 		log.Errorf("get current node error: %s", err.Error())
 		debug.PrintStack()

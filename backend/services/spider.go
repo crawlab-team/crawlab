@@ -5,14 +5,13 @@ import (
 	"crawlab/database"
 	"crawlab/lib/cron"
 	"crawlab/model"
+	"crawlab/services/spider_handler"
 	"crawlab/utils"
 	"fmt"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
-	"io"
 	"os"
 	"path/filepath"
 	"runtime/debug"
@@ -102,6 +101,7 @@ func PublishAllSpiders() {
 	if len(spiders) == 0 {
 		return
 	}
+	log.Infof("start sync spider to local, total: %d", len(spiders))
 	// 遍历爬虫列表
 	for _, spider := range spiders {
 		// 异步发布爬虫
@@ -113,104 +113,45 @@ func PublishAllSpiders() {
 
 // 发布爬虫
 func PublishSpider(spider model.Spider) {
-	s, gf := database.GetGridFs("files")
-	defer s.Close()
-
+	// 查询gf file，不存在则删除
 	gfFile := model.GetGridFs(spider.FileId)
 	if gfFile == nil {
 		_ = model.RemoveSpider(spider.FileId)
 		return
 	}
+	spiderSync := spider_handler.SpiderSync{}
+	defer spiderSync.CreateMd5File(gfFile.Md5, spider.Name)
 
-	// 爬虫文件没有变化
-	if spider.Md5 == spider.OldMd5 {
+	//目录不存在，则直接下载
+	path := filepath.Join(viper.GetString("spider.path"), spider.Name)
+	if !utils.Exists(path) {
+		log.Infof("path not found: %s", path)
+		spiderSync.Download(spider.Id.Hex(), spider.FileId.Hex())
 		return
 	}
-
-	//爬虫文件有变化，先删除本地文件
-	_ = os.Remove(filepath.Join(
-		viper.GetString("spider.path"),
-		spider.Name,
-	))
-
-	// 重新下载爬虫文件
-	node, _ := GetCurrentNode()
-	key := node.Id.Hex() + "#" + spider.Id.Hex()
-	if _, err := database.RedisClient.HGet("spider", key); err == nil {
-		log.Infof("downloading spider")
+	// md5文件不存在，则下载
+	md5 := filepath.Join(path, spider_handler.Md5File)
+	if !utils.Exists(md5) {
+		log.Infof("md5.txt file not found: %s", md5)
+		spiderSync.RemoveSpiderFile(spider.Name)
+		spiderSync.Download(spider.Id.Hex(), spider.FileId.Hex())
 		return
 	}
-	_ = database.RedisClient.HSet("spider", key, key)
-	defer database.RedisClient.HDel("spider", key)
-
-	f, err := gf.OpenId(spider.FileId)
-	defer f.Close()
-	if err != nil {
-		log.Errorf("open file id: " + spider.FileId.Hex() + ", spider id:" + spider.Id.Hex() + ", error: " + err.Error())
-		debug.PrintStack()
+	// md5值不一样，则下载
+	md5Str := utils.ReadFile(md5)
+	if spider.Md5 != md5Str {
+		log.Infof("md5 is different: %s:%s ", md5Str, md5)
+		spiderSync.RemoveSpiderFile(spider.Name)
+		spiderSync.Download(spider.Id.Hex(), spider.FileId.Hex())
 		return
 	}
-
-	// 生成唯一ID
-	randomId := uuid.NewV4()
-	tmpPath := viper.GetString("other.tmppath")
-	if !utils.Exists(tmpPath) {
-		if err := os.MkdirAll(tmpPath, 0777); err != nil {
-			log.Errorf("mkdir other.tmppath error: %v", err.Error())
-			return
-		}
-	}
-	// 创建临时文件
-	tmpFilePath := filepath.Join(tmpPath, randomId.String()+".zip")
-	tmpFile, err := os.OpenFile(tmpFilePath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
-	if err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
-	}
-	defer tmpFile.Close()
-
-	// 将该文件写入临时文件
-	if _, err := io.Copy(tmpFile, f); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
-	}
-
-	// 解压缩临时文件到目标文件夹
-	dstPath := filepath.Join(
-		viper.GetString("spider.path"),
-	)
-	if err := utils.DeCompress(tmpFile, dstPath); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
-	}
-
-	// 关闭临时文件
-	if err := tmpFile.Close(); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
-	}
-
-	// 删除临时文件
-	if err := os.Remove(tmpFilePath); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
-	}
-
-	// 修改spider的MD5和上一次的MD一致
-	spider.OldMd5 = spider.Md5
-	_ = spider.Save()
 }
 
 // 启动爬虫服务
 func InitSpiderService() error {
 	// 构造定时任务执行器
 	c := cron.New(cron.WithSeconds())
-	if _, err := c.AddFunc("0 * * * * *", PublishAllSpiders); err != nil {
+	if _, err := c.AddFunc("0/15 * * * * *", PublishAllSpiders); err != nil {
 		return err
 	}
 	// 启动定时任务
