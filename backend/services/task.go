@@ -181,7 +181,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 		// 发生一次也需要保存
 		t.Error = err.Error()
 		t.FinishTs = time.Now()
-		t.Status = constants.TaskFinish
+		t.Status = constants.StatusFinished
 		_ = t.Save()
 		return err
 	}
