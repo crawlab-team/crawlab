@@ -139,11 +139,11 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	go func() {
 		// 传入信号，此处阻塞
 		signal := <-ch
-
+		log.Infof("cancel process signal: %s", signal)
 		if signal == constants.TaskCancel {
 			// 取消进程
 			if err := cmd.Process.Kill(); err != nil {
-				log.Errorf(err.Error())
+				log.Errorf("process kill error: %s", err.Error())
 				debug.PrintStack()
 				return
 			}
@@ -153,7 +153,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 		// 保存任务
 		t.FinishTs = time.Now()
 		if err := t.Save(); err != nil {
-			log.Infof(err.Error())
+			log.Infof("save task error: %s", err.Error())
 			debug.PrintStack()
 			return
 		}
