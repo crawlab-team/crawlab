@@ -140,7 +140,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 		// 传入信号，此处阻塞
 		signal := <-ch
 		log.Infof("cancel process signal: %s", signal)
-		if signal == constants.TaskCancel {
+		if signal == constants.TaskCancel && cmd.Process != nil {
 			// 取消进程
 			if err := cmd.Process.Kill(); err != nil {
 				log.Errorf("process kill error: %s", err.Error())
