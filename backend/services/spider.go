@@ -30,7 +30,7 @@ type SpiderUploadMessage struct {
 }
 
 // 上传zip文件到GridFS
-func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, err error) {
+func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, md5 string, err error) {
 	fid = ""
 
 	// 获取MongoDB GridFS连接
@@ -48,7 +48,7 @@ func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, err er
 	err = ReadFileByStep(filePath, WriteToGridFS, f)
 	if err != nil {
 		debug.PrintStack()
-		return "", err
+		return "", "", err
 	}
 
 	// 删除zip文件
@@ -58,12 +58,12 @@ func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, err er
 	}
 	// 关闭文件，提交写入
 	if err = f.Close(); err != nil {
-		return "", err
+		return "", "", err
 	}
 	// 文件ID
 	fid = f.Id().(bson.ObjectId)
 
-	return fid, nil
+	return fid, f.MD5(), nil
 }
 
 func WriteToGridFS(content []byte, f *mgo.GridFile) {
@@ -96,45 +96,59 @@ func ReadFileByStep(filePath string, handle func([]byte, *mgo.GridFile), fileCre
 }
 
 // 发布所有爬虫
-func PublishAllSpiders() error {
+func PublishAllSpiders() {
 	// 获取爬虫列表
-	spiders, err := model.GetSpiderList(nil, 0, constants.Infinite)
-	if err != nil {
-		log.Errorf(err.Error())
-		return err
+	spiders, _ := model.GetSpiderList(nil, 0, constants.Infinite)
+	if len(spiders) == 0 {
+		return
 	}
-
 	// 遍历爬虫列表
 	for _, spider := range spiders {
-		// 发布爬虫
-		if err := PublishSpider(spider); err != nil {
-			log.Errorf("publish spider error:" + err.Error())
-			// return err
-		}
-	}
-
-	return nil
-}
-
-func PublishAllSpidersJob() {
-	if err := PublishAllSpiders(); err != nil {
-		log.Errorf(err.Error())
+		// 异步发布爬虫
+		go func() {
+			PublishSpider(spider)
+		}()
 	}
 }
 
 // 发布爬虫
-func PublishSpider(spider model.Spider) (err error) {
+func PublishSpider(spider model.Spider) {
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
+
+	gfFile := model.GetGridFs(spider.FileId)
+	if gfFile == nil {
+		_ = model.RemoveSpider(spider.FileId)
+		return
+	}
+
+	// 爬虫文件没有变化
+	if spider.Md5 == spider.OldMd5 {
+		return
+	}
+
+	//爬虫文件有变化，先删除本地文件
+	_ = os.Remove(filepath.Join(
+		viper.GetString("spider.path"),
+		spider.Name,
+	))
+
+	// 重新下载爬虫文件
+	node, _ := GetCurrentNode()
+	key := node.Id.Hex() + "#" + spider.Id.Hex()
+	if _, err := database.RedisClient.HGet("spider", key); err == nil {
+		log.Infof("downloading spider")
+		return
+	}
+	_ = database.RedisClient.HSet("spider", key, key)
+	defer database.RedisClient.HDel("spider", key)
 
 	f, err := gf.OpenId(spider.FileId)
 	defer f.Close()
 	if err != nil {
 		log.Errorf("open file id: " + spider.FileId.Hex() + ", spider id:" + spider.Id.Hex() + ", error: " + err.Error())
 		debug.PrintStack()
-		// 爬虫和文件没有对应，则删除爬虫
-		_ = model.RemoveSpider(spider.Id)
-		return err
+		return
 	}
 
 	// 生成唯一ID
@@ -143,7 +157,7 @@ func PublishSpider(spider model.Spider) (err error) {
 	if !utils.Exists(tmpPath) {
 		if err := os.MkdirAll(tmpPath, 0777); err != nil {
 			log.Errorf("mkdir other.tmppath error: %v", err.Error())
-			return err
+			return
 		}
 	}
 	// 创建临时文件
@@ -152,7 +166,7 @@ func PublishSpider(spider model.Spider) (err error) {
 	if err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return err
+		return
 	}
 	defer tmpFile.Close()
 
@@ -160,7 +174,7 @@ func PublishSpider(spider model.Spider) (err error) {
 	if _, err := io.Copy(tmpFile, f); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return err
+		return
 	}
 
 	// 解压缩临时文件到目标文件夹
@@ -170,31 +184,33 @@ func PublishSpider(spider model.Spider) (err error) {
 	if err := utils.DeCompress(tmpFile, dstPath); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return err
+		return
 	}
 
 	// 关闭临时文件
 	if err := tmpFile.Close(); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return err
+		return
 	}
 
 	// 删除临时文件
 	if err := os.Remove(tmpFilePath); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return err
+		return
 	}
 
-	return nil
+	// 修改spider的MD5和上一次的MD一致
+	spider.OldMd5 = spider.Md5
+	_ = spider.Save()
 }
 
 // 启动爬虫服务
 func InitSpiderService() error {
 	// 构造定时任务执行器
 	c := cron.New(cron.WithSeconds())
-	if _, err := c.AddFunc("0 * * * * *", PublishAllSpidersJob); err != nil {
+	if _, err := c.AddFunc("0/15 * * * * *", PublishAllSpiders); err != nil {
 		return err
 	}
 	// 启动定时任务

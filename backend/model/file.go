@@ -1,16 +1,41 @@
 package model
 
 import (
+	"crawlab/database"
 	"crawlab/utils"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo/bson"
 	"os"
+	"time"
 )
+
+type GridFs struct {
+	Id         bson.ObjectId `json:"_id" bson:"_id"`
+	ChunkSize  int32         `json:"chunk_size" bson:"chunkSize"`
+	UploadDate time.Time     `json:"upload_date" bson:"uploadDate"`
+	Length     int32         `json:"length" bson:"length"`
+	Md5        string        `json:"md_5" bson:"md5"`
+	Filename   string        `json:"filename" bson:"filename"`
+}
 
 type File struct {
 	Name  string `json:"name"`
 	Path  string `json:"path"`
 	IsDir bool   `json:"is_dir"`
 	Size  int64  `json:"size"`
+}
+
+func GetGridFs(id bson.ObjectId) *GridFs {
+	s, gf := database.GetGridFs("files")
+	defer s.Close()
+
+	var gfFile GridFs
+	err := gf.Find(bson.M{"_id": id}).One(&gfFile)
+	if err != nil {
+		log.Errorf("get gf file error: %s, file_id: %s", err.Error(), id.Hex())
+		return nil
+	}
+	return &gfFile
 }
 
 func RemoveFile(path string) error {

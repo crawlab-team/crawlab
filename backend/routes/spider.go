@@ -79,18 +79,6 @@ func PostSpider(c *gin.Context) {
 	})
 }
 
-func PublishAllSpiders(c *gin.Context) {
-	if err := services.PublishAllSpiders(); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-	})
-}
-
 func PublishSpider(c *gin.Context) {
 	id := c.Param("id")
 
@@ -104,10 +92,7 @@ func PublishSpider(c *gin.Context) {
 		return
 	}
 
-	if err := services.PublishSpider(spider); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
+	services.PublishSpider(spider)
 
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
@@ -117,7 +102,7 @@ func PublishSpider(c *gin.Context) {
 
 func PutSpider(c *gin.Context) {
 	// 从body中获取文件
-	file, err := c.FormFile("file")
+	uploadFile, err := c.FormFile("file")
 	if err != nil {
 		debug.PrintStack()
 		HandleError(http.StatusInternalServerError, c, err)
@@ -125,7 +110,7 @@ func PutSpider(c *gin.Context) {
 	}
 
 	// 如果不为zip文件，返回错误
-	if !strings.HasSuffix(file.Filename, ".zip") {
+	if !strings.HasSuffix(uploadFile.Filename, ".zip") {
 		debug.PrintStack()
 		HandleError(http.StatusBadRequest, c, errors.New("Not a valid zip file"))
 		return
@@ -145,31 +130,50 @@ func PutSpider(c *gin.Context) {
 	// 保存到本地临时文件
 	randomId := uuid.NewV4()
 	tmpFilePath := filepath.Join(tmpPath, randomId.String()+".zip")
-	if err := c.SaveUploadedFile(file, tmpFilePath); err != nil {
+	if err := c.SaveUploadedFile(uploadFile, tmpFilePath); err != nil {
 		log.Error("save upload file error: " + err.Error())
 		debug.PrintStack()
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
+	s, gf := database.GetGridFs("files")
+	defer s.Close()
+
+	// 判断文件是否已经存在
+	var gfFile model.GridFs
+	if err := gf.Find(bson.M{"filename": uploadFile.Filename}).One(&gfFile); err == nil {
+		// 已经存在文件，则删除
+		_ = gf.RemoveId(gfFile.Id)
+	}
+
 	// 上传到GridFs
-	fid, err := services.UploadToGridFs(file.Filename, tmpFilePath)
+	fid, md5, err := services.UploadToGridFs(uploadFile.Filename, tmpFilePath)
 	if err != nil {
 		log.Errorf("upload to grid fs error: %s", err.Error())
 		debug.PrintStack()
 		return
 	}
-
-	// 保存爬虫信息
-	srcPath := viper.GetString("spider.path")
-	spider := model.Spider{
-		Name:        file.Filename,
-		DisplayName: file.Filename,
-		Type:        constants.Customized,
-		Src:         filepath.Join(srcPath, file.Filename),
-		FileId:      fid,
+	// 判断爬虫是否存在
+	spiderName := strings.Replace(uploadFile.Filename, ".zip", "", -1)
+	spider := model.GetSpiderByName(spiderName)
+	if spider == nil {
+		// 保存爬虫信息
+		srcPath := viper.GetString("spider.path")
+		spider := model.Spider{
+			Name:        spiderName,
+			DisplayName: spiderName,
+			Type:        constants.Customized,
+			Src:         filepath.Join(srcPath, spiderName),
+			FileId:      fid,
+			Md5:         md5,
+		}
+		_ = spider.Add()
+	} else {
+		spider.OldMd5 = spider.Md5
+		spider.Md5 = md5
+		_ = spider.Save()
 	}
-	_ = spider.Save()
 
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
@@ -259,7 +263,8 @@ func GetSpiderDir(c *gin.Context) {
 	}
 
 	// 获取目录下文件列表
-	f, err := ioutil.ReadDir(filepath.Join(spider.Src, path))
+	spiderPath := viper.GetString("spider.path")
+	f, err := ioutil.ReadDir(filepath.Join(spiderPath, spider.Name, path))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
