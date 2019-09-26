@@ -210,7 +210,7 @@ func PublishSpider(spider model.Spider) {
 func InitSpiderService() error {
 	// 构造定时任务执行器
 	c := cron.New(cron.WithSeconds())
-	if _, err := c.AddFunc("0/15 * * * * *", PublishAllSpiders); err != nil {
+	if _, err := c.AddFunc("0 * * * * *", PublishAllSpiders); err != nil {
 		return err
 	}
 	// 启动定时任务
