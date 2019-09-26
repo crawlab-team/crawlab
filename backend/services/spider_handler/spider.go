@@ -93,7 +93,6 @@ func (s *SpiderSync) Download() {
 		}
 	}
 	// 创建临时文件
-
 	tmpFilePath := filepath.Join(tmpPath, randomId.String()+".zip")
 	tmpFile := utils.OpenFile(tmpFilePath)
 	defer tmpFile.Close()
