@@ -145,7 +145,6 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 			if err := cmd.Process.Kill(); err != nil {
 				log.Errorf("process kill error: %s", err.Error())
 				debug.PrintStack()
-				return
 			}
 			t.Status = constants.StatusCancelled
 		} else {
@@ -487,10 +486,9 @@ func CancelTask(id string) (err error) {
 			if err := model.UpdateTaskToAbnormal(node.Id); err != nil {
 				log.Errorf("update task to abnormal : {}", err.Error())
 				debug.PrintStack()
-				return
+				return err
 			}
 		}
-
 	} else {
 		// 任务节点为工作节点
 
