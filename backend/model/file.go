@@ -6,6 +6,7 @@ import (
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
 	"os"
+	"runtime/debug"
 	"time"
 )
 
@@ -25,6 +26,19 @@ type File struct {
 	Size  int64  `json:"size"`
 }
 
+func GetAllGridFs() []*GridFs {
+	s, gf := database.GetGridFs("files")
+	defer s.Close()
+
+	var files []*GridFs
+	if err := gf.Find(nil).All(&files); err != nil {
+		log.Errorf("get all files error: {}", err.Error())
+		debug.PrintStack()
+		return nil
+	}
+	return files
+}
+
 func GetGridFs(id bson.ObjectId) *GridFs {
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
@@ -33,6 +47,7 @@ func GetGridFs(id bson.ObjectId) *GridFs {
 	err := gf.Find(bson.M{"_id": id}).One(&gfFile)
 	if err != nil {
 		log.Errorf("get gf file error: %s, file_id: %s", err.Error(), id.Hex())
+		debug.PrintStack()
 		return nil
 	}
 	return &gfFile
@@ -41,6 +56,7 @@ func GetGridFs(id bson.ObjectId) *GridFs {
 func RemoveFile(path string) error {
 	if !utils.Exists(path) {
 		log.Info("file not found: " + path)
+		debug.PrintStack()
 		return nil
 	}
 	if err := os.Remove(path); err != nil {

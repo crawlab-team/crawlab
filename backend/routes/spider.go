@@ -161,8 +161,12 @@ func PutSpider(c *gin.Context) {
 		debug.PrintStack()
 		return
 	}
+
+	idx := strings.LastIndex(uploadFile.Filename, "/")
+	targetFilename := uploadFile.Filename[idx+1:]
+
 	// 判断爬虫是否存在
-	spiderName := strings.Replace(uploadFile.Filename, ".zip", "", -1)
+	spiderName := strings.Replace(targetFilename, ".zip", "", 1)
 	spider := model.GetSpiderByName(spiderName)
 	if spider == nil {
 		// 保存爬虫信息
