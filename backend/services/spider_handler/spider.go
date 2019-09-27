@@ -107,6 +107,7 @@ func (s *SpiderSync) Download() {
 	// 解压缩临时文件到目标文件夹
 	dstPath := filepath.Join(
 		viper.GetString("spider.path"),
+		s.Spider.Name,
 	)
 	if err := utils.DeCompress(tmpFile, dstPath); err != nil {
 		log.Errorf(err.Error())

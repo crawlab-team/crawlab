@@ -18,12 +18,12 @@ type Spider struct {
 	Id          bson.ObjectId `json:"_id" bson:"_id"`                   // 爬虫ID
 	Name        string        `json:"name" bson:"name"`                 // 爬虫名称（唯一）
 	DisplayName string        `json:"display_name" bson:"display_name"` // 爬虫显示名称
-	Type        string        `json:"type"`                             // 爬虫类别
+	Type        string        `json:"type" bson:"type"`                 // 爬虫类别
 	FileId      bson.ObjectId `json:"file_id" bson:"file_id"`           // GridFS文件ID
-	Col         string        `json:"col"`                              // 结果储存位置
-	Site        string        `json:"site"`                             // 爬虫网站
+	Col         string        `json:"col" bson:"col"`                   // 结果储存位置
+	Site        string        `json:"site" bson:"site"`                 // 爬虫网站
 	Envs        []Env         `json:"envs" bson:"envs"`                 // 环境变量
-	Remark      string        `json:"remark"`                           // 备注
+	Remark      string        `json:"remark" bson:"remark"`             // 备注
 	// 自定义爬虫
 	Src string `json:"src" bson:"src"` // 源码位置
 	Cmd string `json:"cmd" bson:"cmd"` // 执行命令
@@ -130,7 +130,7 @@ func GetSpiderByName(name string) *Spider {
 
 	var result *Spider
 	if err := c.Find(bson.M{"name": name}).One(result); err != nil {
-		log.Errorf("get spider error: %s", err.Error())
+		log.Errorf("get spider error: %s, spider_name: %s", err.Error(), name)
 		debug.PrintStack()
 		return result
 	}
