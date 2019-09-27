@@ -36,9 +36,9 @@ func init() {
 
 	s = SpiderSync{
 		Spider: model.Spider{
-			Id:     bson.ObjectIdHex("5d8d5e4b44500b000150009c"),
+			Id:     bson.ObjectIdHex("5d8d8326bc3c4f000186e5df"),
 			Name:   "scrapy-pre_sale",
-			FileId: bson.ObjectIdHex("5d8d5e4b44500b0001500098"),
+			FileId: bson.ObjectIdHex("5d8d8326bc3c4f000186e5db"),
 			Src:    "/opt/crawlab/spiders/scrapy-pre_sale",
 		},
 	}
