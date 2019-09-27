@@ -133,10 +133,10 @@ func GetSpiderByName(name string) *Spider {
 	defer s.Close()
 
 	var result *Spider
-	if err := c.Find(bson.M{"name": name}).One(result); err != nil {
+	if err := c.Find(bson.M{"name": name}).One(&result); err != nil {
 		log.Errorf("get spider error: %s, spider_name: %s", err.Error(), name)
 		debug.PrintStack()
-		return result
+		return nil
 	}
 	return result
 }
