@@ -65,7 +65,8 @@ func GetScheduleList(filter interface{}) ([]Schedule, error) {
 		// 获取爬虫名称
 		spider, err := GetSpider(schedule.SpiderId)
 		if err != nil {
-			log.Errorf(err.Error())
+			log.Errorf("get spider by id: %s, error: %s", schedule.SpiderId.Hex(), err.Error())
+			debug.PrintStack()
 			continue
 		}
 		schedules[i].SpiderName = spider.Name
