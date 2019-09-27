@@ -179,6 +179,10 @@ func PutSpider(c *gin.Context) {
 			FileId:      fid,
 		}
 		_ = spider.Add()
+	} else {
+		// 更新file_id
+		spider.FileId = fid
+		_ = spider.Save()
 	}
 
 	c.JSON(http.StatusOK, Response{
