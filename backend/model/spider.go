@@ -124,8 +124,17 @@ func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, int, erro
 	return spiders, count, nil
 }
 
-func GetSpiderByFileId(fileId bson.ObjectId) {
+func GetSpiderByFileId(fileId bson.ObjectId) *Spider {
+	s, c := database.GetCol("spiders")
+	defer s.Close()
 
+	var result *Spider
+	if err := c.Find(bson.M{"file_id": fileId}).One(&result); err != nil {
+		log.Errorf("get spider error: %s, file_id: %s", err.Error(), fileId.Hex())
+		debug.PrintStack()
+		return nil
+	}
+	return result
 }
 
 func GetSpiderByName(name string) *Spider {

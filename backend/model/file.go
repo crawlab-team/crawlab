@@ -26,6 +26,15 @@ type File struct {
 	Size  int64  `json:"size"`
 }
 
+func (f *GridFs) Remove() {
+	s, gf := database.GetGridFs("files")
+	defer s.Close()
+	if err := gf.RemoveId(f.Id); err != nil {
+		log.Errorf("remove file id error: %s, id: %s", err.Error(), f.Id.Hex())
+		debug.PrintStack()
+	}
+}
+
 func GetAllGridFs() []*GridFs {
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
