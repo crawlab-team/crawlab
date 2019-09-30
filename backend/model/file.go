@@ -68,7 +68,7 @@ func RemoveFile(path string) error {
 		debug.PrintStack()
 		return nil
 	}
-	if err := os.Remove(path); err != nil {
+	if err := os.RemoveAll(path); err != nil {
 		return err
 	}
 	return nil

@@ -10,7 +10,16 @@ import (
 	"runtime/debug"
 )
 
-func ReadFile(fileName string) string {
+// 删除文件
+func RemoveFiles(path string) {
+	if err := os.RemoveAll(path); err != nil {
+		log.Errorf("remove files error: %s, path: %s", err.Error(), path)
+		debug.PrintStack()
+	}
+}
+
+// 读取文件一行
+func ReadFileOneLine(fileName string) string {
 	file := OpenFile(fileName)
 	defer file.Close()
 	buf := bufio.NewReader(file)

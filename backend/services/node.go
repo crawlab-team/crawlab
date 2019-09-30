@@ -1,9 +1,9 @@
 package services
 
 import (
-	"context"
 	"crawlab/constants"
 	"crawlab/database"
+	"crawlab/entity"
 	"crawlab/lib/cron"
 	"crawlab/model"
 	"crawlab/services/msg_handler"
@@ -175,7 +175,7 @@ func UpdateNodeData() {
 
 func MasterNodeCallback(message redis.Message) (err error) {
 	// 反序列化
-	var msg msg_handler.NodeMessage
+	var msg entity.NodeMessage
 	if err := json.Unmarshal(message.Data, &msg); err != nil {
 
 		return err
@@ -183,7 +183,6 @@ func MasterNodeCallback(message redis.Message) (err error) {
 
 	if msg.Type == constants.MsgTypeGetLog {
 		// 获取日志
-		fmt.Println(msg)
 		time.Sleep(10 * time.Millisecond)
 		ch := TaskLogChanMap.ChanBlocked(msg.TaskId)
 		ch <- msg.Log
@@ -200,14 +199,8 @@ func MasterNodeCallback(message redis.Message) (err error) {
 
 func WorkerNodeCallback(message redis.Message) (err error) {
 	// 反序列化
-	msg := msg_handler.NodeMessage{}
-	if err := json.Unmarshal(message.Data, &msg); err != nil {
-
-		return err
-	}
-
-	// worker message handle
-	if err := msg_handler.GetMsgHandler(msg).Handle(); err != nil {
+	msg := utils.GetMessage(message)
+	if err := msg_handler.GetMsgHandler(*msg).Handle(); err != nil {
 		return err
 	}
 	return nil
@@ -234,21 +227,23 @@ func InitNodeService() error {
 		log.Errorf(err.Error())
 		return err
 	}
-	ctx := context.Background()
+
 	if model.IsMaster() {
 		// 如果为主节点，订阅主节点通信频道
-		channel := "nodes:master"
-		err := database.RedisClient.Subscribe(ctx, MasterNodeCallback, channel)
-		if err != nil {
+		if err := utils.Sub(constants.ChannelMasterNode, MasterNodeCallback); err != nil {
 			return err
 		}
 	} else {
 		// 若为工作节点，订阅单独指定通信频道
-		channel := "nodes:" + node.Id.Hex()
-		err := database.RedisClient.Subscribe(ctx, WorkerNodeCallback, channel)
-		if err != nil {
+		channel := constants.ChannelWorkerNode + node.Id.Hex()
+		if err := utils.Sub(channel, WorkerNodeCallback); err != nil {
 			return err
 		}
+	}
+
+	// 订阅全通道
+	if err := utils.Sub(constants.ChannelAllNode, WorkerNodeCallback); err != nil {
+		return err
 	}
 
 	// 如果为主节点，每30秒刷新所有节点信息
@@ -260,7 +255,7 @@ func InitNodeService() error {
 		}
 	}
 
-	// 更新在当前节点执行的任务状态为：abnormal
+	// 更新在当前节点执行中的任务状态为：abnormal
 	if err := model.UpdateTaskToAbnormal(node.Id); err != nil {
 		debug.PrintStack()
 		return err

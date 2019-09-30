@@ -3,9 +3,9 @@ package services
 import (
 	"crawlab/constants"
 	"crawlab/database"
+	"crawlab/entity"
 	"crawlab/lib/cron"
 	"crawlab/model"
-	"crawlab/services/msg_handler"
 	"crawlab/utils"
 	"encoding/json"
 	"errors"
@@ -493,7 +493,7 @@ func CancelTask(id string) (err error) {
 		// 任务节点为工作节点
 
 		// 序列化消息
-		msg := msg_handler.NodeMessage{
+		msg := entity.NodeMessage{
 			Type:   constants.MsgTypeCancelTask,
 			TaskId: id,
 		}

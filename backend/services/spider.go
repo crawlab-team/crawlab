@@ -3,6 +3,7 @@ package services
 import (
 	"crawlab/constants"
 	"crawlab/database"
+	"crawlab/entity"
 	"crawlab/lib/cron"
 	"crawlab/model"
 	"crawlab/services/spider_handler"
@@ -65,6 +66,7 @@ func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, err er
 	return fid, nil
 }
 
+// 写入grid fs
 func WriteToGridFS(content []byte, f *mgo.GridFile) {
 	if _, err := f.Write(content); err != nil {
 		debug.PrintStack()
@@ -141,13 +143,52 @@ func PublishSpider(spider model.Spider) {
 		return
 	}
 	// md5值不一样，则下载
-	md5Str := utils.ReadFile(md5)
+	md5Str := utils.ReadFileOneLine(md5)
 	if gfFile.Md5 != md5Str {
 		spiderSync.RemoveSpiderFile()
 		spiderSync.Download()
 		spiderSync.CreateMd5File(gfFile.Md5)
 		return
 	}
+}
+
+func RemoveSpider(id string) error {
+	// 获取该爬虫
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		return err
+	}
+
+	// 删除爬虫文件目录
+	path := filepath.Join(viper.GetString("spider.path"), spider.Name)
+	utils.RemoveFiles(path)
+
+	// 删除其他节点的爬虫目录
+	msg := entity.NodeMessage{
+		Type:     constants.MsgTypeRemoveSpider,
+		SpiderId: id,
+	}
+	if err := utils.Pub(constants.ChannelAllNode, msg); err != nil {
+		return err
+	}
+
+	// 从数据库中删除该爬虫
+	if err := model.RemoveSpider(bson.ObjectIdHex(id)); err != nil {
+		return err
+	}
+
+	// 删除日志文件
+	if err := RemoveLogBySpiderId(spider.Id); err != nil {
+		return err
+	}
+
+	// 删除爬虫对应的task任务
+	if err := model.RemoveTaskBySpiderId(spider.Id); err != nil {
+		return err
+	}
+
+	// TODO 定时任务如何处理
+	return nil
 }
 
 // 启动爬虫服务

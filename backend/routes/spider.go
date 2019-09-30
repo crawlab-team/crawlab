@@ -199,33 +199,7 @@ func DeleteSpider(c *gin.Context) {
 		return
 	}
 
-	// 获取该爬虫
-	spider, err := model.GetSpider(bson.ObjectIdHex(id))
-	if err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	// 删除爬虫文件目录
-	if err := os.RemoveAll(spider.Src); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	// 从数据库中删除该爬虫
-	if err := model.RemoveSpider(bson.ObjectIdHex(id)); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	// 删除日志文件
-	if err := services.RemoveLogBySpiderId(spider.Id); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	// 删除爬虫对应的task任务
-	if err := model.RemoveTaskBySpiderId(spider.Id); err != nil {
+	if err := services.RemoveSpider(id); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}

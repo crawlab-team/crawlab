@@ -157,6 +157,7 @@ func GetSpider(id bson.ObjectId) (Spider, error) {
 	var result Spider
 	if err := c.FindId(id).One(&result); err != nil {
 		if err != mgo.ErrNotFound {
+			log.Errorf("get spider error: %s, id: %id", err.Error(), id.Hex())
 			debug.PrintStack()
 		}
 		return result, err
@@ -190,6 +191,8 @@ func RemoveSpider(id bson.ObjectId) error {
 	}
 
 	if err := c.RemoveId(id); err != nil {
+		log.Errorf("remove spider error: %s, id:%s", err.Error(), id.Hex())
+		debug.PrintStack()
 		return err
 	}
 
@@ -199,6 +202,7 @@ func RemoveSpider(id bson.ObjectId) error {
 
 	if err := gf.RemoveId(result.FileId); err != nil {
 		log.Error("remove file error, id:" + result.FileId.Hex())
+		debug.PrintStack()
 		return err
 	}
 

@@ -2,6 +2,7 @@ package msg_handler
 
 import (
 	"crawlab/constants"
+	"crawlab/entity"
 	"crawlab/model"
 	"crawlab/utils"
 	"github.com/apex/log"
@@ -10,7 +11,7 @@ import (
 )
 
 type Task struct {
-	msg NodeMessage
+	msg entity.NodeMessage
 }
 
 func (t *Task) Handle() error {
