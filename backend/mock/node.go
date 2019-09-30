@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"crawlab/entity"
 	"crawlab/model"
 	"crawlab/services"
 	"github.com/apex/log"
@@ -97,14 +98,14 @@ var dataList = []services.Data{
 	},
 }
 
-var executeble = []model.Executable{
+var executeble = []entity.Executable{
 	{
 		Path:        "/test",
 		FileName:    "test.py",
 		DisplayName: "test.py",
 	},
 }
-var systemInfo = model.SystemInfo{ARCH: "x86",
+var systemInfo = entity.SystemInfo{ARCH: "x86",
 	OS:          "linux",
 	Hostname:    "test",
 	NumCpu:      4,
