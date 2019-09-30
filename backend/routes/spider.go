@@ -337,6 +337,20 @@ func PostSpiderFile(c *gin.Context) {
 	})
 }
 
+// 爬虫类型
+func GetSpiderTypes(c *gin.Context) {
+	types, err := model.GetSpiderTypes()
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    types,
+	})
+}
+
 func GetSpiderStats(c *gin.Context) {
 	type Overview struct {
 		TaskCount            int     `json:"task_count" bson:"task_count"`

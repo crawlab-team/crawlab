@@ -132,6 +132,7 @@ func main() {
 			authGroup.POST("/spiders/:id/file", routes.PostSpiderFile)   // 爬虫目录写入
 			authGroup.GET("/spiders/:id/dir", routes.GetSpiderDir)       // 爬虫目录
 			authGroup.GET("/spiders/:id/stats", routes.GetSpiderStats)   // 爬虫统计数据
+			authGroup.GET("/spider/types", routes.GetSpiderTypes)        // 爬虫类型
 			// 任务
 			authGroup.GET("/tasks", routes.GetTaskList)                                 // 任务列表
 			authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情
