@@ -109,9 +109,18 @@
       <!--filter-->
       <div class="filter">
         <div class="left">
-          <el-input @keyup.enter.native="onSearch" size="small" placeholder="名称" v-model="filter.keyword">
-            <i slot="suffix" class="el-input__icon el-icon-search"></i>
-          </el-input>
+          <el-form :inline="true">
+            <el-form-item>
+              <el-select placeholder="爬虫类型" size="small" v-model="filter.type">
+                <el-option v-for="type in types" :value="type" :key="type" :label="type"/>
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-input @keyup.enter.native="onSearch" size="small" placeholder="名称" v-model="filter.keyword">
+                <i slot="suffix" class="el-input__icon el-icon-search"></i>
+              </el-input>
+            </el-form-item>
+          </el-form>
         </div>
         <div class="right">
           <el-button size="small" v-if="false" type="primary" icon="fa fa-download" @click="openImportDialog">
@@ -239,7 +248,7 @@ import {
 import dayjs from 'dayjs'
 import CrawlConfirmDialog from '../../components/Common/CrawlConfirmDialog'
 import StatusTag from '../../components/Status/StatusTag'
-
+import request from '../../api/request'
 export default {
   name: 'SpiderList',
   components: {
@@ -262,18 +271,17 @@ export default {
       crawlConfirmDialogVisible: false,
       activeSpiderId: undefined,
       filter: {
-        keyword: ''
+        keyword: '',
+        type: ''
       },
+      types: [],
       // tableData,
       columns: [
-        { name: 'name', label: 'Name', width: '160', align: 'left' },
-        // { name: 'site_name', label: 'Site', width: '140', align: 'left' },
+        { name: 'display_name', label: 'Name', width: '160', align: 'left' },
         { name: 'type', label: 'Spider Type', width: '120' },
-        // { name: 'cmd', label: 'Command Line', width: '200' },
         { name: 'last_status', label: 'Last Status', width: '120' },
         { name: 'last_run_ts', label: 'Last Run', width: '140' },
-        { name: 'create_ts', label: 'Create Time', width: '140' },
-        { name: 'update_ts', label: 'Update Time', width: '140' },
+        // { name: 'update_ts', label: 'Update Time', width: '140' },
         { name: 'remark', label: 'Remark', width: '140' }
       ],
       spiderFormRules: {
@@ -485,12 +493,15 @@ export default {
         keyword: this.filter.keyword
       }
       this.$store.dispatch('spider/getSpiderList', params)
+    },
+    getTypes () {
+      request.get(`/spider/types`).then(resp => {
+        console.log('resp', resp)
+      })
     }
   },
   created () {
-    // take site from params to filter
-    this.$store.commit('spider/SET_FILTER_SITE', this.$route.params.domain)
-
+    this.getTypes()
     // fetch spider list
     this.getList()
   },
