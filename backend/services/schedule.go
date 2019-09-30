@@ -126,7 +126,7 @@ func (s *Scheduler) Update() error {
 
 		// 添加到定时任务
 		if err := s.AddJob(job); err != nil {
-			log.Errorf("add job error: %s", err.Error())
+			log.Errorf("add job error: %s, job: %s, cron: %s", err.Error(), job.Name, job.Cron)
 			debug.PrintStack()
 			return err
 		}

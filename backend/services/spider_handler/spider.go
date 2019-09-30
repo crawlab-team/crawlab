@@ -45,11 +45,15 @@ func (s *SpiderSync) GetLockDownloadKey(spiderId string) string {
 
 // 删除本地文件
 func (s *SpiderSync) RemoveSpiderFile() {
-	//爬虫文件有变化，先删除本地文件
-	_ = os.Remove(filepath.Join(
+	path := filepath.Join(
 		viper.GetString("spider.path"),
 		s.Spider.Name,
-	))
+	)
+	//爬虫文件有变化，先删除本地文件
+	if err := os.RemoveAll(path); err != nil {
+		log.Errorf("remove spider files error: %s, path: %s", err.Error(), path)
+		debug.PrintStack()
+	}
 }
 
 // 检测是否已经下载中
