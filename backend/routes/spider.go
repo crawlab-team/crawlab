@@ -3,6 +3,7 @@ package routes
 import (
 	"crawlab/constants"
 	"crawlab/database"
+	"crawlab/entity"
 	"crawlab/model"
 	"crawlab/services"
 	"crawlab/utils"
@@ -11,7 +12,7 @@ import (
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"net/http"
@@ -24,7 +25,22 @@ import (
 )
 
 func GetSpiderList(c *gin.Context) {
-	results, err := model.GetSpiderList(nil, 0, 0)
+	pageNum, _ := c.GetQuery("pageNum")
+	pageSize, _ := c.GetQuery("pageSize")
+	keyword, _ := c.GetQuery("keyword")
+	t, _ := c.GetQuery("type")
+
+	filter := bson.M{
+		"name": bson.M{"$regex": bson.RegEx{Pattern: keyword, Options: "im"}},
+	}
+
+	if t != "" {
+		filter["type"] = t
+	}
+
+	page := &entity.Page{}
+	page.GetPage(pageNum, pageSize)
+	results, count, err := model.GetSpiderList(filter, page.Skip, page.Limit)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
@@ -32,7 +48,7 @@ func GetSpiderList(c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
-		Data:    results,
+		Data:    bson.M{"list": results, "total": count},
 	})
 }
 
@@ -79,18 +95,6 @@ func PostSpider(c *gin.Context) {
 	})
 }
 
-func PublishAllSpiders(c *gin.Context) {
-	if err := services.PublishAllSpiders(); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-	})
-}
-
 func PublishSpider(c *gin.Context) {
 	id := c.Param("id")
 
@@ -104,10 +108,7 @@ func PublishSpider(c *gin.Context) {
 		return
 	}
 
-	if err := services.PublishSpider(spider); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
+	services.PublishSpider(spider)
 
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
@@ -117,7 +118,7 @@ func PublishSpider(c *gin.Context) {
 
 func PutSpider(c *gin.Context) {
 	// 从body中获取文件
-	file, err := c.FormFile("file")
+	uploadFile, err := c.FormFile("file")
 	if err != nil {
 		debug.PrintStack()
 		HandleError(http.StatusInternalServerError, c, err)
@@ -125,7 +126,7 @@ func PutSpider(c *gin.Context) {
 	}
 
 	// 如果不为zip文件，返回错误
-	if !strings.HasSuffix(file.Filename, ".zip") {
+	if !strings.HasSuffix(uploadFile.Filename, ".zip") {
 		debug.PrintStack()
 		HandleError(http.StatusBadRequest, c, errors.New("Not a valid zip file"))
 		return
@@ -145,56 +146,53 @@ func PutSpider(c *gin.Context) {
 	// 保存到本地临时文件
 	randomId := uuid.NewV4()
 	tmpFilePath := filepath.Join(tmpPath, randomId.String()+".zip")
-	if err := c.SaveUploadedFile(file, tmpFilePath); err != nil {
+	if err := c.SaveUploadedFile(uploadFile, tmpFilePath); err != nil {
 		log.Error("save upload file error: " + err.Error())
 		debug.PrintStack()
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
-	// 读取临时文件
-	tmpFile, err := os.OpenFile(tmpFilePath, os.O_RDONLY, 0777)
+	s, gf := database.GetGridFs("files")
+	defer s.Close()
+
+	// 判断文件是否已经存在
+	var gfFile model.GridFs
+	if err := gf.Find(bson.M{"filename": uploadFile.Filename}).One(&gfFile); err == nil {
+		// 已经存在文件，则删除
+		_ = gf.RemoveId(gfFile.Id)
+	}
+
+	// 上传到GridFs
+	fid, err := services.UploadToGridFs(uploadFile.Filename, tmpFilePath)
 	if err != nil {
+		log.Errorf("upload to grid fs error: %s", err.Error())
 		debug.PrintStack()
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-	if err = tmpFile.Close(); err != nil {
-		debug.PrintStack()
-		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
-	// 目标目录
-	dstPath := filepath.Join(
-		viper.GetString("spider.path"),
-		strings.Replace(file.Filename, ".zip", "", 1),
-	)
+	idx := strings.LastIndex(uploadFile.Filename, "/")
+	targetFilename := uploadFile.Filename[idx+1:]
 
-	// 如果目标目录已存在，删除目标目录
-	if utils.Exists(dstPath) {
-		if err := os.RemoveAll(dstPath); err != nil {
-			debug.PrintStack()
-			HandleError(http.StatusInternalServerError, c, err)
+	// 判断爬虫是否存在
+	spiderName := strings.Replace(targetFilename, ".zip", "", 1)
+	spider := model.GetSpiderByName(spiderName)
+	if spider == nil {
+		// 保存爬虫信息
+		srcPath := viper.GetString("spider.path")
+		spider := model.Spider{
+			Name:        spiderName,
+			DisplayName: spiderName,
+			Type:        constants.Customized,
+			Src:         filepath.Join(srcPath, spiderName),
+			FileId:      fid,
 		}
+		_ = spider.Add()
+	} else {
+		// 更新file_id
+		spider.FileId = fid
+		_ = spider.Save()
 	}
-
-	// 将临时文件解压到爬虫目录
-	if err := utils.DeCompress(tmpFile, dstPath); err != nil {
-		debug.PrintStack()
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	// 删除临时文件
-	if err = os.Remove(tmpFilePath); err != nil {
-		debug.PrintStack()
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	// 更新爬虫
-	services.UpdateSpiders()
 
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
@@ -210,33 +208,7 @@ func DeleteSpider(c *gin.Context) {
 		return
 	}
 
-	// 获取该爬虫
-	spider, err := model.GetSpider(bson.ObjectIdHex(id))
-	if err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	// 删除爬虫文件目录
-	if err := os.RemoveAll(spider.Src); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	// 从数据库中删除该爬虫
-	if err := model.RemoveSpider(bson.ObjectIdHex(id)); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	// 删除日志文件
-	if err := services.RemoveLogBySpiderId(spider.Id); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	// 删除爬虫对应的task任务
-	if err := model.RemoveTaskBySpiderId(spider.Id); err != nil {
+	if err := services.RemoveSpider(id); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
@@ -284,7 +256,8 @@ func GetSpiderDir(c *gin.Context) {
 	}
 
 	// 获取目录下文件列表
-	f, err := ioutil.ReadDir(filepath.Join(spider.Src, path))
+	spiderPath := viper.GetString("spider.path")
+	f, err := ioutil.ReadDir(filepath.Join(spiderPath, spider.Name, path))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
@@ -370,6 +343,20 @@ func PostSpiderFile(c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
+	})
+}
+
+// 爬虫类型
+func GetSpiderTypes(c *gin.Context) {
+	types, err := model.GetSpiderTypes()
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    types,
 	})
 }
 

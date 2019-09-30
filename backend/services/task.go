@@ -3,9 +3,9 @@ package services
 import (
 	"crawlab/constants"
 	"crawlab/database"
+	"crawlab/entity"
 	"crawlab/lib/cron"
 	"crawlab/model"
-	"crawlab/services/msg_handler"
 	"crawlab/utils"
 	"encoding/json"
 	"errors"
@@ -139,33 +139,52 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	go func() {
 		// 传入信号，此处阻塞
 		signal := <-ch
-
-		if signal == constants.TaskCancel {
+		log.Infof("cancel process signal: %s", signal)
+		if signal == constants.TaskCancel && cmd.Process != nil {
 			// 取消进程
 			if err := cmd.Process.Kill(); err != nil {
-				log.Errorf(err.Error())
+				log.Errorf("process kill error: %s", err.Error())
 				debug.PrintStack()
-				return
 			}
 			t.Status = constants.StatusCancelled
+		} else {
+			// 保存任务
+			t.Status = constants.StatusFinished
 		}
-
-		// 保存任务
 		t.FinishTs = time.Now()
 		if err := t.Save(); err != nil {
-			log.Infof(err.Error())
+			log.Infof("save task error: %s", err.Error())
 			debug.PrintStack()
 			return
 		}
 	}()
 
-	// 开始执行
-	if err := cmd.Run(); err != nil {
-		HandleTaskError(t, err)
+	// 异步启动进程
+	if err := cmd.Start(); err != nil {
+		log.Errorf("start spider error:{}", err.Error())
+		debug.PrintStack()
+		return err
+	}
+	// 保存pid到task
+	t.Pid = cmd.Process.Pid
+	if err := t.Save(); err != nil {
+		log.Errorf("save task pid error: %s", err.Error())
+		debug.PrintStack()
+		return err
+	}
+	// 同步等待进程完成
+	if err := cmd.Wait(); err != nil {
+		log.Errorf("wait process finish error: %s", err.Error())
+		debug.PrintStack()
+
+		// 发生一次也需要保存
+		t.Error = err.Error()
+		t.FinishTs = time.Now()
+		t.Status = constants.StatusFinished
+		_ = t.Save()
 		return err
 	}
 	ch <- constants.TaskFinish
-
 	return nil
 }
 
@@ -239,7 +258,7 @@ func ExecuteTask(id int) {
 	tic := time.Now()
 
 	// 获取当前节点
-	node, err := GetCurrentNode()
+	node, err := model.GetCurrentNode()
 	if err != nil {
 		log.Errorf(GetWorkerPrefix(id) + err.Error())
 		return
@@ -434,6 +453,8 @@ func CancelTask(id string) (err error) {
 	// 获取任务
 	task, err := model.GetTask(id)
 	if err != nil {
+		log.Errorf("task not found, task id : %s, error: %s", id, err.Error())
+		debug.PrintStack()
 		return err
 	}
 
@@ -443,24 +464,36 @@ func CancelTask(id string) (err error) {
 	}
 
 	// 获取当前节点（默认当前节点为主节点）
-	node, err := GetCurrentNode()
+	node, err := model.GetCurrentNode()
 	if err != nil {
+		log.Errorf("get current node error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
+
+	log.Infof("current node id is: %s", node.Id.Hex())
+	log.Infof("task node id is: %s", task.NodeId.Hex())
 
 	if node.Id == task.NodeId {
 		// 任务节点为主节点
 
 		// 获取任务执行频道
 		ch := utils.TaskExecChanMap.ChanBlocked(id)
-
-		// 发出取消进程信号
-		ch <- constants.TaskCancel
+		if ch != nil {
+			// 发出取消进程信号
+			ch <- constants.TaskCancel
+		} else {
+			if err := model.UpdateTaskToAbnormal(node.Id); err != nil {
+				log.Errorf("update task to abnormal : {}", err.Error())
+				debug.PrintStack()
+				return err
+			}
+		}
 	} else {
 		// 任务节点为工作节点
 
 		// 序列化消息
-		msg := msg_handler.NodeMessage{
+		msg := entity.NodeMessage{
 			Type:   constants.MsgTypeCancelTask,
 			TaskId: id,
 		}

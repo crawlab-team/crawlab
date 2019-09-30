@@ -1,6 +1,7 @@
 package model
 
 import (
+	"crawlab/entity"
 	"github.com/apex/log"
 	"io/ioutil"
 	"os"
@@ -35,21 +36,7 @@ var executableNameMap = map[string]string{
 	"bash": "bash",
 }
 
-type SystemInfo struct {
-	ARCH        string       `json:"arch"`
-	OS          string       `json:"os"`
-	Hostname    string       `json:"host_name"`
-	NumCpu      int          `json:"num_cpu"`
-	Executables []Executable `json:"executables"`
-}
-
-type Executable struct {
-	Path        string `json:"path"`
-	FileName    string `json:"file_name"`
-	DisplayName string `json:"display_name"`
-}
-
-func GetLocalSystemInfo() (sysInfo SystemInfo, err error) {
+func GetLocalSystemInfo() (sysInfo entity.SystemInfo, err error) {
 	executables, err := GetExecutables()
 	if err != nil {
 		return sysInfo, err
@@ -60,7 +47,7 @@ func GetLocalSystemInfo() (sysInfo SystemInfo, err error) {
 		return sysInfo, err
 	}
 
-	return SystemInfo{
+	return entity.SystemInfo{
 		ARCH:        runtime.GOARCH,
 		OS:          runtime.GOOS,
 		NumCpu:      runtime.GOMAXPROCS(0),
@@ -78,7 +65,7 @@ func GetPathValues() (paths []string) {
 	return strings.Split(pathEnv, ":")
 }
 
-func GetExecutables() (executables []Executable, err error) {
+func GetExecutables() (executables []entity.Executable, err error) {
 	pathValues := GetPathValues()
 
 	cache := map[string]string{}
@@ -97,7 +84,7 @@ func GetExecutables() (executables []Executable, err error) {
 
 			if cache[filePath] == "" {
 				if displayName != "" {
-					executables = append(executables, Executable{
+					executables = append(executables, entity.Executable{
 						Path:        filePath,
 						FileName:    file.Name(),
 						DisplayName: displayName,

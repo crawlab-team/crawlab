@@ -5,6 +5,7 @@ import (
 	"crawlab/database"
 	"crawlab/lib/validate_bridge"
 	"crawlab/middlewares"
+	"crawlab/model"
 	"crawlab/routes"
 	"crawlab/services"
 	"github.com/apex/log"
@@ -57,7 +58,7 @@ func main() {
 	}
 	log.Info("初始化Redis数据库成功")
 
-	if services.IsMaster() {
+	if model.IsMaster() {
 		// 初始化定时任务
 		if err := services.InitScheduler(); err != nil {
 			log.Error("init scheduler error:" + err.Error())
@@ -99,7 +100,7 @@ func main() {
 	log.Info("初始化用户服务成功")
 
 	// 以下为主节点服务
-	if services.IsMaster() {
+	if model.IsMaster() {
 		// 中间件
 		app.Use(middlewares.CORSMiddleware())
 		//app.Use(middlewares.AuthorizationMiddleware())
@@ -131,6 +132,7 @@ func main() {
 			authGroup.POST("/spiders/:id/file", routes.PostSpiderFile)   // 爬虫目录写入
 			authGroup.GET("/spiders/:id/dir", routes.GetSpiderDir)       // 爬虫目录
 			authGroup.GET("/spiders/:id/stats", routes.GetSpiderStats)   // 爬虫统计数据
+			authGroup.GET("/spider/types", routes.GetSpiderTypes)        // 爬虫类型
 			// 任务
 			authGroup.GET("/tasks", routes.GetTaskList)                                 // 任务列表
 			authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情

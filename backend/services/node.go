@@ -1,9 +1,9 @@
 package services
 
 import (
-	"context"
 	"crawlab/constants"
 	"crawlab/database"
+	"crawlab/entity"
 	"crawlab/lib/cron"
 	"crawlab/model"
 	"crawlab/services/msg_handler"
@@ -14,7 +14,6 @@ import (
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
 	"github.com/gomodule/redigo/redis"
-	"github.com/spf13/viper"
 	"runtime/debug"
 	"time"
 )
@@ -28,77 +27,10 @@ type Data struct {
 	UpdateTsUnix int64     `json:"update_ts_unix"`
 }
 
-const (
-	Yes = "Y"
-	No  = "N"
-)
-
-// 获取本机节点
-func GetCurrentNode() (model.Node, error) {
-	// 获得注册的key值
-	key, err := register.GetRegister().GetKey()
-	if err != nil {
-		return model.Node{}, err
-	}
-
-	// 从数据库中获取当前节点
-	var node model.Node
-	errNum := 0
-	for {
-		// 如果错误次数超过10次
-		if errNum >= 10 {
-			panic("cannot get current node")
-		}
-
-		// 尝试获取节点
-		node, err = model.GetNodeByKey(key)
-		// 如果获取失败
-		if err != nil {
-			// 如果为主节点，表示为第一次注册，插入节点信息
-			if IsMaster() {
-				// 获取本机信息
-				ip, mac, key, err := model.GetNodeBaseInfo()
-				if err != nil {
-					debug.PrintStack()
-					return node, err
-				}
-
-				// 生成节点
-				node = model.Node{
-					Key:      key,
-					Id:       bson.NewObjectId(),
-					Ip:       ip,
-					Name:     ip,
-					Mac:      mac,
-					IsMaster: true,
-				}
-				if err := node.Add(); err != nil {
-					return node, err
-				}
-				return node, nil
-			}
-			// 增加错误次数
-			errNum++
-
-			// 5秒后重试
-			time.Sleep(5 * time.Second)
-			continue
-		}
-		// 跳出循环
-		break
-	}
-	return node, nil
-}
-
-// 当前节点是否为主节点
-func IsMaster() bool {
-	return viper.GetString("server.master") == Yes
-}
-
 // 所有调用IsMasterNode的方法，都永远会在master节点执行，所以GetCurrentNode方法返回永远是master节点
 // 该ID的节点是否为主节点
 func IsMasterNode(id string) bool {
-	curNode, _ := GetCurrentNode()
+	curNode, _ := model.GetCurrentNode()
 	node, _ := model.GetNode(bson.ObjectIdHex(id))
 	return curNode.Id == node.Id
 }
@@ -223,7 +155,7 @@ func UpdateNodeData() {
 		Key:          key,
 		Mac:          mac,
 		Ip:           ip,
-		Master:       IsMaster(),
+		Master:       model.IsMaster(),
 		UpdateTs:     time.Now(),
 		UpdateTsUnix: time.Now().Unix(),
 	}
@@ -243,7 +175,7 @@ func UpdateNodeData() {
 
 func MasterNodeCallback(message redis.Message) (err error) {
 	// 反序列化
-	var msg msg_handler.NodeMessage
+	var msg entity.NodeMessage
 	if err := json.Unmarshal(message.Data, &msg); err != nil {
 
 		return err
@@ -251,7 +183,6 @@ func MasterNodeCallback(message redis.Message) (err error) {
 
 	if msg.Type == constants.MsgTypeGetLog {
 		// 获取日志
-		fmt.Println(msg)
 		time.Sleep(10 * time.Millisecond)
 		ch := TaskLogChanMap.ChanBlocked(msg.TaskId)
 		ch <- msg.Log
@@ -268,14 +199,8 @@ func MasterNodeCallback(message redis.Message) (err error) {
 
 func WorkerNodeCallback(message redis.Message) (err error) {
 	// 反序列化
-	msg := msg_handler.NodeMessage{}
-	if err := json.Unmarshal(message.Data, &msg); err != nil {
-
-		return err
-	}
-
-	// worker message handle
-	if err := msg_handler.GetMsgHandler(msg).Handle(); err != nil {
+	msg := utils.GetMessage(message)
+	if err := msg_handler.GetMsgHandler(*msg).Handle(); err != nil {
 		return err
 	}
 	return nil
@@ -297,35 +222,43 @@ func InitNodeService() error {
 	UpdateNodeData()
 
 	// 获取当前节点
-	node, err := GetCurrentNode()
+	node, err := model.GetCurrentNode()
 	if err != nil {
 		log.Errorf(err.Error())
 		return err
 	}
-	ctx := context.Background()
-	if IsMaster() {
+
+	if model.IsMaster() {
 		// 如果为主节点，订阅主节点通信频道
-		channel := "nodes:master"
-		err := database.RedisClient.Subscribe(ctx, MasterNodeCallback, channel)
-		if err != nil {
+		if err := utils.Sub(constants.ChannelMasterNode, MasterNodeCallback); err != nil {
 			return err
 		}
 	} else {
 		// 若为工作节点，订阅单独指定通信频道
-		channel := "nodes:" + node.Id.Hex()
-		err := database.RedisClient.Subscribe(ctx, WorkerNodeCallback, channel)
-		if err != nil {
+		channel := constants.ChannelWorkerNode + node.Id.Hex()
+		if err := utils.Sub(channel, WorkerNodeCallback); err != nil {
 			return err
 		}
 	}
 
+	// 订阅全通道
+	if err := utils.Sub(constants.ChannelAllNode, WorkerNodeCallback); err != nil {
+		return err
+	}
+
 	// 如果为主节点，每30秒刷新所有节点信息
-	if IsMaster() {
+	if model.IsMaster() {
 		spec := "*/10 * * * * *"
 		if _, err := c.AddFunc(spec, UpdateNodeStatus); err != nil {
 			debug.PrintStack()
 			return err
 		}
+	}
+
+	// 更新在当前节点执行中的任务状态为：abnormal
+	if err := model.UpdateTaskToAbnormal(node.Id); err != nil {
+		debug.PrintStack()
+		return err
 	}
 
 	c.Start()
