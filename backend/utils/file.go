@@ -2,12 +2,56 @@ package utils
 
 import (
 	"archive/zip"
+	"bufio"
 	"github.com/apex/log"
 	"io"
 	"os"
 	"path/filepath"
 	"runtime/debug"
 )
+
+// 删除文件
+func RemoveFiles(path string) {
+	if err := os.RemoveAll(path); err != nil {
+		log.Errorf("remove files error: %s, path: %s", err.Error(), path)
+		debug.PrintStack()
+	}
+}
+
+// 读取文件一行
+func ReadFileOneLine(fileName string) string {
+	file := OpenFile(fileName)
+	defer file.Close()
+	buf := bufio.NewReader(file)
+	line, err := buf.ReadString('\n')
+	if err != nil {
+		log.Errorf("read file error: %s", err.Error())
+		return ""
+	}
+	return line
+
+}
+
+// 创建文件
+func OpenFile(fileName string) *os.File {
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR, os.ModePerm)
+	if err != nil {
+		log.Errorf("create file error: %s, file_name: %s", err.Error(), fileName)
+		debug.PrintStack()
+		return nil
+	}
+	return file
+}
+
+// 创建文件夹
+func CreateFilePath(filePath string) {
+	if !Exists(filePath) {
+		if err := os.MkdirAll(filePath, os.ModePerm); err != nil {
+			log.Errorf("create file error: %s, file_path: %s", err.Error(), filePath)
+			debug.PrintStack()
+		}
+	}
+}
 
 // 判断所给路径文件/文件夹是否存在
 func Exists(path string) bool {

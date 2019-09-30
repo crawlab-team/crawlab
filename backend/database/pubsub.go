@@ -33,7 +33,6 @@ func (r *Redis) subscribe(ctx context.Context, consume ConsumeFunc, channel ...s
 				done <- fmt.Errorf("redis pubsub receive err: %v", msg)
 				return
 			case redis.Message:
-				fmt.Println(msg)
 				if err := consume(msg); err != nil {
 					fmt.Printf("redis pubsub consume message err: %v", err)
 					continue

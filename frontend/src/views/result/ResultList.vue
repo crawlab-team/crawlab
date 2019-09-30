@@ -195,7 +195,7 @@ export default {
       this.dialogVisible = true
     },
     onRefresh () {
-      this.$store.dispatch('spider/getSpiderList')
+      // this.$store.dispatch('spider/getSpiderList')
     },
     onSubmit () {
       const vm = this
@@ -257,7 +257,7 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('spider/getSpiderList')
+    // this.$store.dispatch('spider/getSpiderList')
   }
 }
 </script>

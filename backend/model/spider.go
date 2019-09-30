@@ -2,6 +2,7 @@ package model
 
 import (
 	"crawlab/database"
+	"crawlab/entity"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
@@ -18,12 +19,12 @@ type Spider struct {
 	Id          bson.ObjectId `json:"_id" bson:"_id"`                   // 爬虫ID
 	Name        string        `json:"name" bson:"name"`                 // 爬虫名称（唯一）
 	DisplayName string        `json:"display_name" bson:"display_name"` // 爬虫显示名称
-	Type        string        `json:"type"`                             // 爬虫类别
+	Type        string        `json:"type" bson:"type"`                 // 爬虫类别
 	FileId      bson.ObjectId `json:"file_id" bson:"file_id"`           // GridFS文件ID
-	Col         string        `json:"col"`                              // 结果储存位置
-	Site        string        `json:"site"`                             // 爬虫网站
+	Col         string        `json:"col" bson:"col"`                   // 结果储存位置
+	Site        string        `json:"site" bson:"site"`                 // 爬虫网站
 	Envs        []Env         `json:"envs" bson:"envs"`                 // 环境变量
-	Remark      string        `json:"remark"`                           // 备注
+	Remark      string        `json:"remark" bson:"remark"`             // 备注
 	// 自定义爬虫
 	Src string `json:"src" bson:"src"` // 源码位置
 	Cmd string `json:"cmd" bson:"cmd"` // 执行命令
@@ -47,6 +48,7 @@ type Spider struct {
 	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
 }
 
+// 更新爬虫
 func (spider *Spider) Save() error {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -60,6 +62,7 @@ func (spider *Spider) Save() error {
 	return nil
 }
 
+// 新增爬虫
 func (spider *Spider) Add() error {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -74,6 +77,7 @@ func (spider *Spider) Add() error {
 	return nil
 }
 
+// 获取爬虫的任务
 func (spider *Spider) GetTasks() ([]Task, error) {
 	tasks, err := GetTaskList(bson.M{"spider_id": spider.Id}, 0, 10, "-create_ts")
 	if err != nil {
@@ -82,6 +86,7 @@ func (spider *Spider) GetTasks() ([]Task, error) {
 	return tasks, nil
 }
 
+// 爬虫最新的任务
 func (spider *Spider) GetLastTask() (Task, error) {
 	tasks, err := GetTaskList(bson.M{"spider_id": spider.Id}, 0, 1, "-create_ts")
 	if err != nil {
@@ -93,7 +98,8 @@ func (spider *Spider) GetLastTask() (Task, error) {
 	return tasks[0], nil
 }
 
-func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, error) {
+// 爬虫列表
+func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, int, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 
@@ -101,7 +107,7 @@ func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, error) {
 	spiders := []Spider{}
 	if err := c.Find(filter).Skip(skip).Limit(limit).Sort("+name").All(&spiders); err != nil {
 		debug.PrintStack()
-		return spiders, err
+		return spiders, 0, err
 	}
 
 	// 遍历爬虫列表
@@ -119,9 +125,40 @@ func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, error) {
 		spiders[i].LastStatus = task.Status
 	}
 
-	return spiders, nil
+	count, _ := c.Find(filter).Count()
+
+	return spiders, count, nil
 }
 
+// 获取爬虫
+func GetSpiderByFileId(fileId bson.ObjectId) *Spider {
+	s, c := database.GetCol("spiders")
+	defer s.Close()
+
+	var result *Spider
+	if err := c.Find(bson.M{"file_id": fileId}).One(&result); err != nil {
+		log.Errorf("get spider error: %s, file_id: %s", err.Error(), fileId.Hex())
+		debug.PrintStack()
+		return nil
+	}
+	return result
+}
+
+// 获取爬虫
+func GetSpiderByName(name string) *Spider {
+	s, c := database.GetCol("spiders")
+	defer s.Close()
+
+	var result *Spider
+	if err := c.Find(bson.M{"name": name}).One(&result); err != nil {
+		log.Errorf("get spider error: %s, spider_name: %s", err.Error(), name)
+		debug.PrintStack()
+		return nil
+	}
+	return result
+}
+
+// 获取爬虫
 func GetSpider(id bson.ObjectId) (Spider, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -129,6 +166,7 @@ func GetSpider(id bson.ObjectId) (Spider, error) {
 	var result Spider
 	if err := c.FindId(id).One(&result); err != nil {
 		if err != mgo.ErrNotFound {
+			log.Errorf("get spider error: %s, id: %id", err.Error(), id.Hex())
 			debug.PrintStack()
 		}
 		return result, err
@@ -136,6 +174,7 @@ func GetSpider(id bson.ObjectId) (Spider, error) {
 	return result, nil
 }
 
+// 更新爬虫
 func UpdateSpider(id bson.ObjectId, item Spider) error {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -152,6 +191,7 @@ func UpdateSpider(id bson.ObjectId, item Spider) error {
 	return nil
 }
 
+// 删除爬虫
 func RemoveSpider(id bson.ObjectId) error {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -162,6 +202,8 @@ func RemoveSpider(id bson.ObjectId) error {
 	}
 
 	if err := c.RemoveId(id); err != nil {
+		log.Errorf("remove spider error: %s, id:%s", err.Error(), id.Hex())
+		debug.PrintStack()
 		return err
 	}
 
@@ -171,12 +213,14 @@ func RemoveSpider(id bson.ObjectId) error {
 
 	if err := gf.RemoveId(result.FileId); err != nil {
 		log.Error("remove file error, id:" + result.FileId.Hex())
+		debug.PrintStack()
 		return err
 	}
 
 	return nil
 }
 
+// 删除所有爬虫
 func RemoveAllSpider() error {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -195,6 +239,7 @@ func RemoveAllSpider() error {
 	return nil
 }
 
+// 爬虫总数
 func GetSpiderCount() (int, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -203,6 +248,27 @@ func GetSpiderCount() (int, error) {
 	if err != nil {
 		return 0, err
 	}
-
 	return count, nil
+}
+
+// 爬虫类型
+func GetSpiderTypes() ([]*entity.SpiderType, error) {
+	s, c := database.GetCol("spiders")
+	defer s.Close()
+
+
+	group := bson.M{
+		"$group": bson.M{
+			"_id": "$type",
+			"count": bson.M{"$sum": 1},
+		},
+	}
+	var types []*entity.SpiderType
+	if err := c.Pipe([]bson.M{ group}).All(&types); err != nil {
+		log.Errorf("get spider types error: %s", err.Error())
+		debug.PrintStack()
+		return nil, err
+	}
+
+	return types, nil
 }

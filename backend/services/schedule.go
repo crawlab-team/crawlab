@@ -62,12 +62,16 @@ func (s *Scheduler) Start() error {
 
 	// 更新任务列表
 	if err := s.Update(); err != nil {
+		log.Errorf("update scheduler error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
 
 	// 每30秒更新一次任务列表
 	spec := "*/30 * * * * *"
 	if _, err := exec.AddFunc(spec, UpdateSchedules); err != nil {
+		log.Errorf("add func update schedulers error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
 
@@ -80,12 +84,16 @@ func (s *Scheduler) AddJob(job model.Schedule) error {
 	// 添加任务
 	eid, err := s.cron.AddFunc(spec, AddTask(job))
 	if err != nil {
+		log.Errorf("add func task error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
 
 	// 更新EntryID
 	job.EntryId = eid
 	if err := job.Save(); err != nil {
+		log.Errorf("job save error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
 
@@ -106,6 +114,8 @@ func (s *Scheduler) Update() error {
 	// 获取所有定时任务
 	sList, err := model.GetScheduleList(nil)
 	if err != nil {
+		log.Errorf("get scheduler list error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
 
@@ -116,6 +126,8 @@ func (s *Scheduler) Update() error {
 
 		// 添加到定时任务
 		if err := s.AddJob(job); err != nil {
+			log.Errorf("add job error: %s, job: %s, cron: %s", err.Error(), job.Name, job.Cron)
+			debug.PrintStack()
 			return err
 		}
 	}
@@ -128,6 +140,8 @@ func InitScheduler() error {
 		cron: cron.New(cron.WithSeconds()),
 	}
 	if err := Sched.Start(); err != nil {
+		log.Errorf("start scheduler error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
 	return nil
