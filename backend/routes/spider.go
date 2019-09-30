@@ -3,6 +3,7 @@ package routes
 import (
 	"crawlab/constants"
 	"crawlab/database"
+	"crawlab/entity"
 	"crawlab/model"
 	"crawlab/services"
 	"crawlab/utils"
@@ -24,14 +25,22 @@ import (
 )
 
 func GetSpiderList(c *gin.Context) {
-	pageNumStr, _ := c.GetQuery("pageNum")
-	pageSizeStr, _ := c.GetQuery("pageSize")
+	pageNum, _ := c.GetQuery("pageNum")
+	pageSize, _ := c.GetQuery("pageSize")
 	keyword, _ := c.GetQuery("keyword")
-	pageNum, _ := strconv.Atoi(pageNumStr)
-	pageSize, _ := strconv.Atoi(pageSizeStr)
-	skip := pageSize * (pageNum - 1)
-	filter := bson.M{"name": bson.M{"$regex": bson.RegEx{Pattern: keyword, Options: "im"}}}
-	results, count, err := model.GetSpiderList(filter, skip, pageSize)
+	t, _ := c.GetQuery("type")
+
+	filter := bson.M{
+		"name": bson.M{"$regex": bson.RegEx{Pattern: keyword, Options: "im"}},
+	}
+
+	if t != "" {
+		filter["type"] = t
+	}
+
+	page := &entity.Page{}
+	page.GetPage(pageNum, pageSize)
+	results, count, err := model.GetSpiderList(filter, page.Skip, page.Limit)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return

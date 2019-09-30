@@ -111,12 +111,13 @@
         <div class="left">
           <el-form :inline="true">
             <el-form-item>
-              <el-select placeholder="爬虫类型" size="small" v-model="filter.type">
-                <el-option v-for="type in types" :value="type" :key="type" :label="type"/>
+              <el-select clearable @change="onSpiderTypeChange" placeholder="爬虫类型" size="small" v-model="filter.type">
+                <el-option v-for="item in types" :value="item.type" :key="item.type"
+                           :label="item.type === 'customized'? '自定义':item.type "/>
               </el-select>
             </el-form-item>
             <el-form-item>
-              <el-input @keyup.enter.native="onSearch" size="small" placeholder="名称" v-model="filter.keyword">
+              <el-input clearable @keyup.enter.native="onSearch" size="small" placeholder="名称" v-model="filter.keyword">
                 <i slot="suffix" class="el-input__icon el-icon-search"></i>
               </el-input>
             </el-form-item>
@@ -156,8 +157,7 @@
                            align="left"
                            :width="col.width">
             <template slot-scope="scope">
-              <el-tag type="success" v-if="scope.row.type === 'configurable'">{{$t('Configurable')}}</el-tag>
-              <el-tag type="primary" v-else-if="scope.row.type === 'customized'">{{$t('Customized')}}</el-tag>
+              {{scope.row.type === 'customized' ? '自定义' : scope.row.type}}
             </template>
           </el-table-column>
           <el-table-column v-else-if="col.name === 'last_5_errors'"
@@ -302,6 +302,10 @@ export default {
     ])
   },
   methods: {
+    onSpiderTypeChange (val) {
+      this.filter.type = val
+      this.getList()
+    },
     onPageSizeChange (val) {
       this.pagination.pageSize = val
       this.getList()
@@ -490,13 +494,14 @@ export default {
       let params = {
         pageNum: this.pagination.pageNum,
         pageSize: this.pagination.pageSize,
-        keyword: this.filter.keyword
+        keyword: this.filter.keyword,
+        type: this.filter.type
       }
       this.$store.dispatch('spider/getSpiderList', params)
     },
     getTypes () {
       request.get(`/spider/types`).then(resp => {
-        console.log('resp', resp)
+        this.types = resp.data.data
       })
     }
   },

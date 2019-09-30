@@ -256,13 +256,15 @@ func GetSpiderTypes() ([]*entity.SpiderType, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 
+
 	group := bson.M{
 		"$group": bson.M{
-			"type": bson.M{"$sum": 1},
+			"_id": "$type",
+			"count": bson.M{"$sum": 1},
 		},
 	}
 	var types []*entity.SpiderType
-	if err := c.Pipe([]bson.M{group}).All(&types); err != nil {
+	if err := c.Pipe([]bson.M{ group}).All(&types); err != nil {
 		log.Errorf("get spider types error: %s", err.Error())
 		debug.PrintStack()
 		return nil, err

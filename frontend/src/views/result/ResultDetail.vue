@@ -59,7 +59,7 @@ export default {
   },
   created () {
     // get the list of the spiders
-    this.$store.dispatch('spider/getSpiderList')
+    // this.$store.dispatch('spider/getSpiderList')
 
     // get spider basic info
     this.$store.dispatch('spider/getSpiderData', this.$route.params.id)
