@@ -16,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"strings"
 )
 
 type SpiderFileData struct {
@@ -144,7 +145,11 @@ func PublishSpider(spider model.Spider) {
 	}
 	// md5值不一样，则下载
 	md5Str := utils.ReadFileOneLine(md5)
+	// 去掉空格以及换行符
+	md5Str = strings.Replace(md5Str, " ", "", -1)
+	md5Str = strings.Replace(md5Str, "\n", "", -1)
 	if gfFile.Md5 != md5Str {
+		log.Infof("md5 is different, gf-md5:%s, file-md5:%s", gfFile.Md5, md5Str)
 		spiderSync.RemoveSpiderFile()
 		spiderSync.Download()
 		spiderSync.CreateMd5File(gfFile.Md5)
