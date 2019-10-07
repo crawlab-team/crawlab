@@ -145,6 +145,7 @@ func PublishSpider(spider model.Spider) {
 	// md5值不一样，则下载
 	md5Str := utils.ReadFileOneLine(md5)
 	if gfFile.Md5 != md5Str {
+		log.Infof("md5 is different, gf-md5:%s, file-md5:%s", gfFile.Md5, md5Str)
 		spiderSync.RemoveSpiderFile()
 		spiderSync.Download()
 		spiderSync.CreateMd5File(gfFile.Md5)
