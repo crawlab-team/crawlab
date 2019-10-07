@@ -135,7 +135,7 @@ func PutSpider(c *gin.Context) {
 	// 以防tmp目录不存在
 	tmpPath := viper.GetString("other.tmppath")
 	if !utils.Exists(tmpPath) {
-		if err := os.Mkdir(tmpPath, os.ModePerm); err != nil {
+		if err := os.MkdirAll(tmpPath, os.ModePerm); err != nil {
 			log.Error("mkdir other.tmppath dir error:" + err.Error())
 			debug.PrintStack()
 			HandleError(http.StatusBadRequest, c, errors.New("Mkdir other.tmppath dir error"))

@@ -3,6 +3,7 @@ package database
 import (
 	"github.com/globalsign/mgo"
 	"github.com/spf13/viper"
+	"net"
 	"time"
 )
 
@@ -39,13 +40,28 @@ func InitMongo() error {
 	var mongoAuth = viper.GetString("mongo.authSource")
 
 	if Session == nil {
-		var uri string
-		if mongoUsername == "" {
-			uri = "mongodb://" + mongoHost + ":" + mongoPort + "/" + mongoDb
-		} else {
-			uri = "mongodb://" + mongoUsername + ":" + mongoPassword + "@" + mongoHost + ":" + mongoPort + "/" + mongoDb + "?authSource=" + mongoAuth
+		var dialInfo mgo.DialInfo
+		addr := net.JoinHostPort(mongoHost, mongoPort)
+		timeout := time.Second * 10
+		dialInfo = mgo.DialInfo{
+			Addrs:         []string{addr},
+			Timeout:       timeout,
+			Database:      mongoDb,
+			PoolLimit:     100,
+			PoolTimeout:   timeout,
+			ReadTimeout:   timeout,
+			WriteTimeout:  timeout,
+			AppName:       "crawlab",
+			FailFast:      true,
+			MinPoolSize:   10,
+			MaxIdleTimeMS: 1000 * 30,
 		}
-		sess, err := mgo.DialWithTimeout(uri, time.Second*5)
+		if mongoUsername != "" {
+			dialInfo.Username = mongoUsername
+			dialInfo.Password = mongoPassword
+			dialInfo.Source = mongoAuth
+		}
+		sess, err := mgo.DialWithInfo(&dialInfo)
 		if err != nil {
 			return err
 		}
