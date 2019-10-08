@@ -164,12 +164,14 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 
 	// 在选择所有节点执行的时候，实际就是随机一个节点执行的，
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
 	// 异步启动进程
 	if err := cmd.Start(); err != nil {
 		log.Errorf("start spider error:{}", err.Error())
 		debug.PrintStack()
 		return err
 	}
+
 	// 保存pid到task
 	t.Pid = cmd.Process.Pid
 	if err := t.Save(); err != nil {
@@ -183,11 +185,18 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 		debug.PrintStack()
 
 		log.Infof("error type is  : %s", reflect.TypeOf(err).String())
-		// 发生一次也需要保存
-		//t.Error = err.Error()
-		//t.FinishTs = time.Now()
-		//t.Status = constants.StatusError
-		//_ = t.Save()
+		if exitError, ok := err.(*exec.ExitError); ok {
+			exitCode := exitError.ExitCode()
+			log.Errorf("exit error, exit code: %d", exitCode)
+			// 非kill 的错误类型
+			if exitCode != 9 {
+				// 发生一次也需要保存
+				t.Error = err.Error()
+				t.FinishTs = time.Now()
+				t.Status = constants.StatusError
+				_ = t.Save()
+			}
+		}
 		return err
 	}
 	ch <- constants.TaskFinish
