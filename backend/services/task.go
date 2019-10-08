@@ -14,7 +14,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"reflect"
 	"runtime"
 	"runtime/debug"
 	"strconv"
@@ -183,14 +182,12 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	if err := cmd.Wait(); err != nil {
 		log.Errorf("wait process finish error: %s", err.Error())
 		debug.PrintStack()
-
-		log.Infof("error type is  : %s", reflect.TypeOf(err).String())
 		if exitError, ok := err.(*exec.ExitError); ok {
 			exitCode := exitError.ExitCode()
 			log.Errorf("exit error, exit code: %d", exitCode)
 			// 非kill 的错误类型
 			if exitCode != -1 {
-				// 发生一次也需要保存
+				// 非手动kill保存为错误状态
 				t.Error = err.Error()
 				t.FinishTs = time.Now()
 				t.Status = constants.StatusError
