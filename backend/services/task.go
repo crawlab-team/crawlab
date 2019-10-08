@@ -18,6 +18,7 @@ import (
 	"runtime/debug"
 	"strconv"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -142,7 +143,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 		log.Infof("cancel process signal: %s", signal)
 		if signal == constants.TaskCancel && cmd.Process != nil {
 			// 取消进程
-			if err := cmd.Process.Kill(); err != nil {
+			if err := syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL); err != nil {
 				log.Errorf("process kill error: %s", err.Error())
 				debug.PrintStack()
 			}
@@ -152,6 +153,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 			t.Status = constants.StatusFinished
 		}
 		t.FinishTs = time.Now()
+		t.Error = "user kill the process ..."
 		if err := t.Save(); err != nil {
 			log.Infof("save task error: %s", err.Error())
 			debug.PrintStack()
@@ -159,12 +161,16 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 		}
 	}()
 
+	// 在选择所有节点执行的时候，实际就是随机一个节点执行的，
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
 	// 异步启动进程
 	if err := cmd.Start(); err != nil {
 		log.Errorf("start spider error:{}", err.Error())
 		debug.PrintStack()
 		return err
 	}
+
 	// 保存pid到task
 	t.Pid = cmd.Process.Pid
 	if err := t.Save(); err != nil {
@@ -176,12 +182,18 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	if err := cmd.Wait(); err != nil {
 		log.Errorf("wait process finish error: %s", err.Error())
 		debug.PrintStack()
-
-		// 发生一次也需要保存
-		t.Error = err.Error()
-		t.FinishTs = time.Now()
-		t.Status = constants.StatusFinished
-		_ = t.Save()
+		if exitError, ok := err.(*exec.ExitError); ok {
+			exitCode := exitError.ExitCode()
+			log.Errorf("exit error, exit code: %d", exitCode)
+			// 非kill 的错误类型
+			if exitCode != -1 {
+				// 非手动kill保存为错误状态
+				t.Error = err.Error()
+				t.FinishTs = time.Now()
+				t.Status = constants.StatusError
+				_ = t.Save()
+			}
+		}
 		return err
 	}
 	ch <- constants.TaskFinish
