@@ -189,7 +189,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 			exitCode := exitError.ExitCode()
 			log.Errorf("exit error, exit code: %d", exitCode)
 			// 非kill 的错误类型
-			if exitCode != 9 {
+			if exitCode != -1 {
 				// 发生一次也需要保存
 				t.Error = err.Error()
 				t.FinishTs = time.Now()
