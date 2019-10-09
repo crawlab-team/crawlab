@@ -279,19 +279,19 @@ export default {
   },
   schedules: {
     cron: 'Cron',
-    add_cron: '生成Cron',
+    addCron: '生成Cron',
     // Cron Format: [second] [minute] [hour] [day of month] [month] [day of week]
-    cron_format: 'Cron 格式: [秒] [分] [小时] [日] [月] [周]'
+    cronFormat: 'Cron 格式: [秒] [分] [小时] [日] [月] [周]'
   },
-  change_password: {
+  changePassword: {
     errors: {
-      should_change_new_password: '新密码不能与旧密码相同',
-      confirm_new_password: '确认两次输入一致'
+      shouldChangeNewPassword: '新密码不能与旧密码相同',
+      confirmNewPassword: '确认两次输入一致'
     },
-    confirm_new_password: '确认新密码',
-    new_password: '新密码',
-    old_password: '旧密码',
-    change_password_button: '更改密码'
+    confirmNewPassword: '确认新密码',
+    newPassword: '新密码',
+    oldPassword: '旧密码',
+    changePasswordButton: '更改密码'
   },
   userList: {
     LastLoginTime: '最后登录时间'

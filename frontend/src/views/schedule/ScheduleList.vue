@@ -40,7 +40,7 @@
         </el-form-item>
         <el-form-item :label="$t('schedules.cron')" prop="cron" :rules="cronRules" required>
           <template slot="label">
-            <el-tooltip :content="$t('schedules.cron_format')"
+            <el-tooltip :content="$t('schedules.cronFormat')"
                         placement="top">
               <span>
                 {{$t('schedules.cron')}}
@@ -52,7 +52,7 @@
                     v-model="scheduleForm.cron"
                     :placeholder="$t('schedules.cron')">
           </el-input>
-          <el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('schedules.add_cron')}}</el-button>
+          <el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('schedules.addCron')}}</el-button>
         </el-form-item>
         <el-form-item :label="$t('Execute Command')" prop="params">
           <el-input v-model="spider.cmd"

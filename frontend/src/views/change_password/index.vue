@@ -9,7 +9,7 @@
       </h3>
       <el-form-item prop="oldPassword" style="margin-bottom: 28px;">
         <el-input
-          :placeholder="$t('change_password.old_password')"
+          :placeholder="$t('changePassword.oldPassword')"
           auto-complete="on"
           type="text"
           v-model="changePasswordForm.oldPassword"
@@ -17,14 +17,14 @@
       </el-form-item>
       <el-form-item prop="newPassword" style="margin-bottom: 28px;">
         <el-input
-          :placeholder="$t('change_password.new_password')"
+          :placeholder="$t('changePassword.newPassword')"
           :type="pwdType"
           auto-complete="on"
           v-model="changePasswordForm.newPassword"/>
       </el-form-item>
       <el-form-item prop="confirmNewPassword" style="margin-bottom: 28px;">
         <el-input
-          :placeholder="$t('change_password.confirm_new_password')"
+          :placeholder="$t('changePassword.confirmNewPassword')"
           :type="pwdType"
           @keyup.enter.native="handleChangePassword"
           auto-complete="on"
@@ -34,7 +34,7 @@
       <el-form-item style="border: none">
 
         <el-button :loading="loading" @click.native.prevent="handleChangePassword()" style="width:100%;" type="primary">
-          {{$t('change_password.change_password_button')}}
+          {{$t('changePassword.changePasswordButton')}}
         </el-button>
       </el-form-item>
       <div class="alternatives">
@@ -72,14 +72,14 @@ export default {
       if (value.length < 5) {
         callback(new Error(this.$t('Password length should be no shorter than 5')))
       } else if (value === this.changePasswordForm.oldPassword) {
-        callback(new Error(this.$t('change_password.errors.should_change_new_password')))
+        callback(new Error(this.$t('changePassword.errors.shouldChangeNewPassword')))
       } else {
         callback()
       }
     }
     const validateNewConfirmPass = (rule, value, callback) => {
       if (value !== this.changePasswordForm.newPassword) {
-        callback(new Error(this.$t('change_password.errors.confirm_new_password')))
+        callback(new Error(this.$t('changePassword.errors.confirmNewPassword')))
       } else {
         callback()
       }
