@@ -12,7 +12,7 @@ func GetSettings(c *gin.Context) {
 	currentUser := ctx.User()
 
 	//enable register
-	canRegister := viper.GetBool("server.master_settings,auth.register.enable")
+	canRegister := viper.GetBool("server.master_settings.auth.register.enable")
 
 	//auth
 	if currentUser != nil {
