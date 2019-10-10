@@ -424,13 +424,18 @@ export default {
       this.dialogVisible = true
     },
     isShowRun (row) {
-      if (this.isCustomized(row)) {
-        // customized spider
-        return !!row.cmd
+      if (row.cmd) {
+        return true
       } else {
-        // configurable spider
-        return !!row.fields
+        return false
       }
+      // if (this.isCustomized(row)) {
+      //   // customized spider
+      //   return !!row.cmd
+      // } else {
+      //   // configurable spider
+      //   return !!row.fields
+      // }
     },
     isCustomized (row) {
       return row.type === 'customized'
