@@ -110,13 +110,15 @@ func handleNodeInfo(key string, data Data) {
 	if err := c.Find(bson.M{"key": key}).One(&node); err != nil {
 		// 数据库不存在该节点
 		node = model.Node{
-			Key:      key,
-			Name:     data.Ip,
-			Ip:       data.Ip,
-			Port:     "8000",
-			Mac:      data.Mac,
-			Status:   constants.StatusOnline,
-			IsMaster: data.Master,
+			Key:          key,
+			Name:         data.Ip,
+			Ip:           data.Ip,
+			Port:         "8000",
+			Mac:          data.Mac,
+			Status:       constants.StatusOnline,
+			IsMaster:     data.Master,
+			UpdateTs:     time.Now(),
+			UpdateTsUnix: time.Now().Unix(),
 		}
 		if err := node.Add(); err != nil {
 			log.Errorf(err.Error())
@@ -125,6 +127,8 @@ func handleNodeInfo(key string, data Data) {
 	} else {
 		// 数据库存在该节点
 		node.Status = constants.StatusOnline
+		node.UpdateTs = time.Now()
+		node.UpdateTsUnix = time.Now().Unix()
 		if err := node.Save(); err != nil {
 			log.Errorf(err.Error())
 			return
@@ -201,6 +205,8 @@ func WorkerNodeCallback(message redis.Message) (err error) {
 	// 反序列化
 	msg := utils.GetMessage(message)
 	if err := msg_handler.GetMsgHandler(*msg).Handle(); err != nil {
+		log.Errorf("msg handler error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
 	return nil

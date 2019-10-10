@@ -148,12 +148,12 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 				debug.PrintStack()
 			}
 			t.Status = constants.StatusCancelled
+			t.Error = "user kill the process ..."
 		} else {
 			// 保存任务
 			t.Status = constants.StatusFinished
 		}
 		t.FinishTs = time.Now()
-		t.Error = "user kill the process ..."
 		if err := t.Save(); err != nil {
 			log.Infof("save task error: %s", err.Error())
 			debug.PrintStack()
