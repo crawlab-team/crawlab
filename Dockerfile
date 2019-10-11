@@ -14,6 +14,7 @@ ADD ./frontend /app
 WORKDIR /app
 
 # install frontend
+RUN npm config set unsafe-perm true
 RUN npm install -g yarn && yarn install
 
 RUN npm run build:prod
