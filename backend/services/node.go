@@ -227,7 +227,7 @@ func InitNodeService() error {
 	}
 
 	// 首次更新节点数据（注册到Redis）
-	// UpdateNodeData()
+	UpdateNodeData()
 
 	// 获取当前节点
 	node, err := model.GetCurrentNode()
