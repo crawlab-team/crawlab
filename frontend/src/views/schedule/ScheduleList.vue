@@ -132,6 +132,7 @@
 
 <script>
 import vcrontab from 'vcrontab'
+import request from '../../api/request'
 import {
   mapState
 } from 'vuex'
@@ -169,16 +170,14 @@ export default {
         { validator: cronValidator, trigger: 'blur' }
       ],
       showCron: false,
-      expression: ''
+      expression: '',
+      spiderList: []
     }
   },
   computed: {
     ...mapState('schedule', [
       'scheduleList',
       'scheduleForm'
-    ]),
-    ...mapState('spider', [
-      'spiderList'
     ]),
     ...mapState('node', [
       'nodeList'
@@ -269,8 +268,11 @@ export default {
   },
   created () {
     this.$store.dispatch('schedule/getScheduleList')
-    this.$store.dispatch('spider/getSpiderList')
     this.$store.dispatch('node/getNodeList')
+    request.get('/spiders', {})
+      .then(response => {
+        this.spiderList = response.data.data.list
+      })
   }
 }
 </script>
