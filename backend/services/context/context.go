@@ -66,7 +66,7 @@ func (c *Context) failed(err error, httpCode int, variables ...interface{}) {
 			"message": "error",
 			"error":   errStr,
 		})
-		break
+
 	case validator.ValidationErrors:
 		validatorErrors := causeError.(validator.ValidationErrors)
 		//firstError := validatorErrors[0].(validator.FieldError)
@@ -75,7 +75,6 @@ func (c *Context) failed(err error, httpCode int, variables ...interface{}) {
 			"message": "error",
 			"error":   validatorErrors.Error(),
 		})
-		break
 	default:
 		fmt.Println("deprecated....")
 		c.AbortWithStatusJSON(httpCode, gin.H{

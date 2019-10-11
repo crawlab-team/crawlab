@@ -122,7 +122,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 		HandleTaskError(t, err)
 		return err
 	}
-	defer fLog.Close()
+	defer utils.Close(fLog)
 	cmd.Stdout = fLog
 	cmd.Stderr = fLog
 
@@ -432,33 +432,29 @@ func ExecuteTask(id int) {
 
 func GetTaskLog(id string) (logStr string, err error) {
 	task, err := model.GetTask(id)
+
 	if err != nil {
-		return "", err
+		return
 	}
 
-	logStr = ""
 	if IsMasterNode(task.NodeId.Hex()) {
 		// 若为主节点，获取本机日志
 		logBytes, err := model.GetLocalLog(task.LogPath)
-		logStr = utils.BytesToString(logBytes)
 		if err != nil {
 			log.Errorf(err.Error())
 			logStr = err.Error()
-			// return "", err
 		} else {
 			logStr = utils.BytesToString(logBytes)
 		}
-
-	} else {
-		// 若不为主节点，获取远端日志
-		logStr, err = GetRemoteLog(task)
-		if err != nil {
-			log.Errorf(err.Error())
-			return "", err
-		}
+		return logStr, err
 	}
+	// 若不为主节点，获取远端日志
+	logStr, err = GetRemoteLog(task)
+	if err != nil {
+		log.Errorf(err.Error())
 
-	return logStr, nil
+	}
+	return logStr, err
 }
 
 func CancelTask(id string) (err error) {

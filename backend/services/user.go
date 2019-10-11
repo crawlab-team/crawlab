@@ -17,9 +17,7 @@ func InitUserService() error {
 		Password: utils.EncryptPassword("admin"),
 		Role:     constants.RoleAdmin,
 	}
-	if err := adminUser.Add(); err != nil {
-		// pass
-	}
+	_ = adminUser.Add()
 	return nil
 }
 func MakeToken(user *model.User) (tokenStr string, err error) {
