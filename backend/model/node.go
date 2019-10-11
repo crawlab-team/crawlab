@@ -157,10 +157,12 @@ func GetNodeList(filter interface{}) ([]Node, error) {
 }
 
 func GetNode(id bson.ObjectId) (Node, error) {
+	var node Node
+	if id.Hex() == "" {
+		return node, nil
+	}
 	s, c := database.GetCol("nodes")
 	defer s.Close()
-
-	var node Node
 	if err := c.FindId(id).One(&node); err != nil {
 		if err != mgo.ErrNotFound {
 			log.Errorf(err.Error())

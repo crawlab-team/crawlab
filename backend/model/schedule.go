@@ -38,6 +38,12 @@ func (sch *Schedule) Save() error {
 	return nil
 }
 
+func (sch *Schedule) Delete() error {
+	s, c := database.GetCol("schedules")
+	defer s.Close()
+	return c.RemoveId(sch.Id)
+}
+
 func GetScheduleList(filter interface{}) ([]Schedule, error) {
 	s, c := database.GetCol("schedules")
 	defer s.Close()
@@ -47,11 +53,12 @@ func GetScheduleList(filter interface{}) ([]Schedule, error) {
 		return schedules, err
 	}
 
-	for i, schedule := range schedules {
+	var schs []Schedule
+	for _, schedule := range schedules {
 		// 获取节点名称
 		if schedule.NodeId == bson.ObjectIdHex(constants.ObjectIdNull) {
 			// 选择所有节点
-			schedules[i].NodeName = "All Nodes"
+			schedule.NodeName = "All Nodes"
 		} else {
 			// 选择单一节点
 			node, err := GetNode(schedule.NodeId)
@@ -59,7 +66,7 @@ func GetScheduleList(filter interface{}) ([]Schedule, error) {
 				log.Errorf(err.Error())
 				continue
 			}
-			schedules[i].NodeName = node.Name
+			schedule.NodeName = node.Name
 		}
 
 		// 获取爬虫名称
@@ -67,11 +74,13 @@ func GetScheduleList(filter interface{}) ([]Schedule, error) {
 		if err != nil {
 			log.Errorf("get spider by id: %s, error: %s", schedule.SpiderId.Hex(), err.Error())
 			debug.PrintStack()
+			_ = schedule.Delete()
 			continue
 		}
-		schedules[i].SpiderName = spider.Name
+		schedule.SpiderName = spider.Name
+		schs = append(schs, schedule)
 	}
-	return schedules, nil
+	return schs, nil
 }
 
 func GetSchedule(id bson.ObjectId) (Schedule, error) {

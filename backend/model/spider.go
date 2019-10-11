@@ -98,6 +98,12 @@ func (spider *Spider) GetLastTask() (Task, error) {
 	return tasks[0], nil
 }
 
+func (spider *Spider) Delete() error {
+	s, c := database.GetCol("spiders")
+	defer s.Close()
+	return c.RemoveId(spider.Id)
+}
+
 // 爬虫列表
 func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, int, error) {
 	s, c := database.GetCol("spiders")
@@ -256,15 +262,14 @@ func GetSpiderTypes() ([]*entity.SpiderType, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 
-
 	group := bson.M{
 		"$group": bson.M{
-			"_id": "$type",
+			"_id":   "$type",
 			"count": bson.M{"$sum": 1},
 		},
 	}
 	var types []*entity.SpiderType
-	if err := c.Pipe([]bson.M{ group}).All(&types); err != nil {
+	if err := c.Pipe([]bson.M{group}).All(&types); err != nil {
 		log.Errorf("get spider types error: %s", err.Error())
 		debug.PrintStack()
 		return nil, err
