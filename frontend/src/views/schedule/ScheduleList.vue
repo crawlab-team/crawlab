@@ -269,7 +269,7 @@ export default {
   },
   created () {
     this.$store.dispatch('schedule/getScheduleList')
-    // this.$store.dispatch('spider/getSpiderList')
+    this.$store.dispatch('spider/getSpiderList')
     this.$store.dispatch('node/getNodeList')
   }
 }
