@@ -17,7 +17,19 @@ type Scheduler struct {
 
 func AddTask(s model.Schedule) func() {
 	return func() {
-		nodeId := s.NodeId
+		node, err := model.GetNodeByKey(s.NodeKey)
+		if err != nil || node.Id.Hex() == "" {
+			log.Errorf("get node by key error: %s", err.Error())
+			debug.PrintStack()
+			return
+		}
+
+		spider := model.GetSpiderByName(s.SpiderName)
+		if spider == nil || spider.Id.Hex() == "" {
+			log.Errorf("get spider by name error: %s", err.Error())
+			debug.PrintStack()
+			return
+		}
 
 		// 生成任务ID
 		id := uuid.NewV4()
@@ -25,8 +37,8 @@ func AddTask(s model.Schedule) func() {
 		// 生成任务模型
 		t := model.Task{
 			Id:       id.String(),
-			SpiderId: s.SpiderId,
-			NodeId:   nodeId,
+			SpiderId: spider.Id,
+			NodeId:   node.Id,
 			Status:   constants.StatusPending,
 			Param:    s.Param,
 		}

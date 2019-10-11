@@ -16,6 +16,7 @@ type Schedule struct {
 	Description string        `json:"description" bson:"description"`
 	SpiderId    bson.ObjectId `json:"spider_id" bson:"spider_id"`
 	NodeId      bson.ObjectId `json:"node_id" bson:"node_id"`
+	NodeKey     string        `json:"node_key" bson:"node_key"`
 	Cron        string        `json:"cron" bson:"cron"`
 	EntryId     cron.EntryID  `json:"entry_id" bson:"entry_id"`
 	Param       string        `json:"param" bson:"param"`
@@ -113,9 +114,17 @@ func AddSchedule(item Schedule) error {
 	s, c := database.GetCol("schedules")
 	defer s.Close()
 
+	node, err := GetNode(item.NodeId)
+	if err != nil {
+		log.Errorf("get node error: %s", err.Error())
+		debug.PrintStack()
+		return nil
+	}
+
 	item.Id = bson.NewObjectId()
 	item.CreateTs = time.Now()
 	item.UpdateTs = time.Now()
+	item.NodeKey = node.Key
 
 	if err := c.Insert(&item); err != nil {
 		debug.PrintStack()

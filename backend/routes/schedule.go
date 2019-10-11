@@ -81,9 +81,9 @@ func PutSchedule(c *gin.Context) {
 	}
 
 	// 如果node_id为空，则置为空ObjectId
-	if item.NodeId == "" {
-		item.NodeId = bson.ObjectIdHex(constants.ObjectIdNull)
-	}
+	//if item.NodeId == "" {
+	//	item.NodeId = bson.ObjectIdHex(constants.ObjectIdNull)
+	//}
 
 	// 更新数据库
 	if err := model.AddSchedule(item); err != nil {
