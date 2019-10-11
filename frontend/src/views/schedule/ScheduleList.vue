@@ -16,7 +16,7 @@
         </el-form-item>
         <el-form-item :label="$t('Node')" prop="node_id">
           <el-select v-model="scheduleForm.node_id">
-            <el-option :label="$t('All Nodes')" value="000000000000000000000000"></el-option>
+            <!--<el-option :label="$t('All Nodes')" value="000000000000000000000000"></el-option>-->
             <el-option
               v-for="op in nodeList"
               :key="op._id"
