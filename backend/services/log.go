@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"time"
 )
 
 // 任务日志频道映射
@@ -45,8 +46,14 @@ func GetRemoteLog(task model.Task) (logStr string, err error) {
 	// 生成频道，等待获取log
 	ch := TaskLogChanMap.ChanBlocked(task.Id)
 
-	// 此处阻塞，等待结果
-	logStr = <-ch
+	select {
+	case logStr = <-ch:
+		log.Infof("get remote log")
+		break
+	case <-time.After(5 * time.Second):
+		logStr = "get remote log timeout"
+		break
+	}
 
 	return logStr, nil
 }

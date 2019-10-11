@@ -285,6 +285,9 @@ func ExecuteTask(id int) {
 	// 节点队列任务
 	var msg string
 	msg, err = database.RedisClient.LPop(queueCur)
+	if msg != "" {
+		log.Infof("queue cur: %s", msg)
+	}
 	if err != nil {
 		if msg == "" {
 			// 节点队列没有任务，获取公共队列任务
