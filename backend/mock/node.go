@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"crawlab/entity"
 	"crawlab/model"
 	"crawlab/services"
 	"github.com/apex/log"
@@ -42,7 +43,7 @@ var NodeList = []model.Node{
 var TaskList = []model.Task{
 	{
 		Id:              "1234",
-		SpiderId:        bson.ObjectId("xx429e6c19f7abede924fee2"),
+		SpiderId:        bson.ObjectId("5d429e6c19f7abede924fee2"),
 		StartTs:         time.Now(),
 		FinishTs:        time.Now(),
 		Status:          "进行中",
@@ -61,7 +62,7 @@ var TaskList = []model.Task{
 	},
 	{
 		Id:              "5678",
-		SpiderId:        bson.ObjectId("xx429e6c19f7abede924fddf"),
+		SpiderId:        bson.ObjectId("5d429e6c19f7abede924fee2"),
 		StartTs:         time.Now(),
 		FinishTs:        time.Now(),
 		Status:          "进行中",
@@ -97,14 +98,14 @@ var dataList = []services.Data{
 	},
 }
 
-var executeble = []model.Executable{
+var executeble = []entity.Executable{
 	{
 		Path:        "/test",
 		FileName:    "test.py",
 		DisplayName: "test.py",
 	},
 }
-var systemInfo = model.SystemInfo{ARCH: "x86",
+var systemInfo = entity.SystemInfo{ARCH: "x86",
 	OS:          "linux",
 	Hostname:    "test",
 	NumCpu:      4,

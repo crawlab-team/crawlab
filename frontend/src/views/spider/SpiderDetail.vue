@@ -16,7 +16,7 @@
       <el-tab-pane v-if="isConfigurable" :label="$t('Config')" name="配置">
         <config-list/>
       </el-tab-pane>
-      <el-tab-pane v-if="isCustomized" :label="$t('Files')" name="files">
+      <el-tab-pane :label="$t('Files')" name="files">
         <file-list/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Environment')" name="environment">
@@ -87,7 +87,7 @@ export default {
   },
   created () {
     // get the list of the spiders
-    this.$store.dispatch('spider/getSpiderList')
+    // this.$store.dispatch('spider/getSpiderList')
 
     // get spider basic info
     this.$store.dispatch('spider/getSpiderData', this.$route.params.id)

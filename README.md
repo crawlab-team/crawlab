@@ -1,14 +1,14 @@
 # Crawlab
 
 ![](http://114.67.75.98:8082/buildStatus/icon?job=crawlab%2Fmaster)
-![](https://img.shields.io/github/release/tikazyq/crawlab.svg)
-![](https://img.shields.io/github/last-commit/tikazyq/crawlab.svg)
-![](https://img.shields.io/github/issues/tikazyq/crawlab.svg)
-![](https://img.shields.io/github/contributors/tikazyq/crawlab.svg)
+![](https://img.shields.io/github/release/crawlab-team/crawlab.svg)
+![](https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg)
+![](https://img.shields.io/github/issues/crawlab-team/crawlab.svg)
+![](https://img.shields.io/github/contributors/crawlab-team/crawlab.svg)
 ![](https://img.shields.io/docker/pulls/tikazyq/crawlab)
-![](https://img.shields.io/github/license/tikazyq/crawlab.svg)
+![](https://img.shields.io/github/license/crawlab-team/crawlab.svg)
 
-[中文](https://github.com/tikazyq/crawlab/blob/master/README-zh.md) | English
+[中文](https://github.com/crawlab-team/crawlab/blob/master/README-zh.md) | English
 
 [Installation](#installation) | [Run](#run) | [Screenshot](#screenshot) | [Architecture](#architecture) | [Integration](#integration-with-other-frameworks) | [Compare](#comparison-with-other-frameworks) | [Community & Sponsorship](#community--sponsorship)
 
@@ -21,6 +21,7 @@ Golang-based distributed web crawler management platform, supporting various lan
 Two methods:
 1. [Docker](https://tikazyq.github.io/crawlab-docs/Installation/Docker.html) (Recommended)
 2. [Direct Deploy](https://tikazyq.github.io/crawlab-docs/Installation/Direct.html) (Check Internal Kernel)
+3. [Kubernetes](https://mp.weixin.qq.com/s/3Q1BQATUIEE_WXcHPqhYbA)
 
 ### Pre-requisite (Docker)
 - Docker 18.03+
@@ -199,7 +200,7 @@ Crawlab is easy to use, general enough to adapt spiders in any language and any 
 
 |Framework | Type | Distributed | Frontend | Scrapyd-Dependent |
 |:---:|:---:|:---:|:---:|:---:|
-| [Crawlab](https://github.com/tikazyq/crawlab) | Admin Platform | Y | Y | N
+| [Crawlab](https://github.com/crawlab-team/crawlab) | Admin Platform | Y | Y | N
 | [ScrapydWeb](https://github.com/my8100/scrapydweb) | Admin Platform | Y | Y | Y
 | [SpiderKeeper](https://github.com/DormyMo/SpiderKeeper) | Admin Platform | Y | Y | Y
 | [Gerapy](https://github.com/Gerapy/Gerapy) | Admin Platform | Y | Y | Y

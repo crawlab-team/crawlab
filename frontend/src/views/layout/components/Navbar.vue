@@ -9,6 +9,9 @@
       </span>
       <el-dropdown-menu slot="dropdown" class="user-dropdown">
         <el-dropdown-item>
+          <span style="display:block;">v0.3.4</span>
+        </el-dropdown-item>
+        <el-dropdown-item>
           <span style="display:block;" @click="logout">{{$t('Logout')}}</span>
         </el-dropdown-item>
       </el-dropdown-menu>
@@ -30,8 +33,9 @@
     <el-dropdown class="documentation right">
       <a href="https://tikazyq.github.io/crawlab-docs" target="_blank">
         <font-awesome-icon :icon="['far', 'question-circle']"/>
-        <span style="margin-left: 5px;">文档</span>
+        <span style="margin-left: 5px;">{{$t('Documentation')}}</span>
       </a>
+      <el-dropdown-menu slot="dropdown"></el-dropdown-menu>
     </el-dropdown>
   </div>
 </template>

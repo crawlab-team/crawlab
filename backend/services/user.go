@@ -5,11 +5,9 @@ import (
 	"crawlab/model"
 	"crawlab/utils"
 	"errors"
-	"github.com/apex/log"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo/bson"
 	"github.com/spf13/viper"
-	"runtime/debug"
 	"time"
 )
 
@@ -24,27 +22,37 @@ func InitUserService() error {
 	}
 	return nil
 }
-
-func GetToken(username string) (tokenStr string, err error) {
-	user, err := model.GetUserByUsername(username)
-	if err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
-	}
-
+func MakeToken(user *model.User) (tokenStr string, err error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":       user.Id,
 		"username": user.Username,
 		"nbf":      time.Now().Unix(),
 	})
 
-	tokenStr, err = token.SignedString([]byte(viper.GetString("server.secret")))
-	if err != nil {
-		return
-	}
-	return
+	return token.SignedString([]byte(viper.GetString("server.secret")))
+
 }
+
+//func GetToken(username string) (tokenStr string, err error) {
+//	user, err := model.GetUserByUsername(username)
+//	if err != nil {
+//		log.Errorf(err.Error())
+//		debug.PrintStack()
+//		return
+//	}
+//
+//	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+//		"id":       user.Id,
+//		"username": user.Username,
+//		"nbf":      time.Now().Unix(),
+//	})
+//
+//	tokenStr, err = token.SignedString([]byte(viper.GetString("server.secret")))
+//	if err != nil {
+//		return
+//	}
+//	return
+//}
 
 func SecretFunc() jwt.Keyfunc {
 	return func(token *jwt.Token) (interface{}, error) {

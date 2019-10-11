@@ -3,6 +3,7 @@ package services
 import (
 	"crawlab/constants"
 	"crawlab/database"
+	"crawlab/entity"
 	"crawlab/lib/cron"
 	"crawlab/model"
 	"crawlab/utils"
@@ -16,13 +17,16 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strconv"
+	"sync"
+	"syscall"
 	"time"
 )
 
 var Exec *Executor
 
 // 任务执行锁
-var LockList []bool
+//Added by cloud: 2019/09/04,solve data race
+var LockList sync.Map
 
 // 任务消息
 type TaskMessage struct {
@@ -36,7 +40,7 @@ func (m *TaskMessage) ToString() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(data), err
+	return utils.BytesToString(data), err
 }
 
 // 任务执行器
@@ -56,7 +60,7 @@ func (ex *Executor) Start() error {
 		id := i
 
 		// 初始化任务锁
-		LockList = append(LockList, false)
+		LockList.Store(id, false)
 
 		// 加入定时任务
 		_, err := ex.Cron.AddFunc(spec, GetExecuteTaskFunc(id))
@@ -67,8 +71,6 @@ func (ex *Executor) Start() error {
 
 	return nil
 }
-
-var TaskExecChanMap = utils.NewChanMap()
 
 // 派发任务
 func AssignTask(task model.Task) error {
@@ -134,37 +136,67 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	}
 
 	// 起一个goroutine来监控进程
-	ch := TaskExecChanMap.ChanBlocked(t.Id)
+	ch := utils.TaskExecChanMap.ChanBlocked(t.Id)
 	go func() {
 		// 传入信号，此处阻塞
 		signal := <-ch
-
-		if signal == constants.TaskCancel {
+		log.Infof("cancel process signal: %s", signal)
+		if signal == constants.TaskCancel && cmd.Process != nil {
 			// 取消进程
-			if err := cmd.Process.Kill(); err != nil {
-				log.Errorf(err.Error())
+			if err := syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL); err != nil {
+				log.Errorf("process kill error: %s", err.Error())
 				debug.PrintStack()
-				return
 			}
 			t.Status = constants.StatusCancelled
+			t.Error = "user kill the process ..."
+		} else {
+			// 保存任务
+			t.Status = constants.StatusFinished
 		}
-
-		// 保存任务
 		t.FinishTs = time.Now()
 		if err := t.Save(); err != nil {
-			log.Infof(err.Error())
+			log.Infof("save task error: %s", err.Error())
 			debug.PrintStack()
 			return
 		}
 	}()
 
-	// 开始执行
-	if err := cmd.Run(); err != nil {
-		HandleTaskError(t, err)
+	// 在选择所有节点执行的时候，实际就是随机一个节点执行的，
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
+	// 异步启动进程
+	if err := cmd.Start(); err != nil {
+		log.Errorf("start spider error:{}", err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	// 保存pid到task
+	t.Pid = cmd.Process.Pid
+	if err := t.Save(); err != nil {
+		log.Errorf("save task pid error: %s", err.Error())
+		debug.PrintStack()
+		return err
+	}
+	// 同步等待进程完成
+	if err := cmd.Wait(); err != nil {
+		log.Errorf("wait process finish error: %s", err.Error())
+		debug.PrintStack()
+		if exitError, ok := err.(*exec.ExitError); ok {
+			exitCode := exitError.ExitCode()
+			log.Errorf("exit error, exit code: %d", exitCode)
+			// 非kill 的错误类型
+			if exitCode != -1 {
+				// 非手动kill保存为错误状态
+				t.Error = err.Error()
+				t.FinishTs = time.Now()
+				t.Status = constants.StatusError
+				_ = t.Save()
+			}
+		}
 		return err
 	}
 	ch <- constants.TaskFinish
-
 	return nil
 }
 
@@ -220,24 +252,25 @@ func SaveTaskResultCount(id string) func() {
 
 // 执行任务
 func ExecuteTask(id int) {
-	if LockList[id] {
+	if flag, _ := LockList.Load(id); flag.(bool) {
 		log.Debugf(GetWorkerPrefix(id) + "正在执行任务...")
 		return
 	}
 
 	// 上锁
-	LockList[id] = true
+	LockList.Store(id, true)
 
 	// 解锁（延迟执行）
 	defer func() {
-		LockList[id] = false
+		LockList.Delete(id)
+		LockList.Store(id, false)
 	}()
 
 	// 开始计时
 	tic := time.Now()
 
 	// 获取当前节点
-	node, err := GetCurrentNode()
+	node, err := model.GetCurrentNode()
 	if err != nil {
 		log.Errorf(GetWorkerPrefix(id) + err.Error())
 		return
@@ -252,6 +285,9 @@ func ExecuteTask(id int) {
 	// 节点队列任务
 	var msg string
 	msg, err = database.RedisClient.LPop(queueCur)
+	if msg != "" {
+		log.Infof("queue cur: %s", msg)
+	}
 	if err != nil {
 		if msg == "" {
 			// 节点队列没有任务，获取公共队列任务
@@ -323,8 +359,10 @@ func ExecuteTask(id int) {
 
 	// 执行命令
 	cmd := spider.Cmd
-	if t.Cmd != "" {
-		cmd = t.Cmd
+
+	// 加入参数
+	if t.Param != "" {
+		cmd += " " + t.Param
 	}
 
 	// 任务赋值
@@ -404,13 +442,16 @@ func GetTaskLog(id string) (logStr string, err error) {
 	logStr = ""
 	if IsMasterNode(task.NodeId.Hex()) {
 		// 若为主节点，获取本机日志
-		logBytes, err := GetLocalLog(task.LogPath)
-		logStr = string(logBytes)
+		logBytes, err := model.GetLocalLog(task.LogPath)
+		logStr = utils.BytesToString(logBytes)
 		if err != nil {
 			log.Errorf(err.Error())
-			return "", err
+			logStr = err.Error()
+			// return "", err
+		} else {
+			logStr = utils.BytesToString(logBytes)
 		}
-		logStr = string(logBytes)
+
 	} else {
 		// 若不为主节点，获取远端日志
 		logStr, err = GetRemoteLog(task)
@@ -427,6 +468,8 @@ func CancelTask(id string) (err error) {
 	// 获取任务
 	task, err := model.GetTask(id)
 	if err != nil {
+		log.Errorf("task not found, task id : %s, error: %s", id, err.Error())
+		debug.PrintStack()
 		return err
 	}
 
@@ -436,24 +479,36 @@ func CancelTask(id string) (err error) {
 	}
 
 	// 获取当前节点（默认当前节点为主节点）
-	node, err := GetCurrentNode()
+	node, err := model.GetCurrentNode()
 	if err != nil {
+		log.Errorf("get current node error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
+
+	log.Infof("current node id is: %s", node.Id.Hex())
+	log.Infof("task node id is: %s", task.NodeId.Hex())
 
 	if node.Id == task.NodeId {
 		// 任务节点为主节点
 
 		// 获取任务执行频道
-		ch := TaskExecChanMap.ChanBlocked(id)
-
-		// 发出取消进程信号
-		ch <- constants.TaskCancel
+		ch := utils.TaskExecChanMap.ChanBlocked(id)
+		if ch != nil {
+			// 发出取消进程信号
+			ch <- constants.TaskCancel
+		} else {
+			if err := model.UpdateTaskToAbnormal(node.Id); err != nil {
+				log.Errorf("update task to abnormal : {}", err.Error())
+				debug.PrintStack()
+				return err
+			}
+		}
 	} else {
 		// 任务节点为工作节点
 
 		// 序列化消息
-		msg := NodeMessage{
+		msg := entity.NodeMessage{
 			Type:   constants.MsgTypeCancelTask,
 			TaskId: id,
 		}
@@ -463,7 +518,7 @@ func CancelTask(id string) (err error) {
 		}
 
 		// 发布消息
-		if err := database.Publish("nodes:"+task.NodeId.Hex(), string(msgBytes)); err != nil {
+		if _, err := database.RedisClient.Publish("nodes:"+task.NodeId.Hex(), utils.BytesToString(msgBytes)); err != nil {
 			return err
 		}
 	}
@@ -472,6 +527,7 @@ func CancelTask(id string) (err error) {
 }
 
 func HandleTaskError(t model.Task, err error) {
+	log.Error("handle task error:" + err.Error())
 	t.Status = constants.StatusError
 	t.Error = err.Error()
 	t.FinishTs = time.Now()

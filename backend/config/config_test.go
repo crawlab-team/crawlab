@@ -7,7 +7,7 @@ import (
 
 func TestInitConfig(t *testing.T) {
 	Convey("Test InitConfig func", t, func() {
-		x := InitConfig("")
+		x := InitConfig("../conf/config.yml")
 
 		Convey("The value should be nil", func() {
 			So(x, ShouldEqual, nil)

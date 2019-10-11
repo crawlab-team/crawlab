@@ -93,7 +93,7 @@
           </el-upload>
         </el-form-item>
       </el-form>
-      <el-alert type="error" title="爬虫文件请从根目录下开始压缩。" :closable="false"></el-alert>
+      <el-alert type="error" :title="$t('Please zip your spider files from the root directory')" :closable="false"></el-alert>
     </el-dialog>
     <!--./customized spider dialog-->
 
@@ -108,19 +108,20 @@
     <el-card style="border-radius: 0">
       <!--filter-->
       <div class="filter">
-        <!--<el-input prefix-icon="el-icon-search"-->
-        <!--:placeholder="$t('Search')"-->
-        <!--class="filter-search"-->
-        <!--v-model="filter.keyword"-->
-        <!--@change="onSearch">-->
-        <!--</el-input>-->
         <div class="left">
-          <el-autocomplete size="small" v-model="filterSite"
-                           :placeholder="$t('Site')"
-                           clearable
-                           :fetch-suggestions="fetchSiteSuggestions"
-                           @select="onSiteSelect">
-          </el-autocomplete>
+          <el-form :inline="true">
+            <el-form-item>
+              <el-select clearable @change="onSpiderTypeChange" placeholder="爬虫类型" size="small" v-model="filter.type">
+                <el-option v-for="item in types" :value="item.type" :key="item.type"
+                           :label="item.type === 'customized'? '自定义':item.type "/>
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-input clearable @keyup.enter.native="onSearch" size="small" placeholder="名称" v-model="filter.keyword">
+                <i slot="suffix" class="el-input__icon el-icon-search"></i>
+              </el-input>
+            </el-form-item>
+          </el-form>
         </div>
         <div class="right">
           <el-button size="small" v-if="false" type="primary" icon="fa fa-download" @click="openImportDialog">
@@ -143,7 +144,7 @@
       <!--./filter-->
 
       <!--table list-->
-      <el-table :data="filteredTableData"
+      <el-table :data="spiderList"
                 class="table"
                 :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
                 border
@@ -156,8 +157,7 @@
                            align="left"
                            :width="col.width">
             <template slot-scope="scope">
-              <el-tag type="success" v-if="scope.row.type === 'configurable'">{{$t('Configurable')}}</el-tag>
-              <el-tag type="primary" v-else-if="scope.row.type === 'customized'">{{$t('Customized')}}</el-tag>
+              {{scope.row.type === 'customized' ? '自定义' : scope.row.type}}
             </template>
           </el-table-column>
           <el-table-column v-else-if="col.name === 'last_5_errors'"
@@ -190,6 +190,14 @@
               {{getTime(scope.row[col.name])}}
             </template>
           </el-table-column>
+          <el-table-column v-else-if="col.name === 'last_status'"
+                           :key="col.name"
+                           :label="$t(col.label)"
+                           align="left" :width="col.width">
+            <template slot-scope="scope">
+              <status-tag :status="scope.row.last_status"/>
+            </template>
+          </el-table-column>
           <el-table-column v-else
                            :key="col.name"
                            :property="col.name"
@@ -199,7 +207,7 @@
                            :width="col.width">
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" width="auto" fixed="right">
+        <el-table-column :label="$t('Action')" align="left" fixed="right">
           <template slot-scope="scope">
             <el-tooltip :content="$t('View')" placement="top">
               <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
@@ -218,13 +226,13 @@
       </el-table>
       <div class="pagination">
         <el-pagination
-          @current-change="onPageChange"
-          @size-change="onPageChange"
+          @current-change="onPageNumChange"
+          @size-change="onPageSizeChange"
           :current-page.sync="pagination.pageNum"
           :page-sizes="[10, 20, 50, 100]"
           :page-size.sync="pagination.pageSize"
           layout="sizes, prev, pager, next"
-          :total="spiderList.length">
+          :total="spiderTotal">
         </el-pagination>
       </div>
       <!--./table list-->
@@ -239,14 +247,18 @@ import {
 } from 'vuex'
 import dayjs from 'dayjs'
 import CrawlConfirmDialog from '../../components/Common/CrawlConfirmDialog'
-
+import StatusTag from '../../components/Status/StatusTag'
+import request from '../../api/request'
 export default {
   name: 'SpiderList',
-  components: { CrawlConfirmDialog },
+  components: {
+    CrawlConfirmDialog,
+    StatusTag
+  },
   data () {
     return {
       pagination: {
-        pageNum: 0,
+        pageNum: 1,
         pageSize: 10
       },
       importLoading: false,
@@ -259,20 +271,18 @@ export default {
       crawlConfirmDialogVisible: false,
       activeSpiderId: undefined,
       filter: {
-        keyword: ''
+        keyword: '',
+        type: ''
       },
+      types: [],
       // tableData,
       columns: [
-        { name: 'name', label: 'Name', width: '180', align: 'left' },
-        // { name: 'site_name', label: 'Site', width: '140', align: 'left' },
+        { name: 'display_name', label: 'Name', width: '160', align: 'left' },
         { name: 'type', label: 'Spider Type', width: '120' },
-        // { name: 'cmd', label: 'Command Line', width: '200' },
-        // { name: 'lang', label: 'Language', width: '120', sortable: true },
-        { name: 'last_run_ts', label: 'Last Run', width: '160' },
-        { name: 'create_ts', label: 'Create Time', width: '160' },
-        { name: 'update_ts', label: 'Update Time', width: '160' }
-        // { name: 'last_7d_tasks', label: 'Last 7-Day Tasks', width: '80' },
-        // { name: 'last_5_errors', label: 'Last 5-Run Errors', width: '80' }
+        { name: 'last_status', label: 'Last Status', width: '120' },
+        { name: 'last_run_ts', label: 'Last Run', width: '140' },
+        // { name: 'update_ts', label: 'Update Time', width: '140' },
+        { name: 'remark', label: 'Remark', width: '140' }
       ],
       spiderFormRules: {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
@@ -284,45 +294,28 @@ export default {
     ...mapState('spider', [
       'importForm',
       'spiderList',
-      'spiderForm'
+      'spiderForm',
+      'spiderTotal'
     ]),
     ...mapGetters('user', [
       'token'
-    ]),
-    filteredTableData () {
-      return this.spiderList
-        .filter(d => {
-          if (this.filterSite) {
-            return d.site === this.filterSite
-          }
-          return true
-        })
-        .filter((d, index) => {
-          return (this.pagination.pageSize * (this.pagination.pageNum - 1)) <= index && (index < this.pagination.pageSize * this.pagination.pageNum)
-        })
-      // .filter(d => {
-      //   if (!this.filter.keyword) return true
-      //   for (let i = 0; i < this.columns.length; i++) {
-      //     const colName = this.columns[i].name
-      //     if (d[colName] && d[colName].toLowerCase().indexOf(this.filter.keyword.toLowerCase()) > -1) {
-      //       return true
-      //     }
-      //   }
-      //   return false
-      // })
-    },
-    filterSite: {
-      get () {
-        return this.$store.state.spider.filterSite
-      },
-      set (value) {
-        this.$store.commit('spider/SET_FILTER_SITE', value)
-      }
-    }
+    ])
   },
   methods: {
-    onSearch (value) {
-      console.log(value)
+    onSpiderTypeChange (val) {
+      this.filter.type = val
+      this.getList()
+    },
+    onPageSizeChange (val) {
+      this.pagination.pageSize = val
+      this.getList()
+    },
+    onPageNumChange (val) {
+      this.pagination.pageNum = val
+      this.getList()
+    },
+    onSearch () {
+      this.getList()
     },
     onAdd () {
       // this.addDialogVisible = true
@@ -340,7 +333,7 @@ export default {
       this.$st.sendEv('爬虫', '添加爬虫-自定义爬虫')
     },
     onRefresh () {
-      this.$store.dispatch('spider/getSpiderList')
+      this.getList()
       this.$st.sendEv('爬虫', '刷新')
     },
     onSubmit () {
@@ -362,9 +355,6 @@ export default {
     onCancel () {
       this.$store.commit('spider/SET_SPIDER_FORM', {})
       this.dialogVisible = false
-    },
-    onAddCancel () {
-      this.addDialogVisible = false
     },
     onDialogClose () {
       this.$store.commit('spider/SET_SPIDER_FORM', {})
@@ -409,9 +399,6 @@ export default {
       this.$router.push('/spiders/' + row._id)
       this.$st.sendEv('爬虫', '查看')
     },
-    onPageChange () {
-      this.$store.dispatch('spider/getSpiderList')
-    },
     onImport () {
       this.$refs.importForm.validate(valid => {
         if (valid) {
@@ -420,7 +407,7 @@ export default {
           this.$store.dispatch('spider/importGithub')
             .then(response => {
               this.$message.success('Import repo successfully')
-              this.$store.dispatch('spider/getSpiderList')
+              this.getList()
             })
             .catch(response => {
               this.$message.error(response.data.error)
@@ -437,13 +424,18 @@ export default {
       this.dialogVisible = true
     },
     isShowRun (row) {
-      if (this.isCustomized(row)) {
-        // customized spider
-        return !!row.cmd
+      if (row.cmd) {
+        return true
       } else {
-        // configurable spider
-        return !!row.fields
+        return false
       }
+      // if (this.isCustomized(row)) {
+      //   // customized spider
+      //   return !!row.cmd
+      // } else {
+      //   // configurable spider
+      //   return !!row.fields
+      // }
     },
     isCustomized (row) {
       return row.type === 'customized'
@@ -488,7 +480,7 @@ export default {
 
       // fetch spider list
       setTimeout(() => {
-        this.$store.dispatch('spider/getSpiderList')
+        this.getList()
       }, 500)
 
       // close popup
@@ -502,14 +494,26 @@ export default {
       if (column.label !== this.$t('Action')) {
         this.onView(row)
       }
+    },
+    getList () {
+      let params = {
+        pageNum: this.pagination.pageNum,
+        pageSize: this.pagination.pageSize,
+        keyword: this.filter.keyword,
+        type: this.filter.type
+      }
+      this.$store.dispatch('spider/getSpiderList', params)
+    },
+    getTypes () {
+      request.get(`/spider/types`).then(resp => {
+        this.types = resp.data.data
+      })
     }
   },
   created () {
-    // take site from params to filter
-    this.$store.commit('spider/SET_FILTER_SITE', this.$route.params.domain)
-
+    this.getTypes()
     // fetch spider list
-    this.$store.dispatch('spider/getSpiderList')
+    this.getList()
   },
   mounted () {
   }

@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"bytes"
 	"crawlab/model"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
@@ -8,13 +9,12 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
-	"ucloudBilling/ucloud/log"
 )
 
 var app *gin.Engine
+
 // 本测试依赖MongoDB的服务，所以在测试之前需要启动MongoDB及相关服务
 func init() {
 	app = gin.Default()
@@ -29,12 +29,25 @@ func init() {
 	app.GET("/nodes/:id/system", GetSystemInfo)  // 节点任务列表
 	app.DELETE("/nodes/:id", DeleteNode)         // 删除节点
 	//// 爬虫
+	app.GET("/stats/home", GetHomeStats) // 首页统计数据
 	// 定时任务
-	app.GET("/schedules", GetScheduleList)       // 定时任务列表
-	app.GET("/schedules/:id", GetSchedule)       // 定时任务详情
-	app.PUT("/schedules", PutSchedule)           // 创建定时任务
-	app.POST("/schedules/:id", PostSchedule)     // 修改定时任务
-	app.DELETE("/schedules/:id", DeleteSchedule) // 删除定时任务
+	app.GET("/schedules", GetScheduleList)                         // 定时任务列表
+	app.GET("/schedules/:id", GetSchedule)                         // 定时任务详情
+	app.PUT("/schedules", PutSchedule)                             // 创建定时任务
+	app.POST("/schedules/:id", PostSchedule)                       // 修改定时任务
+	app.DELETE("/schedules/:id", DeleteSchedule)                   // 删除定时任务
+	app.GET("/tasks", GetTaskList)                                 // 任务列表
+	app.GET("/tasks/:id", GetTask)                                 // 任务详情
+	app.PUT("/tasks", PutTask)                                     // 派发任务
+	app.DELETE("/tasks/:id", DeleteTask)                           // 删除任务
+	app.GET("/tasks/:id/results", GetTaskResults)                  // 任务结果
+	app.GET("/tasks/:id/results/download", DownloadTaskResultsCsv) // 下载任务结果
+	app.GET("/spiders", GetSpiderList)              // 爬虫列表
+	app.GET("/spiders/:id", GetSpider)              // 爬虫详情
+	app.POST("/spiders/:id", PostSpider)            // 修改爬虫
+	app.DELETE("/spiders/:id",DeleteSpider)        // 删除爬虫
+	app.GET("/spiders/:id/tasks",GetSpiderTasks)   // 爬虫任务列表
+	app.GET("/spiders/:id/dir",GetSpiderDir)       // 爬虫目录
 }
 
 //mock test, test data in ./mock
@@ -43,8 +56,7 @@ func TestGetNodeList(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/nodes", nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
-	t.Log(resp.Data)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
 	}
@@ -63,7 +75,7 @@ func TestGetNode(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/nodes/"+mongoId, nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
 	}
@@ -82,7 +94,7 @@ func TestPing(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/ping", nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
 	}
@@ -100,7 +112,7 @@ func TestGetNodeTaskList(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "nodes/"+mongoId+"/tasks", nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
 	}
@@ -119,7 +131,7 @@ func TestDeleteNode(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("DELETE", "nodes/"+mongoId, nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
 	}
@@ -148,14 +160,13 @@ func TestPostNode(t *testing.T) {
 
 	var resp Response
 	body, _ := json.Marshal(newItem)
-	log.Info(strings.NewReader(string(body)))
 
 	var mongoId = "5d429e6c19f7abede924fee2"
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "nodes/"+mongoId, strings.NewReader(string(body)))
+	req, _ := http.NewRequest("POST", "nodes/"+mongoId, bytes.NewReader(body))
 
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	t.Log(resp)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
@@ -174,7 +185,7 @@ func TestGetSystemInfo(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "nodes/"+mongoId+"/system", nil)
 	app.ServeHTTP(w, req)
-	err := json.Unmarshal([]byte(w.Body.String()), &resp)
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	if err != nil {
 		t.Fatal("Unmarshal resp failed")
 	}

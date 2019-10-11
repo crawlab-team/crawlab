@@ -4,28 +4,28 @@
       <!--filter-->
       <div class="filter">
         <div class="left">
-          <el-select size="small" class="filter-select"
-                     v-model="filter.node_id"
-                     :placeholder="$t('Node')"
-                     filterable
-                     clearable
-                     @change="onSelectNode">
-            <el-option v-for="op in nodeList" :key="op._id" :value="op._id" :label="op.name"></el-option>
-          </el-select>
-          <el-select size="small" class="filter-select"
-                     v-model="filter.spider_id"
-                     :placeholder="$t('Spider')"
-                     filterable
-                     clearable
-                     @change="onSelectSpider">
-            <el-option v-for="op in spiderList" :key="op._id" :value="op._id" :label="op.name"></el-option>
-          </el-select>
-          <el-button size="small" type="success"
-                     icon="el-icon-search"
-                     class="refresh"
-                     @click="onRefresh">
-            {{$t('Search')}}
-          </el-button>
+          <!--<el-select size="small" class="filter-select"-->
+                     <!--v-model="filter.node_id"-->
+                     <!--:placeholder="$t('Node')"-->
+                     <!--filterable-->
+                     <!--clearable-->
+                     <!--@change="onSelectNode">-->
+            <!--<el-option v-for="op in nodeList" :key="op._id" :value="op._id" :label="op.name"></el-option>-->
+          <!--</el-select>-->
+          <!--<el-select size="small" class="filter-select"-->
+                     <!--v-model="filter.spider_id"-->
+                     <!--:placeholder="$t('Spider')"-->
+                     <!--filterable-->
+                     <!--clearable-->
+                     <!--@change="onSelectSpider">-->
+            <!--<el-option v-for="op in spiderList" :key="op._id" :value="op._id" :label="op.name"></el-option>-->
+          <!--</el-select>-->
+          <!--<el-button size="small" type="success"-->
+                     <!--icon="el-icon-search"-->
+                     <!--class="refresh"-->
+                     <!--@click="onRefresh">-->
+            <!--{{$t('Search')}}-->
+          <!--</el-button>-->
         </div>
         <!--<div class="right">-->
         <!--</div>-->
@@ -45,7 +45,7 @@
                            :label="$t(col.label)"
                            :sortable="col.sortable"
                            :align="col.align"
-                           :width="col.width">
+          >
             <template slot-scope="scope">
               <a href="javascript:" class="a-tag" @click="onClickSpider(scope.row)">{{scope.row[col.name]}}</a>
             </template>
@@ -119,7 +119,7 @@
                            :width="col.width">
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" width="120" fixed="right">
+        <el-table-column :label="$t('Action')" align="left" fixed="right" width="150px">
           <template slot-scope="scope">
             <el-tooltip :content="$t('View')" placement="top">
               <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
@@ -172,6 +172,7 @@ export default {
         { name: 'node_name', label: 'Node', width: '120' },
         { name: 'spider_name', label: 'Spider', width: '120' },
         { name: 'status', label: 'Status', width: '120' },
+        { name: 'param', label: 'Parameters', width: '120' },
         // { name: 'create_ts', label: 'Create Time', width: '100' },
         { name: 'start_ts', label: 'Start Time', width: '100' },
         { name: 'finish_ts', label: 'Finish Time', width: '100' },

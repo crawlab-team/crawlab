@@ -151,7 +151,7 @@ export default {
     }
   },
   mounted () {
-    if (!this.spiderList || !this.spiderList.length) this.$store.dispatch('spider/getSpiderList')
+    // if (!this.spiderList || !this.spiderList.length) this.$store.dispatch('spider/getSpiderList')
     if (!this.nodeList || !this.nodeList.length) this.$store.dispatch('node/getNodeList')
   }
 }

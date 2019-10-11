@@ -3,19 +3,16 @@ package services
 import (
 	"crawlab/constants"
 	"crawlab/database"
+	"crawlab/entity"
 	"crawlab/lib/cron"
 	"crawlab/model"
+	"crawlab/services/spider_handler"
 	"crawlab/utils"
-	"encoding/json"
 	"fmt"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"github.com/pkg/errors"
-	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
-	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime/debug"
@@ -30,150 +27,16 @@ type SpiderFileData struct {
 type SpiderUploadMessage struct {
 	FileId   string
 	FileName string
-}
-
-// 从项目目录中获取爬虫列表
-func GetSpidersFromDir() ([]model.Spider, error) {
-	// 爬虫项目目录路径
-	srcPath := viper.GetString("spider.path")
-
-	// 如果爬虫项目目录不存在，则创建一个
-	if !utils.Exists(srcPath) {
-		if err := os.MkdirAll(srcPath, 0666); err != nil {
-			debug.PrintStack()
-			return []model.Spider{}, err
-		}
-	}
-
-	// 获取爬虫项目目录下的所有子项
-	items, err := ioutil.ReadDir(srcPath)
-	if err != nil {
-		debug.PrintStack()
-		return []model.Spider{}, err
-	}
-
-	// 定义爬虫列表
-	spiders := make([]model.Spider, 0)
-
-	// 遍历所有子项
-	for _, item := range items {
-		// 忽略不为目录的子项
-		if !item.IsDir() {
-			continue
-		}
-
-		// 忽略隐藏目录
-		if strings.HasPrefix(item.Name(), ".") {
-			continue
-		}
-
-		// 构造爬虫
-		spider := model.Spider{
-			Name:        item.Name(),
-			DisplayName: item.Name(),
-			Type:        constants.Customized,
-			Src:         filepath.Join(srcPath, item.Name()),
-			FileId:      bson.ObjectIdHex(constants.ObjectIdNull),
-		}
-
-		// 将爬虫加入列表
-		spiders = append(spiders, spider)
-	}
-
-	return spiders, nil
-}
-
-// 将爬虫保存到数据库
-func SaveSpiders(spiders []model.Spider) error {
-	// 遍历爬虫列表
-	for _, spider := range spiders {
-		// 忽略非自定义爬虫
-		if spider.Type != constants.Customized {
-			continue
-		}
-
-		// 如果该爬虫不存在于数据库，则保存爬虫到数据库
-		s, c := database.GetCol("spiders")
-		defer s.Close()
-		var spider_ *model.Spider
-		if err := c.Find(bson.M{"src": spider.Src}).One(&spider_); err != nil {
-			// 不存在
-			if err := spider.Add(); err != nil {
-				debug.PrintStack()
-				return err
-			}
-		} else {
-			// 存在
-		}
-	}
-
-	return nil
-}
-
-// 更新爬虫
-func UpdateSpiders() {
-	// 从项目目录获取爬虫列表
-	spiders, err := GetSpidersFromDir()
-	if err != nil {
-		log.Errorf(err.Error())
-		return
-	}
-
-	// 储存爬虫
-	if err := SaveSpiders(spiders); err != nil {
-		log.Errorf(err.Error())
-		return
-	}
-}
-
-// 打包爬虫目录为zip文件
-func ZipSpider(spider model.Spider) (filePath string, err error) {
-	// 如果源文件夹不存在，抛错
-	if !utils.Exists(spider.Src) {
-		debug.PrintStack()
-		return "", errors.New("source path does not exist")
-	}
-
-	// 临时文件路径
-	randomId := uuid.NewV4()
-	if err != nil {
-		debug.PrintStack()
-		return "", err
-	}
-	filePath = filepath.Join(
-		viper.GetString("other.tmppath"),
-		randomId.String()+".zip",
-	)
-
-	// 将源文件夹打包为zip文件
-	d, err := os.Open(spider.Src)
-	if err != nil {
-		debug.PrintStack()
-		return filePath, err
-	}
-	var files []*os.File
-	files = append(files, d)
-	if err := utils.Compress(files, filePath); err != nil {
-		return filePath, err
-	}
-
-	return filePath, nil
+	SpiderId string
 }
 
 // 上传zip文件到GridFS
-func UploadToGridFs(spider model.Spider, fileName string, filePath string) (fid bson.ObjectId, err error) {
+func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, err error) {
 	fid = ""
 
 	// 获取MongoDB GridFS连接
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
-
-	// 如果存在FileId删除GridFS上的老文件
-	if !utils.IsObjectIdNull(spider.FileId) {
-		if err = gf.RemoveId(spider.FileId); err != nil {
-			debug.PrintStack()
-		}
-	}
 
 	// 创建一个新GridFS文件
 	f, err := gf.Create(fileName)
@@ -204,6 +67,7 @@ func UploadToGridFs(spider model.Spider, fileName string, filePath string) (fid 
 	return fid, nil
 }
 
+// 写入grid fs
 func WriteToGridFS(content []byte, f *mgo.GridFile) {
 	if _, err := f.Write(content); err != nil {
 		debug.PrintStack()
@@ -223,7 +87,7 @@ func ReadFileByStep(filePath string, handle func([]byte, *mgo.GridFile), fileCre
 	for {
 		switch nr, err := f.Read(s[:]); true {
 		case nr < 0:
-			fmt.Fprintf(os.Stderr, "cat: error reading: %s\n", err.Error())
+			_, _ = fmt.Fprintf(os.Stderr, "cat: error reading: %s\n", err.Error())
 			debug.PrintStack()
 		case nr == 0: // EOF
 			return nil
@@ -231,174 +95,114 @@ func ReadFileByStep(filePath string, handle func([]byte, *mgo.GridFile), fileCre
 			handle(s[0:nr], fileCreate)
 		}
 	}
-	return nil
 }
 
 // 发布所有爬虫
-func PublishAllSpiders() error {
+func PublishAllSpiders() {
 	// 获取爬虫列表
-	spiders, err := model.GetSpiderList(nil, 0, constants.Infinite)
-	if err != nil {
-		log.Errorf(err.Error())
-		return err
+	spiders, _, _ := model.GetSpiderList(nil, 0, constants.Infinite)
+	if len(spiders) == 0 {
+		return
 	}
-
+	log.Infof("start sync spider to local, total: %d", len(spiders))
 	// 遍历爬虫列表
 	for _, spider := range spiders {
-		// 发布爬虫
-		if err := PublishSpider(spider); err != nil {
-			log.Errorf(err.Error())
-			return err
-		}
-	}
-
-	return nil
-}
-
-func PublishAllSpidersJob() {
-	if err := PublishAllSpiders(); err != nil {
-		log.Errorf(err.Error())
+		// 异步发布爬虫
+		go func(s model.Spider) {
+			PublishSpider(s)
+		}(spider)
 	}
 }
 
 // 发布爬虫
-// 1. 将源文件夹打包为zip文件
-// 2. 上传zip文件到GridFS
-// 3. 发布消息给工作节点
-func PublishSpider(spider model.Spider) (err error) {
-	// 将源文件夹打包为zip文件
-	filePath, err := ZipSpider(spider)
-	if err != nil {
-		return err
-	}
-
-	// 上传zip文件到GridFS
-	fileName := filepath.Base(spider.Src) + ".zip"
-	fid, err := UploadToGridFs(spider, fileName, filePath)
-	if err != nil {
-		return err
-	}
-
-	// 保存FileId
-	spider.FileId = fid
-	if err := spider.Save(); err != nil {
-		return err
-	}
-
-	// 发布消息给工作节点
-	msg := SpiderUploadMessage{
-		FileId:   fid.Hex(),
-		FileName: fileName,
-	}
-	msgStr, err := json.Marshal(msg)
-	if err != nil {
+func PublishSpider(spider model.Spider) {
+	// 查询gf file，不存在则删除
+	gfFile := model.GetGridFs(spider.FileId)
+	if gfFile == nil {
+		_ = model.RemoveSpider(spider.Id)
 		return
 	}
-	channel := "files:upload"
-	if err = database.Publish(channel, string(msgStr)); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
+	spiderSync := spider_handler.SpiderSync{
+		Spider: spider,
 	}
 
-	return
+	//目录不存在，则直接下载
+	path := filepath.Join(viper.GetString("spider.path"), spider.Name)
+	if !utils.Exists(path) {
+		log.Infof("path not found: %s", path)
+		spiderSync.Download()
+		spiderSync.CreateMd5File(gfFile.Md5)
+		return
+	}
+	// md5文件不存在，则下载
+	md5 := filepath.Join(path, spider_handler.Md5File)
+	if !utils.Exists(md5) {
+		log.Infof("md5 file not found: %s", md5)
+		spiderSync.RemoveSpiderFile()
+		spiderSync.Download()
+		spiderSync.CreateMd5File(gfFile.Md5)
+		return
+	}
+	// md5值不一样，则下载
+	md5Str := utils.ReadFileOneLine(md5)
+	// 去掉空格以及换行符
+	md5Str = strings.Replace(md5Str, " ", "", -1)
+	md5Str = strings.Replace(md5Str, "\n", "", -1)
+	if gfFile.Md5 != md5Str {
+		log.Infof("md5 is different, gf-md5:%s, file-md5:%s", gfFile.Md5, md5Str)
+		spiderSync.RemoveSpiderFile()
+		spiderSync.Download()
+		spiderSync.CreateMd5File(gfFile.Md5)
+		return
+	}
 }
 
-// 上传爬虫回调
-func OnFileUpload(channel string, msgStr string) {
-	s, gf := database.GetGridFs("files")
-	defer s.Close()
-
-	// 反序列化消息
-	var msg SpiderUploadMessage
-	if err := json.Unmarshal([]byte(msgStr), &msg); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
-	}
-
-	// 从GridFS获取该文件
-	f, err := gf.OpenId(bson.ObjectIdHex(msg.FileId))
+func RemoveSpider(id string) error {
+	// 获取该爬虫
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
 	if err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
-	}
-	defer f.Close()
-
-	// 生成唯一ID
-	randomId := uuid.NewV4()
-
-	// 创建临时文件
-	tmpFilePath := filepath.Join(viper.GetString("other.tmppath"), randomId.String()+".zip")
-	tmpFile, err := os.OpenFile(tmpFilePath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
-	if err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
-	}
-	defer tmpFile.Close()
-
-	// 将该文件写入临时文件
-	if _, err := io.Copy(tmpFile, f); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
+		return err
 	}
 
-	// 解压缩临时文件到目标文件夹
-	dstPath := filepath.Join(
-		viper.GetString("spider.path"),
-		//strings.Replace(msg.FileName, ".zip", "", -1),
-	)
-	if err := utils.DeCompress(tmpFile, dstPath); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
+	// 删除爬虫文件目录
+	path := filepath.Join(viper.GetString("spider.path"), spider.Name)
+	utils.RemoveFiles(path)
+
+	// 删除其他节点的爬虫目录
+	msg := entity.NodeMessage{
+		Type:     constants.MsgTypeRemoveSpider,
+		SpiderId: id,
+	}
+	if err := utils.Pub(constants.ChannelAllNode, msg); err != nil {
+		return err
 	}
 
-	// 关闭临时文件
-	if err := tmpFile.Close(); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
+	// 从数据库中删除该爬虫
+	if err := model.RemoveSpider(bson.ObjectIdHex(id)); err != nil {
+		return err
 	}
 
-	// 删除临时文件
-	if err := os.Remove(tmpFilePath); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
+	// 删除日志文件
+	if err := RemoveLogBySpiderId(spider.Id); err != nil {
+		return err
 	}
+
+	// 删除爬虫对应的task任务
+	if err := model.RemoveTaskBySpiderId(spider.Id); err != nil {
+		return err
+	}
+
+	// TODO 定时任务如何处理
+	return nil
 }
 
 // 启动爬虫服务
 func InitSpiderService() error {
 	// 构造定时任务执行器
 	c := cron.New(cron.WithSeconds())
-
-	if IsMaster() {
-		// 主节点
-
-		// 每5秒更新一次爬虫信息
-		if _, err := c.AddFunc("*/5 * * * * *", UpdateSpiders); err != nil {
-			return err
-		}
-
-		// 每60秒同步爬虫给工作节点
-		if _, err := c.AddFunc("0 * * * * *", PublishAllSpidersJob); err != nil {
-			return err
-		}
-	} else {
-		// 非主节点
-
-		// 订阅文件上传
-		channel := "files:upload"
-		var sub database.Subscriber
-		sub.Connect()
-		sub.Subscribe(channel, OnFileUpload)
+	if _, err := c.AddFunc("0 * * * * *", PublishAllSpiders); err != nil {
+		return err
 	}
-
 	// 启动定时任务
 	c.Start()
 

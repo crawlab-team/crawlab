@@ -19,6 +19,9 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item :label="$t('Parameters')">
+        <el-input v-model="param" :placeholder="$t('Parameters')"></el-input>
+      </el-form-item>
     </el-form>
     <template slot="footer">
       <el-button type="plain" size="small" @click="$emit('close')">{{$t('Cancel')}}</el-button>
@@ -42,7 +45,8 @@ export default {
   },
   data () {
     return {
-      nodeId: ''
+      nodeId: '',
+      param: ''
     }
   },
   methods: {
@@ -50,7 +54,7 @@ export default {
       this.$emit('close')
     },
     onConfirm () {
-      this.$store.dispatch('spider/crawlSpider', { id: this.spiderId, nodeId: this.nodeId })
+      this.$store.dispatch('spider/crawlSpider', { id: this.spiderId, nodeId: this.nodeId, param: this.param })
         .then(() => {
           this.$message.success(this.$t('A task has been scheduled successfully'))
         })
