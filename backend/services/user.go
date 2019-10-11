@@ -17,7 +17,8 @@ func InitUserService() error {
 		Password: utils.EncryptPassword("admin"),
 		Role:     constants.RoleAdmin,
 	}
-	return adminUser.Add()
+	_ = adminUser.Add()
+	return nil
 }
 func MakeToken(user *model.User) (tokenStr string, err error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
