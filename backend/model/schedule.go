@@ -104,6 +104,13 @@ func UpdateSchedule(id bson.ObjectId, item Schedule) error {
 		return err
 	}
 
+	node, err := GetNode(item.NodeId)
+	if err != nil {
+		log.Errorf("get node error: %s", err.Error())
+		debug.PrintStack()
+		return nil
+	}
+	item.NodeKey = node.Key
 	if err := item.Save(); err != nil {
 		return err
 	}

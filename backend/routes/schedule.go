@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"crawlab/constants"
 	"crawlab/model"
 	"crawlab/services"
 	"github.com/gin-gonic/gin"
@@ -49,9 +48,9 @@ func PostSchedule(c *gin.Context) {
 	newItem.Id = bson.ObjectIdHex(id)
 
 	// 如果node_id为空，则置为空ObjectId
-	if newItem.NodeId == "" {
-		newItem.NodeId = bson.ObjectIdHex(constants.ObjectIdNull)
-	}
+	//if newItem.NodeId == "" {
+	//	newItem.NodeId = bson.ObjectIdHex(constants.ObjectIdNull)
+	//}
 
 	// 更新数据库
 	if err := model.UpdateSchedule(bson.ObjectIdHex(id), newItem); err != nil {
