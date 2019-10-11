@@ -104,7 +104,7 @@ func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, int, erro
 	defer s.Close()
 
 	// 获取爬虫列表
-	spiders := []Spider{}
+	var spiders []Spider
 	if err := c.Find(filter).Skip(skip).Limit(limit).Sort("+name").All(&spiders); err != nil {
 		debug.PrintStack()
 		return spiders, 0, err
@@ -225,7 +225,7 @@ func RemoveAllSpider() error {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 
-	spiders := []Spider{}
+	var spiders []Spider
 	err := c.Find(nil).All(&spiders)
 	if err != nil {
 		log.Error("get all spiders error:" + err.Error())
@@ -256,15 +256,14 @@ func GetSpiderTypes() ([]*entity.SpiderType, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 
-
 	group := bson.M{
 		"$group": bson.M{
-			"_id": "$type",
+			"_id":   "$type",
 			"count": bson.M{"$sum": 1},
 		},
 	}
 	var types []*entity.SpiderType
-	if err := c.Pipe([]bson.M{ group}).All(&types); err != nil {
+	if err := c.Pipe([]bson.M{group}).All(&types); err != nil {
 		log.Errorf("get spider types error: %s", err.Error())
 		debug.PrintStack()
 		return nil, err

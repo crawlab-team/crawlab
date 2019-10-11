@@ -33,7 +33,6 @@ type Node struct {
 
 const (
 	Yes = "Y"
-	No  = "N"
 )
 
 // 当前节点是否为主节点

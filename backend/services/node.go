@@ -100,7 +100,7 @@ func handleNodeInfo(key string, data Data) {
 	// 同个key可能因为并发，被注册多次
 	var nodes []model.Node
 	_ = c.Find(bson.M{"key": key}).All(&nodes)
-	if nodes != nil && len(nodes) > 1 {
+	if len(nodes) > 1 {
 		for _, node := range nodes {
 			_ = c.RemoveId(node.Id)
 		}
@@ -149,7 +149,11 @@ func UpdateNodeData() {
 	}
 	// 获取redis的key
 	key, err := register.GetRegister().GetKey()
-
+	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return
+	}
 	// 构造节点数据
 	data := Data{
 		Key:          key,
@@ -230,19 +234,19 @@ func InitNodeService() error {
 
 	if model.IsMaster() {
 		// 如果为主节点，订阅主节点通信频道
-		if err := utils.Sub(constants.ChannelMasterNode, MasterNodeCallback); err != nil {
+		if err := database.Sub(constants.ChannelMasterNode, MasterNodeCallback); err != nil {
 			return err
 		}
 	} else {
 		// 若为工作节点，订阅单独指定通信频道
 		channel := constants.ChannelWorkerNode + node.Id.Hex()
-		if err := utils.Sub(channel, WorkerNodeCallback); err != nil {
+		if err := database.Sub(channel, WorkerNodeCallback); err != nil {
 			return err
 		}
 	}
 
 	// 订阅全通道
-	if err := utils.Sub(constants.ChannelAllNode, WorkerNodeCallback); err != nil {
+	if err := database.Sub(constants.ChannelAllNode, WorkerNodeCallback); err != nil {
 		return err
 	}
 
