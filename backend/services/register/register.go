@@ -78,6 +78,7 @@ func getIp() (string, error) {
 }
 
 func getMac() (string, error) {
+	// #TODO: 只会返回第一个Mac地址, 如果有多个Mac地址时, 需要处理
 	interfaces, err := net.Interfaces()
 	if err != nil {
 		log.Errorf("get interfaces error:" + err.Error())
