@@ -107,6 +107,7 @@ func SetEnv(cmd *exec.Cmd, envs []model.Env, taskId string, dataCol string) *exe
 	cmd.Env = append(cmd.Env, "CRAWLAB_COLLECTION="+dataCol)
 	cmd.Env = append(cmd.Env, "PYTHONUNBUFFERED=0")
 	cmd.Env = append(cmd.Env, "PYTHONIOENCODING=utf-8")
+	cmd.Env = append(cmd.Env, "TZ=Asia/Shanghai")
 
 	//任务环境变量
 	for _, env := range envs {
@@ -203,6 +204,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	if runtime.GOOS == constants.Windows {
 		cmd = exec.Command("cmd", "/C", cmdStr)
 	} else {
+		cmd = exec.Command("")
 		cmd = exec.Command("sh", "-c", cmdStr)
 	}
 
