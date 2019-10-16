@@ -124,7 +124,6 @@ func SetLogConfig(cmd *exec.Cmd, path string) error {
 		debug.PrintStack()
 		return err
 	}
-	defer fLog.Close()
 	cmd.Stdout = fLog
 	cmd.Stderr = fLog
 	return nil
@@ -247,6 +246,7 @@ func MakeLogDir(t model.Task) (fileDir string, err error) {
 	// 如果日志目录不存在，生成该目录
 	if !utils.Exists(fileDir) {
 		if err := os.MkdirAll(fileDir, 0777); err != nil {
+			log.Errorf("execute task, make log dir error: %s", err.Error())
 			debug.PrintStack()
 			return "", err
 		}
@@ -321,11 +321,9 @@ func ExecuteTask(id int) {
 	// 节点队列任务
 	var msg string
 	if msg, err = database.RedisClient.LPop(queueCur); err != nil {
-		log.Errorf("get current node task error: %s", err.Error())
 		// 节点队列没有任务，获取公共队列任务
 		queuePub := "tasks:public"
 		if msg, err = database.RedisClient.LPop(queuePub); err != nil {
-			log.Errorf("get public task error: %s", err.Error())
 		}
 	}
 
@@ -355,23 +353,12 @@ func ExecuteTask(id int) {
 	}
 
 	// 创建日志目录
-	fileDir, err := MakeLogDir(t)
-	if err != nil {
-		log.Errorf("execute task, make log dir error: %s", err.Error())
+	var fileDir string
+	if fileDir, err = MakeLogDir(t); err != nil {
 		return
 	}
-
 	// 获取日志文件路径
 	t.LogPath = GetLogFilePaths(fileDir)
-
-	// 创建日志目录文件夹
-	fileStdoutDir := filepath.Dir(t.LogPath)
-	if !utils.Exists(fileStdoutDir) {
-		if err := os.MkdirAll(fileStdoutDir, os.ModePerm); err != nil {
-			log.Errorf(GetWorkerPrefix(id) + err.Error())
-			return
-		}
-	}
 
 	// 工作目录
 	cwd := filepath.Join(
