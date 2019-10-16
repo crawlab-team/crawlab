@@ -103,7 +103,7 @@ func AssignTask(task model.Task) error {
 // 设置环境变量
 func SetEnv(cmd *exec.Cmd, envs []model.Env, taskId string, dataCol string) *exec.Cmd {
 	// 默认环境变量
-	cmd.Env = append(cmd.Env, "CRAWLAB_TASK_ID="+taskId)
+	cmd.Env = append(os.Environ(), "CRAWLAB_TASK_ID="+taskId)
 	cmd.Env = append(cmd.Env, "CRAWLAB_COLLECTION="+dataCol)
 	cmd.Env = append(cmd.Env, "PYTHONUNBUFFERED=0")
 	cmd.Env = append(cmd.Env, "PYTHONIOENCODING=utf-8")
