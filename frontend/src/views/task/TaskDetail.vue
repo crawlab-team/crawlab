@@ -107,7 +107,7 @@ export default {
       }
     }
   },
-  async created () {
+  created () {
     this.$store.dispatch('task/getTaskData', this.$route.params.id)
     this.$store.dispatch('task/getTaskResults', this.$route.params.id)
 
