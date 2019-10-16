@@ -100,13 +100,13 @@ func handleNodeInfo(key string, data Data) {
 	defer s.Close()
 
 	// 同个key可能因为并发，被注册多次
-	//var nodes []model.Node
-	//_ = c.Find(bson.M{"key": key}).All(&nodes)
-	//if nodes != nil && len(nodes) > 1 {
-	//	for _, node := range nodes {
-	//		_ = c.RemoveId(node.Id)
-	//	}
-	//}
+	var nodes []model.Node
+	_ = c.Find(bson.M{"key": key}).All(&nodes)
+	if nodes != nil && len(nodes) > 1 {
+		for _, node := range nodes {
+			_ = c.RemoveId(node.Id)
+		}
+	}
 
 	var node model.Node
 	if err := c.Find(bson.M{"key": key}).One(&node); err != nil {
@@ -227,7 +227,7 @@ func InitNodeService() error {
 	}
 
 	// 首次更新节点数据（注册到Redis）
-	// UpdateNodeData()
+	UpdateNodeData()
 
 	// 获取当前节点
 	node, err := model.GetCurrentNode()

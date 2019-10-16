@@ -429,13 +429,6 @@ export default {
       } else {
         return false
       }
-      // if (this.isCustomized(row)) {
-      //   // customized spider
-      //   return !!row.cmd
-      // } else {
-      //   // configurable spider
-      //   return !!row.fields
-      // }
     },
     isCustomized (row) {
       return row.type === 'customized'

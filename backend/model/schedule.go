@@ -45,6 +45,27 @@ func (sch *Schedule) Delete() error {
 	return c.RemoveId(sch.Id)
 }
 
+func (sch *Schedule) SyncNodeIdAndSpiderId(node Node, spider Spider) {
+	sch.syncNodeId(node)
+	sch.syncSpiderId(spider)
+}
+
+func (sch *Schedule) syncNodeId(node Node) {
+	if node.Id.Hex() == sch.NodeId.Hex() {
+		return
+	}
+	sch.NodeId = node.Id
+	_ = sch.Save()
+}
+
+func (sch *Schedule) syncSpiderId(spider Spider) {
+	if spider.Id.Hex() == sch.SpiderId.Hex() {
+		return
+	}
+	sch.SpiderId = spider.Id
+	_ = sch.Save()
+}
+
 func GetScheduleList(filter interface{}) ([]Schedule, error) {
 	s, c := database.GetCol("schedules")
 	defer s.Close()
@@ -103,13 +124,11 @@ func UpdateSchedule(id bson.ObjectId, item Schedule) error {
 	if err := c.FindId(id).One(&result); err != nil {
 		return err
 	}
-
 	node, err := GetNode(item.NodeId)
 	if err != nil {
-		log.Errorf("get node error: %s", err.Error())
-		debug.PrintStack()
-		return nil
+		return err
 	}
+
 	item.NodeKey = node.Key
 	if err := item.Save(); err != nil {
 		return err
@@ -123,9 +142,7 @@ func AddSchedule(item Schedule) error {
 
 	node, err := GetNode(item.NodeId)
 	if err != nil {
-		log.Errorf("get node error: %s", err.Error())
-		debug.PrintStack()
-		return nil
+		return err
 	}
 
 	item.Id = bson.NewObjectId()

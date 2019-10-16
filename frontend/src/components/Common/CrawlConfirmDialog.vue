@@ -9,9 +9,8 @@
     <el-form label-width="80px">
       <el-form-item :label="$t('Node')">
         <el-select v-model="nodeId">
-          <el-option value="" :label="$t('All Nodes')"/>
           <el-option
-            v-for="op in $store.state.node.nodeList"
+            v-for="op in nodeList"
             :key="op._id"
             :value="op._id"
             :disabled="op.status !== 'online'"
@@ -31,6 +30,7 @@
 </template>
 
 <script>
+import request from '../../api/request'
 export default {
   name: 'CrawlConfirmDialog',
   props: {
@@ -46,7 +46,8 @@ export default {
   data () {
     return {
       nodeId: '',
-      param: ''
+      param: '',
+      nodeList: []
     }
   },
   methods: {
@@ -61,6 +62,20 @@ export default {
       this.$emit('close')
       this.$st.sendEv('爬虫', '运行')
     }
+  },
+  created () {
+    // 节点列表
+    request.get('/nodes', {}).then(response => {
+      this.nodeList = response.data.data.map(d => {
+        d.systemInfo = {
+          os: '',
+          arch: '',
+          num_cpu: '',
+          executables: []
+        }
+        return d
+      })
+    })
   }
 }
 </script>

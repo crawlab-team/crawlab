@@ -5,7 +5,7 @@ import (
 	"crawlab/lib/cron"
 	"crawlab/model"
 	"github.com/apex/log"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 	"runtime/debug"
 )
 
@@ -30,6 +30,9 @@ func AddTask(s model.Schedule) func() {
 			debug.PrintStack()
 			return
 		}
+
+		// 同步ID到定时任务
+		s.SyncNodeIdAndSpiderId(node, *spider)
 
 		// 生成任务ID
 		id := uuid.NewV4()
@@ -117,6 +120,18 @@ func (s *Scheduler) RemoveAll() {
 	for i := 0; i < len(entries); i++ {
 		s.cron.Remove(entries[i].ID)
 	}
+}
+
+// 验证cron表达式是否正确
+func ParserCron(spec string) error {
+	parser := cron.NewParser(
+		cron.Second | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor,
+	)
+
+	if _, err := parser.Parse(spec); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *Scheduler) Update() error {
