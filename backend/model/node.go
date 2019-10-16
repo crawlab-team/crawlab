@@ -4,6 +4,7 @@ import (
 	"crawlab/constants"
 	"crawlab/database"
 	"crawlab/services/register"
+	"errors"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
@@ -158,16 +159,19 @@ func GetNodeList(filter interface{}) ([]Node, error) {
 
 func GetNode(id bson.ObjectId) (Node, error) {
 	var node Node
+
 	if id.Hex() == "" {
-		return node, nil
+		log.Infof("id is empty")
+		debug.PrintStack()
+		return node, errors.New("id is empty")
 	}
+
 	s, c := database.GetCol("nodes")
 	defer s.Close()
+
 	if err := c.FindId(id).One(&node); err != nil {
-		if err != mgo.ErrNotFound {
-			log.Errorf(err.Error())
-			debug.PrintStack()
-		}
+		log.Errorf(err.Error())
+		debug.PrintStack()
 		return node, err
 	}
 	return node, nil
