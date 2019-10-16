@@ -311,70 +311,53 @@ func ExecuteTask(id int) {
 	// 获取当前节点
 	node, err := model.GetCurrentNode()
 	if err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		log.Errorf("execute task get current node error: %s", err.Error())
+		debug.PrintStack()
 		return
 	}
 
-	// 公共队列
-	queuePub := "tasks:public"
-
 	// 节点队列
 	queueCur := "tasks:node:" + node.Id.Hex()
-
 	// 节点队列任务
 	var msg string
-	msg, err = database.RedisClient.LPop(queueCur)
-	if msg != "" {
-		log.Infof("queue cur: %s", msg)
-	}
-	if err != nil {
-		if msg == "" {
-			// 节点队列没有任务，获取公共队列任务
-			msg, err = database.RedisClient.LPop(queuePub)
-			if err != nil {
-				if msg == "" {
-					// 公共队列没有任务
-					log.Debugf(GetWorkerPrefix(id) + "没有任务...")
-					return
-				} else {
-					log.Errorf(GetWorkerPrefix(id) + err.Error())
-					debug.PrintStack()
-					return
-				}
-			}
-		} else {
-			log.Errorf(GetWorkerPrefix(id) + err.Error())
-			debug.PrintStack()
-			return
+	if msg, err = database.RedisClient.LPop(queueCur); err != nil {
+		log.Errorf("get current node task error: %s", err.Error())
+		// 节点队列没有任务，获取公共队列任务
+		queuePub := "tasks:public"
+		if msg, err = database.RedisClient.LPop(queuePub); err != nil {
+			log.Errorf("get public task error: %s", err.Error())
 		}
+	}
+
+	if msg == "" {
+		return
 	}
 
 	// 反序列化
 	tMsg := TaskMessage{}
 	if err := json.Unmarshal([]byte(msg), &tMsg); err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
-		debug.PrintStack()
+		log.Errorf("json string to struct error: %s", err.Error())
 		return
 	}
 
 	// 获取任务
 	t, err := model.GetTask(tMsg.Id)
 	if err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		log.Errorf("execute task, get task error: %s", err.Error())
 		return
 	}
 
 	// 获取爬虫
 	spider, err := t.GetSpider()
 	if err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		log.Errorf("execute task, get spider error: %s", err.Error())
 		return
 	}
 
 	// 创建日志目录
 	fileDir, err := MakeLogDir(t)
 	if err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		log.Errorf("execute task, make log dir error: %s", err.Error())
 		return
 	}
 
