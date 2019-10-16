@@ -111,6 +111,7 @@ export default {
     this.$store.dispatch('task/getTaskData', this.$route.params.id)
     this.$store.dispatch('task/getTaskResults', this.$route.params.id)
 
+    this.getTaskLog()
     this.handle = setInterval(() => {
       this.getTaskLog()
     }, 5000)
