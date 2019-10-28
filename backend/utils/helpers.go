@@ -1,12 +1,11 @@
 package utils
 
 import (
-	"context"
-	"crawlab/database"
 	"crawlab/entity"
 	"encoding/json"
 	"github.com/apex/log"
 	"github.com/gomodule/redigo/redis"
+	"io"
 	"runtime/debug"
 	"unsafe"
 )
@@ -35,21 +34,9 @@ func GetMessage(message redis.Message) *entity.NodeMessage {
 	return &msg
 }
 
-func Pub(channel string, msg entity.NodeMessage) error {
-	if _, err := database.RedisClient.Publish(channel, GetJson(msg)); err != nil {
-		log.Errorf("publish redis error: %s", err.Error())
-		debug.PrintStack()
-		return err
+func Close(c io.Closer) {
+	err := c.Close()
+	if err != nil {
+		log.WithError(err).Error("关闭资源文件失败。")
 	}
-	return nil
-}
-
-func Sub(channel string, consume database.ConsumeFunc) error {
-	ctx := context.Background()
-	if err := database.RedisClient.Subscribe(ctx, consume, channel); err != nil {
-		log.Errorf("subscribe redis error: %s", err.Error())
-		debug.PrintStack()
-		return err
-	}
-	return nil
 }

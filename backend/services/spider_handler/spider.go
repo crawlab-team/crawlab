@@ -28,7 +28,7 @@ func (s *SpiderSync) CreateMd5File(md5 string) {
 
 	fileName := filepath.Join(path, Md5File)
 	file := utils.OpenFile(fileName)
-	defer file.Close()
+	defer utils.Close(file)
 	if file != nil {
 		if _, err := file.WriteString(md5 + "\n"); err != nil {
 			log.Errorf("file write string error: %s", err.Error())
@@ -80,7 +80,7 @@ func (s *SpiderSync) Download() {
 	defer session.Close()
 
 	f, err := gf.OpenId(bson.ObjectIdHex(fileId))
-	defer f.Close()
+	defer utils.Close(f)
 	if err != nil {
 		log.Errorf("open file id: " + fileId + ", spider id:" + spiderId + ", error: " + err.Error())
 		debug.PrintStack()
@@ -99,7 +99,7 @@ func (s *SpiderSync) Download() {
 	// 创建临时文件
 	tmpFilePath := filepath.Join(tmpPath, randomId.String()+".zip")
 	tmpFile := utils.OpenFile(tmpFilePath)
-	defer tmpFile.Close()
+	defer utils.Close(tmpFile)
 
 	// 将该文件写入临时文件
 	if _, err := io.Copy(tmpFile, f); err != nil {
