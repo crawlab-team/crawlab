@@ -14,9 +14,9 @@
         <el-form-item :label="$t('Schedule Name')" prop="name" required>
           <el-input v-model="scheduleForm.name" :placeholder="$t('Schedule Name')"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('Node')" prop="node_id">
+        <el-form-item :label="$t('Node')" prop="node_id" required>
           <el-select v-model="scheduleForm.node_id">
-            <el-option :label="$t('All Nodes')" value="000000000000000000000000"></el-option>
+            <!--<el-option :label="$t('All Nodes')" value="000000000000000000000000"></el-option>-->
             <el-option
               v-for="op in nodeList"
               :key="op._id"
@@ -38,21 +38,22 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('schedules.cron')" prop="cron" :rules="cronRules" required>
-          <template slot="label">
-            <el-tooltip :content="$t('schedules.cron_format')"
-                        placement="top">
-              <span>
-                {{$t('schedules.cron')}}
-                <i class="fa fa-exclamation-circle"></i>
-              </span>
-            </el-tooltip>
-          </template>
-          <el-input style="width:calc(100% - 100px);padding-right:10px"
+        <!--:rules="cronRules"-->
+        <el-form-item :label="$t('schedules.cron')" prop="cron"  required>
+          <!--<template slot="label">-->
+            <!--<el-tooltip :content="$t('schedules.cron_format')"-->
+                        <!--placement="top">-->
+              <!--<span>-->
+                <!--{{$t('schedules.cron')}}-->
+                <!--<i class="fa fa-exclamation-circle"></i>-->
+              <!--</span>-->
+            <!--</el-tooltip>-->
+          <!--</template>-->
+          <el-input style="padding-right:10px"
                     v-model="scheduleForm.cron"
                     :placeholder="$t('schedules.cron')">
           </el-input>
-          <el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('schedules.add_cron')}}</el-button>
+          <!--<el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('schedules.add_cron')}}</el-button>-->
         </el-form-item>
         <el-form-item :label="$t('Execute Command')" prop="params">
           <el-input v-model="spider.cmd"
@@ -69,6 +70,7 @@
                     :placeholder="$t('Schedule Description')"></el-input>
         </el-form-item>
       </el-form>
+      <!--取消、保存-->
       <span slot="footer" class="dialog-footer">
         <el-button size="small" @click="onCancel">{{$t('Cancel')}}</el-button>
         <el-button size="small" type="primary" @click="onAddSubmit">{{$t('Submit')}}</el-button>
@@ -76,9 +78,9 @@
     </el-dialog>
 
     <!--cron generation popup-->
-    <el-dialog title="生成 Cron" :visible.sync="showCron">
-      <vcrontab @hide="showCron=false" @fill="onCrontabFill" :expression="expression"></vcrontab>
-    </el-dialog>
+    <!--<el-dialog title="生成 Cron" :visible.sync="showCron">-->
+      <!--<vcrontab @hide="showCron=false" @fill="onCrontabFill" :expression="expression"></vcrontab>-->
+    <!--</el-dialog>-->
 
     <el-card style="border-radius: 0">
       <!--filter-->
@@ -131,28 +133,15 @@
 </template>
 
 <script>
-import vcrontab from 'vcrontab'
+// import vcrontab from 'vcrontab'
+import request from '../../api/request'
 import {
   mapState
 } from 'vuex'
 
 export default {
   name: 'ScheduleList',
-  components: { vcrontab },
   data () {
-    const cronValidator = (rule, value, callback) => {
-      let patArr = []
-      for (let i = 0; i < 6; i++) {
-        patArr.push('[/*,0-9-]+')
-      }
-      const pat = '^' + patArr.join(' ') + '( [/*,0-9-]+)?' + '$'
-      if (!value) {
-        callback(new Error('cron cannot be empty'))
-      } else if (!value.match(pat)) {
-        callback(new Error('cron format is invalid'))
-      }
-      callback()
-    }
     return {
       columns: [
         { name: 'name', label: 'Name', width: '180' },
@@ -165,23 +154,16 @@ export default {
       isEdit: false,
       dialogTitle: '',
       dialogVisible: false,
-      cronRules: [
-        { validator: cronValidator, trigger: 'blur' }
-      ],
       showCron: false,
-      expression: ''
+      expression: '',
+      spiderList: [],
+      nodeList: []
     }
   },
   computed: {
     ...mapState('schedule', [
       'scheduleList',
       'scheduleForm'
-    ]),
-    ...mapState('spider', [
-      'spiderList'
-    ]),
-    ...mapState('node', [
-      'nodeList'
     ]),
     filteredTableData () {
       return this.scheduleList
@@ -211,19 +193,25 @@ export default {
     onAddSubmit () {
       this.$refs.scheduleForm.validate(res => {
         if (res) {
-          let action
           if (this.isEdit) {
-            action = 'editSchedule'
-          } else {
-            action = 'addSchedule'
-          }
-          this.$store.dispatch('schedule/' + action, this.scheduleForm._id)
-            .then(() => {
+            request.post(`/schedules/${this.scheduleForm._id}`, this.scheduleForm).then(response => {
+              if (response.data.error) {
+                this.$message.error(response.data.error)
+                return
+              }
               this.dialogVisible = false
-              setTimeout(() => {
-                this.$store.dispatch('schedule/getScheduleList')
-              }, 100)
+              this.$store.dispatch('schedule/getScheduleList')
             })
+          } else {
+            request.put('/schedules', this.scheduleForm).then(response => {
+              if (response.data.error) {
+                this.$message.error(response.data.error)
+                return
+              }
+              this.dialogVisible = false
+              this.$store.dispatch('schedule/getScheduleList')
+            })
+          }
         }
       })
       this.$st.sendEv('定时任务', '提交')
@@ -269,8 +257,25 @@ export default {
   },
   created () {
     this.$store.dispatch('schedule/getScheduleList')
-    // this.$store.dispatch('spider/getSpiderList')
-    this.$store.dispatch('node/getNodeList')
+
+    // 节点列表
+    request.get('/nodes', {}).then(response => {
+      this.nodeList = response.data.data.map(d => {
+        d.systemInfo = {
+          os: '',
+          arch: '',
+          num_cpu: '',
+          executables: []
+        }
+        return d
+      })
+    })
+
+    // 爬虫列表
+    request.get('/spiders', {})
+      .then(response => {
+        this.spiderList = response.data.data.list
+      })
   }
 }
 </script>

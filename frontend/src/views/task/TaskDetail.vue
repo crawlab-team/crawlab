@@ -35,6 +35,7 @@ import {
 import TaskOverview from '../../components/Overview/TaskOverview'
 import GeneralTableView from '../../components/TableView/GeneralTableView'
 import LogView from '../../components/ScrollView/LogView'
+import request from '../../api/request'
 
 export default {
   name: 'TaskDetail',
@@ -46,12 +47,12 @@ export default {
   data () {
     return {
       activeTabName: 'overview',
-      handle: undefined
+      handle: undefined,
+      taskLog: ''
     }
   },
   computed: {
     ...mapState('task', [
-      'taskLog',
       'taskResultsData',
       'taskResultsTotalCount'
     ]),
@@ -97,18 +98,23 @@ export default {
     downloadCSV () {
       this.$store.dispatch('task/getTaskResultExcel', this.$route.params.id)
       this.$st.sendEv('任务详情-结果', '下载CSV')
+    },
+    getTaskLog () {
+      if (this.$route.params.id) {
+        request.get(`/tasks/${this.$route.params.id}/log`).then(response => {
+          this.taskLog = response.data.data
+        })
+      }
     }
   },
-  async created () {
-    await this.$store.dispatch('task/getTaskData', this.$route.params.id)
-    this.$store.dispatch('task/getTaskLog', this.$route.params.id)
+  created () {
+    this.$store.dispatch('task/getTaskData', this.$route.params.id)
     this.$store.dispatch('task/getTaskResults', this.$route.params.id)
 
-    if (this.taskForm && ['running'].includes(this.taskForm.status)) {
-      this.handle = setInterval(() => {
-        this.$store.dispatch('task/getTaskLog', this.$route.params.id)
-      }, 5000)
-    }
+    this.getTaskLog()
+    this.handle = setInterval(() => {
+      this.getTaskLog()
+    }, 5000)
   },
   destroyed () {
     clearInterval(this.handle)

@@ -4,7 +4,6 @@ import (
 	"crawlab/constants"
 	"crawlab/database"
 	"github.com/apex/log"
-	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"runtime/debug"
 	"time"
@@ -118,20 +117,16 @@ func GetTaskList(filter interface{}, skip int, limit int, sortKey string) ([]Tas
 	for i, task := range tasks {
 		// 获取爬虫名称
 		spider, err := task.GetSpider()
-		if err == mgo.ErrNotFound {
-			// do nothing
-		} else if err != nil {
-			return tasks, err
+		if spider.Id.Hex() == "" || err != nil {
+			_ = spider.Delete()
 		} else {
 			tasks[i].SpiderName = spider.DisplayName
 		}
 
 		// 获取节点名称
 		node, err := task.GetNode()
-		if err == mgo.ErrNotFound {
-			// do nothing
-		} else if err != nil {
-			return tasks, err
+		if node.Id.Hex() == "" || err != nil {
+			_ = task.Delete()
 		} else {
 			tasks[i].NodeName = node.Name
 		}

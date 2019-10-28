@@ -40,9 +40,12 @@ func (g *Log) get() error {
 		msgSd.Log = utils.BytesToString(logStr)
 	}
 	// 发布消息给主节点
-	if err := database.Pub(constants.ChannelMasterNode, msgSd); err != nil {
+	if err := utils.Pub(constants.ChannelMasterNode, msgSd); err != nil {
+		log.Errorf("pub log to master node error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
+	log.Infof(msgSd.Log)
 	return nil
 }
 

@@ -98,6 +98,12 @@ func (spider *Spider) GetLastTask() (Task, error) {
 	return tasks[0], nil
 }
 
+func (spider *Spider) Delete() error {
+	s, c := database.GetCol("spiders")
+	defer s.Close()
+	return c.RemoveId(spider.Id)
+}
+
 // 爬虫列表
 func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, int, error) {
 	s, c := database.GetCol("spiders")
