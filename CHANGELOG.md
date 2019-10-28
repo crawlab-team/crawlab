@@ -1,15 +1,17 @@
 # 0.3.5 (2019-10-28)
 ### Features / Enhancement
-- **Graceful Showdown**. https://github.com/crawlab-team/crawlab/commit/63fab3917b5a29fd9770f9f51f1572b9f0420385
-- **Node Info Optimization**. https://github.com/crawlab-team/crawlab/commit/973251a0fbe7a2184ac0da09e0404a17c736aee7
-- **Append System Environment Variables to Tasks**. https://github.com/crawlab-team/crawlab/commit/4ab4892471965d6342d30385578ca60dc51f8ad3
-- **Auto Refresh Task Log**. https://github.com/crawlab-team/crawlab/commit/4ab4892471965d6342d30385578ca60dc51f8ad3
-- **Enable HTTPS Deployment**. https://github.com/crawlab-team/crawlab/commit/5d8f6f0c56768a6e58f5e46cbf5adff8c7819228
+- **[Graceful Showdown](https://github.com/crawlab-team/crawlab/commit/63fab3917b5a29fd9770f9f51f1572b9f0420385)**
+- **[Node Info Optimization](https://github.com/crawlab-team/crawlab/commit/973251a0fbe7a2184ac0da09e0404a17c736aee7)**
+- **[Append System Environment Variables to Tasks](https://github.com/crawlab-team/crawlab/commit/4ab4892471965d6342d30385578ca60dc51f8ad3)**
+- **[Auto Refresh Task Log](https://github.com/crawlab-team/crawlab/commit/4ab4892471965d6342d30385578ca60dc51f8ad3)**
+- **[Enable HTTPS Deployment](https://github.com/crawlab-team/crawlab/commit/5d8f6f0c56768a6e58f5e46cbf5adff8c7819228)**
 
 ### Bug Fixes
-- **Unable to fetch spider list info in schedule jobs**. https://github.com/crawlab-team/crawlab/commit/311f72da19094e3fa05ab4af49812f58843d8d93
-- **Unable to fetch node info from worker nodes**. https://github.com/crawlab-team/crawlab/commit/6af06efc17685a9e232e8c2b5fd819ec7d2d1674
-- **Unable to select node when trying to run spider tasks**. https://github.com/crawlab-team/crawlab/commit/31f8e03234426e97aed9b0bce6a50562f957edad
+- **Unable to fetch spider list info in schedule jobs**. [detail](https://github.com/crawlab-team/crawlab/commit/311f72da19094e3fa05ab4af49812f58843d8d93)
+- **Unable to fetch node info from worker nodes**. [detail](https://github.com/crawlab-team/crawlab/commit/6af06efc17685a9e232e8c2b5fd819ec7d2d1674)
+- **Unable to select node when trying to run spider tasks**. [detail](https://github.com/crawlab-team/crawlab/commit/31f8e03234426e97aed9b0bce6a50562f957edad)
+- **Unable to fetch result count when result volume is large**. [#260](https://github.com/crawlab-team/crawlab/issues/260)
+- **Node issue in schedule tasks**. [#244](https://github.com/crawlab-team/crawlab/issues/244)
 
 
 # 0.3.1 (2019-08-25)
