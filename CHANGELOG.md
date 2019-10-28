@@ -1,10 +1,10 @@
 # 0.3.5 (2019-10-28)
 ### Features / Enhancement
-- **[Graceful Showdown](https://github.com/crawlab-team/crawlab/commit/63fab3917b5a29fd9770f9f51f1572b9f0420385)**
-- **[Node Info Optimization](https://github.com/crawlab-team/crawlab/commit/973251a0fbe7a2184ac0da09e0404a17c736aee7)**
-- **[Append System Environment Variables to Tasks](https://github.com/crawlab-team/crawlab/commit/4ab4892471965d6342d30385578ca60dc51f8ad3)**
-- **[Auto Refresh Task Log](https://github.com/crawlab-team/crawlab/commit/4ab4892471965d6342d30385578ca60dc51f8ad3)**
-- **[Enable HTTPS Deployment](https://github.com/crawlab-team/crawlab/commit/5d8f6f0c56768a6e58f5e46cbf5adff8c7819228)**
+- **Graceful Showdown**. [detail](https://github.com/crawlab-team/crawlab/commit/63fab3917b5a29fd9770f9f51f1572b9f0420385)**
+- **Node Info Optimization**. [detail](https://github.com/crawlab-team/crawlab/commit/973251a0fbe7a2184ac0da09e0404a17c736aee7)
+- **Append System Environment Variables to Tasks**. [detail](https://github.com/crawlab-team/crawlab/commit/4ab4892471965d6342d30385578ca60dc51f8ad3)
+- **Auto Refresh Task Log**. [detail](https://github.com/crawlab-team/crawlab/commit/4ab4892471965d6342d30385578ca60dc51f8ad3)
+- **Enable HTTPS Deployment**. [detail](https://github.com/crawlab-team/crawlab/commit/5d8f6f0c56768a6e58f5e46cbf5adff8c7819228)
 
 ### Bug Fixes
 - **Unable to fetch spider list info in schedule jobs**. [detail](https://github.com/crawlab-team/crawlab/commit/311f72da19094e3fa05ab4af49812f58843d8d93)
