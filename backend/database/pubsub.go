@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"crawlab/utils"
 	"fmt"
 	"github.com/apex/log"
 	"github.com/gomodule/redigo/redis"
@@ -26,7 +27,7 @@ func (r *Redis) subscribe(ctx context.Context, consume ConsumeFunc, channel ...s
 	tick := time.NewTicker(time.Second * 3)
 	defer tick.Stop()
 	go func() {
-		defer func() { _ = psc.Close() }()
+		defer utils.Close(psc)
 		for {
 			switch msg := psc.Receive().(type) {
 			case error:
@@ -87,7 +88,7 @@ func (r *Redis) Subscribe(ctx context.Context, consume ConsumeFunc, channel ...s
 }
 func (r *Redis) Publish(channel, message string) (n int, err error) {
 	conn := r.pool.Get()
-	defer func() { _ = conn.Close() }()
+	defer utils.Close(conn)
 	n, err = redis.Int(conn.Do("PUBLISH", channel, message))
 	if err != nil {
 		return 0, errors2.Wrapf(err, "redis publish %s %s", channel, message)

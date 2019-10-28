@@ -82,7 +82,7 @@ func ReadFileByStep(filePath string, handle func([]byte, *mgo.GridFile), fileCre
 		log.Infof("can't opened this file")
 		return err
 	}
-	defer f.Close()
+	defer utils.Close(f)
 	s := make([]byte, 4096)
 	for {
 		switch nr, err := f.Read(s[:]); true {
@@ -173,7 +173,7 @@ func RemoveSpider(id string) error {
 		Type:     constants.MsgTypeRemoveSpider,
 		SpiderId: id,
 	}
-	if err := utils.Pub(constants.ChannelAllNode, msg); err != nil {
+	if err := database.Pub(constants.ChannelAllNode, msg); err != nil {
 		return err
 	}
 

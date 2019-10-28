@@ -60,7 +60,7 @@ func TestCompress(t *testing.T) {
 			So(er, ShouldEqual, nil)
 		})
 	})
-	os.RemoveAll("testCompress")
+	_ = os.RemoveAll("testCompress")
 
 }
 func Zip(zipFile string, fileList []string) error {
@@ -69,16 +69,11 @@ func Zip(zipFile string, fileList []string) error {
 	if err != nil {
 		log.Fatal()
 	}
-	defer fw.Close()
+	defer Close(fw)
 
 	// 实例化新的 zip.Writer
 	zw := zip.NewWriter(fw)
-	defer func() {
-		// 检测一下是否成功关闭
-		if err := zw.Close(); err != nil {
-			log.Fatalln(err)
-		}
-	}()
+	defer Close(zw)
 
 	for _, fileName := range fileList {
 		fr, err := os.Open(fileName)
@@ -91,6 +86,9 @@ func Zip(zipFile string, fileList []string) error {
 		}
 		// 写入文件的头信息
 		fh, err := zip.FileInfoHeader(fi)
+		if err != nil {
+			return err
+		}
 		w, err := zw.CreateHeader(fh)
 		if err != nil {
 			return err
@@ -106,6 +104,10 @@ func Zip(zipFile string, fileList []string) error {
 
 func TestDeCompress(t *testing.T) {
 	err := os.Mkdir("testDeCompress", os.ModePerm)
+	if err != nil {
+		t.Error(err)
+
+	}
 	err = Zip("demo.zip", []string{})
 	if err != nil {
 		t.Error("create zip file failed")
@@ -121,7 +123,7 @@ func TestDeCompress(t *testing.T) {
 		err := DeCompress(tmpFile, dstPath)
 		So(err, ShouldEqual, nil)
 	})
-	os.RemoveAll("testDeCompress")
-	os.Remove("demo.zip")
+	_ = os.RemoveAll("testDeCompress")
+	_ = os.Remove("demo.zip")
 
 }

@@ -2,6 +2,7 @@ package msg_handler
 
 import (
 	"crawlab/constants"
+	"crawlab/database"
 	"crawlab/entity"
 	"crawlab/model"
 	"crawlab/utils"
