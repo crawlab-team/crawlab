@@ -24,7 +24,7 @@ func GetLocalLog(logPath string) (fileBytes []byte, err error) {
 	}
 	defer utils.Close(f)
 
-	const bufLen = 1 * 1024 * 1024
+	const bufLen = 2 * 1024 * 1024
 	logBuf := make([]byte, bufLen)
 
 	off := int64(0)
