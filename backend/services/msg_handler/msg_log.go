@@ -2,6 +2,7 @@ package msg_handler
 
 import (
 	"crawlab/constants"
+	"crawlab/database"
 	"crawlab/entity"
 	"crawlab/model"
 	"crawlab/utils"
@@ -40,8 +41,11 @@ func (g *Log) get() error {
 	}
 	// 发布消息给主节点
 	if err := utils.Pub(constants.ChannelMasterNode, msgSd); err != nil {
+		log.Errorf("pub log to master node error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
+	log.Infof(msgSd.Log)
 	return nil
 }
 

@@ -30,7 +30,7 @@ func TestWithVerboseLogger(t *testing.T) {
 		t.Error("expected provided logger")
 	}
 
-	c.AddFunc("@every 1s", func() {})
+	_, _ = c.AddFunc("@every 1s", func() {})
 	c.Start()
 	time.Sleep(OneSecond)
 	c.Stop()

@@ -15,9 +15,9 @@ func GetNodeList(c *gin.Context) {
 		return
 	}
 
-	for i, node := range nodes {
-		nodes[i].IsMaster = services.IsMasterNode(node.Id.Hex())
-	}
+	//for i, node := range nodes {
+	//	nodes[i].IsMaster = services.IsMasterNode(node.Id.Hex())
+	//}
 
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
@@ -109,11 +109,11 @@ func GetSystemInfo(c *gin.Context) {
 	})
 }
 
-func DeleteNode(c *gin.Context)  {
+func DeleteNode(c *gin.Context) {
 	id := c.Param("id")
 	node, err := model.GetNode(bson.ObjectIdHex(id))
 	if err != nil {
-		HandleError(http.StatusInternalServerError, c ,err)
+		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 	err = node.Delete()

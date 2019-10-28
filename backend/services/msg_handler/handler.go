@@ -3,6 +3,7 @@ package msg_handler
 import (
 	"crawlab/constants"
 	"crawlab/entity"
+	"github.com/apex/log"
 )
 
 type Handler interface {
@@ -10,6 +11,7 @@ type Handler interface {
 }
 
 func GetMsgHandler(msg entity.NodeMessage) Handler {
+	log.Infof("received msg , type is : %s", msg.Type)
 	if msg.Type == constants.MsgTypeGetLog || msg.Type == constants.MsgTypeRemoveLog {
 		// 日志相关
 		return &Log{

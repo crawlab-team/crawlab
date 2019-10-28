@@ -1,6 +1,7 @@
 package model
 
 import (
+	"crawlab/utils"
 	"github.com/apex/log"
 	"os"
 	"runtime/debug"
@@ -21,9 +22,9 @@ func GetLocalLog(logPath string) (fileBytes []byte, err error) {
 		debug.PrintStack()
 		return nil, err
 	}
-	defer f.Close()
+	defer utils.Close(f)
 
-	const bufLen = 2 * 1024 * 1024
+	const bufLen = 1 * 1024 * 1024
 	logBuf := make([]byte, bufLen)
 
 	off := int64(0)

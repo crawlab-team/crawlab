@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"crawlab/constants"
 	"crawlab/model"
 	"crawlab/services"
 	"github.com/gin-gonic/gin"
@@ -46,13 +45,14 @@ func PostSchedule(c *gin.Context) {
 		HandleError(http.StatusBadRequest, c, err)
 		return
 	}
-	newItem.Id = bson.ObjectIdHex(id)
 
-	// 如果node_id为空，则置为空ObjectId
-	if newItem.NodeId == "" {
-		newItem.NodeId = bson.ObjectIdHex(constants.ObjectIdNull)
+	// 验证cron表达式
+	if err := services.ParserCron(newItem.Cron); err != nil {
+		HandleError(http.StatusOK, c, err)
+		return
 	}
 
+	newItem.Id = bson.ObjectIdHex(id)
 	// 更新数据库
 	if err := model.UpdateSchedule(bson.ObjectIdHex(id), newItem); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
@@ -80,9 +80,10 @@ func PutSchedule(c *gin.Context) {
 		return
 	}
 
-	// 如果node_id为空，则置为空ObjectId
-	if item.NodeId == "" {
-		item.NodeId = bson.ObjectIdHex(constants.ObjectIdNull)
+	// 验证cron表达式
+	if err := services.ParserCron(item.Cron); err != nil {
+		HandleError(http.StatusOK, c, err)
+		return
 	}
 
 	// 更新数据库
