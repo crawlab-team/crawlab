@@ -117,7 +117,7 @@ func GetTaskList(filter interface{}, skip int, limit int, sortKey string) ([]Tas
 	for i, task := range tasks {
 		// 获取爬虫名称
 		spider, err := task.GetSpider()
-		if spider.Id.Hex() == "" || err != nil {
+		if err != nil || spider.Id.Hex() == "" {
 			_ = spider.Delete()
 		} else {
 			tasks[i].SpiderName = spider.DisplayName

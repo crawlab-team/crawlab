@@ -5,6 +5,7 @@ import (
 	"crawlab/database"
 	"crawlab/lib/cron"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"runtime/debug"
 	"time"
@@ -93,7 +94,7 @@ func GetScheduleList(filter interface{}) ([]Schedule, error) {
 
 		// 获取爬虫名称
 		spider, err := GetSpider(schedule.SpiderId)
-		if err != nil {
+		if err != nil && err == mgo.ErrNotFound {
 			log.Errorf("get spider by id: %s, error: %s", schedule.SpiderId.Hex(), err.Error())
 			debug.PrintStack()
 			_ = schedule.Delete()
