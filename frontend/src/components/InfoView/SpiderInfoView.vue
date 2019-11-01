@@ -18,10 +18,10 @@
         <el-form-item :label="$t('Spider Name')">
           <el-input v-model="spiderForm.display_name" :placeholder="$t('Spider Name')" :disabled="isView"></el-input>
         </el-form-item>
-        <el-form-item v-if="isCustomized" :label="$t('Source Folder')">
+        <el-form-item :label="$t('Source Folder')">
           <el-input v-model="spiderForm.src" :placeholder="$t('Source Folder')" disabled></el-input>
         </el-form-item>
-        <el-form-item v-if="isCustomized" :label="$t('Execute Command')" prop="cmd" required :inline-message="true">
+        <el-form-item  :label="$t('Execute Command')" prop="cmd" required :inline-message="true">
           <el-input v-model="spiderForm.cmd" :placeholder="$t('Execute Command')"
                     :disabled="isView"></el-input>
         </el-form-item>
@@ -39,10 +39,11 @@
           </el-autocomplete>
         </el-form-item>
         <el-form-item :label="$t('Spider Type')">
-          <el-select v-model="spiderForm.type" :placeholder="$t('Spider Type')" :disabled="true" clearable>
-            <el-option value="configurable" :label="$t('Configurable')"></el-option>
-            <el-option value="customized" :label="$t('Customized')"></el-option>
-          </el-select>
+          <!--<el-select v-model="spiderForm.type" :placeholder="$t('Spider Type')" :disabled="true" clearable>-->
+            <!--<el-option value="configurable" :label="$t('Configurable')"></el-option>-->
+            <!--<el-option value="customized" :label="$t('Customized')"></el-option>-->
+          <!--</el-select>-->
+          <el-input v-model="spiderForm.type" placeholder="爬虫类型" clearable/>
         </el-form-item>
         <el-form-item :label="$t('Remark')">
           <el-input v-model="spiderForm.remark"/>
@@ -102,16 +103,7 @@ export default {
       'spiderForm'
     ]),
     isShowRun () {
-      if (this.isCustomized) {
-        // customized spider
-        return !!this.spiderForm.cmd
-      } else {
-        // configurable spider
-        return !!this.spiderForm.fields
-      }
-    },
-    isCustomized () {
-      return this.spiderForm.type === 'customized'
+      return !!this.spiderForm.cmd
     }
   },
   methods: {

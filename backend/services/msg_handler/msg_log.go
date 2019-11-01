@@ -3,15 +3,15 @@ package msg_handler
 import (
 	"crawlab/constants"
 	"crawlab/database"
+	"crawlab/entity"
 	"crawlab/model"
 	"crawlab/utils"
-	"encoding/json"
 	"github.com/apex/log"
 	"runtime/debug"
 )
 
 type Log struct {
-	msg NodeMessage
+	msg entity.NodeMessage
 }
 
 func (g *Log) Handle() error {
@@ -25,33 +25,27 @@ func (g *Log) Handle() error {
 
 func (g *Log) get() error {
 	// 发出的消息
-	msgSd := NodeMessage{
+	msgSd := entity.NodeMessage{
 		Type:   constants.MsgTypeGetLog,
 		TaskId: g.msg.TaskId,
 	}
 	// 获取本地日志
 	logStr, err := model.GetLocalLog(g.msg.LogPath)
-	log.Info(utils.BytesToString(logStr))
 	if err != nil {
-		log.Errorf(err.Error())
+		log.Errorf("get node local log error: %s", err.Error())
 		debug.PrintStack()
 		msgSd.Error = err.Error()
 		msgSd.Log = err.Error()
 	} else {
 		msgSd.Log = utils.BytesToString(logStr)
 	}
-
-	// 序列化
-	msgSdBytes, err := json.Marshal(&msgSd)
-	if err != nil {
-		return err
-	}
-
 	// 发布消息给主节点
-	log.Info("publish get log msg to master")
-	if _, err := database.RedisClient.Publish("nodes:master", utils.BytesToString(msgSdBytes)); err != nil {
+	if err := database.Pub(constants.ChannelMasterNode, msgSd); err != nil {
+		log.Errorf("pub log to master node error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
+	log.Infof(msgSd.Log)
 	return nil
 }
 

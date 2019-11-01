@@ -304,6 +304,7 @@ func TestNormalizeFields_Errors(t *testing.T) {
 			actual, err := normalizeFields(test.input, test.options)
 			if err == nil {
 				t.Errorf("expected an error, got none. results: %v", actual)
+				return
 			}
 			if !strings.Contains(err.Error(), test.err) {
 				t.Errorf("expected error %q, got %q", test.err, err.Error())

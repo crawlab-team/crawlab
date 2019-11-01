@@ -21,6 +21,7 @@
 三种方式:
 1. [Docker](https://tikazyq.github.io/crawlab-docs/Installation/Docker.html)（推荐）
 2. [直接部署](https://tikazyq.github.io/crawlab-docs/Installation/Direct.html)（了解内核）
+3. [Kubernetes](https://mp.weixin.qq.com/s/3Q1BQATUIEE_WXcHPqhYbA)
 
 ### 要求（Docker）
 - Docker 18.03+
@@ -46,7 +47,7 @@ services:
     image: tikazyq/crawlab:latest
     container_name: master
     environment:
-      CRAWLAB_API_ADDRESS: "localhost:8000"
+      CRAWLAB_API_ADDRESS: "http://localhost:8000"
       CRAWLAB_SERVER_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
       CRAWLAB_REDIS_ADDRESS: "redis"

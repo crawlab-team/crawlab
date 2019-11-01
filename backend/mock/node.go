@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"crawlab/entity"
 	"crawlab/model"
 	"crawlab/services"
 	"github.com/apex/log"
@@ -97,14 +98,14 @@ var dataList = []services.Data{
 	},
 }
 
-var executeble = []model.Executable{
+var executeble = []entity.Executable{
 	{
 		Path:        "/test",
 		FileName:    "test.py",
 		DisplayName: "test.py",
 	},
 }
-var systemInfo = model.SystemInfo{ARCH: "x86",
+var systemInfo = entity.SystemInfo{ARCH: "x86",
 	OS:          "linux",
 	Hostname:    "test",
 	NumCpu:      4,
@@ -187,7 +188,7 @@ func DeleteNode(c *gin.Context) {
 	id := bson.ObjectId("5d429e6c19f7abede924fee2")
 
 	for _, node := range NodeList {
-		if node.Id == bson.ObjectId(id) {
+		if node.Id == id {
 			log.Infof("Delete a node")
 		}
 	}

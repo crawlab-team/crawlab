@@ -3,9 +3,9 @@ package services
 import (
 	"crawlab/constants"
 	"crawlab/database"
+	"crawlab/entity"
 	"crawlab/lib/cron"
 	"crawlab/model"
-	"crawlab/services/msg_handler"
 	"crawlab/utils"
 	"encoding/json"
 	"github.com/apex/log"
@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"time"
 )
 
 // 任务日志频道映射
@@ -23,7 +24,7 @@ var TaskLogChanMap = utils.NewChanMap()
 // 获取远端日志
 func GetRemoteLog(task model.Task) (logStr string, err error) {
 	// 序列化消息
-	msg := msg_handler.NodeMessage{
+	msg := entity.NodeMessage{
 		Type:    constants.MsgTypeGetLog,
 		LogPath: task.LogPath,
 		TaskId:  task.Id,
@@ -45,8 +46,14 @@ func GetRemoteLog(task model.Task) (logStr string, err error) {
 	// 生成频道，等待获取log
 	ch := TaskLogChanMap.ChanBlocked(task.Id)
 
-	// 此处阻塞，等待结果
-	logStr = <-ch
+	select {
+	case logStr = <-ch:
+		log.Infof("get remote log")
+		break
+	case <-time.After(30 * time.Second):
+		logStr = "get remote log timeout"
+		break
+	}
 
 	return logStr, nil
 }
@@ -67,7 +74,7 @@ func DeleteLogPeriodically() {
 	for _, fi := range rd {
 		if fi.IsDir() {
 			log.Info(filepath.Join(logDir, fi.Name()))
-			os.RemoveAll(filepath.Join(logDir, fi.Name()))
+			_ = os.RemoveAll(filepath.Join(logDir, fi.Name()))
 			log.Info("Delete Log File Success")
 		}
 	}
@@ -85,21 +92,16 @@ func RemoveLocalLog(path string) error {
 
 // 删除远程日志
 func RemoveRemoteLog(task model.Task) error {
-	msg := msg_handler.NodeMessage{
+	msg := entity.NodeMessage{
 		Type:    constants.MsgTypeRemoveLog,
 		LogPath: task.LogPath,
 		TaskId:  task.Id,
 	}
-	msgBytes, err := json.Marshal(&msg)
-	if err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return err
-	}
 	// 发布获取日志消息
 	channel := "nodes:" + task.NodeId.Hex()
-	if _, err := database.RedisClient.Publish(channel, utils.BytesToString(msgBytes)); err != nil {
-		log.Errorf(err.Error())
+	if _, err := database.RedisClient.Publish(channel, utils.GetJson(msg)); err != nil {
+		log.Errorf("publish redis error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
 	return nil
@@ -119,10 +121,12 @@ func RemoveLogByTaskId(id string) error {
 
 func removeLog(t model.Task) {
 	if err := RemoveLocalLog(t.LogPath); err != nil {
-		log.Error("remove local log error:" + err.Error())
+		log.Errorf("remove local log error: %s", err.Error())
+		debug.PrintStack()
 	}
 	if err := RemoveRemoteLog(t); err != nil {
-		log.Error("remove remote log error:" + err.Error())
+		log.Errorf("remove remote log error: %s", err.Error())
+		debug.PrintStack()
 	}
 }
 
@@ -130,7 +134,8 @@ func removeLog(t model.Task) {
 func RemoveLogBySpiderId(id bson.ObjectId) error {
 	tasks, err := model.GetTaskList(bson.M{"spider_id": id}, 0, constants.Infinite, "-create_ts")
 	if err != nil {
-		log.Error("get tasks error:" + err.Error())
+		log.Errorf("get tasks error: %s", err.Error())
+		debug.PrintStack()
 	}
 	for _, task := range tasks {
 		removeLog(task)

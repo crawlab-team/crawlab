@@ -5,6 +5,7 @@ import (
 	"crawlab/database"
 	"crawlab/lib/cron"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"runtime/debug"
 	"time"
@@ -16,6 +17,7 @@ type Schedule struct {
 	Description string        `json:"description" bson:"description"`
 	SpiderId    bson.ObjectId `json:"spider_id" bson:"spider_id"`
 	NodeId      bson.ObjectId `json:"node_id" bson:"node_id"`
+	NodeKey     string        `json:"node_key" bson:"node_key"`
 	Cron        string        `json:"cron" bson:"cron"`
 	EntryId     cron.EntryID  `json:"entry_id" bson:"entry_id"`
 	Param       string        `json:"param" bson:"param"`
@@ -38,6 +40,33 @@ func (sch *Schedule) Save() error {
 	return nil
 }
 
+func (sch *Schedule) Delete() error {
+	s, c := database.GetCol("schedules")
+	defer s.Close()
+	return c.RemoveId(sch.Id)
+}
+
+func (sch *Schedule) SyncNodeIdAndSpiderId(node Node, spider Spider) {
+	sch.syncNodeId(node)
+	sch.syncSpiderId(spider)
+}
+
+func (sch *Schedule) syncNodeId(node Node) {
+	if node.Id.Hex() == sch.NodeId.Hex() {
+		return
+	}
+	sch.NodeId = node.Id
+	_ = sch.Save()
+}
+
+func (sch *Schedule) syncSpiderId(spider Spider) {
+	if spider.Id.Hex() == sch.SpiderId.Hex() {
+		return
+	}
+	sch.SpiderId = spider.Id
+	_ = sch.Save()
+}
+
 func GetScheduleList(filter interface{}) ([]Schedule, error) {
 	s, c := database.GetCol("schedules")
 	defer s.Close()
@@ -47,11 +76,12 @@ func GetScheduleList(filter interface{}) ([]Schedule, error) {
 		return schedules, err
 	}
 
-	for i, schedule := range schedules {
+	var schs []Schedule
+	for _, schedule := range schedules {
 		// 获取节点名称
 		if schedule.NodeId == bson.ObjectIdHex(constants.ObjectIdNull) {
 			// 选择所有节点
-			schedules[i].NodeName = "All Nodes"
+			schedule.NodeName = "All Nodes"
 		} else {
 			// 选择单一节点
 			node, err := GetNode(schedule.NodeId)
@@ -59,18 +89,21 @@ func GetScheduleList(filter interface{}) ([]Schedule, error) {
 				log.Errorf(err.Error())
 				continue
 			}
-			schedules[i].NodeName = node.Name
+			schedule.NodeName = node.Name
 		}
 
 		// 获取爬虫名称
 		spider, err := GetSpider(schedule.SpiderId)
-		if err != nil {
-			log.Errorf(err.Error())
+		if err != nil && err == mgo.ErrNotFound {
+			log.Errorf("get spider by id: %s, error: %s", schedule.SpiderId.Hex(), err.Error())
+			debug.PrintStack()
+			_ = schedule.Delete()
 			continue
 		}
-		schedules[i].SpiderName = spider.Name
+		schedule.SpiderName = spider.Name
+		schs = append(schs, schedule)
 	}
-	return schedules, nil
+	return schs, nil
 }
 
 func GetSchedule(id bson.ObjectId) (Schedule, error) {
@@ -92,7 +125,12 @@ func UpdateSchedule(id bson.ObjectId, item Schedule) error {
 	if err := c.FindId(id).One(&result); err != nil {
 		return err
 	}
+	node, err := GetNode(item.NodeId)
+	if err != nil {
+		return err
+	}
 
+	item.NodeKey = node.Key
 	if err := item.Save(); err != nil {
 		return err
 	}
@@ -103,9 +141,15 @@ func AddSchedule(item Schedule) error {
 	s, c := database.GetCol("schedules")
 	defer s.Close()
 
+	node, err := GetNode(item.NodeId)
+	if err != nil {
+		return err
+	}
+
 	item.Id = bson.NewObjectId()
 	item.CreateTs = time.Now()
 	item.UpdateTs = time.Now()
+	item.NodeKey = node.Key
 
 	if err := c.Insert(&item); err != nil {
 		debug.PrintStack()

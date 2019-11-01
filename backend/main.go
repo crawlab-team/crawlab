@@ -1,17 +1,25 @@
 package main
 
 import (
+	"context"
 	"crawlab/config"
 	"crawlab/database"
 	"crawlab/lib/validate_bridge"
 	"crawlab/middlewares"
+	"crawlab/model"
 	"crawlab/routes"
 	"crawlab/services"
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/viper"
+	"net"
+	"net/http"
+	"os"
+	"os/signal"
 	"runtime/debug"
+	"syscall"
+	"time"
 )
 
 func main() {
@@ -57,7 +65,7 @@ func main() {
 	}
 	log.Info("初始化Redis数据库成功")
 
-	if services.IsMaster() {
+	if model.IsMaster() {
 		// 初始化定时任务
 		if err := services.InitScheduler(); err != nil {
 			log.Error("init scheduler error:" + err.Error())
@@ -99,7 +107,7 @@ func main() {
 	log.Info("初始化用户服务成功")
 
 	// 以下为主节点服务
-	if services.IsMaster() {
+	if model.IsMaster() {
 		// 中间件
 		app.Use(middlewares.CORSMiddleware())
 		//app.Use(middlewares.AuthorizationMiddleware())
@@ -131,6 +139,7 @@ func main() {
 			authGroup.POST("/spiders/:id/file", routes.PostSpiderFile)   // 爬虫目录写入
 			authGroup.GET("/spiders/:id/dir", routes.GetSpiderDir)       // 爬虫目录
 			authGroup.GET("/spiders/:id/stats", routes.GetSpiderStats)   // 爬虫统计数据
+			authGroup.GET("/spider/types", routes.GetSpiderTypes)        // 爬虫类型
 			// 任务
 			authGroup.GET("/tasks", routes.GetTaskList)                                 // 任务列表
 			authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情
@@ -164,8 +173,26 @@ func main() {
 	// 运行服务器
 	host := viper.GetString("server.host")
 	port := viper.GetString("server.port")
-	if err := app.Run(host + ":" + port); err != nil {
+	address := net.JoinHostPort(host, port)
+	srv := &http.Server{
+		Handler: app,
+		Addr:    address,
+	}
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			if err != http.ErrServerClosed {
+				log.Error("run server error:" + err.Error())
+			} else {
+				log.Info("server graceful down")
+			}
+		}
+	}()
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	ctx2, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx2); err != nil {
 		log.Error("run server error:" + err.Error())
-		panic(err)
 	}
 }

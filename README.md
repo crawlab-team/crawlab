@@ -21,6 +21,7 @@ Golang-based distributed web crawler management platform, supporting various lan
 Two methods:
 1. [Docker](https://tikazyq.github.io/crawlab-docs/Installation/Docker.html) (Recommended)
 2. [Direct Deploy](https://tikazyq.github.io/crawlab-docs/Installation/Direct.html) (Check Internal Kernel)
+3. [Kubernetes](https://mp.weixin.qq.com/s/3Q1BQATUIEE_WXcHPqhYbA)
 
 ### Pre-requisite (Docker)
 - Docker 18.03+
@@ -47,7 +48,7 @@ services:
     image: tikazyq/crawlab:latest
     container_name: master
     environment:
-      CRAWLAB_API_ADDRESS: "localhost:8000"
+      CRAWLAB_API_ADDRESS: "http://localhost:8000"
       CRAWLAB_SERVER_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
       CRAWLAB_REDIS_ADDRESS: "redis"

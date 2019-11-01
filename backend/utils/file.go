@@ -2,6 +2,7 @@ package utils
 
 import (
 	"archive/zip"
+	"bufio"
 	"github.com/apex/log"
 	"io"
 	"os"
@@ -9,14 +10,54 @@ import (
 	"runtime/debug"
 )
 
+// 删除文件
+func RemoveFiles(path string) {
+	if err := os.RemoveAll(path); err != nil {
+		log.Errorf("remove files error: %s, path: %s", err.Error(), path)
+		debug.PrintStack()
+	}
+}
+
+// 读取文件一行
+func ReadFileOneLine(fileName string) string {
+	file := OpenFile(fileName)
+	defer Close(file)
+	buf := bufio.NewReader(file)
+	line, err := buf.ReadString('\n')
+	if err != nil {
+		log.Errorf("read file error: %s", err.Error())
+		return ""
+	}
+	return line
+
+}
+
+// 创建文件
+func OpenFile(fileName string) *os.File {
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR, os.ModePerm)
+	if err != nil {
+		log.Errorf("create file error: %s, file_name: %s", err.Error(), fileName)
+		debug.PrintStack()
+		return nil
+	}
+	return file
+}
+
+// 创建文件夹
+func CreateFilePath(filePath string) {
+	if !Exists(filePath) {
+		if err := os.MkdirAll(filePath, os.ModePerm); err != nil {
+			log.Errorf("create file error: %s, file_path: %s", err.Error(), filePath)
+			debug.PrintStack()
+		}
+	}
+}
+
 // 判断所给路径文件/文件夹是否存在
 func Exists(path string) bool {
 	_, err := os.Stat(path) //os.Stat获取文件信息
 	if err != nil {
-		if os.IsExist(err) {
-			return true
-		}
-		return false
+		return os.IsExist(err)
 	}
 	return true
 }
@@ -44,7 +85,7 @@ func DeCompressByPath(tarFile, dest string) error {
 	if err != nil {
 		return err
 	}
-	defer srcFile.Close()
+	defer Close(srcFile)
 	return DeCompress(srcFile, dest)
 }
 
@@ -68,7 +109,7 @@ func DeCompress(srcFile *os.File, dstPath string) error {
 		debug.PrintStack()
 		return err
 	}
-	defer zipFile.Close()
+	defer Close(zipFile)
 
 	// 遍历zip内所有文件和目录
 	for _, innerFile := range zipFile.File {
@@ -112,7 +153,7 @@ func DeCompress(srcFile *os.File, dstPath string) error {
 			debug.PrintStack()
 			continue
 		}
-		defer newFile.Close()
+		defer Close(newFile)
 
 		// 拷贝该文件到新文件中
 		if _, err := io.Copy(newFile, srcFile); err != nil {
@@ -140,9 +181,9 @@ func DeCompress(srcFile *os.File, dstPath string) error {
 //dest 压缩文件存放地址
 func Compress(files []*os.File, dest string) error {
 	d, _ := os.Create(dest)
-	defer d.Close()
+	defer Close(d)
 	w := zip.NewWriter(d)
-	defer w.Close()
+	defer Close(w)
 	for _, file := range files {
 		err := _Compress(file, "", w)
 		if err != nil {
@@ -190,7 +231,7 @@ func _Compress(file *os.File, prefix string, zw *zip.Writer) error {
 			return err
 		}
 		_, err = io.Copy(writer, file)
-		file.Close()
+		Close(file)
 		if err != nil {
 			debug.PrintStack()
 			return err

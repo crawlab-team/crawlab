@@ -4,28 +4,28 @@
       <!--filter-->
       <div class="filter">
         <div class="left">
-          <el-select size="small" class="filter-select"
-                     v-model="filter.node_id"
-                     :placeholder="$t('Node')"
-                     filterable
-                     clearable
-                     @change="onSelectNode">
-            <el-option v-for="op in nodeList" :key="op._id" :value="op._id" :label="op.name"></el-option>
-          </el-select>
-          <el-select size="small" class="filter-select"
-                     v-model="filter.spider_id"
-                     :placeholder="$t('Spider')"
-                     filterable
-                     clearable
-                     @change="onSelectSpider">
-            <el-option v-for="op in spiderList" :key="op._id" :value="op._id" :label="op.name"></el-option>
-          </el-select>
-          <el-button size="small" type="success"
-                     icon="el-icon-search"
-                     class="refresh"
-                     @click="onRefresh">
-            {{$t('Search')}}
-          </el-button>
+          <!--<el-select size="small" class="filter-select"-->
+                     <!--v-model="filter.node_id"-->
+                     <!--:placeholder="$t('Node')"-->
+                     <!--filterable-->
+                     <!--clearable-->
+                     <!--@change="onSelectNode">-->
+            <!--<el-option v-for="op in nodeList" :key="op._id" :value="op._id" :label="op.name"></el-option>-->
+          <!--</el-select>-->
+          <!--<el-select size="small" class="filter-select"-->
+                     <!--v-model="filter.spider_id"-->
+                     <!--:placeholder="$t('Spider')"-->
+                     <!--filterable-->
+                     <!--clearable-->
+                     <!--@change="onSelectSpider">-->
+            <!--<el-option v-for="op in spiderList" :key="op._id" :value="op._id" :label="op.name"></el-option>-->
+          <!--</el-select>-->
+          <!--<el-button size="small" type="success"-->
+                     <!--icon="el-icon-search"-->
+                     <!--class="refresh"-->
+                     <!--@click="onRefresh">-->
+            <!--{{$t('Search')}}-->
+          <!--</el-button>-->
         </div>
         <!--<div class="right">-->
         <!--</div>-->

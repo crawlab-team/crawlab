@@ -4,6 +4,8 @@ const state = {
   // list of spiders
   spiderList: [],
 
+  spiderTotal: 0,
+
   // active spider data
   spiderForm: {},
 
@@ -38,6 +40,9 @@ const state = {
 const getters = {}
 
 const mutations = {
+  SET_SPIDER_TOTAL (state, value) {
+    state.spiderTotal = value
+  },
   SET_SPIDER_FORM (state, value) {
     state.spiderForm = value
   },
@@ -71,14 +76,11 @@ const mutations = {
 }
 
 const actions = {
-  getSpiderList ({ state, commit }) {
-    let params = {}
-    if (state.filterSite) {
-      params.site = state.filterSite
-    }
+  getSpiderList ({ state, commit }, params = {}) {
     return request.get('/spiders', params)
       .then(response => {
-        commit('SET_SPIDER_LIST', response.data.data)
+        commit('SET_SPIDER_LIST', response.data.data.list)
+        commit('SET_SPIDER_TOTAL', response.data.data.total)
       })
   },
   editSpider ({ state, dispatch }) {

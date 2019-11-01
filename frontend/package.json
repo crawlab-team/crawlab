@@ -1,9 +1,9 @@
 {
   "name": "crawlab",
-  "version": "0.2.3",
+  "version": "0.3.5",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve --ip=0.0.0.0",
+    "serve": "vue-cli-service serve --ip=0.0.0.0 --mode=development",
     "serve:prod": "vue-cli-service serve --mode=production --ip=0.0.0.0",
     "config": "vue ui",
     "build:dev": "vue-cli-service build --mode development",

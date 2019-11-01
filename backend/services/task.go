@@ -3,9 +3,9 @@ package services
 import (
 	"crawlab/constants"
 	"crawlab/database"
+	"crawlab/entity"
 	"crawlab/lib/cron"
 	"crawlab/model"
-	"crawlab/services/msg_handler"
 	"crawlab/utils"
 	"encoding/json"
 	"errors"
@@ -18,6 +18,7 @@ import (
 	"runtime/debug"
 	"strconv"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -99,73 +100,143 @@ func AssignTask(task model.Task) error {
 	return nil
 }
 
+// 设置环境变量
+func SetEnv(cmd *exec.Cmd, envs []model.Env, taskId string, dataCol string) *exec.Cmd {
+	// 默认环境变量
+	cmd.Env = append(os.Environ(), "CRAWLAB_TASK_ID="+taskId)
+	cmd.Env = append(cmd.Env, "CRAWLAB_COLLECTION="+dataCol)
+	cmd.Env = append(cmd.Env, "PYTHONUNBUFFERED=0")
+	cmd.Env = append(cmd.Env, "PYTHONIOENCODING=utf-8")
+	cmd.Env = append(cmd.Env, "TZ=Asia/Shanghai")
+
+	//任务环境变量
+	for _, env := range envs {
+		cmd.Env = append(cmd.Env, env.Name+"="+env.Value)
+	}
+
+	// TODO 全局环境变量
+	return cmd
+}
+
+func SetLogConfig(cmd *exec.Cmd, path string) error {
+	fLog, err := os.Create(path)
+	if err != nil {
+		log.Errorf("create task log file error: %s", path)
+		debug.PrintStack()
+		return err
+	}
+	cmd.Stdout = fLog
+	cmd.Stderr = fLog
+	return nil
+}
+
+func FinishOrCancelTask(ch chan string, cmd *exec.Cmd, t model.Task) {
+	// 传入信号，此处阻塞
+	signal := <-ch
+	log.Infof("process received signal: %s", signal)
+
+	if signal == constants.TaskCancel && cmd.Process != nil {
+		// 取消进程
+		if err := syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL); err != nil {
+			log.Errorf("process kill error: %s", err.Error())
+			debug.PrintStack()
+
+			t.Error = "kill process error: " + err.Error()
+			t.Status = constants.StatusError
+		} else {
+			t.Error = "user kill the process ..."
+			t.Status = constants.StatusCancelled
+		}
+	} else {
+		// 保存任务
+		t.Status = constants.StatusFinished
+	}
+
+	t.FinishTs = time.Now()
+	_ = t.Save()
+}
+
+func StartTaskProcess(cmd *exec.Cmd, t model.Task) error {
+	if err := cmd.Start(); err != nil {
+		log.Errorf("start spider error:{}", err.Error())
+		debug.PrintStack()
+
+		t.Error = "start task error: " + err.Error()
+		t.Status = constants.StatusError
+		t.FinishTs = time.Now()
+		_ = t.Save()
+		return err
+	}
+	return nil
+}
+
+func WaitTaskProcess(cmd *exec.Cmd, t model.Task) error {
+	if err := cmd.Wait(); err != nil {
+		log.Errorf("wait process finish error: %s", err.Error())
+		debug.PrintStack()
+
+		if exitError, ok := err.(*exec.ExitError); ok {
+			exitCode := exitError.ExitCode()
+			log.Errorf("exit error, exit code: %d", exitCode)
+
+			// 非kill 的错误类型
+			if exitCode != -1 {
+				// 非手动kill保存为错误状态
+				t.Error = err.Error()
+				t.FinishTs = time.Now()
+				t.Status = constants.StatusError
+				_ = t.Save()
+			}
+		}
+
+		return err
+	}
+	return nil
+}
+
 // 执行shell命令
 func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (err error) {
-	log.Infof("cwd: " + cwd)
-	log.Infof("cmd: " + cmdStr)
+	log.Infof("cwd: %s", cwd)
+	log.Infof("cmd: %s", cmdStr)
 
 	// 生成执行命令
 	var cmd *exec.Cmd
 	if runtime.GOOS == constants.Windows {
 		cmd = exec.Command("cmd", "/C", cmdStr)
 	} else {
+		cmd = exec.Command("")
 		cmd = exec.Command("sh", "-c", cmdStr)
 	}
 
 	// 工作目录
 	cmd.Dir = cwd
 
-	// 指定stdout, stderr日志位置
-	fLog, err := os.Create(t.LogPath)
-	if err != nil {
-		HandleTaskError(t, err)
+	// 日志配置
+	if err := SetLogConfig(cmd, t.LogPath); err != nil {
 		return err
 	}
-	defer fLog.Close()
-	cmd.Stdout = fLog
-	cmd.Stderr = fLog
 
-	// 添加默认环境变量
-	cmd.Env = append(cmd.Env, "CRAWLAB_TASK_ID="+t.Id)
-	cmd.Env = append(cmd.Env, "CRAWLAB_COLLECTION="+s.Col)
-
-	// 添加任务环境变量
-	for _, env := range s.Envs {
-		cmd.Env = append(cmd.Env, env.Name+"="+env.Value)
-	}
+	// 环境变量配置
+	cmd = SetEnv(cmd, s.Envs, t.Id, s.Col)
 
 	// 起一个goroutine来监控进程
 	ch := utils.TaskExecChanMap.ChanBlocked(t.Id)
-	go func() {
-		// 传入信号，此处阻塞
-		signal := <-ch
 
-		if signal == constants.TaskCancel {
-			// 取消进程
-			if err := cmd.Process.Kill(); err != nil {
-				log.Errorf(err.Error())
-				debug.PrintStack()
-				return
-			}
-			t.Status = constants.StatusCancelled
-		}
+	go FinishOrCancelTask(ch, cmd, t)
 
-		// 保存任务
-		t.FinishTs = time.Now()
-		if err := t.Save(); err != nil {
-			log.Infof(err.Error())
-			debug.PrintStack()
-			return
-		}
-	}()
+	// kill的时候，可以kill所有的子进程
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
-	// 开始执行
-	if err := cmd.Run(); err != nil {
-		HandleTaskError(t, err)
+	// 启动进程
+	if err := StartTaskProcess(cmd, t); err != nil {
+		return err
+	}
+
+	// 同步等待进程完成
+	if err := WaitTaskProcess(cmd, t); err != nil {
 		return err
 	}
 	ch <- constants.TaskFinish
-
 	return nil
 }
 
@@ -177,6 +248,7 @@ func MakeLogDir(t model.Task) (fileDir string, err error) {
 	// 如果日志目录不存在，生成该目录
 	if !utils.Exists(fileDir) {
 		if err := os.MkdirAll(fileDir, 0777); err != nil {
+			log.Errorf("execute task, make log dir error: %s", err.Error())
 			debug.PrintStack()
 			return "", err
 		}
@@ -239,83 +311,56 @@ func ExecuteTask(id int) {
 	tic := time.Now()
 
 	// 获取当前节点
-	node, err := GetCurrentNode()
+	node, err := model.GetCurrentNode()
 	if err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		log.Errorf("execute task get current node error: %s", err.Error())
+		debug.PrintStack()
 		return
 	}
 
-	// 公共队列
-	queuePub := "tasks:public"
-
 	// 节点队列
 	queueCur := "tasks:node:" + node.Id.Hex()
-
 	// 节点队列任务
 	var msg string
-	msg, err = database.RedisClient.LPop(queueCur)
-	if err != nil {
-		if msg == "" {
-			// 节点队列没有任务，获取公共队列任务
-			msg, err = database.RedisClient.LPop(queuePub)
-			if err != nil {
-				if msg == "" {
-					// 公共队列没有任务
-					log.Debugf(GetWorkerPrefix(id) + "没有任务...")
-					return
-				} else {
-					log.Errorf(GetWorkerPrefix(id) + err.Error())
-					debug.PrintStack()
-					return
-				}
-			}
-		} else {
-			log.Errorf(GetWorkerPrefix(id) + err.Error())
-			debug.PrintStack()
-			return
+	if msg, err = database.RedisClient.LPop(queueCur); err != nil {
+		// 节点队列没有任务，获取公共队列任务
+		queuePub := "tasks:public"
+		if msg, err = database.RedisClient.LPop(queuePub); err != nil {
 		}
+	}
+
+	if msg == "" {
+		return
 	}
 
 	// 反序列化
 	tMsg := TaskMessage{}
 	if err := json.Unmarshal([]byte(msg), &tMsg); err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
-		debug.PrintStack()
+		log.Errorf("json string to struct error: %s", err.Error())
 		return
 	}
 
 	// 获取任务
 	t, err := model.GetTask(tMsg.Id)
 	if err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		log.Errorf("execute task, get task error: %s", err.Error())
 		return
 	}
 
 	// 获取爬虫
 	spider, err := t.GetSpider()
 	if err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		log.Errorf("execute task, get spider error: %s", err.Error())
 		return
 	}
 
 	// 创建日志目录
-	fileDir, err := MakeLogDir(t)
-	if err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
+	var fileDir string
+	if fileDir, err = MakeLogDir(t); err != nil {
 		return
 	}
-
 	// 获取日志文件路径
 	t.LogPath = GetLogFilePaths(fileDir)
-
-	// 创建日志目录文件夹
-	fileStdoutDir := filepath.Dir(t.LogPath)
-	if !utils.Exists(fileStdoutDir) {
-		if err := os.MkdirAll(fileStdoutDir, os.ModePerm); err != nil {
-			log.Errorf(GetWorkerPrefix(id) + err.Error())
-			return
-		}
-	}
 
 	// 工作目录
 	cwd := filepath.Join(
@@ -401,39 +446,37 @@ func ExecuteTask(id int) {
 
 func GetTaskLog(id string) (logStr string, err error) {
 	task, err := model.GetTask(id)
+
 	if err != nil {
-		return "", err
+		return
 	}
 
-	logStr = ""
 	if IsMasterNode(task.NodeId.Hex()) {
 		// 若为主节点，获取本机日志
 		logBytes, err := model.GetLocalLog(task.LogPath)
-		logStr = utils.BytesToString(logBytes)
 		if err != nil {
 			log.Errorf(err.Error())
 			logStr = err.Error()
-			// return "", err
 		} else {
 			logStr = utils.BytesToString(logBytes)
 		}
-
-	} else {
-		// 若不为主节点，获取远端日志
-		logStr, err = GetRemoteLog(task)
-		if err != nil {
-			log.Errorf(err.Error())
-			return "", err
-		}
+		return logStr, err
 	}
+	// 若不为主节点，获取远端日志
+	logStr, err = GetRemoteLog(task)
+	if err != nil {
+		log.Errorf(err.Error())
 
-	return logStr, nil
+	}
+	return logStr, err
 }
 
 func CancelTask(id string) (err error) {
 	// 获取任务
 	task, err := model.GetTask(id)
 	if err != nil {
+		log.Errorf("task not found, task id : %s, error: %s", id, err.Error())
+		debug.PrintStack()
 		return err
 	}
 
@@ -443,24 +486,36 @@ func CancelTask(id string) (err error) {
 	}
 
 	// 获取当前节点（默认当前节点为主节点）
-	node, err := GetCurrentNode()
+	node, err := model.GetCurrentNode()
 	if err != nil {
+		log.Errorf("get current node error: %s", err.Error())
+		debug.PrintStack()
 		return err
 	}
+
+	log.Infof("current node id is: %s", node.Id.Hex())
+	log.Infof("task node id is: %s", task.NodeId.Hex())
 
 	if node.Id == task.NodeId {
 		// 任务节点为主节点
 
 		// 获取任务执行频道
 		ch := utils.TaskExecChanMap.ChanBlocked(id)
-
-		// 发出取消进程信号
-		ch <- constants.TaskCancel
+		if ch != nil {
+			// 发出取消进程信号
+			ch <- constants.TaskCancel
+		} else {
+			if err := model.UpdateTaskToAbnormal(node.Id); err != nil {
+				log.Errorf("update task to abnormal : {}", err.Error())
+				debug.PrintStack()
+				return err
+			}
+		}
 	} else {
 		// 任务节点为工作节点
 
 		// 序列化消息
-		msg := msg_handler.NodeMessage{
+		msg := entity.NodeMessage{
 			Type:   constants.MsgTypeCancelTask,
 			TaskId: id,
 		}
