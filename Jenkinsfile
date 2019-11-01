@@ -16,15 +16,6 @@ pipeline {
                     } else if (env.GIT_BRANCH == 'master') {
                         env.TAG = 'master'
                         env.DOCKERFILE = 'Dockerfile.local'
-                    } else if (env.GIT_BRANCH == 'frontend') {
-                        env.TAG = 'frontend-alpine'
-                        env.DOCKERFILE = 'docker/Dockerfile.frontend.alpine'
-                    } else if (env.GIT_BRANCH == 'backend-master') {
-                        env.TAG = 'master-alpine'
-                        env.DOCKERFILE = 'docker/Dockerfile.master.alpine'
-                    } else if (env.GIT_BRANCH == 'backend-worker') {
-                        env.TAG = 'worker-alpine'
-                        env.DOCKERFILE = 'docker/Dockerfile.worker.alpine'
                     } 
                 }
             }
@@ -48,10 +39,7 @@ pipeline {
                 sh """
                 # 重启docker compose
                 cd ./jenkins/${ENV:GIT_BRANCH}
-                docker-compose stop master | true
-                docker-compose rm -f master | true
-                docker-compose stop worker | true
-                docker-compose rm -f worker | true
+                docker-compose down | true
                 docker-compose up -d | true
                 """
             }
