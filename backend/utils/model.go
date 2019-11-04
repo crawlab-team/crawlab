@@ -12,15 +12,16 @@ func IsObjectIdNull(id bson.ObjectId) bool {
 }
 
 func InterfaceToString(value interface{}) string {
-	switch value.(type) {
+	switch realValue := value.(type) {
 	case bson.ObjectId:
-		return value.(bson.ObjectId).Hex()
+		return realValue.Hex()
 	case string:
-		return value.(string)
+		return realValue
 	case int:
-		return strconv.Itoa(value.(int))
+		return strconv.Itoa(realValue)
 	case time.Time:
-		return value.(time.Time).String()
+		return realValue.String()
+	default:
+		return ""
 	}
-	return ""
 }

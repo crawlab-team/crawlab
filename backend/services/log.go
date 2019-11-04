@@ -74,7 +74,7 @@ func DeleteLogPeriodically() {
 	for _, fi := range rd {
 		if fi.IsDir() {
 			log.Info(filepath.Join(logDir, fi.Name()))
-			os.RemoveAll(filepath.Join(logDir, fi.Name()))
+			_ = os.RemoveAll(filepath.Join(logDir, fi.Name()))
 			log.Info("Delete Log File Success")
 		}
 	}

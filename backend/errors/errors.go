@@ -24,7 +24,6 @@ func (O OPError) Error() string {
 	switch O.Scope {
 	case ScopeSystem:
 		scope = "system"
-		break
 	case ScopeBusiness:
 		scope = "business"
 	}

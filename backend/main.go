@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crawlab/config"
 	"crawlab/database"
 	"crawlab/lib/validate_bridge"
@@ -12,7 +13,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/viper"
+	"net"
+	"net/http"
+	"os"
+	"os/signal"
 	"runtime/debug"
+	"syscall"
+	"time"
 )
 
 func main() {
@@ -166,8 +173,26 @@ func main() {
 	// 运行服务器
 	host := viper.GetString("server.host")
 	port := viper.GetString("server.port")
-	if err := app.Run(host + ":" + port); err != nil {
+	address := net.JoinHostPort(host, port)
+	srv := &http.Server{
+		Handler: app,
+		Addr:    address,
+	}
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			if err != http.ErrServerClosed {
+				log.Error("run server error:" + err.Error())
+			} else {
+				log.Info("server graceful down")
+			}
+		}
+	}()
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	ctx2, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx2); err != nil {
 		log.Error("run server error:" + err.Error())
-		panic(err)
 	}
 }

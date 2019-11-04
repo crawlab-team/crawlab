@@ -1,6 +1,10 @@
 package database
 
 import (
+	"context"
+	"crawlab/entity"
+	"crawlab/utils"
+	"github.com/apex/log"
 	"github.com/gomodule/redigo/redis"
 	"github.com/spf13/viper"
 	"runtime/debug"
@@ -18,7 +22,7 @@ func NewRedisClient() *Redis {
 }
 func (r *Redis) RPush(collection string, value interface{}) error {
 	c := r.pool.Get()
-	defer c.Close()
+	defer utils.Close(c)
 
 	if _, err := c.Do("RPUSH", collection, value); err != nil {
 		debug.PrintStack()
@@ -29,7 +33,7 @@ func (r *Redis) RPush(collection string, value interface{}) error {
 
 func (r *Redis) LPop(collection string) (string, error) {
 	c := r.pool.Get()
-	defer c.Close()
+	defer utils.Close(c)
 
 	value, err2 := redis.String(c.Do("LPOP", collection))
 	if err2 != nil {
@@ -40,7 +44,7 @@ func (r *Redis) LPop(collection string) (string, error) {
 
 func (r *Redis) HSet(collection string, key string, value string) error {
 	c := r.pool.Get()
-	defer c.Close()
+	defer utils.Close(c)
 
 	if _, err := c.Do("HSET", collection, key, value); err != nil {
 		debug.PrintStack()
@@ -51,7 +55,7 @@ func (r *Redis) HSet(collection string, key string, value string) error {
 
 func (r *Redis) HGet(collection string, key string) (string, error) {
 	c := r.pool.Get()
-	defer c.Close()
+	defer utils.Close(c)
 
 	value, err2 := redis.String(c.Do("HGET", collection, key))
 	if err2 != nil {
@@ -62,7 +66,7 @@ func (r *Redis) HGet(collection string, key string) (string, error) {
 
 func (r *Redis) HDel(collection string, key string) error {
 	c := r.pool.Get()
-	defer c.Close()
+	defer utils.Close(c)
 
 	if _, err := c.Do("HDEL", collection, key); err != nil {
 		return err
@@ -72,7 +76,7 @@ func (r *Redis) HDel(collection string, key string) error {
 
 func (r *Redis) HKeys(collection string) ([]string, error) {
 	c := r.pool.Get()
-	defer c.Close()
+	defer utils.Close(c)
 
 	value, err2 := redis.Strings(c.Do("HKeys", collection))
 	if err2 != nil {
@@ -118,5 +122,24 @@ func NewRedisPool() *redis.Pool {
 
 func InitRedis() error {
 	RedisClient = NewRedisClient()
+	return nil
+}
+
+func Pub(channel string, msg entity.NodeMessage) error {
+	if _, err := RedisClient.Publish(channel, utils.GetJson(msg)); err != nil {
+		log.Errorf("publish redis error: %s", err.Error())
+		debug.PrintStack()
+		return err
+	}
+	return nil
+}
+
+func Sub(channel string, consume ConsumeFunc) error {
+	ctx := context.Background()
+	if err := RedisClient.Subscribe(ctx, consume, channel); err != nil {
+		log.Errorf("subscribe redis error: %s", err.Error())
+		debug.PrintStack()
+		return err
+	}
 	return nil
 }

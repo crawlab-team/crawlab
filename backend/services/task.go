@@ -136,8 +136,15 @@ func FinishOrCancelTask(ch chan string, cmd *exec.Cmd, t model.Task) {
 	log.Infof("process received signal: %s", signal)
 
 	if signal == constants.TaskCancel && cmd.Process != nil {
+		var err error
+		// 兼容windows
+		if runtime.GOOS == constants.Windows {
+			err = cmd.Process.Kill()
+		} else {
+			err = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+		}
 		// 取消进程
-		if err := syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL); err != nil {
+		if err != nil {
 			log.Errorf("process kill error: %s", err.Error())
 			debug.PrintStack()
 
@@ -225,7 +232,9 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	go FinishOrCancelTask(ch, cmd, t)
 
 	// kill的时候，可以kill所有的子进程
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	if runtime.GOOS != constants.Windows {
+		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	}
 
 	// 启动进程
 	if err := StartTaskProcess(cmd, t); err != nil {
@@ -446,33 +455,29 @@ func ExecuteTask(id int) {
 
 func GetTaskLog(id string) (logStr string, err error) {
 	task, err := model.GetTask(id)
+
 	if err != nil {
-		return "", err
+		return
 	}
 
-	logStr = ""
 	if IsMasterNode(task.NodeId.Hex()) {
 		// 若为主节点，获取本机日志
 		logBytes, err := model.GetLocalLog(task.LogPath)
-		logStr = utils.BytesToString(logBytes)
 		if err != nil {
 			log.Errorf(err.Error())
 			logStr = err.Error()
-			// return "", err
 		} else {
 			logStr = utils.BytesToString(logBytes)
 		}
-
-	} else {
-		// 若不为主节点，获取远端日志
-		logStr, err = GetRemoteLog(task)
-		if err != nil {
-			log.Errorf(err.Error())
-			return "", err
-		}
+		return logStr, err
 	}
+	// 若不为主节点，获取远端日志
+	logStr, err = GetRemoteLog(task)
+	if err != nil {
+		log.Errorf(err.Error())
 
-	return logStr, nil
+	}
+	return logStr, err
 }
 
 func CancelTask(id string) (err error) {

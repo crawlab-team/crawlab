@@ -188,7 +188,7 @@ func DeleteNode(c *gin.Context) {
 	id := bson.ObjectId("5d429e6c19f7abede924fee2")
 
 	for _, node := range NodeList {
-		if node.Id == bson.ObjectId(id) {
+		if node.Id == id {
 			log.Infof("Delete a node")
 		}
 	}
