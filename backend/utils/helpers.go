@@ -37,6 +37,6 @@ func GetMessage(message redis.Message) *entity.NodeMessage {
 func Close(c io.Closer) {
 	err := c.Close()
 	if err != nil {
-		log.WithError(err).Error("关闭资源文件失败。")
+		//log.WithError(err).Error("关闭资源文件失败。")
 	}
 }
