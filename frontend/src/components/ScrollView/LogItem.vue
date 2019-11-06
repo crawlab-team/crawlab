@@ -1,7 +1,7 @@
 <template>
   <div class="log-item">
     <div class="line-no">{{index}}</div>
-    <div class="line-content">{{data}}</div>
+    <div class="line-content" ><span v-if="isAnsi" v-html="data">{{data}}</span><span v-else="">{{data}}</span></div>
   </div>
 </template>
 
@@ -16,10 +16,15 @@ export default {
     data: {
       type: String,
       default: ''
+    },
+    isAnsi: {
+      type: Boolean,
+      default: false
     }
   }
 }
 </script>
+
 
 <style scoped>
   .log-item {
