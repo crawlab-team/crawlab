@@ -18,6 +18,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.9.0",
     "@fortawesome/vue-fontawesome": "^0.1.6",
     "@tinymce/tinymce-vue": "^2.0.0",
+    "ansi-to-html": "^0.6.13",
     "axios": "0.18.0",
     "cross-env": "^5.2.0",
     "dayjs": "^1.8.6",
