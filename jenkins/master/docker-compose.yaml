@@ -3,7 +3,7 @@ services:
   master: 
     image: "tikazyq/crawlab:master"
     environment:
-      CRAWLAB_API_ADDRESS: "crawlab.cn/api"
+      CRAWLAB_API_ADDRESS: "http://crawlab.cn/api"
       CRAWLAB_BASE_URL: "/demo"
       CRAWLAB_SERVER_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
@@ -27,10 +27,14 @@ services:
   mongo:
     image: mongo:latest
     restart: always
+    volumes:
+      - "/opt/crawlab/mongo/data/db:/data/db"
     ports:
       - "27017:27017"
   redis:
     image: redis:latest
     restart: always
+    volumes:
+      - "/opt/crawlab/redis/data:/data"
     ports:
       - "6379:6379"
