@@ -6,6 +6,7 @@ import (
 	"net"
 	"reflect"
 	"runtime/debug"
+	"sync"
 )
 
 type Register interface {
@@ -97,25 +98,31 @@ func getMac() (string, error) {
 var register Register
 
 // 获得注册器
-func GetRegister() Register {
-	if register != nil {
-		return register
-	}
+var once sync.Once
 
-	registerType := viper.GetString("server.register.type")
-	if registerType == "mac" {
-		register = &MacRegister{}
-	} else {
-		ip := viper.GetString("server.register.ip")
-		if ip == "" {
-			log.Error("server.register.ip is empty")
-			debug.PrintStack()
-			return nil
+func GetRegister() Register {
+	once.Do(func() {
+
+		if register != nil {
+			register = register
 		}
-		register = &IpRegister{
-			Ip: ip,
+
+		registerType := viper.GetString("server.register.type")
+		if registerType == "mac" {
+			register = &MacRegister{}
+		} else {
+			ip := viper.GetString("server.register.ip")
+			if ip == "" {
+				log.Error("server.register.ip is empty")
+				debug.PrintStack()
+				register = nil
+			}
+			register = &IpRegister{
+				Ip: ip,
+			}
 		}
-	}
-	log.Info("register type is :" + reflect.TypeOf(register).String())
+		log.Info("register type is :" + reflect.TypeOf(register).String())
+
+	})
 	return register
 }
