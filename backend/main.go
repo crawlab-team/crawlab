@@ -110,7 +110,6 @@ func main() {
 	if model.IsMaster() {
 		// 中间件
 		app.Use(middlewares.CORSMiddleware())
-		//app.Use(middlewares.AuthorizationMiddleware())
 		anonymousGroup := app.Group("/")
 		{
 			anonymousGroup.POST("/login", routes.Login)  // 用户登录
