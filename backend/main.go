@@ -140,6 +140,8 @@ func main() {
 			authGroup.GET("/spiders/:id/dir", routes.GetSpiderDir)       // 爬虫目录
 			authGroup.GET("/spiders/:id/stats", routes.GetSpiderStats)   // 爬虫统计数据
 			authGroup.GET("/spider/types", routes.GetSpiderTypes)        // 爬虫类型
+			// 可配置爬虫
+			authGroup.PUT("/config_spiders", routes.PutConfigSpider) // 添加可配置爬虫
 			// 任务
 			authGroup.GET("/tasks", routes.GetTaskList)                                 // 任务列表
 			authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情

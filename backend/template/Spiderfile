@@ -1,0 +1,12 @@
+version: 0.4.0
+startUrl: "https://baidu.com/s?wd=crawlab"
+stages:
+  stage1:
+    list: false # default: false
+    css: "#content_left > .result"
+    fields:
+      - name: "title"
+        css: "a"
+      - name: "url"
+        css: "a"
+        attr: "href"
