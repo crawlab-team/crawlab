@@ -1,21 +1,25 @@
-version: 0.4.0
-start_url: "https://baidu.com/s?wd=crawlab"
-start_stage: "stage_4"
+version: "0.4.0"
+name: "toscrapy_books"
+start_url: "http://books.toscrape.com"
+start_stage: "list"
 engine: "scrapy"
 stages:
-  stage_1:
+  list:
     is_list: true # default: false
-    list_css: "#content_left > .result"
-    page_css: "#page > a.n:last-child"
+    list_css: "section article.product_pod"
+    page_css: "ul.pager li.next a"
+    page_attr: "href" # default: href
     fields:
       - name: "title"
-        css: "a"
+        css: "h3 > a"
       - name: "url"
-        css: "a"
+        css: "h3 > a"
         attr: "href"
-        next_stage: "stage_2"
-  stage_2:
+        next_stage: "detail"
+      - name: "price"
+        css: ".product_price > .price_color"
+  detail:
     is_list: false
     fields:
-      - name: "stage_2_field_1"
-        css: "a"
+      - name: "description"
+        css: "#product_description + p"

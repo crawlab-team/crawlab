@@ -72,7 +72,7 @@ func (g ScrapyGenerator) ProcessSpider() error {
 	filePath := filepath.Join(src, "config_spider", "spiders", "spider.py")
 
 	// 替换 start_stage
-	if err := utils.SetFileVariable(filePath, constants.AnchorStartStage, GetStartStageName(g.ConfigData)); err != nil {
+	if err := utils.SetFileVariable(filePath, constants.AnchorStartStage, "parse_"+GetStartStageName(g.ConfigData)); err != nil {
 		return err
 	}
 
@@ -96,15 +96,15 @@ func (g ScrapyGenerator) ProcessSpider() error {
 
 func (g ScrapyGenerator) GetParserString(stageName string, stage entity.Stage) string {
 	// 构造函数定义行
-	strDef := g.PadCode(fmt.Sprintf("def %s(self, response):", stageName), 1)
+	strDef := g.PadCode(fmt.Sprintf("def parse_%s(self, response):", stageName), 1)
 
 	strParse := ""
 	if stage.IsList {
 		// 列表逻辑
-		strParse = g.GetListParserString(stage)
+		strParse = g.GetListParserString(stageName, stage)
 	} else {
 		// 非列表逻辑
-		strParse = g.GetNonListParserString(stage)
+		strParse = g.GetNonListParserString(stageName, stage)
 	}
 
 	// 构造
@@ -116,14 +116,14 @@ func (g ScrapyGenerator) GetParserString(stageName string, stage entity.Stage) s
 func (g ScrapyGenerator) PadCode(str string, num int) string {
 	res := ""
 	for i := 0; i < num; i++ {
-		res += "\t"
+		res += "    "
 	}
 	res += str
 	res += "\n"
 	return res
 }
 
-func (g ScrapyGenerator) GetNonListParserString(stage entity.Stage) string {
+func (g ScrapyGenerator) GetNonListParserString(stageName string, stage entity.Stage) string {
 	str := ""
 
 	// 获取或构造item
@@ -133,9 +133,9 @@ func (g ScrapyGenerator) GetNonListParserString(stage entity.Stage) string {
 	for _, f := range stage.Fields {
 		line := ""
 		if f.Attr == "" {
-			line += fmt.Sprintf(`item['%s'] = response.css('%s::text).extract_first()')`, f.Name, f.Css)
+			line += fmt.Sprintf(`item['%s'] = response.css('%s::text').extract_first()`, f.Name, f.Css)
 		} else {
-			line += fmt.Sprintf(`item['%s'] = response.css('%s::attr("%s")).extract_first()')`, f.Name, f.Css, f.Attr)
+			line += fmt.Sprintf(`item['%s'] = response.css('%s::attr("%s")').extract_first()`, f.Name, f.Css, f.Attr)
 		}
 		line = g.PadCode(line, 2)
 		str += line
@@ -144,7 +144,7 @@ func (g ScrapyGenerator) GetNonListParserString(stage entity.Stage) string {
 	// next stage 字段
 	if f, err := g.GetNextStageField(stage); err == nil {
 		// 如果找到 next stage 字段，进行下一个回调
-		str += g.PadCode(fmt.Sprintf(`yield scrapy.Request(url="item['%s']", callback='%s', meta={'item': item})`, f.Name, f.NextStage), 2)
+		str += g.PadCode(fmt.Sprintf(`yield scrapy.Request(url="get_real_url(response, item['%s'])", callback=self.parse_%s, meta={'item': item})`, f.Name, f.NextStage), 2)
 	} else {
 		// 如果没找到 next stage 字段，返回 item
 		str += g.PadCode(fmt.Sprintf(`yield item`), 2)
@@ -156,14 +156,14 @@ func (g ScrapyGenerator) GetNonListParserString(stage entity.Stage) string {
 	return str
 }
 
-func (g ScrapyGenerator) GetListParserString(stage entity.Stage) string {
+func (g ScrapyGenerator) GetListParserString(stageName string, stage entity.Stage) string {
 	str := ""
 
 	// 获取前一个 stage 的 item
 	str += g.PadCode(`prev_item = response.meta.get('item')`, 2)
 
 	// for 循环遍历列表
-	str += g.PadCode(fmt.Sprintf(`for elem in response.css('%s')`, stage.ListCss), 2)
+	str += g.PadCode(fmt.Sprintf(`for elem in response.css('%s'):`, stage.ListCss), 2)
 
 	// 构造item
 	str += g.PadCode(`item = Item()`, 3)
@@ -172,9 +172,9 @@ func (g ScrapyGenerator) GetListParserString(stage entity.Stage) string {
 	for _, f := range stage.Fields {
 		line := ""
 		if f.Attr == "" {
-			line += fmt.Sprintf(`item['%s'] = elem.css('%s::text).extract_first()')`, f.Name, f.Css)
+			line += fmt.Sprintf(`item['%s'] = elem.css('%s::text').extract_first()`, f.Name, f.Css)
 		} else {
-			line += fmt.Sprintf(`item['%s'] = elem.css('%s::attr("%s")).extract_first()')`, f.Name, f.Css, f.Attr)
+			line += fmt.Sprintf(`item['%s'] = elem.css('%s::attr("%s")').extract_first()`, f.Name, f.Css, f.Attr)
 		}
 		line = g.PadCode(line, 3)
 		str += line
@@ -188,7 +188,7 @@ func (g ScrapyGenerator) GetListParserString(stage entity.Stage) string {
 	// next stage 字段
 	if f, err := g.GetNextStageField(stage); err == nil {
 		// 如果找到 next stage 字段，进行下一个回调
-		str += g.PadCode(fmt.Sprintf(`yield scrapy.Request(url="item['%s']", callback='%s', meta={'item': item})`, f.Name, f.NextStage), 3)
+		str += g.PadCode(fmt.Sprintf(`yield scrapy.Request(url=get_real_url(response, item['%s']), callback=self.parse_%s, meta={'item': item})`, f.Name, f.NextStage), 3)
 	} else {
 		// 如果没找到 next stage 字段，返回 item
 		str += g.PadCode(fmt.Sprintf(`yield item`), 3)
@@ -196,8 +196,14 @@ func (g ScrapyGenerator) GetListParserString(stage entity.Stage) string {
 
 	// 分页
 	if stage.PageCss != "" {
-		str += g.PadCode(fmt.Sprintf(`next_url = response.css('%s').extract_first()`, stage.PageCss), 2)
-		str += g.PadCode(`yield scrapy.Request(url=next_url, meta={'item': item})`, 2)
+		// 分页元素属性，默认为 href
+		pageAttr := "href"
+		if stage.PageAttr != "" {
+			pageAttr = stage.PageAttr
+		}
+
+		str += g.PadCode(fmt.Sprintf(`next_url = response.css('%s::attr("%s")').extract_first()`, stage.PageCss, pageAttr), 2)
+		str += g.PadCode(fmt.Sprintf(`yield scrapy.Request(url=get_real_url(response, next_url), callback=self.parse_%s, meta={'item': item})`, stageName), 2)
 	}
 
 	// 加入末尾换行

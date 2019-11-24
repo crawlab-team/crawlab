@@ -5,10 +5,8 @@ import "crawlab/entity"
 func GetAllFields(data entity.ConfigSpiderData) []entity.Field {
 	var fields []entity.Field
 	for _, stage := range data.Stages {
-		if stage.IsList {
-			for _, field := range stage.Fields {
-				fields = append(fields, field)
-			}
+		for _, field := range stage.Fields {
+			fields = append(fields, field)
 		}
 	}
 	return fields

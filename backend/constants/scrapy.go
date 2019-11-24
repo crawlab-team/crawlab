@@ -1,5 +1,5 @@
 package constants
 
-const ScrapyProtectedStageNames = "start_requests"
+const ScrapyProtectedStageNames = ""
 
 const ScrapyProtectedFieldNames = "_id,task_id,ts"
