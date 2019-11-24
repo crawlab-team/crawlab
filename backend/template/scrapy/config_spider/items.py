@@ -9,5 +9,4 @@ import scrapy
 
 
 class Item(scrapy.Item):
-    ###ITEMS###
-    pass
+###ITEMS###

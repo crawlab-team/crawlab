@@ -171,12 +171,13 @@ func UploadConfigSpider(c *gin.Context) {
 
 		srcPath := filepath.Join(tplDir, fInfo.Name())
 		if fInfo.IsDir() {
-			if err := utils.CopyDir(srcPath, spiderDir); err != nil {
+			dirPath := filepath.Join(spiderDir, fInfo.Name())
+			if err := utils.CopyDir(srcPath, dirPath); err != nil {
 				HandleError(http.StatusInternalServerError, c, err)
 				return
 			}
 		} else {
-			if _, err := utils.CopyFile(srcPath, filepath.Join(spiderDir, fInfo.Name())); err != nil {
+			if err := utils.CopyFile(srcPath, filepath.Join(spiderDir, fInfo.Name())); err != nil {
 				HandleError(http.StatusInternalServerError, c, err)
 				return
 			}

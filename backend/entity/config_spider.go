@@ -16,8 +16,9 @@ type Stage struct {
 }
 
 type ConfigSpiderData struct {
-	Version  string           `yaml:"version" json:"version"`
-	Engine   string           `yaml:"engine" json:"engine"`
-	StartUrl string           `yaml:"start_url" json:"start_url"`
-	Stages   map[string]Stage `yaml:"stages" json:"stages"`
+	Version    string           `yaml:"version" json:"version"`
+	Engine     string           `yaml:"engine" json:"engine"`
+	StartUrl   string           `yaml:"start_url" json:"start_url"`
+	StartStage string           `yaml:"start_stage" json:"start_stage"`
+	Stages     map[string]Stage `yaml:"stages" json:"stages"`
 }

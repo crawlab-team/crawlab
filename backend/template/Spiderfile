@@ -1,5 +1,6 @@
 version: 0.4.0
 start_url: "https://baidu.com/s?wd=crawlab"
+start_stage: "stage_4"
 engine: "scrapy"
 stages:
   stage_1:
@@ -14,6 +15,7 @@ stages:
         attr: "href"
         next_stage: "stage_2"
   stage_2:
-    list: false
+    is_list: false
     fields:
-      - name: ""
+      - name: "stage_2_field_1"
+        css: "a"

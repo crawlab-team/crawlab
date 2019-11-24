@@ -15,6 +15,16 @@ func GetAllFields(data entity.ConfigSpiderData) []entity.Field {
 }
 
 func GetStartStageName(data entity.ConfigSpiderData) string {
+	// 如果 start_stage 设置了且在 stages 里，则返回
+	if data.StartStage != "" {
+		for stageName := range data.Stages {
+			if stageName == data.StartStage {
+				return data.StartStage
+			}
+		}
+	}
+
+	// 否则返回第一个 stage
 	for stageName := range data.Stages {
 		return stageName
 	}
