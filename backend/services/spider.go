@@ -117,14 +117,11 @@ func PublishAllSpiders() {
 // 发布爬虫
 func PublishSpider(spider model.Spider) {
 	// 查询gf file，不存在则标记为爬虫文件不存在
-	var gfFile *model.GridFs
-	if spider.Type == constants.Customized {
-		gfFile = model.GetGridFs(spider.FileId)
-		if gfFile == nil {
-			spider.FileId = constants.ObjectIdNull
-			_ = spider.Save()
-			return
-		}
+	gfFile := model.GetGridFs(spider.FileId)
+	if gfFile == nil {
+		spider.FileId = constants.ObjectIdNull
+		_ = spider.Save()
+		return
 	}
 
 	// 如果FileId为空，表示还没有上传爬虫到GridFS，则跳过

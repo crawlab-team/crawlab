@@ -8,7 +8,6 @@
 import scrapy
 
 
-class ConfigSpiderItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
+class Item(scrapy.Item):
+    ###ITEMS###
     pass

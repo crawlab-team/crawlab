@@ -1,12 +1,19 @@
 version: 0.4.0
 start_url: "https://baidu.com/s?wd=crawlab"
+engine: "scrapy"
 stages:
-  stage1:
-    list: false # default: false
+  stage_1:
+    is_list: true # default: false
     list_css: "#content_left > .result"
+    page_css: "#page > a.n:last-child"
     fields:
       - name: "title"
         css: "a"
       - name: "url"
         css: "a"
         attr: "href"
+        next_stage: "stage_2"
+  stage_2:
+    list: false
+    fields:
+      - name: ""
