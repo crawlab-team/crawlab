@@ -36,7 +36,7 @@ func GetTaskList(c *gin.Context) {
 		data.PageNum = 1
 	}
 	if data.PageSize == 0 {
-		data.PageNum = 10
+		data.PageSize = 10
 	}
 
 	// 过滤条件
