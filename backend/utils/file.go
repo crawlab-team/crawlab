@@ -276,40 +276,40 @@ func GetFilesFromDir(dirPath string) ([]*os.File, error) {
 // File copies a single file from src to dst
 func CopyFile(src, dst string) error {
 	var err error
-	var srcfd *os.File
-	var dstfd *os.File
-	var srcinfo os.FileInfo
+	var srcFd *os.File
+	var dstFd *os.File
+	var srcInfo os.FileInfo
 
-	if srcfd, err = os.Open(src); err != nil {
+	if srcFd, err = os.Open(src); err != nil {
 		return err
 	}
-	defer srcfd.Close()
+	defer srcFd.Close()
 
-	if dstfd, err = os.Create(dst); err != nil {
+	if dstFd, err = os.Create(dst); err != nil {
 		return err
 	}
-	defer dstfd.Close()
+	defer dstFd.Close()
 
-	if _, err = io.Copy(dstfd, srcfd); err != nil {
+	if _, err = io.Copy(dstFd, srcFd); err != nil {
 		return err
 	}
-	if srcinfo, err = os.Stat(src); err != nil {
+	if srcInfo, err = os.Stat(src); err != nil {
 		return err
 	}
-	return os.Chmod(dst, srcinfo.Mode())
+	return os.Chmod(dst, srcInfo.Mode())
 }
 
 // Dir copies a whole directory recursively
 func CopyDir(src string, dst string) error {
 	var err error
 	var fds []os.FileInfo
-	var srcinfo os.FileInfo
+	var srcInfo os.FileInfo
 
-	if srcinfo, err = os.Stat(src); err != nil {
+	if srcInfo, err = os.Stat(src); err != nil {
 		return err
 	}
 
-	if err = os.MkdirAll(dst, srcinfo.Mode()); err != nil {
+	if err = os.MkdirAll(dst, srcInfo.Mode()); err != nil {
 		return err
 	}
 

@@ -369,7 +369,14 @@ func ExecuteTask(id int) {
 	)
 
 	// 执行命令
-	cmd := spider.Cmd
+	var cmd string
+	if spider.Type == constants.Configurable {
+		// 可配置爬虫命令
+		cmd = "scrapy crawl config_spider"
+	} else {
+		// 自定义爬虫命令
+		cmd = spider.Cmd
+	}
 
 	// 加入参数
 	if t.Param != "" {
