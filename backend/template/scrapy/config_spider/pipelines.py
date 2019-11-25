@@ -16,7 +16,7 @@ mongo = MongoClient(
     authSource=os.environ.get('CRAWLAB_MONGO_AUTHSOURCE') or 'admin'
 )
 db = mongo[os.environ.get('CRAWLAB_MONGO_DB') or 'test']
-col_name = os.environ.get('CRAWLAB_COLLECTION') or 'test'
+col = db[os.environ.get('CRAWLAB_COLLECTION') or 'test']
 task_id = os.environ.get('CRAWLAB_TASK_ID')
 
 class ConfigSpiderPipeline(object):
