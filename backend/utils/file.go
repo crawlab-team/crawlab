@@ -199,8 +199,7 @@ func Compress(files []*os.File, dest string) error {
 	w := zip.NewWriter(d)
 	defer Close(w)
 	for _, file := range files {
-		err := _Compress(file, "", w)
-		if err != nil {
+		if err := _Compress(file, "", w); err != nil {
 			return err
 		}
 	}
@@ -255,6 +254,18 @@ func _Compress(file *os.File, prefix string, zw *zip.Writer) error {
 }
 
 func GetFilesFromDir(dirPath string) ([]*os.File, error) {
+	var res []*os.File
+	for _, fInfo := range ListDir(dirPath) {
+		f, err := os.Open(filepath.Join(dirPath, fInfo.Name()))
+		if err != nil {
+			return res, err
+		}
+		res = append(res, f)
+	}
+	return res, nil
+}
+
+func GetAllFilesFromDir(dirPath string) ([]*os.File, error) {
 	var res []*os.File
 	if err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
 		if !IsDir(path) {
