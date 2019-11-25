@@ -254,6 +254,25 @@ func _Compress(file *os.File, prefix string, zw *zip.Writer) error {
 	return nil
 }
 
+func GetFilesFromDir(dirPath string) ([]*os.File, error) {
+	var res []*os.File
+	if err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
+		if !IsDir(path) {
+			f, err2 := os.Open(path)
+			if err2 != nil {
+				return err
+			}
+			res = append(res, f)
+		}
+		return nil
+	}); err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return res, err
+	}
+	return res, nil
+}
+
 // File copies a single file from src to dst
 func CopyFile(src, dst string) error {
 	var err error
