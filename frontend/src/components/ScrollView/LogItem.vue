@@ -25,7 +25,6 @@ export default {
 }
 </script>
 
-
 <style scoped>
   .log-item {
     display: table;
