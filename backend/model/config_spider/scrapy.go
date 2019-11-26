@@ -131,12 +131,7 @@ func (g ScrapyGenerator) GetNonListParserString(stageName string, stage entity.S
 
 	// 遍历字段列表
 	for _, f := range stage.Fields {
-		line := ""
-		if f.Attr == "" {
-			line += fmt.Sprintf(`item['%s'] = response.css('%s::text').extract_first()`, f.Name, f.Css)
-		} else {
-			line += fmt.Sprintf(`item['%s'] = response.css('%s::attr("%s")').extract_first()`, f.Name, f.Css, f.Attr)
-		}
+		line := fmt.Sprintf(`item['%s'] = response.%s.extract_first()`, f.Name, g.GetExtractStringFromField(f))
 		line = g.PadCode(line, 2)
 		str += line
 	}
@@ -170,12 +165,7 @@ func (g ScrapyGenerator) GetListParserString(stageName string, stage entity.Stag
 
 	// 遍历字段列表
 	for _, f := range stage.Fields {
-		line := ""
-		if f.Attr == "" {
-			line += fmt.Sprintf(`item['%s'] = elem.css('%s::text').extract_first()`, f.Name, f.Css)
-		} else {
-			line += fmt.Sprintf(`item['%s'] = elem.css('%s::attr("%s")').extract_first()`, f.Name, f.Css, f.Attr)
-		}
+		line := fmt.Sprintf(`item['%s'] = elem.%s.extract_first()`, f.Name, g.GetExtractStringFromField(f))
 		line = g.PadCode(line, 3)
 		str += line
 	}
@@ -195,14 +185,8 @@ func (g ScrapyGenerator) GetListParserString(stageName string, stage entity.Stag
 	}
 
 	// 分页
-	if stage.PageCss != "" {
-		// 分页元素属性，默认为 href
-		pageAttr := "href"
-		if stage.PageAttr != "" {
-			pageAttr = stage.PageAttr
-		}
-
-		str += g.PadCode(fmt.Sprintf(`next_url = response.css('%s::attr("%s")').extract_first()`, stage.PageCss, pageAttr), 2)
+	if stage.PageCss != "" || stage.PageXpath != "" {
+		str += g.PadCode(fmt.Sprintf(`next_url = response.%s.extract_first()`, g.GetExtractStringFromStage(stage)), 2)
 		str += g.PadCode(fmt.Sprintf(`yield scrapy.Request(url=get_real_url(response, next_url), callback=self.parse_%s, meta={'item': item})`, stageName), 2)
 	}
 
@@ -225,4 +209,42 @@ func (g ScrapyGenerator) GetNextStageField(stage entity.Stage) (entity.Field, er
 		}
 	}
 	return entity.Field{}, errors.New("cannot find next stage field")
+}
+
+func (g ScrapyGenerator) GetExtractStringFromField(f entity.Field) string {
+	if f.Css != "" {
+		// 如果为CSS
+		if f.Attr == "" {
+			// 文本
+			return fmt.Sprintf(`css(%s::text())`, f.Css)
+		} else {
+			// 属性
+			return fmt.Sprintf(`css(%s::attr("%s"))`, f.Css, f.Attr)
+		}
+	} else {
+		// 如果为XPath
+		if f.Attr == "" {
+			// 文本
+			return fmt.Sprintf(`xpath(%s/text())`, f.Xpath)
+		} else {
+			// 属性
+			return fmt.Sprintf(`xpath(%s/@%s)`, f.Xpath, f.Attr)
+		}
+	}
+}
+
+func (g ScrapyGenerator) GetExtractStringFromStage(stage entity.Stage) string {
+	// 分页元素属性，默认为 href
+	pageAttr := "href"
+	if stage.PageAttr != "" {
+		pageAttr = stage.PageAttr
+	}
+
+	if stage.PageCss != "" {
+		// 如果为CSS
+		return fmt.Sprintf(`css(%s::attr("%s"))`, stage.PageCss, pageAttr)
+	} else {
+		// 如果为XPath
+		return fmt.Sprintf(`xpath(%s/@%s)`, stage.PageXpath, pageAttr)
+	}
 }

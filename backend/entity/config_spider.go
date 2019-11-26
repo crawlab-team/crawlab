@@ -9,11 +9,13 @@ type Field struct {
 }
 
 type Stage struct {
-	IsList   bool    `yaml:"is_list" json:"is_list"`
-	ListCss  string  `yaml:"list_css" json:"list_css"`
-	PageCss  string  `yaml:"page_css" json:"page_css"`
-	PageAttr string  `yaml:"page_attr" json:"page_attr"`
-	Fields   []Field `yaml:"fields" json:"fields"`
+	IsList    bool    `yaml:"is_list" json:"is_list"`
+	ListCss   string  `yaml:"list_css" json:"list_css"`
+	ListXpath string  `yaml:"list_xpath" json:"list_xpath"`
+	PageCss   string  `yaml:"page_css" json:"page_css"`
+	PageXpath string  `yaml:"page_xpath" json:"page_xpath"`
+	PageAttr  string  `yaml:"page_attr" json:"page_attr"`
+	Fields    []Field `yaml:"fields" json:"fields"`
 }
 
 type ConfigSpiderData struct {

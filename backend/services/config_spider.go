@@ -92,10 +92,20 @@ func ValidateSpiderfile(configData entity.ConfigSpiderData) error {
 				hasNextStage = true
 			}
 
-			// 字段里 CSS 和 XPath 只能包含一个
+			// 字段里 css 和 xpath 只能包含一个
 			if field.Css != "" && field.Xpath != "" {
-				return errors.New(fmt.Sprintf("spiderfile invalid: field '%s' in stage '%s' has both CSS and XPath set which is prohibited", field.Name, stageName))
+				return errors.New(fmt.Sprintf("spiderfile invalid: field '%s' in stage '%s' has both css and xpath set which is prohibited", field.Name, stageName))
 			}
+		}
+
+		// stage 里 page_css 和 page_xpath 只能包含一个
+		if stage.PageCss != "" && stage.PageXpath != "" {
+			return errors.New(fmt.Sprintf("spiderfile invalid: stage '%s' has both page_css and page_xpath set which is prohibited", stageName))
+		}
+
+		// stage 里 list_css 和 list_xpath 只能包含一个
+		if stage.ListCss != "" && stage.ListXpath != "" {
+			return errors.New(fmt.Sprintf("spiderfile invalid: stage '%s' has both list_css and list_xpath set which is prohibited", stageName))
 		}
 
 		// 如果 stage 的 is_list 为 true 但 list_css 为空，报错
