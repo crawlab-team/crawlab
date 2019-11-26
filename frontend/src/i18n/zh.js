@@ -125,6 +125,8 @@ export default {
   'Customized Spider': '自定义爬虫',
   'Configurable': '可配置',
   'Customized': '自定义',
+  'configurable': '可配置',
+  'customized': '自定义',
   'Text': '文本',
   'Attribute': '属性',
   'Field Name': '字段名称',
@@ -148,6 +150,7 @@ export default {
   'List Page Fields': '列表页字段',
   'Detail Page Fields': '详情页字段',
   'Detail Page URL': '详情页URL',
+  'All': '全部',
 
   // 爬虫列表
   'Name': '名称',

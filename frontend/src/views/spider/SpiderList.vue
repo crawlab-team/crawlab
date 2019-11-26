@@ -93,7 +93,8 @@
           </el-upload>
         </el-form-item>
       </el-form>
-      <el-alert type="error" :title="$t('Please zip your spider files from the root directory')" :closable="false"></el-alert>
+      <el-alert type="error" :title="$t('Please zip your spider files from the root directory')"
+                :closable="false"></el-alert>
     </el-dialog>
     <!--./customized spider dialog-->
 
@@ -143,6 +144,14 @@
       </div>
       <!--./filter-->
 
+      <!--tabs-->
+      <el-tabs v-model="activeTab" @tab-click="onClickTab">
+        <el-tab-pane :label="$t('All')" name="all"></el-tab-pane>
+        <el-tab-pane :label="$t('Configurable')" name="configurable"></el-tab-pane>
+        <el-tab-pane :label="$t('Customized')" name="customized"></el-tab-pane>
+      </el-tabs>
+      <!--./tabs-->
+
       <!--table list-->
       <el-table :data="spiderList"
                 class="table"
@@ -157,7 +166,7 @@
                            align="left"
                            :width="col.width">
             <template slot-scope="scope">
-              {{scope.row.type === 'customized' ? '自定义' : scope.row.type}}
+              {{$t(scope.row.type)}}
             </template>
           </el-table-column>
           <el-table-column v-else-if="col.name === 'last_5_errors'"
@@ -249,6 +258,7 @@ import dayjs from 'dayjs'
 import CrawlConfirmDialog from '../../components/Common/CrawlConfirmDialog'
 import StatusTag from '../../components/Status/StatusTag'
 import request from '../../api/request'
+
 export default {
   name: 'SpiderList',
   components: {
@@ -287,7 +297,8 @@ export default {
       spiderFormRules: {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
       },
-      fileList: []
+      fileList: [],
+      activeTab: 'all'
     }
   },
   computed: {
