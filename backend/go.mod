@@ -17,4 +17,5 @@ require (
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337
 	github.com/spf13/viper v1.4.0
 	gopkg.in/go-playground/validator.v9 v9.29.1
+	gopkg.in/yaml.v2 v2.2.2
 )

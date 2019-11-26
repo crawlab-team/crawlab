@@ -3,11 +3,15 @@ package utils
 import (
 	"archive/zip"
 	"bufio"
+	"fmt"
 	"github.com/apex/log"
 	"io"
+	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"runtime/debug"
+	"strings"
 )
 
 // 删除文件
@@ -69,6 +73,16 @@ func IsDir(path string) bool {
 		return false
 	}
 	return s.IsDir()
+}
+
+func ListDir(path string) []os.FileInfo {
+	list, err := ioutil.ReadDir(path)
+	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return nil
+	}
+	return list
 }
 
 // 判断所给路径是否为文件
@@ -185,8 +199,7 @@ func Compress(files []*os.File, dest string) error {
 	w := zip.NewWriter(d)
 	defer Close(w)
 	for _, file := range files {
-		err := _Compress(file, "", w)
-		if err != nil {
+		if err := _Compress(file, "", w); err != nil {
 			return err
 		}
 	}
@@ -237,5 +250,130 @@ func _Compress(file *os.File, prefix string, zw *zip.Writer) error {
 			return err
 		}
 	}
+	return nil
+}
+
+func GetFilesFromDir(dirPath string) ([]*os.File, error) {
+	var res []*os.File
+	for _, fInfo := range ListDir(dirPath) {
+		f, err := os.Open(filepath.Join(dirPath, fInfo.Name()))
+		if err != nil {
+			return res, err
+		}
+		res = append(res, f)
+	}
+	return res, nil
+}
+
+func GetAllFilesFromDir(dirPath string) ([]*os.File, error) {
+	var res []*os.File
+	if err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
+		if !IsDir(path) {
+			f, err2 := os.Open(path)
+			if err2 != nil {
+				return err
+			}
+			res = append(res, f)
+		}
+		return nil
+	}); err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return res, err
+	}
+	return res, nil
+}
+
+// File copies a single file from src to dst
+func CopyFile(src, dst string) error {
+	var err error
+	var srcFd *os.File
+	var dstFd *os.File
+	var srcInfo os.FileInfo
+
+	if srcFd, err = os.Open(src); err != nil {
+		return err
+	}
+	defer srcFd.Close()
+
+	if dstFd, err = os.Create(dst); err != nil {
+		return err
+	}
+	defer dstFd.Close()
+
+	if _, err = io.Copy(dstFd, srcFd); err != nil {
+		return err
+	}
+	if srcInfo, err = os.Stat(src); err != nil {
+		return err
+	}
+	return os.Chmod(dst, srcInfo.Mode())
+}
+
+// Dir copies a whole directory recursively
+func CopyDir(src string, dst string) error {
+	var err error
+	var fds []os.FileInfo
+	var srcInfo os.FileInfo
+
+	if srcInfo, err = os.Stat(src); err != nil {
+		return err
+	}
+
+	if err = os.MkdirAll(dst, srcInfo.Mode()); err != nil {
+		return err
+	}
+
+	if fds, err = ioutil.ReadDir(src); err != nil {
+		return err
+	}
+	for _, fd := range fds {
+		srcfp := path.Join(src, fd.Name())
+		dstfp := path.Join(dst, fd.Name())
+
+		if fd.IsDir() {
+			if err = CopyDir(srcfp, dstfp); err != nil {
+				fmt.Println(err)
+			}
+		} else {
+			if err = CopyFile(srcfp, dstfp); err != nil {
+				fmt.Println(err)
+			}
+		}
+	}
+	return nil
+}
+
+// 设置文件变量值
+// 可以理解为将文件中的变量占位符替换为想要设置的值
+func SetFileVariable(filePath string, key string, value string) error {
+	// 占位符标识
+	sep := "###"
+
+	// 读取文件到字节
+	contentBytes, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	// 将字节转化为文本
+	content := string(contentBytes)
+
+	// 替换文本
+	content = strings.Replace(content, fmt.Sprintf("%s%s%s", sep, key, sep), value, -1)
+
+	// 打开文件
+	f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC, 0777)
+	if err != nil {
+		return err
+	}
+
+	// 将替换后的内容写入文件
+	if _, err := f.Write([]byte(content)); err != nil {
+		return err
+	}
+
+	f.Close()
+
 	return nil
 }

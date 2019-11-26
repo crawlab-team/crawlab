@@ -153,6 +153,7 @@ func PutSpider(c *gin.Context) {
 		return
 	}
 
+	// 获取 GridFS 实例
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
 
