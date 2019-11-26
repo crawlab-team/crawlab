@@ -236,3 +236,50 @@ func UploadConfigSpider(c *gin.Context) {
 		Message: "success",
 	})
 }
+
+func GetConfigSpiderConfig(c *gin.Context) {
+	id := c.Param("id")
+
+	// 校验ID
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+	}
+
+	// 获取爬虫
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 校验爬虫类别
+	if spider.Type != constants.Configurable {
+		HandleErrorF(http.StatusBadRequest, c, "not a configurable spider")
+		return
+	}
+
+	// Spiderfile 目录
+	sfPath := filepath.Join(spider.Src, "Spiderfile")
+
+	// 构造配置数据
+	configData := entity.ConfigSpiderData{}
+
+	// 读取YAML文件
+	yamlFile, err := ioutil.ReadFile(sfPath)
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 反序列化
+	if err := yaml.Unmarshal(yamlFile, &configData); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    configData,
+	})
+}
