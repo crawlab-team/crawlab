@@ -116,10 +116,9 @@ func PublishAllSpiders() {
 
 // 发布爬虫
 func PublishSpider(spider model.Spider) {
-	// 查询gf file，不存在则删除
+	// 可能爬虫文件不存在，则直接返回
 	gfFile := model.GetGridFs(spider.FileId)
 	if gfFile == nil {
-		_ = model.RemoveSpider(spider.Id)
 		return
 	}
 	spiderSync := spider_handler.SpiderSync{

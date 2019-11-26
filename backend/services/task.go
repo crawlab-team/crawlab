@@ -391,15 +391,23 @@ func ExecuteTask(id int) {
 	t.Status = constants.StatusRunning                   // 任务状态
 	t.WaitDuration = t.StartTs.Sub(t.CreateTs).Seconds() // 等待时长
 
+	// 判断爬虫文件是否存在
+	gfFile := model.GetGridFs(spider.FileId)
+	if gfFile == nil {
+		t.Error = "找不到爬虫文件，请重新上传"
+		t.Status = constants.StatusError
+		t.FinishTs = time.Now()                                 // 结束时间
+		t.RuntimeDuration = t.FinishTs.Sub(t.StartTs).Seconds() // 运行时长
+		t.TotalDuration = t.FinishTs.Sub(t.CreateTs).Seconds()  // 总时长
+		_ = t.Save()
+		return
+	}
+
 	// 开始执行任务
 	log.Infof(GetWorkerPrefix(id) + "开始执行任务(ID:" + t.Id + ")")
 
 	// 储存任务
-	if err := t.Save(); err != nil {
-		log.Errorf(err.Error())
-		HandleTaskError(t, err)
-		return
-	}
+	_ = t.Save()
 
 	// 起一个cron执行器来统计任务结果数
 	if spider.Col != "" {

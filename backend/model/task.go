@@ -61,6 +61,7 @@ func (t *Task) Save() error {
 	defer s.Close()
 	t.UpdateTs = time.Now()
 	if err := c.UpdateId(t.Id, t); err != nil {
+		log.Errorf("update task error: %s", err.Error())
 		debug.PrintStack()
 		return err
 	}
