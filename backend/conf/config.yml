@@ -20,7 +20,7 @@ log:
 server:
   host: 0.0.0.0
   port: 8000
-  master: "N"
+  master: "Y"
   secret: "crawlab"
   register:
     # mac地址 或者 ip地址，如果是ip，则需要手动指定IP

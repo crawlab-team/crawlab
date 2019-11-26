@@ -102,7 +102,7 @@ func NewRedisPool() *redis.Pool {
 			return redis.DialURL(url,
 				redis.DialConnectTimeout(time.Second*10),
 				redis.DialReadTimeout(time.Second*10),
-				redis.DialWriteTimeout(time.Second*10),
+				redis.DialWriteTimeout(time.Second*15),
 			)
 		},
 		TestOnBorrow: func(c redis.Conn, t time.Time) error {

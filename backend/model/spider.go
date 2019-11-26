@@ -25,6 +25,7 @@ type Spider struct {
 	Site        string        `json:"site" bson:"site"`                 // 爬虫网站
 	Envs        []Env         `json:"envs" bson:"envs"`                 // 环境变量
 	Remark      string        `json:"remark" bson:"remark"`             // 备注
+
 	// 自定义爬虫
 	Src string `json:"src" bson:"src"` // 源码位置
 	Cmd string `json:"cmd" bson:"cmd"` // 执行命令
@@ -33,17 +34,7 @@ type Spider struct {
 	LastRunTs  time.Time `json:"last_run_ts"` // 最后一次执行时间
 	LastStatus string    `json:"last_status"` // 最后执行状态
 
-	// TODO: 可配置爬虫
-	//Fields                 []interface{} `json:"fields"`
-	//DetailFields           []interface{} `json:"detail_fields"`
-	//CrawlType              string        `json:"crawl_type"`
-	//StartUrl               string        `json:"start_url"`
-	//UrlPattern             string        `json:"url_pattern"`
-	//ItemSelector           string        `json:"item_selector"`
-	//ItemSelectorType       string        `json:"item_selector_type"`
-	//PaginationSelector     string        `json:"pagination_selector"`
-	//PaginationSelectorType string        `json:"pagination_selector_type"`
-
+	// 时间
 	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
 	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
 }
@@ -98,13 +89,14 @@ func (spider *Spider) GetLastTask() (Task, error) {
 	return tasks[0], nil
 }
 
+// 删除爬虫
 func (spider *Spider) Delete() error {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 	return c.RemoveId(spider.Id)
 }
 
-// 爬虫列表
+// 获取爬虫列表
 func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, int, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -136,7 +128,7 @@ func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, int, erro
 	return spiders, count, nil
 }
 
-// 获取爬虫
+// 获取爬虫(根据FileId)
 func GetSpiderByFileId(fileId bson.ObjectId) *Spider {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -150,7 +142,7 @@ func GetSpiderByFileId(fileId bson.ObjectId) *Spider {
 	return result
 }
 
-// 获取爬虫
+// 获取爬虫(根据名称)
 func GetSpiderByName(name string) *Spider {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -158,13 +150,13 @@ func GetSpiderByName(name string) *Spider {
 	var result *Spider
 	if err := c.Find(bson.M{"name": name}).One(&result); err != nil {
 		log.Errorf("get spider error: %s, spider_name: %s", err.Error(), name)
-		debug.PrintStack()
+		//debug.PrintStack()
 		return nil
 	}
 	return result
 }
 
-// 获取爬虫
+// 获取爬虫(根据ID)
 func GetSpider(id bson.ObjectId) (Spider, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -245,7 +237,7 @@ func RemoveAllSpider() error {
 	return nil
 }
 
-// 爬虫总数
+// 获取爬虫总数
 func GetSpiderCount() (int, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -257,7 +249,7 @@ func GetSpiderCount() (int, error) {
 	return count, nil
 }
 
-// 爬虫类型
+// 获取爬虫类型
 func GetSpiderTypes() ([]*entity.SpiderType, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
