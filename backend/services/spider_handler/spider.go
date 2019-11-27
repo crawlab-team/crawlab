@@ -119,6 +119,14 @@ func (s *SpiderSync) Download() {
 		return
 	}
 
+	//修改目标文件夹权限
+	// 解决scrapy.setting中开启LOG_ENABLED 和 LOG_FILE时不能创建log文件的问题
+	if err := os.Chmod(dstPath, 0777); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return
+	}
+
 	// 关闭临时文件
 	if err := tmpFile.Close(); err != nil {
 		log.Errorf(err.Error())
