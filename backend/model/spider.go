@@ -1,11 +1,16 @@
 package model
 
 import (
+	"crawlab/constants"
 	"crawlab/database"
 	"crawlab/entity"
+	"errors"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"path/filepath"
 	"runtime/debug"
 	"time"
 )
@@ -25,14 +30,15 @@ type Spider struct {
 	Site        string        `json:"site" bson:"site"`                 // 爬虫网站
 	Envs        []Env         `json:"envs" bson:"envs"`                 // 环境变量
 	Remark      string        `json:"remark" bson:"remark"`             // 备注
+	Src         string        `json:"src" bson:"src"`                   // 源码位置
 
 	// 自定义爬虫
-	Src string `json:"src" bson:"src"` // 源码位置
 	Cmd string `json:"cmd" bson:"cmd"` // 执行命令
 
 	// 前端展示
-	LastRunTs  time.Time `json:"last_run_ts"` // 最后一次执行时间
-	LastStatus string    `json:"last_status"` // 最后执行状态
+	LastRunTs  time.Time               `json:"last_run_ts"` // 最后一次执行时间
+	LastStatus string                  `json:"last_status"` // 最后执行状态
+	Config     entity.ConfigSpiderData `json:"config"`      // 可配置爬虫配置
 
 	// 时间
 	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
@@ -161,15 +167,25 @@ func GetSpider(id bson.ObjectId) (Spider, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 
-	var result Spider
-	if err := c.FindId(id).One(&result); err != nil {
+	// 获取爬虫
+	var spider Spider
+	if err := c.FindId(id).One(&spider); err != nil {
 		if err != mgo.ErrNotFound {
 			log.Errorf("get spider error: %s, id: %id", err.Error(), id.Hex())
 			debug.PrintStack()
 		}
-		return result, err
+		return spider, err
 	}
-	return result, nil
+
+	// 如果为可配置爬虫，获取爬虫配置
+	if spider.Type == constants.Configurable {
+		config, err := GetConfigSpiderData(spider)
+		if err != nil {
+			return spider, err
+		}
+		spider.Config = config
+	}
+	return spider, nil
 }
 
 // 更新爬虫
@@ -268,4 +284,30 @@ func GetSpiderTypes() ([]*entity.SpiderType, error) {
 	}
 
 	return types, nil
+}
+
+func GetConfigSpiderData(spider Spider) (entity.ConfigSpiderData, error) {
+	// 构造配置数据
+	configData := entity.ConfigSpiderData{}
+
+	// 校验爬虫类别
+	if spider.Type != constants.Configurable {
+		return configData, errors.New("not a configurable spider")
+	}
+
+	// Spiderfile 目录
+	sfPath := filepath.Join(spider.Src, "Spiderfile")
+
+	// 读取YAML文件
+	yamlFile, err := ioutil.ReadFile(sfPath)
+	if err != nil {
+		return configData, err
+	}
+
+	// 反序列化
+	if err := yaml.Unmarshal(yamlFile, &configData); err != nil {
+		return configData, err
+	}
+
+	return configData, nil
 }
