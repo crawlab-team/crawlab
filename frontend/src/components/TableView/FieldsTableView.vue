@@ -10,6 +10,7 @@
       <el-table :data="fields"
                 class="table edit"
                 :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
+                :cell-style="getCellClassStyle"
       >
         <el-table-column class-name="action" width="80px" align="right">
           <template slot-scope="scope">
@@ -20,8 +21,10 @@
         </el-table-column>
         <el-table-column :label="$t('Field Name')" width="150px">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.name" :placeholder="$t('Field Name')"
-                      @change="onNameChange(scope.row)"></el-input>
+            <el-input v-model="scope.row.name"
+                      :placeholder="$t('Field Name')"
+                      @change="onNameChange(scope.row)"
+            />
           </template>
         </el-table-column>
         <el-table-column :label="$t('Selector Type')" width="150px" align="center" class-name="selector-type">
@@ -47,10 +50,10 @@
         <el-table-column :label="$t('Selector')" width="200px">
           <template slot-scope="scope">
             <template v-if="scope.row.css">
-              <el-input v-model="scope.row.css" :placeholder="$t('CSS')"></el-input>
+              <el-input v-model="scope.row.css" :placeholder="$t('CSS / XPath')"></el-input>
             </template>
             <template v-else>
-              <el-input v-model="scope.row.xpath" :placeholder="$t('XPath')"></el-input>
+              <el-input v-model="scope.row.xpath" :placeholder="$t('CSS / XPath')"></el-input>
             </template>
           </template>
         </el-table-column>
@@ -168,20 +171,20 @@ export default {
     },
     onClickSelectorType (row, selectorType) {
       if (selectorType === 'css') {
-        if (row.xpath) row.xpath = ''
-        if (!row.css) row.css = 'body'
+        if (row.xpath) this.$set(row, 'xpath', '')
+        if (!row.css) this.$set(row, 'css', 'body')
       } else {
-        if (row.css) row.css = ''
-        if (!row.xpath) row.xpath = '//body'
+        if (row.css) this.$set(row, 'css', '')
+        if (!row.xpath) this.$set(row, 'xpath', '//body')
       }
     },
     onClickIsAttribute (row, isAttribute) {
       if (!isAttribute) {
         // 文本
-        if (row.attr) row.attr = ''
+        if (row.attr) this.$set(row, 'attr', '')
       } else {
         // 属性
-        if (!row.attr) row.attr = 'href'
+        if (!row.attr) this.$set(row, 'attr', 'href')
       }
     },
     onCopyField (row) {
@@ -210,10 +213,28 @@ export default {
       for (let i = 0; i < this.fields.length; i++) {
         if (row.name === this.fields[i].name) {
           this.fields.splice(i + 1, 0, {
+            name: `field_${Math.floor(new Date().getTime()).toString()}`,
             css: 'body',
             next_stage: ''
           })
           break
+        }
+      }
+    },
+    getCellClassStyle ({ row, columnIndex }) {
+      if (columnIndex === 1) {
+        // 字段名称
+        if (!row.name) {
+          return {
+            'border': '1px solid red'
+          }
+        }
+      } else if (columnIndex === 3) {
+        // 选择器
+        if (!row.css && !row.xpath) {
+          return {
+            'border': '1px solid red'
+          }
         }
       }
     }

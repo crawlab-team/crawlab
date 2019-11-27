@@ -43,75 +43,63 @@
     <!--config detail-->
     <el-row>
       <el-form label-width="150px" ref="form" :model="spiderForm.config">
-        <el-col :span="11" :offset="1">
-          <!--          <el-form-item :label="$t('Crawl Type')">-->
-          <!--            <el-button-group>-->
-          <!--              <el-button v-for="type in crawlTypeList"-->
-          <!--                         :key="type.value"-->
-          <!--                         :type="type.value === spiderForm.crawl_type ? 'primary' : ''"-->
-          <!--                         @click="onSelectCrawlType(type.value)">-->
-          <!--                {{$t(type.label)}}-->
-          <!--              </el-button>-->
-          <!--            </el-button-group>-->
-          <!--          </el-form-item>-->
-          <!--          <el-form-item :label="$t('Start URL')" prop="start_url" required>-->
-          <!--            <el-input v-model="spiderForm.config.start_url" :placeholder="$t('Start URL')"></el-input>-->
-          <!--          </el-form-item>-->
-          <!--          <el-form-item :label="$t('Obey robots.txt')">-->
-          <!--            <el-switch v-model="spiderForm.obey_robots_txt" :placeholder="$t('Obey robots.txt')"></el-switch>-->
-          <!--          </el-form-item>-->
-          <!--<el-form-item :label="$t('URL Pattern')">-->
-          <!--<el-input v-model="spiderForm.url_pattern" :placeholder="$t('URL Pattern')"></el-input>-->
-          <!--</el-form-item>-->
-        </el-col>
-        <el-col :span="11" :offset="1">
-          <!--          <el-form-item :label="$t('Item Selector')"-->
-          <!--                        v-if="['list','list-detail'].includes(spiderForm.crawl_type)">-->
-          <!--            <el-select style="width: 35%;margin-right: 10px;"-->
-          <!--                       v-model="spiderForm.item_selector_type"-->
-          <!--                       :placeholder="$t('Item Selector Type')">-->
-          <!--              <el-option value="xpath" :label="$t('XPath')"></el-option>-->
-          <!--              <el-option value="css" :label="$t('CSS')"></el-option>-->
-          <!--            </el-select>-->
-          <!--            <el-input style="width: calc(65% - 10px);"-->
-          <!--                      v-model="spiderForm.item_selector"-->
-          <!--                      :placeholder="$t('Item Selector')">-->
-          <!--            </el-input>-->
-          <!--          </el-form-item>-->
-          <!--          <el-form-item :label="$t('Pagination Selector')"-->
-          <!--                        v-if="['list','list-detail'].includes(spiderForm.crawl_type)">-->
-          <!--            <el-select style="width: 35%;margin-right: 10px;"-->
-          <!--                       v-model="spiderForm.page"-->
-          <!--                       :placeholder="$t('Pagination Selector Type')">-->
-          <!--              <el-option value="xpath" :label="$t('XPath')"></el-option>-->
-          <!--              <el-option value="css" :label="$t('CSS')"></el-option>-->
-          <!--            </el-select>-->
-          <!--            <el-input style="width: calc(65% - 10px);"-->
-          <!--                      v-model="spiderForm.pagination_selector"-->
-          <!--                      :placeholder="$t('Pagination Selector')">-->
-          <!--            </el-input>-->
-          <!--          </el-form-item>-->
-          <!--          <el-form-item :label="$t('Item Threshold')"-->
-          <!--                        v-if="['list','list-detail'].includes(spiderForm.crawl_type)">-->
-          <!--            <el-input-number v-model="spiderForm.item_threshold"/>-->
-          <!--          </el-form-item>-->
-        </el-col>
       </el-form>
     </el-row>
     <!--./config detail-->
 
     <el-row>
-      <el-col :span="12">
-        <el-row>
-          <span class="selector-type-item" @click="onClickSelectorType('css')">
-              <el-tag
-                :class="isCss ? 'active' : 'inactive'"
-                type="success"
-              >
-                CSS
-              </el-tag>
-            </span>
-          <span class="selector-type-item" @click="onClickSelectorType('xpath')">
+      <div class="top-wrapper">
+        <ul class="list">
+          <li class="item">
+            <label>{{$t('Start URL')}}: </label>
+            <el-input
+              v-model="spiderForm.config.start_url"
+              :placeholder="$t('Start URL')"
+              :class="startUrlClass"
+            />
+          </li>
+          <li class="item">
+            <label>{{$t('Start Stage')}}: </label>
+            <el-select
+              v-model="spiderForm.config.start_stage"
+              :placeholder="$t('Start Stage')"
+              :class="startStageClass"
+            >
+              <el-option
+                v-for="n in Object.keys(spiderForm.config.stages)"
+                :key="n"
+                :value="n"
+                :label="n"
+              />
+            </el-select>
+          </li>
+          <li class="item">
+            <label>{{$t('Engine')}}: </label>
+            <el-select
+              v-model="spiderForm.config.engine"
+              :placeholder="$t('Start Stage')"
+              :class="startStageClass"
+            >
+              <el-option
+                v-for="n in Object.keys(spiderForm.config.stages)"
+                :key="n"
+                :value="n"
+                :label="n"
+              />
+            </el-select>
+          </li>
+          <li class="item">
+            <label>{{$t('Selector Type')}}: </label>
+            <div class="selector-type">
+              <span class="selector-type-item" @click="onClickSelectorType('css')">
+                <el-tag
+                  :class="isCss ? 'active' : 'inactive'"
+                  type="success"
+                >
+                  CSS
+                </el-tag>
+              </span>
+              <span class="selector-type-item" @click="onClickSelectorType('xpath')">
               <el-tag
                 :class="isXpath ? 'active' : 'inactive'"
                 type="primary"
@@ -119,22 +107,20 @@
                 XPath
               </el-tag>
             </span>
-        </el-row>
-      </el-col>
+            </div>
+          </li>
+        </ul>
+      </div>
 
-      <el-col :span="12">
-        <!--button group-->
-        <el-row class="button-group-container">
-          <div class="button-group">
-            <el-button type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
-            <el-button type="primary" @click="onExtractFields" v-loading="extractFieldsLoading">{{$t('Extract Fields')}}
-            </el-button>
-            <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>
-            <el-button type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
-          </div>
-        </el-row>
-        <!--./button group-->
-      </el-col>
+      <div class="button-group-container">
+        <div class="button-group">
+          <el-button type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
+          <el-button type="primary" @click="onExtractFields" v-loading="extractFieldsLoading">{{$t('Extract Fields')}}
+          </el-button>
+          <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>
+          <el-button type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
+        </div>
+      </div>
     </el-row>
 
     <el-collapse
@@ -256,6 +242,23 @@ export default {
     },
     activeNames () {
       return Object.values(this.spiderForm.config.stages).map(d => d.name)
+    },
+    startUrlClass () {
+      if (!this.spiderForm.config.start_url) {
+        return 'invalid'
+      } else if (!this.spiderForm.config.start_url.match(/^https?:\/\/.+|^\/\/.+/i)) {
+        return 'invalid'
+      }
+
+      return ''
+    },
+    startStageClass () {
+      if (!this.spiderForm.config.start_stage) {
+        return 'invalid'
+      } else if (!this.activeNames.includes(this.spiderForm.config.start_stage)) {
+        return 'invalid'
+      }
+      return ''
     }
   },
   methods: {
@@ -408,8 +411,27 @@ export default {
       const stages = JSON.parse(JSON.stringify(this.spiderForm.config.stages))
       delete stages[stage.name]
       this.$set(this.spiderForm.config, 'stages', stages)
+      if (Object.keys(stages).length === 0) {
+        this.onAddStage()
+      }
     },
     onAddStage (stage) {
+      const stages = JSON.parse(JSON.stringify(this.spiderForm.config.stages))
+      const ts = Math.floor(new Date().getTime()).toString()
+      const newStageName = `stage_${ts}`
+      const newField = { name: `field_${ts}`, next_stage: '' }
+      if (this.isCss) {
+        newField['css'] = 'body'
+      } else if (this.isXpath) {
+        newField['xpath'] = '//body'
+      } else {
+        newField['css'] = 'body'
+      }
+      stages[newStageName] = {
+        name: newStageName,
+        fields: [newField]
+      }
+      this.$set(this.spiderForm.config, 'stages', stages)
     }
   },
   created () {
@@ -492,9 +514,6 @@ export default {
   .selector-type-item {
     margin: 0 5px;
     cursor: pointer;
-  }
-
-  .selector-type-item > .el-tag.active {
     font-weight: bolder;
   }
 
@@ -571,5 +590,40 @@ export default {
   .stage-list .stage-item >>> .edit-text .el-input__inner {
     height: 32px;
     line-height: 32px;
+  }
+
+  .top-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .top-wrapper .list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0;
+  }
+
+  .top-wrapper .list .item {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+  }
+
+  .top-wrapper .list .item label {
+    width: 100px;
+    text-align: right;
+    margin-right: 10px;
+    font-size: 12px;
+  }
+
+  .top-wrapper .list .item label + * {
+    width: 240px;
+  }
+
+  .invalid >>> .el-input__inner {
+    border: 1px solid red !important;
   }
 </style>
