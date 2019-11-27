@@ -154,6 +154,7 @@ func UploadConfigSpider(c *gin.Context) {
 	// 赋值 stage_name
 	for stageName, stage := range configData.Stages {
 		stage.Name = stageName
+		configData.Stages[stageName] = stage
 	}
 
 	// 删除已有的爬虫文件

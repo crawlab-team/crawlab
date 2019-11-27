@@ -114,9 +114,9 @@ func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, int, erro
 		return spiders, 0, err
 	}
 
-    if spiders == nil {
-        spiders = []Spider{}
-    }
+	if spiders == nil {
+		spiders = []Spider{}
+	}
 
 	// 遍历爬虫列表
 	for i, spider := range spiders {
@@ -316,6 +316,7 @@ func GetConfigSpiderData(spider Spider) (entity.ConfigSpiderData, error) {
 	// 赋值 stage_name
 	for stageName, stage := range configData.Stages {
 		stage.Name = stageName
+		configData.Stages[stageName] = stage
 	}
 
 	return configData, nil
