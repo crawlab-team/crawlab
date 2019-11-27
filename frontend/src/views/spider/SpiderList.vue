@@ -111,16 +111,23 @@
       <div class="filter">
         <div class="left">
           <el-form :inline="true">
-            <el-form-item>
-              <el-select clearable @change="onSpiderTypeChange" placeholder="爬虫类型" size="small" v-model="filter.type">
-                <el-option v-for="item in types" :value="item.type" :key="item.type"
-                           :label="item.type === 'customized'? '自定义':item.type "/>
-              </el-select>
-            </el-form-item>
+            <!--            <el-form-item>-->
+            <!--              <el-select clearable @change="onSpiderTypeChange" placeholder="爬虫类型" size="small" v-model="filter.type">-->
+            <!--                <el-option v-for="item in types" :value="item.type" :key="item.type"-->
+            <!--                           :label="item.type === 'customized'? '自定义':item.type "/>-->
+            <!--              </el-select>-->
+            <!--            </el-form-item>-->
             <el-form-item>
               <el-input clearable @keyup.enter.native="onSearch" size="small" placeholder="名称" v-model="filter.keyword">
                 <i slot="suffix" class="el-input__icon el-icon-search"></i>
               </el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button size="small" type="success"
+                         class="btn refresh"
+                         @click="onRefresh">
+                {{$t('Search')}}
+              </el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -134,18 +141,13 @@
                      @click="onAdd">
             {{$t('Add Spider')}}
           </el-button>
-          <el-button size="small" type="success"
-                     icon="el-icon-refresh"
-                     class="btn refresh"
-                     @click="onRefresh">
-            {{$t('Refresh')}}
-          </el-button>
+
         </div>
       </div>
       <!--./filter-->
 
       <!--tabs-->
-      <el-tabs v-model="activeTab" @tab-click="onClickTab">
+      <el-tabs v-model="filter.type" @tab-click="onClickTab">
         <el-tab-pane :label="$t('All')" name="all"></el-tab-pane>
         <el-tab-pane :label="$t('Configurable')" name="configurable"></el-tab-pane>
         <el-tab-pane :label="$t('Customized')" name="customized"></el-tab-pane>
@@ -282,10 +284,9 @@ export default {
       activeSpiderId: undefined,
       filter: {
         keyword: '',
-        type: ''
+        type: 'all'
       },
       types: [],
-      // tableData,
       columns: [
         { name: 'display_name', label: 'Name', width: '160', align: 'left' },
         { name: 'type', label: 'Spider Type', width: '120' },
@@ -297,8 +298,7 @@ export default {
       spiderFormRules: {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
       },
-      fileList: [],
-      activeTab: 'all'
+      fileList: []
     }
   },
   computed: {
@@ -498,6 +498,10 @@ export default {
       if (column.label !== this.$t('Action')) {
         this.onView(row)
       }
+    },
+    onClickTab (tab) {
+      this.filter.type = tab.name
+      this.getList()
     },
     getList () {
       let params = {

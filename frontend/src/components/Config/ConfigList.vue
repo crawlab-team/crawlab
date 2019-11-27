@@ -42,97 +42,159 @@
 
     <!--config detail-->
     <el-row>
-      <el-form label-width="150px" ref="form" :model="spiderForm">
+      <el-form label-width="150px" ref="form" :model="spiderForm.config">
         <el-col :span="11" :offset="1">
-          <el-form-item :label="$t('Crawl Type')">
-            <el-button-group>
-              <el-button v-for="type in crawlTypeList"
-                         :key="type.value"
-                         :type="type.value === spiderForm.crawl_type ? 'primary' : ''"
-                         @click="onSelectCrawlType(type.value)">
-                {{$t(type.label)}}
-              </el-button>
-            </el-button-group>
-          </el-form-item>
-          <el-form-item :label="$t('Start URL')" prop="start_url" required>
-            <el-input v-model="spiderForm.start_url" :placeholder="$t('Start URL')"></el-input>
-          </el-form-item>
-          <el-form-item :label="$t('Obey robots.txt')">
-            <el-switch v-model="spiderForm.obey_robots_txt" :placeholder="$t('Obey robots.txt')"></el-switch>
-          </el-form-item>
+          <!--          <el-form-item :label="$t('Crawl Type')">-->
+          <!--            <el-button-group>-->
+          <!--              <el-button v-for="type in crawlTypeList"-->
+          <!--                         :key="type.value"-->
+          <!--                         :type="type.value === spiderForm.crawl_type ? 'primary' : ''"-->
+          <!--                         @click="onSelectCrawlType(type.value)">-->
+          <!--                {{$t(type.label)}}-->
+          <!--              </el-button>-->
+          <!--            </el-button-group>-->
+          <!--          </el-form-item>-->
+          <!--          <el-form-item :label="$t('Start URL')" prop="start_url" required>-->
+          <!--            <el-input v-model="spiderForm.config.start_url" :placeholder="$t('Start URL')"></el-input>-->
+          <!--          </el-form-item>-->
+          <!--          <el-form-item :label="$t('Obey robots.txt')">-->
+          <!--            <el-switch v-model="spiderForm.obey_robots_txt" :placeholder="$t('Obey robots.txt')"></el-switch>-->
+          <!--          </el-form-item>-->
           <!--<el-form-item :label="$t('URL Pattern')">-->
           <!--<el-input v-model="spiderForm.url_pattern" :placeholder="$t('URL Pattern')"></el-input>-->
           <!--</el-form-item>-->
         </el-col>
         <el-col :span="11" :offset="1">
-          <el-form-item :label="$t('Item Selector')"
-                        v-if="['list','list-detail'].includes(spiderForm.crawl_type)">
-            <el-select style="width: 35%;margin-right: 10px;"
-                       v-model="spiderForm.item_selector_type"
-                       :placeholder="$t('Item Selector Type')">
-              <el-option value="xpath" :label="$t('XPath')"></el-option>
-              <el-option value="css" :label="$t('CSS')"></el-option>
-            </el-select>
-            <el-input style="width: calc(65% - 10px);"
-                      v-model="spiderForm.item_selector"
-                      :placeholder="$t('Item Selector')">
-            </el-input>
-          </el-form-item>
-          <el-form-item :label="$t('Pagination Selector')"
-                        v-if="['list','list-detail'].includes(spiderForm.crawl_type)">
-            <el-select style="width: 35%;margin-right: 10px;"
-                       v-model="spiderForm.pagination_selector_type"
-                       :placeholder="$t('Pagination Selector Type')">
-              <el-option value="xpath" :label="$t('XPath')"></el-option>
-              <el-option value="css" :label="$t('CSS')"></el-option>
-            </el-select>
-            <el-input style="width: calc(65% - 10px);"
-                      v-model="spiderForm.pagination_selector"
-                      :placeholder="$t('Pagination Selector')">
-            </el-input>
-          </el-form-item>
-          <el-form-item :label="$t('Item Threshold')"
-                        v-if="['list','list-detail'].includes(spiderForm.crawl_type)">
-            <el-input-number v-model="spiderForm.item_threshold"/>
-          </el-form-item>
+          <!--          <el-form-item :label="$t('Item Selector')"-->
+          <!--                        v-if="['list','list-detail'].includes(spiderForm.crawl_type)">-->
+          <!--            <el-select style="width: 35%;margin-right: 10px;"-->
+          <!--                       v-model="spiderForm.item_selector_type"-->
+          <!--                       :placeholder="$t('Item Selector Type')">-->
+          <!--              <el-option value="xpath" :label="$t('XPath')"></el-option>-->
+          <!--              <el-option value="css" :label="$t('CSS')"></el-option>-->
+          <!--            </el-select>-->
+          <!--            <el-input style="width: calc(65% - 10px);"-->
+          <!--                      v-model="spiderForm.item_selector"-->
+          <!--                      :placeholder="$t('Item Selector')">-->
+          <!--            </el-input>-->
+          <!--          </el-form-item>-->
+          <!--          <el-form-item :label="$t('Pagination Selector')"-->
+          <!--                        v-if="['list','list-detail'].includes(spiderForm.crawl_type)">-->
+          <!--            <el-select style="width: 35%;margin-right: 10px;"-->
+          <!--                       v-model="spiderForm.page"-->
+          <!--                       :placeholder="$t('Pagination Selector Type')">-->
+          <!--              <el-option value="xpath" :label="$t('XPath')"></el-option>-->
+          <!--              <el-option value="css" :label="$t('CSS')"></el-option>-->
+          <!--            </el-select>-->
+          <!--            <el-input style="width: calc(65% - 10px);"-->
+          <!--                      v-model="spiderForm.pagination_selector"-->
+          <!--                      :placeholder="$t('Pagination Selector')">-->
+          <!--            </el-input>-->
+          <!--          </el-form-item>-->
+          <!--          <el-form-item :label="$t('Item Threshold')"-->
+          <!--                        v-if="['list','list-detail'].includes(spiderForm.crawl_type)">-->
+          <!--            <el-input-number v-model="spiderForm.item_threshold"/>-->
+          <!--          </el-form-item>-->
         </el-col>
       </el-form>
     </el-row>
     <!--./config detail-->
 
-    <!--button group-->
-    <el-row class="button-group-container">
-      <div class="button-group">
-        <el-button type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
-        <el-button type="primary" @click="onExtractFields" v-loading="extractFieldsLoading">{{$t('Extract Fields')}}
-        </el-button>
-        <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>
-        <el-button type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
-      </div>
-    </el-row>
-    <!--./button group-->
+    <el-row>
+      <el-col :span="12">
+        <el-row>
+          <span class="selector-type-item" @click="onClickSelectorType('css')">
+              <el-tag
+                :class="isCss ? 'active' : 'inactive'"
+                type="success"
+              >
+                CSS
+              </el-tag>
+            </span>
+          <span class="selector-type-item" @click="onClickSelectorType('xpath')">
+              <el-tag
+                :class="isXpath ? 'active' : 'inactive'"
+                type="primary"
+              >
+                XPath
+              </el-tag>
+            </span>
+        </el-row>
+      </el-col>
 
-    <!--list field list-->
-    <el-row v-if="['list','list-detail'].includes(spiderForm.crawl_type)"
-            class="list-fields-container">
-      <fields-table-view
-        type="list"
-        title="List Page Fields"
-        :fields="spiderForm.fields"
-      />
+      <el-col :span="12">
+        <!--button group-->
+        <el-row class="button-group-container">
+          <div class="button-group">
+            <el-button type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
+            <el-button type="primary" @click="onExtractFields" v-loading="extractFieldsLoading">{{$t('Extract Fields')}}
+            </el-button>
+            <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>
+            <el-button type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
+          </div>
+        </el-row>
+        <!--./button group-->
+      </el-col>
     </el-row>
+
+    <el-collapse
+      v-model="activeNames"
+    >
+      <el-collapse-item
+        v-for="(stage, stageName) in spiderForm.config.stages"
+        :key="stageName"
+      >
+        <template slot="title">
+          {{stageName}}
+        </template>
+        <fields-table-view
+          type="list"
+          title="List Page Fields"
+          :fields="stage.fields"
+          :stage-names="Object.keys(spiderForm.config.stages)"
+        />
+        <!--        <el-table-->
+        <!--          :data="stage.fields"-->
+        <!--        >-->
+        <!--          <el-table-column-->
+        <!--            v-for="fCol in fieldColumns"-->
+        <!--            :key="fCol.name"-->
+        <!--            :label="$t(fCol.label)"-->
+        <!--          >-->
+        <!--            <template slot-scope="scope">-->
+        <!--              <template v-if="fCol.name === 'selector_type'">-->
+        <!--                <el-tag :class="scope.row.css ? 'active' : 'inactive'" type="success">CSS</el-tag>-->
+        <!--                <el-tag :class="scope.row.xpath ? 'active' : 'inactive'" type="primary">XPath</el-tag>-->
+        <!--              </template>-->
+        <!--              <template v-else>-->
+        <!--                {{scope.row[fCol.name]}}-->
+        <!--              </template>-->
+        <!--            </template>-->
+        <!--          </el-table-column>-->
+        <!--        </el-table>-->
+      </el-collapse-item>
+    </el-collapse>
+    <!--list field list-->
+    <!--    <el-row v-if="['list','list-detail'].includes(spiderForm.crawl_type)"-->
+    <!--            class="list-fields-container">-->
+    <!--    <fields-table-view-->
+    <!--      type="list"-->
+    <!--      title="List Page Fields"-->
+    <!--      :fields="spiderForm.fields"-->
+    <!--    />-->
+    <!--        </el-row>-->
     <!--./list field list-->
 
     <!--detail field list-->
-    <el-row v-if="['detail','list-detail'].includes(spiderForm.crawl_type)"
-            class="detail-fields-container"
-            style="margin-top: 10px;">
-      <fields-table-view
-        type="detail"
-        title="Detail Page Fields"
-        :fields="spiderForm.detail_fields"
-      />
-    </el-row>
+    <!--    <el-row v-if="['detail','list-detail'].includes(spiderForm.crawl_type)"-->
+    <!--            class="detail-fields-container"-->
+    <!--            style="margin-top: 10px;">-->
+    <!--      <fields-table-view-->
+    <!--        type="detail"-->
+    <!--        title="Detail Page Fields"-->
+    <!--        :fields="spiderForm.detail_fields"-->
+    <!--      />-->
+    <!--    </el-row>-->
     <!--./detail field list-->
   </div>
 </template>
@@ -146,9 +208,13 @@ import CrawlConfirmDialog from '../Common/CrawlConfirmDialog'
 
 export default {
   name: 'ConfigList',
-  components: { CrawlConfirmDialog, FieldsTableView },
+  components: {
+    CrawlConfirmDialog,
+    FieldsTableView
+  },
   data () {
     return {
+      activeNames: [],
       crawlTypeList: [
         { value: 'list', label: 'List Only' },
         { value: 'detail', label: 'Detail Only' },
@@ -159,7 +225,15 @@ export default {
       saveLoading: false,
       dialogVisible: false,
       crawlConfirmDialogVisible: false,
-      columnsDict: {}
+      columnsDict: {},
+      fieldColumns: [
+        { name: 'name', label: 'Name' },
+        { name: 'selector_type', label: 'Selector Type' },
+        { name: 'selector', label: 'Selector' },
+        { name: 'is_attr', label: 'Is Attribute' },
+        { name: 'attr', label: 'Attribute' },
+        { name: 'next_stage', label: 'Next Stage' }
+      ]
     }
   },
   computed: {
@@ -177,6 +251,24 @@ export default {
       } else {
         return []
       }
+    },
+    isCss () {
+      let i = 0
+      Object.values(this.spiderForm.config.stages).forEach(stage => {
+        stage.fields.forEach(field => {
+          if (!field.css) i++
+        })
+      })
+      return i === 0
+    },
+    isXpath () {
+      let i = 0
+      Object.values(this.spiderForm.config.stages).forEach(stage => {
+        stage.fields.forEach(field => {
+          if (!field.xpath) i++
+        })
+      })
+      return i === 0
     }
   },
   methods: {
@@ -294,7 +386,20 @@ export default {
       value = value.trim()
       if (value.length > 20) return value.substr(0, 20) + '...'
       return value
-    }
+    },
+    onClickSelectorType (selectorType) {
+      Object.values(this.spiderForm.config.stages).forEach(stage => {
+        stage.fields.forEach(field => {
+          if (selectorType === 'css') {
+            if (field.xpath) field.xpath = ''
+            if (!field.css) field.css = 'body'
+          } else {
+            if (field.css) field.css = ''
+            if (!field.xpath) field.xpath = '//body'
+          }
+        })
+      })
+    },
   },
   created () {
     // fields for list page
@@ -327,6 +432,9 @@ export default {
     if (!this.spiderForm.pagination_selector_type) this.$set(this.spiderForm, 'pagination_selector_type', 'css')
     if (this.spiderForm.obey_robots_txt == null) this.$set(this.spiderForm, 'obey_robots_txt', true)
     if (this.spiderForm.item_threshold == null) this.$set(this.spiderForm, 'item_threshold', 10)
+  },
+  mounted () {
+    this.activeNames = Object.keys(this.spiderForm.config.stages)
   }
 }
 </script>
@@ -335,7 +443,7 @@ export default {
 
   .button-group-container {
     margin-top: 10px;
-    border-bottom: 1px dashed #dcdfe6;
+    /*border-bottom: 1px dashed #dcdfe6;*/
     padding-bottom: 20px;
   }
 
@@ -345,7 +453,7 @@ export default {
 
   .list-fields-container {
     margin-top: 20px;
-    border-bottom: 1px dashed #dcdfe6;
+    /*border-bottom: 1px dashed #dcdfe6;*/
     padding-bottom: 20px;
   }
 
@@ -368,5 +476,18 @@ export default {
 
   .el-table.table-header >>> .el-input .el-input__inner {
     border-radius: 0;
+  }
+
+  .selector-type-item {
+    margin: 0 5px;
+    cursor: pointer;
+  }
+
+  .selector-type-item > .el-tag.active {
+    font-weight: bolder;
+  }
+
+  .selector-type-item > .el-tag.inactive {
+    opacity: 0.5;
   }
 </style>
