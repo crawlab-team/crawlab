@@ -138,28 +138,40 @@
     </el-row>
 
     <el-collapse
-      v-model="activeNames"
+      :value="activeNames"
     >
       <el-collapse-item
         v-for="(stage, stageName) in spiderForm.config.stages"
         :key="stageName"
+        :name="stageName"
       >
         <template slot="title">
           <ul class="stage-list">
-            <li class="stage-item">
+            <li class="stage-item" style="flex-basis: 80px; justify-content: flex-end"
+                @click="$event.stopPropagation()">
+              <i class="action-item el-icon-copy-document" @click="onCopyStage(stage)"></i>
+              <i class="action-item el-icon-remove-outline" @click="onRemoveStage(stage)"></i>
+              <i class="action-item el-icon-circle-plus-outline" @click="onAddStage(stage)"></i>
+            </li>
+            <li class="stage-item" @click="$event.stopPropagation()">
               <label>{{$t('Stage Name')}}: </label>
-              <el-input v-model="stage.name" :placeholder="$t('Stage Name')" @focus="onStageNameFocus($event)"/>
+              <div v-if="!stage.isEdit" @click="onEditStage(stage)" class="text-wrapper">
+                <span class="text">
+                  {{stage.name}}
+                </span>
+                <i class="el-icon-edit-outline"></i>
+              </div>
+              <el-input
+                v-else
+                :ref="`stage-name-${stage.name}`"
+                class="edit-text"
+                v-model="stage.name"
+                :placeholder="$t('Stage Name')"
+                @focus="onStageNameFocus($event)"
+                @blur="stage.isEdit = false"
+              />
             </li>
           </ul>
-<!--          <el-table :data="[{}]" :show-header="false" height="120px">-->
-<!--            <el-table-column width="100px">{{$t('Stage Name')}}:</el-table-column>-->
-<!--            <el-table-column width="180px">{{stageName}}</el-table-column>-->
-<!--          </el-table>-->
-<!--          <el-form label-width="120px" inline>-->
-<!--            <el-form-item :label="$t('Stage Name')">-->
-<!--              {{$t(stageName)}}-->
-<!--            </el-form-item>-->
-<!--          </el-form>-->
         </template>
         <fields-table-view
           type="list"
@@ -167,49 +179,8 @@
           :fields="stage.fields"
           :stage-names="Object.keys(spiderForm.config.stages)"
         />
-        <!--        <el-table-->
-        <!--          :data="stage.fields"-->
-        <!--        >-->
-        <!--          <el-table-column-->
-        <!--            v-for="fCol in fieldColumns"-->
-        <!--            :key="fCol.name"-->
-        <!--            :label="$t(fCol.label)"-->
-        <!--          >-->
-        <!--            <template slot-scope="scope">-->
-        <!--              <template v-if="fCol.name === 'selector_type'">-->
-        <!--                <el-tag :class="scope.row.css ? 'active' : 'inactive'" type="success">CSS</el-tag>-->
-        <!--                <el-tag :class="scope.row.xpath ? 'active' : 'inactive'" type="primary">XPath</el-tag>-->
-        <!--              </template>-->
-        <!--              <template v-else>-->
-        <!--                {{scope.row[fCol.name]}}-->
-        <!--              </template>-->
-        <!--            </template>-->
-        <!--          </el-table-column>-->
-        <!--        </el-table>-->
       </el-collapse-item>
     </el-collapse>
-    <!--list field list-->
-    <!--    <el-row v-if="['list','list-detail'].includes(spiderForm.crawl_type)"-->
-    <!--            class="list-fields-container">-->
-    <!--    <fields-table-view-->
-    <!--      type="list"-->
-    <!--      title="List Page Fields"-->
-    <!--      :fields="spiderForm.fields"-->
-    <!--    />-->
-    <!--        </el-row>-->
-    <!--./list field list-->
-
-    <!--detail field list-->
-    <!--    <el-row v-if="['detail','list-detail'].includes(spiderForm.crawl_type)"-->
-    <!--            class="detail-fields-container"-->
-    <!--            style="margin-top: 10px;">-->
-    <!--      <fields-table-view-->
-    <!--        type="detail"-->
-    <!--        title="Detail Page Fields"-->
-    <!--        :fields="spiderForm.detail_fields"-->
-    <!--      />-->
-    <!--    </el-row>-->
-    <!--./detail field list-->
   </div>
 </template>
 
@@ -228,7 +199,6 @@ export default {
   },
   data () {
     return {
-      activeNames: [],
       crawlTypeList: [
         { value: 'list', label: 'List Only' },
         { value: 'detail', label: 'Detail Only' },
@@ -283,6 +253,9 @@ export default {
         })
       })
       return i === 0
+    },
+    activeNames () {
+      return Object.values(this.spiderForm.config.stages).map(d => d.name)
     }
   },
   methods: {
@@ -416,8 +389,27 @@ export default {
     },
     onStageNameFocus (ev) {
       console.log(ev)
-      // ev.stopPropagation()
-      ev.preventDefault()
+      ev.stopPropagation()
+      // ev.preventDefault()
+    },
+    onEditStage (stage) {
+      this.$set(stage, 'isEdit', !stage.isEdit)
+      setTimeout(() => {
+        this.$refs[`stage-name-${stage.name}`][0].focus()
+      }, 0)
+    },
+    onCopyStage (stage) {
+      const ts = Math.floor(new Date().getTime()).toString()
+      const newStage = JSON.parse(JSON.stringify(stage))
+      newStage.name = `stage_${ts}`
+      this.$set(this.spiderForm.config.stages, newStage.name, newStage)
+    },
+    onRemoveStage (stage) {
+      const stages = JSON.parse(JSON.stringify(this.spiderForm.config.stages))
+      delete stages[stage.name]
+      this.$set(this.spiderForm.config, 'stages', stages)
+    },
+    onAddStage (stage) {
     }
   },
   created () {
@@ -511,25 +503,73 @@ export default {
   }
 
   .stage-list {
+    width: calc(80px + 320px);
     display: flex;
+    flex-wrap: wrap;
     list-style: none;
+    margin: 0;
+    padding: 0;
   }
 
   .stage-list .stage-item {
-    flex-basis: 360px;
+    flex-basis: 320px;
+    width: 320px;
     display: flex;
+    align-items: center;
   }
 
   .stage-list .stage-item label {
-    width: 180px;
+    flex-basis: 90px;
+    margin-right: 10px;
+    justify-self: flex-end;
   }
 
   .stage-list .stage-item .el-input {
+    flex-basis: calc(100% - 90px);
     height: 32px;
   }
 
   .stage-list .stage-item .el-input .el-input__inner {
     height: 32px;
     inline-size: 32px;
+  }
+
+  .stage-list .stage-item .action-item {
+    cursor: pointer;
+    width: 13px;
+    margin-right: 5px;
+  }
+
+  .stage-list .stage-item .action-item:last-child {
+    margin-right: 10px;
+  }
+
+  .stage-list .stage-item .text-wrapper {
+    display: flex;
+    align-items: center;
+    max-width: calc(100% - 90px - 10px);
+  }
+
+  .stage-list .stage-item .text-wrapper .text {
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .stage-list .stage-item .text-wrapper .text:hover {
+    text-decoration: underline;
+  }
+
+  .stage-list .stage-item .text-wrapper i {
+    margin-left: 5px;
+  }
+
+  .stage-list .stage-item >>> .edit-text {
+    height: 32px;
+    line-height: 32px;
+  }
+
+  .stage-list .stage-item >>> .edit-text .el-input__inner {
+    height: 32px;
+    line-height: 32px;
   }
 </style>
