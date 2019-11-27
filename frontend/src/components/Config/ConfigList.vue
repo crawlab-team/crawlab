@@ -40,57 +40,62 @@
     />
     <!--./crawl confirm dialog-->
 
-    <!--config detail-->
-    <el-row>
-      <el-form label-width="150px" ref="form" :model="spiderForm.config">
-      </el-form>
-    </el-row>
-    <!--./config detail-->
+    <!--tabs-->
+    <el-tabs :active-name="activeTab" @tab-click="onTabClick">
+      <!--Stages-->
+      <el-tab-pane name="stages" :label="$t('Stages')">
+        <!--config detail-->
+        <el-row>
+          <el-form label-width="150px" ref="form" :model="spiderForm.config">
+          </el-form>
+        </el-row>
+        <!--./config detail-->
 
-    <el-row>
-      <div class="top-wrapper">
-        <ul class="list">
-          <li class="item">
-            <label>{{$t('Start URL')}}: </label>
-            <el-input
-              v-model="spiderForm.config.start_url"
-              :placeholder="$t('Start URL')"
-              :class="startUrlClass"
-            />
-          </li>
-          <li class="item">
-            <label>{{$t('Start Stage')}}: </label>
-            <el-select
-              v-model="spiderForm.config.start_stage"
-              :placeholder="$t('Start Stage')"
-              :class="startStageClass"
-            >
-              <el-option
-                v-for="n in Object.keys(spiderForm.config.stages)"
-                :key="n"
-                :value="n"
-                :label="n"
-              />
-            </el-select>
-          </li>
-          <li class="item">
-            <label>{{$t('Engine')}}: </label>
-            <el-select
-              v-model="spiderForm.config.engine"
-              :placeholder="$t('Start Stage')"
-              :class="startStageClass"
-            >
-              <el-option
-                v-for="n in Object.keys(spiderForm.config.stages)"
-                :key="n"
-                :value="n"
-                :label="n"
-              />
-            </el-select>
-          </li>
-          <li class="item">
-            <label>{{$t('Selector Type')}}: </label>
-            <div class="selector-type">
+        <el-row>
+          <div class="top-wrapper">
+            <ul class="list">
+              <li class="item">
+                <label>{{$t('Start URL')}}: </label>
+                <el-input
+                  v-model="spiderForm.config.start_url"
+                  :placeholder="$t('Start URL')"
+                  :class="startUrlClass"
+                />
+              </li>
+              <li class="item">
+                <label>{{$t('Start Stage')}}: </label>
+                <el-select
+                  v-model="spiderForm.config.start_stage"
+                  :placeholder="$t('Start Stage')"
+                  :class="startStageClass"
+                >
+                  <el-option
+                    v-for="n in Object.keys(spiderForm.config.stages)"
+                    :key="n"
+                    :value="n"
+                    :label="n"
+                  />
+                </el-select>
+              </li>
+              <li class="item">
+                <label>{{$t('Engine')}}: </label>
+                <el-select
+                  v-model="spiderForm.config.engine"
+                  :placeholder="$t('Start Stage')"
+                  :class="startStageClass"
+                  disabled
+                >
+                  <el-option
+                    v-for="n in ['scrapy']"
+                    :key="n"
+                    :value="n"
+                    :label="n"
+                  />
+                </el-select>
+              </li>
+              <li class="item">
+                <label>{{$t('Selector Type')}}: </label>
+                <div class="selector-type">
               <span class="selector-type-item" @click="onClickSelectorType('css')">
                 <el-tag
                   :class="isCss ? 'active' : 'inactive'"
@@ -99,7 +104,7 @@
                   CSS
                 </el-tag>
               </span>
-              <span class="selector-type-item" @click="onClickSelectorType('xpath')">
+                  <span class="selector-type-item" @click="onClickSelectorType('xpath')">
               <el-tag
                 :class="isXpath ? 'active' : 'inactive'"
                 type="primary"
@@ -107,66 +112,77 @@
                 XPath
               </el-tag>
             </span>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="button-group-container">
+            <div class="button-group">
+              <el-button type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
+              <el-button type="primary" @click="onExtractFields" v-loading="extractFieldsLoading">
+                {{$t('ExtractFields')}}
+              </el-button>
+              <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>
+              <el-button type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
             </div>
-          </li>
-        </ul>
-      </div>
+          </div>
+        </el-row>
 
-      <div class="button-group-container">
-        <div class="button-group">
-          <el-button type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
-          <el-button type="primary" @click="onExtractFields" v-loading="extractFieldsLoading">{{$t('Extract Fields')}}
-          </el-button>
-          <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>
-          <el-button type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
-        </div>
-      </div>
-    </el-row>
-
-    <el-collapse
-      :value="activeNames"
-    >
-      <el-collapse-item
-        v-for="(stage, stageName) in spiderForm.config.stages"
-        :key="stageName"
-        :name="stageName"
-      >
-        <template slot="title">
-          <ul class="stage-list">
-            <li class="stage-item" style="flex-basis: 80px; justify-content: flex-end"
-                @click="$event.stopPropagation()">
-              <i class="action-item el-icon-copy-document" @click="onCopyStage(stage)"></i>
-              <i class="action-item el-icon-remove-outline" @click="onRemoveStage(stage)"></i>
-              <i class="action-item el-icon-circle-plus-outline" @click="onAddStage(stage)"></i>
-            </li>
-            <li class="stage-item" @click="$event.stopPropagation()">
-              <label>{{$t('Stage Name')}}: </label>
-              <div v-if="!stage.isEdit" @click="onEditStage(stage)" class="text-wrapper">
+        <el-collapse
+          :value="activeNames"
+        >
+          <el-collapse-item
+            v-for="(stage, stageName) in spiderForm.config.stages"
+            :key="stageName"
+            :name="stageName"
+          >
+            <template slot="title">
+              <ul class="stage-list">
+                <li class="stage-item" style="flex-basis: 80px; justify-content: flex-end"
+                    @click="$event.stopPropagation()">
+                  <i class="action-item el-icon-copy-document" @click="onCopyStage(stage)"></i>
+                  <i class="action-item el-icon-remove-outline" @click="onRemoveStage(stage)"></i>
+                  <i class="action-item el-icon-circle-plus-outline" @click="onAddStage(stage)"></i>
+                </li>
+                <li class="stage-item" @click="$event.stopPropagation()">
+                  <label>{{$t('Stage Name')}}: </label>
+                  <div v-if="!stage.isEdit" @click="onEditStage(stage)" class="text-wrapper">
                 <span class="text">
                   {{stage.name}}
                 </span>
-                <i class="el-icon-edit-outline"></i>
-              </div>
-              <el-input
-                v-else
-                :ref="`stage-name-${stage.name}`"
-                class="edit-text"
-                v-model="stage.name"
-                :placeholder="$t('Stage Name')"
-                @focus="onStageNameFocus($event)"
-                @blur="stage.isEdit = false"
-              />
-            </li>
-          </ul>
-        </template>
-        <fields-table-view
-          type="list"
-          title="List Page Fields"
-          :fields="stage.fields"
-          :stage-names="Object.keys(spiderForm.config.stages)"
-        />
-      </el-collapse-item>
-    </el-collapse>
+                    <i class="el-icon-edit-outline"></i>
+                  </div>
+                  <el-input
+                    v-else
+                    :ref="`stage-name-${stage.name}`"
+                    class="edit-text"
+                    v-model="stage.name"
+                    :placeholder="$t('Stage Name')"
+                    @focus="onStageNameFocus($event)"
+                    @blur="stage.isEdit = false"
+                  />
+                </li>
+              </ul>
+            </template>
+            <fields-table-view
+              type="list"
+              title="List Page Fields"
+              :fields="stage.fields"
+              :stage-names="Object.keys(spiderForm.config.stages)"
+            />
+          </el-collapse-item>
+        </el-collapse>
+      </el-tab-pane>
+      <!--./Stages-->
+
+      <!--Graph-->
+      <el-tab-pane name="process" :label="$t('Process')">
+        <div id="process-chart"></div>
+      </el-tab-pane>
+      <!--./Graph-->
+    </el-tabs>
+    <!--./tabs-->
   </div>
 </template>
 
@@ -174,6 +190,7 @@
 import {
   mapState
 } from 'vuex'
+import echarts from 'echarts'
 import FieldsTableView from '../TableView/FieldsTableView'
 import CrawlConfirmDialog from '../Common/CrawlConfirmDialog'
 
@@ -182,6 +199,13 @@ export default {
   components: {
     CrawlConfirmDialog,
     FieldsTableView
+  },
+  watch: {
+    activeTab () {
+      setTimeout(() => {
+        this.renderProcessChart()
+      }, 0)
+    }
   },
   data () {
     return {
@@ -203,7 +227,9 @@ export default {
         { name: 'is_attr', label: 'Is Attribute' },
         { name: 'attr', label: 'Attribute' },
         { name: 'next_stage', label: 'Next Stage' }
-      ]
+      ],
+      activeTab: 'stages',
+      processChart: undefined
     }
   },
   computed: {
@@ -259,6 +285,35 @@ export default {
         return 'invalid'
       }
       return ''
+    },
+    stageNodes () {
+      const elChart = document.querySelector('#process-chart')
+      const totalWidth = Number(getComputedStyle(elChart).width.replace('px', ''))
+      const stages = Object.values(this.spiderForm.config.stages)
+      return stages.map((stage, i) => {
+        return {
+          name: stage.name,
+          // x: i * totalWidth / stages.length,
+          // y: 0,
+          ...stage
+        }
+      })
+    },
+    stageEdges () {
+      const edges = []
+      const stages = Object.values(this.spiderForm.config.stages)
+      stages.forEach(stage => {
+        for (let i = 0; i < stage.fields.length; i++) {
+          const field = stage.fields[i]
+          if (field.next_stage) {
+            edges.push({
+              source: stage.name,
+              target: field.next_stage
+            })
+          }
+        }
+      })
+      return edges
     }
   },
   methods: {
@@ -432,6 +487,59 @@ export default {
         fields: [newField]
       }
       this.$set(this.spiderForm.config, 'stages', stages)
+    },
+    renderProcessChart () {
+      const option = {
+        title: {
+          text: this.$t('Stage Process')
+        },
+        series: [
+          {
+            type: 'graph',
+            layout: 'force',
+            symbolSize: 50,
+            roam: true,
+            label: {
+              normal: {
+                show: true
+              }
+            },
+            edgeSymbol: ['circle', 'arrow'],
+            edgeSymbolSize: [4, 10],
+            edgeLabel: {
+              normal: {
+                textStyle: {
+                  fontSize: 20
+                }
+              }
+            },
+            focusOneNodeAdjacency: true,
+            force: {
+              initLayout: 'force',
+              repulsion: 100,
+              gravity: 0.01,
+              edgeLength: 200
+            },
+            // draggable: true,
+            data: this.stageNodes,
+            links: this.stageEdges,
+            lineStyle: {
+              normal: {
+                opacity: 0.9,
+                width: 2,
+                curveness: 0
+              }
+            }
+          }
+        ]
+      }
+      const el = document.querySelector('#process-chart')
+      this.processChart = echarts.init(el)
+      this.processChart.setOption(option)
+      this.processChart.resize()
+    },
+    onTabClick (tab) {
+      this.activeTab = tab.name
     }
   },
   created () {
@@ -625,5 +733,10 @@ export default {
 
   .invalid >>> .el-input__inner {
     border: 1px solid red !important;
+  }
+
+  #process-chart {
+    width: 100%;
+    height: 480px;
   }
 </style>
