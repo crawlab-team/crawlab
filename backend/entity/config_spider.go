@@ -10,6 +10,7 @@ type Field struct {
 }
 
 type Stage struct {
+	Name      string  `yaml:"name" json:"name"`
 	IsList    bool    `yaml:"is_list" json:"is_list"`
 	ListCss   string  `yaml:"list_css" json:"list_css"`
 	ListXpath string  `yaml:"list_xpath" json:"list_xpath"`

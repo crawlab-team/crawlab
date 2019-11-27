@@ -151,6 +151,11 @@ func UploadConfigSpider(c *gin.Context) {
 		return
 	}
 
+	// 赋值 stage_name
+	for stageName, stage := range configData.Stages {
+		stage.Name = stageName
+	}
+
 	// 删除已有的爬虫文件
 	for _, fInfo := range utils.ListDir(spiderDir) {
 		// 不删除Spiderfile
