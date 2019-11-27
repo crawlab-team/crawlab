@@ -145,7 +145,21 @@
         :key="stageName"
       >
         <template slot="title">
-          {{stageName}}
+          <ul class="stage-list">
+            <li class="stage-item">
+              <label>{{$t('Stage Name')}}: </label>
+              <el-input v-model="stage.name" :placeholder="$t('Stage Name')" @focus="onStageNameFocus($event)"/>
+            </li>
+          </ul>
+<!--          <el-table :data="[{}]" :show-header="false" height="120px">-->
+<!--            <el-table-column width="100px">{{$t('Stage Name')}}:</el-table-column>-->
+<!--            <el-table-column width="180px">{{stageName}}</el-table-column>-->
+<!--          </el-table>-->
+<!--          <el-form label-width="120px" inline>-->
+<!--            <el-form-item :label="$t('Stage Name')">-->
+<!--              {{$t(stageName)}}-->
+<!--            </el-form-item>-->
+<!--          </el-form>-->
         </template>
         <fields-table-view
           type="list"
@@ -400,6 +414,11 @@ export default {
         })
       })
     },
+    onStageNameFocus (ev) {
+      console.log(ev)
+      // ev.stopPropagation()
+      ev.preventDefault()
+    }
   },
   created () {
     // fields for list page
@@ -489,5 +508,28 @@ export default {
 
   .selector-type-item > .el-tag.inactive {
     opacity: 0.5;
+  }
+
+  .stage-list {
+    display: flex;
+    list-style: none;
+  }
+
+  .stage-list .stage-item {
+    flex-basis: 360px;
+    display: flex;
+  }
+
+  .stage-list .stage-item label {
+    width: 180px;
+  }
+
+  .stage-list .stage-item .el-input {
+    height: 32px;
+  }
+
+  .stage-list .stage-item .el-input .el-input__inner {
+    height: 32px;
+    inline-size: 32px;
   }
 </style>
