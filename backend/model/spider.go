@@ -114,6 +114,10 @@ func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, int, erro
 		return spiders, 0, err
 	}
 
+    if spiders == nil {
+        spiders = []Spider{}
+    }
+
 	// 遍历爬虫列表
 	for i, spider := range spiders {
 		// 获取最后一次任务
