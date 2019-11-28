@@ -4,6 +4,7 @@ import (
 	"crawlab/constants"
 	"crawlab/database"
 	"crawlab/entity"
+	"crawlab/utils"
 	"errors"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
@@ -182,7 +183,7 @@ func GetSpider(id bson.ObjectId) (Spider, error) {
 	}
 
 	// 如果为可配置爬虫，获取爬虫配置
-	if spider.Type == constants.Configurable {
+	if spider.Type == constants.Configurable && utils.Exists(filepath.Join(spider.Src, "Spiderfile")) {
 		config, err := GetConfigSpiderData(spider)
 		if err != nil {
 			return spider, err
@@ -229,10 +230,12 @@ func RemoveSpider(id bson.ObjectId) error {
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
 
-	if err := gf.RemoveId(result.FileId); err != nil {
-		log.Error("remove file error, id:" + result.FileId.Hex())
-		debug.PrintStack()
-		return err
+	if result.FileId.Hex() != constants.ObjectIdNull {
+		if err := gf.RemoveId(result.FileId); err != nil {
+			log.Error("remove file error, id:" + result.FileId.Hex())
+			debug.PrintStack()
+			return err
+		}
 	}
 
 	return nil

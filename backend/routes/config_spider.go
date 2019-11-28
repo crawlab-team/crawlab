@@ -58,6 +58,23 @@ func PutConfigSpider(c *gin.Context) {
 	}
 	spider.Src = spiderDir
 
+	// 复制Spiderfile模版
+	contentByte, err := ioutil.ReadFile("./template/Spiderfile")
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	f, err := os.Create(filepath.Join(spider.Src, "Spiderfile"))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	defer f.Close()
+	if _, err := f.Write(contentByte); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
 	// 添加爬虫到数据库
 	if err := spider.Add(); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
