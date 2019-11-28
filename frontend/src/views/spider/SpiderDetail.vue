@@ -13,8 +13,8 @@
       <el-tab-pane :label="$t('Overview')" name="overview">
         <spider-overview/>
       </el-tab-pane>
-      <el-tab-pane v-if="isConfigurable" :label="$t('Config')" name="配置">
-        <config-list/>
+      <el-tab-pane v-if="isConfigurable" :label="$t('Config')" name="config">
+        <config-list ref="config"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Files')" name="files">
         <file-list/>
@@ -76,6 +76,10 @@ export default {
       if (this.activeTabName === 'analytics') {
         setTimeout(() => {
           this.$refs['spider-stats'].update()
+        }, 0)
+      } else if (this.activeTabName === 'config') {
+        setTimeout(() => {
+          this.$refs['config'].update()
         }, 0)
       }
       this.$st.sendEv('爬虫详情', '切换标签', tab.name)

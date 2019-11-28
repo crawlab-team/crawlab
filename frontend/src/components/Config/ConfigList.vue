@@ -538,6 +538,16 @@ export default {
     },
     onTabClick (tab) {
       this.activeTab = tab.name
+    },
+    update () {
+      if (this.activeTab !== 'stages') return
+
+      // 手动显示tab下划线
+      const elBar = document.querySelector('.el-tabs__active-bar')
+      const elStages = document.querySelector('#tab-stages')
+      const totalWidth = Number(getComputedStyle(elStages).width.replace('px', ''))
+      const paddingRight = Number(getComputedStyle(elStages).paddingRight.replace('px', ''))
+      elBar.setAttribute('style', 'width:' + (totalWidth - paddingRight) + 'px')
     }
   },
   created () {
