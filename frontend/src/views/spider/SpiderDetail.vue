@@ -48,6 +48,13 @@ export default {
     FileList,
     SpiderOverview
   },
+  watch: {
+    activeTabName () {
+      // 初始化文件
+      this.$store.commit('file/SET_FILE_CONTENT', '')
+      this.$store.commit('file/SET_CURRENT_PATH', '')
+    }
+  },
   data () {
     return {
       activeTabName: 'overview'

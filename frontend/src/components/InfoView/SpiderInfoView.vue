@@ -102,7 +102,11 @@ export default {
       'spiderForm'
     ]),
     isShowRun () {
-      return !!this.spiderForm.cmd
+      if (this.spiderForm.type === 'customized') {
+        return !!this.spiderForm.cmd
+      } else {
+        return true
+      }
     }
   },
   methods: {

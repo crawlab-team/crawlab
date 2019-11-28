@@ -120,10 +120,10 @@
           <div class="button-group-container">
             <div class="button-group">
               <el-button type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
-              <el-button type="primary" @click="onExtractFields" v-loading="extractFieldsLoading">
-                {{$t('ExtractFields')}}
-              </el-button>
-              <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>
+              <!--              <el-button type="primary" @click="onExtractFields" v-loading="extractFieldsLoading">-->
+              <!--                {{$t('ExtractFields')}}-->
+              <!--              </el-button>-->
+              <!--              <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>-->
               <el-button type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
             </div>
           </div>
@@ -181,6 +181,18 @@
         <div id="process-chart"></div>
       </el-tab-pane>
       <!--./Graph-->
+
+      <!--Spiderfile-->
+      <el-tab-pane name="spiderfile" label="Spiderfile">
+        <div class="spiderfile-actions">
+          <el-button type="primary" size="small" style="margin-right: 10px;" @click="onSpiderfileSave">
+            <font-awesome-icon :icon="['fa', 'save']"/>
+            {{$t('Save')}}
+          </el-button>
+        </div>
+        <file-detail/>
+      </el-tab-pane>
+      <!--./Spiderfile-->
     </el-tabs>
     <!--./tabs-->
   </div>
@@ -194,16 +206,25 @@ import echarts from 'echarts'
 import FieldsTableView from '../TableView/FieldsTableView'
 import CrawlConfirmDialog from '../Common/CrawlConfirmDialog'
 
+import 'codemirror/lib/codemirror.js'
+import 'codemirror/mode/yaml/yaml.js'
+import FileDetail from '../File/FileDetail'
+
 export default {
   name: 'ConfigList',
   components: {
+    FileDetail,
     CrawlConfirmDialog,
     FieldsTableView
   },
   watch: {
     activeTab () {
       setTimeout(() => {
+        // 渲染流程图
         this.renderProcessChart()
+
+        // 获取Spiderfile
+        this.getSpiderfile()
       }, 0)
     }
   },
@@ -229,7 +250,15 @@ export default {
         { name: 'next_stage', label: 'Next Stage' }
       ],
       activeTab: 'stages',
-      processChart: undefined
+      processChart: undefined,
+      fileOptions: {
+        mode: 'text/x-yaml',
+        theme: 'darcula',
+        styleActiveLine: true,
+        lineNumbers: true,
+        line: true,
+        matchBrackets: true
+      }
     }
   },
   computed: {
@@ -318,34 +347,16 @@ export default {
     onSelectCrawlType (value) {
       this.spiderForm.crawl_type = value
     },
-    onSave () {
+    async onSave () {
       this.$st.sendEv('爬虫详情-配置', '保存')
-      return new Promise((resolve, reject) => {
-        this.saveLoading = true
-        this.$store.dispatch('spider/updateSpiderFields')
-          .then(() => {
-            this.$store.dispatch('spider/editSpider')
-              .then(() => {
-                this.$message.success(this.$t('Spider info has been saved successfully'))
-                resolve()
-              })
-              .catch(() => {
-                this.$message.error(this.$t('Something wrong happened'))
-                reject(new Error())
-              })
-              .finally(() => {
-                this.saveLoading = false
-              })
-          })
-          .then(() => {
-            this.$store.dispatch('spider/updateSpiderDetailFields')
-          })
-          .catch(() => {
-            this.$message.error(this.$t('Something wrong happened'))
-            this.saveLoading = false
-            reject(new Error())
-          })
-      })
+      this.saveLoading = true
+      try {
+        await this.$store.dispatch('spider/postConfigSpiderConfig')
+        this.$message.success(this.$t('Spider info has been saved successfully'))
+      } catch (e) {
+        this.$message.error(this.$t('Something wrong happened'))
+      }
+      this.saveLoading = false
     },
     onDialogClose () {
       this.dialogVisible = false
@@ -378,17 +389,8 @@ export default {
       })
     },
     onCrawl () {
-      this.$confirm(this.$t('Are you sure to run this spider?'), this.$t('Notification'), {
-        confirmButtonText: this.$t('Confirm'),
-        cancelButtonText: this.$t('Cancel')
-      })
-        .then(() => {
-          this.$store.dispatch('spider/crawlSpider', this.spiderForm._id)
-            .then(() => {
-              this.$message.success(this.$t(`Spider task has been scheduled`))
-            })
-          this.$st.sendEv('爬虫详情-配置', '运行')
-        })
+      this.crawlConfirmDialogVisible = true
+      this.$st.sendEv('爬虫详情-配置', '点击运行')
     },
     onExtractFields () {
       this.$refs['form'].validate(res => {
@@ -571,39 +573,20 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
       const totalWidth = Number(getComputedStyle(elStages).width.replace('px', ''))
       const paddingRight = Number(getComputedStyle(elStages).paddingRight.replace('px', ''))
       elBar.setAttribute('style', 'width:' + (totalWidth - paddingRight) + 'px')
-    }
-  },
-  created () {
-    // fields for list page
-    if (!this.spiderForm.fields) {
-      this.spiderForm.fields = []
-      for (let i = 0; i < 3; i++) {
-        this.spiderForm.fields.push({
-          name: 'field_' + (i + 1),
-          type: 'css',
-          extract_type: 'text'
-        })
+    },
+    getSpiderfile () {
+      this.$store.commit('file/SET_FILE_CONTENT', '')
+      this.$store.commit('file/SET_CURRENT_PATH', 'Spiderfile')
+      this.$store.dispatch('file/getFileContent', { path: 'Spiderfile' })
+    },
+    async onSpiderfileSave () {
+      try {
+        await this.$store.dispatch('spider/saveConfigSpiderSpiderfile')
+        this.$message.success(this.$t('Spiderfile saved successfully'))
+      } catch (e) {
+        this.$message.error('Something wrong happened')
       }
     }
-
-    // fields for detail page
-    if (!this.spiderForm.detail_fields) {
-      this.spiderForm.detail_fields = []
-      for (let i = 0; i < 3; i++) {
-        this.spiderForm.detail_fields.push({
-          name: 'field_' + (i + 1),
-          type: 'css',
-          extract_type: 'text'
-        })
-      }
-    }
-
-    if (!this.spiderForm.crawl_type) this.$set(this.spiderForm, 'crawl_type', 'list')
-    // if (!this.spiderForm.start_url) this.$set(this.spiderForm, 'start_url', 'http://example.com')
-    if (!this.spiderForm.item_selector_type) this.$set(this.spiderForm, 'item_selector_type', 'css')
-    if (!this.spiderForm.pagination_selector_type) this.$set(this.spiderForm, 'pagination_selector_type', 'css')
-    if (this.spiderForm.obey_robots_txt == null) this.$set(this.spiderForm, 'obey_robots_txt', true)
-    if (this.spiderForm.item_threshold == null) this.$set(this.spiderForm, 'item_threshold', 10)
   },
   mounted () {
     this.activeNames = Object.keys(this.spiderForm.config.stages)
@@ -769,5 +752,14 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
   #process-chart {
     width: 100%;
     height: 480px;
+  }
+
+  .config-list >>> .file-content {
+    height: calc(100vh - 280px);
+  }
+
+  .spiderfile-actions {
+    margin-bottom: 5px;
+    text-align: right;
   }
 </style>

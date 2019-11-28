@@ -216,7 +216,7 @@ func (g ScrapyGenerator) GetExtractStringFromField(f entity.Field) string {
 		// 如果为CSS
 		if f.Attr == "" {
 			// 文本
-			return fmt.Sprintf(`css('%s::text()')`, f.Css)
+			return fmt.Sprintf(`css('%s::text')`, f.Css)
 		} else {
 			// 属性
 			return fmt.Sprintf(`css('%s::attr("%s")')`, f.Css, f.Attr)
@@ -242,9 +242,9 @@ func (g ScrapyGenerator) GetExtractStringFromStage(stage entity.Stage) string {
 
 	if stage.PageCss != "" {
 		// 如果为CSS
-		return fmt.Sprintf(`css(%s::attr("%s"))`, stage.PageCss, pageAttr)
+		return fmt.Sprintf(`css('%s::attr("%s")')`, stage.PageCss, pageAttr)
 	} else {
 		// 如果为XPath
-		return fmt.Sprintf(`xpath(%s/@%s)`, stage.PageXpath, pageAttr)
+		return fmt.Sprintf(`xpath('%s/@%s')`, stage.PageXpath, pageAttr)
 	}
 }

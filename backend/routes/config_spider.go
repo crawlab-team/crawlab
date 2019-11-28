@@ -158,6 +158,54 @@ func UploadConfigSpider(c *gin.Context) {
 	})
 }
 
+func PostConfigSpiderSpiderfile(c *gin.Context) {
+	type Body struct {
+		Content string `json:"content"`
+	}
+
+	id := c.Param("id")
+
+	// 文件内容
+	var reqBody Body
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+	content := reqBody.Content
+
+	// 获取爬虫
+	var spider model.Spider
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("cannot find spider (id: %s)", id))
+		return
+	}
+
+	// 反序列化
+	var configData entity.ConfigSpiderData
+	if err := yaml.Unmarshal([]byte(content), &configData); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+
+	// 根据序列化后的数据处理爬虫文件
+	if err := services.ProcessSpiderFilesFromConfigData(spider, configData); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 写文件
+	if err := ioutil.WriteFile(filepath.Join(spider.Src, "Spiderfile"), []byte(content), os.ModePerm); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
 func PostConfigSpiderConfig(c *gin.Context) {
 	id := c.Param("id")
 
@@ -166,20 +214,27 @@ func PostConfigSpiderConfig(c *gin.Context) {
 	spider, err := model.GetSpider(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("cannot find spider (id: %s)", id))
+		return
 	}
 
 	// 反序列化配置数据
 	var configData entity.ConfigSpiderData
 	if err := c.ShouldBindJSON(&configData); err != nil {
 		HandleError(http.StatusBadRequest, c, err)
+		return
 	}
 
 	// 根据序列化后的数据处理爬虫文件
 	if err := services.ProcessSpiderFilesFromConfigData(spider, configData); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
+		return
 	}
 
-	// TODO: 替换Spiderfile文件
+	// 替换Spiderfile文件
+	if err := services.GenerateSpiderfileFromConfigData(spider, configData); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
 
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",

@@ -13,6 +13,7 @@ import (
 	"github.com/globalsign/mgo/bson"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
 	"strings"
@@ -229,6 +230,31 @@ func ProcessSpiderFilesFromConfigData(spider model.Spider, configData entity.Con
 	// 保存爬虫 FileId
 	spider.FileId = fid
 	_ = spider.Save()
+
+	return nil
+}
+
+func GenerateSpiderfileFromConfigData(spider model.Spider, configData entity.ConfigSpiderData) error {
+	// Spiderfile 路径
+	sfPath := filepath.Join(spider.Src, "Spiderfile")
+
+	// 生成Yaml内容
+	sfContentByte, err := yaml.Marshal(configData)
+	if err != nil {
+		return err
+	}
+
+	// 打开文件
+	f, err := os.OpenFile(sfPath, os.O_WRONLY|os.O_TRUNC, 0777)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	// 写入内容
+	if _, err := f.Write(sfContentByte); err != nil {
+		return err
+	}
 
 	return nil
 }
