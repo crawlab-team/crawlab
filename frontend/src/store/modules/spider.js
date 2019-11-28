@@ -155,6 +155,9 @@ const actions = {
   saveConfigSpiderSpiderfile ({ state, rootState }) {
     const content = rootState.file.fileContent
     return request.post(`/config_spiders/${state.spiderForm._id}/spiderfile`, { content })
+  },
+  addConfigSpider ({ state }) {
+    return request.put(`/config_spiders`, state.spiderForm)
   }
 }
 

@@ -33,18 +33,52 @@
                width="40%"
                :visible.sync="addDialogVisible"
                :before-close="onAddDialogClose">
-      <div class="add-spider-wrapper">
-        <div @click="onAddConfigurable">
-          <el-card shadow="hover" class="add-spider-item success">
-            {{$t('Configurable Spider')}}
-          </el-card>
-        </div>
-        <div @click="onAddCustomized">
-          <el-card shadow="hover" class="add-spider-item primary">
-            {{$t('Customized Spider')}}
-          </el-card>
-        </div>
-      </div>
+      <el-tabs :active-name="spiderType">
+        <el-tab-pane name="customized" :label="$t('Customized')">
+          <el-form :model="spiderForm" ref="addCustomizedForm" inline-message>
+            <el-form-item :label="$t('Upload Zip File')" label-width="120px" name="site">
+              <el-upload
+                :action="$request.baseUrl + '/spiders'"
+                :headers="{Authorization:token}"
+                :on-change="onUploadChange"
+                :on-success="onUploadSuccess"
+                :file-list="fileList">
+                <el-button size="small" type="primary" icon="el-icon-upload">{{$t('Upload')}}</el-button>
+              </el-upload>
+            </el-form-item>
+          </el-form>
+          <el-alert type="error" :title="$t('Please zip your spider files from the root directory')"
+                    :closable="false"></el-alert>
+        </el-tab-pane>
+        <el-tab-pane name="configurable" :label="$t('Configurable')">
+          <el-form :model="spiderForm" ref="addConfigurableForm" inline-message label-width="120px">
+            <el-form-item :label="$t('Spider Name')" prop="name" required>
+              <el-input v-model="spiderForm.name" :placeholder="$t('Spider Name')"/>
+            </el-form-item>
+            <el-form-item :label="$t('Display Name')" prop="display_name" required>
+              <el-input v-model="spiderForm.display_name" :placeholder="$t('Display Name')"/>
+            </el-form-item>
+            <el-form-item :label="$t('Results')" prop="col" required>
+              <el-input v-model="spiderForm.col" :placeholder="$t('Results')"/>
+            </el-form-item>
+          </el-form>
+          <div class="actions">
+            <el-button type="primary" @click="onAddConfigurable">{{$t('Add')}}</el-button>
+          </div>
+        </el-tab-pane>
+      </el-tabs>
+      <!--      <div class="add-spider-wrapper">-->
+      <!--        <div @click="onAddConfigurable">-->
+      <!--          <el-card shadow="hover" class="add-spider-item success">-->
+      <!--            {{$t('Configurable Spider')}}-->
+      <!--          </el-card>-->
+      <!--        </div>-->
+      <!--        <div @click="onAddCustomized">-->
+      <!--          <el-card shadow="hover" class="add-spider-item primary">-->
+      <!--            {{$t('Customized Spider')}}-->
+      <!--          </el-card>-->
+      <!--        </div>-->
+      <!--      </div>-->
     </el-dialog>
     <!--./add dialog-->
 
@@ -81,20 +115,7 @@
                width="40%"
                :visible.sync="addCustomizedDialogVisible"
                :before-close="onAddCustomizedDialogClose">
-      <el-form :model="spiderForm" ref="addConfigurableForm" inline-message>
-        <el-form-item :label="$t('Upload Zip File')" label-width="120px" name="site">
-          <el-upload
-            :action="$request.baseUrl + '/spiders'"
-            :headers="{Authorization:token}"
-            :on-change="onUploadChange"
-            :on-success="onUploadSuccess"
-            :file-list="fileList">
-            <el-button size="small" type="primary" icon="el-icon-upload">{{$t('Upload')}}</el-button>
-          </el-upload>
-        </el-form-item>
-      </el-form>
-      <el-alert type="error" :title="$t('Please zip your spider files from the root directory')"
-                :closable="false"></el-alert>
+
     </el-dialog>
     <!--./customized spider dialog-->
 
@@ -301,7 +322,8 @@ export default {
       spiderFormRules: {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
       },
-      fileList: []
+      fileList: [],
+      spiderType: 'customized'
     }
   },
   computed: {
@@ -332,14 +354,24 @@ export default {
       this.getList()
     },
     onAdd () {
-      // this.addDialogVisible = true
-      this.onAddCustomized()
+      this.$store.commit('spider/SET_SPIDER_FORM', {})
+      this.addDialogVisible = true
+      // this.onAddCustomized()
     },
     onAddConfigurable () {
-      this.$store.commit('spider/SET_SPIDER_FORM', {})
-      this.addDialogVisible = false
-      this.addConfigurableDialogVisible = true
-      this.$st.sendEv('爬虫', '添加爬虫-可配置爬虫')
+      this.$refs['addConfigurableForm'].validate(async res => {
+        if (!res) return
+
+        let res2
+        try {
+          res2 = await this.$store.dispatch('spider/addConfigSpider')
+        } catch (e) {
+          this.$message.error(this.$t('Something wrong happened'))
+          return
+        }
+        this.$router.push(`/spiders/${res2.data.data._id}`)
+        this.$st.sendEv('爬虫', '添加爬虫-可配置爬虫')
+      })
     },
     onAddCustomized () {
       this.addDialogVisible = false
@@ -612,5 +644,9 @@ export default {
 <style scoped>
   .el-table >>> tr {
     cursor: pointer;
+  }
+
+  .actions {
+    text-align: right;
   }
 </style>
