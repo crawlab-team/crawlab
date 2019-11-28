@@ -216,19 +216,19 @@ func (g ScrapyGenerator) GetExtractStringFromField(f entity.Field) string {
 		// 如果为CSS
 		if f.Attr == "" {
 			// 文本
-			return fmt.Sprintf(`css(%s::text())`, f.Css)
+			return fmt.Sprintf(`css('%s::text()')`, f.Css)
 		} else {
 			// 属性
-			return fmt.Sprintf(`css(%s::attr("%s"))`, f.Css, f.Attr)
+			return fmt.Sprintf(`css('%s::attr("%s")')`, f.Css, f.Attr)
 		}
 	} else {
 		// 如果为XPath
 		if f.Attr == "" {
 			// 文本
-			return fmt.Sprintf(`xpath(%s/text())`, f.Xpath)
+			return fmt.Sprintf(`xpath('%s/text()')`, f.Xpath)
 		} else {
 			// 属性
-			return fmt.Sprintf(`xpath(%s/@%s)`, f.Xpath, f.Attr)
+			return fmt.Sprintf(`xpath('%s/@%s')`, f.Xpath, f.Attr)
 		}
 	}
 }

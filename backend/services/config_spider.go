@@ -2,11 +2,19 @@ package services
 
 import (
 	"crawlab/constants"
+	"crawlab/database"
 	"crawlab/entity"
 	"crawlab/model"
 	"crawlab/model/config_spider"
+	"crawlab/utils"
 	"errors"
 	"fmt"
+	"github.com/apex/log"
+	"github.com/globalsign/mgo/bson"
+	uuid "github.com/satori/go.uuid"
+	"github.com/spf13/viper"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -138,4 +146,89 @@ func IsUniqueConfigSpiderFields(fields []entity.Field) bool {
 		dict[field.Name] = 1
 	}
 	return true
+}
+
+func ProcessSpiderFilesFromConfigData(spider model.Spider, configData entity.ConfigSpiderData) error {
+	spiderDir := spider.Src
+
+	// 赋值 stage_name
+	for stageName, stage := range configData.Stages {
+		stage.Name = stageName
+		configData.Stages[stageName] = stage
+	}
+
+	// 删除已有的爬虫文件
+	for _, fInfo := range utils.ListDir(spiderDir) {
+		// 不删除Spiderfile
+		if fInfo.Name() == "Spiderfile" {
+			continue
+		}
+
+		// 删除其他文件
+		if err := os.RemoveAll(filepath.Join(spiderDir, fInfo.Name())); err != nil {
+			return err
+		}
+	}
+
+	// 拷贝爬虫文件
+	tplDir := "./template/scrapy"
+	for _, fInfo := range utils.ListDir(tplDir) {
+		// 跳过Spiderfile
+		if fInfo.Name() == "Spiderfile" {
+			continue
+		}
+
+		srcPath := filepath.Join(tplDir, fInfo.Name())
+		if fInfo.IsDir() {
+			dirPath := filepath.Join(spiderDir, fInfo.Name())
+			if err := utils.CopyDir(srcPath, dirPath); err != nil {
+				return err
+			}
+		} else {
+			if err := utils.CopyFile(srcPath, filepath.Join(spiderDir, fInfo.Name())); err != nil {
+				return err
+			}
+		}
+	}
+
+	// 更改爬虫文件
+	if err := GenerateConfigSpiderFiles(spider, configData); err != nil {
+		return err
+	}
+
+	// 打包为 zip 文件
+	files, err := utils.GetFilesFromDir(spiderDir)
+	if err != nil {
+		return err
+	}
+	randomId := uuid.NewV4()
+	tmpFilePath := filepath.Join(viper.GetString("other.tmppath"), spider.Name+"."+randomId.String()+".zip")
+	spiderZipFileName := spider.Name + ".zip"
+	if err := utils.Compress(files, tmpFilePath); err != nil {
+		return err
+	}
+
+	// 获取 GridFS 实例
+	s, gf := database.GetGridFs("files")
+	defer s.Close()
+
+	// 判断文件是否已经存在
+	var gfFile model.GridFs
+	if err := gf.Find(bson.M{"filename": spiderZipFileName}).One(&gfFile); err == nil {
+		// 已经存在文件，则删除
+		_ = gf.RemoveId(gfFile.Id)
+	}
+
+	// 上传到GridFs
+	fid, err := UploadToGridFs(spiderZipFileName, tmpFilePath)
+	if err != nil {
+		log.Errorf("upload to grid fs error: %s", err.Error())
+		return err
+	}
+
+	// 保存爬虫 FileId
+	spider.FileId = fid
+	_ = spider.Save()
+
+	return nil
 }
