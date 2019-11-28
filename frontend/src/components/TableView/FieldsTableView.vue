@@ -83,7 +83,7 @@
               <el-input v-model="scope.row.attr" :placeholder="$t('Attribute')"/>
             </template>
             <template v-else>
-              <span style="margin-left: 15px">
+              <span style="margin-left: 15px; color: lightgrey">
                 N/A
               </span>
             </template>
@@ -93,6 +93,8 @@
           <template slot-scope="scope">
             <el-select
               v-model="scope.row.next_stage"
+              :class="!scope.row.next_stage ? 'disabled' : ''"
+              @change="onChangeNextStage(scope.row)"
             >
               <el-option :label="$t('No Next Stage')" value=""/>
               <el-option v-for="n in stageNames" :key="n" :label="n" :value="n"/>
@@ -237,6 +239,13 @@ export default {
           }
         }
       }
+    },
+    onChangeNextStage (row) {
+      this.fields.forEach(f => {
+        if (f.name !== row.name) {
+          this.$set(f, 'next_stage', '')
+        }
+      })
     }
   }
 }
@@ -332,5 +341,9 @@ export default {
 
   .action-button-group >>> .el-checkbox__label {
     font-size: 12px;
+  }
+
+  .el-table.edit >>> .el-select.disabled .el-input__inner {
+    color: lightgrey;
   }
 </style>

@@ -493,6 +493,7 @@ export default {
         },
         series: [
           {
+            animation: false,
             type: 'graph',
             layout: 'force',
             symbolSize: 50,
@@ -515,7 +516,7 @@ export default {
             force: {
               initLayout: 'force',
               repulsion: 100,
-              gravity: 0.01,
+              gravity: 0.00001,
               edgeLength: 200
             },
             // draggable: true,
@@ -529,7 +530,29 @@ export default {
               }
             }
           }
-        ]
+        ],
+        tooltip: {
+          // formatter: '{b0}: {c0}<br />{b1}: {c1}',
+          formatter: (params) => {
+            if (!params.data.fields) return
+
+            let str = ''
+            str += `<label>${this.$t('Stage')}: ${params.name}</label><br><br>`
+            str += `<label>${this.$t('Fields')}: </label><br>`
+            str += '<ul style="list-style: none; padding: 0; margin: 0;">'
+            for (let i = 0; i < params.data.fields.length; i++) {
+              const f = params.data.fields[i]
+              str += `
+<li>
+<span style="display: inline-block; min-width: 50px; font-weight: bolder; text-align: right">${f.name}: </span>
+${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --> ' + '<span style="font-weight:bolder">' + f.next_stage + '</span>') : ''}
+</li>
+`
+            }
+            str += '</ul>'
+            return str
+          }
+        }
       }
       const el = document.querySelector('#process-chart')
       this.processChart = echarts.init(el)
