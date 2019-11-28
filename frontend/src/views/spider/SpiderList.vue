@@ -221,16 +221,19 @@
         <el-table-column :label="$t('Action')" align="left" fixed="right">
           <template slot-scope="scope">
             <el-tooltip :content="$t('View')" placement="top">
-              <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
+              <el-button type="primary" icon="el-icon-search" size="mini"
+                         @click="onView(scope.row, $event)"></el-button>
             </el-tooltip>
             <el-tooltip :content="$t('Remove')" placement="top">
-              <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
+              <el-button type="danger" icon="el-icon-delete" size="mini"
+                         @click="onRemove(scope.row, $event)"></el-button>
             </el-tooltip>
             <el-tooltip v-if="!isShowRun(scope.row)" :content="$t('No command line')" placement="top">
-              <el-button disabled type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
+              <el-button disabled type="success" icon="fa fa-bug" size="mini"
+                         @click="onCrawl(scope.row, $event)"></el-button>
             </el-tooltip>
             <el-tooltip v-else :content="$t('Run')" placement="top">
-              <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
+              <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row, $event)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -385,7 +388,8 @@ export default {
       this.$store.commit('spider/SET_SPIDER_FORM', row)
       this.dialogVisible = true
     },
-    onRemove (row) {
+    onRemove (row, ev) {
+      ev.stopPropagation()
       this.$confirm(this.$t('Are you sure to delete this spider?'), this.$t('Notification'), {
         confirmButtonText: this.$t('Confirm'),
         cancelButtonText: this.$t('Cancel'),
@@ -401,12 +405,14 @@ export default {
         this.$st.sendEv('爬虫', '删除')
       })
     },
-    onCrawl (row) {
+    onCrawl (row, ev) {
+      ev.stopPropagation()
       this.crawlConfirmDialogVisible = true
       this.activeSpiderId = row._id
       this.$st.sendEv('爬虫', '点击运行')
     },
-    onView (row) {
+    onView (row, ev) {
+      ev.stopPropagation()
       this.$router.push('/spiders/' + row._id)
       this.$st.sendEv('爬虫', '查看')
     },
@@ -494,10 +500,8 @@ export default {
       if (!str || str.match('^0001')) return 'NA'
       return dayjs(str).format('YYYY-MM-DD HH:mm:ss')
     },
-    onRowClick (row, event, column) {
-      if (column.label !== this.$t('Action')) {
-        this.onView(row)
-      }
+    onRowClick (row, column, event) {
+      this.onView(row, event)
     },
     onClickTab (tab) {
       this.filter.type = tab.name

@@ -287,14 +287,12 @@ export default {
       return ''
     },
     stageNodes () {
-      const elChart = document.querySelector('#process-chart')
-      const totalWidth = Number(getComputedStyle(elChart).width.replace('px', ''))
+      // const elChart = document.querySelector('#process-chart')
+      // const totalWidth = Number(getComputedStyle(elChart).width.replace('px', ''))
       const stages = Object.values(this.spiderForm.config.stages)
       return stages.map((stage, i) => {
         return {
           name: stage.name,
-          // x: i * totalWidth / stages.length,
-          // y: 0,
           ...stage
         }
       })
