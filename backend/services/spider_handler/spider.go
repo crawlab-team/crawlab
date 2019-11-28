@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/viper"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime/debug"
 )
@@ -119,9 +120,10 @@ func (s *SpiderSync) Download() {
 		return
 	}
 
-	//修改目标文件夹权限
+	//递归修改目标文件夹权限
 	// 解决scrapy.setting中开启LOG_ENABLED 和 LOG_FILE时不能创建log文件的问题
-	if err := os.Chmod(dstPath, 0777); err != nil {
+	cmd := exec.Command("chmod", "-R", "777", dstPath)
+	if err := cmd.Run(); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
 		return
