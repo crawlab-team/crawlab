@@ -356,6 +356,7 @@ export default {
           this.$message.error(this.$t('Something wrong happened'))
           return
         }
+        await this.$store.dispatch('spider/getSpiderList')
         this.$router.push(`/spiders/${res2.data.data._id}`)
         this.$st.sendEv('爬虫', '添加爬虫-可配置爬虫')
       })

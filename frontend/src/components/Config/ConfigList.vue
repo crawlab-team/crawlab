@@ -225,6 +225,9 @@ export default {
 
         // 获取Spiderfile
         this.getSpiderfile()
+
+        // 获取config
+        this.$store.dispatch('spider/getSpiderData', this.spiderForm._id)
       }, 0)
     }
   },
