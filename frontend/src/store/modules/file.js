@@ -42,8 +42,7 @@ const actions = {
       .then(response => {
         commit('SET_FILE_CONTENT', response.data.data)
       })
-  },
-
+  }
 }
 
 export default {
