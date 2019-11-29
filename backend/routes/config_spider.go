@@ -205,14 +205,20 @@ func PostConfigSpiderSpiderfile(c *gin.Context) {
 		return
 	}
 
-	// 根据序列化后的数据处理爬虫文件
-	if err := services.ProcessSpiderFilesFromConfigData(spider, configData); err != nil {
+	// 校验configData
+	if err := services.ValidateSpiderfile(configData); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
 	// 写文件
 	if err := ioutil.WriteFile(filepath.Join(spider.Src, "Spiderfile"), []byte(content), os.ModePerm); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 根据序列化后的数据处理爬虫文件
+	if err := services.ProcessSpiderFilesFromConfigData(spider, configData); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}

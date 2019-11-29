@@ -182,6 +182,20 @@
       </el-tab-pane>
       <!--./Graph-->
 
+      <!--Setting-->
+      <el-tab-pane name="setting" :label="$t('Setting')">
+        <setting-fields-table-view
+          type="list"
+          :fields="spiderForm.settings"
+        />
+        <fields-table-view
+          type="list"
+          title="List Page Fields"
+          :fields="stage.fields"
+        />
+      </el-tab-pane>
+      <!--./Setting-->
+
       <!--Spiderfile-->
       <el-tab-pane name="spiderfile" label="Spiderfile">
         <div class="spiderfile-actions">
@@ -209,10 +223,12 @@ import CrawlConfirmDialog from '../Common/CrawlConfirmDialog'
 import 'codemirror/lib/codemirror.js'
 import 'codemirror/mode/yaml/yaml.js'
 import FileDetail from '../File/FileDetail'
+import SettingFieldsTableView from '../TableView/SettingFieldsTableView'
 
 export default {
   name: 'ConfigList',
   components: {
+    SettingFieldsTableView,
     FileDetail,
     CrawlConfirmDialog,
     FieldsTableView

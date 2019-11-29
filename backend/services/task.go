@@ -219,12 +219,18 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	// 环境变量配置
 	envs := s.Envs
 	if s.Type == constants.Configurable {
+		// 数据库配置
 		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_HOST", Value: viper.GetString("mongo.host")})
 		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_PORT", Value: viper.GetString("mongo.port")})
 		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_DB", Value: viper.GetString("mongo.db")})
 		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_USERNAME", Value: viper.GetString("mongo.username")})
 		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_PASSWORD", Value: viper.GetString("mongo.password")})
 		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_AUTHSOURCE", Value: viper.GetString("mongo.authSource")})
+
+		// 设置配置
+		for envName, envValue := range s.Config.Settings {
+			envs = append(envs, model.Env{Name: "CRAWLAB_SETTING_" + envName, Value: envValue})
+		}
 	}
 	cmd = SetEnv(cmd, envs, t.Id, s.Col)
 

@@ -9,7 +9,7 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'config_spider'
+BOT_NAME = 'Crawlab Configurable Spider'
 
 SPIDER_MODULES = ['config_spider.spiders']
 NEWSPIDER_MODULE = 'config_spider.spiders'
@@ -88,3 +88,9 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+for setting_env_name in [x for x in os.environ.keys() if x.startswith('CRAWALAB_SETTING_')]:
+    setting_name = setting_env_name.replace('CRAWLAB_SETTING_', '')
+    setting_value = os.environ.get('setting_env_name')
+    locals()[setting_name] = setting_value
+

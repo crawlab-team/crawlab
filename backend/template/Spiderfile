@@ -23,3 +23,5 @@ stages:
     fields:
       - name: "description"
         css: "#product_description + p"
+settings:
+  ROBOTSTXT_OBEY: true
