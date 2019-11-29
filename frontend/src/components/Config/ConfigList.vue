@@ -184,15 +184,10 @@
 
       <!--Setting-->
       <el-tab-pane name="setting" :label="$t('Setting')">
-        <setting-fields-table-view
-          type="list"
-          :fields="spiderForm.settings"
-        />
-        <fields-table-view
-          type="list"
-          title="List Page Fields"
-          :fields="stage.fields"
-        />
+<!--        <setting-fields-table-view-->
+<!--          type="list"-->
+<!--          :fields="spiderForm.settings"-->
+<!--        />-->
       </el-tab-pane>
       <!--./Setting-->
 
