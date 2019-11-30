@@ -164,6 +164,8 @@ export default {
   'No Next Stage': '没有下一阶段',
   'Fields': '字段',
   'Stage': '阶段',
+  'Is List': '是否为列表',
+  'Pagination': '分页',
 
   // 爬虫列表
   'Name': '名称',

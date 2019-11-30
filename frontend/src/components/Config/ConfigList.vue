@@ -139,18 +139,22 @@
           >
             <template slot="title">
               <ul class="stage-list">
-                <li class="stage-item" style="flex-basis: 80px; justify-content: flex-end"
+                <!--actions-->
+                <li class="stage-item" style="min-width: 80px; flex-basis: 80px; justify-content: flex-end"
                     @click="$event.stopPropagation()">
                   <i class="action-item el-icon-copy-document" @click="onCopyStage(stage)"></i>
                   <i class="action-item el-icon-remove-outline" @click="onRemoveStage(stage)"></i>
                   <i class="action-item el-icon-circle-plus-outline" @click="onAddStage(stage)"></i>
                 </li>
-                <li class="stage-item" @click="$event.stopPropagation()">
+                <!--./actions-->
+
+                <!--stage name-->
+                <li class="stage-item" style="min-width: 240px" @click="$event.stopPropagation()">
                   <label>{{$t('Stage Name')}}: </label>
                   <div v-if="!stage.isEdit" @click="onEditStage(stage)" class="text-wrapper">
-                <span class="text">
-                  {{stage.name}}
-                </span>
+                    <span class="text">
+                      {{stage.name}}
+                    </span>
                     <i class="el-icon-edit-outline"></i>
                   </div>
                   <el-input
@@ -163,6 +167,72 @@
                     @blur="stage.isEdit = false"
                   />
                 </li>
+                <!--./stage name-->
+
+                <!--list-->
+                <li class="stage-item" style="min-width: 240px">
+                  <label>{{$t('Is List')}}: </label>
+                  <el-checkbox
+                    style="text-align: left; flex-basis: 20px; margin-right: 5px"
+                    :value="isList(stage)"
+                    @change="onCheckIsList($event, stage)"
+                  />
+                  <el-popover v-if="isList(stage)" placement="top">
+                    <div>
+                      <el-tag :class="stage.list_css ? 'active' : 'inactive'" type="success"
+                              @click="onSelectStageListType(stage, 'css')">CSS
+                      </el-tag>
+                      <el-tag :class="!stage.list_css ? 'active' : 'inactive'" type="primary"
+                              @click="onSelectStageListType(stage, 'xpath')">XPath
+                      </el-tag>
+                    </div>
+                    <div class="list-selector" style="margin-top: 5px; width: 240px">
+                      <el-input v-if="stage.list_css" v-model="stage.list_css"/>
+                      <el-input v-else v-model="stage.list_xpath"/>
+                    </div>
+                    <el-tag v-if="stage.list_css" type="success" slot="reference"
+                            @click="onClickStageList($event, stage, 'css')">CSS
+                    </el-tag>
+                    <el-tag v-else type="primary" slot="reference"
+                            @click="onClickStageList($event, stage, 'xpath')">
+                      XPath
+                    </el-tag>
+                  </el-popover>
+                </li>
+                <!--./list-->
+
+                <!--pagination-->
+                <li class="stage-item" style="min-width: 240px">
+                  <label>{{$t('Pagination')}}: </label>
+                  <el-checkbox
+                    style="text-align: left; flex-basis: 20px; margin-right: 5px"
+                    :value="isPage(stage)"
+                    @change="onCheckIsPage($event, stage)"
+                  />
+                  <el-popover v-if="isPage(stage)" placement="top">
+                    <div>
+                      <el-tag :class="stage.page_css ? 'active' : 'inactive'" type="success"
+                              @click="onSelectStagePageType(stage, 'css')">CSS
+                      </el-tag>
+                      <el-tag :class="!stage.page_css ? 'active' : 'inactive'" type="primary"
+                              @click="onSelectStagePageType(stage, 'xpath')">XPath
+                      </el-tag>
+                    </div>
+                    <div class="page-selector" style="margin-top: 5px; width: 240px">
+                      <el-input v-if="stage.page_css" v-model="stage.page_css"/>
+                      <el-input v-else v-model="stage.page_xpath"/>
+                    </div>
+                    <el-tag v-if="stage.page_css" type="success" slot="reference"
+                            @click="onClickStagePage($event, stage, 'css')">CSS
+                    </el-tag>
+                    <el-tag v-else type="primary" slot="reference"
+                            @click="onClickStagePage($event, stage, 'xpath')">
+                      XPath
+                    </el-tag>
+                  </el-popover>
+                </li>
+                <!--./pagination-->
+
               </ul>
             </template>
             <fields-table-view
@@ -183,11 +253,10 @@
       <!--./Graph-->
 
       <!--Setting-->
-      <el-tab-pane name="setting" :label="$t('Setting')">
-<!--        <setting-fields-table-view-->
-<!--          type="list"-->
-<!--          :fields="spiderForm.settings"-->
-<!--        />-->
+      <el-tab-pane name="settings" :label="$t('Settings')">
+        <setting-fields-table-view
+          type="list"
+        />
       </el-tab-pane>
       <!--./Setting-->
 
@@ -600,6 +669,56 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
       } catch (e) {
         this.$message.error('Something wrong happened')
       }
+    },
+    isList (stage) {
+      return !!stage.list_css || !!stage.list_xpath
+    },
+    onCheckIsList (value, stage) {
+      if (value) {
+        if (!stage.list_css && !stage.list_xpath) {
+          stage.list_css = 'body'
+        }
+      } else {
+        stage.list_css = ''
+        stage.list_xpath = ''
+      }
+    },
+    onClickStageList ($event, stage, type) {
+      $event.stopPropagation()
+    },
+    onSelectStageListType (stage, type) {
+      if (type === 'css') {
+        if (!stage.list_css) stage.list_css = 'body'
+        stage.list_xpath = ''
+      } else {
+        if (!stage.list_xpath) stage.list_xpath = '//body'
+        stage.list_css = ''
+      }
+    },
+    isPage (stage) {
+      return !!stage.page_css || !!stage.page_xpath
+    },
+    onCheckIsPage (value, stage) {
+      if (value) {
+        if (!stage.page_css && !stage.page_xpath) {
+          stage.page_css = 'body'
+        }
+      } else {
+        stage.page_css = ''
+        stage.page_xpath = ''
+      }
+    },
+    onClickStagePage ($event, stage, type) {
+      $event.stopPropagation()
+    },
+    onSelectStagePageType (stage, type) {
+      if (type === 'css') {
+        if (!stage.page_css) stage.page_css = 'body'
+        stage.page_xpath = ''
+      } else {
+        if (!stage.page_xpath) stage.page_xpath = '//body'
+        stage.page_css = ''
+      }
     }
   },
   mounted () {
@@ -653,12 +772,19 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
     font-weight: bolder;
   }
 
-  .selector-type-item > .el-tag.inactive {
+  .el-tag {
+    margin-right: 5px;
+    font-weight: bolder;
+    cursor: pointer;
+  }
+
+  .el-tag.inactive {
     opacity: 0.5;
   }
 
   .stage-list {
-    width: calc(80px + 320px);
+    width: 100%;
+    /*width: calc(80px + 320px);*/
     display: flex;
     flex-wrap: wrap;
     list-style: none;
@@ -667,8 +793,8 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
   }
 
   .stage-list .stage-item {
-    flex-basis: 320px;
-    width: 320px;
+    /*flex-basis: 320px;*/
+    min-width: 120px;
     display: flex;
     align-items: center;
   }
@@ -677,6 +803,7 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
     flex-basis: 90px;
     margin-right: 10px;
     justify-self: flex-end;
+    text-align: right;
   }
 
   .stage-list .stage-item .el-input {
