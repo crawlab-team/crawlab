@@ -302,9 +302,11 @@ func SaveTaskResultCount(id string) func() {
 
 // 执行任务
 func ExecuteTask(id int) {
-	if flag, _ := LockList.Load(id); flag.(bool) {
-		log.Debugf(GetWorkerPrefix(id) + "正在执行任务...")
-		return
+	if flag, ok := LockList.Load(id); ok {
+		if flag.(bool) {
+			log.Debugf(GetWorkerPrefix(id) + "正在执行任务...")
+		}
+
 	}
 
 	// 上锁
