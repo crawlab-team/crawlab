@@ -23,6 +23,7 @@
           <template slot-scope="scope">
             <el-input v-model="scope.row.name"
                       :placeholder="$t('Field Name')"
+                      suffix-icon="el-icon-edit"
                       @change="onNameChange(scope.row)"
             />
           </template>
@@ -50,10 +51,20 @@
         <el-table-column :label="$t('Selector')" width="200px">
           <template slot-scope="scope">
             <template v-if="scope.row.css">
-              <el-input v-model="scope.row.css" :placeholder="$t('CSS / XPath')"></el-input>
+              <el-input
+                v-model="scope.row.css"
+                :placeholder="$t('CSS / XPath')"
+                suffix-icon="el-icon-edit"
+              >
+              </el-input>
             </template>
             <template v-else>
-              <el-input v-model="scope.row.xpath" :placeholder="$t('CSS / XPath')"></el-input>
+              <el-input
+                v-model="scope.row.xpath"
+                :placeholder="$t('CSS / XPath')"
+                suffix-icon="el-icon-edit"
+              >
+              </el-input>
             </template>
           </template>
         </el-table-column>
@@ -80,7 +91,12 @@
         <el-table-column :label="$t('Attribute')" width="200px">
           <template slot-scope="scope">
             <template v-if="isShowAttr(scope.row)">
-              <el-input v-model="scope.row.attr" :placeholder="$t('Attribute')" @change="onAttrChange(scope.row)"/>
+              <el-input
+                v-model="scope.row.attr"
+                :placeholder="$t('Attribute')"
+                suffix-icon="el-icon-edit"
+                @change="onAttrChange(scope.row)"
+              />
             </template>
             <template v-else>
               <span style="margin-left: 15px; color: lightgrey">
@@ -103,7 +119,7 @@
         </el-table-column>
         <el-table-column :label="$t('Remark')" width="auto" min-width="120px">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.remark" :placeholder="$t('Remark')"/>
+            <el-input v-model="scope.row.remark" :placeholder="$t('Remark')" suffix-icon="el-icon-edit"/>
           </template>
         </el-table-column>
       </el-table>

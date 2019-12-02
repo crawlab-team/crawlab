@@ -1,11 +1,5 @@
 <template>
   <div class="setting-list-table-view">
-    <!--    <el-row class="button-group-container">-->
-    <!--      <label class="title">{{$t(this.title)}}</label>-->
-    <!--      <div class="button-group">-->
-    <!--        <el-button type="primary" size="small" @click="addField" icon="el-icon-plus">{{$t('Add Field')}}</el-button>-->
-    <!--      </div>-->
-    <!--    </el-row>-->
     <el-row>
       <el-table :data="list"
                 class="table edit"
@@ -14,22 +8,24 @@
       >
         <el-table-column class-name="action" width="80px" align="right">
           <template slot-scope="scope">
-            <i class="action-item el-icon-copy-document" @click="onCopyField(scope.row)"></i>
+            <!--            <i class="action-item el-icon-copy-document" @click="onCopyField(scope.row)"></i>-->
             <i class="action-item el-icon-remove-outline" @click="onRemoveField(scope.row)"></i>
             <i class="action-item el-icon-circle-plus-outline" @click="onAddField(scope.row)"></i>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('Name')" width="150px">
+        <el-table-column :label="$t('Name')" width="240px">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.name"
-                      :placeholder="$t('Name')"
-                      @change="onNameChange(scope.row)"
+            <el-input
+              v-model="scope.row.name"
+              :placeholder="$t('Name')"
+              suffix-icon="el-icon-edit"
+              @change="onNameChange(scope.row)"
             />
           </template>
         </el-table-column>
-        <el-table-column :label="$t('Remark')" width="auto" min-width="120px">
+        <el-table-column :label="$t('Value')" width="auto" min-width="120px">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.remark" :placeholder="$t('Remark')"/>
+            <el-input v-model="scope.row.value" :placeholder="$t('Value')" suffix-icon="el-icon-edit"/>
           </template>
         </el-table-column>
       </el-table>
@@ -58,18 +54,22 @@ export default {
       default () {
         return []
       }
-    },
-    list: {
-      type: Array,
-      default () {
-        return []
-      }
     }
   },
   computed: {
     ...mapState('spider', [
       'spiderForm'
-    ])
+    ]),
+    list () {
+      const list = []
+      for (let name in this.spiderForm.config.settings) {
+        if (this.spiderForm.config.settings.hasOwnProperty(name)) {
+          const value = this.spiderForm.config.settings[name]
+          list.push({ name, value })
+        }
+      }
+      return list
+    }
   },
   methods: {
     addField () {
@@ -124,27 +124,29 @@ export default {
       }
     },
     onRemoveField (row) {
-      for (let i = 0; i < this.list.length; i++) {
-        if (row.name === this.list[i].name) {
-          this.list.splice(i, 1)
-          break
-        }
-      }
+      console.log(row)
+      this.$store.commit(
+        'spider/UNSET_SPIDER_FORM_CONFIG_SETTING_ITEM',
+        row.name
+      )
       if (this.list.length === 0) {
-        this.list.push({
-          css: 'body',
-          next_stage: ''
-        })
+        this.$store.commit(
+          'spider/SET_SPIDER_FORM_CONFIG_SETTING_ITEM',
+          'VARIABLE_NAME_' + Math.floor(new Date().getTime()),
+          'VARIABLE_VALUE_' + Math.floor(new Date().getTime())
+        )
       }
     },
     onAddField (row) {
       for (let i = 0; i < this.list.length; i++) {
         if (row.name === this.list[i].name) {
-          this.list.splice(i + 1, 0, {
-            name: `field_${Math.floor(new Date().getTime()).toString()}`,
-            css: 'body',
-            next_stage: ''
-          })
+          this.$store.commit(
+            'spider/SET_SPIDER_FORM_CONFIG_SETTING_ITEM',
+            {
+              name: 'VARIABLE_NAME_' + Math.floor(new Date().getTime()),
+              value: 'VARIABLE_VALUE_' + Math.floor(new Date().getTime())
+            }
+          )
           break
         }
       }
@@ -172,6 +174,15 @@ export default {
           this.$set(f, 'next_stage', '')
         }
       })
+    }
+  },
+  created () {
+    if (this.list.length === 0) {
+      this.$store.commit(
+        'spider/SET_SPIDER_FORM_CONFIG_SETTING_ITEM',
+        'VARIABLE_NAME_' + Math.floor(new Date().getTime()),
+        'VARIABLE_VALUE_' + Math.floor(new Date().getTime())
+      )
     }
   }
 }

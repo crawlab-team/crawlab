@@ -177,7 +177,7 @@
                     :value="isList(stage)"
                     @change="onCheckIsList($event, stage)"
                   />
-                  <el-popover v-if="isList(stage)" placement="top">
+                  <el-popover v-model="stage.isListOpen" v-if="isList(stage)" placement="top">
                     <div>
                       <el-tag :class="stage.list_css ? 'active' : 'inactive'" type="success"
                               @click="onSelectStageListType(stage, 'css')">CSS
@@ -190,11 +190,24 @@
                       <el-input v-if="stage.list_css" v-model="stage.list_css"/>
                       <el-input v-else v-model="stage.list_xpath"/>
                     </div>
-                    <el-tag v-if="stage.list_css" type="success" slot="reference"
-                            @click="onClickStageList($event, stage, 'css')">CSS
+                    <el-tag
+                      v-if="stage.list_css"
+                      type="success"
+                      slot="reference"
+                      @click="onClickStageList($event, stage, 'css')"
+                    >
+                      <i v-if="!stage.isListOpen" class="el-icon-circle-plus-outline"></i>
+                      <i v-else class="el-icon-remove-outline"></i>
+                      CSS
                     </el-tag>
-                    <el-tag v-else type="primary" slot="reference"
-                            @click="onClickStageList($event, stage, 'xpath')">
+                    <el-tag
+                      v-else
+                      type="primary"
+                      slot="reference"
+                      @click="onClickStageList($event, stage, 'xpath')"
+                    >
+                      <i v-if="!stage.isListOpen" class="el-icon-circle-plus-outline"></i>
+                      <i v-else class="el-icon-remove-outline"></i>
                       XPath
                     </el-tag>
                   </el-popover>
@@ -208,8 +221,9 @@
                     style="text-align: left; flex-basis: 20px; margin-right: 5px"
                     :value="isPage(stage)"
                     @change="onCheckIsPage($event, stage)"
+                    :disabled="!isList(stage)"
                   />
-                  <el-popover v-if="isPage(stage)" placement="top">
+                  <el-popover v-model="stage.isPageOpen" v-if="isPage(stage)" placement="top">
                     <div>
                       <el-tag :class="stage.page_css ? 'active' : 'inactive'" type="success"
                               @click="onSelectStagePageType(stage, 'css')">CSS
@@ -222,11 +236,24 @@
                       <el-input v-if="stage.page_css" v-model="stage.page_css"/>
                       <el-input v-else v-model="stage.page_xpath"/>
                     </div>
-                    <el-tag v-if="stage.page_css" type="success" slot="reference"
-                            @click="onClickStagePage($event, stage, 'css')">CSS
+                    <el-tag
+                      v-if="stage.page_css"
+                      type="success"
+                      slot="reference"
+                      @click="onClickStagePage($event, stage, 'css')"
+                    >
+                      <i v-if="!stage.isPageOpen" class="el-icon-circle-plus-outline"></i>
+                      <i v-else class="el-icon-remove-outline"></i>
+                      CSS
                     </el-tag>
-                    <el-tag v-else type="primary" slot="reference"
-                            @click="onClickStagePage($event, stage, 'xpath')">
+                    <el-tag
+                      v-else
+                      type="primary"
+                      slot="reference"
+                      @click="onClickStagePage($event, stage, 'xpath')"
+                    >
+                      <i v-if="!stage.isPageOpen" class="el-icon-circle-plus-outline"></i>
+                      <i v-else class="el-icon-remove-outline"></i>
                       XPath
                     </el-tag>
                   </el-popover>
@@ -255,7 +282,7 @@
       <!--Setting-->
       <el-tab-pane name="settings" :label="$t('Settings')">
         <div class="actions" style="text-align: right;margin-bottom: 10px">
-          <el-button type="success" size="small">
+          <el-button type="success" size="small" @click="onSave">
             {{$t('Save')}}
           </el-button>
         </div>
@@ -522,6 +549,25 @@ export default {
     },
     onClickSelectorType (selectorType) {
       Object.values(this.spiderForm.config.stages).forEach(stage => {
+        // 列表
+        if (selectorType === 'css') {
+          if (stage.list_xpath) stage.list_xpath = ''
+          if (!stage.list_css) stage.list_css = 'body'
+        } else {
+          if (stage.list_css) stage.list_css = ''
+          if (!stage.list_xpath) stage.list_xpath = '//body'
+        }
+
+        // 分页
+        if (selectorType === 'css') {
+          if (stage.page_xpath) stage.page_xpath = ''
+          if (!stage.page_css) stage.page_css = 'body'
+        } else {
+          if (stage.page_css) stage.page_css = ''
+          if (!stage.page_xpath) stage.page_xpath = '//body'
+        }
+
+        // 字段
         stage.fields.forEach(field => {
           if (selectorType === 'css') {
             if (field.xpath) field.xpath = ''

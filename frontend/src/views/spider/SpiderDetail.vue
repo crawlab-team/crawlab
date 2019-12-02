@@ -109,6 +109,9 @@ export default {
 
     // get spider tasks
     this.$store.dispatch('spider/getTaskList', this.$route.params.id)
+
+    // get spider list
+    this.$store.dispatch('spider/getSpiderList')
   }
 }
 </script>
