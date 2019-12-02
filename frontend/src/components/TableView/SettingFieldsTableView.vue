@@ -1,5 +1,5 @@
 <template>
-  <div class="setting-fields-table-view">
+  <div class="setting-list-table-view">
     <!--    <el-row class="button-group-container">-->
     <!--      <label class="title">{{$t(this.title)}}</label>-->
     <!--      <div class="button-group">-->
@@ -7,7 +7,7 @@
     <!--      </div>-->
     <!--    </el-row>-->
     <el-row>
-      <el-table :data="fields"
+      <el-table :data="list"
                 class="table edit"
                 :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
                 :cell-style="getCellClassStyle"
@@ -19,86 +19,12 @@
             <i class="action-item el-icon-circle-plus-outline" @click="onAddField(scope.row)"></i>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('Field Name')" width="150px">
+        <el-table-column :label="$t('Name')" width="150px">
           <template slot-scope="scope">
             <el-input v-model="scope.row.name"
-                      :placeholder="$t('Field Name')"
+                      :placeholder="$t('Name')"
                       @change="onNameChange(scope.row)"
             />
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('Selector Type')" width="150px" align="center" class-name="selector-type">
-          <template slot-scope="scope">
-            <span class="button-selector-item" @click="onClickSelectorType(scope.row, 'css')">
-              <el-tag
-                :class="scope.row.css ? 'active' : 'inactive'"
-                type="success"
-              >
-                CSS
-              </el-tag>
-            </span>
-            <span class="button-selector-item" @click="onClickSelectorType(scope.row, 'xpath')">
-              <el-tag
-                :class="scope.row.xpath ? 'active' : 'inactive'"
-                type="primary"
-              >
-                XPath
-              </el-tag>
-            </span>
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('Selector')" width="200px">
-          <template slot-scope="scope">
-            <template v-if="scope.row.css">
-              <el-input v-model="scope.row.css" :placeholder="$t('CSS / XPath')"></el-input>
-            </template>
-            <template v-else>
-              <el-input v-model="scope.row.xpath" :placeholder="$t('CSS / XPath')"></el-input>
-            </template>
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('Is Attribute')" width="150px" align="center">
-          <template slot-scope="scope">
-            <span class="button-selector-item" @click="onClickIsAttribute(scope.row, false)">
-              <el-tag
-                :class="!scope.row.attr ? 'active' : 'inactive'"
-                type="success"
-              >
-                {{$t('Text')}}
-              </el-tag>
-            </span>
-            <span class="button-selector-item" @click="onClickIsAttribute(scope.row, true)">
-              <el-tag
-                :class="scope.row.attr ? 'active' : 'inactive'"
-                type="primary"
-              >
-                {{$t('Attribute')}}
-              </el-tag>
-            </span>
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('Attribute')" width="200px">
-          <template slot-scope="scope">
-            <template v-if="scope.row.attr">
-              <el-input v-model="scope.row.attr" :placeholder="$t('Attribute')"/>
-            </template>
-            <template v-else>
-              <span style="margin-left: 15px; color: lightgrey">
-                N/A
-              </span>
-            </template>
-          </template>
-        </el-table-column>
-        <el-table-column :label="$t('Next Stage')" width="250px">
-          <template slot-scope="scope">
-            <el-select
-              v-model="scope.row.next_stage"
-              :class="!scope.row.next_stage ? 'disabled' : ''"
-              @change="onChangeNextStage(scope.row)"
-            >
-              <el-option :label="$t('No Next Stage')" value=""/>
-              <el-option v-for="n in stageNames" :key="n" :label="n" :value="n"/>
-            </el-select>
           </template>
         </el-table-column>
         <el-table-column :label="$t('Remark')" width="auto" min-width="120px">
@@ -133,7 +59,7 @@ export default {
         return []
       }
     },
-    fields: {
+    list: {
       type: Array,
       default () {
         return []
@@ -147,24 +73,24 @@ export default {
   },
   methods: {
     addField () {
-      this.fields.push({
+      this.list.push({
         type: 'css',
         extract_type: 'text'
       })
       this.$st.sendEv('爬虫详情-配置', '添加字段')
     },
     deleteField (index) {
-      this.fields.splice(index, 1)
+      this.list.splice(index, 1)
       this.$st.sendEv('爬虫详情-配置', '删除字段')
     },
     onNameChange (row) {
-      if (this.fields.filter(d => d.name === row.name).length > 1) {
+      if (this.list.filter(d => d.name === row.name).length > 1) {
         this.$message.error(this.$t(`Duplicated field names for ${row.name}`))
       }
       this.$st.sendEv('爬虫详情-配置', '更改字段')
     },
     onCheck (row) {
-      this.fields.forEach(d => {
+      this.list.forEach(d => {
         if (row.name !== d.name) {
           this.$set(d, 'is_detail', false)
         }
@@ -190,31 +116,31 @@ export default {
       }
     },
     onCopyField (row) {
-      for (let i = 0; i < this.fields.length; i++) {
-        if (row.name === this.fields[i].name) {
-          this.fields.splice(i, 0, JSON.parse(JSON.stringify(row)))
+      for (let i = 0; i < this.list.length; i++) {
+        if (row.name === this.list[i].name) {
+          this.list.splice(i, 0, JSON.parse(JSON.stringify(row)))
           break
         }
       }
     },
     onRemoveField (row) {
-      for (let i = 0; i < this.fields.length; i++) {
-        if (row.name === this.fields[i].name) {
-          this.fields.splice(i, 1)
+      for (let i = 0; i < this.list.length; i++) {
+        if (row.name === this.list[i].name) {
+          this.list.splice(i, 1)
           break
         }
       }
-      if (this.fields.length === 0) {
-        this.fields.push({
+      if (this.list.length === 0) {
+        this.list.push({
           css: 'body',
           next_stage: ''
         })
       }
     },
     onAddField (row) {
-      for (let i = 0; i < this.fields.length; i++) {
-        if (row.name === this.fields[i].name) {
-          this.fields.splice(i + 1, 0, {
+      for (let i = 0; i < this.list.length; i++) {
+        if (row.name === this.list[i].name) {
+          this.list.splice(i + 1, 0, {
             name: `field_${Math.floor(new Date().getTime()).toString()}`,
             css: 'body',
             next_stage: ''
@@ -241,7 +167,7 @@ export default {
       }
     },
     onChangeNextStage (row) {
-      this.fields.forEach(f => {
+      this.list.forEach(f => {
         if (f.name !== row.name) {
           this.$set(f, 'next_stage', '')
         }

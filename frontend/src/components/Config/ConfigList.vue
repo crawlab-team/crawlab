@@ -254,6 +254,11 @@
 
       <!--Setting-->
       <el-tab-pane name="settings" :label="$t('Settings')">
+        <div class="actions" style="text-align: right;margin-bottom: 10px">
+          <el-button type="success" size="small">
+            {{$t('Save')}}
+          </el-button>
+        </div>
         <setting-fields-table-view
           type="list"
         />

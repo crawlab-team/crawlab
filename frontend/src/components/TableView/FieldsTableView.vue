@@ -61,7 +61,7 @@
           <template slot-scope="scope">
             <span class="button-selector-item" @click="onClickIsAttribute(scope.row, false)">
               <el-tag
-                :class="!scope.row.attr ? 'active' : 'inactive'"
+                :class="!isShowAttr(scope.row) ? 'active' : 'inactive'"
                 type="success"
               >
                 {{$t('Text')}}
@@ -69,7 +69,7 @@
             </span>
             <span class="button-selector-item" @click="onClickIsAttribute(scope.row, true)">
               <el-tag
-                :class="scope.row.attr ? 'active' : 'inactive'"
+                :class="isShowAttr(scope.row) ? 'active' : 'inactive'"
                 type="primary"
               >
                 {{$t('Attribute')}}
@@ -79,8 +79,8 @@
         </el-table-column>
         <el-table-column :label="$t('Attribute')" width="200px">
           <template slot-scope="scope">
-            <template v-if="scope.row.attr">
-              <el-input v-model="scope.row.attr" :placeholder="$t('Attribute')"/>
+            <template v-if="isShowAttr(scope.row)">
+              <el-input v-model="scope.row.attr" :placeholder="$t('Attribute')" @change="onAttrChange(scope.row)"/>
             </template>
             <template v-else>
               <span style="margin-left: 15px; color: lightgrey">
@@ -188,6 +188,7 @@ export default {
         // 属性
         if (!row.attr) this.$set(row, 'attr', 'href')
       }
+      this.$set(row, 'isAttrChange', false)
     },
     onCopyField (row) {
       for (let i = 0; i < this.fields.length; i++) {
@@ -246,6 +247,12 @@ export default {
           this.$set(f, 'next_stage', '')
         }
       })
+    },
+    onAttrChange (row) {
+      this.$set(row, 'isAttrChange', !row.attr)
+    },
+    isShowAttr (row) {
+      return (row.attr || row.isAttrChange)
     }
   }
 }
