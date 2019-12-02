@@ -305,6 +305,7 @@ func ExecuteTask(id int) {
 	if flag, ok := LockList.Load(id); ok {
 		if flag.(bool) {
 			log.Debugf(GetWorkerPrefix(id) + "正在执行任务...")
+			return
 		}
 
 	}
