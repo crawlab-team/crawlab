@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 
 # Scrapy settings for config_spider project
 #
