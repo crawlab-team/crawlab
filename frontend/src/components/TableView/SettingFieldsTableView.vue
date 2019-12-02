@@ -19,13 +19,18 @@
               v-model="scope.row.name"
               :placeholder="$t('Name')"
               suffix-icon="el-icon-edit"
-              @change="onNameChange(scope.row)"
+              @change="onChange(scope.row)"
             />
           </template>
         </el-table-column>
         <el-table-column :label="$t('Value')" width="auto" min-width="120px">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.value" :placeholder="$t('Value')" suffix-icon="el-icon-edit"/>
+            <el-input
+              v-model="scope.row.value"
+              :placeholder="$t('Value')"
+              suffix-icon="el-icon-edit"
+              @change="onChange(scope.row)"
+            />
           </template>
         </el-table-column>
       </el-table>
@@ -83,10 +88,11 @@ export default {
       this.list.splice(index, 1)
       this.$st.sendEv('爬虫详情-配置', '删除字段')
     },
-    onNameChange (row) {
+    onChange (row) {
       if (this.list.filter(d => d.name === row.name).length > 1) {
         this.$message.error(this.$t(`Duplicated field names for ${row.name}`))
       }
+      this.$store.commit('spider/SET_SPIDER_FORM_CONFIG_SETTINGS', this.list)
       this.$st.sendEv('爬虫详情-配置', '更改字段')
     },
     onCheck (row) {
@@ -115,41 +121,26 @@ export default {
         if (!row.attr) this.$set(row, 'attr', 'href')
       }
     },
-    onCopyField (row) {
-      for (let i = 0; i < this.list.length; i++) {
-        if (row.name === this.list[i].name) {
-          this.list.splice(i, 0, JSON.parse(JSON.stringify(row)))
-          break
+    onRemoveField (row) {
+      const list = JSON.parse(JSON.stringify(this.list))
+      for (let i = 0; i < list.length; i++) {
+        if (row.name === list[i].name) {
+          list.splice(i, 0, 1)
         }
       }
-    },
-    onRemoveField (row) {
-      console.log(row)
-      this.$store.commit(
-        'spider/UNSET_SPIDER_FORM_CONFIG_SETTING_ITEM',
-        row.name
-      )
-      if (this.list.length === 0) {
-        this.$store.commit(
-          'spider/SET_SPIDER_FORM_CONFIG_SETTING_ITEM',
-          'VARIABLE_NAME_' + Math.floor(new Date().getTime()),
-          'VARIABLE_VALUE_' + Math.floor(new Date().getTime())
-        )
-      }
+      this.$store.commit('spider/SET_SPIDER_FORM_CONFIG_SETTINGS', list)
     },
     onAddField (row) {
-      for (let i = 0; i < this.list.length; i++) {
-        if (row.name === this.list[i].name) {
-          this.$store.commit(
-            'spider/SET_SPIDER_FORM_CONFIG_SETTING_ITEM',
-            {
-              name: 'VARIABLE_NAME_' + Math.floor(new Date().getTime()),
-              value: 'VARIABLE_VALUE_' + Math.floor(new Date().getTime())
-            }
-          )
+      const list = JSON.parse(JSON.stringify(this.list))
+      for (let i = 0; i < list.length; i++) {
+        if (row.name === list[i].name) {
+          const name = 'VARIABLE_NAME_' + Math.floor(new Date().getTime())
+          const value = 'VARIABLE_VALUE_' + Math.floor(new Date().getTime())
+          list.push({ name, value })
           break
         }
       }
+      this.$store.commit('spider/SET_SPIDER_FORM_CONFIG_SETTINGS', list)
     },
     getCellClassStyle ({ row, columnIndex }) {
       if (columnIndex === 1) {

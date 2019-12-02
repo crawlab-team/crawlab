@@ -74,13 +74,11 @@ const mutations = {
   SET_PREVIEW_CRAWL_DATA (state, value) {
     state.previewCrawlData = value
   },
-  SET_SPIDER_FORM_CONFIG_SETTING_ITEM (state, payload) {
-    const { name, value } = payload
-    Vue.set(state.spiderForm.config.settings, name, value)
-  },
-  UNSET_SPIDER_FORM_CONFIG_SETTING_ITEM (state, name) {
-    const settings = JSON.parse(JSON.stringify(state.spiderForm.config.settings))
-    delete settings[name]
+  SET_SPIDER_FORM_CONFIG_SETTINGS (state, payload) {
+    const settings = {}
+    payload.forEach(row => {
+      settings[row.name] = row.value
+    })
     Vue.set(state.spiderForm.config, 'settings', settings)
   }
 }
