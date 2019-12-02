@@ -308,9 +308,12 @@ func SaveTaskResultCount(id string) func() {
 
 // 执行任务
 func ExecuteTask(id int) {
-	if flag, _ := LockList.Load(id); flag.(bool) {
-		log.Debugf(GetWorkerPrefix(id) + "正在执行任务...")
-		return
+	if flag, ok := LockList.Load(id); ok {
+		if flag.(bool) {
+			log.Debugf(GetWorkerPrefix(id) + "正在执行任务...")
+			return
+		}
+
 	}
 
 	// 上锁
@@ -474,6 +477,29 @@ func GetTaskLog(id string) (logStr string, err error) {
 	}
 
 	if IsMasterNode(task.NodeId.Hex()) {
+		if !utils.Exists(task.LogPath) {
+			fileDir, err := MakeLogDir(task)
+
+			if err != nil {
+				log.Errorf(err.Error())
+			}
+
+			fileP := GetLogFilePaths(fileDir)
+
+			// 获取日志文件路径
+			fLog, err := os.Create(fileP)
+			defer fLog.Close()
+			if err != nil {
+				log.Errorf("create task log file error: %s", fileP)
+				debug.PrintStack()
+			}
+			task.LogPath = fileP
+			if err := task.Save(); err != nil {
+				log.Errorf(err.Error())
+				debug.PrintStack()
+			}
+
+		}
 		// 若为主节点，获取本机日志
 		logBytes, err := model.GetLocalLog(task.LogPath)
 		if err != nil {
