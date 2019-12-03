@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import re
+import json
 
 # Scrapy settings for config_spider project
 #
@@ -100,6 +101,10 @@ for setting_env_name in [x for x in os.environ.keys() if x.startswith('CRAWLAB_S
         setting_value = False
     elif re.search(r'^\d+$', setting_value) is not None:
         setting_value = int(setting_value)
+    elif re.search(r'^\{.*\}$', setting_value.strip()) is not None:
+        setting_value = json.loads(setting_value)
+    elif re.search(r'^\[.*\]$', setting_value.strip()) is not None:
+        setting_value = json.loads(setting_value)
     else:
         pass
     locals()[setting_name] = setting_value

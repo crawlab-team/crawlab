@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import request from '../../api/request'
+import axisModelCommonMixin from 'echarts/src/coord/axisModelCommonMixin'
 
 const state = {
   // list of spiders
@@ -35,7 +36,10 @@ const state = {
   filterSite: '',
 
   // preview crawl data
-  previewCrawlData: []
+  previewCrawlData: [],
+
+  // template list
+  templateList: []
 }
 
 const getters = {}
@@ -80,6 +84,9 @@ const mutations = {
       settings[row.name] = row.value
     })
     Vue.set(state.spiderForm.config, 'settings', settings)
+  },
+  SET_TEMPLATE_LIST (state, value) {
+    state.templateList = value
   }
 }
 
@@ -166,6 +173,10 @@ const actions = {
   },
   addConfigSpider ({ state }) {
     return request.put(`/config_spiders`, state.spiderForm)
+  },
+  async getTemplateList ({ state, commit }) {
+    const res = await request.get(`/config_spiders_templates`)
+    commit('SET_TEMPLATE_LIST', res.data.data)
   }
 }
 

@@ -171,25 +171,27 @@
 
                 <!--list-->
                 <li class="stage-item" style="min-width: 240px">
-                  <label>{{$t('Is List')}}: </label>
+                  <label>{{$t('List')}}: </label>
                   <el-checkbox
                     style="text-align: left; flex-basis: 20px; margin-right: 5px"
                     :value="isList(stage)"
                     @change="onCheckIsList($event, stage)"
                   />
-                  <el-popover v-model="stage.isListOpen" v-if="isList(stage)" placement="top">
-                    <div>
-                      <el-tag :class="stage.list_css ? 'active' : 'inactive'" type="success"
-                              @click="onSelectStageListType(stage, 'css')">CSS
-                      </el-tag>
-                      <el-tag :class="!stage.list_css ? 'active' : 'inactive'" type="primary"
-                              @click="onSelectStageListType(stage, 'xpath')">XPath
-                      </el-tag>
-                    </div>
-                    <div class="list-selector" style="margin-top: 5px; width: 240px">
-                      <el-input v-if="stage.list_css" v-model="stage.list_css"/>
-                      <el-input v-else v-model="stage.list_xpath"/>
-                    </div>
+                  <el-popover v-model="stage.isListOpen" v-if="isList(stage)" placement="top" width="360">
+                    <el-form label-width="120px">
+                      <el-form-item :label="$t('Selector Type')">
+                        <el-tag :class="stage.list_css ? 'active' : 'inactive'" type="success"
+                                @click="onSelectStageListType(stage, 'css')">CSS
+                        </el-tag>
+                        <el-tag :class="!stage.list_css ? 'active' : 'inactive'" type="primary"
+                                @click="onSelectStageListType(stage, 'xpath')">XPath
+                        </el-tag>
+                      </el-form-item>
+                      <el-form-item :label="$t('Selector')" class="list-selector">
+                        <el-input v-if="stage.list_css" v-model="stage.list_css"/>
+                        <el-input v-else v-model="stage.list_xpath"/>
+                      </el-form-item>
+                    </el-form>
                     <el-tag
                       v-if="stage.list_css"
                       type="success"
@@ -223,19 +225,21 @@
                     @change="onCheckIsPage($event, stage)"
                     :disabled="!isList(stage)"
                   />
-                  <el-popover v-model="stage.isPageOpen" v-if="isPage(stage)" placement="top">
-                    <div>
-                      <el-tag :class="stage.page_css ? 'active' : 'inactive'" type="success"
-                              @click="onSelectStagePageType(stage, 'css')">CSS
-                      </el-tag>
-                      <el-tag :class="!stage.page_css ? 'active' : 'inactive'" type="primary"
-                              @click="onSelectStagePageType(stage, 'xpath')">XPath
-                      </el-tag>
-                    </div>
-                    <div class="page-selector" style="margin-top: 5px; width: 240px">
-                      <el-input v-if="stage.page_css" v-model="stage.page_css"/>
-                      <el-input v-else v-model="stage.page_xpath"/>
-                    </div>
+                  <el-popover v-model="stage.isPageOpen" v-if="isPage(stage)" placement="top" width="360">
+                    <el-form label-width="120px">
+                      <el-form-item :label="$t('Selector Type')">
+                        <el-tag :class="stage.page_css ? 'active' : 'inactive'" type="success"
+                                @click="onSelectStagePageType(stage, 'css')">CSS
+                        </el-tag>
+                        <el-tag :class="!stage.page_css ? 'active' : 'inactive'" type="primary"
+                                @click="onSelectStagePageType(stage, 'xpath')">XPath
+                        </el-tag>
+                      </el-form-item>
+                      <el-form-item :label="$t('Selector')" class="page-selector">
+                        <el-input v-if="stage.page_css" v-model="stage.page_css"/>
+                        <el-input v-else v-model="stage.page_xpath"/>
+                      </el-form-item>
+                    </el-form>
                     <el-tag
                       v-if="stage.page_css"
                       type="success"

@@ -5,10 +5,10 @@ start_stage: "list"
 engine: "scrapy"
 stages:
   list:
-    is_list: true # default: false
+    is_list: true
     list_css: "section article.product_pod"
     page_css: "ul.pager li.next a"
-    page_attr: "href" # default: href
+    page_attr: "href"
     fields:
       - name: "title"
         css: "h3 > a"
@@ -25,3 +25,4 @@ stages:
         css: "#product_description + p"
 settings:
   ROBOTSTXT_OBEY: true
+  AUTOTHROTTLE_ENABLED: true

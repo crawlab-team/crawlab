@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // 添加可配置爬虫
@@ -29,6 +30,12 @@ func PutConfigSpider(c *gin.Context) {
 	// 爬虫名称不能为空
 	if spider.Name == "" {
 		HandleErrorF(http.StatusBadRequest, c, "spider name should not be empty")
+		return
+	}
+
+	// 模版名不能为空
+	if spider.Template == "" {
+		HandleErrorF(http.StatusBadRequest, c, "spider template should not be empty")
 		return
 	}
 
@@ -59,7 +66,7 @@ func PutConfigSpider(c *gin.Context) {
 	spider.Src = spiderDir
 
 	// 复制Spiderfile模版
-	contentByte, err := ioutil.ReadFile("./template/Spiderfile")
+	contentByte, err := ioutil.ReadFile("./template/spiderfile/Spiderfile." + spider.Template)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
@@ -113,8 +120,8 @@ func UploadConfigSpider(c *gin.Context) {
 
 	// 文件名称必须为Spiderfile
 	filename := header.Filename
-	if filename != "Spiderfile" {
-		HandleErrorF(http.StatusBadRequest, c, "filename must be 'Spiderfile'")
+	if filename != "Spiderfile" && filename != "Spiderfile.yaml" && filename != "Spiderfile.yml" {
+		HandleErrorF(http.StatusBadRequest, c, "filename must be 'Spiderfile(.yaml|.yml)'")
 		return
 	}
 
@@ -284,5 +291,20 @@ func GetConfigSpiderConfig(c *gin.Context) {
 		Status:  "ok",
 		Message: "success",
 		Data:    spider.Config,
+	})
+}
+
+// 获取模版名称列表
+func GetConfigSpiderTemplateList(c *gin.Context) {
+	var data []string
+	for _, fInfo := range utils.ListDir("./template/spiderfile") {
+		templateName := strings.Replace(fInfo.Name(), "Spiderfile.", "", -1)
+		data = append(data, templateName)
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    data,
 	})
 }

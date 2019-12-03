@@ -165,8 +165,11 @@ export default {
   'Fields': '字段',
   'Stage': '阶段',
   'Is List': '是否为列表',
+  'List': '列表',
   'Pagination': '分页',
   'Settings': '设置',
+  'Display Name': '显示名称',
+  'Template': '模版',
 
   // 爬虫列表
   'Name': '名称',

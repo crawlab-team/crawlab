@@ -125,8 +125,14 @@ export default {
       const list = JSON.parse(JSON.stringify(this.list))
       for (let i = 0; i < list.length; i++) {
         if (row.name === list[i].name) {
-          list.splice(i, 0, 1)
+          list.splice(i, 1)
         }
+      }
+      if (list.length === 0) {
+        list.push({
+          name: `VARIABLE_NAME_${Math.floor(new Date().getTime())}`,
+          value: `VARIABLE_VALUE_${Math.floor(new Date().getTime())}`
+        })
       }
       this.$store.commit('spider/SET_SPIDER_FORM_CONFIG_SETTINGS', list)
     },

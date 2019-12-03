@@ -96,22 +96,26 @@ export default {
       this.$st.sendEv('爬虫详情', '切换爬虫')
     }
   },
-  created () {
+  async created () {
     // get the list of the spiders
     // this.$store.dispatch('spider/getSpiderList')
 
     // get spider basic info
-    this.$store.dispatch('spider/getSpiderData', this.$route.params.id)
-      .then(() => {
-        // get spider file info
-        this.$store.dispatch('file/getFileList', this.spiderForm.src)
-      })
+    await this.$store.dispatch('spider/getSpiderData', this.$route.params.id)
+
+    // get spider file info
+    await this.$store.dispatch('file/getFileList', this.spiderForm.src)
 
     // get spider tasks
-    this.$store.dispatch('spider/getTaskList', this.$route.params.id)
+    await this.$store.dispatch('spider/getTaskList', this.$route.params.id)
 
     // get spider list
-    this.$store.dispatch('spider/getSpiderList')
+    await this.$store.dispatch('spider/getSpiderList')
+
+    // if spider is configurable spider, set to config tab by default
+    if (this.spiderForm.type === 'configurable') {
+      this.activeTabName = 'config'
+    }
   }
 }
 </script>

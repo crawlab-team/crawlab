@@ -36,6 +36,9 @@ type Spider struct {
 	// 自定义爬虫
 	Cmd string `json:"cmd" bson:"cmd"` // 执行命令
 
+	// 可配置爬虫
+	Template string `json:"template" bson:"template"` // Spiderfile模版
+
 	// 前端展示
 	LastRunTs  time.Time               `json:"last_run_ts"` // 最后一次执行时间
 	LastStatus string                  `json:"last_status"` // 最后执行状态

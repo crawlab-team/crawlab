@@ -42,6 +42,16 @@
             <el-form-item :label="$t('Display Name')" prop="display_name" required>
               <el-input v-model="spiderForm.display_name" :placeholder="$t('Display Name')"/>
             </el-form-item>
+            <el-form-item :label="$t('Template')" prop="template" required>
+              <el-select v-model="spiderForm.template" :value="spiderForm.template" :placeholder="$t('Template')">
+                <el-option
+                  v-for="template in templateList"
+                  :key="template"
+                  :label="template"
+                  :value="template"
+                />
+              </el-select>
+            </el-form-item>
             <el-form-item :label="$t('Results')" prop="col" required>
               <el-input v-model="spiderForm.col" :placeholder="$t('Results')"/>
             </el-form-item>
@@ -319,7 +329,8 @@ export default {
       'importForm',
       'spiderList',
       'spiderForm',
-      'spiderTotal'
+      'spiderTotal',
+      'templateList'
     ]),
     ...mapGetters('user', [
       'token'
@@ -342,7 +353,9 @@ export default {
       this.getList()
     },
     onAdd () {
-      this.$store.commit('spider/SET_SPIDER_FORM', {})
+      this.$store.commit('spider/SET_SPIDER_FORM', {
+        template: this.templateList[0]
+      })
       this.addDialogVisible = true
     },
     onAddConfigurable () {
@@ -535,19 +548,29 @@ export default {
         type: this.filter.type
       }
       this.$store.dispatch('spider/getSpiderList', params)
-    },
-    getTypes () {
-      request.get(`/spider/types`).then(resp => {
-        this.types = resp.data.data
-      })
     }
+    // getTypes () {
+    //   request.get(`/spider/types`).then(resp => {
+    //     this.types = resp.data.data
+    //   })
+    // }
   },
-  created () {
-    this.getTypes()
+  async created () {
+    // fetch spider types
+    // await this.getTypes()
+
     // fetch spider list
-    this.getList()
+    await this.getList()
+
+    // fetch template list
+    await this.$store.dispatch('spider/getTemplateList')
   },
   mounted () {
+    console.log(this.spiderForm)
+    const vm = this
+    this.$nextTick(() => {
+      vm.$store.commit('spider/SET_SPIDER_FORM', this.spiderForm)
+    })
   }
 }
 </script>

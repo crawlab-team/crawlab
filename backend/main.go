@@ -146,6 +146,7 @@ func main() {
 			authGroup.POST("/config_spiders/:id", routes.PostConfigSpider)                      // 修改可配置爬虫
 			authGroup.POST("/config_spiders/:id/upload", routes.UploadConfigSpider)             // 上传可配置爬虫
 			authGroup.POST("/config_spiders/:id/spiderfile", routes.PostConfigSpiderSpiderfile) // 上传可配置爬虫
+			authGroup.GET("/config_spiders_templates", routes.GetConfigSpiderTemplateList)      // 获取可配置爬虫模版列表
 			// 任务
 			authGroup.GET("/tasks", routes.GetTaskList)                                 // 任务列表
 			authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情
