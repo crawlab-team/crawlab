@@ -102,7 +102,5 @@ for setting_env_name in [x for x in os.environ.keys() if x.startswith('CRAWLAB_S
         setting_value = int(setting_value)
     else:
         pass
-    print(setting_name)
-    print(setting_value)
     locals()[setting_name] = setting_value
 

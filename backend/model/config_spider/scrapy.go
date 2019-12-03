@@ -187,7 +187,7 @@ func (g ScrapyGenerator) GetListParserString(stageName string, stage entity.Stag
 	// 分页
 	if stage.PageCss != "" || stage.PageXpath != "" {
 		str += g.PadCode(fmt.Sprintf(`next_url = response.%s.extract_first()`, g.GetExtractStringFromStage(stage)), 2)
-		str += g.PadCode(fmt.Sprintf(`yield scrapy.Request(url=get_real_url(response, next_url), callback=self.parse_%s, meta={'item': item})`, stageName), 2)
+		str += g.PadCode(fmt.Sprintf(`yield scrapy.Request(url=get_real_url(response, next_url), callback=self.parse_%s, meta={'item': prev_item})`, stageName), 2)
 	}
 
 	// 加入末尾换行
