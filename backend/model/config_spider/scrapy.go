@@ -225,7 +225,7 @@ func (g ScrapyGenerator) GetExtractStringFromField(f entity.Field) string {
 		// 如果为XPath
 		if f.Attr == "" {
 			// 文本
-			return fmt.Sprintf(`xpath('%s/text()')`, f.Xpath)
+			return fmt.Sprintf(`xpath('string(%s)')`, f.Xpath)
 		} else {
 			// 属性
 			return fmt.Sprintf(`xpath('%s/@%s')`, f.Xpath, f.Attr)
