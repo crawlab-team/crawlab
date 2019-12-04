@@ -607,6 +607,14 @@ export default {
       if (Object.keys(stages).length === 0) {
         this.onAddStage()
       }
+      // 重置next_stage被设置为该stage的field
+      Object.values(this.spiderForm.config.stages).forEach(_stage => {
+        _stage.fields.forEach(field => {
+          if (field.next_stage === stage.name) {
+            this.$set(field, 'next_stage', '')
+          }
+        })
+      })
     },
     onAddStage (stage) {
       const stages = JSON.parse(JSON.stringify(this.spiderForm.config.stages))
