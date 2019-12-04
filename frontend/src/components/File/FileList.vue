@@ -120,6 +120,8 @@ export default {
       this.showFile = false
       this.onBack()
     }
+  },
+  created () {
   }
 }
 </script>

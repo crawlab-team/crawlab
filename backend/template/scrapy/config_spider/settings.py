@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import os
+import re
+import json
 
 # Scrapy settings for config_spider project
 #
@@ -9,14 +12,14 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'config_spider'
+BOT_NAME = 'Crawlab Configurable Spider'
 
 SPIDER_MODULES = ['config_spider.spiders']
 NEWSPIDER_MODULE = 'config_spider.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'config_spider (+http://www.yourdomain.com)'
+USER_AGENT = 'Crawlab Spider'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -88,3 +91,21 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+for setting_env_name in [x for x in os.environ.keys() if x.startswith('CRAWLAB_SETTING_')]:
+    setting_name = setting_env_name.replace('CRAWLAB_SETTING_', '')
+    setting_value = os.environ.get(setting_env_name)
+    if setting_value.lower() == 'true':
+        setting_value = True
+    elif setting_value.lower() == 'false':
+        setting_value = False
+    elif re.search(r'^\d+$', setting_value) is not None:
+        setting_value = int(setting_value)
+    elif re.search(r'^\{.*\}$', setting_value.strip()) is not None:
+        setting_value = json.loads(setting_value)
+    elif re.search(r'^\[.*\]$', setting_value.strip()) is not None:
+        setting_value = json.loads(setting_value)
+    else:
+        pass
+    locals()[setting_name] = setting_value
+

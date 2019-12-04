@@ -274,7 +274,7 @@ export default {
     // 爬虫列表
     request.get('/spiders', {})
       .then(response => {
-        this.spiderList = response.data.data.list
+        this.spiderList = response.data.data.list || []
       })
   }
 }

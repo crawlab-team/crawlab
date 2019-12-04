@@ -15,7 +15,7 @@ import LogItem from './LogItem'
 import VirtualList from 'vue-virtual-scroll-list'
 import Convert from 'ansi-to-html'
 import hasAnsi from 'has-ansi'
-const convert = new Convert();
+const convert = new Convert()
 export default {
   name: 'LogView',
   components: {
@@ -53,7 +53,7 @@ export default {
         props: {
           index: logItem.index,
           data: isAnsi ? convert.toHtml(logItem.data) : logItem.data,
-          isAnsi,
+          isAnsi
         }
       }
     }

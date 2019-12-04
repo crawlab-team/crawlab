@@ -2,16 +2,13 @@ package routes
 
 import (
 	"crawlab/constants"
-	"crawlab/database"
 	"crawlab/entity"
 	"crawlab/model"
 	"crawlab/services"
 	"crawlab/utils"
 	"fmt"
-	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
-	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
 	"io"
@@ -19,7 +16,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"runtime/debug"
+	"strings"
 )
 
 // 添加可配置爬虫
@@ -33,6 +30,12 @@ func PutConfigSpider(c *gin.Context) {
 	// 爬虫名称不能为空
 	if spider.Name == "" {
 		HandleErrorF(http.StatusBadRequest, c, "spider name should not be empty")
+		return
+	}
+
+	// 模版名不能为空
+	if spider.Template == "" {
+		HandleErrorF(http.StatusBadRequest, c, "spider template should not be empty")
 		return
 	}
 
@@ -61,6 +64,23 @@ func PutConfigSpider(c *gin.Context) {
 		return
 	}
 	spider.Src = spiderDir
+
+	// 复制Spiderfile模版
+	contentByte, err := ioutil.ReadFile("./template/spiderfile/Spiderfile." + spider.Template)
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	f, err := os.Create(filepath.Join(spider.Src, "Spiderfile"))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	defer f.Close()
+	if _, err := f.Write(contentByte); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
 
 	// 添加爬虫到数据库
 	if err := spider.Add(); err != nil {
@@ -100,8 +120,8 @@ func UploadConfigSpider(c *gin.Context) {
 
 	// 文件名称必须为Spiderfile
 	filename := header.Filename
-	if filename != "Spiderfile" {
-		HandleErrorF(http.StatusBadRequest, c, "filename must be 'Spiderfile'")
+	if filename != "Spiderfile" && filename != "Spiderfile.yaml" && filename != "Spiderfile.yml" {
+		HandleErrorF(http.StatusBadRequest, c, "filename must be 'Spiderfile(.yaml|.yml)'")
 		return
 	}
 
@@ -151,88 +171,146 @@ func UploadConfigSpider(c *gin.Context) {
 		return
 	}
 
-	// 删除已有的爬虫文件
-	for _, fInfo := range utils.ListDir(spiderDir) {
-		// 不删除Spiderfile
-		if fInfo.Name() == filename {
-			continue
-		}
-
-		// 删除其他文件
-		if err := os.RemoveAll(filepath.Join(spiderDir, fInfo.Name())); err != nil {
-			HandleError(http.StatusInternalServerError, c, err)
-			return
-		}
-	}
-
-	// 拷贝爬虫文件
-	tplDir := "./template/scrapy"
-	for _, fInfo := range utils.ListDir(tplDir) {
-		// 跳过Spiderfile
-		if fInfo.Name() == "Spiderfile" {
-			continue
-		}
-
-		srcPath := filepath.Join(tplDir, fInfo.Name())
-		if fInfo.IsDir() {
-			dirPath := filepath.Join(spiderDir, fInfo.Name())
-			if err := utils.CopyDir(srcPath, dirPath); err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
-		} else {
-			if err := utils.CopyFile(srcPath, filepath.Join(spiderDir, fInfo.Name())); err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
-		}
-	}
-
-	// 更改爬虫文件
-	if err := services.GenerateConfigSpiderFiles(spider, configData); err != nil {
+	// 根据序列化后的数据处理爬虫文件
+	if err := services.ProcessSpiderFilesFromConfigData(spider, configData); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
-		return
 	}
-
-	// 打包为 zip 文件
-	files, err := utils.GetFilesFromDir(spiderDir)
-	if err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-	randomId := uuid.NewV4()
-	tmpFilePath := filepath.Join(viper.GetString("other.tmppath"), spider.Name+"."+randomId.String()+".zip")
-	spiderZipFileName := spider.Name + ".zip"
-	if err := utils.Compress(files, tmpFilePath); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	// 获取 GridFS 实例
-	s, gf := database.GetGridFs("files")
-	defer s.Close()
-
-	// 判断文件是否已经存在
-	var gfFile model.GridFs
-	if err := gf.Find(bson.M{"filename": spiderZipFileName}).One(&gfFile); err == nil {
-		// 已经存在文件，则删除
-		_ = gf.RemoveId(gfFile.Id)
-	}
-
-	// 上传到GridFs
-	fid, err := services.UploadToGridFs(spiderZipFileName, tmpFilePath)
-	if err != nil {
-		log.Errorf("upload to grid fs error: %s", err.Error())
-		debug.PrintStack()
-		return
-	}
-
-	// 保存爬虫 FileId
-	spider.FileId = fid
-	_ = spider.Save()
 
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
+	})
+}
+
+func PostConfigSpiderSpiderfile(c *gin.Context) {
+	type Body struct {
+		Content string `json:"content"`
+	}
+
+	id := c.Param("id")
+
+	// 文件内容
+	var reqBody Body
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+	content := reqBody.Content
+
+	// 获取爬虫
+	var spider model.Spider
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("cannot find spider (id: %s)", id))
+		return
+	}
+
+	// 反序列化
+	var configData entity.ConfigSpiderData
+	if err := yaml.Unmarshal([]byte(content), &configData); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+
+	// 校验configData
+	if err := services.ValidateSpiderfile(configData); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 写文件
+	if err := ioutil.WriteFile(filepath.Join(spider.Src, "Spiderfile"), []byte(content), os.ModePerm); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 根据序列化后的数据处理爬虫文件
+	if err := services.ProcessSpiderFilesFromConfigData(spider, configData); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
+func PostConfigSpiderConfig(c *gin.Context) {
+	id := c.Param("id")
+
+	// 获取爬虫
+	var spider model.Spider
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("cannot find spider (id: %s)", id))
+		return
+	}
+
+	// 反序列化配置数据
+	var configData entity.ConfigSpiderData
+	if err := c.ShouldBindJSON(&configData); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+
+	// 校验configData
+	if err := services.ValidateSpiderfile(configData); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 替换Spiderfile文件
+	if err := services.GenerateSpiderfileFromConfigData(spider, configData); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 根据序列化后的数据处理爬虫文件
+	if err := services.ProcessSpiderFilesFromConfigData(spider, configData); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
+func GetConfigSpiderConfig(c *gin.Context) {
+	id := c.Param("id")
+
+	// 校验ID
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+	}
+
+	// 获取爬虫
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    spider.Config,
+	})
+}
+
+// 获取模版名称列表
+func GetConfigSpiderTemplateList(c *gin.Context) {
+	var data []string
+	for _, fInfo := range utils.ListDir("./template/spiderfile") {
+		templateName := strings.Replace(fInfo.Name(), "Spiderfile.", "", -1)
+		data = append(data, templateName)
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    data,
 	})
 }
