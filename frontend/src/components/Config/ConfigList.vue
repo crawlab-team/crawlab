@@ -314,7 +314,7 @@
 </template>
 
 <script>
-import {mapState} from 'vuex'
+import { mapState } from 'vuex'
 import echarts from 'echarts'
 import FieldsTableView from '../TableView/FieldsTableView'
 import CrawlConfirmDialog from '../Common/CrawlConfirmDialog'
