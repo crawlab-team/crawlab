@@ -125,7 +125,7 @@
               <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
             </el-tooltip>
             <el-tooltip :content="$t('Remove')" placement="top">
-              <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
+              <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row, $event)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -250,7 +250,8 @@ export default {
     onSelectSpider () {
       this.$st.sendEv('任务', '选择爬虫')
     },
-    onRemove (row) {
+    onRemove (row, ev) {
+      ev.stopPropagation()
       this.$confirm(this.$t('Are you sure to delete this task?'), this.$t('Notification'), {
         confirmButtonText: this.$t('Confirm'),
         cancelButtonText: this.$t('Cancel'),

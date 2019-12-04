@@ -34,7 +34,7 @@ func GetSpiderList(c *gin.Context) {
 		"name": bson.M{"$regex": bson.RegEx{Pattern: keyword, Options: "im"}},
 	}
 
-	if t != "" {
+	if t != "" && t != "all" {
 		filter["type"] = t
 	}
 
@@ -153,6 +153,7 @@ func PutSpider(c *gin.Context) {
 		return
 	}
 
+	// 获取 GridFS 实例
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
 

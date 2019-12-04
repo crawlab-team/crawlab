@@ -13,8 +13,8 @@
       <el-tab-pane :label="$t('Overview')" name="overview">
         <spider-overview/>
       </el-tab-pane>
-      <el-tab-pane v-if="isConfigurable" :label="$t('Config')" name="配置">
-        <config-list/>
+      <el-tab-pane v-if="isConfigurable" :label="$t('Config')" name="config">
+        <config-list ref="config"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Files')" name="files">
         <file-list/>
@@ -48,6 +48,13 @@ export default {
     FileList,
     SpiderOverview
   },
+  watch: {
+    activeTabName () {
+      // 初始化文件
+      this.$store.commit('file/SET_FILE_CONTENT', '')
+      this.$store.commit('file/SET_CURRENT_PATH', '')
+    }
+  },
   data () {
     return {
       activeTabName: 'overview'
@@ -77,6 +84,10 @@ export default {
         setTimeout(() => {
           this.$refs['spider-stats'].update()
         }, 0)
+      } else if (this.activeTabName === 'config') {
+        setTimeout(() => {
+          this.$refs['config'].update()
+        }, 0)
       }
       this.$st.sendEv('爬虫详情', '切换标签', tab.name)
     },
@@ -85,19 +96,26 @@ export default {
       this.$st.sendEv('爬虫详情', '切换爬虫')
     }
   },
-  created () {
+  async created () {
     // get the list of the spiders
     // this.$store.dispatch('spider/getSpiderList')
 
     // get spider basic info
-    this.$store.dispatch('spider/getSpiderData', this.$route.params.id)
-      .then(() => {
-        // get spider file info
-        this.$store.dispatch('file/getFileList', this.spiderForm.src)
-      })
+    await this.$store.dispatch('spider/getSpiderData', this.$route.params.id)
+
+    // get spider file info
+    await this.$store.dispatch('file/getFileList', this.spiderForm.src)
 
     // get spider tasks
-    this.$store.dispatch('spider/getTaskList', this.$route.params.id)
+    await this.$store.dispatch('spider/getTaskList', this.$route.params.id)
+
+    // get spider list
+    await this.$store.dispatch('spider/getSpiderList')
+
+    // if spider is configurable spider, set to config tab by default
+    if (this.spiderForm.type === 'configurable') {
+      this.activeTabName = 'config'
+    }
   }
 }
 </script>

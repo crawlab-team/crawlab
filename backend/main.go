@@ -110,7 +110,6 @@ func main() {
 	if model.IsMaster() {
 		// 中间件
 		app.Use(middlewares.CORSMiddleware())
-		//app.Use(middlewares.AuthorizationMiddleware())
 		anonymousGroup := app.Group("/")
 		{
 			anonymousGroup.POST("/login", routes.Login)  // 用户登录
@@ -130,7 +129,7 @@ func main() {
 			// 爬虫
 			authGroup.GET("/spiders", routes.GetSpiderList)              // 爬虫列表
 			authGroup.GET("/spiders/:id", routes.GetSpider)              // 爬虫详情
-			authGroup.POST("/spiders", routes.PutSpider)                 // 上传爬虫
+			authGroup.POST("/spiders", routes.PutSpider)                 // 上传爬虫 TODO: 名称不对
 			authGroup.POST("/spiders/:id", routes.PostSpider)            // 修改爬虫
 			authGroup.POST("/spiders/:id/publish", routes.PublishSpider) // 发布爬虫
 			authGroup.DELETE("/spiders/:id", routes.DeleteSpider)        // 删除爬虫
@@ -140,6 +139,14 @@ func main() {
 			authGroup.GET("/spiders/:id/dir", routes.GetSpiderDir)       // 爬虫目录
 			authGroup.GET("/spiders/:id/stats", routes.GetSpiderStats)   // 爬虫统计数据
 			authGroup.GET("/spider/types", routes.GetSpiderTypes)        // 爬虫类型
+			// 可配置爬虫
+			authGroup.GET("/config_spiders/:id/config", routes.GetConfigSpiderConfig)           // 获取可配置爬虫配置
+			authGroup.POST("/config_spiders/:id/config", routes.PostConfigSpiderConfig)         // 更改可配置爬虫配置
+			authGroup.PUT("/config_spiders", routes.PutConfigSpider)                            // 添加可配置爬虫
+			authGroup.POST("/config_spiders/:id", routes.PostConfigSpider)                      // 修改可配置爬虫
+			authGroup.POST("/config_spiders/:id/upload", routes.UploadConfigSpider)             // 上传可配置爬虫
+			authGroup.POST("/config_spiders/:id/spiderfile", routes.PostConfigSpiderSpiderfile) // 上传可配置爬虫
+			authGroup.GET("/config_spiders_templates", routes.GetConfigSpiderTemplateList)      // 获取可配置爬虫模版列表
 			// 任务
 			authGroup.GET("/tasks", routes.GetTaskList)                                 // 任务列表
 			authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情

@@ -258,7 +258,7 @@ func InitNodeService() error {
 		return err
 	}
 
-	// 如果为主节点，每30秒刷新所有节点信息
+	// 如果为主节点，每10秒刷新所有节点信息
 	if model.IsMaster() {
 		spec := "*/10 * * * * *"
 		if _, err := c.AddFunc(spec, UpdateNodeStatus); err != nil {

@@ -1,11 +1,17 @@
 package model
 
 import (
+	"crawlab/constants"
 	"crawlab/database"
 	"crawlab/entity"
+	"crawlab/utils"
+	"errors"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"path/filepath"
 	"runtime/debug"
 	"time"
 )
@@ -25,25 +31,20 @@ type Spider struct {
 	Site        string        `json:"site" bson:"site"`                 // 爬虫网站
 	Envs        []Env         `json:"envs" bson:"envs"`                 // 环境变量
 	Remark      string        `json:"remark" bson:"remark"`             // 备注
+	Src         string        `json:"src" bson:"src"`                   // 源码位置
+
 	// 自定义爬虫
-	Src string `json:"src" bson:"src"` // 源码位置
 	Cmd string `json:"cmd" bson:"cmd"` // 执行命令
 
+	// 可配置爬虫
+	Template string `json:"template" bson:"template"` // Spiderfile模版
+
 	// 前端展示
-	LastRunTs  time.Time `json:"last_run_ts"` // 最后一次执行时间
-	LastStatus string    `json:"last_status"` // 最后执行状态
+	LastRunTs  time.Time               `json:"last_run_ts"` // 最后一次执行时间
+	LastStatus string                  `json:"last_status"` // 最后执行状态
+	Config     entity.ConfigSpiderData `json:"config"`      // 可配置爬虫配置
 
-	// TODO: 可配置爬虫
-	//Fields                 []interface{} `json:"fields"`
-	//DetailFields           []interface{} `json:"detail_fields"`
-	//CrawlType              string        `json:"crawl_type"`
-	//StartUrl               string        `json:"start_url"`
-	//UrlPattern             string        `json:"url_pattern"`
-	//ItemSelector           string        `json:"item_selector"`
-	//ItemSelectorType       string        `json:"item_selector_type"`
-	//PaginationSelector     string        `json:"pagination_selector"`
-	//PaginationSelectorType string        `json:"pagination_selector_type"`
-
+	// 时间
 	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
 	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
 }
@@ -98,13 +99,14 @@ func (spider *Spider) GetLastTask() (Task, error) {
 	return tasks[0], nil
 }
 
+// 删除爬虫
 func (spider *Spider) Delete() error {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 	return c.RemoveId(spider.Id)
 }
 
-// 爬虫列表
+// 获取爬虫列表
 func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, int, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -114,6 +116,10 @@ func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, int, erro
 	if err := c.Find(filter).Skip(skip).Limit(limit).Sort("+name").All(&spiders); err != nil {
 		debug.PrintStack()
 		return spiders, 0, err
+	}
+
+	if spiders == nil {
+		spiders = []Spider{}
 	}
 
 	// 遍历爬虫列表
@@ -136,7 +142,7 @@ func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, int, erro
 	return spiders, count, nil
 }
 
-// 获取爬虫
+// 获取爬虫(根据FileId)
 func GetSpiderByFileId(fileId bson.ObjectId) *Spider {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -150,7 +156,7 @@ func GetSpiderByFileId(fileId bson.ObjectId) *Spider {
 	return result
 }
 
-// 获取爬虫
+// 获取爬虫(根据名称)
 func GetSpiderByName(name string) *Spider {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -158,26 +164,36 @@ func GetSpiderByName(name string) *Spider {
 	var result *Spider
 	if err := c.Find(bson.M{"name": name}).One(&result); err != nil {
 		log.Errorf("get spider error: %s, spider_name: %s", err.Error(), name)
-		debug.PrintStack()
+		//debug.PrintStack()
 		return nil
 	}
 	return result
 }
 
-// 获取爬虫
+// 获取爬虫(根据ID)
 func GetSpider(id bson.ObjectId) (Spider, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 
-	var result Spider
-	if err := c.FindId(id).One(&result); err != nil {
+	// 获取爬虫
+	var spider Spider
+	if err := c.FindId(id).One(&spider); err != nil {
 		if err != mgo.ErrNotFound {
 			log.Errorf("get spider error: %s, id: %id", err.Error(), id.Hex())
 			debug.PrintStack()
 		}
-		return result, err
+		return spider, err
 	}
-	return result, nil
+
+	// 如果为可配置爬虫，获取爬虫配置
+	if spider.Type == constants.Configurable && utils.Exists(filepath.Join(spider.Src, "Spiderfile")) {
+		config, err := GetConfigSpiderData(spider)
+		if err != nil {
+			return spider, err
+		}
+		spider.Config = config
+	}
+	return spider, nil
 }
 
 // 更新爬虫
@@ -217,10 +233,12 @@ func RemoveSpider(id bson.ObjectId) error {
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
 
-	if err := gf.RemoveId(result.FileId); err != nil {
-		log.Error("remove file error, id:" + result.FileId.Hex())
-		debug.PrintStack()
-		return err
+	if result.FileId.Hex() != constants.ObjectIdNull {
+		if err := gf.RemoveId(result.FileId); err != nil {
+			log.Error("remove file error, id:" + result.FileId.Hex())
+			debug.PrintStack()
+			return err
+		}
 	}
 
 	return nil
@@ -245,7 +263,7 @@ func RemoveAllSpider() error {
 	return nil
 }
 
-// 爬虫总数
+// 获取爬虫总数
 func GetSpiderCount() (int, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -257,7 +275,7 @@ func GetSpiderCount() (int, error) {
 	return count, nil
 }
 
-// 爬虫类型
+// 获取爬虫类型
 func GetSpiderTypes() ([]*entity.SpiderType, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
@@ -276,4 +294,36 @@ func GetSpiderTypes() ([]*entity.SpiderType, error) {
 	}
 
 	return types, nil
+}
+
+func GetConfigSpiderData(spider Spider) (entity.ConfigSpiderData, error) {
+	// 构造配置数据
+	configData := entity.ConfigSpiderData{}
+
+	// 校验爬虫类别
+	if spider.Type != constants.Configurable {
+		return configData, errors.New("not a configurable spider")
+	}
+
+	// Spiderfile 目录
+	sfPath := filepath.Join(spider.Src, "Spiderfile")
+
+	// 读取YAML文件
+	yamlFile, err := ioutil.ReadFile(sfPath)
+	if err != nil {
+		return configData, err
+	}
+
+	// 反序列化
+	if err := yaml.Unmarshal(yamlFile, &configData); err != nil {
+		return configData, err
+	}
+
+	// 赋值 stage_name
+	for stageName, stage := range configData.Stages {
+		stage.Name = stageName
+		configData.Stages[stageName] = stage
+	}
+
+	return configData, nil
 }
