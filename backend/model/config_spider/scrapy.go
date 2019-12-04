@@ -158,7 +158,7 @@ func (g ScrapyGenerator) GetListParserString(stageName string, stage entity.Stag
 	str += g.PadCode(`prev_item = response.meta.get('item')`, 2)
 
 	// for 循环遍历列表
-	str += g.PadCode(fmt.Sprintf(`for elem in response.css('%s'):`, stage.ListCss), 2)
+	str += g.PadCode(fmt.Sprintf(`for elem in response.%s:`, g.GetListString(stage)), 2)
 
 	// 构造item
 	str += g.PadCode(`item = Item()`, 3)
@@ -246,5 +246,13 @@ func (g ScrapyGenerator) GetExtractStringFromStage(stage entity.Stage) string {
 	} else {
 		// 如果为XPath
 		return fmt.Sprintf(`xpath('%s/@%s')`, stage.PageXpath, pageAttr)
+	}
+}
+
+func (g ScrapyGenerator) GetListString(stage entity.Stage) string {
+	if stage.ListCss != "" {
+		return fmt.Sprintf(`css('%s')`, stage.ListCss)
+	} else {
+		return fmt.Sprintf(`xpath('%s')`, stage.ListXpath)
 	}
 }

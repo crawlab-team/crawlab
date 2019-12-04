@@ -180,20 +180,20 @@
                   <el-popover v-model="stage.isListOpen" v-if="isList(stage)" placement="top" width="360">
                     <el-form label-width="120px">
                       <el-form-item :label="$t('Selector Type')">
-                        <el-tag :class="stage.list_css ? 'active' : 'inactive'" type="success"
+                        <el-tag :class="!stage.list_xpath ? 'active' : 'inactive'" type="success"
                                 @click="onSelectStageListType(stage, 'css')">CSS
                         </el-tag>
-                        <el-tag :class="!stage.list_css ? 'active' : 'inactive'" type="primary"
+                        <el-tag :class="stage.list_xpath ? 'active' : 'inactive'" type="primary"
                                 @click="onSelectStageListType(stage, 'xpath')">XPath
                         </el-tag>
                       </el-form-item>
                       <el-form-item :label="$t('Selector')" class="list-selector">
-                        <el-input v-if="stage.list_css" v-model="stage.list_css"/>
+                        <el-input v-if="!stage.list_xpath" v-model="stage.list_css"/>
                         <el-input v-else v-model="stage.list_xpath"/>
                       </el-form-item>
                     </el-form>
                     <el-tag
-                      v-if="stage.list_css"
+                      v-if="!stage.list_xpath"
                       type="success"
                       slot="reference"
                       @click="onClickStageList($event, stage, 'css')"
@@ -228,20 +228,20 @@
                   <el-popover v-model="stage.isPageOpen" v-if="isPage(stage)" placement="top" width="360">
                     <el-form label-width="120px">
                       <el-form-item :label="$t('Selector Type')">
-                        <el-tag :class="stage.page_css ? 'active' : 'inactive'" type="success"
+                        <el-tag :class="!stage.page_xpath ? 'active' : 'inactive'" type="success"
                                 @click="onSelectStagePageType(stage, 'css')">CSS
                         </el-tag>
-                        <el-tag :class="!stage.page_css ? 'active' : 'inactive'" type="primary"
+                        <el-tag :class="stage.page_xpath ? 'active' : 'inactive'" type="primary"
                                 @click="onSelectStagePageType(stage, 'xpath')">XPath
                         </el-tag>
                       </el-form-item>
                       <el-form-item :label="$t('Selector')" class="page-selector">
-                        <el-input v-if="stage.page_css" v-model="stage.page_css"/>
+                        <el-input v-if="!stage.page_xpath" v-model="stage.page_css"/>
                         <el-input v-else v-model="stage.page_xpath"/>
                       </el-form-item>
                     </el-form>
                     <el-tag
-                      v-if="stage.page_css"
+                      v-if="!stage.page_xpath"
                       type="success"
                       slot="reference"
                       @click="onClickStagePage($event, stage, 'css')"
@@ -618,10 +618,14 @@ export default {
       } else if (this.isXpath) {
         newField['xpath'] = '//body'
       } else {
-        newField['css'] = 'body'
+        newField['xpath'] = '//body'
       }
       stages[newStageName] = {
         name: newStageName,
+        list_css: this.isCss ? 'body' : '',
+        list_xpath: this.isXpath ? '//body' : '',
+        page_css: '',
+        page_xpath: '',
         fields: [newField]
       }
       this.$set(this.spiderForm.config, 'stages', stages)
@@ -731,7 +735,7 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
     onCheckIsList (value, stage) {
       if (value) {
         if (!stage.list_css && !stage.list_xpath) {
-          stage.list_css = 'body'
+          stage.list_xpath = '//body'
         }
       } else {
         stage.list_css = ''
@@ -756,7 +760,7 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
     onCheckIsPage (value, stage) {
       if (value) {
         if (!stage.page_css && !stage.page_xpath) {
-          stage.page_css = 'body'
+          stage.page_xpath = '//body'
         }
       } else {
         stage.page_css = ''

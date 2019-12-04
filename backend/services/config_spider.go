@@ -118,8 +118,8 @@ func ValidateSpiderfile(configData entity.ConfigSpiderData) error {
 		}
 
 		// 如果 stage 的 is_list 为 true 但 list_css 为空，报错
-		if stage.IsList && stage.ListCss == "" {
-			return errors.New("spiderfile invalid: stage with is_list = true should have list_css being set")
+		if stage.IsList && (stage.ListCss == "" && stage.ListXpath == "") {
+			return errors.New("spiderfile invalid: stage with is_list = true should have either list_css or list_xpath being set")
 		}
 	}
 

@@ -223,7 +223,7 @@ export default {
       }
       if (this.fields.length === 0) {
         this.fields.push({
-          css: 'body',
+          xpath: '//body',
           next_stage: ''
         })
       }
@@ -233,7 +233,7 @@ export default {
         if (row.name === this.fields[i].name) {
           this.fields.splice(i + 1, 0, {
             name: `field_${Math.floor(new Date().getTime()).toString()}`,
-            css: 'body',
+            xpath: '//body',
             next_stage: ''
           })
           break
