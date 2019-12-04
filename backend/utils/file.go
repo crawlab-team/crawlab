@@ -167,7 +167,6 @@ func DeCompress(srcFile *os.File, dstPath string) error {
 			debug.PrintStack()
 			continue
 		}
-		defer Close(newFile)
 
 		// 拷贝该文件到新文件中
 		if _, err := io.Copy(newFile, srcFile); err != nil {

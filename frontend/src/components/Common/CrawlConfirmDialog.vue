@@ -2,13 +2,21 @@
   <el-dialog
     :title="$t('Notification')"
     :visible="visible"
+    class="crawl-confirm-dialog"
     width="480px"
     :before-close="beforeClose"
   >
     <div style="margin-bottom: 20px;">{{$t('Are you sure to run this spider?')}}</div>
-    <el-form label-width="80px">
-      <el-form-item :label="$t('Node')">
-        <el-select v-model="nodeId">
+    <el-form label-width="80px" :model="form" ref="form">
+      <el-form-item :label="$t('Run Type')" prop="runType" required inline-message>
+        <el-select v-model="form.runType" :placeholder="$t('Run Type')">
+          <el-option value="all-nodes" :label="$t('All Nodes')"/>
+          <el-option value="selected-nodes" :label="$t('Selected Nodes')"/>
+          <el-option value="random" :label="$t('Random')"/>
+        </el-select>
+      </el-form-item>
+      <el-form-item v-if="form.runType === 'selected-nodes'" prop="nodeIds" :label="$t('Node')" required inline-message>
+        <el-select v-model="form.nodeIds" :placeholder="$t('Node')" multiple clearable>
           <el-option
             v-for="op in nodeList"
             :key="op._id"
@@ -18,8 +26,8 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item :label="$t('Parameters')">
-        <el-input v-model="param" :placeholder="$t('Parameters')"></el-input>
+      <el-form-item :label="$t('Parameters')" prop="param" inline-message>
+        <el-input v-model="form.param" :placeholder="$t('Parameters')"></el-input>
       </el-form-item>
     </el-form>
     <template slot="footer">
@@ -31,6 +39,7 @@
 
 <script>
 import request from '../../api/request'
+
 export default {
   name: 'CrawlConfirmDialog',
   props: {
@@ -45,9 +54,12 @@ export default {
   },
   data () {
     return {
-      nodeId: '',
-      param: '',
-      nodeList: []
+      form: {
+        runType: 'random',
+        nodeIds: undefined,
+        param: '',
+        nodeList: []
+      }
     }
   },
   methods: {
@@ -55,12 +67,21 @@ export default {
       this.$emit('close')
     },
     onConfirm () {
-      this.$store.dispatch('spider/crawlSpider', { id: this.spiderId, nodeId: this.nodeId, param: this.param })
-        .then(() => {
-          this.$message.success(this.$t('A task has been scheduled successfully'))
+      this.$refs['form'].validate(res => {
+        if (!res) return
+
+        this.$store.dispatch('spider/crawlSpider', {
+          spiderId: this.spiderId,
+          nodeIds: this.form.nodeIds,
+          param: this.form.param,
+          runType: this.form.runType
         })
-      this.$emit('close')
-      this.$st.sendEv('爬虫', '运行')
+          .then(() => {
+            this.$message.success(this.$t('A task has been scheduled successfully'))
+          })
+        this.$emit('close')
+        this.$st.sendEv('爬虫', '运行')
+      })
     }
   },
   created () {
@@ -81,5 +102,7 @@ export default {
 </script>
 
 <style scoped>
-
+  .crawl-confirm-dialog >>> .el-form .el-form-item {
+    margin-bottom: 20px;
+  }
 </style>

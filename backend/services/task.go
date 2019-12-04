@@ -226,12 +226,18 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	// 环境变量配置
 	envs := s.Envs
 	if s.Type == constants.Configurable {
+		// 数据库配置
 		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_HOST", Value: viper.GetString("mongo.host")})
 		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_PORT", Value: viper.GetString("mongo.port")})
 		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_DB", Value: viper.GetString("mongo.db")})
 		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_USERNAME", Value: viper.GetString("mongo.username")})
 		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_PASSWORD", Value: viper.GetString("mongo.password")})
 		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_AUTHSOURCE", Value: viper.GetString("mongo.authSource")})
+
+		// 设置配置
+		for envName, envValue := range s.Config.Settings {
+			envs = append(envs, model.Env{Name: "CRAWLAB_SETTING_" + envName, Value: envValue})
+		}
 	}
 	cmd = SetEnv(cmd, envs, t.Id, s.Col)
 
@@ -311,9 +317,12 @@ func SaveTaskResultCount(id string) func() {
 
 // 执行任务
 func ExecuteTask(id int) {
-	if flag, _ := LockList.Load(id); flag.(bool) {
-		log.Debugf(GetWorkerPrefix(id) + "正在执行任务...")
-		return
+	if flag, ok := LockList.Load(id); ok {
+		if flag.(bool) {
+			log.Debugf(GetWorkerPrefix(id) + "正在执行任务...")
+			return
+		}
+
 	}
 
 	// 上锁
@@ -485,6 +494,29 @@ func GetTaskLog(id string) (logStr string, err error) {
 	}
 
 	if IsMasterNode(task.NodeId.Hex()) {
+		if !utils.Exists(task.LogPath) {
+			fileDir, err := MakeLogDir(task)
+
+			if err != nil {
+				log.Errorf(err.Error())
+			}
+
+			fileP := GetLogFilePaths(fileDir)
+
+			// 获取日志文件路径
+			fLog, err := os.Create(fileP)
+			defer fLog.Close()
+			if err != nil {
+				log.Errorf("create task log file error: %s", fileP)
+				debug.PrintStack()
+			}
+			task.LogPath = fileP
+			if err := task.Save(); err != nil {
+				log.Errorf(err.Error())
+				debug.PrintStack()
+			}
+
+		}
 		// 若为主节点，获取本机日志
 		logBytes, err := model.GetLocalLog(task.LogPath)
 		if err != nil {

@@ -47,6 +47,8 @@ func main() {
 			panic(err)
 		}
 		log.Info("初始化定期清理日志配置成功")
+	}else {
+		log.Info("默认未开启定期清理日志配置")
 	}
 
 	// 初始化Mongodb数据库
@@ -140,9 +142,13 @@ func main() {
 			authGroup.GET("/spiders/:id/stats", routes.GetSpiderStats)   // 爬虫统计数据
 			authGroup.GET("/spider/types", routes.GetSpiderTypes)        // 爬虫类型
 			// 可配置爬虫
-			authGroup.PUT("/config_spiders", routes.PutConfigSpider)                // 添加可配置爬虫
-			authGroup.POST("/config_spiders/:id", routes.PostConfigSpider)          // 修改可配置爬虫
-			authGroup.POST("/config_spiders/:id/upload", routes.UploadConfigSpider) // 上传可配置爬虫
+			authGroup.GET("/config_spiders/:id/config", routes.GetConfigSpiderConfig)           // 获取可配置爬虫配置
+			authGroup.POST("/config_spiders/:id/config", routes.PostConfigSpiderConfig)         // 更改可配置爬虫配置
+			authGroup.PUT("/config_spiders", routes.PutConfigSpider)                            // 添加可配置爬虫
+			authGroup.POST("/config_spiders/:id", routes.PostConfigSpider)                      // 修改可配置爬虫
+			authGroup.POST("/config_spiders/:id/upload", routes.UploadConfigSpider)             // 上传可配置爬虫
+			authGroup.POST("/config_spiders/:id/spiderfile", routes.PostConfigSpiderSpiderfile) // 上传可配置爬虫
+			authGroup.GET("/config_spiders_templates", routes.GetConfigSpiderTemplateList)      // 获取可配置爬虫模版列表
 			// 任务
 			authGroup.GET("/tasks", routes.GetTaskList)                                 // 任务列表
 			authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情

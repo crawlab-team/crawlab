@@ -1,5 +1,5 @@
 const state = {
-  lang: window.localStorage.getItem('lang') || 'en'
+  lang: window.localStorage.getItem('lang') || 'zh'
 }
 
 const getters = {

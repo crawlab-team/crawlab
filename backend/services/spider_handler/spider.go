@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/viper"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime/debug"
 )
@@ -99,7 +100,6 @@ func (s *SpiderSync) Download() {
 	// 创建临时文件
 	tmpFilePath := filepath.Join(tmpPath, randomId.String()+".zip")
 	tmpFile := utils.OpenFile(tmpFilePath)
-	defer utils.Close(tmpFile)
 
 	// 将该文件写入临时文件
 	if _, err := io.Copy(tmpFile, f); err != nil {
@@ -114,6 +114,15 @@ func (s *SpiderSync) Download() {
 		s.Spider.Name,
 	)
 	if err := utils.DeCompress(tmpFile, dstPath); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return
+	}
+
+	//递归修改目标文件夹权限
+	// 解决scrapy.setting中开启LOG_ENABLED 和 LOG_FILE时不能创建log文件的问题
+	cmd := exec.Command("chmod", "-R", "777", dstPath)
+	if err := cmd.Run(); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
 		return
