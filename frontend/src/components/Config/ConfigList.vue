@@ -732,7 +732,18 @@ export default {
             if (!params.data.fields) return
 
             let str = ''
-            str += `<label>${this.$t('Stage')}: ${params.name}</label><br><br>`
+            str += `<label>${this.$t('Stage')}: ${params.name}</label><br>`
+            str += `<ul style="list-style: none; padding: 0; margin: 0;">`
+            // 列表
+            if (params.data.list_css || params.data.list_xpath) {
+              str += `<li><span style="display: inline-block;min-width: 50px;font-weight: bolder;text-align: right;margin-right: 3px">${this.$t('List')}: </span>${params.data.list_css || params.data.list_xpath}</li>`
+            }
+            if (params.data.page_css || params.data.page_xpath) {
+              str += `<li><span style="display: inline-block;min-width: 50px;font-weight: bolder;text-align: right;margin-right: 3px">${this.$t('Pagination')}: </span>${params.data.page_css || params.data.page_xpath}</li>`
+            }
+            str += `</ul><br>`
+
+            // 字段
             str += `<label>${this.$t('Fields')}: </label><br>`
             str += '<ul style="list-style: none; padding: 0; margin: 0;">'
             for (let i = 0; i < params.data.fields.length; i++) {
