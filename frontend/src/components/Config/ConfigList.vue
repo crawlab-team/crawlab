@@ -270,6 +270,7 @@
               type="list"
               title="List Page Fields"
               :fields="stage.fields"
+              :stage="stage"
               :stage-names="Object.keys(spiderForm.config.stages)"
             />
           </el-collapse-item>
@@ -313,9 +314,7 @@
 </template>
 
 <script>
-import {
-  mapState
-} from 'vuex'
+import {mapState} from 'vuex'
 import echarts from 'echarts'
 import FieldsTableView from '../TableView/FieldsTableView'
 import CrawlConfirmDialog from '../Common/CrawlConfirmDialog'
@@ -435,15 +434,58 @@ export default {
       return ''
     },
     stageNodes () {
-      // const elChart = document.querySelector('#process-chart')
-      // const totalWidth = Number(getComputedStyle(elChart).width.replace('px', ''))
-      const stages = Object.values(this.spiderForm.config.stages)
-      return stages.map((stage, i) => {
-        return {
-          name: stage.name,
-          ...stage
+      const startStage = this.spiderForm.config.stages[this.spiderForm.config.start_stage]
+      const nodes = []
+      const allStageNames = new Set()
+
+      let i = 0
+      let currentStage = startStage
+      while (currentStage) {
+        // 加入节点信息
+        nodes.push({
+          x: i++,
+          y: 0,
+          itemStyle: {
+            color: '#409EFF'
+          },
+          ...currentStage
+        })
+
+        // 记录该节点
+        allStageNames.add(currentStage.name)
+
+        // 设置当前阶段为下一阶段
+        currentStage = this.getNextStage(currentStage)
+
+        if (currentStage && allStageNames.has(currentStage.name)) {
+          currentStage = undefined
         }
+      }
+
+      // 加入剩余阶段
+      i = 0
+      const restStages = Object.values(this.spiderForm.config.stages)
+        .filter(stage => !allStageNames.has(stage.name))
+      restStages.forEach(stage => {
+        // 加入节点信息
+        nodes.push({
+          x: i++,
+          y: 1,
+          itemStyle: {
+            color: '#F56C6C'
+          },
+          ...stage
+        })
       })
+
+      return nodes
+      // const stages = Object.values(this.spiderForm.config.stages)
+      // return stages.map((stage, i) => {
+      //   return {
+      //     name: stage.name,
+      //     ...stage
+      //   }
+      // })
     },
     stageEdges () {
       const edges = []
@@ -647,7 +689,8 @@ export default {
           {
             animation: false,
             type: 'graph',
-            layout: 'force',
+            // layout: 'force',
+            layout: 'none',
             symbolSize: 50,
             roam: true,
             label: {
@@ -786,6 +829,14 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
         if (!stage.page_xpath) stage.page_xpath = '//body'
         stage.page_css = ''
       }
+    },
+    getNextStageField (stage) {
+      return stage.fields.filter(f => !!f.next_stage)[0]
+    },
+    getNextStage (stage) {
+      const nextStageField = this.getNextStageField(stage)
+      if (!nextStageField) return
+      return this.spiderForm.config.stages[nextStageField.next_stage]
     }
   },
   mounted () {

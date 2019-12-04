@@ -113,7 +113,7 @@
               @change="onChangeNextStage(scope.row)"
             >
               <el-option :label="$t('No Next Stage')" value=""/>
-              <el-option v-for="n in stageNames" :key="n" :label="n" :value="n"/>
+              <el-option v-for="n in filteredStageNames" :key="n" :label="n" :value="n"/>
             </el-select>
           </template>
         </el-table-column>
@@ -143,6 +143,12 @@ export default {
       type: String,
       default: ''
     },
+    stage: {
+      type: Object,
+      default () {
+        return {}
+      }
+    },
     stageNames: {
       type: Array,
       default () {
@@ -159,7 +165,10 @@ export default {
   computed: {
     ...mapState('spider', [
       'spiderForm'
-    ])
+    ]),
+    filteredStageNames () {
+      return this.stageNames.filter(n => n !== this.stage.name)
+    }
   },
   methods: {
     addField () {
