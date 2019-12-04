@@ -254,14 +254,20 @@ func PostConfigSpiderConfig(c *gin.Context) {
 		return
 	}
 
-	// 根据序列化后的数据处理爬虫文件
-	if err := services.ProcessSpiderFilesFromConfigData(spider, configData); err != nil {
+	// 校验configData
+	if err := services.ValidateSpiderfile(configData); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
 	// 替换Spiderfile文件
 	if err := services.GenerateSpiderfileFromConfigData(spider, configData); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 根据序列化后的数据处理爬虫文件
+	if err := services.ProcessSpiderFilesFromConfigData(spider, configData); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}

@@ -245,7 +245,12 @@ func GenerateSpiderfileFromConfigData(spider model.Spider, configData entity.Con
 	}
 
 	// 打开文件
-	f, err := os.OpenFile(sfPath, os.O_WRONLY|os.O_TRUNC, 0777)
+	var f *os.File
+	if utils.Exists(sfPath) {
+		f, err = os.OpenFile(sfPath, os.O_WRONLY|os.O_TRUNC, 0777)
+	} else {
+		f, err = os.OpenFile(sfPath, os.O_CREATE, 0777)
+	}
 	if err != nil {
 		return err
 	}

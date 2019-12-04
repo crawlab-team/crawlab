@@ -281,7 +281,6 @@ import {
 import dayjs from 'dayjs'
 import CrawlConfirmDialog from '../../components/Common/CrawlConfirmDialog'
 import StatusTag from '../../components/Status/StatusTag'
-import request from '../../api/request'
 
 export default {
   name: 'SpiderList',
