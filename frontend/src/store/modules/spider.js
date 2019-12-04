@@ -118,10 +118,11 @@ const actions = {
       })
   },
   crawlSpider ({ state, dispatch }, payload) {
-    const { id, nodeId, param } = payload
+    const { spiderId, runType, nodeIds, param } = payload
     return request.put(`/tasks`, {
-      spider_id: id,
-      node_id: nodeId,
+      spider_id: spiderId,
+      run_type: runType,
+      node_ids: nodeIds,
       param: param
     })
   },

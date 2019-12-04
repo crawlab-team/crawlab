@@ -193,6 +193,9 @@ export default {
   'Wait Duration (sec)': '等待时长(秒)',
   'Runtime Duration (sec)': '运行时长(秒)',
   'Total Duration (sec)': '总时长(秒)',
+  'Run Type': '运行类型',
+  'Random': '随机',
+  'Selected Nodes': '指定节点',
 
   // 任务列表
   'Node': '节点',
