@@ -9,7 +9,7 @@ import (
 	"encoding/csv"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 	"net/http"
 )
 
@@ -18,6 +18,7 @@ type TaskListRequestData struct {
 	PageSize int    `form:"page_size"`
 	NodeId   string `form:"node_id"`
 	SpiderId string `form:"spider_id"`
+	Status   string `form:"status"`
 }
 
 type TaskResultsRequestData struct {
@@ -46,6 +47,10 @@ func GetTaskList(c *gin.Context) {
 	}
 	if data.SpiderId != "" {
 		query["spider_id"] = bson.ObjectIdHex(data.SpiderId)
+	}
+	//新增根据任务状态获取task列表
+	if data.Status != "" {
+		query["status"] = data.Status
 	}
 
 	// 获取任务列表
@@ -111,6 +116,27 @@ func PutTask(c *gin.Context) {
 
 	// 加入任务队列
 	if err := services.AssignTask(t); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
+func DeleteTaskByStatus(c *gin.Context) {
+	status := c.Query("status")
+
+	//删除相应的日志文件
+	if err := services.RemoveLogByTaskStatus(status); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	//删除该状态下的task
+	if err := model.RemoveTaskByStatus(status); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
