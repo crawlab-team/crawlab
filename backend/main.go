@@ -47,6 +47,8 @@ func main() {
 			panic(err)
 		}
 		log.Info("初始化定期清理日志配置成功")
+	}else {
+		log.Info("默认未开启定期清理日志配置")
 	}
 
 	// 初始化Mongodb数据库
