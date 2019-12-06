@@ -119,6 +119,18 @@ func RemoveLogByTaskId(id string) error {
 	return nil
 }
 
+func RemoveLogByTaskStatus(status string) error {
+	tasks, err := model.GetTaskList(bson.M{"status": status}, 0, constants.Infinite, "-create_ts")
+	if err != nil {
+		log.Error("get tasks error:" + err.Error())
+		return err
+	}
+	for _, task := range tasks {
+		RemoveLogByTaskId(task.Id)
+	}
+	return nil
+}
+
 func removeLog(t model.Task) {
 	if err := RemoveLocalLog(t.LogPath); err != nil {
 		log.Errorf("remove local log error: %s", err.Error())

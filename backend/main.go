@@ -47,7 +47,7 @@ func main() {
 			panic(err)
 		}
 		log.Info("初始化定期清理日志配置成功")
-	}else {
+	} else {
 		log.Info("默认未开启定期清理日志配置")
 	}
 
@@ -154,6 +154,7 @@ func main() {
 			authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情
 			authGroup.PUT("/tasks", routes.PutTask)                                     // 派发任务
 			authGroup.DELETE("/tasks/:id", routes.DeleteTask)                           // 删除任务
+			authGroup.DELETE("/tasks_by_status", routes.DeleteTaskByStatus)             //删除指定状态的任务
 			authGroup.POST("/tasks/:id/cancel", routes.CancelTask)                      // 取消任务
 			authGroup.GET("/tasks/:id/log", routes.GetTaskLog)                          // 任务日志
 			authGroup.GET("/tasks/:id/results", routes.GetTaskResults)                  // 任务结果
