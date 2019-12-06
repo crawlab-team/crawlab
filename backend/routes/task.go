@@ -9,7 +9,6 @@ import (
 	"encoding/csv"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
-	"github.com/satori/go.uuid"
 	"net/http"
 )
 
@@ -91,32 +90,68 @@ func GetTask(c *gin.Context) {
 }
 
 func PutTask(c *gin.Context) {
-	// 生成任务ID
-	id := uuid.NewV4()
+	type TaskRequestBody struct {
+		SpiderId bson.ObjectId   `json:"spider_id"`
+		RunType  string          `json:"run_type"`
+		NodeIds  []bson.ObjectId `json:"node_ids"`
+		Param    string          `json:"param"`
+	}
 
 	// 绑定数据
-	var t model.Task
-	if err := c.ShouldBindJSON(&t); err != nil {
+	var reqBody TaskRequestBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		HandleError(http.StatusBadRequest, c, err)
 		return
 	}
-	t.Id = id.String()
-	t.Status = constants.StatusPending
 
-	// 如果没有传入node_id，则置为null
-	if t.NodeId.Hex() == "" {
-		t.NodeId = bson.ObjectIdHex(constants.ObjectIdNull)
-	}
+	if reqBody.RunType == constants.RunTypeAllNodes {
+		// 所有节点
+		nodes, err := model.GetNodeList(nil)
+		if err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+		for _, node := range nodes {
+			t := model.Task{
+				SpiderId: reqBody.SpiderId,
+				NodeId:   node.Id,
+				Param:    reqBody.Param,
+			}
 
-	// 将任务存入数据库
-	if err := model.AddTask(t); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
+			if err := services.AddTask(t); err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+		}
 
-	// 加入任务队列
-	if err := services.AssignTask(t); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
+	} else if reqBody.RunType == constants.RunTypeRandom {
+		// 随机
+		t := model.Task{
+			SpiderId: reqBody.SpiderId,
+			Param:    reqBody.Param,
+		}
+		if err := services.AddTask(t); err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+
+	} else if reqBody.RunType == constants.RunTypeSelectedNodes {
+		// 指定节点
+		for _, nodeId := range reqBody.NodeIds {
+			t := model.Task{
+				SpiderId: reqBody.SpiderId,
+				NodeId:   nodeId,
+				Param:    reqBody.Param,
+			}
+
+			if err := services.AddTask(t); err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+		}
+
+	} else {
+		HandleErrorF(http.StatusBadRequest, c, "invalid run_type")
 		return
 	}
 

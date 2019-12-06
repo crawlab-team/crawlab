@@ -10,6 +10,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo/bson"
+	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"os"
 	"os/exec"
@@ -585,6 +587,32 @@ func CancelTask(id string) (err error) {
 		if _, err := database.RedisClient.Publish("nodes:"+task.NodeId.Hex(), utils.BytesToString(msgBytes)); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func AddTask(t model.Task) error {
+	// 生成任务ID
+	id := uuid.NewV4()
+	t.Id = id.String()
+
+	// 设置任务状态
+	t.Status = constants.StatusPending
+
+	// 如果没有传入node_id，则置为null
+	if t.NodeId.Hex() == "" {
+		t.NodeId = bson.ObjectIdHex(constants.ObjectIdNull)
+	}
+
+	// 将任务存入数据库
+	if err := model.AddTask(t); err != nil {
+		return err
+	}
+
+	// 加入任务队列
+	if err := AssignTask(t); err != nil {
+		return err
 	}
 
 	return nil
