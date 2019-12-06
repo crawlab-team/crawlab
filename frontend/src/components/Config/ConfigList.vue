@@ -549,7 +549,8 @@ export default {
         }
       })
     },
-    onCrawl () {
+    async onCrawl () {
+      await this.onSave()
       this.crawlConfirmDialogVisible = true
       this.$st.sendEv('爬虫详情-配置', '点击运行')
     },
