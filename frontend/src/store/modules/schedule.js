@@ -31,6 +31,20 @@ const actions = {
   },
   removeSchedule ({ state }, id) {
     request.delete(`/schedules/${id}`)
+  },
+  stopSchedule ({ state, dispatch }, id) {
+    request.post(`/schedules/${id}/stop`).then((resp) => {
+      if (resp.data.status === 'ok') {
+        dispatch(`getScheduleList`)
+      }
+    })
+  },
+  runSchedule ({ state, dispatch }, id) {
+    return request.post(`/schedules/${id}/run`).then((resp) => {
+      if (resp.data.status === 'ok') {
+        dispatch(`getScheduleList`)
+      }
+    })
   }
 }
 

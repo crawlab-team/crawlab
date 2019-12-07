@@ -102,18 +102,29 @@
                 :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
                 border>
         <template v-for="col in columns">
-          <el-table-column :key="col.name"
+          <el-table-column v-if="col.name === 'status'"
+                           :key="col.name"
                            :property="col.name"
                            :label="$t(col.label)"
                            :sortable="col.sortable"
                            :align="col.align"
                            :width="col.width">
             <template slot-scope="scope">
-              {{$t(scope.row[col.name])}}
+              {{ scope.row[col.name] ? $t(scope.row[col.name]) : $t('NA') }}
+            </template>
+          </el-table-column>
+          <el-table-column v-else :key="col.name"
+                           :property="col.name"
+                           :label="$t(col.label)"
+                           :sortable="col.sortable"
+                           :align="col.align"
+                           :width="col.width">
+            <template slot-scope="scope">
+              {{scope.row[col.name]}}
             </template>
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" width="150px" fixed="right">
+        <el-table-column :label="$t('Action')" align="left" width="180px" fixed="right">
           <template slot-scope="scope">
             <!-- 编辑 -->
             <el-tooltip :content="$t('Edit')" placement="top">
@@ -123,7 +134,7 @@
             <el-tooltip :content="$t('Remove')" placement="top">
               <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
             </el-tooltip>
-            <el-tooltip v-if="isShowRun(scope.row)" :content="$t('Run')" placement="top">
+            <el-tooltip content="暂停/运行" placement="top">
               <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
             </el-tooltip>
           </template>
@@ -151,7 +162,8 @@ export default {
         { name: 'node_name', label: 'Node', width: '150' },
         { name: 'spider_name', label: 'Spider', width: '150' },
         { name: 'param', label: 'Parameters', width: '150' },
-        { name: 'description', label: 'Description', width: 'auto' }
+        { name: 'description', label: 'Description', width: 'auto' },
+        { name: 'status', label: 'Status', width: 'auto' }
       ],
       isEdit: false,
       dialogTitle: '',
@@ -236,7 +248,32 @@ export default {
         })
       this.$st.sendEv('定时任务', '删除', 'id', row._id)
     },
-    onCrawl () {
+    onCrawl (row) {
+      if (!row.status || row.status === 'running') {
+        this.$confirm('确定停止定时任务?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          // 停止定时任务
+          this.$store.dispatch('schedule/stopSchedule', row._id)
+            .then((resp) => {
+              this.$store.dispatch('schedule/getScheduleList')
+            })
+        }).catch(() => {})
+      }
+      if (row.status === 'stop') {
+        this.$confirm('确定运行定时任务?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$store.dispatch('schedule/runSchedule', row._id)
+            .then((resp) => {
+              this.$store.dispatch('schedule/getScheduleList')
+            })
+        }).catch(() => {})
+      }
     },
     onCrontabFill (value) {
       value = value.replace(/[?]/g, '*')

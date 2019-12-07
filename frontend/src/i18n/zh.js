@@ -212,6 +212,8 @@ export default {
   'Schedule Description': '定时任务描述',
   'Parameters': '参数',
   'Add Schedule': '添加定时任务',
+  'stop': '暂停',
+  'running': '运行',
 
   // 网站
   'Site': '网站',
