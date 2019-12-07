@@ -115,9 +115,11 @@
         </template>
         <el-table-column :label="$t('Action')" align="left" width="150px" fixed="right">
           <template slot-scope="scope">
+            <!-- 编辑 -->
             <el-tooltip :content="$t('Edit')" placement="top">
               <el-button type="warning" icon="el-icon-edit" size="mini" @click="onEdit(scope.row)"></el-button>
             </el-tooltip>
+            <!-- 删除 -->
             <el-tooltip :content="$t('Remove')" placement="top">
               <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
             </el-tooltip>
@@ -216,7 +218,7 @@ export default {
       })
       this.$st.sendEv('定时任务', '提交')
     },
-    isShowRun () {
+    isShowRun (row) {
     },
     onEdit (row) {
       this.$store.commit('schedule/SET_SCHEDULE_FORM', row)

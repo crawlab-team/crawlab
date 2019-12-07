@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import request from '../../api/request'
-import axisModelCommonMixin from 'echarts/src/coord/axisModelCommonMixin'
 
 const state = {
   // list of spiders
