@@ -9,7 +9,6 @@ import (
 	"encoding/csv"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
-	uuid "github.com/satori/go.uuid"
 	"net/http"
 )
 
@@ -18,6 +17,7 @@ type TaskListRequestData struct {
 	PageSize int    `form:"page_size"`
 	NodeId   string `form:"node_id"`
 	SpiderId string `form:"spider_id"`
+	Status   string `form:"status"`
 }
 
 type TaskResultsRequestData struct {
@@ -46,6 +46,10 @@ func GetTaskList(c *gin.Context) {
 	}
 	if data.SpiderId != "" {
 		query["spider_id"] = bson.ObjectIdHex(data.SpiderId)
+	}
+	//新增根据任务状态获取task列表
+	if data.Status != "" {
+		query["status"] = data.Status
 	}
 
 	// 获取任务列表
@@ -86,31 +90,88 @@ func GetTask(c *gin.Context) {
 }
 
 func PutTask(c *gin.Context) {
-	// 生成任务ID
-	id := uuid.NewV4()
+	type TaskRequestBody struct {
+		SpiderId bson.ObjectId   `json:"spider_id"`
+		RunType  string          `json:"run_type"`
+		NodeIds  []bson.ObjectId `json:"node_ids"`
+		Param    string          `json:"param"`
+	}
 
 	// 绑定数据
-	var t model.Task
-	if err := c.ShouldBindJSON(&t); err != nil {
+	var reqBody TaskRequestBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		HandleError(http.StatusBadRequest, c, err)
 		return
 	}
-	t.Id = id.String()
-	t.Status = constants.StatusPending
 
-	// 如果没有传入node_id，则置为null
-	if t.NodeId.Hex() == "" {
-		t.NodeId = bson.ObjectIdHex(constants.ObjectIdNull)
+	if reqBody.RunType == constants.RunTypeAllNodes {
+		// 所有节点
+		nodes, err := model.GetNodeList(nil)
+		if err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+		for _, node := range nodes {
+			t := model.Task{
+				SpiderId: reqBody.SpiderId,
+				NodeId:   node.Id,
+				Param:    reqBody.Param,
+			}
+
+			if err := services.AddTask(t); err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+		}
+
+	} else if reqBody.RunType == constants.RunTypeRandom {
+		// 随机
+		t := model.Task{
+			SpiderId: reqBody.SpiderId,
+			Param:    reqBody.Param,
+		}
+		if err := services.AddTask(t); err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+
+	} else if reqBody.RunType == constants.RunTypeSelectedNodes {
+		// 指定节点
+		for _, nodeId := range reqBody.NodeIds {
+			t := model.Task{
+				SpiderId: reqBody.SpiderId,
+				NodeId:   nodeId,
+				Param:    reqBody.Param,
+			}
+
+			if err := services.AddTask(t); err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+		}
+
+	} else {
+		HandleErrorF(http.StatusBadRequest, c, "invalid run_type")
+		return
 	}
 
-	// 将任务存入数据库
-	if err := model.AddTask(t); err != nil {
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
+func DeleteTaskByStatus(c *gin.Context) {
+	status := c.Query("status")
+
+	//删除相应的日志文件
+	if err := services.RemoveLogByTaskStatus(status); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
-	// 加入任务队列
-	if err := services.AssignTask(t); err != nil {
+	//删除该状态下的task
+	if err := model.RemoveTaskByStatus(status); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
