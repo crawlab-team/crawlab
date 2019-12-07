@@ -21,6 +21,8 @@ type Schedule struct {
 	Cron        string        `json:"cron" bson:"cron"`
 	EntryId     cron.EntryID  `json:"entry_id" bson:"entry_id"`
 	Param       string        `json:"param" bson:"param"`
+	// 状态
+	Status string `json:"status" bson:"status"`
 
 	// 前端展示
 	SpiderName string `json:"spider_name" bson:"spider_name"`
