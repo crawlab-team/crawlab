@@ -158,6 +158,8 @@ func GetTask(id string) (Task, error) {
 	return task, nil
 }
 
+
+
 func AddTask(item Task) error {
 	s, c := database.GetCol("tasks")
 	defer s.Close()
@@ -184,6 +186,20 @@ func RemoveTask(id string) error {
 		return err
 	}
 
+	return nil
+}
+
+func RemoveTaskByStatus(status string) error {
+	tasks, err := GetTaskList(bson.M{"status": status}, 0, constants.Infinite, "-create_ts")
+	if err != nil {
+		log.Error("get tasks error:" + err.Error())
+	}
+	for _, task := range tasks {
+		if err := RemoveTask(task.Id); err != nil {
+			log.Error("remove task error:" + err.Error())
+			continue
+		}
+	}
 	return nil
 }
 

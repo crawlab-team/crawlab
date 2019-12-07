@@ -15,7 +15,7 @@ type Scheduler struct {
 	cron *cron.Cron
 }
 
-func AddTask(s model.Schedule) func() {
+func AddScheduleTask(s model.Schedule) func() {
 	return func() {
 		node, err := model.GetNodeByKey(s.NodeKey)
 		if err != nil || node.Id.Hex() == "" {
@@ -97,7 +97,7 @@ func (s *Scheduler) AddJob(job model.Schedule) error {
 	spec := job.Cron
 
 	// 添加任务
-	eid, err := s.cron.AddFunc(spec, AddTask(job))
+	eid, err := s.cron.AddFunc(spec, AddScheduleTask(job))
 	if err != nil {
 		log.Errorf("add func task error: %s", err.Error())
 		debug.PrintStack()
