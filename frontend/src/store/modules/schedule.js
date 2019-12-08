@@ -1,5 +1,4 @@
 import request from '../../api/request'
-
 const state = {
   scheduleList: [],
   scheduleForm: {}
@@ -33,18 +32,10 @@ const actions = {
     request.delete(`/schedules/${id}`)
   },
   stopSchedule ({ state, dispatch }, id) {
-    request.post(`/schedules/${id}/stop`).then((resp) => {
-      if (resp.data.status === 'ok') {
-        dispatch(`getScheduleList`)
-      }
-    })
+    return request.post(`/schedules/${id}/stop`)
   },
   runSchedule ({ state, dispatch }, id) {
-    return request.post(`/schedules/${id}/run`).then((resp) => {
-      if (resp.data.status === 'ok') {
-        dispatch(`getScheduleList`)
-      }
-    })
+    return request.post(`/schedules/${id}/run`)
   }
 }
 

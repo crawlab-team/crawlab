@@ -153,13 +153,12 @@ func GetTask(id string) (Task, error) {
 
 	var task Task
 	if err := c.FindId(id).One(&task); err != nil {
+		log.Infof("get task error: %s, id: %s", err.Error(), id)
 		debug.PrintStack()
 		return task, err
 	}
 	return task, nil
 }
-
-
 
 func AddTask(item Task) error {
 	s, c := database.GetCol("tasks")

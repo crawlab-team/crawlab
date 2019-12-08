@@ -4,31 +4,12 @@
       <!--filter-->
       <div class="filter">
         <div class="left">
-          <!--<el-select size="small" class="filter-select"-->
-                     <!--v-model="filter.node_id"-->
-                     <!--:placeholder="$t('Node')"-->
-                     <!--filterable-->
-                     <!--clearable-->
-                     <!--@change="onSelectNode">-->
-            <!--<el-option v-for="op in nodeList" :key="op._id" :value="op._id" :label="op.name"></el-option>-->
-          <!--</el-select>-->
-          <!--<el-select size="small" class="filter-select"-->
-                     <!--v-model="filter.spider_id"-->
-                     <!--:placeholder="$t('Spider')"-->
-                     <!--filterable-->
-                     <!--clearable-->
-                     <!--@change="onSelectSpider">-->
-            <!--<el-option v-for="op in spiderList" :key="op._id" :value="op._id" :label="op.name"></el-option>-->
-          <!--</el-select>-->
-          <!--<el-button size="small" type="success"-->
-                     <!--icon="el-icon-search"-->
-                     <!--class="refresh"-->
-                     <!--@click="onRefresh">-->
-            <!--{{$t('Search')}}-->
-          <!--</el-button>-->
         </div>
-        <!--<div class="right">-->
-        <!--</div>-->
+        <div class="right">
+          <el-button @click="onRemoveMultipleTask" size="small" type="danger">
+            删除任务
+          </el-button>
+        </div>
       </div>
       <!--./filter-->
 
@@ -38,7 +19,9 @@
                 :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
                 border
                 @row-click="onRowClick"
+                @selection-change="onSelectionChange">
       >
+        <el-table-column type="selection" width="55"/>
         <template v-for="col in columns">
           <el-table-column v-if="col.name === 'spider_name'"
                            :key="col.name"
@@ -181,7 +164,9 @@ export default {
         { name: 'total_duration', label: 'Total Duration (sec)', width: '80', align: 'right' },
         { name: 'result_count', label: 'Results Count', width: '80' }
         // { name: 'avg_num_results', label: 'Average Results Count per Second', width: '80' }
-      ]
+      ],
+
+      multipleSelection: []
     }
   },
   computed: {
@@ -228,12 +213,6 @@ export default {
           }
           return false
         })
-      // .filter((d, index) => {
-      //   // pagination
-      //   const pageNum = this.pageNum
-      //   const pageSize = this.pageSize
-      //   return (pageSize * (pageNum - 1) <= index) && (index < pageSize * pageNum)
-      // })
     }
   },
   methods: {
@@ -244,11 +223,34 @@ export default {
       this.$store.dispatch('task/getTaskList')
       this.$st.sendEv('任务', '搜索')
     },
-    onSelectNode () {
-      this.$st.sendEv('任务', '选择节点')
-    },
-    onSelectSpider () {
-      this.$st.sendEv('任务', '选择爬虫')
+    onRemoveMultipleTask () {
+      if (this.multipleSelection.length === 0) {
+        this.$message({
+          type: 'error',
+          message: '请选择要删除的任务'
+        })
+      }
+      this.$confirm('确定删除任务', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        let ids = this.multipleSelection.map(item => item._id)
+        this.$store.dispatch('task/deleteTaskMultiple', ids).then((resp) => {
+          if (resp.data.status === 'ok') {
+            this.$message({
+              type: 'success',
+              message: '删除任务成功'
+            })
+            this.$store.dispatch('task/getTaskList')
+            return
+          }
+          this.$message({
+            type: 'error',
+            message: resp.data.error
+          })
+        })
+      }).catch(() => {})
     },
     onRemove (row, ev) {
       ev.stopPropagation()
@@ -304,6 +306,9 @@ export default {
       if (column.label !== this.$t('Action')) {
         this.onView(row)
       }
+    },
+    onSelectionChange (val) {
+      this.multipleSelection = val
     }
   },
   created () {
@@ -312,10 +317,9 @@ export default {
     this.$store.dispatch('node/getNodeList')
   },
   mounted () {
-    // request task list every 5 seconds
-    this.handle = setInterval(() => {
-      this.$store.dispatch('task/getTaskList')
-    }, 5000)
+    // this.handle = setInterval(() => {
+    //   this.$store.dispatch('task/getTaskList')
+    // }, 5000)
   },
   destroyed () {
     clearInterval(this.handle)

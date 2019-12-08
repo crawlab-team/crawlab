@@ -154,6 +154,7 @@ func main() {
 			authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情
 			authGroup.PUT("/tasks", routes.PutTask)                                     // 派发任务
 			authGroup.DELETE("/tasks/:id", routes.DeleteTask)                           // 删除任务
+			authGroup.DELETE("/tasks_multiple", routes.DeleteMultipleTask)              // 删除多个任务
 			authGroup.DELETE("/tasks_by_status", routes.DeleteTaskByStatus)             //删除指定状态的任务
 			authGroup.POST("/tasks/:id/cancel", routes.CancelTask)                      // 取消任务
 			authGroup.GET("/tasks/:id/log", routes.GetTaskLog)                          // 任务日志

@@ -249,19 +249,27 @@ export default {
       this.$st.sendEv('定时任务', '删除', 'id', row._id)
     },
     onCrawl (row) {
+      // 停止定时任务
       if (!row.status || row.status === 'running') {
         this.$confirm('确定停止定时任务?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          // 停止定时任务
           this.$store.dispatch('schedule/stopSchedule', row._id)
             .then((resp) => {
-              this.$store.dispatch('schedule/getScheduleList')
+              if (resp.data.status === 'ok') {
+                this.$store.dispatch('schedule/getScheduleList')
+                return
+              }
+              this.$message({
+                type: 'error',
+                message: resp.data.error
+              })
             })
         }).catch(() => {})
       }
+      // 运行定时任务
       if (row.status === 'stop') {
         this.$confirm('确定运行定时任务?', '提示', {
           confirmButtonText: '确定',
@@ -270,7 +278,14 @@ export default {
         }).then(() => {
           this.$store.dispatch('schedule/runSchedule', row._id)
             .then((resp) => {
-              this.$store.dispatch('schedule/getScheduleList')
+              if (resp.data.status === 'ok') {
+                this.$store.dispatch('schedule/getScheduleList')
+                return
+              }
+              this.$message({
+                type: 'error',
+                message: resp.data.error
+              })
             })
         }).catch(() => {})
       }
