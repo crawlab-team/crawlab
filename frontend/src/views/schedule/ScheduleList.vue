@@ -14,9 +14,15 @@
         <el-form-item :label="$t('Schedule Name')" prop="name" required>
           <el-input v-model="scheduleForm.name" :placeholder="$t('Schedule Name')"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('Node')" prop="node_id" required>
+        <el-form-item :label="$t('Run Type')" prop="runType" required>
+          <el-select v-model="scheduleForm.runType" :placeholder="$t('Run Type')">
+            <el-option value="all-nodes" :label="$t('All Nodes')"/>
+            <el-option value="selected-nodes" :label="$t('Selected Nodes')"/>
+            <el-option value="random" :label="$t('Random')"/>
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="scheduleForm.runType === 'selected-nodes'" :label="$t('Node')" prop="node_id" required>
           <el-select v-model="scheduleForm.node_id">
-            <!--<el-option :label="$t('All Nodes')" value="000000000000000000000000"></el-option>-->
             <el-option
               v-for="op in nodeList"
               :key="op._id"
@@ -33,22 +39,12 @@
               :key="op._id"
               :value="op._id"
               :label="op.name"
-              :disabled="!op.cmd"
+              :disabled="isDisabledSpider(op)"
             >
             </el-option>
           </el-select>
         </el-form-item>
-        <!--:rules="cronRules"-->
-        <el-form-item :label="$t('schedules.cron')" prop="cron"  required>
-          <!--<template slot="label">-->
-            <!--<el-tooltip :content="$t('schedules.cron_format')"-->
-                        <!--placement="top">-->
-              <!--<span>-->
-                <!--{{$t('schedules.cron')}}-->
-                <!--<i class="fa fa-exclamation-circle"></i>-->
-              <!--</span>-->
-            <!--</el-tooltip>-->
-          <!--</template>-->
+        <el-form-item :label="$t('Cron')" prop="cron" required>
           <el-input style="padding-right:10px"
                     v-model="scheduleForm.cron"
                     :placeholder="$t('schedules.cron')">
@@ -79,7 +75,7 @@
 
     <!--cron generation popup-->
     <!--<el-dialog title="生成 Cron" :visible.sync="showCron">-->
-      <!--<vcrontab @hide="showCron=false" @fill="onCrontabFill" :expression="expression"></vcrontab>-->
+    <!--<vcrontab @hide="showCron=false" @fill="onCrontabFill" :expression="expression"></vcrontab>-->
     <!--</el-dialog>-->
 
     <el-card style="border-radius: 0">
@@ -165,7 +161,7 @@ export default {
     return {
       columns: [
         { name: 'name', label: 'Name', width: '180' },
-        { name: 'cron', label: 'schedules.cron', width: '120' },
+        { name: 'cron', label: 'Cron', width: '120' },
         { name: 'node_name', label: 'Node', width: '150' },
         { name: 'spider_name', label: 'Spider', width: '150' },
         { name: 'param', label: 'Parameters', width: '150' },
@@ -246,9 +242,9 @@ export default {
       this.$st.sendEv('定时任务', '修改', 'id', row._id)
     },
     onRemove (row) {
-      this.$confirm('确定删除定时任务?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      this.$confirm(this.$t('Are you sure to delete the schedule task?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
         type: 'warning'
       }).then(() => {
         this.$store.dispatch('schedule/removeSchedule', row._id)
@@ -258,15 +254,16 @@ export default {
               this.$message.success(`Schedule "${row.name}" has been removed`)
             }, 100)
           })
-      }).catch(() => {})
+      }).catch(() => {
+      })
       this.$st.sendEv('定时任务', '删除', 'id', row._id)
     },
     onCrawl (row) {
       // 停止定时任务
       if (!row.status || row.status === 'running') {
-        this.$confirm('确定停止定时任务?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+        this.$confirm(this.$t('Are you sure to delete the schedule task?'), this.$t('Notification'), {
+          confirmButtonText: this.$t('Confirm'),
+          cancelButtonText: this.$t('Cancel'),
           type: 'warning'
         }).then(() => {
           this.$store.dispatch('schedule/stopSchedule', row._id)
@@ -280,13 +277,14 @@ export default {
                 message: resp.data.error
               })
             })
-        }).catch(() => {})
+        }).catch(() => {
+        })
       }
       // 运行定时任务
       if (row.status === 'stop') {
-        this.$confirm('确定运行定时任务?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+        this.$confirm(this.$t('Are you sure to delete the schedule task?'), this.$t('Notification'), {
+          confirmButtonText: this.$t('Confirm'),
+          cancelButtonText: this.$t('Cancel'),
           type: 'warning'
         }).then(() => {
           this.$store.dispatch('schedule/runSchedule', row._id)
@@ -300,7 +298,15 @@ export default {
                 message: resp.data.error
               })
             })
-        }).catch(() => {})
+        }).catch(() => {
+        })
+      }
+    },
+    isDisabledSpider (spider) {
+      if (spider.type === 'customized') {
+        return !spider.cmd
+      } else {
+        return false
       }
     }
   },
@@ -338,6 +344,7 @@ export default {
     min-height: 360px;
     margin-top: 10px;
   }
+
   .status-tag {
     cursor: pointer;
   }
