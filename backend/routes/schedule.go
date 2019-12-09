@@ -11,7 +11,7 @@ import (
 func GetScheduleList(c *gin.Context) {
 	results, err := model.GetScheduleList(nil)
 	if err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
+		HandleError(http.StatusOK, c, err)
 		return
 	}
 	HandleSuccessData(c, results)
@@ -22,7 +22,7 @@ func GetSchedule(c *gin.Context) {
 
 	result, err := model.GetSchedule(bson.ObjectIdHex(id))
 	if err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
+		HandleError(http.StatusOK, c, err)
 		return
 	}
 
