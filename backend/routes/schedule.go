@@ -11,7 +11,7 @@ import (
 func GetScheduleList(c *gin.Context) {
 	results, err := model.GetScheduleList(nil)
 	if err != nil {
-		HandleError(http.StatusOK, c, err)
+		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 	HandleSuccessData(c, results)
@@ -22,7 +22,7 @@ func GetSchedule(c *gin.Context) {
 
 	result, err := model.GetSchedule(bson.ObjectIdHex(id))
 	if err != nil {
-		HandleError(http.StatusOK, c, err)
+		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
@@ -41,7 +41,7 @@ func PostSchedule(c *gin.Context) {
 
 	// 验证cron表达式
 	if err := services.ParserCron(newItem.Cron); err != nil {
-		HandleError(http.StatusOK, c, err)
+		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
@@ -72,7 +72,7 @@ func PutSchedule(c *gin.Context) {
 
 	// 验证cron表达式
 	if err := services.ParserCron(item.Cron); err != nil {
-		HandleError(http.StatusOK, c, err)
+		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
@@ -113,7 +113,7 @@ func DeleteSchedule(c *gin.Context) {
 func StopSchedule(c *gin.Context) {
 	id := c.Param("id")
 	if err := services.Sched.Stop(bson.ObjectIdHex(id)); err != nil {
-		HandleError(http.StatusOK, c, err)
+		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 	HandleSuccess(c)
@@ -123,7 +123,7 @@ func StopSchedule(c *gin.Context) {
 func RunSchedule(c *gin.Context) {
 	id := c.Param("id")
 	if err := services.Sched.Run(bson.ObjectIdHex(id)); err != nil {
-		HandleError(http.StatusOK, c, err)
+		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 	HandleSuccess(c)
