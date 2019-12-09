@@ -246,13 +246,19 @@ export default {
       this.$st.sendEv('定时任务', '修改', 'id', row._id)
     },
     onRemove (row) {
-      this.$store.dispatch('schedule/removeSchedule', row._id)
-        .then(() => {
-          setTimeout(() => {
-            this.$store.dispatch('schedule/getScheduleList')
-            this.$message.success(`Schedule "${row.name}" has been removed`)
-          }, 100)
-        })
+      this.$confirm('确定删除定时任务?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$store.dispatch('schedule/removeSchedule', row._id)
+          .then(() => {
+            setTimeout(() => {
+              this.$store.dispatch('schedule/getScheduleList')
+              this.$message.success(`Schedule "${row.name}" has been removed`)
+            }, 100)
+          })
+      }).catch(() => {})
       this.$st.sendEv('定时任务', '删除', 'id', row._id)
     },
     onCrawl (row) {
