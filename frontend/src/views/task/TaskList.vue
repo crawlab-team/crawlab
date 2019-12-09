@@ -229,6 +229,7 @@ export default {
           type: 'error',
           message: '请选择要删除的任务'
         })
+        return
       }
       this.$confirm('确定删除任务', '提示', {
         confirmButtonText: '确定',

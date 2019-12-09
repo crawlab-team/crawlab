@@ -214,6 +214,9 @@ export default {
   'Add Schedule': '添加定时任务',
   'stop': '暂停',
   'running': '运行',
+  'error': '错误',
+  'Not Found Node': '节点配置错误',
+  'Not Found Spider': '爬虫配置错误',
 
   // 网站
   'Site': '网站',

@@ -110,7 +110,14 @@
                            :align="col.align"
                            :width="col.width">
             <template slot-scope="scope">
-              {{ scope.row[col.name] ? $t(scope.row[col.name]) : $t('NA') }}
+              <el-tooltip v-if="scope.row[col.name] === 'error'" :content="$t(scope.row['message'])" placement="top">
+                <el-tag class="status-tag" type="danger">
+                  {{scope.row[col.name] ? $t(scope.row[col.name]) : $t('NA')}}
+                </el-tag>
+              </el-tooltip>
+              <el-tag class="status-tag" v-else>
+                {{scope.row[col.name] ? $t(scope.row[col.name]) : $t('NA')}}
+              </el-tag>
             </template>
           </el-table-column>
           <el-table-column v-else :key="col.name"
@@ -289,24 +296,6 @@ export default {
             })
         }).catch(() => {})
       }
-    },
-    onCrontabFill (value) {
-      value = value.replace(/[?]/g, '*')
-      this.$set(this.scheduleForm, 'cron', value)
-
-      this.$st.sendEv('定时任务', '提交生成Cron', 'cron', this.scheduleForm.cron)
-    },
-    onShowCronDialog () {
-      this.showCron = true
-      if (this.expression.split(' ').length < 7) {
-        // this.expression = (this.scheduleForm.cron + ' ').replace(/[?]/g, '*')
-        this.expression = this.scheduleForm.cron + ' '
-      } else {
-        // this.expression = this.scheduleForm.cron.replace(/[?]/g, '*')
-        this.expression = this.scheduleForm.cron
-      }
-
-      this.$st.sendEv('定时任务', '点击生成Cron', 'cron', this.scheduleForm.cron)
     }
   },
   created () {
@@ -342,5 +331,8 @@ export default {
   .table {
     min-height: 360px;
     margin-top: 10px;
+  }
+  .status-tag {
+    cursor: pointer;
   }
 </style>
