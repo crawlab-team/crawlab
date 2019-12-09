@@ -102,26 +102,46 @@
                 :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
                 border>
         <template v-for="col in columns">
-          <el-table-column :key="col.name"
+          <el-table-column v-if="col.name === 'status'"
+                           :key="col.name"
                            :property="col.name"
                            :label="$t(col.label)"
                            :sortable="col.sortable"
                            :align="col.align"
                            :width="col.width">
             <template slot-scope="scope">
-              {{$t(scope.row[col.name])}}
+              <el-tooltip v-if="scope.row[col.name] === 'error'" :content="$t(scope.row['message'])" placement="top">
+                <el-tag class="status-tag" type="danger">
+                  {{scope.row[col.name] ? $t(scope.row[col.name]) : $t('NA')}}
+                </el-tag>
+              </el-tooltip>
+              <el-tag class="status-tag" v-else>
+                {{scope.row[col.name] ? $t(scope.row[col.name]) : $t('NA')}}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column v-else :key="col.name"
+                           :property="col.name"
+                           :label="$t(col.label)"
+                           :sortable="col.sortable"
+                           :align="col.align"
+                           :width="col.width">
+            <template slot-scope="scope">
+              {{scope.row[col.name]}}
             </template>
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" width="150px" fixed="right">
+        <el-table-column :label="$t('Action')" align="left" width="180px" fixed="right">
           <template slot-scope="scope">
+            <!-- 编辑 -->
             <el-tooltip :content="$t('Edit')" placement="top">
               <el-button type="warning" icon="el-icon-edit" size="mini" @click="onEdit(scope.row)"></el-button>
             </el-tooltip>
+            <!-- 删除 -->
             <el-tooltip :content="$t('Remove')" placement="top">
               <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
             </el-tooltip>
-            <el-tooltip v-if="isShowRun(scope.row)" :content="$t('Run')" placement="top">
+            <el-tooltip content="暂停/运行" placement="top">
               <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
             </el-tooltip>
           </template>
@@ -149,7 +169,8 @@ export default {
         { name: 'node_name', label: 'Node', width: '150' },
         { name: 'spider_name', label: 'Spider', width: '150' },
         { name: 'param', label: 'Parameters', width: '150' },
-        { name: 'description', label: 'Description', width: 'auto' }
+        { name: 'description', label: 'Description', width: 'auto' },
+        { name: 'status', label: 'Status', width: 'auto' }
       ],
       isEdit: false,
       dialogTitle: '',
@@ -216,7 +237,7 @@ export default {
       })
       this.$st.sendEv('定时任务', '提交')
     },
-    isShowRun () {
+    isShowRun (row) {
     },
     onEdit (row) {
       this.$store.commit('schedule/SET_SCHEDULE_FORM', row)
@@ -225,34 +246,62 @@ export default {
       this.$st.sendEv('定时任务', '修改', 'id', row._id)
     },
     onRemove (row) {
-      this.$store.dispatch('schedule/removeSchedule', row._id)
-        .then(() => {
-          setTimeout(() => {
-            this.$store.dispatch('schedule/getScheduleList')
-            this.$message.success(`Schedule "${row.name}" has been removed`)
-          }, 100)
-        })
+      this.$confirm('确定删除定时任务?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$store.dispatch('schedule/removeSchedule', row._id)
+          .then(() => {
+            setTimeout(() => {
+              this.$store.dispatch('schedule/getScheduleList')
+              this.$message.success(`Schedule "${row.name}" has been removed`)
+            }, 100)
+          })
+      }).catch(() => {})
       this.$st.sendEv('定时任务', '删除', 'id', row._id)
     },
-    onCrawl () {
-    },
-    onCrontabFill (value) {
-      value = value.replace(/[?]/g, '*')
-      this.$set(this.scheduleForm, 'cron', value)
-
-      this.$st.sendEv('定时任务', '提交生成Cron', 'cron', this.scheduleForm.cron)
-    },
-    onShowCronDialog () {
-      this.showCron = true
-      if (this.expression.split(' ').length < 7) {
-        // this.expression = (this.scheduleForm.cron + ' ').replace(/[?]/g, '*')
-        this.expression = this.scheduleForm.cron + ' '
-      } else {
-        // this.expression = this.scheduleForm.cron.replace(/[?]/g, '*')
-        this.expression = this.scheduleForm.cron
+    onCrawl (row) {
+      // 停止定时任务
+      if (!row.status || row.status === 'running') {
+        this.$confirm('确定停止定时任务?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$store.dispatch('schedule/stopSchedule', row._id)
+            .then((resp) => {
+              if (resp.data.status === 'ok') {
+                this.$store.dispatch('schedule/getScheduleList')
+                return
+              }
+              this.$message({
+                type: 'error',
+                message: resp.data.error
+              })
+            })
+        }).catch(() => {})
       }
-
-      this.$st.sendEv('定时任务', '点击生成Cron', 'cron', this.scheduleForm.cron)
+      // 运行定时任务
+      if (row.status === 'stop') {
+        this.$confirm('确定运行定时任务?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$store.dispatch('schedule/runSchedule', row._id)
+            .then((resp) => {
+              if (resp.data.status === 'ok') {
+                this.$store.dispatch('schedule/getScheduleList')
+                return
+              }
+              this.$message({
+                type: 'error',
+                message: resp.data.error
+              })
+            })
+        }).catch(() => {})
+      }
     }
   },
   created () {
@@ -288,5 +337,8 @@ export default {
   .table {
     min-height: 360px;
     margin-top: 10px;
+  }
+  .status-tag {
+    cursor: pointer;
   }
 </style>

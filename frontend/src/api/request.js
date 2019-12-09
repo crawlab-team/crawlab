@@ -63,7 +63,7 @@ const put = (path, data) => {
 }
 
 const del = (path, data) => {
-  return request('DELETE', path)
+  return request('DELETE', path, {}, data)
 }
 
 export default {

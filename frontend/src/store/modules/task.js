@@ -102,6 +102,11 @@ const actions = {
         dispatch('getTaskList')
       })
   },
+  deleteTaskMultiple ({ state }, ids) {
+    return request.delete(`/tasks_multiple`, {
+      ids: ids
+    })
+  },
   getTaskLog ({ state, commit }, id) {
     commit('SET_TASK_LOG', '')
     return request.get(`/tasks/${id}/log`)

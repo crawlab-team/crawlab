@@ -4,7 +4,9 @@ import (
 	"crawlab/constants"
 	"crawlab/lib/cron"
 	"crawlab/model"
+	"errors"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo/bson"
 	"github.com/satori/go.uuid"
 	"runtime/debug"
 )
@@ -106,6 +108,7 @@ func (s *Scheduler) AddJob(job model.Schedule) error {
 
 	// 更新EntryID
 	job.EntryId = eid
+	job.Status = constants.ScheduleStatusRunning
 	if err := job.Save(); err != nil {
 		log.Errorf("job save error: %s", err.Error())
 		debug.PrintStack()
@@ -134,6 +137,36 @@ func ParserCron(spec string) error {
 	return nil
 }
 
+// 停止定时任务
+func (s *Scheduler) Stop(id bson.ObjectId) error {
+	schedule, err := model.GetSchedule(id)
+	if err != nil {
+		return err
+	}
+	if schedule.EntryId == 0 {
+		return errors.New("entry id not found")
+	}
+	s.cron.Remove(schedule.EntryId)
+	// 更新状态
+	schedule.Status = constants.ScheduleStatusStop
+	if err = schedule.Save(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// 运行任务
+func (s *Scheduler) Run(id bson.ObjectId) error {
+	schedule, err := model.GetSchedule(id)
+	if err != nil {
+		return err
+	}
+	if err := s.AddJob(schedule); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *Scheduler) Update() error {
 	// 删除所有定时任务
 	s.RemoveAll()
@@ -150,6 +183,10 @@ func (s *Scheduler) Update() error {
 	for i := 0; i < len(sList); i++ {
 		// 单个任务
 		job := sList[i]
+
+		if job.Status == constants.ScheduleStatusStop {
+			continue
+		}
 
 		// 添加到定时任务
 		if err := s.AddJob(job); err != nil {

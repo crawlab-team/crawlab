@@ -154,17 +154,20 @@ func main() {
 			authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情
 			authGroup.PUT("/tasks", routes.PutTask)                                     // 派发任务
 			authGroup.DELETE("/tasks/:id", routes.DeleteTask)                           // 删除任务
+			authGroup.DELETE("/tasks_multiple", routes.DeleteMultipleTask)              // 删除多个任务
 			authGroup.DELETE("/tasks_by_status", routes.DeleteTaskByStatus)             //删除指定状态的任务
 			authGroup.POST("/tasks/:id/cancel", routes.CancelTask)                      // 取消任务
 			authGroup.GET("/tasks/:id/log", routes.GetTaskLog)                          // 任务日志
 			authGroup.GET("/tasks/:id/results", routes.GetTaskResults)                  // 任务结果
 			authGroup.GET("/tasks/:id/results/download", routes.DownloadTaskResultsCsv) // 下载任务结果
 			// 定时任务
-			authGroup.GET("/schedules", routes.GetScheduleList)       // 定时任务列表
-			authGroup.GET("/schedules/:id", routes.GetSchedule)       // 定时任务详情
-			authGroup.PUT("/schedules", routes.PutSchedule)           // 创建定时任务
-			authGroup.POST("/schedules/:id", routes.PostSchedule)     // 修改定时任务
-			authGroup.DELETE("/schedules/:id", routes.DeleteSchedule) // 删除定时任务
+			authGroup.GET("/schedules", routes.GetScheduleList)        // 定时任务列表
+			authGroup.GET("/schedules/:id", routes.GetSchedule)        // 定时任务详情
+			authGroup.PUT("/schedules", routes.PutSchedule)            // 创建定时任务
+			authGroup.POST("/schedules/:id", routes.PostSchedule)      // 修改定时任务
+			authGroup.DELETE("/schedules/:id", routes.DeleteSchedule)  // 删除定时任务
+			authGroup.POST("/schedules/:id/stop", routes.StopSchedule) // 停止定时任务
+			authGroup.POST("/schedules/:id/run", routes.RunSchedule)   // 运行定时任务
 			// 统计数据
 			authGroup.GET("/stats/home", routes.GetHomeStats) // 首页统计数据
 			// 用户

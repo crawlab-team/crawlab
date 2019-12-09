@@ -21,10 +21,13 @@ type Schedule struct {
 	Cron        string        `json:"cron" bson:"cron"`
 	EntryId     cron.EntryID  `json:"entry_id" bson:"entry_id"`
 	Param       string        `json:"param" bson:"param"`
+	// 状态
+	Status string `json:"status" bson:"status"`
 
 	// 前端展示
 	SpiderName string `json:"spider_name" bson:"spider_name"`
 	NodeName   string `json:"node_name" bson:"node_name"`
+	Message    string `json:"message" bson:"message"`
 
 	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
 	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
@@ -86,21 +89,23 @@ func GetScheduleList(filter interface{}) ([]Schedule, error) {
 			// 选择单一节点
 			node, err := GetNode(schedule.NodeId)
 			if err != nil {
-				log.Errorf(err.Error())
-				continue
+				schedule.Status = constants.ScheduleStatusError
+				schedule.Message = constants.ScheduleStatusErrorNotFoundNode
+			} else {
+				schedule.NodeName = node.Name
 			}
-			schedule.NodeName = node.Name
 		}
 
 		// 获取爬虫名称
 		spider, err := GetSpider(schedule.SpiderId)
 		if err != nil && err == mgo.ErrNotFound {
 			log.Errorf("get spider by id: %s, error: %s", schedule.SpiderId.Hex(), err.Error())
-			debug.PrintStack()
-			_ = schedule.Delete()
-			continue
+			schedule.Status = constants.ScheduleStatusError
+			schedule.Message = constants.ScheduleStatusErrorNotFoundSpider
+		} else {
+			schedule.SpiderName = spider.Name
 		}
-		schedule.SpiderName = spider.Name
+
 		schs = append(schs, schedule)
 	}
 	return schs, nil

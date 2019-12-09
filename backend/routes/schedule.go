@@ -14,11 +14,7 @@ func GetScheduleList(c *gin.Context) {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-		Data:    results,
-	})
+	HandleSuccessData(c, results)
 }
 
 func GetSchedule(c *gin.Context) {
@@ -29,11 +25,8 @@ func GetSchedule(c *gin.Context) {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-		Data:    result,
-	})
+
+	HandleSuccessData(c, result)
 }
 
 func PostSchedule(c *gin.Context) {
@@ -48,7 +41,7 @@ func PostSchedule(c *gin.Context) {
 
 	// 验证cron表达式
 	if err := services.ParserCron(newItem.Cron); err != nil {
-		HandleError(http.StatusOK, c, err)
+		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
@@ -65,10 +58,7 @@ func PostSchedule(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-	})
+	HandleSuccess(c)
 }
 
 func PutSchedule(c *gin.Context) {
@@ -82,7 +72,7 @@ func PutSchedule(c *gin.Context) {
 
 	// 验证cron表达式
 	if err := services.ParserCron(item.Cron); err != nil {
-		HandleError(http.StatusOK, c, err)
+		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
@@ -98,10 +88,7 @@ func PutSchedule(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-	})
+	HandleSuccess(c)
 }
 
 func DeleteSchedule(c *gin.Context) {
@@ -119,8 +106,25 @@ func DeleteSchedule(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-	})
+	HandleSuccess(c)
+}
+
+// 停止定时任务
+func StopSchedule(c *gin.Context) {
+	id := c.Param("id")
+	if err := services.Sched.Stop(bson.ObjectIdHex(id)); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	HandleSuccess(c)
+}
+
+// 运行定时任务
+func RunSchedule(c *gin.Context) {
+	id := c.Param("id")
+	if err := services.Sched.Run(bson.ObjectIdHex(id)); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	HandleSuccess(c)
 }
