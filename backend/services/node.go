@@ -96,10 +96,11 @@ func UpdateNodeStatus() {
 
 func handleNodeInfo(key string, data Data) {
 	// 添加同步锁
-	if err := database.RedisClient.Lock(key); err != nil {
+	v, err := database.RedisClient.Lock(key)
+	if err != nil {
 		return
 	}
-	defer database.RedisClient.UnLock(key)
+	defer database.RedisClient.UnLock(key, v)
 
 	// 更新节点信息到数据库
 	s, c := database.GetCol("nodes")
