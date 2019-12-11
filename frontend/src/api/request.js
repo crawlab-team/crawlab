@@ -1,53 +1,39 @@
 import axios from 'axios'
 import router from '../router'
+import { Message } from 'element-ui'
 
 let baseUrl = process.env.VUE_APP_BASE_URL ? process.env.VUE_APP_BASE_URL : 'http://localhost:8000'
 
-const request = async (method, path, params, data, others = {}) => {
-  try {
-    const url = baseUrl + path
-    const headers = {
-      'Authorization': window.localStorage.getItem('token')
+const request = (method, path, params, data, others = {}) => {
+  const url = baseUrl + path
+  const headers = {
+    'Authorization': window.localStorage.getItem('token')
+  }
+  return axios({
+    method,
+    url,
+    params,
+    data,
+    headers,
+    ...others
+  }).then((response) => {
+    if (response.status === 200) {
+      return Promise.resolve(response)
     }
-    const response = await axios({
-      method,
-      url,
-      params,
-      data,
-      headers,
-      ...others
-    })
-    // console.log(response)
-    return response
-  } catch (e) {
-    if (e.response.status === 401 && router.currentRoute.path !== '/login') {
+    return Promise.reject(response)
+  }).catch((e) => {
+    let response = e.response
+    if (response.status === 400) {
+      Message.error(response.data.error)
+    }
+    if (response.status === 401 && router.currentRoute.path !== '/login') {
+      console.log('login')
       router.push('/login')
     }
-    await Promise.reject(e)
-  }
-
-  // return new Promise((resolve, reject) => {
-  //   const url = baseUrl + path
-  //   const headers = {
-  //     'Authorization': window.localStorage.getItem('token')
-  //   }
-  //   axios({
-  //     method,
-  //     url,
-  //     params,
-  //     data,
-  //     headers,
-  //     ...others
-  //   })
-  //     .then(resolve)
-  //     .catch(error => {
-  //       console.log(error)
-  //       if (error.response.status === 401) {
-  //         router.push('/login')
-  //       }
-  //       reject(error)
-  //     })
-  // })
+    if (response.status === 500) {
+      Message.error(response.data.error)
+    }
+  })
 }
 
 const get = (path, params) => {
