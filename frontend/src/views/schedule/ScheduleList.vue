@@ -14,15 +14,15 @@
         <el-form-item :label="$t('Schedule Name')" prop="name" required>
           <el-input v-model="scheduleForm.name" :placeholder="$t('Schedule Name')"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('Run Type')" prop="runType" required>
-          <el-select v-model="scheduleForm.runType" :placeholder="$t('Run Type')">
+        <el-form-item :label="$t('Run Type')" prop="run_type" required>
+          <el-select v-model="scheduleForm.run_type" :placeholder="$t('Run Type')">
             <el-option value="all-nodes" :label="$t('All Nodes')"/>
             <el-option value="selected-nodes" :label="$t('Selected Nodes')"/>
             <el-option value="random" :label="$t('Random')"/>
           </el-select>
         </el-form-item>
-        <el-form-item v-if="scheduleForm.runType === 'selected-nodes'" :label="$t('Node')" prop="node_id" required>
-          <el-select v-model="scheduleForm.node_id">
+        <el-form-item v-if="scheduleForm.run_type === 'selected-nodes'" :label="$t('Nodes')" prop="node_ids" required>
+          <el-select v-model="scheduleForm.node_ids" :placeholder="$t('Nodes')" multiple filterable>
             <el-option
               v-for="op in nodeList"
               :key="op._id"
@@ -33,20 +33,19 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('Spider')" prop="spider_id" required>
-          <el-select v-model="scheduleForm.spider_id" filterable>
+          <el-select v-model="scheduleForm.spider_id" :placeholder="$t('Spider')" filterable>
             <el-option
               v-for="op in spiderList"
               :key="op._id"
               :value="op._id"
-              :label="op.name"
+              :label="`${op.display_name} (${op.name})`"
               :disabled="isDisabledSpider(op)"
             >
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('Cron')" prop="cron" required>
-          <el-input style="padding-right:10px"
-                    v-model="scheduleForm.cron"
+          <el-input v-model="scheduleForm.cron"
                     :placeholder="$t('schedules.cron')">
           </el-input>
           <!--<el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('schedules.add_cron')}}</el-button>-->
@@ -116,6 +115,13 @@
               </el-tag>
             </template>
           </el-table-column>
+          <el-table-column v-else-if="col.name === 'run_type'" :key="col.name" :label="$t(col.label)">
+            <template slot-scope="scope">
+              <template v-if="scope.row.run_type === 'all-nodes'">{{$t('All Nodes')}}</template>
+              <template v-else-if="scope.row.run_type === 'selected-nodes'">{{$t('Selected Nodes')}}</template>
+              <template v-else-if="scope.row.run_type === 'random'">{{$t('Random')}}</template>
+            </template>
+          </el-table-column>
           <el-table-column v-else :key="col.name"
                            :property="col.name"
                            :label="$t(col.label)"
@@ -137,7 +143,7 @@
             <el-tooltip :content="$t('Remove')" placement="top">
               <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
             </el-tooltip>
-            <el-tooltip content="暂停/运行" placement="top">
+            <el-tooltip v-if="false" :content="$t(getStatusTooltip(scope.row))" placement="top">
               <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
             </el-tooltip>
           </template>
@@ -162,6 +168,7 @@ export default {
       columns: [
         { name: 'name', label: 'Name', width: '180' },
         { name: 'cron', label: 'Cron', width: '120' },
+        { name: 'run_type', label: 'Run Type', width: '150' },
         { name: 'node_name', label: 'Node', width: '150' },
         { name: 'spider_name', label: 'Spider', width: '150' },
         { name: 'param', label: 'Parameters', width: '150' },
@@ -204,7 +211,7 @@ export default {
     onAdd () {
       this.isEdit = false
       this.dialogVisible = true
-      this.$store.commit('schedule/SET_SCHEDULE_FORM', {})
+      this.$store.commit('schedule/SET_SCHEDULE_FORM', { node_ids: [] })
       this.$st.sendEv('定时任务', '添加')
     },
     onAddSubmit () {
@@ -307,6 +314,15 @@ export default {
         return !spider.cmd
       } else {
         return false
+      }
+    },
+    getStatusTooltip (row) {
+      if (row.status === 'stop') {
+        return 'Start'
+      } else if (row.status === 'running') {
+        return 'Stop'
+      } else if (row.status === 'error') {
+        return 'Start'
       }
     }
   },

@@ -1,7 +1,9 @@
 import request from '../../api/request'
 const state = {
   scheduleList: [],
-  scheduleForm: {}
+  scheduleForm: {
+    node_ids: []
+  }
 }
 
 const getters = {}

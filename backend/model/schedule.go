@@ -12,15 +12,18 @@ import (
 )
 
 type Schedule struct {
-	Id          bson.ObjectId `json:"_id" bson:"_id"`
-	Name        string        `json:"name" bson:"name"`
-	Description string        `json:"description" bson:"description"`
-	SpiderId    bson.ObjectId `json:"spider_id" bson:"spider_id"`
-	NodeId      bson.ObjectId `json:"node_id" bson:"node_id"`
-	NodeKey     string        `json:"node_key" bson:"node_key"`
-	Cron        string        `json:"cron" bson:"cron"`
-	EntryId     cron.EntryID  `json:"entry_id" bson:"entry_id"`
-	Param       string        `json:"param" bson:"param"`
+	Id          bson.ObjectId   `json:"_id" bson:"_id"`
+	Name        string          `json:"name" bson:"name"`
+	Description string          `json:"description" bson:"description"`
+	SpiderId    bson.ObjectId   `json:"spider_id" bson:"spider_id"`
+	//NodeId      bson.ObjectId   `json:"node_id" bson:"node_id"`
+	//NodeKey     string          `json:"node_key" bson:"node_key"`
+	Cron        string          `json:"cron" bson:"cron"`
+	EntryId     cron.EntryID    `json:"entry_id" bson:"entry_id"`
+	Param       string          `json:"param" bson:"param"`
+	RunType     string          `json:"run_type" bson:"run_type"`
+	NodeIds     []bson.ObjectId `json:"node_ids" bson:"node_ids"`
+
 	// 状态
 	Status string `json:"status" bson:"status"`
 
@@ -49,26 +52,26 @@ func (sch *Schedule) Delete() error {
 	return c.RemoveId(sch.Id)
 }
 
-func (sch *Schedule) SyncNodeIdAndSpiderId(node Node, spider Spider) {
-	sch.syncNodeId(node)
-	sch.syncSpiderId(spider)
-}
+//func (sch *Schedule) SyncNodeIdAndSpiderId(node Node, spider Spider) {
+//	sch.syncNodeId(node)
+//	sch.syncSpiderId(spider)
+//}
 
-func (sch *Schedule) syncNodeId(node Node) {
-	if node.Id.Hex() == sch.NodeId.Hex() {
-		return
-	}
-	sch.NodeId = node.Id
-	_ = sch.Save()
-}
+//func (sch *Schedule) syncNodeId(node Node) {
+//	if node.Id.Hex() == sch.NodeId.Hex() {
+//		return
+//	}
+//	sch.NodeId = node.Id
+//	_ = sch.Save()
+//}
 
-func (sch *Schedule) syncSpiderId(spider Spider) {
-	if spider.Id.Hex() == sch.SpiderId.Hex() {
-		return
-	}
-	sch.SpiderId = spider.Id
-	_ = sch.Save()
-}
+//func (sch *Schedule) syncSpiderId(spider Spider) {
+//	if spider.Id.Hex() == sch.SpiderId.Hex() {
+//		return
+//	}
+//	sch.SpiderId = spider.Id
+//	_ = sch.Save()
+//}
 
 func GetScheduleList(filter interface{}) ([]Schedule, error) {
 	s, c := database.GetCol("schedules")
@@ -81,20 +84,20 @@ func GetScheduleList(filter interface{}) ([]Schedule, error) {
 
 	var schs []Schedule
 	for _, schedule := range schedules {
-		// 获取节点名称
-		if schedule.NodeId == bson.ObjectIdHex(constants.ObjectIdNull) {
-			// 选择所有节点
-			schedule.NodeName = "All Nodes"
-		} else {
-			// 选择单一节点
-			node, err := GetNode(schedule.NodeId)
-			if err != nil {
-				schedule.Status = constants.ScheduleStatusError
-				schedule.Message = constants.ScheduleStatusErrorNotFoundNode
-			} else {
-				schedule.NodeName = node.Name
-			}
-		}
+		// TODO: 获取节点名称
+		//if schedule.NodeId == bson.ObjectIdHex(constants.ObjectIdNull) {
+		//	// 选择所有节点
+		//	schedule.NodeName = "All Nodes"
+		//} else {
+		//	// 选择单一节点
+		//	node, err := GetNode(schedule.NodeId)
+		//	if err != nil {
+		//		schedule.Status = constants.ScheduleStatusError
+		//		schedule.Message = constants.ScheduleStatusErrorNotFoundNode
+		//	} else {
+		//		schedule.NodeName = node.Name
+		//	}
+		//}
 
 		// 获取爬虫名称
 		spider, err := GetSpider(schedule.SpiderId)
@@ -130,12 +133,13 @@ func UpdateSchedule(id bson.ObjectId, item Schedule) error {
 	if err := c.FindId(id).One(&result); err != nil {
 		return err
 	}
-	node, err := GetNode(item.NodeId)
-	if err != nil {
-		return err
-	}
+	//node, err := GetNode(item.NodeId)
+	//if err != nil {
+	//	return err
+	//}
 
-	item.NodeKey = node.Key
+	item.UpdateTs = time.Now()
+	//item.NodeKey = node.Key
 	if err := item.Save(); err != nil {
 		return err
 	}
@@ -146,15 +150,15 @@ func AddSchedule(item Schedule) error {
 	s, c := database.GetCol("schedules")
 	defer s.Close()
 
-	node, err := GetNode(item.NodeId)
-	if err != nil {
-		return err
-	}
+	//node, err := GetNode(item.NodeId)
+	//if err != nil {
+	//	return err
+	//}
 
 	item.Id = bson.NewObjectId()
 	item.CreateTs = time.Now()
 	item.UpdateTs = time.Now()
-	item.NodeKey = node.Key
+	//item.NodeKey = node.Key
 
 	if err := c.Insert(&item); err != nil {
 		debug.PrintStack()
