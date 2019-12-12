@@ -1,3 +1,14 @@
+# 0.4.0 (2019-12-06)
+### Features / Enhancement
+- **Configurable Spider**. Allow users to add spiders using *Spiderfile* to configure crawling rules.
+- **Execution Mode**. Allow users to select 3 modes for task execution: *All Nodes*, *Selected Nodes* and *Random*.
+
+### Bug Fixes
+- **Task accidentally killed**. [#306](https://github.com/crawlab-team/crawlab/issues/306)
+- **Documentation fix**. [#301](https://github.com/crawlab-team/crawlab/issues/258) [#301](https://github.com/crawlab-team/crawlab/issues/258)
+- **Direct deploy incompatible with Windows**. [#288](https://github.com/crawlab-team/crawlab/issues/288)
+- **Log files lost**. [#269](https://github.com/crawlab-team/crawlab/issues/269)
+
 # 0.3.5 (2019-10-28)
 ### Features / Enhancement
 - **Graceful Showdown**. [detail](https://github.com/crawlab-team/crawlab/commit/63fab3917b5a29fd9770f9f51f1572b9f0420385)
