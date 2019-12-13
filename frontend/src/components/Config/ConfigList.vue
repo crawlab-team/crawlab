@@ -70,7 +70,7 @@
                   :class="startStageClass"
                 >
                   <el-option
-                    v-for="n in Object.keys(spiderForm.config.stages)"
+                    v-for="n in spiderForm.config.stages.map(s => s.name)"
                     :key="n"
                     :value="n"
                     :label="n"
@@ -397,7 +397,7 @@ export default {
     },
     isCss () {
       let i = 0
-      Object.values(this.spiderForm.config.stages).forEach(stage => {
+      this.spiderForm.config.stages.forEach(stage => {
         stage.fields.forEach(field => {
           if (!field.css) i++
         })
@@ -406,7 +406,7 @@ export default {
     },
     isXpath () {
       let i = 0
-      Object.values(this.spiderForm.config.stages).forEach(stage => {
+      this.spiderForm.config.stages.forEach(stage => {
         stage.fields.forEach(field => {
           if (!field.xpath) i++
         })
@@ -414,7 +414,7 @@ export default {
       return i === 0
     },
     activeNames () {
-      return Object.values(this.spiderForm.config.stages).map(d => d.name)
+      return this.spiderForm.config.stages.map(d => d.name)
     },
     startUrlClass () {
       if (!this.spiderForm.config.start_url) {
@@ -464,7 +464,7 @@ export default {
 
       // 加入剩余阶段
       i = 0
-      const restStages = Object.values(this.spiderForm.config.stages)
+      const restStages = this.spiderForm.config.stages
         .filter(stage => !allStageNames.has(stage.name))
       restStages.forEach(stage => {
         // 加入节点信息
@@ -482,7 +482,7 @@ export default {
     },
     stageEdges () {
       const edges = []
-      const stages = Object.values(this.spiderForm.config.stages)
+      const stages = this.spiderForm.config.stages
       stages.forEach(stage => {
         for (let i = 0; i < stage.fields.length; i++) {
           const field = stage.fields[i]
@@ -595,7 +595,7 @@ export default {
       return value
     },
     onClickSelectorType (selectorType) {
-      Object.values(this.spiderForm.config.stages).forEach(stage => {
+      this.spiderForm.config.stages.forEach(stage => {
         // 列表
         if (selectorType === 'css') {
           if (stage.list_xpath) stage.list_xpath = ''
@@ -868,7 +868,7 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
     }
   },
   mounted () {
-    this.activeNames = Object.keys(this.spiderForm.config.stages)
+    this.activeNames = this.spiderForm.config.stages.map(stage => stage.name)
   }
 }
 </script>
