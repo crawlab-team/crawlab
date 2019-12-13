@@ -212,6 +212,11 @@ export default {
   'Schedule Description': '定时任务描述',
   'Parameters': '参数',
   'Add Schedule': '添加定时任务',
+  'stop': '暂停',
+  'running': '运行',
+  'error': '错误',
+  'Not Found Node': '节点配置错误',
+  'Not Found Spider': '爬虫配置错误',
 
   // 网站
   'Site': '网站',
@@ -254,7 +259,7 @@ export default {
   'Executables': '执行文件',
 
   // 弹出框
-  Notification: '提示',
+  'Notification': '提示',
   'Are you sure to delete this node?': '你确定要删除该节点?',
   'Are you sure to run this spider?': '你确定要运行该爬虫?',
   'Node info has been saved successfully': '节点信息已成功保存',
@@ -274,6 +279,7 @@ export default {
   'Saved successfully': '成功保存',
   'Please zip your spider files from the root directory': '爬虫文件请从根目录下开始压缩。',
   'English': 'English',
+  'Are you sure to delete the schedule task?': '确定删除定时任务?',
   // 登录
   'Sign in': '登录',
   'Sign-in': '登录',

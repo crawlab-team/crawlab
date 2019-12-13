@@ -4,10 +4,12 @@ import (
 	"context"
 	"crawlab/entity"
 	"crawlab/utils"
+	"errors"
 	"github.com/apex/log"
 	"github.com/gomodule/redigo/redis"
 	"github.com/spf13/viper"
 	"runtime/debug"
+	"strings"
 	"time"
 )
 
@@ -17,9 +19,18 @@ type Redis struct {
 	pool *redis.Pool
 }
 
+type Mutex struct {
+	Name   string
+	expiry time.Duration
+	tries  int
+	delay  time.Duration
+	value  string
+}
+
 func NewRedisClient() *Redis {
 	return &Redis{pool: NewRedisPool()}
 }
+
 func (r *Redis) RPush(collection string, value interface{}) error {
 	c := r.pool.Get()
 	defer utils.Close(c)
@@ -142,4 +153,60 @@ func Sub(channel string, consume ConsumeFunc) error {
 		return err
 	}
 	return nil
+}
+
+// 构建同步锁key
+func (r *Redis) getLockKey(lockKey string) string {
+	lockKey = strings.ReplaceAll(lockKey, ":", "-")
+	return "nodes:lock:" + lockKey
+}
+
+// 获得锁
+func (r *Redis) Lock(lockKey string) (int64, error) {
+	c := r.pool.Get()
+	defer utils.Close(c)
+	lockKey = r.getLockKey(lockKey)
+
+	ts := time.Now().Unix()
+	ok, err := c.Do("SET", lockKey, ts, "NX", "PX", 30000)
+	if err != nil {
+		log.Errorf("get lock fail with error: %s", err.Error())
+		debug.PrintStack()
+		return 0, err
+	}
+	if err == nil && ok == nil {
+		log.Errorf("the lockKey is locked: key=%s", lockKey)
+		return 0, errors.New("the lockKey is locked")
+	}
+	return ts, nil
+}
+
+func (r *Redis) UnLock(lockKey string, value int64) {
+	c := r.pool.Get()
+	defer utils.Close(c)
+	lockKey = r.getLockKey(lockKey)
+
+	getValue, err := redis.Int64(c.Do("GET", lockKey))
+	if err != nil {
+		log.Errorf("get lockKey error: %s", err.Error())
+		debug.PrintStack()
+		return
+	}
+
+	if getValue != value {
+		log.Errorf("the lockKey value diff: %d, %d", value, getValue)
+		return
+	}
+
+	v, err := redis.Int64(c.Do("DEL", lockKey))
+	if err != nil {
+		log.Errorf("unlock failed, error: %s", err.Error())
+		debug.PrintStack()
+		return
+	}
+
+	if v == 0 {
+		log.Errorf("unlock failed: key=%s", lockKey)
+		return
+	}
 }

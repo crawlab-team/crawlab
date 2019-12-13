@@ -1,11 +1,5 @@
 <template>
   <div class="fields-table-view">
-    <!--    <el-row class="button-group-container">-->
-    <!--      <label class="title">{{$t(this.title)}}</label>-->
-    <!--      <div class="button-group">-->
-    <!--        <el-button type="primary" size="small" @click="addField" icon="el-icon-plus">{{$t('Add Field')}}</el-button>-->
-    <!--      </div>-->
-    <!--    </el-row>-->
     <el-row>
       <el-table :data="fields"
                 class="table edit"
@@ -171,32 +165,14 @@ export default {
     }
   },
   methods: {
-    addField () {
-      this.fields.push({
-        type: 'css',
-        extract_type: 'text'
-      })
-      this.$st.sendEv('爬虫详情-配置', '添加字段')
-    },
-    deleteField (index) {
-      this.fields.splice(index, 1)
-      this.$st.sendEv('爬虫详情-配置', '删除字段')
-    },
     onNameChange (row) {
       if (this.fields.filter(d => d.name === row.name).length > 1) {
         this.$message.error(this.$t(`Duplicated field names for ${row.name}`))
       }
-      this.$st.sendEv('爬虫详情-配置', '更改字段')
-    },
-    onCheck (row) {
-      this.fields.forEach(d => {
-        if (row.name !== d.name) {
-          this.$set(d, 'is_detail', false)
-        }
-      })
-      this.$st.sendEv('爬虫详情-配置', '设置详情页URL')
+      this.$st.sendEv('爬虫详情', '配置', '更改字段')
     },
     onClickSelectorType (row, selectorType) {
+      this.$st.sendEv('爬虫详情', '配置', `点击字段选择器类别-${selectorType}`)
       if (selectorType === 'css') {
         if (row.xpath) this.$set(row, 'xpath', '')
         if (!row.css) this.$set(row, 'css', 'body')
@@ -206,6 +182,7 @@ export default {
       }
     },
     onClickIsAttribute (row, isAttribute) {
+      this.$st.sendEv('爬虫详情', '配置', '设置字段属性')
       if (!isAttribute) {
         // 文本
         if (row.attr) this.$set(row, 'attr', '')
@@ -224,6 +201,7 @@ export default {
       }
     },
     onRemoveField (row) {
+      this.$st.sendEv('爬虫详情', '配置', '删除字段')
       for (let i = 0; i < this.fields.length; i++) {
         if (row.name === this.fields[i].name) {
           this.fields.splice(i, 1)
@@ -238,6 +216,7 @@ export default {
       }
     },
     onAddField (row) {
+      this.$st.sendEv('爬虫详情', '配置', '添加字段')
       for (let i = 0; i < this.fields.length; i++) {
         if (row.name === this.fields[i].name) {
           this.fields.splice(i + 1, 0, {

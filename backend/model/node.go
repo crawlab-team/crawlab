@@ -169,7 +169,7 @@ func GetNode(id bson.ObjectId) (Node, error) {
 	defer s.Close()
 
 	if err := c.FindId(id).One(&node); err != nil {
-		log.Errorf(err.Error())
+		log.Errorf("get node error: %s, id: %s", err.Error(), id.Hex())
 		debug.PrintStack()
 		return node, err
 	}

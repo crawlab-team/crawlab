@@ -29,7 +29,7 @@ func GetTaskList(c *gin.Context) {
 	// 绑定数据
 	data := TaskListRequestData{}
 	if err := c.ShouldBindQuery(&data); err != nil {
-		HandleError(http.StatusBadRequest, c, err)
+		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 	if data.PageNum == 0 {
@@ -82,11 +82,7 @@ func GetTask(c *gin.Context) {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-		Data:    result,
-	})
+	HandleSuccessData(c, result)
 }
 
 func PutTask(c *gin.Context) {
@@ -100,7 +96,7 @@ func PutTask(c *gin.Context) {
 	// 绑定数据
 	var reqBody TaskRequestBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		HandleError(http.StatusBadRequest, c, err)
+		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
@@ -123,7 +119,6 @@ func PutTask(c *gin.Context) {
 				return
 			}
 		}
-
 	} else if reqBody.RunType == constants.RunTypeRandom {
 		// 随机
 		t := model.Task{
@@ -134,7 +129,6 @@ func PutTask(c *gin.Context) {
 			HandleError(http.StatusInternalServerError, c, err)
 			return
 		}
-
 	} else if reqBody.RunType == constants.RunTypeSelectedNodes {
 		// 指定节点
 		for _, nodeId := range reqBody.NodeIds {
@@ -149,16 +143,11 @@ func PutTask(c *gin.Context) {
 				return
 			}
 		}
-
 	} else {
-		HandleErrorF(http.StatusBadRequest, c, "invalid run_type")
+		HandleErrorF(http.StatusInternalServerError, c, "invalid run_type")
 		return
 	}
-
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-	})
+	HandleSuccess(c)
 }
 
 func DeleteTaskByStatus(c *gin.Context) {
@@ -176,12 +165,31 @@ func DeleteTaskByStatus(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-	})
+	HandleSuccess(c)
 }
 
+// 删除多个任务
+func DeleteMultipleTask(c *gin.Context) {
+	ids := make(map[string][]string)
+	if err := c.ShouldBindJSON(&ids); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	list := ids["ids"]
+	for _, id := range list {
+		if err := services.RemoveLogByTaskId(id); err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+		if err := model.RemoveTask(id); err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+	}
+	HandleSuccess(c)
+}
+
+// 删除单个任务
 func DeleteTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -190,33 +198,22 @@ func DeleteTask(c *gin.Context) {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
-
 	// 删除task
 	if err := model.RemoveTask(id); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
-
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-	})
+	HandleSuccess(c)
 }
 
 func GetTaskLog(c *gin.Context) {
 	id := c.Param("id")
-
 	logStr, err := services.GetTaskLog(id)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
-
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-		Data:    logStr,
-	})
+	HandleSuccessData(c, logStr)
 }
 
 func GetTaskResults(c *gin.Context) {
@@ -225,7 +222,7 @@ func GetTaskResults(c *gin.Context) {
 	// 绑定数据
 	data := TaskResultsRequestData{}
 	if err := c.ShouldBindQuery(&data); err != nil {
-		HandleError(http.StatusBadRequest, c, err)
+		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
@@ -327,9 +324,5 @@ func CancelTask(c *gin.Context) {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
-
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-	})
+	HandleSuccess(c)
 }

@@ -30,10 +30,10 @@ export default {
       document.querySelector('.el-message__closeBtn').click()
       if (value === 1) {
         this.$st.sendPv('/allow_stats')
-        this.$st.sendEv('全局', '允许/禁止统计', 'value', 'allow')
+        this.$st.sendEv('全局', '允许/禁止统计', '允许')
       } else {
         this.$st.sendPv('/disallow_stats')
-        this.$st.sendEv('全局', '允许/禁止统计', 'value', 'disallow')
+        this.$st.sendEv('全局', '允许/禁止统计', '禁止')
       }
     }
 

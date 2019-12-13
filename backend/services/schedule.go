@@ -4,8 +4,10 @@ import (
 	"crawlab/constants"
 	"crawlab/lib/cron"
 	"crawlab/model"
+	"errors"
 	"github.com/apex/log"
-	"github.com/satori/go.uuid"
+	"github.com/globalsign/mgo/bson"
+	uuid "github.com/satori/go.uuid"
 	"runtime/debug"
 )
 
@@ -17,48 +19,87 @@ type Scheduler struct {
 
 func AddScheduleTask(s model.Schedule) func() {
 	return func() {
-		node, err := model.GetNodeByKey(s.NodeKey)
-		if err != nil || node.Id.Hex() == "" {
-			log.Errorf("get node by key error: %s", err.Error())
-			debug.PrintStack()
-			return
-		}
-
-		spider := model.GetSpiderByName(s.SpiderName)
-		if spider == nil || spider.Id.Hex() == "" {
-			log.Errorf("get spider by name error: %s", err.Error())
-			debug.PrintStack()
-			return
-		}
-
-		// 同步ID到定时任务
-		s.SyncNodeIdAndSpiderId(node, *spider)
-
 		// 生成任务ID
 		id := uuid.NewV4()
 
-		// 生成任务模型
-		t := model.Task{
-			Id:       id.String(),
-			SpiderId: spider.Id,
-			NodeId:   node.Id,
-			Status:   constants.StatusPending,
-			Param:    s.Param,
-		}
+		if s.RunType == constants.RunTypeAllNodes {
+			// 所有节点
+			nodes, err := model.GetNodeList(nil)
+			if err != nil {
+				return
+			}
+			for _, node := range nodes {
+				t := model.Task{
+					Id:       id.String(),
+					SpiderId: s.SpiderId,
+					NodeId:   node.Id,
+					Param:    s.Param,
+				}
 
-		// 将任务存入数据库
-		if err := model.AddTask(t); err != nil {
-			log.Errorf(err.Error())
-			debug.PrintStack()
+				if err := AddTask(t); err != nil {
+					return
+				}
+				if err := AssignTask(t); err != nil {
+					log.Errorf(err.Error())
+					debug.PrintStack()
+					return
+				}
+			}
+		} else if s.RunType == constants.RunTypeRandom {
+			// 随机
+			t := model.Task{
+				Id:       id.String(),
+				SpiderId: s.SpiderId,
+				Param:    s.Param,
+			}
+			if err := AddTask(t); err != nil {
+				return
+			}
+			if err := AssignTask(t); err != nil {
+				log.Errorf(err.Error())
+				debug.PrintStack()
+				return
+			}
+		} else if s.RunType == constants.RunTypeSelectedNodes {
+			// 指定节点
+			for _, nodeId := range s.NodeIds {
+				t := model.Task{
+					Id:       id.String(),
+					SpiderId: s.SpiderId,
+					NodeId:   nodeId,
+					Param:    s.Param,
+				}
+
+				if err := AddTask(t); err != nil {
+					return
+				}
+
+				if err := AssignTask(t); err != nil {
+					log.Errorf(err.Error())
+					debug.PrintStack()
+					return
+				}
+			}
+		} else {
 			return
 		}
 
-		// 加入任务队列
-		if err := AssignTask(t); err != nil {
-			log.Errorf(err.Error())
-			debug.PrintStack()
-			return
-		}
+		//node, err := model.GetNodeByKey(s.NodeKey)
+		//if err != nil || node.Id.Hex() == "" {
+		//	log.Errorf("get node by key error: %s", err.Error())
+		//	debug.PrintStack()
+		//	return
+		//}
+		//
+		//spider := model.GetSpiderByName(s.SpiderName)
+		//if spider == nil || spider.Id.Hex() == "" {
+		//	log.Errorf("get spider by name error: %s", err.Error())
+		//	debug.PrintStack()
+		//	return
+		//}
+		//
+		//// 同步ID到定时任务
+		//s.SyncNodeIdAndSpiderId(node, *spider)
 	}
 }
 
@@ -106,6 +147,7 @@ func (s *Scheduler) AddJob(job model.Schedule) error {
 
 	// 更新EntryID
 	job.EntryId = eid
+	job.Status = constants.ScheduleStatusRunning
 	if err := job.Save(); err != nil {
 		log.Errorf("job save error: %s", err.Error())
 		debug.PrintStack()
@@ -134,6 +176,36 @@ func ParserCron(spec string) error {
 	return nil
 }
 
+// 停止定时任务
+func (s *Scheduler) Stop(id bson.ObjectId) error {
+	schedule, err := model.GetSchedule(id)
+	if err != nil {
+		return err
+	}
+	if schedule.EntryId == 0 {
+		return errors.New("entry id not found")
+	}
+	s.cron.Remove(schedule.EntryId)
+	// 更新状态
+	schedule.Status = constants.ScheduleStatusStop
+	if err = schedule.Save(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// 运行任务
+func (s *Scheduler) Run(id bson.ObjectId) error {
+	schedule, err := model.GetSchedule(id)
+	if err != nil {
+		return err
+	}
+	if err := s.AddJob(schedule); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *Scheduler) Update() error {
 	// 删除所有定时任务
 	s.RemoveAll()
@@ -150,6 +222,10 @@ func (s *Scheduler) Update() error {
 	for i := 0; i < len(sList); i++ {
 		// 单个任务
 		job := sList[i]
+
+		if job.Status == constants.ScheduleStatusStop {
+			continue
+		}
 
 		// 添加到定时任务
 		if err := s.AddJob(job); err != nil {

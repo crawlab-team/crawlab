@@ -161,7 +161,7 @@ export default {
               message: this.$t('Deleted successfully')
             })
           })
-        this.$st.sendEv('用户', '删除', 'id', row._id)
+        this.$st.sendEv('用户列表', '删除用户')
       })
       // this.$store.commit('user/SET_USER_FORM', row)
     },
@@ -178,7 +178,7 @@ export default {
             })
         }
       })
-      this.$st.sendEv('用户', '编辑')
+      this.$st.sendEv('用户列表', '编辑用户')
     }
   },
   created () {

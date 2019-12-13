@@ -1,8 +1,9 @@
 import request from '../../api/request'
-
 const state = {
   scheduleList: [],
-  scheduleForm: {}
+  scheduleForm: {
+    node_ids: []
+  }
 }
 
 const getters = {}
@@ -31,6 +32,12 @@ const actions = {
   },
   removeSchedule ({ state }, id) {
     request.delete(`/schedules/${id}`)
+  },
+  stopSchedule ({ state, dispatch }, id) {
+    return request.post(`/schedules/${id}/stop`)
+  },
+  runSchedule ({ state, dispatch }, id) {
+    return request.post(`/schedules/${id}/run`)
   }
 }
 

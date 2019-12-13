@@ -95,18 +95,16 @@ func UpdateNodeStatus() {
 }
 
 func handleNodeInfo(key string, data Data) {
+	// 添加同步锁
+	v, err := database.RedisClient.Lock(key)
+	if err != nil {
+		return
+	}
+	defer database.RedisClient.UnLock(key, v)
+
 	// 更新节点信息到数据库
 	s, c := database.GetCol("nodes")
 	defer s.Close()
-
-	// 同个key可能因为并发，被注册多次
-	var nodes []model.Node
-	_ = c.Find(bson.M{"key": key}).All(&nodes)
-	if len(nodes) > 1 {
-		for _, node := range nodes {
-			_ = c.RemoveId(node.Id)
-		}
-	}
 
 	var node model.Node
 	if err := c.Find(bson.M{"key": key}).One(&node); err != nil {
