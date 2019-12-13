@@ -77,51 +77,14 @@ export default {
     }
   },
   methods: {
-    addField () {
-      this.list.push({
-        type: 'css',
-        extract_type: 'text'
-      })
-      this.$st.sendEv('爬虫详情-配置', '添加字段')
-    },
-    deleteField (index) {
-      this.list.splice(index, 1)
-      this.$st.sendEv('爬虫详情-配置', '删除字段')
-    },
     onChange (row) {
       if (this.list.filter(d => d.name === row.name).length > 1) {
         this.$message.error(this.$t(`Duplicated field names for ${row.name}`))
       }
       this.$store.commit('spider/SET_SPIDER_FORM_CONFIG_SETTINGS', this.list)
-      this.$st.sendEv('爬虫详情-配置', '更改字段')
-    },
-    onCheck (row) {
-      this.list.forEach(d => {
-        if (row.name !== d.name) {
-          this.$set(d, 'is_detail', false)
-        }
-      })
-      this.$st.sendEv('爬虫详情-配置', '设置详情页URL')
-    },
-    onClickSelectorType (row, selectorType) {
-      if (selectorType === 'css') {
-        if (row.xpath) this.$set(row, 'xpath', '')
-        if (!row.css) this.$set(row, 'css', 'body')
-      } else {
-        if (row.css) this.$set(row, 'css', '')
-        if (!row.xpath) this.$set(row, 'xpath', '//body')
-      }
-    },
-    onClickIsAttribute (row, isAttribute) {
-      if (!isAttribute) {
-        // 文本
-        if (row.attr) this.$set(row, 'attr', '')
-      } else {
-        // 属性
-        if (!row.attr) this.$set(row, 'attr', 'href')
-      }
     },
     onRemoveField (row) {
+      this.$st.sendEv('爬虫详情', '配置', '删除设置')
       const list = JSON.parse(JSON.stringify(this.list))
       for (let i = 0; i < list.length; i++) {
         if (row.name === list[i].name) {
@@ -137,6 +100,7 @@ export default {
       this.$store.commit('spider/SET_SPIDER_FORM_CONFIG_SETTINGS', list)
     },
     onAddField (row) {
+      this.$st.sendEv('爬虫详情', '配置', '添加设置')
       const list = JSON.parse(JSON.stringify(this.list))
       for (let i = 0; i < list.length; i++) {
         if (row.name === list[i].name) {

@@ -80,7 +80,7 @@ export default {
             this.$message.success(this.$t('A task has been scheduled successfully'))
           })
         this.$emit('close')
-        this.$st.sendEv('爬虫', '运行')
+        this.$st.sendEv('爬虫确认', '确认运行', this.form.runType)
       })
     }
   },

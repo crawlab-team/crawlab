@@ -202,7 +202,7 @@ export default {
     },
     onRefresh () {
       this.$store.dispatch('node/getNodeList')
-      this.$st.sendEv('节点', '刷新')
+      this.$st.sendEv('节点列表', '刷新')
     },
     onSubmit () {
       const vm = this
@@ -246,13 +246,13 @@ export default {
               message: 'Deleted successfully'
             })
           })
-        this.$st.sendEv('节点', '删除', 'id', row._id)
+        this.$st.sendEv('节点列表', '删除节点')
       })
     },
     onView (row) {
       this.$router.push(`/nodes/${row._id}`)
 
-      this.$st.sendEv('节点', '查看', 'id', row._id)
+      this.$st.sendEv('节点列表', '查看节点')
     },
     onPageChange () {
       this.$store.dispatch('node/getNodeList')

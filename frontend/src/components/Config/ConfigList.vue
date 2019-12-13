@@ -68,6 +68,7 @@
                   v-model="spiderForm.config.start_stage"
                   :placeholder="$t('Start Stage')"
                   :class="startStageClass"
+                  @change="$st.sendEv('爬虫详情', '配置', '改变起始阶段')"
                 >
                   <el-option
                     v-for="n in spiderForm.config.stages.map(s => s.name)"
@@ -502,7 +503,7 @@ export default {
       this.spiderForm.crawl_type = value
     },
     async onSave () {
-      this.$st.sendEv('爬虫详情-配置', '保存')
+      this.$st.sendEv('爬虫详情', '配置', '保存')
       this.saveLoading = true
       try {
         const res = await this.$store.dispatch('spider/postConfigSpiderConfig')
@@ -542,13 +543,13 @@ export default {
                 .finally(() => {
                   this.previewLoading = false
                 })
-              this.$st.sendEv('爬虫详情-配置', '预览')
+              this.$st.sendEv('爬虫详情', '配置', '预览')
             })
         }
       })
     },
     async onCrawl () {
-      this.$st.sendEv('爬虫详情-配置', '点击运行')
+      this.$st.sendEv('爬虫详情', '配置', '点击运行')
       const res = await this.onSave()
       if (res) {
         this.crawlConfirmDialogVisible = true
@@ -580,7 +581,7 @@ export default {
                 .finally(() => {
                   this.extractFieldsLoading = false
                 })
-              this.$st.sendEv('爬虫详情-配置', '提取字段')
+              this.$st.sendEv('爬虫详情', '配置', '提取字段')
             })
         }
       })
@@ -595,6 +596,7 @@ export default {
       return value
     },
     onClickSelectorType (selectorType) {
+      this.$st.sendEv('爬虫详情', '配置', `点击阶段选择器类别-${selectorType}`)
       this.spiderForm.config.stages.forEach(stage => {
         // 列表
         if (selectorType === 'css') {
@@ -630,12 +632,14 @@ export default {
       ev.stopPropagation()
     },
     onEditStage (stage) {
+      this.$st.sendEv('爬虫详情', '配置', '更改阶段名称')
       this.$set(stage, 'isEdit', !stage.isEdit)
       setTimeout(() => {
         this.$refs[`stage-name-${stage.name}`][0].focus()
       }, 0)
     },
     onCopyStage (stage) {
+      this.$st.sendEv('爬虫详情', '配置', '复制阶段')
       const stages = this.spiderForm.config.stages
       const ts = Math.floor(new Date().getTime()).toString()
       const newStage = JSON.parse(JSON.stringify(stage))
@@ -668,6 +672,7 @@ export default {
       })
     },
     onRemoveStage (stage) {
+      this.$st.sendEv('爬虫详情', '配置', '删除阶段')
       const stages = this.spiderForm.config.stages
       for (let i = 0; i < stages.length; i++) {
         if (stage.name === stages[i].name) {
@@ -689,6 +694,7 @@ export default {
       })
     },
     onAddStage (stage) {
+      this.$st.sendEv('爬虫详情', '配置', '添加阶段')
       const stages = this.spiderForm.config.stages
       for (let i = 0; i < stages.length; i++) {
         if (stage.name === stages[i].name) {
@@ -813,10 +819,12 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
     },
     onCheckIsList (value, stage) {
       if (value) {
+        this.$st('爬虫详情', '配置', '勾选列表页')
         if (!stage.list_css && !stage.list_xpath) {
           stage.list_xpath = '//body'
         }
       } else {
+        this.$st('爬虫详情', '配置', '取消勾选列表页')
         stage.list_css = ''
         stage.list_xpath = ''
       }
@@ -838,10 +846,12 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
     },
     onCheckIsPage (value, stage) {
       if (value) {
+        this.$st('爬虫详情', '配置', '勾选分页')
         if (!stage.page_css && !stage.page_xpath) {
           stage.page_xpath = '//body'
         }
       } else {
+        this.$st('爬虫详情', '配置', '取消勾选分页')
         stage.page_css = ''
         stage.page_xpath = ''
       }

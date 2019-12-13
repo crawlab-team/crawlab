@@ -370,17 +370,17 @@ export default {
         }
         await this.$store.dispatch('spider/getSpiderList')
         this.$router.push(`/spiders/${res2.data.data._id}`)
-        this.$st.sendEv('爬虫', '添加爬虫-可配置爬虫')
+        this.$st.sendEv('爬虫列表', '添加爬虫', '可配置爬虫')
       })
     },
     onAddCustomized () {
       this.addDialogVisible = false
       this.addCustomizedDialogVisible = true
-      this.$st.sendEv('爬虫', '添加爬虫-自定义爬虫')
+      this.$st.sendEv('爬虫列表', '添加爬虫', '自定义爬虫')
     },
     onRefresh () {
       this.getList()
-      this.$st.sendEv('爬虫', '刷新')
+      this.$st.sendEv('爬虫列表', '刷新')
     },
     onSubmit () {
       const vm = this
@@ -434,19 +434,19 @@ export default {
               message: 'Deleted successfully'
             })
           })
-        this.$st.sendEv('爬虫', '删除')
+        this.$st.sendEv('爬虫列表', '删除爬虫')
       })
     },
     onCrawl (row, ev) {
       ev.stopPropagation()
       this.crawlConfirmDialogVisible = true
       this.activeSpiderId = row._id
-      this.$st.sendEv('爬虫', '点击运行')
+      this.$st.sendEv('爬虫列表', '点击运行')
     },
     onView (row, ev) {
       ev.stopPropagation()
       this.$router.push('/spiders/' + row._id)
-      this.$st.sendEv('爬虫', '查看')
+      this.$st.sendEv('爬虫列表', '查看爬虫')
     },
     onImport () {
       this.$refs.importForm.validate(valid => {
@@ -467,7 +467,7 @@ export default {
             })
         }
       })
-      this.$st.sendEv('爬虫', '导入爬虫')
+      this.$st.sendEv('爬虫列表', '导入爬虫')
     },
     openImportDialog () {
       this.dialogVisible = true
@@ -494,10 +494,6 @@ export default {
         })
         callback(data)
       })
-    },
-    onSiteSelect (item) {
-      this.$store.commit('spider/SET_FILTER_SITE', item._id)
-      this.$st.sendEv('爬虫', '搜索网站')
     },
     onAddConfigurableSiteSelect (item) {
       this.spiderForm.site = item._id

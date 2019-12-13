@@ -221,7 +221,7 @@ export default {
     },
     onRefresh () {
       this.$store.dispatch('task/getTaskList')
-      this.$st.sendEv('任务', '搜索')
+      this.$st.sendEv('任务列表', '搜索')
     },
     onRemoveMultipleTask () {
       if (this.multipleSelection.length === 0) {
@@ -267,20 +267,20 @@ export default {
               message: 'Deleted successfully'
             })
           })
-        this.$st.sendEv('任务', '删除', 'id', row._id)
+        this.$st.sendEv('任务列表', '删除任务')
       })
     },
     onView (row) {
       this.$router.push(`/tasks/${row._id}`)
-      this.$st.sendEv('任务', '搜索', 'id', row._id)
+      this.$st.sendEv('任务列表', '查看任务')
     },
     onClickSpider (row) {
       this.$router.push(`/spiders/${row.spider_id}`)
-      this.$st.sendEv('任务', '点击爬虫详情', 'id', row.spider_id)
+      this.$st.sendEv('任务列表', '点击爬虫详情')
     },
     onClickNode (row) {
       this.$router.push(`/nodes/${row.node_id}`)
-      this.$st.sendEv('任务', '点击节点详情', 'id', row.node_id)
+      this.$st.sendEv('任务列表', '点击节点详情')
     },
     onPageChange () {
       setTimeout(() => {

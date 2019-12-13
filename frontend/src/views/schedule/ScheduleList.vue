@@ -212,7 +212,7 @@ export default {
       this.isEdit = false
       this.dialogVisible = true
       this.$store.commit('schedule/SET_SCHEDULE_FORM', { node_ids: [] })
-      this.$st.sendEv('定时任务', '添加')
+      this.$st.sendEv('定时任务', '添加定时任务')
     },
     onAddSubmit () {
       this.$refs.scheduleForm.validate(res => {
@@ -238,7 +238,7 @@ export default {
           }
         }
       })
-      this.$st.sendEv('定时任务', '提交')
+      this.$st.sendEv('定时任务', '提交定时任务')
     },
     isShowRun (row) {
     },
@@ -246,7 +246,7 @@ export default {
       this.$store.commit('schedule/SET_SCHEDULE_FORM', row)
       this.dialogVisible = true
       this.isEdit = true
-      this.$st.sendEv('定时任务', '修改', 'id', row._id)
+      this.$st.sendEv('定时任务', '修改定时任务')
     },
     onRemove (row) {
       this.$confirm(this.$t('Are you sure to delete the schedule task?'), this.$t('Notification'), {
@@ -263,7 +263,7 @@ export default {
           })
       }).catch(() => {
       })
-      this.$st.sendEv('定时任务', '删除', 'id', row._id)
+      this.$st.sendEv('定时任务', '删除定时任务')
     },
     onCrawl (row) {
       // 停止定时任务
