@@ -5,7 +5,7 @@ type ConfigSpiderData struct {
 	Engine     string            `yaml:"engine" json:"engine"`
 	StartUrl   string            `yaml:"start_url" json:"start_url"`
 	StartStage string            `yaml:"start_stage" json:"start_stage"`
-	Stages     map[string]Stage  `yaml:"stages" json:"stages"`
+	Stages     []Stage           `yaml:"stages" json:"stages"`
 	Settings   map[string]string `yaml:"settings" json:"settings"`
 }
 
