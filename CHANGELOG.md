@@ -1,3 +1,12 @@
+# 0.4.1 (2019-12-13)
+### Features / Enhancement
+- **Spiderfile Optimization**. Stages changed from dictionary to array. [#358](https://github.com/crawlab-team/crawlab/issues/358)
+- **Baidu Tongji Update**.
+
+### Bug Fixes
+- **Unable to display schedule tasks**. [#353](https://github.com/crawlab-team/crawlab/issues/353)
+- **Duplicate node registration**. [#334](https://github.com/crawlab-team/crawlab/issues/334)
+
 # 0.4.0 (2019-12-06)
 ### Features / Enhancement
 - **Configurable Spider**. Allow users to add spiders using *Spiderfile* to configure crawling rules.
