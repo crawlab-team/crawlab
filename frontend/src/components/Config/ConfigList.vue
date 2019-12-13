@@ -133,9 +133,9 @@
           :value="activeNames"
         >
           <el-collapse-item
-            v-for="(stage, stageName) in spiderForm.config.stages"
-            :key="stageName"
-            :name="stageName"
+            v-for="(stage, index) in spiderForm.config.stages"
+            :key="index"
+            :name="stage.name"
           >
             <template slot="title">
               <ul class="stage-list">
@@ -271,7 +271,7 @@
               title="List Page Fields"
               :fields="stage.fields"
               :stage="stage"
-              :stage-names="Object.keys(spiderForm.config.stages)"
+              :stage-names="spiderForm.config.stages.map(s => s.name)"
             />
           </el-collapse-item>
         </el-collapse>
@@ -479,13 +479,6 @@ export default {
       })
 
       return nodes
-      // const stages = Object.values(this.spiderForm.config.stages)
-      // return stages.map((stage, i) => {
-      //   return {
-      //     name: stage.name,
-      //     ...stage
-      //   }
-      // })
     },
     stageEdges () {
       const edges = []
@@ -512,12 +505,17 @@ export default {
       this.$st.sendEv('爬虫详情-配置', '保存')
       this.saveLoading = true
       try {
-        await this.$store.dispatch('spider/postConfigSpiderConfig')
-        this.$message.success(this.$t('Spider info has been saved successfully'))
+        const res = await this.$store.dispatch('spider/postConfigSpiderConfig')
+        if (!res.data.error) {
+          this.$message.success(this.$t('Spider info has been saved successfully'))
+          return true
+        }
+        return false
       } catch (e) {
-        this.$message.error(this.$t('Something wrong happened'))
+        return false
+      } finally {
+        this.saveLoading = false
       }
-      this.saveLoading = false
     },
     onDialogClose () {
       this.dialogVisible = false
@@ -550,9 +548,11 @@ export default {
       })
     },
     async onCrawl () {
-      await this.onSave()
-      this.crawlConfirmDialogVisible = true
       this.$st.sendEv('爬虫详情-配置', '点击运行')
+      const res = await this.onSave()
+      if (res) {
+        this.crawlConfirmDialogVisible = true
+      }
     },
     onExtractFields () {
       this.$refs['form'].validate(res => {
@@ -627,9 +627,7 @@ export default {
       })
     },
     onStageNameFocus (ev) {
-      console.log(ev)
       ev.stopPropagation()
-      // ev.preventDefault()
     },
     onEditStage (stage) {
       this.$set(stage, 'isEdit', !stage.isEdit)
@@ -638,29 +636,18 @@ export default {
       }, 0)
     },
     onCopyStage (stage) {
+      const stages = this.spiderForm.config.stages
       const ts = Math.floor(new Date().getTime()).toString()
       const newStage = JSON.parse(JSON.stringify(stage))
-      newStage.name = `stage_${ts}`
-      this.$set(this.spiderForm.config.stages, newStage.name, newStage)
-    },
-    onRemoveStage (stage) {
-      const stages = JSON.parse(JSON.stringify(this.spiderForm.config.stages))
-      delete stages[stage.name]
-      this.$set(this.spiderForm.config, 'stages', stages)
-      if (Object.keys(stages).length === 0) {
-        this.onAddStage()
+      newStage.name = `${stage.name}_copy_${ts}`
+      for (let i = 0; i < stages.length; i++) {
+        if (stage.name === stages[i].name) {
+          stages.splice(i + 1, 0, newStage)
+        }
       }
-      // 重置next_stage被设置为该stage的field
-      Object.values(this.spiderForm.config.stages).forEach(_stage => {
-        _stage.fields.forEach(field => {
-          if (field.next_stage === stage.name) {
-            this.$set(field, 'next_stage', '')
-          }
-        })
-      })
     },
-    onAddStage (stage) {
-      const stages = JSON.parse(JSON.stringify(this.spiderForm.config.stages))
+    addStage (index) {
+      const stages = this.spiderForm.config.stages
       const ts = Math.floor(new Date().getTime()).toString()
       const newStageName = `stage_${ts}`
       const newField = { name: `field_${ts}`, next_stage: '' }
@@ -671,15 +658,44 @@ export default {
       } else {
         newField['xpath'] = '//body'
       }
-      stages[newStageName] = {
+      stages.splice(index + 1, 0, {
         name: newStageName,
         list_css: this.isCss ? 'body' : '',
         list_xpath: this.isXpath ? '//body' : '',
         page_css: '',
         page_xpath: '',
         fields: [newField]
+      })
+    },
+    onRemoveStage (stage) {
+      const stages = this.spiderForm.config.stages
+      for (let i = 0; i < stages.length; i++) {
+        if (stage.name === stages[i].name) {
+          stages.splice(i, 1)
+          break
+        }
       }
-      this.$set(this.spiderForm.config, 'stages', stages)
+      // 如果只剩一个stage，加入新的stage
+      if (stages.length === 0) {
+        this.addStage(0)
+      }
+      // 重置next_stage被设置为该stage的field
+      stages.forEach(_stage => {
+        _stage.fields.forEach(field => {
+          if (field.next_stage === stage.name) {
+            this.$set(field, 'next_stage', '')
+          }
+        })
+      })
+    },
+    onAddStage (stage) {
+      const stages = this.spiderForm.config.stages
+      for (let i = 0; i < stages.length; i++) {
+        if (stage.name === stages[i].name) {
+          this.addStage(i)
+          break
+        }
+      }
     },
     renderProcessChart () {
       const option = {
