@@ -37,7 +37,6 @@ RUN apt-get update \
 RUN pip install scrapy pymongo bs4 requests -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # copy backend files
-COPY --from=backend-build /go/src/app .
 COPY --from=backend-build /go/bin/crawlab /usr/local/bin
 
 # install nginx

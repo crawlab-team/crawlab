@@ -75,7 +75,7 @@ func TestPostSchedule(t *testing.T) {
 		Id:       bson.ObjectIdHex("5d429e6c19f7abede924fee2"),
 		Name:     "test schedule",
 		SpiderId: bson.ObjectIdHex("5d429e6c19f7abede924fee2"),
-		NodeId:   bson.ObjectIdHex("5d429e6c19f7abede924fee2"),
+		NodeIds:  NodeIdss,
 		Cron:     "***1*",
 		EntryId:  10,
 		// 前端展示
@@ -112,7 +112,7 @@ func TestPutSchedule(t *testing.T) {
 		Id:       bson.ObjectIdHex("5d429e6c19f7abede924fee2"),
 		Name:     "test schedule",
 		SpiderId: bson.ObjectIdHex("5d429e6c19f7abede924fee2"),
-		NodeId:   bson.ObjectIdHex("5d429e6c19f7abede924fee2"),
+		NodeIds:  NodeIdss,
 		Cron:     "***1*",
 		EntryId:  10,
 		// 前端展示
