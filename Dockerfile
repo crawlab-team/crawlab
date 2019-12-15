@@ -14,10 +14,9 @@ ADD ./frontend /app
 WORKDIR /app
 
 # install frontend
-RUN npm config set unsafe-perm true
-RUN npm install -g yarn && yarn install --registry=https://registry.npm.taobao.org
-
-RUN npm run build:prod
+RUN npm config set unsafe-perm true \
+	&& npm install -g yarn && yarn install --registry=https://registry.npm.taobao.org \
+	&& npm run build:prod
 
 # images
 FROM ubuntu:latest
@@ -28,19 +27,16 @@ ADD . /app
 ENV DEBIAN_FRONTEND noninteractive
 
 # install packages
-RUN apt-get update \
-	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip \
+RUN dependencies='curl git net-tools iputils-ping ntp ntpdate python3 python3-pip nginx' \
+	&& apt-get update \
+	&& apt-get install -y $dependencies \
 	&& ln -s /usr/bin/pip3 /usr/local/bin/pip \
-	&& ln -s /usr/bin/python3 /usr/local/bin/python
-
-# install backend
-RUN pip install scrapy pymongo bs4 requests -i https://pypi.tuna.tsinghua.edu.cn/simple
+	&& ln -s /usr/bin/python3 /usr/local/bin/python \
+	&& pip install scrapy pymongo bs4 requests -i https://pypi.tuna.tsinghua.edu.cn/simple \
+	&& apt-get clean
 
 # copy backend files
 COPY --from=backend-build /go/bin/crawlab /usr/local/bin
-
-# install nginx
-RUN apt-get -y install nginx
 
 # copy frontend files
 COPY --from=frontend-build /app/dist /app/dist
