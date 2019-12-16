@@ -280,6 +280,8 @@ export default {
   'Please zip your spider files from the root directory': '爬虫文件请从根目录下开始压缩。',
   'English': 'English',
   'Are you sure to delete the schedule task?': '确定删除定时任务?',
+  'Disclaimer': '免责声明',
+
   // 登录
   'Sign in': '登录',
   'Sign-in': '登录',
