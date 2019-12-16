@@ -27,7 +27,7 @@ ADD . /app
 ENV DEBIAN_FRONTEND noninteractive
 
 # set tmp folder privillege
-RUN chmod -R /tmp
+RUN chmod -R 777 /tmp
 
 # install packages
 RUN apt-get update \
