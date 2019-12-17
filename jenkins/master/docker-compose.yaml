@@ -29,6 +29,7 @@ services:
     restart: always
     volumes:
       - "/opt/crawlab/mongo/data/db:/data/db"
+      - "/opt/crawlab/mongo/tmp:/tmp"
   redis:
     image: redis:latest
     restart: always
