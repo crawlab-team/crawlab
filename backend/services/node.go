@@ -50,36 +50,44 @@ func GetNodeData() (Data, error) {
 	return data, err
 }
 
+func GetRedisNode(key string) (*Data, error) {
+	// 获取节点数据
+	value, err := database.RedisClient.HGet("nodes", key)
+	if err != nil {
+		log.Errorf(err.Error())
+		return nil, err
+	}
+
+	// 解析节点列表数据
+	var data Data
+	if err := json.Unmarshal([]byte(value), &data); err != nil {
+		log.Errorf(err.Error())
+		return nil, err
+	}
+	return &data, nil
+}
+
 // 更新所有节点状态
 func UpdateNodeStatus() {
 	// 从Redis获取节点keys
 	list, err := database.RedisClient.HKeys("nodes")
 	if err != nil {
-		log.Errorf(err.Error())
+		log.Errorf("get redis node keys error: %s", err.Error())
 		return
 	}
 
 	// 遍历节点keys
 	for _, key := range list {
-		// 获取节点数据
-		value, err := database.RedisClient.HGet("nodes", key)
+
+		data, err := GetRedisNode(key)
 		if err != nil {
-			log.Errorf(err.Error())
-			return
+			continue
 		}
-
-		// 解析节点列表数据
-		var data Data
-		if err := json.Unmarshal([]byte(value), &data); err != nil {
-			log.Errorf(err.Error())
-			return
-		}
-
 		// 如果记录的更新时间超过60秒，该节点被认为离线
 		if time.Now().Unix()-data.UpdateTsUnix > 60 {
 			// 在Redis中删除该节点
 			if err := database.RedisClient.HDel("nodes", data.Key); err != nil {
-				log.Errorf(err.Error())
+				log.Errorf("delete redis node key error:%s, key:%s", err.Error(), data.Key)
 			}
 			continue
 		}
@@ -94,7 +102,8 @@ func UpdateNodeStatus() {
 	model.ResetNodeStatusToOffline(list)
 }
 
-func handleNodeInfo(key string, data Data) {
+// 处理接到信息
+func handleNodeInfo(key string, data *Data) {
 	// 添加同步锁
 	v, err := database.RedisClient.Lock(key)
 	if err != nil {
