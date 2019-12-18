@@ -143,6 +143,7 @@ func (n *Node) GetTasks() ([]Task, error) {
 	return tasks, nil
 }
 
+// 节点列表
 func GetNodeList(filter interface{}) ([]Node, error) {
 	s, c := database.GetCol("nodes")
 	defer s.Close()
@@ -156,6 +157,7 @@ func GetNodeList(filter interface{}) ([]Node, error) {
 	return results, nil
 }
 
+// 节点信息
 func GetNode(id bson.ObjectId) (Node, error) {
 	var node Node
 
@@ -176,6 +178,7 @@ func GetNode(id bson.ObjectId) (Node, error) {
 	return node, nil
 }
 
+// 节点信息
 func GetNodeByKey(key string) (Node, error) {
 	s, c := database.GetCol("nodes")
 	defer s.Close()
@@ -191,6 +194,7 @@ func GetNodeByKey(key string) (Node, error) {
 	return node, nil
 }
 
+// 更新节点
 func UpdateNode(id bson.ObjectId, item Node) error {
 	s, c := database.GetCol("nodes")
 	defer s.Close()
@@ -206,6 +210,7 @@ func UpdateNode(id bson.ObjectId, item Node) error {
 	return nil
 }
 
+// 任务列表
 func GetNodeTaskList(id bson.ObjectId) ([]Task, error) {
 	node, err := GetNode(id)
 	if err != nil {
@@ -218,6 +223,7 @@ func GetNodeTaskList(id bson.ObjectId) ([]Task, error) {
 	return tasks, nil
 }
 
+// 节点数
 func GetNodeCount(query interface{}) (int, error) {
 	s, c := database.GetCol("nodes")
 	defer s.Close()

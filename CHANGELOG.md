@@ -1,3 +1,7 @@
+# 0.4.2 (unknown)
+### Features / Enhancement
+- **Disclaimer**. Added page for Disclaimer.
+
 # 0.4.1 (2019-12-13)
 ### Features / Enhancement
 - **Spiderfile Optimization**. Stages changed from dictionary to array. [#358](https://github.com/crawlab-team/crawlab/issues/358)
