@@ -819,12 +819,12 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
     },
     onCheckIsList (value, stage) {
       if (value) {
-        this.$st('爬虫详情', '配置', '勾选列表页')
+        this.$st.sendEv('爬虫详情', '配置', '勾选列表页')
         if (!stage.list_css && !stage.list_xpath) {
           stage.list_xpath = '//body'
         }
       } else {
-        this.$st('爬虫详情', '配置', '取消勾选列表页')
+        this.$st.sendEv('爬虫详情', '配置', '取消勾选列表页')
         stage.list_css = ''
         stage.list_xpath = ''
       }
@@ -846,12 +846,12 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
     },
     onCheckIsPage (value, stage) {
       if (value) {
-        this.$st('爬虫详情', '配置', '勾选分页')
+        this.$st.sendEv('爬虫详情', '配置', '勾选分页')
         if (!stage.page_css && !stage.page_xpath) {
           stage.page_xpath = '//body'
         }
       } else {
-        this.$st('爬虫详情', '配置', '取消勾选分页')
+        this.$st.sendEv('爬虫详情', '配置', '取消勾选分页')
         stage.page_css = ''
         stage.page_xpath = ''
       }
