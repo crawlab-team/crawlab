@@ -176,6 +176,8 @@ func main() {
 			authGroup.POST("/users/:id", routes.PostUser)     // 更改用户
 			authGroup.DELETE("/users/:id", routes.DeleteUser) // 删除用户
 			authGroup.GET("/me", routes.GetMe)                // 获取自己账户
+			//release版本
+			authGroup.GET("/version", routes.GetVersion) //获取发布的版本
 		}
 
 	}
