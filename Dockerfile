@@ -56,4 +56,4 @@ EXPOSE 8080
 EXPOSE 8000
 
 # start backend
-CMD ["/bin/sh", "./wait-for-it.sh", "mongo:27017", "--", "/bin/sh", "/app/docker_init.sh"]
+CMD ["/bin/sh", "/app/docker_init.sh"]
