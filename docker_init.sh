@@ -22,10 +22,5 @@ fi
 # start nginx
 service nginx start
 
-# wait for mongo service to be ready
-#/app/wait-for-it.sh $CRAWLAB_MONGO_HOST:$CRAWLAB_MONGO_PORT
-
-# wait for redis service to be ready
-#/app/wait-for-it.sh $CRAWLAB_REDIS_ADDRESS:$CRAWLAB_REDIS_PORT
-
+# start backend
 crawlab
