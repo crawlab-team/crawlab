@@ -20,7 +20,7 @@ RUN npm install -g yarn && yarn install --registry=https://registry.npm.taobao.o
 RUN npm run build:prod
 
 # images
-FROM ubuntu:latest
+FROM ubuntu:16.04
 
 ADD . /app
 
