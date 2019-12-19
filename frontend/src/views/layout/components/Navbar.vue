@@ -31,7 +31,7 @@
       </el-dropdown-menu>
     </el-dropdown>
     <el-dropdown class="documentation right">
-      <a href="https://tikazyq.github.io/crawlab-docs" target="_blank">
+      <a href="https://docs.crawlab.cn" target="_blank">
         <font-awesome-icon :icon="['far', 'question-circle']"/>
         <span style="margin-left: 5px;">{{$t('Documentation')}}</span>
       </a>
