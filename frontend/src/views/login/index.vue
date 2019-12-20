@@ -57,8 +57,8 @@
       </div>
       <div class="tips">
         <span>{{$t('Initial Username/Password')}}: admin/admin</span>
-        <a href="https://github.com/tikazyq/crawlab" target="_blank" style="float:right">
-          <img src="https://img.shields.io/badge/github-crawlab-blue">
+        <a href="https://github.com/crawlab-team/crawlab" target="_blank" style="float:right">
+          <img src="https://img.shields.io/github/stars/crawlab-team/crawlab?logo=github">
         </a>
       </div>
       <div class="lang">
