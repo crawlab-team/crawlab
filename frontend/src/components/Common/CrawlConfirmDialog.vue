@@ -29,10 +29,14 @@
       <el-form-item :label="$t('Parameters')" prop="param" inline-message>
         <el-input v-model="form.param" :placeholder="$t('Parameters')"></el-input>
       </el-form-item>
+      <el-form-item class="disclaimer-wrapper">
+        <el-checkbox v-model="isAllowDisclaimer"/>
+        <span style="margin-left: 5px">我已阅读并同意 <a href="javascript:" @click="onClickDisclaimer">《免责声明》</a> 所有内容</span>
+      </el-form-item>
     </el-form>
     <template slot="footer">
       <el-button type="plain" size="small" @click="$emit('close')">{{$t('Cancel')}}</el-button>
-      <el-button type="primary" size="small" @click="onConfirm">{{$t('Confirm')}}</el-button>
+      <el-button type="primary" size="small" @click="onConfirm" :disabled="!isAllowDisclaimer">{{$t('Confirm')}}</el-button>
     </template>
   </el-dialog>
 </template>
@@ -59,7 +63,8 @@ export default {
         nodeIds: undefined,
         param: '',
         nodeList: []
-      }
+      },
+      isAllowDisclaimer: true
     }
   },
   methods: {
@@ -82,6 +87,9 @@ export default {
         this.$emit('close')
         this.$st.sendEv('爬虫确认', '确认运行', this.form.runType)
       })
+    },
+    onClickDisclaimer () {
+      this.$router.push('/disclaimer')
     }
   },
   created () {
@@ -104,5 +112,9 @@ export default {
 <style scoped>
   .crawl-confirm-dialog >>> .el-form .el-form-item {
     margin-bottom: 20px;
+  }
+
+  .crawl-confirm-dialog >>> .disclaimer-wrapper a {
+    color: #409eff;
   }
 </style>
