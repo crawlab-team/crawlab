@@ -29,7 +29,6 @@ export default {
   },
   data () {
     const converter = new showdown.Converter()
-    console.log(converter)
     return {
       converter,
       textEn: `
