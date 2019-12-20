@@ -35,7 +35,7 @@ export default {
       textEn: `
 # Disclaimer
 
-This Disclaimer and privacy protection statement (hereinafter referred to as "privacy statement" or "this statement") is applicable to the series of software (hereinafter referred to as "crawlab") developed by crawlab development group (hereinafter referred to as "development group") after you read this statement, if you do not agree with any terms in this statement or have doubts about this statement, please stop using our software immediately. If you have started or are using crawlab, you have read and agree to all terms of this statement.
+This Disclaimer and privacy protection statement (hereinafter referred to as "disclaimer statement" or "this statement") is applicable to the series of software (hereinafter referred to as "crawlab") developed by crawlab development group (hereinafter referred to as "development group") after you read this statement, if you do not agree with any terms in this statement or have doubts about this statement, please stop using our software immediately. If you have started or are using crawlab, you have read and agree to all terms of this statement.
 
 1. General: by installing crawlab and using the services and functions provided by crawlab, you have agreed to establish this agreement with the development team. The developer group may at any time change the terms at its sole discretion. The amended "terms" shall take effect automatically as soon as they are published on the GitHub disclaimer page.
 2. This product is a distributed crawler management platform based on golang, supporting python, nodejs, go, Java, PHP and other programming languages as well as a variety of crawler frameworks.
@@ -49,7 +49,7 @@ This Disclaimer and privacy protection statement (hereinafter referred to as "pr
       textZh: `
 # 免责声明
 
-本免责及隐私保护声明(以下简称“隐私声明”或“本声明”)适用于 Crawlab 开发组 (以下简称“开发组”)研发的系列软件(以下简称"Crawlab") 在您阅读本声明后若不同意此声明中的任何条款，或对本声明存在质疑，请立刻停止使用我们的软件。若您已经开始或正在使用 Crawlab，则表示您已阅读并同意本声明的所有条款之约定。
+本免责及隐私保护声明(下简称“免责声明”或“本声明”)适用于 Crawlab 开发组 (以下简称“开发组”)研发的系列软件(以下简称"Crawlab") 在您阅读本声明后若不同意此声明中的任何条款，或对本声明存在质疑，请立刻停止使用我们的软件。若您已经开始或正在使用 Crawlab，则表示您已阅读并同意本声明的所有条款之约定。
 
 1. 总则：您通过安装 Crawlab 并使用 Crawlab 提供的服务与功能即表示您已经同意与开发组立本协议。开发组可随时执行全权决定更改“条款”。经修订的“条款”一经在 Github 免责声明页面上公布后，立即自动生效。
 2. 本产品是基于Golang的分布式爬虫管理平台，支持Python、NodeJS、Go、Java、PHP等多种编程语言以及多种爬虫框架。
