@@ -3,6 +3,9 @@
 - **Disclaimer**. Added page for Disclaimer.
 - **Call API to fetch version**. [#371](https://github.com/crawlab-team/crawlab/issues/371)
 
+### Bug Fixes
+- **"mongodb no reachable" error**. [#373](https://github.com/crawlab-team/crawlab/issues/373)
+
 # 0.4.1 (2019-12-13)
 ### Features / Enhancement
 - **Spiderfile Optimization**. Stages changed from dictionary to array. [#358](https://github.com/crawlab-team/crawlab/issues/358)
