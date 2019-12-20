@@ -2,6 +2,7 @@
 ### Features / Enhancement
 - **Disclaimer**. Added page for Disclaimer.
 - **Call API to fetch version**. [#371](https://github.com/crawlab-team/crawlab/issues/371)
+- **Configure to allow user registration**. [#346](https://github.com/crawlab-team/crawlab/issues/346)
 
 ### Bug Fixes
 - **"mongodb no reachable" error**. [#373](https://github.com/crawlab-team/crawlab/issues/373)
