@@ -32,4 +32,4 @@ task:
   workers: 4
 other:
   tmppath: "/tmp"
-version: v0.4.1
+version: 0.4.1
