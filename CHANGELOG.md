@@ -1,6 +1,7 @@
 # 0.4.2 (unknown)
 ### Features / Enhancement
 - **Disclaimer**. Added page for Disclaimer.
+- **Call API to fetch version**. [#371](https://github.com/crawlab-team/crawlab/issues/371)
 
 # 0.4.1 (2019-12-13)
 ### Features / Enhancement
