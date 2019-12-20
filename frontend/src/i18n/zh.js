@@ -270,7 +270,7 @@ export default {
   'Do you allow us to collect some statistics to improve Crawlab?': '您允许我们收集统计数据以更好地优化Crawlab？',
   'Saved file successfully': '成功保存文件',
   'An error happened when fetching the data': '请求数据时出错',
-  'Error when logging in (Please check username and password)': '登录时出错（请检查用户名密码）',
+  'Error when logging in (Please read documentation Q&A)': '登录时出错（请查看文档 Q&A）',
   'Please enter the correct username': '请输入正确用户名',
   'Password length should be no shorter than 5': '密码长度不能小于5',
   'Two passwords must be the same': '两个密码必须要一致',

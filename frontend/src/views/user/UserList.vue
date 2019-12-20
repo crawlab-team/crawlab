@@ -3,14 +3,14 @@
     <!--dialog-->
     <el-dialog :visible.sync="dialogVisible" :title="$t('Edit User')">
       <el-form ref="form" :model="userForm" label-width="80px" :rules="rules" inline-message>
-        <el-form-item :label="$t('Username')">
-          <el-input v-model="userForm.username" disabled></el-input>
+        <el-form-item prop="username" :label="$t('Username')" required>
+          <el-input v-model="userForm.username" :placeholder="$t('Username')" :disabled="!isAdd"></el-input>
         </el-form-item>
-        <el-form-item prop="password" :label="$t('Password')">
+        <el-form-item prop="password" :label="$t('Password')" required>
           <el-input type="password" v-model="userForm.password" :placeholder="$t('Password')"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('Role')">
-          <el-select v-model="userForm.role">
+        <el-form-item prop="role" :label="$t('Role')" required>
+          <el-select v-model="userForm.role" :placeholder="$t('Role')">
             <el-option value="admin" :label="$t('admin')"></el-option>
             <el-option value="normal" :label="$t('normal')"></el-option>
           </el-select>
@@ -27,7 +27,7 @@
       <div class="filter">
         <div class="left"></div>
         <div class="right">
-          <!--<el-button type="primary" size="small">新增用户</el-button>-->
+          <el-button type="success" icon="el-icon-plus" size="small" @click="onClickAddUser">添加用户</el-button>
         </div>
       </div>
       <!--table-->
@@ -109,6 +109,7 @@ export default {
     }
     return {
       dialogVisible: false,
+      isAdd: false,
       rules: {
         password: [{ validator: validatePass }]
       }
@@ -145,6 +146,7 @@ export default {
       return dayjs(ts).format('YYYY-MM-DD HH:mm:ss')
     },
     onEdit (row) {
+      this.isAdd = false
       this.$store.commit('user/SET_USER_FORM', row)
       this.dialogVisible = true
     },
@@ -161,24 +163,48 @@ export default {
               message: this.$t('Deleted successfully')
             })
           })
+          .then(() => {
+            this.$store.dispatch('user/getUserList')
+          })
         this.$st.sendEv('用户列表', '删除用户')
       })
       // this.$store.commit('user/SET_USER_FORM', row)
     },
     onConfirm () {
-      this.dialogVisible = false
       this.$refs.form.validate(valid => {
-        if (valid) {
+        if (!valid) return
+        if (this.isAdd) {
+          // 添加用户
+          this.$store.dispatch('user/addUser')
+            .then(() => {
+              this.$message({
+                type: 'success',
+                message: this.$t('Saved successfully')
+              })
+              this.dialogVisible = false
+              this.$st.sendEv('用户列表', '添加用户')
+            })
+            .then(() => {
+              this.$store.dispatch('user/getUserList')
+            })
+        } else {
+          // 编辑用户
           this.$store.dispatch('user/editUser')
             .then(() => {
               this.$message({
                 type: 'success',
                 message: this.$t('Saved successfully')
               })
+              this.dialogVisible = false
+              this.$st.sendEv('用户列表', '编辑用户')
             })
         }
       })
-      this.$st.sendEv('用户列表', '编辑用户')
+    },
+    onClickAddUser () {
+      this.isAdd = true
+      this.$store.commit('user/SET_USER_FORM', {})
+      this.dialogVisible = true
     }
   },
   created () {
@@ -192,15 +218,18 @@ export default {
     display: flex;
     justify-content: space-between;
     margin-bottom: 8px;
-    .filter-search {
-      width: 240px;
-    }
 
-    .right {
-      .btn {
-        margin-left: 10px;
-      }
-    }
+  .filter-search {
+    width: 240px;
+  }
+
+  .right {
+
+  .btn {
+    margin-left: 10px;
+  }
+
+  }
   }
 
   .el-table {

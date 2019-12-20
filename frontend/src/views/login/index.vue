@@ -139,7 +139,7 @@ export default {
             this.$router.push({ path: this.redirect || '/' })
             this.$store.dispatch('user/getInfo')
           }).catch(() => {
-            this.$message.error(this.$t('Error when logging in (Please check username and password)'))
+            this.$message.error(this.$t('Error when logging in (Please read documentation Q&A)'))
             this.loading = false
           })
         }
