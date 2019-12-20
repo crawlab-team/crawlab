@@ -33,3 +33,5 @@ task:
 other:
   tmppath: "/tmp"
 version: 0.4.1
+setting:
+  allowRegister: "N"

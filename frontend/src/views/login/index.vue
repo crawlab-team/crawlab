@@ -48,7 +48,7 @@
         <div class="left">
           <span v-if="!isSignUp" class="forgot-password">{{$t('Forgot Password')}}</span>
         </div>
-        <div class="right">
+        <div class="right" v-if="setting.allow_register === 'Y'">
           <span v-if="isSignUp">{{$t('Has Account')}}, </span>
           <span v-if="isSignUp" class="sign-in" @click="$router.push('/login')">{{$t('Sign-in')}} ></span>
           <span v-if="!isSignUp">{{$t('New to Crawlab')}}, </span>
@@ -116,6 +116,9 @@ export default {
     }
   },
   computed: {
+    ...mapState('setting', [
+      'setting'
+    ]),
     ...mapState('lang', [
       'lang'
     ]),
