@@ -75,6 +75,28 @@
           </el-form>
           <el-alert type="error" :title="$t('Please zip your spider files from the root directory')"
                     :closable="false"></el-alert>
+          <el-divider></el-divider>
+          <el-alert type="error" :title="$t('Or paste text')"
+                    :closable="false"></el-alert>
+          <el-input
+            :placeholder="$t('Text filename')"
+            v-model="textFilename">
+            <template slot="prepend">{{$t('Text filename')}}</template>
+          </el-input>
+          <el-input
+            type="textarea"
+            autosize
+            :placeholder="$t('Paste text')"
+            v-model="textContent">
+            <template slot="prepend">{{$t('Paste text')}}</template>
+          </el-input>
+          <el-button
+            type="primary"
+            :loading="uploadTextLoading"
+            :disabled="uploadTextLoading && textContent.trim() !== ''"
+            @click="onUploadText">
+            Upload<i class="el-icon-upload el-icon-right"></i>
+          </el-button>
         </el-tab-pane>
       </el-tabs>
     </el-dialog>
@@ -279,6 +301,7 @@ import {
   mapGetters
 } from 'vuex'
 import dayjs from 'dayjs'
+import JSZip from 'jszip'
 import CrawlConfirmDialog from '../../components/Common/CrawlConfirmDialog'
 import StatusTag from '../../components/Status/StatusTag'
 
@@ -320,7 +343,10 @@ export default {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
       },
       fileList: [],
-      spiderType: 'configurable'
+      spiderType: 'configurable',
+      textFilename: 'run.sh',
+      textContent: `#!/bin/sh\nping -c 3 google.com\nexit 0`,
+      uploadTextLoading: false
     }
   },
   computed: {
@@ -523,6 +549,44 @@ export default {
 
       // close popup
       this.addCustomizedDialogVisible = false
+    },
+    async onUploadText () {
+      try {
+        this.uploadTextLoading = true
+        let zip = new JSZip()
+        zip.file(this.textFilename, this.textContent)
+        const content = await zip.generateAsync({
+          type: 'blob',
+          compression: "DEFLATE",
+          compressionOptions: {
+              level: 9
+          }
+        })
+        await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest()
+          xhr.open('POST', this.$request.baseUrl + '/spiders', true)
+          xhr.setRequestHeader('Authorization', this.token)
+          xhr.onload = resolve
+          xhr.onerror = reject
+          var formData = new FormData()
+          formData.append('file', content, this.textFilename + '.zip')
+          xhr.send(formData)
+        })
+
+        this.textContent = ''
+
+        // fetch spider list
+        setTimeout(() => {
+          this.getList()
+        }, 3000) // server unzip need time!
+
+        // close popup
+        this.addCustomizedDialogVisible = false
+      } catch (e) {
+        console.error(e)
+      } finally {
+        this.uploadTextLoading = false
+      }
     },
     getTime (str) {
       if (!str || str.match('^0001')) return 'NA'
