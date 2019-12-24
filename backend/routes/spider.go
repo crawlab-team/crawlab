@@ -7,6 +7,7 @@ import (
 	"crawlab/model"
 	"crawlab/services"
 	"crawlab/utils"
+	"fmt"
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo"
@@ -17,6 +18,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"runtime/debug"
 	"strconv"
@@ -283,6 +285,14 @@ func GetSpiderDir(c *gin.Context) {
 	})
 }
 
+// 爬虫文件管理
+
+type SpiderFileReqBody struct {
+	Path    string `json:"path"`
+	Content string `json:"content"`
+	NewPath string `json:"new_path"`
+}
+
 func GetSpiderFile(c *gin.Context) {
 	// 爬虫ID
 	id := c.Param("id")
@@ -311,11 +321,6 @@ func GetSpiderFile(c *gin.Context) {
 	})
 }
 
-type SpiderFileReqBody struct {
-	Path    string `json:"path"`
-	Content string `json:"content"`
-}
-
 func PostSpiderFile(c *gin.Context) {
 	// 爬虫ID
 	id := c.Param("id")
@@ -341,6 +346,109 @@ func PostSpiderFile(c *gin.Context) {
 	}
 
 	// 返回结果
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
+func PutSpiderFile(c *gin.Context) {
+	spiderId := c.Param("id")
+	var reqBody SpiderFileReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+	spider, err := model.GetSpider(bson.ObjectIdHex(spiderId))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 文件路径
+	filePath := path.Join(spider.Src, reqBody.Path)
+
+	// 如果文件已存在，则报错
+	if utils.Exists(filePath) {
+		HandleErrorF(http.StatusInternalServerError, c, fmt.Sprintf(`%s already exists`, filePath))
+		return
+	}
+
+	// 写入文件
+	if err := ioutil.WriteFile(filePath, []byte(reqBody.Content), 0777); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
+func DeleteSpiderFile(c *gin.Context) {
+	spiderId := c.Param("id")
+	var reqBody SpiderFileReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+	spider, err := model.GetSpider(bson.ObjectIdHex(spiderId))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	filePath := path.Join(spider.Src, reqBody.Path)
+	if err := os.RemoveAll(filePath); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
+func RenameSpiderFile(c *gin.Context) {
+	spiderId := c.Param("id")
+	var reqBody SpiderFileReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+	}
+	spider, err := model.GetSpider(bson.ObjectIdHex(spiderId))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 原文件路径
+	filePath := path.Join(spider.Src, reqBody.Path)
+	newFilePath := path.Join(spider.Src, reqBody.NewPath)
+
+	// 如果新文件已存在，则报错
+	if utils.Exists(newFilePath) {
+		HandleErrorF(http.StatusInternalServerError, c, fmt.Sprintf(`%s already exists`, newFilePath))
+		return
+	}
+
+	// 读取原文件
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 写入新文件
+	if err := ioutil.WriteFile(newFilePath, []byte(content), 0777); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 删除原文件
+	if err := os.RemoveAll(filePath); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+	}
+
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
