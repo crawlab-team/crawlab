@@ -42,15 +42,15 @@ func Close(c io.Closer) {
 	}
 }
 
-func Contains(array interface{}, val interface{}) (index int) {
-	index = -1
+func Contains(array interface{}, val interface{}) (fla bool) {
+	fla = false
 	switch reflect.TypeOf(array).Kind() {
 	case reflect.Slice:
 		{
 			s := reflect.ValueOf(array)
 			for i := 0; i < s.Len(); i++ {
 				if reflect.DeepEqual(val, s.Index(i).Interface()) {
-					index = i
+					fla = true
 					return
 				}
 			}
