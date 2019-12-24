@@ -171,7 +171,7 @@ func UpdateNodeData() {
 	//先获取所有Redis的nodekey
 	list, _ := database.RedisClient.HKeys("nodes")
 
-	if i := utils.Contains(list, key); i != -1 {
+	if i := utils.Contains(list, key); i == false {
 		// 构造节点数据
 		data := Data{
 			Key:          key,
