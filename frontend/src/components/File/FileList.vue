@@ -204,7 +204,7 @@ export default {
     },
     async onRenameFile () {
       let newPath
-      if (this.currentPath === '') {
+      if (this.currentPath.split('/').length === 1) {
         newPath = this.name
       } else {
         const arr = this.currentPath.split('/')
