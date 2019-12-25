@@ -34,6 +34,48 @@
                :visible.sync="addDialogVisible"
                :before-close="onAddDialogClose">
       <el-tabs :active-name="spiderType">
+        <el-tab-pane name="customized" :label="$t('Customized')">
+          <el-form :model="spiderForm" ref="addCustomizedForm" inline-message label-width="120px">
+            <el-form-item :label="$t('Spider Name')" prop="name" required>
+              <el-input v-model="spiderForm.name" :placeholder="$t('Spider Name')"/>
+            </el-form-item>
+            <el-form-item :label="$t('Display Name')" prop="display_name" required>
+              <el-input v-model="spiderForm.display_name" :placeholder="$t('Display Name')"/>
+            </el-form-item>
+            <el-form-item :label="$t('Execute Command')" prop="cmd" required>
+              <el-input v-model="spiderForm.cmd" :placeholder="$t('Execute Command')"/>
+            </el-form-item>
+            <el-form-item :label="$t('Results')" prop="col" required>
+              <el-input v-model="spiderForm.col" :placeholder="$t('Results')"/>
+            </el-form-item>
+            <el-form-item :label="$t('Upload Zip File')" label-width="120px" name="site">
+              <el-upload
+                :action="$request.baseUrl + '/spiders'"
+                :headers="{Authorization:token}"
+                :on-success="onUploadSuccess"
+                :file-list="fileList">
+                <el-button size="normal" type="primary" icon="el-icon-upload"
+                           style="width: 160px; font-size: 18px;font-weight: bolder">
+                  {{$t('Upload')}}
+                </el-button>
+              </el-upload>
+            </el-form-item>
+          </el-form>
+          <el-alert
+            type="error"
+            :closable="false"
+            style="margin-bottom: 10px"
+          >
+            <p>{{$t('You can click "Add" to create an empty spider and upload files later.')}}</p>
+            <p>{{$t('OR, you can also click "Upload" and upload a zip file containing your spider project.')}}</p>
+            <p style="font-weight: bolder">
+              <i class="fa fa-exclamation-triangle"></i> {{$t('NOTE: When uploading a zip file, please zip your spider files from the ROOT DIRECTORY.')}}
+            </p>
+          </el-alert>
+          <div class="actions">
+            <el-button type="primary" @click="onAddCustomized">{{$t('Add')}}</el-button>
+          </div>
+        </el-tab-pane>
         <el-tab-pane name="configurable" :label="$t('Configurable')">
           <el-form :model="spiderForm" ref="addConfigurableForm" inline-message label-width="120px">
             <el-form-item :label="$t('Spider Name')" prop="name" required>
@@ -60,62 +102,9 @@
             <el-button type="primary" @click="onAddConfigurable">{{$t('Add')}}</el-button>
           </div>
         </el-tab-pane>
-        <el-tab-pane name="customized" :label="$t('Customized')">
-          <el-form :model="spiderForm" ref="addCustomizedForm" inline-message>
-            <el-form-item :label="$t('Upload Zip File')" label-width="120px" name="site">
-              <el-upload
-                :action="$request.baseUrl + '/spiders'"
-                :headers="{Authorization:token}"
-                :on-change="onUploadChange"
-                :on-success="onUploadSuccess"
-                :file-list="fileList">
-                <el-button size="small" type="primary" icon="el-icon-upload">{{$t('Upload')}}</el-button>
-              </el-upload>
-            </el-form-item>
-          </el-form>
-          <el-alert type="error" :title="$t('Please zip your spider files from the root directory')"
-                    :closable="false"></el-alert>
-        </el-tab-pane>
       </el-tabs>
     </el-dialog>
     <!--./add dialog-->
-
-    <!--configurable spider dialog-->
-    <el-dialog :title="$t('Add Configurable Spider')"
-               width="40%"
-               :visible.sync="addConfigurableDialogVisible"
-               :before-close="onAddConfigurableDialogClose">
-      <el-form :model="spiderForm" ref="addConfigurableForm" inline-message>
-        <el-form-item :label="$t('Spider Name')" label-width="120px" prop="name" required>
-          <el-input :placeholder="$t('Spider Name')" v-model="spiderForm.name"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('Results Collection')" label-width="120px" name="col">
-          <el-input :placeholder="$t('Results Collection')" v-model="spiderForm.col"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('Site')" label-width="120px" name="site">
-          <el-autocomplete v-model="spiderForm.site"
-                           :placeholder="$t('Site')"
-                           :fetch-suggestions="fetchSiteSuggestions"
-                           @select="onAddConfigurableSiteSelect">
-          </el-autocomplete>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="addConfigurableDialogVisible = false">{{$t('Cancel')}}</el-button>
-        <el-button v-loading="addConfigurableLoading" type="primary"
-                   @click="onAddConfigurableSpider">{{$t('Add')}}</el-button>
-      </span>
-    </el-dialog>
-    <!--./configurable spider dialog-->
-
-    <!--customized spider dialog-->
-    <el-dialog :title="$t('Add Customized Spider')"
-               width="40%"
-               :visible.sync="addCustomizedDialogVisible"
-               :before-close="onAddCustomizedDialogClose">
-
-    </el-dialog>
-    <!--./customized spider dialog-->
 
     <!--crawl confirm dialog-->
     <crawl-confirm-dialog
@@ -154,10 +143,14 @@
           <el-button size="small" v-if="false" type="primary" icon="fa fa-download" @click="openImportDialog">
             {{$t('Import Spiders')}}
           </el-button>
-          <el-button size="small" type="success"
-                     icon="el-icon-plus"
-                     class="btn add"
-                     @click="onAdd">
+          <el-button
+            size="normal"
+            type="success"
+            icon="el-icon-plus"
+            class="btn add"
+            @click="onAdd"
+            style="font-weight: bolder"
+          >
             {{$t('Add Spider')}}
           </el-button>
 
@@ -299,8 +292,6 @@ export default {
       isEditMode: false,
       dialogVisible: false,
       addDialogVisible: false,
-      addConfigurableDialogVisible: false,
-      addCustomizedDialogVisible: false,
       crawlConfirmDialogVisible: false,
       activeSpiderId: undefined,
       filter: {
@@ -320,7 +311,7 @@ export default {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
       },
       fileList: [],
-      spiderType: 'configurable'
+      spiderType: 'customized'
     }
   },
   computed: {
@@ -374,9 +365,19 @@ export default {
       })
     },
     onAddCustomized () {
-      this.addDialogVisible = false
-      this.addCustomizedDialogVisible = true
-      this.$st.sendEv('爬虫列表', '添加爬虫', '自定义爬虫')
+      this.$refs['addCustomizedForm'].validate(async res => {
+        if (!res) return
+        let res2
+        try {
+          res2 = await this.$store.dispatch('spider/addSpider')
+        } catch (e) {
+          this.$message.error(this.$t('Something wrong happened'))
+          return
+        }
+        await this.$store.dispatch('spider/getSpiderList')
+        this.$router.push(`/spiders/${res2.data.data._id}`)
+        this.$st.sendEv('爬虫列表', '添加爬虫', '自定义爬虫')
+      })
     },
     onRefresh () {
       this.getList()
@@ -510,8 +511,6 @@ export default {
         }
       })
     },
-    onUploadChange () {
-    },
     onUploadSuccess () {
       // clear fileList
       this.fileList = []
@@ -520,9 +519,6 @@ export default {
       setTimeout(() => {
         this.getList()
       }, 500)
-
-      // close popup
-      this.addCustomizedDialogVisible = false
     },
     getTime (str) {
       if (!str || str.match('^0001')) return 'NA'
