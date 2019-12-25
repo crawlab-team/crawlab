@@ -22,6 +22,21 @@
             </el-button>
           </template>
         </el-popover>
+        <el-popover v-model="isShowRename">
+          <el-input v-model="name" :placeholder="$t('Name')" style="margin-bottom: 10px"/>
+          <div style="text-align: right">
+            <el-button size="small" type="warning" @click="onRenameFile">
+              {{$t('Confirm')}}
+            </el-button>
+          </div>
+          <template slot="reference">
+            <el-button v-if="showFile" type="warning" size="small" style="margin-right: 10px;"
+                       @click="onOpenRename">
+              <font-awesome-icon :icon="['fa', 'redo']"/>
+              {{$t('Rename')}}
+            </el-button>
+          </template>
+        </el-popover>
         <el-button v-if="showFile" type="success" size="small" style="margin-right: 10px;" @click="onFileSave">
           <font-awesome-icon :icon="['fa', 'save']"/>
           {{$t('Save')}}
@@ -100,7 +115,8 @@ export default {
       showFile: false,
       name: '',
       isShowAdd: false,
-      isShowDelete: false
+      isShowDelete: false,
+      isShowRename: false
     }
   },
   computed: {
@@ -180,6 +196,24 @@ export default {
       this.$message.success(this.$t('Deleted successfully'))
       this.isShowDelete = false
       this.onBackFile()
+    },
+    onOpenRename () {
+      this.isShowRename = true
+      const arr = this.currentPath.split('/')
+      this.name = arr[arr.length - 1]
+    },
+    async onRenameFile () {
+      let newPath
+      if (this.currentPath === '') {
+        newPath = this.name
+      } else {
+        const arr = this.currentPath.split('/')
+        newPath = arr[0] + '/' + this.name
+      }
+      await this.$store.dispatch('file/renameFile', { path: this.currentPath, newPath })
+      this.$store.commit('file/SET_CURRENT_PATH', newPath)
+      this.$message.success(this.$t('Renamed successfully'))
+      this.isShowRename = false
     }
   },
   created () {

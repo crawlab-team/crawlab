@@ -64,6 +64,7 @@ export default {
   'Item Threshold': '子项阈值',
   'Back': '返回',
   'New File': '新建文件',
+  'Rename': '重命名',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -281,6 +282,7 @@ export default {
   'username already exists': '用户名已存在',
   'Deleted successfully': '成功删除',
   'Saved successfully': '成功保存',
+  'Renamed successfully': '重命名保存',
   'You can click "Add" to create an empty spider and upload files later.': '您可以点击"添加"按钮创建空的爬虫，之后再上传文件。',
   'OR, you can also click "Upload" and upload a zip file containing your spider project.': '或者，您也可以点击"上传"按钮并上传一个包含爬虫项目的 zip 文件。',
   'NOTE: When uploading a zip file, please zip your spider files from the ROOT DIRECTORY.': '注意: 上传 zip 文件时，请从 根目录 下开始压缩爬虫文件。',

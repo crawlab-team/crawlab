@@ -63,6 +63,11 @@ const actions = {
     const { path } = payload
     const spiderId = rootState.spider.spiderForm._id
     return request.delete(`/spiders/${spiderId}/file`, { path })
+  },
+  renameFile ({ rootState }, payload) {
+    const { path, newPath } = payload
+    const spiderId = rootState.spider.spiderForm._id
+    return request.post(`/spiders/${spiderId}/file/rename`, { path, new_path: newPath })
   }
 }
 
