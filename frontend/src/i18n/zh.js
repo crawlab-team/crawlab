@@ -40,6 +40,7 @@ export default {
 
   // 操作
   Add: '添加',
+  Create: '创建',
   Run: '运行',
   Deploy: '部署',
   Save: '保存',
@@ -234,6 +235,9 @@ export default {
 
   // 文件
   'Choose Folder': '选择文件',
+  'File': '文件',
+  'Folder': '文件夹',
+  'Directory': '目录',
 
   // 导入
   'Import Spider': '导入爬虫',

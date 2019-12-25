@@ -25,8 +25,9 @@ const actions = {
     const { path } = payload
     const spiderId = rootState.spider.spiderForm._id
     commit('SET_CURRENT_PATH', path)
-    request.get(`/spiders/${spiderId}/dir`, { path })
+    return request.get(`/spiders/${spiderId}/dir`, { path })
       .then(response => {
+        if (!response.data.data) response.data.data = []
         commit(
           'SET_FILE_LIST',
           response.data.data
@@ -38,10 +39,30 @@ const actions = {
   getFileContent ({ commit, rootState }, payload) {
     const { path } = payload
     const spiderId = rootState.spider.spiderForm._id
-    request.get(`/spiders/${spiderId}/file`, { path })
+    return request.get(`/spiders/${spiderId}/file`, { path })
       .then(response => {
         commit('SET_FILE_CONTENT', response.data.data)
       })
+  },
+  saveFileContent ({ state, rootState }, payload) {
+    const { path } = payload
+    const spiderId = rootState.spider.spiderForm._id
+    return request.post(`/spiders/${spiderId}/file`, { path, content: state.fileContent })
+  },
+  addFile ({ rootState }, payload) {
+    const { path } = payload
+    const spiderId = rootState.spider.spiderForm._id
+    return request.put(`/spiders/${spiderId}/file`, { path })
+  },
+  addDir ({ rootState }, payload) {
+    const { path } = payload
+    const spiderId = rootState.spider.spiderForm._id
+    return request.put(`/spiders/${spiderId}/dir`, { path })
+  },
+  deleteFile ({ rootState }, payload) {
+    const { path } = payload
+    const spiderId = rootState.spider.spiderForm._id
+    return request.delete(`/spiders/${spiderId}/file`, { path })
   }
 }
 
