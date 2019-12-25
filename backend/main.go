@@ -141,6 +141,7 @@ func main() {
 			authGroup.GET("/spiders/:id/file", routes.GetSpiderFile)            // 爬虫文件读取
 			authGroup.POST("/spiders/:id/file", routes.PostSpiderFile)          // 爬虫文件更改
 			authGroup.PUT("/spiders/:id/file", routes.PutSpiderFile)            // 爬虫文件创建
+			authGroup.PUT("/spiders/:id/dir", routes.PutSpiderDir)              // 爬虫目录创建
 			authGroup.DELETE("/spiders/:id/file", routes.DeleteSpiderFile)      // 爬虫文件删除
 			authGroup.POST("/spiders/:id/file/rename", routes.RenameSpiderFile) // 爬虫文件重命名
 			authGroup.GET("/spiders/:id/dir", routes.GetSpiderDir)              // 爬虫目录

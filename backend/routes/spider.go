@@ -477,6 +477,12 @@ func PostSpiderFile(c *gin.Context) {
 		return
 	}
 
+	// 同步到GridFS
+	if err := services.UploadSpiderToGridFsFromMaster(spider); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
 	// 返回结果
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
@@ -512,6 +518,52 @@ func PutSpiderFile(c *gin.Context) {
 		return
 	}
 
+	// 同步到GridFS
+	if err := services.UploadSpiderToGridFsFromMaster(spider); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
+func PutSpiderDir(c *gin.Context) {
+	spiderId := c.Param("id")
+	var reqBody SpiderFileReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+	spider, err := model.GetSpider(bson.ObjectIdHex(spiderId))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 文件路径
+	filePath := path.Join(spider.Src, reqBody.Path)
+
+	// 如果文件已存在，则报错
+	if utils.Exists(filePath) {
+		HandleErrorF(http.StatusInternalServerError, c, fmt.Sprintf(`%s already exists`, filePath))
+		return
+	}
+
+	// 创建文件夹
+	if err := os.MkdirAll(filePath, 0777); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 同步到GridFS
+	if err := services.UploadSpiderToGridFsFromMaster(spider); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
@@ -535,6 +587,13 @@ func DeleteSpiderFile(c *gin.Context) {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
+
+	// 同步到GridFS
+	if err := services.UploadSpiderToGridFsFromMaster(spider); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
@@ -563,15 +622,8 @@ func RenameSpiderFile(c *gin.Context) {
 		return
 	}
 
-	// 读取原文件
-	content, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	// 写入新文件
-	if err := ioutil.WriteFile(newFilePath, []byte(content), 0777); err != nil {
+	// 重命名
+	if err := os.Rename(filePath, newFilePath); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
@@ -579,6 +631,12 @@ func RenameSpiderFile(c *gin.Context) {
 	// 删除原文件
 	if err := os.RemoveAll(filePath); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
+	}
+
+	// 同步到GridFS
+	if err := services.UploadSpiderToGridFsFromMaster(spider); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
 	}
 
 	c.JSON(http.StatusOK, Response{
