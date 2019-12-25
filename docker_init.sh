@@ -22,4 +22,5 @@ fi
 # start nginx
 service nginx start
 
+# start backend
 crawlab

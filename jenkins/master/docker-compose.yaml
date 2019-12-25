@@ -29,12 +29,9 @@ services:
     restart: always
     volumes:
       - "/opt/crawlab/mongo/data/db:/data/db"
-    ports:
-      - "27017:27017"
+      - "/opt/crawlab/mongo/tmp:/tmp"
   redis:
     image: redis:latest
     restart: always
     volumes:
       - "/opt/crawlab/redis/data:/data"
-    ports:
-      - "6379:6379"

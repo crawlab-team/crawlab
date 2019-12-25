@@ -119,7 +119,6 @@ func PutTask(c *gin.Context) {
 				return
 			}
 		}
-
 	} else if reqBody.RunType == constants.RunTypeRandom {
 		// 随机
 		t := model.Task{
@@ -130,7 +129,6 @@ func PutTask(c *gin.Context) {
 			HandleError(http.StatusInternalServerError, c, err)
 			return
 		}
-
 	} else if reqBody.RunType == constants.RunTypeSelectedNodes {
 		// 指定节点
 		for _, nodeId := range reqBody.NodeIds {
@@ -145,7 +143,6 @@ func PutTask(c *gin.Context) {
 				return
 			}
 		}
-
 	} else {
 		HandleErrorF(http.StatusInternalServerError, c, "invalid run_type")
 		return

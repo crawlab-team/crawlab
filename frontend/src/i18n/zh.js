@@ -259,7 +259,7 @@ export default {
   'Executables': '执行文件',
 
   // 弹出框
-  Notification: '提示',
+  'Notification': '提示',
   'Are you sure to delete this node?': '你确定要删除该节点?',
   'Are you sure to run this spider?': '你确定要运行该爬虫?',
   'Node info has been saved successfully': '节点信息已成功保存',
@@ -270,7 +270,7 @@ export default {
   'Do you allow us to collect some statistics to improve Crawlab?': '您允许我们收集统计数据以更好地优化Crawlab？',
   'Saved file successfully': '成功保存文件',
   'An error happened when fetching the data': '请求数据时出错',
-  'Error when logging in (Please check username and password)': '登录时出错（请检查用户名密码）',
+  'Error when logging in (Please read documentation Q&A)': '登录时出错（请查看文档 Q&A）',
   'Please enter the correct username': '请输入正确用户名',
   'Password length should be no shorter than 5': '密码长度不能小于5',
   'Two passwords must be the same': '两个密码必须要一致',
@@ -279,6 +279,9 @@ export default {
   'Saved successfully': '成功保存',
   'Please zip your spider files from the root directory': '爬虫文件请从根目录下开始压缩。',
   'English': 'English',
+  'Are you sure to delete the schedule task?': '确定删除定时任务?',
+  'Disclaimer': '免责声明',
+
   // 登录
   'Sign in': '登录',
   'Sign-in': '登录',

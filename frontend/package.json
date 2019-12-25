@@ -1,6 +1,6 @@
 {
   "name": "crawlab",
-  "version": "0.3.5",
+  "version": "0.4.1",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --ip=0.0.0.0 --mode=development",
@@ -29,6 +29,7 @@
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
     "path": "^0.12.7",
+    "showdown": "^1.9.1",
     "vcrontab": "^0.3.3",
     "vue": "^2.5.22",
     "vue-ba": "^1.2.5",

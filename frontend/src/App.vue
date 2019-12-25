@@ -6,6 +6,9 @@
 </template>
 
 <script>
+import {
+  mapState
+} from 'vuex'
 import DialogView from './components/Common/DialogView'
 
 export default {
@@ -19,21 +22,25 @@ export default {
     DialogView
   },
   computed: {
+    ...mapState('setting', ['setting']),
     useStats () {
       return localStorage.getItem('useStats')
     }
   },
   methods: {},
+  created () {
+    this.$store.dispatch('setting/getSetting')
+  },
   mounted () {
     window.setUseStats = (value) => {
       localStorage.setItem('useStats', value)
       document.querySelector('.el-message__closeBtn').click()
       if (value === 1) {
         this.$st.sendPv('/allow_stats')
-        this.$st.sendEv('全局', '允许/禁止统计', 'value', 'allow')
+        this.$st.sendEv('全局', '允许/禁止统计', '允许')
       } else {
         this.$st.sendPv('/disallow_stats')
-        this.$st.sendEv('全局', '允许/禁止统计', 'value', 'disallow')
+        this.$st.sendEv('全局', '允许/禁止统计', '禁止')
       }
     }
 

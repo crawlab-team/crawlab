@@ -114,9 +114,9 @@ func main() {
 		app.Use(middlewares.CORSMiddleware())
 		anonymousGroup := app.Group("/")
 		{
-			anonymousGroup.POST("/login", routes.Login)  // 用户登录
-			anonymousGroup.PUT("/users", routes.PutUser) // 添加用户
-
+			anonymousGroup.POST("/login", routes.Login)       // 用户登录
+			anonymousGroup.PUT("/users", routes.PutUser)      // 添加用户
+			anonymousGroup.GET("/setting", routes.GetSetting) // 获取配置信息
 		}
 		authGroup := app.Group("/", middlewares.AuthorizationMiddleware())
 		{
@@ -176,6 +176,8 @@ func main() {
 			authGroup.POST("/users/:id", routes.PostUser)     // 更改用户
 			authGroup.DELETE("/users/:id", routes.DeleteUser) // 删除用户
 			authGroup.GET("/me", routes.GetMe)                // 获取自己账户
+			// release版本
+			authGroup.GET("/version", routes.GetVersion) // 获取发布的版本
 		}
 
 	}

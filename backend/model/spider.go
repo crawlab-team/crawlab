@@ -319,11 +319,5 @@ func GetConfigSpiderData(spider Spider) (entity.ConfigSpiderData, error) {
 		return configData, err
 	}
 
-	// 赋值 stage_name
-	for stageName, stage := range configData.Stages {
-		stage.Name = stageName
-		configData.Stages[stageName] = stage
-	}
-
 	return configData, nil
 }

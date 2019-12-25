@@ -1,7 +1,7 @@
 <template>
   <el-scrollbar wrap-class="scrollbar-wrapper">
     <div class="sidebar-logo" :class="isCollapse ? 'collapsed' : ''">
-      <span>C</span><span v-show="!isCollapse">rawlab</span>
+      <span>C</span><span v-show="!isCollapse">rawlab<span class="version">v{{version}}</span></span>
     </div>
     <el-menu
       :show-timeout="200"
@@ -48,6 +48,15 @@ export default {
     isCollapse () {
       return !this.sidebar.opened
     }
+  },
+  data () {
+    return {
+      version: ''
+    }
+  },
+  async created () {
+    const res = await this.$request.get('/version')
+    this.version = res.data.data
   }
 }
 </script>
@@ -72,5 +81,11 @@ export default {
 
   .sidebar-container .sidebar-logo.collapsed {
     padding-left: 8px;
+  }
+
+  .sidebar-container .sidebar-logo .version {
+    margin-left: 5px;
+    font-weight: normal;
+    font-size: 12px;
   }
 </style>

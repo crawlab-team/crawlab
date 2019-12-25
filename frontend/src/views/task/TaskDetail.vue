@@ -97,7 +97,7 @@ export default {
     },
     downloadCSV () {
       this.$store.dispatch('task/getTaskResultExcel', this.$route.params.id)
-      this.$st.sendEv('任务详情-结果', '下载CSV')
+      this.$st.sendEv('任务详情', '结果', '下载CSV')
     },
     getTaskLog () {
       if (this.$route.params.id) {

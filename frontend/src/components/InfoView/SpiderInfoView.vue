@@ -112,7 +112,7 @@ export default {
   methods: {
     onCrawl () {
       this.crawlConfirmDialogVisible = true
-      this.$st.sendEv('爬虫详情-概览', '点击运行')
+      this.$st.sendEv('爬虫详情', '概览', '点击运行')
     },
     onSave () {
       this.$refs['spiderForm'].validate(res => {
@@ -126,7 +126,7 @@ export default {
             })
         }
       })
-      this.$st.sendEv('爬虫详情-概览', '保存')
+      this.$st.sendEv('爬虫详情', '概览', '保存')
     },
     fetchSiteSuggestions (keyword, callback) {
       this.$request.get('/sites', {

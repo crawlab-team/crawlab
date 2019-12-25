@@ -55,7 +55,7 @@ func GetCurrentNode() (Node, error) {
 	for {
 		// 如果错误次数超过10次
 		if errNum >= 10 {
-			panic("cannot get current node")
+			return node, errors.New("cannot get current node")
 		}
 
 		// 尝试获取节点

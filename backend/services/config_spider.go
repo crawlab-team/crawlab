@@ -61,7 +61,9 @@ func ValidateSpiderfile(configData entity.ConfigSpiderData) error {
 
 	// 校验stages
 	dict := map[string]int{}
-	for stageName, stage := range configData.Stages {
+	for _, stage := range configData.Stages {
+		stageName := stage.Name
+
 		// stage 名称不能为空
 		if stageName == "" {
 			return errors.New("spiderfile invalid: stage name is empty")
@@ -151,12 +153,6 @@ func IsUniqueConfigSpiderFields(fields []entity.Field) bool {
 
 func ProcessSpiderFilesFromConfigData(spider model.Spider, configData entity.ConfigSpiderData) error {
 	spiderDir := spider.Src
-
-	// 赋值 stage_name
-	for stageName, stage := range configData.Stages {
-		stage.Name = stageName
-		configData.Stages[stageName] = stage
-	}
 
 	// 删除已有的爬虫文件
 	for _, fInfo := range utils.ListDir(spiderDir) {

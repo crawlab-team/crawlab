@@ -138,6 +138,11 @@ const user = {
     // 编辑用户
     editUser ({ state }) {
       return request.post(`/users/${state.userForm._id}`, state.userForm)
+    },
+
+    // 添加用户
+    addUser ({ dispatch, commit, state }) {
+      return request.put('/users', state.userForm)
     }
   }
 }

@@ -83,7 +83,8 @@ func (g ScrapyGenerator) ProcessSpider() error {
 
 	// 替换 parsers
 	strParser := ""
-	for stageName, stage := range g.ConfigData.Stages {
+	for _, stage := range g.ConfigData.Stages {
+		stageName := stage.Name
 		stageStr := g.GetParserString(stageName, stage)
 		strParser += stageStr
 	}
