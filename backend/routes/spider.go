@@ -163,6 +163,12 @@ func PutSpider(c *gin.Context) {
 		return
 	}
 
+	// 同步到GridFS
+	if err := services.UploadSpiderToGridFsFromMaster(spider); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
