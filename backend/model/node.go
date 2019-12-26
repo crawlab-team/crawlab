@@ -63,7 +63,9 @@ func GetCurrentNode() (Node, error) {
 		// 如果获取失败
 		if err != nil {
 			// 如果为主节点，表示为第一次注册，插入节点信息
-			if IsMaster() {
+			// update: 增加具体错误过滤。防止加入多个master节点，后续需要职责拆分，
+			//只在master节点运行的时候才检测master节点的信息是否存在
+			if IsMaster() && err == mgo.ErrNotFound {
 				// 获取本机信息
 				ip, mac, key, err := GetNodeBaseInfo()
 				if err != nil {
