@@ -6,6 +6,7 @@
 - **Allow adding new users**.
 - **More Advanced File Management**. Allow users to add / edit / rename / delete files. [#286](https://github.com/crawlab-team/crawlab/issues/286)
 - **Optimized Spider Creation Process**. Allow users to create an empty customized spider before uploading the zip file.
+- **Better Task Management**. Allow users to filter tasks by selecting through certian criterions. [#341](https://github.com/crawlab-team/crawlab/issues/341)
 
 ### Bug Fixes
 - **Duplicated nodes**. [#391](https://github.com/crawlab-team/crawlab/issues/391)
