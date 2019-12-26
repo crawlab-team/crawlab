@@ -4,8 +4,11 @@
 - **Call API to fetch version**. [#371](https://github.com/crawlab-team/crawlab/issues/371)
 - **Configure to allow user registration**. [#346](https://github.com/crawlab-team/crawlab/issues/346)
 - **Allow adding new users**.
+- **More Advanced File Management**. Allow users to add / edit / rename / delete files. [#286](https://github.com/crawlab-team/crawlab/issues/286)
+- **Optimized Spider Creation Process**. Allow users to create an empty customized spider before uploading the zip file.
 
 ### Bug Fixes
+- **Duplicated nodes**. [#391](https://github.com/crawlab-team/crawlab/issues/391)
 - **"mongodb no reachable" error**. [#373](https://github.com/crawlab-team/crawlab/issues/373)
 
 # 0.4.1 (2019-12-13)
