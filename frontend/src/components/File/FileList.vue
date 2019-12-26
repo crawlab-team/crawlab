@@ -147,6 +147,7 @@ export default {
         this.$store.commit('file/SET_CURRENT_PATH', item.path)
         this.$store.dispatch('file/getFileContent', { path: item.path })
       }
+      this.$st.sendEv('爬虫详情', '文件', '点击')
     },
     onBack () {
       const sep = '/'
@@ -155,10 +156,12 @@ export default {
       const path = arr.join(sep)
       this.$store.commit('file/SET_CURRENT_PATH', path)
       this.$store.dispatch('file/getFileList', { path: this.currentPath })
+      this.$st.sendEv('爬虫详情', '文件', '回退')
     },
     async onFileSave () {
       await this.$store.dispatch('file/saveFileContent', { path: this.currentPath })
       this.$message.success(this.$t('Saved file successfully'))
+      this.$st.sendEv('爬虫详情', '文件', '保存')
     },
     onBackFile () {
       this.showFile = false
@@ -181,6 +184,7 @@ export default {
       this.$store.commit('file/SET_FILE_CONTENT', '')
       this.$store.commit('file/SET_CURRENT_PATH', path)
       await this.$store.dispatch('file/getFileContent', { path })
+      this.$st.sendEv('爬虫详情', '文件', '添加')
     },
     async onAddDir () {
       if (!this.name) {
@@ -190,12 +194,14 @@ export default {
       await this.$store.dispatch('file/addDir', { path: this.currentPath + '/' + this.name })
       await this.$store.dispatch('file/getFileList', { path: this.currentPath })
       this.isShowAdd = false
+      this.$st.sendEv('爬虫详情', '文件', '添加')
     },
     async onFileDelete () {
       await this.$store.dispatch('file/deleteFile', { path: this.currentPath })
       this.$message.success(this.$t('Deleted successfully'))
       this.isShowDelete = false
       this.onBackFile()
+      this.$st.sendEv('爬虫详情', '文件', '删除')
     },
     onOpenRename () {
       this.isShowRename = true
@@ -214,6 +220,7 @@ export default {
       this.$store.commit('file/SET_CURRENT_PATH', newPath)
       this.$message.success(this.$t('Renamed successfully'))
       this.isShowRename = false
+      this.$st.sendEv('爬虫详情', '文件', '重命名')
     }
   },
   created () {
