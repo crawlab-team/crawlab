@@ -4,6 +4,29 @@
       <!--filter-->
       <div class="filter">
         <div class="left">
+          <el-form model="filter" label-width="100px" label-position="right" inline>
+            <el-form-item prop="node_id" :label="$t('Node')">
+              <el-select v-model="filter.node_id" size="small" :placeholder="$t('Node')" @change="onFilterChange">
+                <el-option value="" :label="$t('All')"/>
+                <el-option v-for="node in nodeList" :key="node._id" :value="node._id" :label="node.name"/>
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="spider_id" :label="$t('Spider')">
+              <el-select v-model="filter.spider_id" size="small" :placeholder="$t('Spider')" @change="onFilterChange">
+                <el-option value="" :label="$t('All')"/>
+                <el-option v-for="spider in spiderList" :key="spider._id" :value="spider._id" :label="spider.name"/>
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="status" :label="$t('Status')">
+              <el-select v-model="filter.status" size="small" :placeholder="$t('Status')" @change="onFilterChange">
+                <el-option value="" :label="$t('All')"></el-option>
+                <el-option value="finished" :label="$t('Finished')"></el-option>
+                <el-option value="running" :label="$t('Running')"></el-option>
+                <el-option value="error" :label="$t('Error')"></el-option>
+                <el-option value="cancelled" :label="$t('Cancelled')"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-form>
         </div>
         <div class="right">
           <el-button @click="onRemoveMultipleTask" size="small" type="danger">
@@ -310,6 +333,9 @@ export default {
     },
     onSelectionChange (val) {
       this.multipleSelection = val
+    },
+    onFilterChange () {
+      this.$store.dispatch('task/getTaskList')
     }
   },
   created () {

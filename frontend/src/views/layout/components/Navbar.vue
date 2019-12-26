@@ -8,9 +8,6 @@
         <i class="el-icon-arrow-down el-icon--right"></i>
       </span>
       <el-dropdown-menu slot="dropdown" class="user-dropdown">
-<!--        <el-dropdown-item>-->
-<!--          <span style="display:block;">v0.4.1</span>-->
-<!--        </el-dropdown-item>-->
         <el-dropdown-item>
           <span style="display:block;" @click="logout">{{$t('Logout')}}</span>
         </el-dropdown-item>
