@@ -336,7 +336,7 @@ export default {
     },
     onFilterChange () {
       this.$store.dispatch('task/getTaskList')
-      this.$st.sendEv('任务列表', '筛选爬虫')
+      this.$st.sendEv('任务列表', '筛选任务')
     }
   },
   created () {
