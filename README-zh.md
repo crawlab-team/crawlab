@@ -254,6 +254,9 @@ Crawlab使用起来很方便，也很通用，可以适用于几乎任何主流�
 <a href="https://github.com/hantmac">
   <img src="https://avatars2.githubusercontent.com/u/7600925?s=460&v=4" height="80">
 </a>
+<a href="https://github.com/duanbin0414">
+  <img src="https://avatars3.githubusercontent.com/u/50389867?s=460&v=4" height="80">
+</a>
 
 ## 社区 & 赞助
 
