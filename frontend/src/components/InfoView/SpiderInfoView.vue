@@ -175,6 +175,8 @@ export default {
       this.$store.dispatch('file/getFileList', this.spiderForm.src)
 
       this.uploadLoading = false
+
+      this.$message.success('Uploaded spider files successfully')
     },
     onUploadError () {
       this.uploadLoading = false
