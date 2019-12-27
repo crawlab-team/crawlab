@@ -176,7 +176,7 @@ export default {
 
       this.uploadLoading = false
 
-      this.$message.success('Uploaded spider files successfully')
+      this.$message.success(this.$t('Uploaded spider files successfully'))
     },
     onUploadError () {
       this.uploadLoading = false
