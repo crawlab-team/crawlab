@@ -132,7 +132,7 @@ func PutSpider(c *gin.Context) {
 	}
 
 	// 判断爬虫是否存在
-	if spider := model.GetSpiderByName(spider.Name); spider != nil {
+	if spider := model.GetSpiderByName(spider.Name); spider.Name != "" {
 		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("spider for '%s' already exists", spider.Name))
 		return
 	}
@@ -238,7 +238,7 @@ func UploadSpider(c *gin.Context) {
 	// 判断爬虫是否存在
 	spiderName := strings.Replace(targetFilename, ".zip", "", 1)
 	spider := model.GetSpiderByName(spiderName)
-	if spider == nil {
+	if spider.Name == "" {
 		// 保存爬虫信息
 		srcPath := viper.GetString("spider.path")
 		spider := model.Spider{
@@ -254,6 +254,12 @@ func UploadSpider(c *gin.Context) {
 		spider.FileId = fid
 		_ = spider.Save()
 	}
+
+	// 发起同步
+	services.PublishAllSpiders()
+
+	// 获取爬虫
+	spider = model.GetSpiderByName(spiderName)
 
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
@@ -335,6 +341,9 @@ func UploadSpiderFromId(c *gin.Context) {
 	// 更新file_id
 	spider.FileId = fid
 	_ = spider.Save()
+
+	// 发起同步
+	services.PublishSpider(spider)
 
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",

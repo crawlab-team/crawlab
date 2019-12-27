@@ -157,15 +157,15 @@ func GetSpiderByFileId(fileId bson.ObjectId) *Spider {
 }
 
 // 获取爬虫(根据名称)
-func GetSpiderByName(name string) *Spider {
+func GetSpiderByName(name string) Spider {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 
-	var result *Spider
+	var result Spider
 	if err := c.Find(bson.M{"name": name}).One(&result); err != nil {
 		log.Errorf("get spider error: %s, spider_name: %s", err.Error(), name)
 		//debug.PrintStack()
-		return nil
+		return result
 	}
 	return result
 }
