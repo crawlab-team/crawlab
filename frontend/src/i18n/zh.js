@@ -267,6 +267,8 @@ export default {
   'Notification': '提示',
   'Are you sure to delete this node?': '你确定要删除该节点?',
   'Are you sure to run this spider?': '你确定要运行该爬虫?',
+  'Added spider successfully': '成功添加爬虫',
+  'Uploaded spider files successfully': '成功上传爬虫文件',
   'Node info has been saved successfully': '节点信息已成功保存',
   'A task has been scheduled successfully': '已经成功派发一个任务',
   'Are you sure to delete this spider?': '你确定要删除该爬虫?',

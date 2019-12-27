@@ -62,14 +62,15 @@
             </el-form-item>
           </el-form>
           <el-alert
-            type="error"
+            type="warning"
             :closable="false"
             style="margin-bottom: 10px"
           >
             <p>{{$t('You can click "Add" to create an empty spider and upload files later.')}}</p>
             <p>{{$t('OR, you can also click "Upload" and upload a zip file containing your spider project.')}}</p>
             <p style="font-weight: bolder">
-              <i class="fa fa-exclamation-triangle"></i> {{$t('NOTE: When uploading a zip file, please zip your spider files from the ROOT DIRECTORY.')}}
+              <i class="fa fa-exclamation-triangle"></i> {{$t('NOTE: When uploading a zip file, please zip your' +
+              ' spider files from the ROOT DIRECTORY.')}}
             </p>
           </el-alert>
           <div class="actions">
@@ -511,7 +512,7 @@ export default {
         }
       })
     },
-    onUploadSuccess () {
+    onUploadSuccess (res) {
       // clear fileList
       this.fileList = []
 
@@ -519,6 +520,12 @@ export default {
       setTimeout(() => {
         this.getList()
       }, 500)
+
+      // message
+      this.$message.success(this.$t('Uploaded spider files successfully'))
+
+      // navigate to spider detail
+      this.$router.push(`/spiders/${res.data._id}`)
     },
     getTime (str) {
       if (!str || str.match('^0001')) return 'NA'
