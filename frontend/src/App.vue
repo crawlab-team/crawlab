@@ -6,6 +6,9 @@
 </template>
 
 <script>
+import {
+  mapState
+} from 'vuex'
 import DialogView from './components/Common/DialogView'
 
 export default {
@@ -19,11 +22,15 @@ export default {
     DialogView
   },
   computed: {
+    ...mapState('setting', ['setting']),
     useStats () {
       return localStorage.getItem('useStats')
     }
   },
   methods: {},
+  created () {
+    this.$store.dispatch('setting/getSetting')
+  },
   mounted () {
     window.setUseStats = (value) => {
       localStorage.setItem('useStats', value)

@@ -1,6 +1,16 @@
-# 0.4.2 (unknown)
+# 0.4.2 (2019-12-26)
 ### Features / Enhancement
 - **Disclaimer**. Added page for Disclaimer.
+- **Call API to fetch version**. [#371](https://github.com/crawlab-team/crawlab/issues/371)
+- **Configure to allow user registration**. [#346](https://github.com/crawlab-team/crawlab/issues/346)
+- **Allow adding new users**.
+- **More Advanced File Management**. Allow users to add / edit / rename / delete files. [#286](https://github.com/crawlab-team/crawlab/issues/286)
+- **Optimized Spider Creation Process**. Allow users to create an empty customized spider before uploading the zip file.
+- **Better Task Management**. Allow users to filter tasks by selecting through certian criterions. [#341](https://github.com/crawlab-team/crawlab/issues/341)
+
+### Bug Fixes
+- **Duplicated nodes**. [#391](https://github.com/crawlab-team/crawlab/issues/391)
+- **"mongodb no reachable" error**. [#373](https://github.com/crawlab-team/crawlab/issues/373)
 
 # 0.4.1 (2019-12-13)
 ### Features / Enhancement

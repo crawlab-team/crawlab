@@ -40,7 +40,7 @@ func PutConfigSpider(c *gin.Context) {
 	}
 
 	// 判断爬虫是否存在
-	if spider := model.GetSpiderByName(spider.Name); spider != nil {
+	if spider := model.GetSpiderByName(spider.Name); spider.Name != "" {
 		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("spider for '%s' already exists", spider.Name))
 		return
 	}

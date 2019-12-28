@@ -40,6 +40,7 @@ export default {
 
   // 操作
   Add: '添加',
+  Create: '创建',
   Run: '运行',
   Deploy: '部署',
   Save: '保存',
@@ -63,6 +64,7 @@ export default {
   'Item Threshold': '子项阈值',
   'Back': '返回',
   'New File': '新建文件',
+  'Rename': '重命名',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -234,6 +236,9 @@ export default {
 
   // 文件
   'Choose Folder': '选择文件',
+  'File': '文件',
+  'Folder': '文件夹',
+  'Directory': '目录',
 
   // 导入
   'Import Spider': '导入爬虫',
@@ -262,6 +267,8 @@ export default {
   'Notification': '提示',
   'Are you sure to delete this node?': '你确定要删除该节点?',
   'Are you sure to run this spider?': '你确定要运行该爬虫?',
+  'Added spider successfully': '成功添加爬虫',
+  'Uploaded spider files successfully': '成功上传爬虫文件',
   'Node info has been saved successfully': '节点信息已成功保存',
   'A task has been scheduled successfully': '已经成功派发一个任务',
   'Are you sure to delete this spider?': '你确定要删除该爬虫?',
@@ -270,14 +277,17 @@ export default {
   'Do you allow us to collect some statistics to improve Crawlab?': '您允许我们收集统计数据以更好地优化Crawlab？',
   'Saved file successfully': '成功保存文件',
   'An error happened when fetching the data': '请求数据时出错',
-  'Error when logging in (Please check username and password)': '登录时出错（请检查用户名密码）',
+  'Error when logging in (Please read documentation Q&A)': '登录时出错（请查看文档 Q&A）',
   'Please enter the correct username': '请输入正确用户名',
   'Password length should be no shorter than 5': '密码长度不能小于5',
   'Two passwords must be the same': '两个密码必须要一致',
   'username already exists': '用户名已存在',
   'Deleted successfully': '成功删除',
   'Saved successfully': '成功保存',
-  'Please zip your spider files from the root directory': '爬虫文件请从根目录下开始压缩。',
+  'Renamed successfully': '重命名保存',
+  'You can click "Add" to create an empty spider and upload files later.': '您可以点击"添加"按钮创建空的爬虫，之后再上传文件。',
+  'OR, you can also click "Upload" and upload a zip file containing your spider project.': '或者，您也可以点击"上传"按钮并上传一个包含爬虫项目的 zip 文件。',
+  'NOTE: When uploading a zip file, please zip your spider files from the ROOT DIRECTORY.': '注意: 上传 zip 文件时，请从 根目录 下开始压缩爬虫文件。',
   'English': 'English',
   'Are you sure to delete the schedule task?': '确定删除定时任务?',
   'Disclaimer': '免责声明',

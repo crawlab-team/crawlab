@@ -32,3 +32,6 @@ task:
   workers: 4
 other:
   tmppath: "/tmp"
+version: 0.4.2
+setting:
+  allowRegister: "N"

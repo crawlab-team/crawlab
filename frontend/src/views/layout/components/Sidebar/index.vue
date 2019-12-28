@@ -51,8 +51,12 @@ export default {
   },
   data () {
     return {
-      version: '0.4.1'
+      version: ''
     }
+  },
+  async created () {
+    const res = await this.$request.get('/version')
+    this.version = res.data.data
   }
 }
 </script>
