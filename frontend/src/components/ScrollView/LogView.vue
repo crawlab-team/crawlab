@@ -67,7 +67,7 @@ export default {
   .log-view {
     margin-top: 0!important;
     min-height: 100%;
-    overflow-y: scroll;
+    overflow-y: scroll!important;
     list-style: none;
     color: #A9B7C6;
     background: #2B2B2B;
