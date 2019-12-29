@@ -15,7 +15,7 @@ WORKDIR /app
 
 # install frontend
 RUN npm config set unsafe-perm true
-RUN npm install -g yarn && yarn install --registry=https://registry.npm.taobao.org
+RUN npm install -g yarn && yarn install --registry=https://registry.npm.taobao.org --sass_binary_site=https://npm.taobao.org/mirrors/node-sass/
 
 RUN npm run build:prod
 

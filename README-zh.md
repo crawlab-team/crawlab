@@ -14,7 +14,7 @@
 
 基于Golang的分布式爬虫管理平台，支持Python、NodeJS、Go、Java、PHP等多种编程语言以及多种爬虫框架。
 
-[查看演示 Demo](http://crawlab.cn/demo) | [文档](https://tikazyq.github.io/crawlab-docs)
+[查看演示 Demo](http://crawlab.cn/demo) | [文档](http://docs.crawlab.cn)
 
 ## 安装
 
