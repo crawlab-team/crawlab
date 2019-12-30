@@ -51,6 +51,7 @@
             <el-form-item :label="$t('Upload Zip File')" label-width="120px" name="site">
               <el-upload
                 :action="$request.baseUrl + '/spiders'"
+                :data="uploadForm"
                 :headers="{Authorization:token}"
                 :on-success="onUploadSuccess"
                 :file-list="fileList">
@@ -325,7 +326,15 @@ export default {
     ]),
     ...mapGetters('user', [
       'token'
-    ])
+    ]),
+    uploadForm () {
+      return {
+        name: this.spiderForm.name,
+        display_name: this.spiderForm.display_name,
+        col: this.spiderForm.col,
+        cmd: this.spiderForm.cmd
+      }
+    }
   },
   methods: {
     onSpiderTypeChange (val) {
