@@ -185,10 +185,15 @@ func UploadSpider(c *gin.Context) {
 		return
 	}
 
+	// 获取参数
+	name := c.PostForm("name")
+	displayName := c.PostForm("display_name")
+	col := c.PostForm("col")
+	cmd := c.PostForm("cmd")
+
 	// 如果不为zip文件，返回错误
 	if !strings.HasSuffix(uploadFile.Filename, ".zip") {
-		debug.PrintStack()
-		HandleError(http.StatusBadRequest, c, errors.New("Not a valid zip file"))
+		HandleError(http.StatusBadRequest, c, errors.New("not a valid zip file"))
 		return
 	}
 
@@ -198,7 +203,7 @@ func UploadSpider(c *gin.Context) {
 		if err := os.MkdirAll(tmpPath, os.ModePerm); err != nil {
 			log.Error("mkdir other.tmppath dir error:" + err.Error())
 			debug.PrintStack()
-			HandleError(http.StatusBadRequest, c, errors.New("Mkdir other.tmppath dir error"))
+			HandleError(http.StatusBadRequest, c, errors.New("mkdir other.tmppath dir error"))
 			return
 		}
 	}
@@ -237,6 +242,9 @@ func UploadSpider(c *gin.Context) {
 
 	// 判断爬虫是否存在
 	spiderName := strings.Replace(targetFilename, ".zip", "", 1)
+	if name != "" {
+		spiderName = name
+	}
 	spider := model.GetSpiderByName(spiderName)
 	if spider.Name == "" {
 		// 保存爬虫信息
@@ -248,8 +256,32 @@ func UploadSpider(c *gin.Context) {
 			Src:         filepath.Join(srcPath, spiderName),
 			FileId:      fid,
 		}
+		if name != "" {
+			spider.Name = name
+		}
+		if displayName != "" {
+			spider.DisplayName = displayName
+		}
+		if col != "" {
+			spider.Col = col
+		}
+		if cmd != "" {
+			spider.Cmd = cmd
+		}
 		_ = spider.Add()
 	} else {
+		if name != "" {
+			spider.Name = name
+		}
+		if displayName != "" {
+			spider.DisplayName = displayName
+		}
+		if col != "" {
+			spider.Col = col
+		}
+		if cmd != "" {
+			spider.Cmd = cmd
+		}
 		// 更新file_id
 		spider.FileId = fid
 		_ = spider.Save()
