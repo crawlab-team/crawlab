@@ -66,6 +66,7 @@ export default {
   'New File': '新建文件',
   'Rename': '重命名',
   'Install': '安装',
+  'Uninstall': '卸载',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -265,6 +266,7 @@ export default {
   'ARCH': '操作架构',
   'Number of CPU': 'CPU数',
   'Executables': '执行文件',
+  'Latest Version': '最新版本',
 
   // 弹出框
   'Notification': '提示',
@@ -297,6 +299,7 @@ export default {
   'Disclaimer': '免责声明',
   'Please search dependencies': '请搜索依赖',
   'No Data': '暂无数据',
+  'Show installed': '只看已安装',
 
   // 登录
   'Sign in': '登录',

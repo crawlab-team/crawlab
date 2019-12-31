@@ -26,6 +26,5 @@ type Dependency struct {
 	Name        string `json:"name"`
 	Version     string `json:"version"`
 	Description string `json:"description"`
-	Lang        string `json:"lang"`
 	Installed   bool   `json:"installed"`
 }

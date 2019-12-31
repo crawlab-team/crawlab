@@ -1,17 +1,23 @@
 <template>
   <div class="node-installation">
     <el-form inline>
-      <el-form-item>
-        <el-input
+      <el-form-item v-if="!isShowInstalled">
+        <el-autocomplete
           v-model="depName"
           style="width: 240px"
           :placeholder="$t('Search Dependencies')"
+          :fetchSuggestions="fetchAllDepList"
+          minlength="2"
+          @select="onSearch"
         />
       </el-form-item>
       <el-form-item>
-        <el-button icon="el-icon-search" type="success" @click="getDepList">
+        <el-button icon="el-icon-search" type="success" @click="onSearch">
           {{$t('Search')}}
         </el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-checkbox v-model="isShowInstalled" :label="$t('Show installed')" @change="onIsShowInstalledChange"/>
       </el-form-item>
     </el-form>
     <el-tabs v-model="activeTab">
@@ -19,26 +25,39 @@
     </el-tabs>
     <template v-if="activeLang.installed">
       <el-table
-        :data="depList"
+        height="calc(100vh - 280px)"
+        :data="computedDepList"
         :empty-text="depName ? $t('No Data') : $t('Please search dependencies')"
         v-loading="loading"
+        border
       >
         <el-table-column
           :label="$t('Name')"
           prop="name"
+          width="180"
         />
         <el-table-column
-          :label="$t('Version')"
+          :label="$t('Latest Version')"
           prop="version"
+          width="100"
         />
         <el-table-column
+          v-if="!isShowInstalled"
           :label="$t('Description')"
           prop="description"
         />
         <el-table-column
-          :label="$t('Installed')"
-          prop="installed"
-        />
+          :label="$t('Action')"
+        >
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              :type="scope.row.installed ? 'danger' : 'primary' "
+            >
+              {{scope.row.installed ? $t('Uninstall') : $t('Install')}}
+            </el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </template>
     <template v-else>
@@ -65,7 +84,9 @@ export default {
       langList: [],
       depName: '',
       depList: [],
-      loading: false
+      loading: false,
+      isShowInstalled: false,
+      installedDepList: []
     }
   },
   computed: {
@@ -79,15 +100,53 @@ export default {
         }
       }
       return {}
+    },
+    computedDepList () {
+      if (this.isShowInstalled) {
+        return this.installedDepList
+      } else {
+        return this.depList
+      }
     }
   },
   methods: {
     async getDepList () {
+      this.loading = true
       const res = await this.$request.get(`/nodes/${this.nodeForm._id}/deps`, {
         lang: this.activeLang.executable_name,
         dep_name: this.depName
       })
-      this.depList = res.data.data
+      this.loading = false
+      this.depList = res.data.data.sort((a, b) => a.name > b.name ? 1 : -1)
+    },
+    async getInstalledDepList () {
+      this.loading = true
+      const res = await this.$request.get(`/nodes/${this.nodeForm._id}/deps/installed`, {
+        lang: this.activeLang.executable_name
+      })
+      this.loading = false
+      this.installedDepList = res.data.data
+    },
+    async fetchAllDepList (queryString, callback) {
+      const res = await this.$request.get('/system/deps', {
+        lang: this.activeLang.executable_name,
+        dep_name: queryString
+      })
+      callback(res.data.data ? res.data.data.map(d => {
+        return { value: d, label: d }
+      }) : [])
+    },
+    onSearch () {
+      if (!this.isShowInstalled) {
+        this.getDepList()
+      } else {
+        this.getInstalledDepList()
+      }
+    },
+    onIsShowInstalledChange (val) {
+      if (val) {
+        this.getInstalledDepList()
+      }
     }
   },
   async created () {

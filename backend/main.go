@@ -130,14 +130,15 @@ func main() {
 		{
 			// 路由
 			// 节点
-			authGroup.GET("/nodes", routes.GetNodeList)               // 节点列表
-			authGroup.GET("/nodes/:id", routes.GetNode)               // 节点详情
-			authGroup.POST("/nodes/:id", routes.PostNode)             // 修改节点
-			authGroup.GET("/nodes/:id/tasks", routes.GetNodeTaskList) // 节点任务列表
-			authGroup.GET("/nodes/:id/system", routes.GetSystemInfo)  // 节点任务列表
-			authGroup.DELETE("/nodes/:id", routes.DeleteNode)         // 删除节点
-			authGroup.GET("/nodes/:id/langs", routes.GetLangList)     // 节点语言环境列表
-			authGroup.GET("/nodes/:id/deps", routes.GetDepList)       // 节点第三方依赖列表
+			authGroup.GET("/nodes", routes.GetNodeList)                            // 节点列表
+			authGroup.GET("/nodes/:id", routes.GetNode)                            // 节点详情
+			authGroup.POST("/nodes/:id", routes.PostNode)                          // 修改节点
+			authGroup.GET("/nodes/:id/tasks", routes.GetNodeTaskList)              // 节点任务列表
+			authGroup.GET("/nodes/:id/system", routes.GetSystemInfo)               // 节点任务列表
+			authGroup.DELETE("/nodes/:id", routes.DeleteNode)                      // 删除节点
+			authGroup.GET("/nodes/:id/langs", routes.GetLangList)                  // 节点语言环境列表
+			authGroup.GET("/nodes/:id/deps", routes.GetDepList)                    // 节点第三方依赖列表
+			authGroup.GET("/nodes/:id/deps/installed", routes.GetInstalledDepList) // 节点已安装第三方依赖列表
 			// 爬虫
 			authGroup.GET("/spiders", routes.GetSpiderList)                     // 爬虫列表
 			authGroup.GET("/spiders/:id", routes.GetSpider)                     // 爬虫详情
@@ -194,6 +195,8 @@ func main() {
 			authGroup.GET("/me", routes.GetMe)                // 获取自己账户
 			// release版本
 			authGroup.GET("/version", routes.GetVersion) // 获取发布的版本
+			// 系统
+			authGroup.GET("/system/deps", routes.GetAllDepList) // 节点所有第三方依赖列表
 		}
 
 	}

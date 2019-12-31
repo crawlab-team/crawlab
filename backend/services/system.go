@@ -8,9 +8,11 @@ import (
 	"crawlab/model"
 	"crawlab/utils"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/apex/log"
 	"github.com/imroc/req"
+	"os/exec"
 	"regexp"
 	"runtime/debug"
 	"sort"
@@ -84,7 +86,7 @@ func GetLangList(nodeId string) []entity.Lang {
 		{Name: "Java", ExecutableName: "java", ExecutablePath: "/usr/local/bin/java"},
 	}
 	for i, lang := range list {
-		list[i].Installed = isInstalledLang(nodeId, lang)
+		list[i].Installed = IsInstalledLang(nodeId, lang)
 	}
 	return list
 }
@@ -99,20 +101,19 @@ func GetLangFromLangName(nodeId string, name string) entity.Lang {
 	return entity.Lang{}
 }
 
-func GetDepList(nodeId string, langExecutableName string, searchDepName string) ([]entity.Dependency, error) {
-	// TODO: support other languages
-	// 获取语言
-	lang := GetLangFromLangName(nodeId, langExecutableName)
+func GetPythonDepList(nodeId string, searchDepName string) ([]entity.Dependency, error) {
+	var list []entity.Dependency
 
-	// 如果没有依赖列表，先获取
-	if len(DepList) == 0 {
-		FetchDepList()
+	// 先从 Redis 获取
+	depList, err := GetPythonDepListFromRedis()
+	if err != nil {
+		return list, err
 	}
 
 	// 过滤相似的依赖
 	var depNameList PythonDepNameDictSlice
-	for _, depName := range DepList {
-		if strings.Contains(strings.ToLower(depName), strings.ToLower(searchDepName)) {
+	for _, depName := range depList {
+		if strings.HasPrefix(strings.ToLower(depName), strings.ToLower(searchDepName)) {
 			var weight int
 			if strings.ToLower(depName) == strings.ToLower(searchDepName) {
 				weight = 3
@@ -128,11 +129,17 @@ func GetDepList(nodeId string, langExecutableName string, searchDepName string) 
 		}
 	}
 
-	var depList []entity.Dependency
+	// 获取已安装依赖
+	installedDepList, err := GetPythonInstalledDepList(nodeId)
+	if err != nil {
+		return list, err
+	}
+
+	// 从依赖源获取数据
 	var goSync sync.WaitGroup
 	sort.Stable(depNameList)
 	for i, depNameDict := range depNameList {
-		if i > 20 {
+		if i > 10 {
 			break
 		}
 		goSync.Add(1)
@@ -152,19 +159,40 @@ func GetDepList(nodeId string, langExecutableName string, searchDepName string) 
 				Name:        depName,
 				Version:     data.Info.Version,
 				Description: data.Info.Summary,
-				Lang:        lang.ExecutableName,
-				Installed:   false,
 			}
-			depList = append(depList, dep)
+			dep.Installed = IsInstalledDep(installedDepList, dep)
+			list = append(list, dep)
 			n.Done()
 		}(depNameDict.Name, &goSync)
 	}
 	goSync.Wait()
 
-	return depList, nil
+	return list, nil
 }
 
-func isInstalledLang(nodeId string, lang entity.Lang) bool {
+func GetPythonDepListFromRedis() ([]string, error) {
+	var list []string
+
+	// 从 Redis 获取字符串
+	rawData, err := database.RedisClient.HGet("system", "deps:python")
+	if err != nil {
+		return list, err
+	}
+
+	// 反序列化
+	if err := json.Unmarshal([]byte(rawData), &list); err != nil {
+		return list, err
+	}
+
+	// 如果为空，则从依赖源获取列表
+	if len(list) == 0 {
+		UpdatePythonDepList()
+	}
+
+	return list, nil
+}
+
+func IsInstalledLang(nodeId string, lang entity.Lang) bool {
 	sysInfo, err := GetSystemInfo(nodeId)
 	if err != nil {
 		return false
@@ -177,21 +205,39 @@ func isInstalledLang(nodeId string, lang entity.Lang) bool {
 	return false
 }
 
-func FetchDepList() {
+func IsInstalledDep(installedDepList []entity.Dependency, dep entity.Dependency) bool {
+	for _, _dep := range installedDepList {
+		if strings.ToLower(_dep.Name) == strings.ToLower(dep.Name) {
+			return true
+		}
+	}
+	return false
+}
+
+func FetchPythonDepList() ([]string, error) {
+	// 依赖URL
 	url := "https://pypi.tuna.tsinghua.edu.cn/simple"
+
+	// 输出列表
+	var list []string
+
+	// 请求URL
 	res, err := req.Get(url)
 	if err != nil {
 		log.Error(err.Error())
 		debug.PrintStack()
-		return
+		return list, err
 	}
+
+	// 获取响应数据
 	text, err := res.ToString()
 	if err != nil {
 		log.Error(err.Error())
 		debug.PrintStack()
-		return
+		return list, err
 	}
-	var list []string
+
+	// 从响应数据中提取依赖名
 	regex := regexp.MustCompile("<a href=\".*/\">(.*)</a>")
 	for _, line := range strings.Split(text, "\n") {
 		arr := regex.FindStringSubmatch(line)
@@ -200,15 +246,65 @@ func FetchDepList() {
 		}
 		list = append(list, arr[1])
 	}
-	DepList = list
+
+	// 赋值给列表
+	return list, nil
 }
 
-var DepList []string
+func UpdatePythonDepList() {
+	// 从依赖源获取列表
+	list, _ := FetchPythonDepList()
+
+	// 序列化
+	listBytes, err := json.Marshal(list)
+	if err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return
+	}
+
+	// 设置Redis
+	if err := database.RedisClient.HSet("system", "deps:python", string(listBytes)); err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return
+	}
+}
+
+func GetPythonInstalledDepList(nodeId string) ([]entity.Dependency, error){
+	var list []entity.Dependency
+
+	lang := GetLangFromLangName(nodeId, constants.Python)
+	if !IsInstalledLang(nodeId, lang) {
+		return list, errors.New("python is not installed")
+	}
+	cmd := exec.Command("pip", "freeze")
+	outputBytes, err := cmd.Output()
+	if err != nil {
+		debug.PrintStack()
+		return list, err
+	}
+
+	for _, line := range strings.Split(string(outputBytes), "\n") {
+		arr := strings.Split(line, "==")
+		if len(arr) < 2 {
+			continue
+		}
+		dep := entity.Dependency{
+			Name:      strings.ToLower(arr[0]),
+			Version:   arr[1],
+			Installed: true,
+		}
+		list = append(list, dep)
+	}
+
+	return list, nil
+}
 
 func InitDepsFetcher() error {
 	c := cron.New(cron.WithSeconds())
 	c.Start()
-	if _, err := c.AddFunc("0 */5 * * * *", FetchDepList); err != nil {
+	if _, err := c.AddFunc("0 */5 * * * *", UpdatePythonDepList); err != nil {
 		return err
 	}
 	return nil
