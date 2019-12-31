@@ -13,3 +13,19 @@ type Executable struct {
 	FileName    string `json:"file_name"`
 	DisplayName string `json:"display_name"`
 }
+
+type Lang struct {
+	Name              string `json:"name"`
+	ExecutableName    string `json:"executable_name"`
+	ExecutablePath    string `json:"executable_path"`
+	DepExecutablePath string `json:"dep_executable_path"`
+	Installed         bool   `json:"installed"`
+}
+
+type Dependency struct {
+	Name        string `json:"name"`
+	Version     string `json:"version"`
+	Description string `json:"description"`
+	Lang        string `json:"lang"`
+	Installed   bool   `json:"installed"`
+}

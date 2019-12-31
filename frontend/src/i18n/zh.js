@@ -65,6 +65,7 @@ export default {
   'Back': '返回',
   'New File': '新建文件',
   'Rename': '重命名',
+  'Install': '安装',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -85,6 +86,8 @@ export default {
   'Node Network': '节点拓扑图',
   'Master': '主节点',
   'Worker': '工作节点',
+  'Installation': '安装',
+  'Search Dependencies': '搜索依赖',
 
   // 节点列表
   'IP': 'IP地址',
@@ -290,7 +293,10 @@ export default {
   'NOTE: When uploading a zip file, please zip your spider files from the ROOT DIRECTORY.': '注意: 上传 zip 文件时，请从 根目录 下开始压缩爬虫文件。',
   'English': 'English',
   'Are you sure to delete the schedule task?': '确定删除定时任务?',
+  ' is not installed, do you want to install it?': ' 还没有安装，您是否打算安装它?',
   'Disclaimer': '免责声明',
+  'Please search dependencies': '请搜索依赖',
+  'No Data': '暂无数据',
 
   // 登录
   'Sign in': '登录',
