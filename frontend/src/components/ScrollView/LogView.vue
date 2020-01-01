@@ -13,7 +13,9 @@
 <script>
 import LogItem from './LogItem'
 import VirtualList from 'vue-virtual-scroll-list'
-
+import Convert from 'ansi-to-html'
+import hasAnsi from 'has-ansi'
+const convert = new Convert()
 export default {
   name: 'LogView',
   components: {
@@ -44,12 +46,14 @@ export default {
   methods: {
     getItemProps (index) {
       const logItem = this.logData[index]
+      const isAnsi = hasAnsi(logItem.data)
       return {
         // <item/> will render with itemProps.
         // https://vuejs.org/v2/guide/render-function.html#createElement-Arguments
         props: {
           index: logItem.index,
-          data: logItem.data
+          data: isAnsi ? convert.toHtml(logItem.data) : logItem.data,
+          isAnsi
         }
       }
     }
@@ -63,7 +67,7 @@ export default {
   .log-view {
     margin-top: 0!important;
     min-height: 100%;
-    overflow-y: scroll;
+    overflow-y: scroll!important;
     list-style: none;
     color: #A9B7C6;
     background: #2B2B2B;

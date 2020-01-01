@@ -15,7 +15,7 @@ WORKDIR /app
 
 # install frontend
 RUN npm config set unsafe-perm true
-RUN npm install -g yarn && yarn install --registry=https://registry.npm.taobao.org
+RUN npm install -g yarn && yarn install --registry=https://registry.npm.taobao.org # --sass_binary_site=https://npm.taobao.org/mirrors/node-sass/
 
 RUN npm run build:prod
 
@@ -27,6 +27,9 @@ ADD . /app
 # set as non-interactive
 ENV DEBIAN_FRONTEND noninteractive
 
+# set CRAWLAB_IS_DOCKER
+ENV CRAWLAB_IS_DOCKER Y
+
 # install packages
 RUN apt-get update \
 	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip \
@@ -37,7 +40,6 @@ RUN apt-get update \
 RUN pip install scrapy pymongo bs4 requests -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # copy backend files
-COPY --from=backend-build /go/src/app .
 COPY --from=backend-build /go/bin/crawlab /usr/local/bin
 
 # install nginx

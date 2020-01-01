@@ -48,7 +48,7 @@
         <div class="left">
           <span v-if="!isSignUp" class="forgot-password">{{$t('Forgot Password')}}</span>
         </div>
-        <div class="right">
+        <div class="right" v-if="setting.allow_register === 'Y'">
           <span v-if="isSignUp">{{$t('Has Account')}}, </span>
           <span v-if="isSignUp" class="sign-in" @click="$router.push('/login')">{{$t('Sign-in')}} ></span>
           <span v-if="!isSignUp">{{$t('New to Crawlab')}}, </span>
@@ -57,8 +57,8 @@
       </div>
       <div class="tips">
         <span>{{$t('Initial Username/Password')}}: admin/admin</span>
-        <a href="https://github.com/tikazyq/crawlab" target="_blank" style="float:right">
-          <img src="https://img.shields.io/badge/github-crawlab-blue">
+        <a href="https://github.com/crawlab-team/crawlab" target="_blank" style="float:right">
+          <img src="https://img.shields.io/github/stars/crawlab-team/crawlab?logo=github">
         </a>
       </div>
       <div class="lang">
@@ -116,6 +116,9 @@ export default {
     }
   },
   computed: {
+    ...mapState('setting', [
+      'setting'
+    ]),
     ...mapState('lang', [
       'lang'
     ]),
@@ -136,7 +139,7 @@ export default {
             this.$router.push({ path: this.redirect || '/' })
             this.$store.dispatch('user/getInfo')
           }).catch(() => {
-            this.$message.error(this.$t('Error when logging in (Please check username and password)'))
+            this.$message.error(this.$t('Error when logging in (Please read documentation Q&A)'))
             this.loading = false
           })
         }

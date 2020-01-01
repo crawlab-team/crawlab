@@ -9,9 +9,6 @@
       </span>
       <el-dropdown-menu slot="dropdown" class="user-dropdown">
         <el-dropdown-item>
-          <span style="display:block;">v0.3.5</span>
-        </el-dropdown-item>
-        <el-dropdown-item>
           <span style="display:block;" @click="logout">{{$t('Logout')}}</span>
         </el-dropdown-item>
       </el-dropdown-menu>
@@ -31,7 +28,7 @@
       </el-dropdown-menu>
     </el-dropdown>
     <el-dropdown class="documentation right">
-      <a href="https://tikazyq.github.io/crawlab-docs" target="_blank">
+      <a href="http://docs.crawlab.cn" target="_blank">
         <font-awesome-icon :icon="['far', 'question-circle']"/>
         <span style="margin-left: 5px;">{{$t('Documentation')}}</span>
       </a>
@@ -74,7 +71,7 @@ export default {
       this.$i18n.locale = lang
       this.$store.commit('lang/SET_LANG', lang)
 
-      this.$st.sendEv('全局', '切换中英文', 'lang', lang)
+      this.$st.sendEv('全局', '切换中英文', lang)
     }
   }
 }

@@ -55,7 +55,7 @@ func GetCurrentNode() (Node, error) {
 	for {
 		// 如果错误次数超过10次
 		if errNum >= 10 {
-			panic("cannot get current node")
+			return node, errors.New("cannot get current node")
 		}
 
 		// 尝试获取节点
@@ -63,7 +63,9 @@ func GetCurrentNode() (Node, error) {
 		// 如果获取失败
 		if err != nil {
 			// 如果为主节点，表示为第一次注册，插入节点信息
-			if IsMaster() {
+			// update: 增加具体错误过滤。防止加入多个master节点，后续需要职责拆分，
+			//只在master节点运行的时候才检测master节点的信息是否存在
+			if IsMaster() && err == mgo.ErrNotFound {
 				// 获取本机信息
 				ip, mac, key, err := GetNodeBaseInfo()
 				if err != nil {
@@ -143,6 +145,7 @@ func (n *Node) GetTasks() ([]Task, error) {
 	return tasks, nil
 }
 
+// 节点列表
 func GetNodeList(filter interface{}) ([]Node, error) {
 	s, c := database.GetCol("nodes")
 	defer s.Close()
@@ -156,6 +159,7 @@ func GetNodeList(filter interface{}) ([]Node, error) {
 	return results, nil
 }
 
+// 节点信息
 func GetNode(id bson.ObjectId) (Node, error) {
 	var node Node
 
@@ -169,13 +173,14 @@ func GetNode(id bson.ObjectId) (Node, error) {
 	defer s.Close()
 
 	if err := c.FindId(id).One(&node); err != nil {
-		log.Errorf(err.Error())
+		log.Errorf("get node error: %s, id: %s", err.Error(), id.Hex())
 		debug.PrintStack()
 		return node, err
 	}
 	return node, nil
 }
 
+// 节点信息
 func GetNodeByKey(key string) (Node, error) {
 	s, c := database.GetCol("nodes")
 	defer s.Close()
@@ -191,6 +196,7 @@ func GetNodeByKey(key string) (Node, error) {
 	return node, nil
 }
 
+// 更新节点
 func UpdateNode(id bson.ObjectId, item Node) error {
 	s, c := database.GetCol("nodes")
 	defer s.Close()
@@ -206,6 +212,7 @@ func UpdateNode(id bson.ObjectId, item Node) error {
 	return nil
 }
 
+// 任务列表
 func GetNodeTaskList(id bson.ObjectId) ([]Task, error) {
 	node, err := GetNode(id)
 	if err != nil {
@@ -218,6 +225,7 @@ func GetNodeTaskList(id bson.ObjectId) ([]Task, error) {
 	return tasks, nil
 }
 
+// 节点数
 func GetNodeCount(query interface{}) (int, error) {
 	s, c := database.GetCol("nodes")
 	defer s.Close()

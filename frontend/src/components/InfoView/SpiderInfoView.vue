@@ -21,11 +21,12 @@
         <el-form-item :label="$t('Source Folder')">
           <el-input v-model="spiderForm.src" :placeholder="$t('Source Folder')" disabled></el-input>
         </el-form-item>
-        <el-form-item  :label="$t('Execute Command')" prop="cmd" required :inline-message="true">
+        <el-form-item v-if="spiderForm.type === 'customized'" :label="$t('Execute Command')" prop="cmd" required
+                      :inline-message="true">
           <el-input v-model="spiderForm.cmd" :placeholder="$t('Execute Command')"
                     :disabled="isView"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('Results Collection')">
+        <el-form-item :label="$t('Results Collection')" prop="col" required :inline-message="true">
           <el-input v-model="spiderForm.col" :placeholder="$t('Results Collection')"
                     :disabled="isView"></el-input>
         </el-form-item>
@@ -39,27 +40,47 @@
           </el-autocomplete>
         </el-form-item>
         <el-form-item :label="$t('Spider Type')">
-          <!--<el-select v-model="spiderForm.type" :placeholder="$t('Spider Type')" :disabled="true" clearable>-->
-            <!--<el-option value="configurable" :label="$t('Configurable')"></el-option>-->
-            <!--<el-option value="customized" :label="$t('Customized')"></el-option>-->
-          <!--</el-select>-->
-          <el-input v-model="spiderForm.type" placeholder="爬虫类型" clearable/>
+          <el-select v-model="spiderForm.type" :placeholder="$t('Spider Type')" :disabled="true" clearable>
+            <el-option value="configurable" :label="$t('Configurable')"></el-option>
+            <el-option value="customized" :label="$t('Customized')"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item :label="$t('Remark')">
-          <el-input v-model="spiderForm.remark"/>
+          <el-input type="textarea" v-model="spiderForm.remark" :placeholder="$t('Remark')"/>
         </el-form-item>
       </el-form>
     </el-row>
     <el-row class="button-container" v-if="!isView">
-      <el-button size="small" v-if="isShowRun" type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
-      <el-button size="small" type="success" @click="onSave">{{$t('Save')}}</el-button>
+      <el-upload
+        v-if="spiderForm.type === 'customized'"
+        :action="$request.baseUrl + `/spiders/${spiderForm._id}/upload`"
+        :headers="{Authorization:token}"
+        :on-progress="() => this.uploadLoading = true"
+        :on-error="onUploadError"
+        :on-success="onUploadSuccess"
+        :file-list="fileList"
+        style="display:inline-block;margin-right:10px"
+      >
+        <el-button size="normal" type="primary" icon="el-icon-upload" v-loading="uploadLoading">
+          {{$t('Upload')}}
+        </el-button>
+      </el-upload>
+      <el-button size="normal" v-if="isShowRun" type="danger" @click="onCrawl"
+                 icon="el-icon-video-play">
+        {{$t('Run')}}
+      </el-button>
+      <el-button size="normal" type="success" @click="onSave"
+                 icon="el-icon-check">
+        {{$t('Save')}}
+      </el-button>
     </el-row>
   </div>
 </template>
 
 <script>
 import {
-  mapState
+  mapState,
+  mapGetters
 } from 'vuex'
 import CrawlConfirmDialog from '../Common/CrawlConfirmDialog'
 
@@ -89,6 +110,8 @@ export default {
       callback()
     }
     return {
+      uploadLoading: false,
+      fileList: [],
       crawlConfirmDialogVisible: false,
       cmdRule: [
         { message: 'Execute Command should not be empty', required: true }
@@ -102,14 +125,21 @@ export default {
     ...mapState('spider', [
       'spiderForm'
     ]),
+    ...mapGetters('user', [
+      'token'
+    ]),
     isShowRun () {
-      return !!this.spiderForm.cmd
+      if (this.spiderForm.type === 'customized') {
+        return !!this.spiderForm.cmd
+      } else {
+        return true
+      }
     }
   },
   methods: {
     onCrawl () {
       this.crawlConfirmDialogVisible = true
-      this.$st.sendEv('爬虫详情-概览', '点击运行')
+      this.$st.sendEv('爬虫详情', '概览', '点击运行')
     },
     onSave () {
       this.$refs['spiderForm'].validate(res => {
@@ -123,7 +153,7 @@ export default {
             })
         }
       })
-      this.$st.sendEv('爬虫详情-概览', '保存')
+      this.$st.sendEv('爬虫详情', '概览', '保存')
     },
     fetchSiteSuggestions (keyword, callback) {
       this.$request.get('/sites', {
@@ -140,6 +170,16 @@ export default {
     },
     onSiteSelect (item) {
       this.spiderForm.site = item._id
+    },
+    onUploadSuccess () {
+      this.$store.dispatch('file/getFileList', this.spiderForm.src)
+
+      this.uploadLoading = false
+
+      this.$message.success(this.$t('Uploaded spider files successfully'))
+    },
+    onUploadError () {
+      this.uploadLoading = false
     }
   }
 }
@@ -158,5 +198,9 @@ export default {
 
   .el-autocomplete {
     width: 100%;
+  }
+
+  .info-view >>> .el-upload-list {
+    display: none;
   }
 </style>

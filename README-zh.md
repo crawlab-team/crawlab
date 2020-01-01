@@ -10,11 +10,11 @@
 
 中文 | [English](https://github.com/crawlab-team/crawlab)
 
-[安装](#安装) | [运行](#运行) | [截图](#截图) | [架构](#架构) | [集成](#与其他框架的集成) | [比较](#与其他框架比较) | [相关文章](#相关文章) | [社区&赞助](#社区--赞助)
+[安装](#安装) | [运行](#运行) | [截图](#截图) | [架构](#架构) | [集成](#与其他框架的集成) | [比较](#与其他框架比较) | [相关文章](#相关文章) | [社区&赞助](#社区--赞助) | [免责声明](https://github.com/crawlab-team/crawlab/blob/master/DISCLAIMER-zh.md)
 
 基于Golang的分布式爬虫管理平台，支持Python、NodeJS、Go、Java、PHP等多种编程语言以及多种爬虫框架。
 
-[查看演示 Demo](http://crawlab.cn/demo) | [文档](https://tikazyq.github.io/crawlab-docs)
+[查看演示 Demo](http://crawlab.cn/demo) | [文档](http://docs.crawlab.cn)
 
 ## 安装
 
@@ -47,7 +47,7 @@ services:
     image: tikazyq/crawlab:latest
     container_name: master
     environment:
-      CRAWLAB_API_ADDRESS: "localhost:8000"
+      CRAWLAB_API_ADDRESS: "http://localhost:8000"
       CRAWLAB_SERVER_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
       CRAWLAB_REDIS_ADDRESS: "redis"
@@ -253,6 +253,9 @@ Crawlab使用起来很方便，也很通用，可以适用于几乎任何主流�
 </a>
 <a href="https://github.com/hantmac">
   <img src="https://avatars2.githubusercontent.com/u/7600925?s=460&v=4" height="80">
+</a>
+<a href="https://github.com/duanbin0414">
+  <img src="https://avatars3.githubusercontent.com/u/50389867?s=460&v=4" height="80">
 </a>
 
 ## 社区 & 赞助

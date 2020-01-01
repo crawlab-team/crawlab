@@ -4,13 +4,13 @@ services:
     image: tikazyq/crawlab:latest
     container_name: master
     environment:
-      CRAWLAB_API_ADDRESS: "localhost:8000"
-      CRAWLAB_SERVER_MASTER: "Y"
-      CRAWLAB_MONGO_HOST: "mongo"
-      CRAWLAB_REDIS_ADDRESS: "redis"
+      CRAWLAB_API_ADDRESS: "http://localhost:8000"  # backend API address 后端 API 地址，设置为 http://<宿主机IP>:<端口>，端口为映射出来的端口
+      CRAWLAB_SERVER_MASTER: "Y"  # whether to be master node 是否为主节点，主节点为 Y，工作节点为 N
+      CRAWLAB_MONGO_HOST: "mongo"  # MongoDB host address MongoDB 的地址，在 docker compose 网络中，直接引用服务名称
+      CRAWLAB_REDIS_ADDRESS: "redis"  # Redis host address Redis 的地址，在 docker compose 网络中，直接引用服务名称
     ports:    
-      - "8080:8080" # frontend
-      - "8000:8000" # backend
+      - "8080:8080" # frontend port mapping 前端端口映射
+      - "8000:8000" # backend port mapping 后端端口映射 
     depends_on:
       - mongo
       - redis
@@ -27,10 +27,14 @@ services:
   mongo:
     image: mongo:latest
     restart: always
-    ports:
-      - "27017:27017"
+    # volumes:
+    #   - "/opt/crawlab/mongo/data/db:/data/db"  # make data persistent 持久化
+    # ports:
+    #   - "27017:27017"  # expose port to host machine 暴露接口到宿主机
   redis:
     image: redis:latest
     restart: always
-    ports:
-      - "6379:6379"
+    # volumes:
+    #   - "/opt/crawlab/redis/data:/data"  # make data persistent 持久化
+    # ports:
+    #   - "6379:6379"  # expose port to host machine 暴露接口到宿主机

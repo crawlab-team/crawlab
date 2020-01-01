@@ -40,6 +40,7 @@ export default {
 
   // 操作
   Add: '添加',
+  Create: '创建',
   Run: '运行',
   Deploy: '部署',
   Save: '保存',
@@ -63,6 +64,9 @@ export default {
   'Item Threshold': '子项阈值',
   'Back': '返回',
   'New File': '新建文件',
+  'Rename': '重命名',
+  'Install': '安装',
+  'Uninstall': '卸载',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -83,6 +87,8 @@ export default {
   'Node Network': '节点拓扑图',
   'Master': '主节点',
   'Worker': '工作节点',
+  'Installation': '安装',
+  'Search Dependencies': '搜索依赖',
 
   // 节点列表
   'IP': 'IP地址',
@@ -125,6 +131,8 @@ export default {
   'Customized Spider': '自定义爬虫',
   'Configurable': '可配置',
   'Customized': '自定义',
+  'configurable': '可配置',
+  'customized': '自定义',
   'Text': '文本',
   'Attribute': '属性',
   'Field Name': '字段名称',
@@ -148,6 +156,26 @@ export default {
   'List Page Fields': '列表页字段',
   'Detail Page Fields': '详情页字段',
   'Detail Page URL': '详情页URL',
+  'All': '全部',
+  'Stages': '阶段',
+  'Process': '流程',
+  'Stage Process': '流程图',
+  'Stage Name': '阶段名称',
+  'Start Stage': '开始阶段',
+  'Engine': '引擎',
+  'Selector Type': '选择器类别',
+  'Selector': '选择器',
+  'Is Attribute': '是否为属性',
+  'Next Stage': '下一阶段',
+  'No Next Stage': '没有下一阶段',
+  'Fields': '字段',
+  'Stage': '阶段',
+  'Is List': '是否为列表',
+  'List': '列表',
+  'Pagination': '分页',
+  'Settings': '设置',
+  'Display Name': '显示名称',
+  'Template': '模版',
 
   // 爬虫列表
   'Name': '名称',
@@ -171,6 +199,9 @@ export default {
   'Wait Duration (sec)': '等待时长(秒)',
   'Runtime Duration (sec)': '运行时长(秒)',
   'Total Duration (sec)': '总时长(秒)',
+  'Run Type': '运行类型',
+  'Random': '随机',
+  'Selected Nodes': '指定节点',
 
   // 任务列表
   'Node': '节点',
@@ -187,6 +218,11 @@ export default {
   'Schedule Description': '定时任务描述',
   'Parameters': '参数',
   'Add Schedule': '添加定时任务',
+  'stop': '暂停',
+  'running': '运行',
+  'error': '错误',
+  'Not Found Node': '节点配置错误',
+  'Not Found Spider': '爬虫配置错误',
 
   // 网站
   'Site': '网站',
@@ -204,6 +240,9 @@ export default {
 
   // 文件
   'Choose Folder': '选择文件',
+  'File': '文件',
+  'Folder': '文件夹',
+  'Directory': '目录',
 
   // 导入
   'Import Spider': '导入爬虫',
@@ -227,11 +266,14 @@ export default {
   'ARCH': '操作架构',
   'Number of CPU': 'CPU数',
   'Executables': '执行文件',
+  'Latest Version': '最新版本',
 
   // 弹出框
-  Notification: '提示',
+  'Notification': '提示',
   'Are you sure to delete this node?': '你确定要删除该节点?',
   'Are you sure to run this spider?': '你确定要运行该爬虫?',
+  'Added spider successfully': '成功添加爬虫',
+  'Uploaded spider files successfully': '成功上传爬虫文件',
   'Node info has been saved successfully': '节点信息已成功保存',
   'A task has been scheduled successfully': '已经成功派发一个任务',
   'Are you sure to delete this spider?': '你确定要删除该爬虫?',
@@ -240,15 +282,25 @@ export default {
   'Do you allow us to collect some statistics to improve Crawlab?': '您允许我们收集统计数据以更好地优化Crawlab？',
   'Saved file successfully': '成功保存文件',
   'An error happened when fetching the data': '请求数据时出错',
-  'Error when logging in (Please check username and password)': '登录时出错（请检查用户名密码）',
+  'Error when logging in (Please read documentation Q&A)': '登录时出错（请查看文档 Q&A）',
   'Please enter the correct username': '请输入正确用户名',
   'Password length should be no shorter than 5': '密码长度不能小于5',
   'Two passwords must be the same': '两个密码必须要一致',
   'username already exists': '用户名已存在',
   'Deleted successfully': '成功删除',
   'Saved successfully': '成功保存',
-  'Please zip your spider files from the root directory': '爬虫文件请从根目录下开始压缩。',
+  'Renamed successfully': '重命名保存',
+  'You can click "Add" to create an empty spider and upload files later.': '您可以点击"添加"按钮创建空的爬虫，之后再上传文件。',
+  'OR, you can also click "Upload" and upload a zip file containing your spider project.': '或者，您也可以点击"上传"按钮并上传一个包含爬虫项目的 zip 文件。',
+  'NOTE: When uploading a zip file, please zip your spider files from the ROOT DIRECTORY.': '注意: 上传 zip 文件时，请从 根目录 下开始压缩爬虫文件。',
   'English': 'English',
+  'Are you sure to delete the schedule task?': '确定删除定时任务?',
+  ' is not installed, do you want to install it?': ' 还没有安装，您是否打算安装它?',
+  'Disclaimer': '免责声明',
+  'Please search dependencies': '请搜索依赖',
+  'No Data': '暂无数据',
+  'Show installed': '只看已安装',
+
   // 登录
   'Sign in': '登录',
   'Sign-in': '登录',

@@ -61,6 +61,7 @@ func (t *Task) Save() error {
 	defer s.Close()
 	t.UpdateTs = time.Now()
 	if err := c.UpdateId(t.Id, t); err != nil {
+		log.Errorf("update task error: %s", err.Error())
 		debug.PrintStack()
 		return err
 	}
@@ -152,6 +153,7 @@ func GetTask(id string) (Task, error) {
 
 	var task Task
 	if err := c.FindId(id).One(&task); err != nil {
+		log.Infof("get task error: %s, id: %s", err.Error(), id)
 		debug.PrintStack()
 		return task, err
 	}
@@ -184,6 +186,20 @@ func RemoveTask(id string) error {
 		return err
 	}
 
+	return nil
+}
+
+func RemoveTaskByStatus(status string) error {
+	tasks, err := GetTaskList(bson.M{"status": status}, 0, constants.Infinite, "-create_ts")
+	if err != nil {
+		log.Error("get tasks error:" + err.Error())
+	}
+	for _, task := range tasks {
+		if err := RemoveTask(task.Id); err != nil {
+			log.Error("remove task error:" + err.Error())
+			continue
+		}
+	}
 	return nil
 }
 

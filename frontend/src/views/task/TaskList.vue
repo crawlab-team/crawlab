@@ -4,31 +4,35 @@
       <!--filter-->
       <div class="filter">
         <div class="left">
-          <!--<el-select size="small" class="filter-select"-->
-                     <!--v-model="filter.node_id"-->
-                     <!--:placeholder="$t('Node')"-->
-                     <!--filterable-->
-                     <!--clearable-->
-                     <!--@change="onSelectNode">-->
-            <!--<el-option v-for="op in nodeList" :key="op._id" :value="op._id" :label="op.name"></el-option>-->
-          <!--</el-select>-->
-          <!--<el-select size="small" class="filter-select"-->
-                     <!--v-model="filter.spider_id"-->
-                     <!--:placeholder="$t('Spider')"-->
-                     <!--filterable-->
-                     <!--clearable-->
-                     <!--@change="onSelectSpider">-->
-            <!--<el-option v-for="op in spiderList" :key="op._id" :value="op._id" :label="op.name"></el-option>-->
-          <!--</el-select>-->
-          <!--<el-button size="small" type="success"-->
-                     <!--icon="el-icon-search"-->
-                     <!--class="refresh"-->
-                     <!--@click="onRefresh">-->
-            <!--{{$t('Search')}}-->
-          <!--</el-button>-->
+          <el-form model="filter" label-width="100px" label-position="right" inline>
+            <el-form-item prop="node_id" :label="$t('Node')">
+              <el-select v-model="filter.node_id" size="small" :placeholder="$t('Node')" @change="onFilterChange">
+                <el-option value="" :label="$t('All')"/>
+                <el-option v-for="node in nodeList" :key="node._id" :value="node._id" :label="node.name"/>
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="spider_id" :label="$t('Spider')">
+              <el-select v-model="filter.spider_id" size="small" :placeholder="$t('Spider')" @change="onFilterChange">
+                <el-option value="" :label="$t('All')"/>
+                <el-option v-for="spider in spiderList" :key="spider._id" :value="spider._id" :label="spider.name"/>
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="status" :label="$t('Status')">
+              <el-select v-model="filter.status" size="small" :placeholder="$t('Status')" @change="onFilterChange">
+                <el-option value="" :label="$t('All')"></el-option>
+                <el-option value="finished" :label="$t('Finished')"></el-option>
+                <el-option value="running" :label="$t('Running')"></el-option>
+                <el-option value="error" :label="$t('Error')"></el-option>
+                <el-option value="cancelled" :label="$t('Cancelled')"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-form>
         </div>
-        <!--<div class="right">-->
-        <!--</div>-->
+        <div class="right">
+          <el-button @click="onRemoveMultipleTask" size="small" type="danger">
+            删除任务
+          </el-button>
+        </div>
       </div>
       <!--./filter-->
 
@@ -38,7 +42,9 @@
                 :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
                 border
                 @row-click="onRowClick"
+                @selection-change="onSelectionChange">
       >
+        <el-table-column type="selection" width="55"/>
         <template v-for="col in columns">
           <el-table-column v-if="col.name === 'spider_name'"
                            :key="col.name"
@@ -125,7 +131,7 @@
               <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
             </el-tooltip>
             <el-tooltip :content="$t('Remove')" placement="top">
-              <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
+              <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row, $event)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -181,7 +187,9 @@ export default {
         { name: 'total_duration', label: 'Total Duration (sec)', width: '80', align: 'right' },
         { name: 'result_count', label: 'Results Count', width: '80' }
         // { name: 'avg_num_results', label: 'Average Results Count per Second', width: '80' }
-      ]
+      ],
+
+      multipleSelection: []
     }
   },
   computed: {
@@ -228,12 +236,6 @@ export default {
           }
           return false
         })
-      // .filter((d, index) => {
-      //   // pagination
-      //   const pageNum = this.pageNum
-      //   const pageSize = this.pageSize
-      //   return (pageSize * (pageNum - 1) <= index) && (index < pageSize * pageNum)
-      // })
     }
   },
   methods: {
@@ -242,15 +244,40 @@ export default {
     },
     onRefresh () {
       this.$store.dispatch('task/getTaskList')
-      this.$st.sendEv('任务', '搜索')
+      this.$st.sendEv('任务列表', '搜索')
     },
-    onSelectNode () {
-      this.$st.sendEv('任务', '选择节点')
+    onRemoveMultipleTask () {
+      if (this.multipleSelection.length === 0) {
+        this.$message({
+          type: 'error',
+          message: '请选择要删除的任务'
+        })
+        return
+      }
+      this.$confirm('确定删除任务', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        let ids = this.multipleSelection.map(item => item._id)
+        this.$store.dispatch('task/deleteTaskMultiple', ids).then((resp) => {
+          if (resp.data.status === 'ok') {
+            this.$message({
+              type: 'success',
+              message: '删除任务成功'
+            })
+            this.$store.dispatch('task/getTaskList')
+            return
+          }
+          this.$message({
+            type: 'error',
+            message: resp.data.error
+          })
+        })
+      }).catch(() => {})
     },
-    onSelectSpider () {
-      this.$st.sendEv('任务', '选择爬虫')
-    },
-    onRemove (row) {
+    onRemove (row, ev) {
+      ev.stopPropagation()
       this.$confirm(this.$t('Are you sure to delete this task?'), this.$t('Notification'), {
         confirmButtonText: this.$t('Confirm'),
         cancelButtonText: this.$t('Cancel'),
@@ -263,20 +290,20 @@ export default {
               message: 'Deleted successfully'
             })
           })
-        this.$st.sendEv('任务', '删除', 'id', row._id)
+        this.$st.sendEv('任务列表', '删除任务')
       })
     },
     onView (row) {
       this.$router.push(`/tasks/${row._id}`)
-      this.$st.sendEv('任务', '搜索', 'id', row._id)
+      this.$st.sendEv('任务列表', '查看任务')
     },
     onClickSpider (row) {
       this.$router.push(`/spiders/${row.spider_id}`)
-      this.$st.sendEv('任务', '点击爬虫详情', 'id', row.spider_id)
+      this.$st.sendEv('任务列表', '点击爬虫详情')
     },
     onClickNode (row) {
       this.$router.push(`/nodes/${row.node_id}`)
-      this.$st.sendEv('任务', '点击节点详情', 'id', row.node_id)
+      this.$st.sendEv('任务列表', '点击节点详情')
     },
     onPageChange () {
       setTimeout(() => {
@@ -303,6 +330,13 @@ export default {
       if (column.label !== this.$t('Action')) {
         this.onView(row)
       }
+    },
+    onSelectionChange (val) {
+      this.multipleSelection = val
+    },
+    onFilterChange () {
+      this.$store.dispatch('task/getTaskList')
+      this.$st.sendEv('任务列表', '筛选任务')
     }
   },
   created () {
@@ -311,10 +345,9 @@ export default {
     this.$store.dispatch('node/getNodeList')
   },
   mounted () {
-    // request task list every 5 seconds
-    this.handle = setInterval(() => {
-      this.$store.dispatch('task/getTaskList')
-    }, 5000)
+    // this.handle = setInterval(() => {
+    //   this.$store.dispatch('task/getTaskList')
+    // }, 5000)
   },
   destroyed () {
     clearInterval(this.handle)

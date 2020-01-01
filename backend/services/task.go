@@ -10,6 +10,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo/bson"
+	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"os"
 	"os/exec"
@@ -224,7 +226,22 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	}
 
 	// 环境变量配置
-	cmd = SetEnv(cmd, s.Envs, t.Id, s.Col)
+	envs := s.Envs
+	if s.Type == constants.Configurable {
+		// 数据库配置
+		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_HOST", Value: viper.GetString("mongo.host")})
+		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_PORT", Value: viper.GetString("mongo.port")})
+		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_DB", Value: viper.GetString("mongo.db")})
+		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_USERNAME", Value: viper.GetString("mongo.username")})
+		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_PASSWORD", Value: viper.GetString("mongo.password")})
+		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_AUTHSOURCE", Value: viper.GetString("mongo.authSource")})
+
+		// 设置配置
+		for envName, envValue := range s.Config.Settings {
+			envs = append(envs, model.Env{Name: "CRAWLAB_SETTING_" + envName, Value: envValue})
+		}
+	}
+	cmd = SetEnv(cmd, envs, t.Id, s.Col)
 
 	// 起一个goroutine来监控进程
 	ch := utils.TaskExecChanMap.ChanBlocked(t.Id)
@@ -302,9 +319,12 @@ func SaveTaskResultCount(id string) func() {
 
 // 执行任务
 func ExecuteTask(id int) {
-	if flag, _ := LockList.Load(id); flag.(bool) {
-		log.Debugf(GetWorkerPrefix(id) + "正在执行任务...")
-		return
+	if flag, ok := LockList.Load(id); ok {
+		if flag.(bool) {
+			log.Debugf(GetWorkerPrefix(id) + "正在执行任务...")
+			return
+		}
+
 	}
 
 	// 上锁
@@ -378,7 +398,14 @@ func ExecuteTask(id int) {
 	)
 
 	// 执行命令
-	cmd := spider.Cmd
+	var cmd string
+	if spider.Type == constants.Configurable {
+		// 可配置爬虫命令
+		cmd = "scrapy crawl config_spider"
+	} else {
+		// 自定义爬虫命令
+		cmd = spider.Cmd
+	}
 
 	// 加入参数
 	if t.Param != "" {
@@ -391,15 +418,23 @@ func ExecuteTask(id int) {
 	t.Status = constants.StatusRunning                   // 任务状态
 	t.WaitDuration = t.StartTs.Sub(t.CreateTs).Seconds() // 等待时长
 
+	// 判断爬虫文件是否存在
+	gfFile := model.GetGridFs(spider.FileId)
+	if gfFile == nil {
+		t.Error = "找不到爬虫文件，请重新上传"
+		t.Status = constants.StatusError
+		t.FinishTs = time.Now()                                 // 结束时间
+		t.RuntimeDuration = t.FinishTs.Sub(t.StartTs).Seconds() // 运行时长
+		t.TotalDuration = t.FinishTs.Sub(t.CreateTs).Seconds()  // 总时长
+		_ = t.Save()
+		return
+	}
+
 	// 开始执行任务
 	log.Infof(GetWorkerPrefix(id) + "开始执行任务(ID:" + t.Id + ")")
 
 	// 储存任务
-	if err := t.Save(); err != nil {
-		log.Errorf(err.Error())
-		HandleTaskError(t, err)
-		return
-	}
+	_ = t.Save()
 
 	// 起一个cron执行器来统计任务结果数
 	if spider.Col != "" {
@@ -461,6 +496,29 @@ func GetTaskLog(id string) (logStr string, err error) {
 	}
 
 	if IsMasterNode(task.NodeId.Hex()) {
+		if !utils.Exists(task.LogPath) {
+			fileDir, err := MakeLogDir(task)
+
+			if err != nil {
+				log.Errorf(err.Error())
+			}
+
+			fileP := GetLogFilePaths(fileDir)
+
+			// 获取日志文件路径
+			fLog, err := os.Create(fileP)
+			defer fLog.Close()
+			if err != nil {
+				log.Errorf("create task log file error: %s", fileP)
+				debug.PrintStack()
+			}
+			task.LogPath = fileP
+			if err := task.Save(); err != nil {
+				log.Errorf(err.Error())
+				debug.PrintStack()
+			}
+
+		}
 		// 若为主节点，获取本机日志
 		logBytes, err := model.GetLocalLog(task.LogPath)
 		if err != nil {
@@ -537,6 +595,32 @@ func CancelTask(id string) (err error) {
 		if _, err := database.RedisClient.Publish("nodes:"+task.NodeId.Hex(), utils.BytesToString(msgBytes)); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func AddTask(t model.Task) error {
+	// 生成任务ID
+	id := uuid.NewV4()
+	t.Id = id.String()
+
+	// 设置任务状态
+	t.Status = constants.StatusPending
+
+	// 如果没有传入node_id，则置为null
+	if t.NodeId.Hex() == "" {
+		t.NodeId = bson.ObjectIdHex(constants.ObjectIdNull)
+	}
+
+	// 将任务存入数据库
+	if err := model.AddTask(t); err != nil {
+		return err
+	}
+
+	// 加入任务队列
+	if err := AssignTask(t); err != nil {
+		return err
 	}
 
 	return nil

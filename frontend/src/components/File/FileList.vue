@@ -7,15 +7,57 @@
           <font-awesome-icon :icon="['fa', 'arrow-left']"/>
           {{$t('Back')}}
         </el-button>
-        <el-button v-if="showFile" type="primary" size="small" style="margin-right: 10px;" @click="onFileSave">
+        <el-popover v-model="isShowDelete">
+          <el-button size="small" type="default" @click="() => this.isShowDelete = false">
+            {{$t('Cancel')}}
+          </el-button>
+          <el-button size="small" type="danger" @click="onFileDelete">
+            {{$t('Confirm')}}
+          </el-button>
+          <template slot="reference">
+            <el-button v-if="currentPath !== ''" type="danger" size="small" style="margin-right: 10px;"
+                       @click="() => this.isShowDelete = true">
+              <font-awesome-icon :icon="['fa', 'trash']"/>
+              {{$t('Remove')}}
+            </el-button>
+          </template>
+        </el-popover>
+        <el-popover v-model="isShowRename">
+          <el-input v-model="name" :placeholder="$t('Name')" style="margin-bottom: 10px"/>
+          <div style="text-align: right">
+            <el-button size="small" type="warning" @click="onRenameFile">
+              {{$t('Confirm')}}
+            </el-button>
+          </div>
+          <template slot="reference">
+            <el-button v-if="showFile" type="warning" size="small" style="margin-right: 10px;"
+                       @click="onOpenRename">
+              <font-awesome-icon :icon="['fa', 'redo']"/>
+              {{$t('Rename')}}
+            </el-button>
+          </template>
+        </el-popover>
+        <el-button v-if="showFile" type="success" size="small" style="margin-right: 10px;" @click="onFileSave">
           <font-awesome-icon :icon="['fa', 'save']"/>
           {{$t('Save')}}
         </el-button>
-        <!--TODO: new files/directories-->
-        <el-button v-if="false" type="primary" size="small" style="margin-right: 10px;">
-          <font-awesome-icon :icon="['fa', 'file-alt']"/>
-          {{$t('New File')}}
-        </el-button>
+        <el-popover v-if="!showFile" v-model="isShowAdd" @hide="onHideAdd">
+          <el-input v-model="name" :placeholder="$t('Name')"/>
+          <div class="add-type-list">
+            <el-button size="small" type="success" icon="el-icon-document-add" @click="onAddFile">
+              {{$t('File')}}
+            </el-button>
+            <el-button size="small" type="primary" icon="el-icon-folder-add" @click="onAddDir">
+              {{$t('Directory')}}
+            </el-button>
+          </div>
+          <template slot="reference">
+            <el-button type="primary" size="small" style="margin-right: 10px;">
+              <font-awesome-icon :icon="['fa', 'plus']"/>
+              {{$t('Create')}}
+            </el-button>
+          </template>
+        </el-popover>
       </div>
       <!--./back-->
 
@@ -70,7 +112,11 @@ export default {
     return {
       code: 'var hello = \'world\'',
       isEdit: false,
-      showFile: false
+      showFile: false,
+      name: '',
+      isShowAdd: false,
+      isShowDelete: false,
+      isShowRename: false
     }
   },
   computed: {
@@ -101,6 +147,7 @@ export default {
         this.$store.commit('file/SET_CURRENT_PATH', item.path)
         this.$store.dispatch('file/getFileContent', { path: item.path })
       }
+      this.$st.sendEv('爬虫详情', '文件', '点击')
     },
     onBack () {
       const sep = '/'
@@ -109,17 +156,74 @@ export default {
       const path = arr.join(sep)
       this.$store.commit('file/SET_CURRENT_PATH', path)
       this.$store.dispatch('file/getFileList', { path: this.currentPath })
+      this.$st.sendEv('爬虫详情', '文件', '回退')
     },
-    onFileSave () {
-      this.$store.dispatch('file/saveFileContent', { path: this.currentPath })
-        .then(() => {
-          this.$message.success(this.$t('Saved file successfully'))
-        })
+    async onFileSave () {
+      await this.$store.dispatch('file/saveFileContent', { path: this.currentPath })
+      this.$message.success(this.$t('Saved file successfully'))
+      this.$st.sendEv('爬虫详情', '文件', '保存')
     },
     onBackFile () {
       this.showFile = false
       this.onBack()
+    },
+    onHideAdd () {
+      this.name = ''
+    },
+    async onAddFile () {
+      if (!this.name) {
+        this.$message.error(this.$t('Name cannot be empty'))
+        return
+      }
+      const path = this.currentPath + '/' + this.name
+      await this.$store.dispatch('file/addFile', { path })
+      await this.$store.dispatch('file/getFileList', { path: this.currentPath })
+      this.isShowAdd = false
+
+      this.showFile = true
+      this.$store.commit('file/SET_FILE_CONTENT', '')
+      this.$store.commit('file/SET_CURRENT_PATH', path)
+      await this.$store.dispatch('file/getFileContent', { path })
+      this.$st.sendEv('爬虫详情', '文件', '添加')
+    },
+    async onAddDir () {
+      if (!this.name) {
+        this.$message.error(this.$t('Name cannot be empty'))
+        return
+      }
+      await this.$store.dispatch('file/addDir', { path: this.currentPath + '/' + this.name })
+      await this.$store.dispatch('file/getFileList', { path: this.currentPath })
+      this.isShowAdd = false
+      this.$st.sendEv('爬虫详情', '文件', '添加')
+    },
+    async onFileDelete () {
+      await this.$store.dispatch('file/deleteFile', { path: this.currentPath })
+      this.$message.success(this.$t('Deleted successfully'))
+      this.isShowDelete = false
+      this.onBackFile()
+      this.$st.sendEv('爬虫详情', '文件', '删除')
+    },
+    onOpenRename () {
+      this.isShowRename = true
+      const arr = this.currentPath.split('/')
+      this.name = arr[arr.length - 1]
+    },
+    async onRenameFile () {
+      let newPath
+      if (this.currentPath.split('/').length === 1) {
+        newPath = this.name
+      } else {
+        const arr = this.currentPath.split('/')
+        newPath = arr[0] + '/' + this.name
+      }
+      await this.$store.dispatch('file/renameFile', { path: this.currentPath, newPath })
+      this.$store.commit('file/SET_CURRENT_PATH', newPath)
+      this.$message.success(this.$t('Renamed successfully'))
+      this.isShowRename = false
+      this.$st.sendEv('爬虫详情', '文件', '重命名')
     }
+  },
+  created () {
   }
 }
 </script>
@@ -233,5 +337,15 @@ export default {
   .item-name {
     font-size: 14px;
     color: rgba(3, 47, 98, 1);
+  }
+
+  .add-type-list {
+    text-align: right;
+    margin-top: 10px;
+  }
+
+  .add-type {
+    cursor: pointer;
+    font-weight: bolder;
   }
 </style>

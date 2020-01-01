@@ -12,6 +12,7 @@ import (
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
+	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
@@ -28,6 +29,48 @@ type SpiderUploadMessage struct {
 	FileId   string
 	FileName string
 	SpiderId string
+}
+
+// 从主节点上传爬虫到GridFS
+func UploadSpiderToGridFsFromMaster(spider model.Spider) error {
+	// 爬虫所在目录
+	spiderDir := spider.Src
+
+	// 打包为 zip 文件
+	files, err := utils.GetFilesFromDir(spiderDir)
+	if err != nil {
+		return err
+	}
+	randomId := uuid.NewV4()
+	tmpFilePath := filepath.Join(viper.GetString("other.tmppath"), spider.Name+"."+randomId.String()+".zip")
+	spiderZipFileName := spider.Name + ".zip"
+	if err := utils.Compress(files, tmpFilePath); err != nil {
+		return err
+	}
+
+	// 获取 GridFS 实例
+	s, gf := database.GetGridFs("files")
+	defer s.Close()
+
+	// 判断文件是否已经存在
+	var gfFile model.GridFs
+	if err := gf.Find(bson.M{"filename": spiderZipFileName}).One(&gfFile); err == nil {
+		// 已经存在文件，则删除
+		_ = gf.RemoveId(gfFile.Id)
+	}
+
+	// 上传到GridFs
+	fid, err := UploadToGridFs(spiderZipFileName, tmpFilePath)
+	if err != nil {
+		log.Errorf("upload to grid fs error: %s", err.Error())
+		return err
+	}
+
+	// 保存爬虫 FileId
+	spider.FileId = fid
+	_ = spider.Save()
+
+	return nil
 }
 
 // 上传zip文件到GridFS
@@ -116,12 +159,23 @@ func PublishAllSpiders() {
 
 // 发布爬虫
 func PublishSpider(spider model.Spider) {
-	// 查询gf file，不存在则删除
-	gfFile := model.GetGridFs(spider.FileId)
-	if gfFile == nil {
-		_ = model.RemoveSpider(spider.Id)
+	var gfFile *model.GridFs
+	if spider.FileId.Hex() != constants.ObjectIdNull {
+		// 查询gf file，不存在则标记为爬虫文件不存在
+		gfFile = model.GetGridFs(spider.FileId)
+		if gfFile == nil {
+			spider.FileId = constants.ObjectIdNull
+			_ = spider.Save()
+			return
+		}
+	}
+
+	// 如果FileId为空，表示还没有上传爬虫到GridFS，则跳过
+	if spider.FileId == bson.ObjectIdHex(constants.ObjectIdNull) {
 		return
 	}
+
+	// 获取爬虫同步实例
 	spiderSync := spider_handler.SpiderSync{
 		Spider: spider,
 	}

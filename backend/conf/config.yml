@@ -15,12 +15,12 @@ redis:
 log:
   level: info
   path: "/var/logs/crawlab"
-  isDeletePeriodically: "Y"
+  isDeletePeriodically: "N"
   deleteFrequency: "@hourly"
 server:
   host: 0.0.0.0
   port: 8000
-  master: "N"
+  master: "Y"
   secret: "crawlab"
   register:
     # mac地址 或者 ip地址，如果是ip，则需要手动指定IP
@@ -32,3 +32,6 @@ task:
   workers: 4
 other:
   tmppath: "/tmp"
+version: 0.4.2
+setting:
+  allowRegister: "N"

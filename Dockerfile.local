@@ -4,17 +4,18 @@ WORKDIR /go/src/app
 COPY ./backend .
 
 ENV GO111MODULE on
-ENV GOPROXY https://mirrors.aliyun.com/goproxy/
+ENV GOPROXY https://goproxy.io
 
 RUN go install -v ./...
 
-FROM node:8.16.0 AS frontend-build
+FROM node:8.16.0-alpine AS frontend-build
 
 ADD ./frontend /app
 WORKDIR /app
 
 # install frontend
-RUN npm install -g yarn && yarn install --registry=https://registry.npm.taobao.org
+RUN npm config set unsafe-perm true
+RUN npm install -g yarn && yarn install --registry=https://registry.npm.taobao.org # --sass_binary_site=https://npm.taobao.org/mirrors/node-sass/
 
 RUN npm run build:prod
 
@@ -27,7 +28,8 @@ ADD . /app
 ENV DEBIAN_FRONTEND noninteractive
 
 # install packages
-RUN apt-get update \
+RUN chmod 777 /tmp \
+	&& apt-get update \
 	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip \
 	&& ln -s /usr/bin/pip3 /usr/local/bin/pip \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
@@ -36,7 +38,6 @@ RUN apt-get update \
 RUN pip install scrapy pymongo bs4 requests -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # copy backend files
-COPY --from=backend-build /go/src/app .
 COPY --from=backend-build /go/bin/crawlab /usr/local/bin
 
 # install nginx

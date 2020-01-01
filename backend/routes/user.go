@@ -21,6 +21,7 @@ type UserListRequestData struct {
 type UserRequestData struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+	Role     string `json:"role"`
 }
 
 func GetUser(c *gin.Context) {
@@ -88,11 +89,16 @@ func PutUser(c *gin.Context) {
 		return
 	}
 
+	// 默认为正常用户
+	if reqData.Role == "" {
+		reqData.Role = constants.RoleNormal
+	}
+
 	// 添加用户
 	user := model.User{
 		Username: strings.ToLower(reqData.Username),
 		Password: utils.EncryptPassword(reqData.Password),
-		Role:     constants.RoleNormal,
+		Role:     reqData.Role,
 	}
 	if err := user.Add(); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
