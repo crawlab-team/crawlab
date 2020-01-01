@@ -40,6 +40,8 @@ github.com/hashicorp/hcl/hcl/token
 github.com/hashicorp/hcl/json/parser
 github.com/hashicorp/hcl/json/scanner
 github.com/hashicorp/hcl/json/token
+# github.com/imroc/req v0.2.4
+github.com/imroc/req
 # github.com/json-iterator/go v1.1.6
 github.com/json-iterator/go
 # github.com/jtolds/gls v4.20.0+incompatible

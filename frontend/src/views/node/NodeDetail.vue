@@ -13,6 +13,9 @@
       <el-tab-pane :label="$t('Overview')" name="overview">
         <node-overview></node-overview>
       </el-tab-pane>
+      <el-tab-pane :label="$t('Installation')" name="installation">
+        <node-installation></node-installation>
+      </el-tab-pane>
       <el-tab-pane :label="$t('Deployed Spiders')" name="spiders" v-if="false">
         {{$t('Deployed Spiders')}}
       </el-tab-pane>
@@ -25,11 +28,13 @@ import {
   mapState
 } from 'vuex'
 import NodeOverview from '../../components/Overview/NodeOverview'
+import NodeInstallation from '../../components/Node/NodeInstallation'
 
 export default {
   name: 'NodeDetail',
   components: {
-    NodeOverview
+    NodeOverview,
+    NodeInstallation
   },
   data () {
     return {
@@ -43,7 +48,9 @@ export default {
     ])
   },
   methods: {
-    onTabClick () {
+    onTabClick (name) {
+      if (name === 'installation') {
+      }
     },
     onNodeChange (id) {
       this.$router.push(`/nodes/${id}`)

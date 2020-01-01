@@ -31,24 +31,24 @@ func main() {
 		log.Error("init config error:" + err.Error())
 		panic(err)
 	}
-	log.Info("初始化配置成功")
+	log.Info("initialized config successfully")
 
 	// 初始化日志设置
 	logLevel := viper.GetString("log.level")
 	if logLevel != "" {
 		log.SetLevelFromString(logLevel)
 	}
-	log.Info("初始化日志设置成功")
+	log.Info("initialized log config successfully")
 
 	if viper.GetString("log.isDeletePeriodically") == "Y" {
 		err := services.InitDeleteLogPeriodically()
 		if err != nil {
-			log.Error("Init DeletePeriodically Failed")
+			log.Error("init DeletePeriodically failed")
 			panic(err)
 		}
-		log.Info("初始化定期清理日志配置成功")
+		log.Info("initialized periodically cleaning log successfully")
 	} else {
-		log.Info("默认未开启定期清理日志配置")
+		log.Info("periodically cleaning log is switched off")
 	}
 
 	// 初始化Mongodb数据库
@@ -57,7 +57,7 @@ func main() {
 		debug.PrintStack()
 		panic(err)
 	}
-	log.Info("初始化Mongodb数据库成功")
+	log.Info("initialized MongoDB successfully")
 
 	// 初始化Redis数据库
 	if err := database.InitRedis(); err != nil {
@@ -65,7 +65,7 @@ func main() {
 		debug.PrintStack()
 		panic(err)
 	}
-	log.Info("初始化Redis数据库成功")
+	log.Info("initialized Redis successfully")
 
 	if model.IsMaster() {
 		// 初始化定时任务
@@ -74,8 +74,8 @@ func main() {
 			debug.PrintStack()
 			panic(err)
 		}
-		log.Info("初始化定时任务成功")
 	}
+	log.Info("initialized schedule successfully")
 
 	// 初始化任务执行器
 	if err := services.InitTaskExecutor(); err != nil {
@@ -83,14 +83,14 @@ func main() {
 		debug.PrintStack()
 		panic(err)
 	}
-	log.Info("初始化任务执行器成功")
+	log.Info("initialized task executor successfully")
 
 	// 初始化节点服务
 	if err := services.InitNodeService(); err != nil {
 		log.Error("init node service error:" + err.Error())
 		panic(err)
 	}
-	log.Info("初始化节点配置成功")
+	log.Info("initialized node service successfully")
 
 	// 初始化爬虫服务
 	if err := services.InitSpiderService(); err != nil {
@@ -98,7 +98,7 @@ func main() {
 		debug.PrintStack()
 		panic(err)
 	}
-	log.Info("初始化爬虫服务成功")
+	log.Info("initialized spider service successfully")
 
 	// 初始化用户服务
 	if err := services.InitUserService(); err != nil {
@@ -106,7 +106,15 @@ func main() {
 		debug.PrintStack()
 		panic(err)
 	}
-	log.Info("初始化用户服务成功")
+	log.Info("initialized user service successfully")
+
+	// 初始化依赖服务
+	if err := services.InitDepsFetcher(); err != nil {
+		log.Error("init user service error:" + err.Error())
+		debug.PrintStack()
+		panic(err)
+	}
+	log.Info("initialized dependency fetcher successfully")
 
 	// 以下为主节点服务
 	if model.IsMaster() {
@@ -122,25 +130,34 @@ func main() {
 		{
 			// 路由
 			// 节点
-			authGroup.GET("/nodes", routes.GetNodeList)               // 节点列表
-			authGroup.GET("/nodes/:id", routes.GetNode)               // 节点详情
-			authGroup.POST("/nodes/:id", routes.PostNode)             // 修改节点
-			authGroup.GET("/nodes/:id/tasks", routes.GetNodeTaskList) // 节点任务列表
-			authGroup.GET("/nodes/:id/system", routes.GetSystemInfo)  // 节点任务列表
-			authGroup.DELETE("/nodes/:id", routes.DeleteNode)         // 删除节点
+			authGroup.GET("/nodes", routes.GetNodeList)                            // 节点列表
+			authGroup.GET("/nodes/:id", routes.GetNode)                            // 节点详情
+			authGroup.POST("/nodes/:id", routes.PostNode)                          // 修改节点
+			authGroup.GET("/nodes/:id/tasks", routes.GetNodeTaskList)              // 节点任务列表
+			authGroup.GET("/nodes/:id/system", routes.GetSystemInfo)               // 节点任务列表
+			authGroup.DELETE("/nodes/:id", routes.DeleteNode)                      // 删除节点
+			authGroup.GET("/nodes/:id/langs", routes.GetLangList)                  // 节点语言环境列表
+			authGroup.GET("/nodes/:id/deps", routes.GetDepList)                    // 节点第三方依赖列表
+			authGroup.GET("/nodes/:id/deps/installed", routes.GetInstalledDepList) // 节点已安装第三方依赖列表
 			// 爬虫
-			authGroup.GET("/spiders", routes.GetSpiderList)              // 爬虫列表
-			authGroup.GET("/spiders/:id", routes.GetSpider)              // 爬虫详情
-			authGroup.POST("/spiders", routes.PutSpider)                 // 上传爬虫 TODO: 名称不对
-			authGroup.POST("/spiders/:id", routes.PostSpider)            // 修改爬虫
-			authGroup.POST("/spiders/:id/publish", routes.PublishSpider) // 发布爬虫
-			authGroup.DELETE("/spiders/:id", routes.DeleteSpider)        // 删除爬虫
-			authGroup.GET("/spiders/:id/tasks", routes.GetSpiderTasks)   // 爬虫任务列表
-			authGroup.GET("/spiders/:id/file", routes.GetSpiderFile)     // 爬虫文件读取
-			authGroup.POST("/spiders/:id/file", routes.PostSpiderFile)   // 爬虫目录写入
-			authGroup.GET("/spiders/:id/dir", routes.GetSpiderDir)       // 爬虫目录
-			authGroup.GET("/spiders/:id/stats", routes.GetSpiderStats)   // 爬虫统计数据
-			authGroup.GET("/spider/types", routes.GetSpiderTypes)        // 爬虫类型
+			authGroup.GET("/spiders", routes.GetSpiderList)                     // 爬虫列表
+			authGroup.GET("/spiders/:id", routes.GetSpider)                     // 爬虫详情
+			authGroup.PUT("/spiders", routes.PutSpider)                         // 添加爬虫
+			authGroup.POST("/spiders", routes.UploadSpider)                     // 上传爬虫
+			authGroup.POST("/spiders/:id", routes.PostSpider)                   // 修改爬虫
+			authGroup.POST("/spiders/:id/publish", routes.PublishSpider)        // 发布爬虫
+			authGroup.POST("/spiders/:id/upload", routes.UploadSpiderFromId)    // 上传爬虫（ID）
+			authGroup.DELETE("/spiders/:id", routes.DeleteSpider)               // 删除爬虫
+			authGroup.GET("/spiders/:id/tasks", routes.GetSpiderTasks)          // 爬虫任务列表
+			authGroup.GET("/spiders/:id/file", routes.GetSpiderFile)            // 爬虫文件读取
+			authGroup.POST("/spiders/:id/file", routes.PostSpiderFile)          // 爬虫文件更改
+			authGroup.PUT("/spiders/:id/file", routes.PutSpiderFile)            // 爬虫文件创建
+			authGroup.PUT("/spiders/:id/dir", routes.PutSpiderDir)              // 爬虫目录创建
+			authGroup.DELETE("/spiders/:id/file", routes.DeleteSpiderFile)      // 爬虫文件删除
+			authGroup.POST("/spiders/:id/file/rename", routes.RenameSpiderFile) // 爬虫文件重命名
+			authGroup.GET("/spiders/:id/dir", routes.GetSpiderDir)              // 爬虫目录
+			authGroup.GET("/spiders/:id/stats", routes.GetSpiderStats)          // 爬虫统计数据
+			authGroup.GET("/spider/types", routes.GetSpiderTypes)               // 爬虫类型
 			// 可配置爬虫
 			authGroup.GET("/config_spiders/:id/config", routes.GetConfigSpiderConfig)           // 获取可配置爬虫配置
 			authGroup.POST("/config_spiders/:id/config", routes.PostConfigSpiderConfig)         // 更改可配置爬虫配置
@@ -178,6 +195,8 @@ func main() {
 			authGroup.GET("/me", routes.GetMe)                // 获取自己账户
 			// release版本
 			authGroup.GET("/version", routes.GetVersion) // 获取发布的版本
+			// 系统
+			authGroup.GET("/system/deps", routes.GetAllDepList) // 节点所有第三方依赖列表
 		}
 
 	}

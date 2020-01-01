@@ -40,6 +40,7 @@ export default {
 
   // 操作
   Add: '添加',
+  Create: '创建',
   Run: '运行',
   Deploy: '部署',
   Save: '保存',
@@ -63,6 +64,9 @@ export default {
   'Item Threshold': '子项阈值',
   'Back': '返回',
   'New File': '新建文件',
+  'Rename': '重命名',
+  'Install': '安装',
+  'Uninstall': '卸载',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -83,6 +87,8 @@ export default {
   'Node Network': '节点拓扑图',
   'Master': '主节点',
   'Worker': '工作节点',
+  'Installation': '安装',
+  'Search Dependencies': '搜索依赖',
 
   // 节点列表
   'IP': 'IP地址',
@@ -234,6 +240,9 @@ export default {
 
   // 文件
   'Choose Folder': '选择文件',
+  'File': '文件',
+  'Folder': '文件夹',
+  'Directory': '目录',
 
   // 导入
   'Import Spider': '导入爬虫',
@@ -257,11 +266,14 @@ export default {
   'ARCH': '操作架构',
   'Number of CPU': 'CPU数',
   'Executables': '执行文件',
+  'Latest Version': '最新版本',
 
   // 弹出框
   'Notification': '提示',
   'Are you sure to delete this node?': '你确定要删除该节点?',
   'Are you sure to run this spider?': '你确定要运行该爬虫?',
+  'Added spider successfully': '成功添加爬虫',
+  'Uploaded spider files successfully': '成功上传爬虫文件',
   'Node info has been saved successfully': '节点信息已成功保存',
   'A task has been scheduled successfully': '已经成功派发一个任务',
   'Are you sure to delete this spider?': '你确定要删除该爬虫?',
@@ -277,10 +289,17 @@ export default {
   'username already exists': '用户名已存在',
   'Deleted successfully': '成功删除',
   'Saved successfully': '成功保存',
-  'Please zip your spider files from the root directory': '爬虫文件请从根目录下开始压缩。',
+  'Renamed successfully': '重命名保存',
+  'You can click "Add" to create an empty spider and upload files later.': '您可以点击"添加"按钮创建空的爬虫，之后再上传文件。',
+  'OR, you can also click "Upload" and upload a zip file containing your spider project.': '或者，您也可以点击"上传"按钮并上传一个包含爬虫项目的 zip 文件。',
+  'NOTE: When uploading a zip file, please zip your spider files from the ROOT DIRECTORY.': '注意: 上传 zip 文件时，请从 根目录 下开始压缩爬虫文件。',
   'English': 'English',
   'Are you sure to delete the schedule task?': '确定删除定时任务?',
+  ' is not installed, do you want to install it?': ' 还没有安装，您是否打算安装它?',
   'Disclaimer': '免责声明',
+  'Please search dependencies': '请搜索依赖',
+  'No Data': '暂无数据',
+  'Show installed': '只看已安装',
 
   // 登录
   'Sign in': '登录',

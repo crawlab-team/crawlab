@@ -15,7 +15,7 @@ WORKDIR /app
 
 # install frontend
 RUN npm config set unsafe-perm true
-RUN npm install -g yarn && yarn install --registry=https://registry.npm.taobao.org
+RUN npm install -g yarn && yarn install --registry=https://registry.npm.taobao.org # --sass_binary_site=https://npm.taobao.org/mirrors/node-sass/
 
 RUN npm run build:prod
 
@@ -26,6 +26,9 @@ ADD . /app
 
 # set as non-interactive
 ENV DEBIAN_FRONTEND noninteractive
+
+# set CRAWLAB_IS_DOCKER
+ENV CRAWLAB_IS_DOCKER Y
 
 # install packages
 RUN apt-get update \

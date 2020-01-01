@@ -14,7 +14,7 @@
 
 Golang-based distributed web crawler management platform, supporting various languages including Python, NodeJS, Go, Java, PHP and various web crawler frameworks including Scrapy, Puppeteer, Selenium.
 
-[Demo](http://crawlab.cn/demo) | [Documentation](https://tikazyq.github.io/crawlab-docs)
+[Demo](http://crawlab.cn/demo) | [Documentation](http://docs.crawlab.cn)
 
 ## Installation
 
@@ -218,6 +218,9 @@ Crawlab is easy to use, general enough to adapt spiders in any language and any 
 </a>
 <a href="https://github.com/hantmac">
   <img src="https://avatars2.githubusercontent.com/u/7600925?s=460&v=4" height="80">
+</a>
+<a href="https://github.com/duanbin0414">
+  <img src="https://avatars3.githubusercontent.com/u/50389867?s=460&v=4" height="80">
 </a>
 
 ## Community & Sponsorship

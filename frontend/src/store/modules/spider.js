@@ -174,6 +174,9 @@ const actions = {
   addConfigSpider ({ state }) {
     return request.put(`/config_spiders`, state.spiderForm)
   },
+  addSpider ({ state }) {
+    return request.put(`/spiders`, state.spiderForm)
+  },
   async getTemplateList ({ state, commit }) {
     const res = await request.get(`/config_spiders_templates`)
     commit('SET_TEMPLATE_LIST', res.data.data)
