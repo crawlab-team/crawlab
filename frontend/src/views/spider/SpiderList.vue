@@ -34,6 +34,7 @@
                :visible.sync="addDialogVisible"
                :before-close="onAddDialogClose">
       <el-tabs :active-name="spiderType">
+        <!-- customized -->
         <el-tab-pane name="customized" :label="$t('Customized')">
           <el-form :model="spiderForm" ref="addCustomizedForm" inline-message label-width="120px">
             <el-form-item :label="$t('Spider Name')" prop="name" required>
@@ -55,8 +56,7 @@
                 :headers="{Authorization:token}"
                 :on-success="onUploadSuccess"
                 :file-list="fileList">
-                <el-button size="normal" type="primary" icon="el-icon-upload"
-                           style="width: 160px; font-size: 18px;font-weight: bolder">
+                <el-button size="small" type="primary" icon="el-icon-upload">
                   {{$t('Upload')}}
                 </el-button>
               </el-upload>
@@ -75,9 +75,10 @@
             </p>
           </el-alert>
           <div class="actions">
-            <el-button type="primary" @click="onAddCustomized">{{$t('Add')}}</el-button>
+            <el-button size="small" type="primary" @click="onAddCustomized">{{$t('Add')}}</el-button>
           </div>
         </el-tab-pane>
+        <!-- configurable -->
         <el-tab-pane name="configurable" :label="$t('Configurable')">
           <el-form :model="spiderForm" ref="addConfigurableForm" inline-message label-width="120px">
             <el-form-item :label="$t('Spider Name')" prop="name" required>
@@ -101,7 +102,7 @@
             </el-form-item>
           </el-form>
           <div class="actions">
-            <el-button type="primary" @click="onAddConfigurable">{{$t('Add')}}</el-button>
+            <el-button size="small" type="primary" @click="onAddConfigurable">{{$t('Add')}}</el-button>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -146,7 +147,7 @@
             {{$t('Import Spiders')}}
           </el-button>
           <el-button
-            size="normal"
+            size="small"
             type="success"
             icon="el-icon-plus"
             class="btn add"

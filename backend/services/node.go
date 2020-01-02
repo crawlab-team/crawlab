@@ -102,7 +102,7 @@ func UpdateNodeStatus() {
 	model.ResetNodeStatusToOffline(list)
 }
 
-// 处理接到信息
+// 处理节点信息
 func handleNodeInfo(key string, data *Data) {
 	// 添加同步锁
 	v, err := database.RedisClient.Lock(key)
@@ -168,8 +168,32 @@ func UpdateNodeData() {
 		return
 	}
 
+	// 构造节点数据
+	data := Data{
+		Key:          key,
+		Mac:          mac,
+		Ip:           ip,
+		Master:       model.IsMaster(),
+		UpdateTs:     time.Now(),
+		UpdateTsUnix: time.Now().Unix(),
+	}
+
+	// 注册节点到Redis
+	dataBytes, err := json.Marshal(&data)
+	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return
+	}
+
+	if err := database.RedisClient.HSet("nodes", key, utils.BytesToString(dataBytes)); err != nil {
+		log.Errorf(err.Error())
+		return
+	}
+
+	// 注释掉，无需这样处理。 直接覆盖key对应的节点信息即可 by xyz  2020.01.01
 	//先获取所有Redis的nodekey
-	list, _ := database.RedisClient.HKeys("nodes")
+	/*list, _ := database.RedisClient.HKeys("nodes")
 
 	if i := utils.Contains(list, key); i == false {
 		// 构造节点数据
@@ -193,7 +217,7 @@ func UpdateNodeData() {
 			log.Errorf(err.Error())
 			return
 		}
-	}
+	}*/
 
 }
 
