@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/gomodule/redigo/redis"
 	"runtime/debug"
@@ -116,7 +117,7 @@ func handleNodeInfo(key string, data *Data) {
 	defer s.Close()
 
 	var node model.Node
-	if err := c.Find(bson.M{"key": key}).One(&node); err != nil {
+	if err := c.Find(bson.M{"key": key}).One(&node); err != nil && err != mgo.ErrNotFound {
 		// 数据库不存在该节点
 		node = model.Node{
 			Key:          key,
