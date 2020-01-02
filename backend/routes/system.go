@@ -26,12 +26,21 @@ func GetDepList(c *gin.Context) {
 
 	var depList []entity.Dependency
 	if lang == constants.Python {
-		list, err := services.GetPythonDepList(nodeId, depName)
-		if err != nil {
-			HandleError(http.StatusInternalServerError, c, err)
-			return
+		if services.IsMasterNode(nodeId) {
+			list, err := services.GetPythonLocalDepList(nodeId, depName)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+			depList = list
+		} else {
+			list, err := services.GetPythonRemoteDepList(nodeId, depName)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+			depList = list
 		}
-		depList = list
 	} else {
 		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("%s is not implemented", lang))
 		return
@@ -49,12 +58,21 @@ func GetInstalledDepList(c *gin.Context) {
 	lang := c.Query("lang")
 	var depList []entity.Dependency
 	if lang == constants.Python {
-		list, err := services.GetPythonInstalledDepList(nodeId)
-		if err != nil {
-			HandleError(http.StatusInternalServerError, c, err)
-			return
+		if services.IsMasterNode(nodeId) {
+			list, err := services.GetPythonLocalInstalledDepList(nodeId)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+			depList = list
+		} else {
+			list, err := services.GetPythonRemoteInstalledDepList(nodeId)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+			depList = list
 		}
-		depList = list
 	} else {
 		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("%s is not implemented", lang))
 		return
@@ -106,5 +124,45 @@ func GetAllDepList(c *gin.Context) {
 		Status:  "ok",
 		Message: "success",
 		Data:    returnList,
+	})
+}
+
+func InstallDep(c *gin.Context) {
+	type ReqBody struct {
+		Lang    string `json:"lang"`
+		DepName string `json:"dep_name"`
+	}
+
+	nodeId := c.Param("id")
+
+	var reqBody ReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+	}
+
+	if reqBody.Lang == constants.Python {
+		if services.IsMasterNode(nodeId) {
+			_, err := services.InstallPythonLocalDep(reqBody.DepName)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+		} else {
+			_, err := services.InstallPythonRemoteDep(nodeId, reqBody.DepName)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+		}
+	} else {
+		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("%s is not implemented", reqBody.Lang))
+		return
+	}
+
+	// TODO: check if install is successful
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
 	})
 }

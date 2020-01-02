@@ -41,8 +41,10 @@ func (s PythonDepNameDictSlice) Len() int           { return len(s) }
 func (s PythonDepNameDictSlice) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 func (s PythonDepNameDictSlice) Less(i, j int) bool { return s[i].Weight > s[j].Weight }
 
+// 系统信息 chan 映射
 var SystemInfoChanMap = utils.NewChanMap()
 
+// 从远端获取系统信息
 func GetRemoteSystemInfo(nodeId string) (sysInfo entity.SystemInfo, err error) {
 	// 发送消息
 	msg := entity.NodeMessage{
@@ -70,6 +72,7 @@ func GetRemoteSystemInfo(nodeId string) (sysInfo entity.SystemInfo, err error) {
 	return sysInfo, nil
 }
 
+// 获取系统信息
 func GetSystemInfo(nodeId string) (sysInfo entity.SystemInfo, err error) {
 	if IsMasterNode(nodeId) {
 		sysInfo, err = model.GetLocalSystemInfo()
@@ -79,6 +82,7 @@ func GetSystemInfo(nodeId string) (sysInfo entity.SystemInfo, err error) {
 	return
 }
 
+// 获取语言列表
 func GetLangList(nodeId string) []entity.Lang {
 	list := []entity.Lang{
 		{Name: "Python", ExecutableName: "python", ExecutablePath: "/usr/local/bin/python", DepExecutablePath: "/usr/local/bin/pip"},
@@ -91,6 +95,7 @@ func GetLangList(nodeId string) []entity.Lang {
 	return list
 }
 
+// 根据语言名获取语言实例
 func GetLangFromLangName(nodeId string, name string) entity.Lang {
 	langList := GetLangList(nodeId)
 	for _, lang := range langList {
@@ -101,7 +106,22 @@ func GetLangFromLangName(nodeId string, name string) entity.Lang {
 	return entity.Lang{}
 }
 
-func GetPythonDepList(nodeId string, searchDepName string) ([]entity.Dependency, error) {
+// 是否已安装该依赖
+func IsInstalledLang(nodeId string, lang entity.Lang) bool {
+	sysInfo, err := GetSystemInfo(nodeId)
+	if err != nil {
+		return false
+	}
+	for _, exec := range sysInfo.Executables {
+		if exec.Path == lang.ExecutablePath {
+			return true
+		}
+	}
+	return false
+}
+
+// 获取Python本地依赖列表
+func GetPythonLocalDepList(nodeId string, searchDepName string) ([]entity.Dependency, error) {
 	var list []entity.Dependency
 
 	// 先从 Redis 获取
@@ -130,7 +150,7 @@ func GetPythonDepList(nodeId string, searchDepName string) ([]entity.Dependency,
 	}
 
 	// 获取已安装依赖
-	installedDepList, err := GetPythonInstalledDepList(nodeId)
+	installedDepList, err := GetPythonLocalInstalledDepList(nodeId)
 	if err != nil {
 		return list, err
 	}
@@ -170,6 +190,16 @@ func GetPythonDepList(nodeId string, searchDepName string) ([]entity.Dependency,
 	return list, nil
 }
 
+// 获取Python远端依赖列表
+func GetPythonRemoteDepList(nodeId string, searchDepName string) ([]entity.Dependency, error) {
+	depList, err := RpcClientGetDepList(nodeId, constants.Python, searchDepName)
+	if err != nil {
+		return depList, err
+	}
+	return depList, nil
+}
+
+// 从Redis获取Python依赖列表
 func GetPythonDepListFromRedis() ([]string, error) {
 	var list []string
 
@@ -192,28 +222,7 @@ func GetPythonDepListFromRedis() ([]string, error) {
 	return list, nil
 }
 
-func IsInstalledLang(nodeId string, lang entity.Lang) bool {
-	sysInfo, err := GetSystemInfo(nodeId)
-	if err != nil {
-		return false
-	}
-	for _, exec := range sysInfo.Executables {
-		if exec.Path == lang.ExecutablePath {
-			return true
-		}
-	}
-	return false
-}
-
-func IsInstalledDep(installedDepList []entity.Dependency, dep entity.Dependency) bool {
-	for _, _dep := range installedDepList {
-		if strings.ToLower(_dep.Name) == strings.ToLower(dep.Name) {
-			return true
-		}
-	}
-	return false
-}
-
+// 从Python依赖源获取依赖列表并返回
 func FetchPythonDepList() ([]string, error) {
 	// 依赖URL
 	url := "https://pypi.tuna.tsinghua.edu.cn/simple"
@@ -251,6 +260,7 @@ func FetchPythonDepList() ([]string, error) {
 	return list, nil
 }
 
+// 更新Python依赖列表到Redis
 func UpdatePythonDepList() {
 	// 从依赖源获取列表
 	list, _ := FetchPythonDepList()
@@ -271,7 +281,8 @@ func UpdatePythonDepList() {
 	}
 }
 
-func GetPythonInstalledDepList(nodeId string) ([]entity.Dependency, error){
+// 获取Python本地已安装的依赖列表
+func GetPythonLocalInstalledDepList(nodeId string) ([]entity.Dependency, error) {
 	var list []entity.Dependency
 
 	lang := GetLangFromLangName(nodeId, constants.Python)
@@ -301,11 +312,56 @@ func GetPythonInstalledDepList(nodeId string) ([]entity.Dependency, error){
 	return list, nil
 }
 
+// 获取Python远端依赖列表
+func GetPythonRemoteInstalledDepList(nodeId string) ([]entity.Dependency, error) {
+	depList, err := RpcClientGetInstalledDepList(nodeId, constants.Python)
+	if err != nil {
+		return depList, err
+	}
+	return depList, nil
+}
+
+// 是否已安装该依赖
+func IsInstalledDep(installedDepList []entity.Dependency, dep entity.Dependency) bool {
+	for _, _dep := range installedDepList {
+		if strings.ToLower(_dep.Name) == strings.ToLower(dep.Name) {
+			return true
+		}
+	}
+	return false
+}
+
+// 安装Python本地依赖
+func InstallPythonLocalDep(depName string) (string, error) {
+	// 依赖镜像URL
+	url := "https://pypi.tuna.tsinghua.edu.cn/simple"
+
+	cmd := exec.Command("pip", "install", depName, "-i", url)
+	outputBytes, err := cmd.Output()
+	if err != nil {
+		return fmt.Sprintf("error: %s", err.Error()), err
+	}
+	return string(outputBytes), nil
+}
+
+// 获取Python远端依赖列表
+func InstallPythonRemoteDep(nodeId string, depName string) (string, error) {
+	output, err := RpcClientInstallDep(nodeId, constants.Python, depName)
+	if err != nil {
+		return output, err
+	}
+	return output, nil
+}
+
 func InitDepsFetcher() error {
 	c := cron.New(cron.WithSeconds())
 	c.Start()
 	if _, err := c.AddFunc("0 */5 * * * *", UpdatePythonDepList); err != nil {
 		return err
 	}
+
+	go func() {
+		UpdatePythonDepList()
+	}()
 	return nil
 }

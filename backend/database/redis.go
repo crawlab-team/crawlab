@@ -42,6 +42,17 @@ func (r *Redis) RPush(collection string, value interface{}) error {
 	return nil
 }
 
+func (r *Redis) LPush(collection string, value interface{}) error {
+	c := r.pool.Get()
+	defer utils.Close(c)
+
+	if _, err := c.Do("RPUSH", collection, value); err != nil {
+		debug.PrintStack()
+		return err
+	}
+	return nil
+}
+
 func (r *Redis) LPop(collection string) (string, error) {
 	c := r.pool.Get()
 	defer utils.Close(c)
@@ -96,6 +107,20 @@ func (r *Redis) HKeys(collection string) ([]string, error) {
 	return value, nil
 }
 
+func (r *Redis) BRPop(collection string, timeout int) (string, error) {
+	if timeout <= 0 {
+		timeout = 60
+	}
+	c := r.pool.Get()
+	defer utils.Close(c)
+
+	value, err2 := redis.String(c.Do("BRPOP", collection, timeout))
+	if err2 != nil {
+		return value, err2
+	}
+	return value, nil
+}
+
 func NewRedisPool() *redis.Pool {
 	var address = viper.GetString("redis.address")
 	var port = viper.GetString("redis.port")
@@ -112,8 +137,8 @@ func NewRedisPool() *redis.Pool {
 		Dial: func() (conn redis.Conn, e error) {
 			return redis.DialURL(url,
 				redis.DialConnectTimeout(time.Second*10),
-				redis.DialReadTimeout(time.Second*10),
-				redis.DialWriteTimeout(time.Second*15),
+				redis.DialReadTimeout(time.Second*600),
+				redis.DialWriteTimeout(time.Second*10),
 			)
 		},
 		TestOnBorrow: func(c redis.Conn, t time.Time) error {

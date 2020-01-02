@@ -110,11 +110,19 @@ func main() {
 
 	// 初始化依赖服务
 	if err := services.InitDepsFetcher(); err != nil {
-		log.Error("init user service error:" + err.Error())
+		log.Error("init dependency fetcher error:" + err.Error())
 		debug.PrintStack()
 		panic(err)
 	}
 	log.Info("initialized dependency fetcher successfully")
+
+	// 初始化RPC服务
+	if err := services.InitRpcService(); err != nil {
+		log.Error("init rpc service error:" + err.Error())
+		debug.PrintStack()
+		panic(err)
+	}
+	log.Info("initialized rpc service successfully")
 
 	// 以下为主节点服务
 	if model.IsMaster() {
@@ -139,6 +147,7 @@ func main() {
 			authGroup.GET("/nodes/:id/langs", routes.GetLangList)                  // 节点语言环境列表
 			authGroup.GET("/nodes/:id/deps", routes.GetDepList)                    // 节点第三方依赖列表
 			authGroup.GET("/nodes/:id/deps/installed", routes.GetInstalledDepList) // 节点已安装第三方依赖列表
+			authGroup.POST("/nodes/:id/deps/install", routes.InstallDep)           // 节点安装依赖
 			// 爬虫
 			authGroup.GET("/spiders", routes.GetSpiderList)                     // 爬虫列表
 			authGroup.GET("/spiders/:id", routes.GetSpider)                     // 爬虫详情
