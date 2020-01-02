@@ -5,6 +5,7 @@ import (
 	"crawlab/database"
 	"crawlab/entity"
 	"crawlab/model"
+	"crawlab/utils"
 	"encoding/json"
 	"fmt"
 	"github.com/apex/log"
@@ -13,10 +14,10 @@ import (
 )
 
 type RpcMessage struct {
-	Id     string `json:"id"`
-	Method string `json:"method"`
-	Params string `json:"params"`
-	Result string `json:"result"`
+	Id     string            `json:"id"`
+	Method string            `json:"method"`
+	Params map[string]string `json:"params"`
+	Result string            `json:"result"`
 }
 
 func RpcServerInstallLang(msg RpcMessage) RpcMessage {
@@ -39,38 +40,37 @@ func RpcClientInstallDep(nodeId string, lang string, depName string) (output str
 	params["lang"] = lang
 	params["dep_name"] = depName
 
-	data, err := RpcClientFunc(nodeId, params, 10)()
+	data, err := RpcClientFunc(nodeId, constants.RpcInstallDep, params, 10)()
 	if err != nil {
 		return
 	}
 
-	output = data.(string)
+	output = data
 
 	return
 }
 
-func RpcServerGetDepList(nodeId string, msg RpcMessage) RpcMessage {
+func RpcServerUninstallDep(msg RpcMessage) RpcMessage {
 	lang := GetRpcParam("lang", msg.Params)
-	searchDepName := GetRpcParam("search_dep_name", msg.Params)
+	depName := GetRpcParam("dep_name", msg.Params)
 	if lang == constants.Python {
-		depList, _ := GetPythonLocalDepList(nodeId, searchDepName)
-		resultStr, _ := json.Marshal(depList)
-		msg.Result = string(resultStr)
+		output, _ := UninstallPythonLocalDep(depName)
+		msg.Result = output
 	}
 	return msg
 }
 
-func RpcClientGetDepList(nodeId string, lang string, searchDepName string) (list []entity.Dependency, err error) {
+func RpcClientUninstallDep(nodeId string, lang string, depName string) (output string, err error) {
 	params := map[string]string{}
 	params["lang"] = lang
-	params["search_dep_name"] = searchDepName
+	params["dep_name"] = depName
 
-	data, err := RpcClientFunc(nodeId, params, 30)()
+	data, err := RpcClientFunc(nodeId, constants.RpcUninstallDep, params, 60)()
 	if err != nil {
 		return
 	}
 
-	list = data.([]entity.Dependency)
+	output = data
 
 	return
 }
@@ -89,65 +89,60 @@ func RpcClientGetInstalledDepList(nodeId string, lang string) (list []entity.Dep
 	params := map[string]string{}
 	params["lang"] = lang
 
-	data, err := RpcClientFunc(nodeId, params, 10)()
+	data, err := RpcClientFunc(nodeId, constants.RpcGetInstalledDepList, params, 10)()
 	if err != nil {
 		return
 	}
 
-	list = data.([]entity.Dependency)
+	// 反序列化结果
+	if err := json.Unmarshal([]byte(data), &list); err != nil {
+		return list, err
+	}
 
 	return
 }
 
-func RpcClientFunc(nodeId string, params interface{}, timeout int) func() (interface{}, error) {
-	return func() (data interface{}, err error) {
+func RpcClientFunc(nodeId string, method string, params map[string]string, timeout int) func() (string, error) {
+	return func() (result string, err error) {
 		// 请求ID
 		id := uuid.NewV4().String()
 
 		// 构造RPC消息
 		msg := RpcMessage{
 			Id:     id,
-			Method: constants.RpcGetDepList,
-			Params: ObjectToString(params),
+			Method: method,
+			Params: params,
 			Result: "",
 		}
 
 		// 发送RPC消息
-		if err := database.RedisClient.LPush(fmt.Sprintf("rpc:%s", nodeId), ObjectToString(msg)); err != nil {
-			return data, err
+		msgStr := ObjectToString(msg)
+		if err := database.RedisClient.LPush(fmt.Sprintf("rpc:%s", nodeId), msgStr); err != nil {
+			return result, err
 		}
 
 		// 获取RPC回复消息
 		dataStr, err := database.RedisClient.BRPop(fmt.Sprintf("rpc:%s", nodeId), timeout)
 		if err != nil {
-			return data, err
+			return result, err
 		}
 
 		// 反序列化消息
 		if err := json.Unmarshal([]byte(dataStr), &msg); err != nil {
-			return data, err
+			return result, err
 		}
 
-		// 反序列化列表
-		if err := json.Unmarshal([]byte(msg.Result), &data); err != nil {
-			return data, err
-		}
-
-		return data, err
+		return msg.Result, err
 	}
 }
 
-func GetRpcParam(key string, params interface{}) string {
-	var paramsObj map[string]string
-	if err := json.Unmarshal([]byte(params.(string)), &paramsObj); err != nil {
-		return ""
-	}
-	return paramsObj[key]
+func GetRpcParam(key string, params map[string]string) string {
+	return params[key]
 }
 
 func ObjectToString(params interface{}) string {
-	str, _ := json.Marshal(params)
-	return string(str)
+	bytes, _ := json.Marshal(params)
+	return utils.BytesToString(bytes)
 }
 
 var IsRpcStopped = false
@@ -187,10 +182,10 @@ func InitRpcService() error {
 			var replyMsg RpcMessage
 			if msg.Method == constants.RpcInstallDep {
 				replyMsg = RpcServerInstallDep(msg)
+			} else if msg.Method == constants.RpcUninstallDep {
+				replyMsg = RpcServerUninstallDep(msg)
 			} else if msg.Method == constants.RpcInstallLang {
 				replyMsg = RpcServerInstallLang(msg)
-			} else if msg.Method == constants.RpcGetDepList {
-				replyMsg = RpcServerGetDepList(node.Id.Hex(), msg)
 			} else if msg.Method == constants.RpcGetInstalledDepList {
 				replyMsg = RpcServerGetInstalledDepList(node.Id.Hex(), msg)
 			} else {

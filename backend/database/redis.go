@@ -114,11 +114,11 @@ func (r *Redis) BRPop(collection string, timeout int) (string, error) {
 	c := r.pool.Get()
 	defer utils.Close(c)
 
-	value, err2 := redis.String(c.Do("BRPOP", collection, timeout))
-	if err2 != nil {
-		return value, err2
+	values, err := redis.Strings(c.Do("BRPOP", collection, timeout))
+	if err != nil {
+		return "", err
 	}
-	return value, nil
+	return values[1], nil
 }
 
 func NewRedisPool() *redis.Pool {

@@ -148,6 +148,7 @@ func main() {
 			authGroup.GET("/nodes/:id/deps", routes.GetDepList)                    // 节点第三方依赖列表
 			authGroup.GET("/nodes/:id/deps/installed", routes.GetInstalledDepList) // 节点已安装第三方依赖列表
 			authGroup.POST("/nodes/:id/deps/install", routes.InstallDep)           // 节点安装依赖
+			authGroup.POST("/nodes/:id/deps/uninstall", routes.UninstallDep)       // 节点卸载依赖
 			// 爬虫
 			authGroup.GET("/spiders", routes.GetSpiderList)                     // 爬虫列表
 			authGroup.GET("/spiders/:id", routes.GetSpider)                     // 爬虫详情

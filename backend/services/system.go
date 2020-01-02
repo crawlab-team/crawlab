@@ -121,7 +121,7 @@ func IsInstalledLang(nodeId string, lang entity.Lang) bool {
 }
 
 // 获取Python本地依赖列表
-func GetPythonLocalDepList(nodeId string, searchDepName string) ([]entity.Dependency, error) {
+func GetPythonDepList(nodeId string, searchDepName string) ([]entity.Dependency, error) {
 	var list []entity.Dependency
 
 	// 先从 Redis 获取
@@ -149,22 +149,51 @@ func GetPythonLocalDepList(nodeId string, searchDepName string) ([]entity.Depend
 		}
 	}
 
-	// 获取已安装依赖
-	installedDepList, err := GetPythonLocalInstalledDepList(nodeId)
-	if err != nil {
-		return list, err
+	// 获取已安装依赖列表
+	var installedDepList []entity.Dependency
+	if IsMasterNode(nodeId) {
+		installedDepList, err = GetPythonLocalInstalledDepList(nodeId)
+		if err != nil {
+			return list, err
+		}
+	} else {
+		installedDepList, err = GetPythonRemoteInstalledDepList(nodeId)
+		if err != nil {
+			return list, err
+		}
 	}
 
-	// 从依赖源获取数据
-	var goSync sync.WaitGroup
+	// 根据依赖名排序
 	sort.Stable(depNameList)
+
+	// 遍历依赖名列表，取前10个
 	for i, depNameDict := range depNameList {
 		if i > 10 {
 			break
 		}
+		dep := entity.Dependency{
+			Name: depNameDict.Name,
+		}
+		dep.Installed = IsInstalledDep(installedDepList, dep)
+		list = append(list, dep)
+	}
+
+	// 从依赖源获取信息
+	list, err = GetPythonDepListWithInfo(list)
+
+	return list, nil
+}
+
+// 获取Python依赖的源数据信息
+func GetPythonDepListWithInfo(depList []entity.Dependency) ([]entity.Dependency, error) {
+	var goSync sync.WaitGroup
+	for i, dep := range depList {
+		if i > 10 {
+			break
+		}
 		goSync.Add(1)
-		go func(depName string, n *sync.WaitGroup) {
-			url := fmt.Sprintf("https://pypi.org/pypi/%s/json", depName)
+		go func(i int, dep entity.Dependency, depList []entity.Dependency, n *sync.WaitGroup) {
+			url := fmt.Sprintf("https://pypi.org/pypi/%s/json", dep.Name)
 			res, err := req.Get(url)
 			if err != nil {
 				n.Done()
@@ -175,27 +204,12 @@ func GetPythonLocalDepList(nodeId string, searchDepName string) ([]entity.Depend
 				n.Done()
 				return
 			}
-			dep := entity.Dependency{
-				Name:        depName,
-				Version:     data.Info.Version,
-				Description: data.Info.Summary,
-			}
-			dep.Installed = IsInstalledDep(installedDepList, dep)
-			list = append(list, dep)
+			depList[i].Version = data.Info.Version
+			depList[i].Description = data.Info.Summary
 			n.Done()
-		}(depNameDict.Name, &goSync)
+		}(i, dep, depList, &goSync)
 	}
 	goSync.Wait()
-
-	return list, nil
-}
-
-// 获取Python远端依赖列表
-func GetPythonRemoteDepList(nodeId string, searchDepName string) ([]entity.Dependency, error) {
-	depList, err := RpcClientGetDepList(nodeId, constants.Python, searchDepName)
-	if err != nil {
-		return depList, err
-	}
 	return depList, nil
 }
 
@@ -339,6 +353,8 @@ func InstallPythonLocalDep(depName string) (string, error) {
 	cmd := exec.Command("pip", "install", depName, "-i", url)
 	outputBytes, err := cmd.Output()
 	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
 		return fmt.Sprintf("error: %s", err.Error()), err
 	}
 	return string(outputBytes), nil
@@ -353,6 +369,28 @@ func InstallPythonRemoteDep(nodeId string, depName string) (string, error) {
 	return output, nil
 }
 
+// 安装Python本地依赖
+func UninstallPythonLocalDep(depName string) (string, error) {
+	cmd := exec.Command("pip", "uninstall", "-y", depName)
+	outputBytes, err := cmd.Output()
+	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return fmt.Sprintf("error: %s", err.Error()), err
+	}
+	return string(outputBytes), nil
+}
+
+// 获取Python远端依赖列表
+func UninstallPythonRemoteDep(nodeId string, depName string) (string, error) {
+	output, err := RpcClientUninstallDep(nodeId, constants.Python, depName)
+	if err != nil {
+		return output, err
+	}
+	return output, nil
+}
+
+// 初始化函数
 func InitDepsFetcher() error {
 	c := cron.New(cron.WithSeconds())
 	c.Start()

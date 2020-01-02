@@ -51,10 +51,22 @@
         >
           <template slot-scope="scope">
             <el-button
+              v-if="!scope.row.installed"
+              v-loading="getDepLoading(scope.row)"
               size="mini"
-              :type="scope.row.installed ? 'danger' : 'primary' "
+              type="primary"
+              @click="onClickInstallDep(scope.row)"
             >
-              {{scope.row.installed ? $t('Uninstall') : $t('Install')}}
+              {{$t('Install')}}
+            </el-button>
+            <el-button
+              v-else
+              v-loading="getDepLoading(scope.row)"
+              size="mini"
+              type="danger"
+              @click="onClickUninstallDep(scope.row)"
+            >
+              {{$t('Uninstall')}}
             </el-button>
           </template>
         </el-table-column>
@@ -63,7 +75,10 @@
     <template v-else>
       <div class="install-wrapper">
         <h3>{{activeLang.name + $t(' is not installed, do you want to install it?')}}</h3>
-        <el-button type="primary" style="width: 240px;font-weight: bolder;font-size: 18px">
+        <el-button
+          type="primary"
+          style="width: 240px;font-weight: bolder;font-size: 18px"
+        >
           {{$t('Install')}}
         </el-button>
       </div>
@@ -86,7 +101,8 @@ export default {
       depList: [],
       loading: false,
       isShowInstalled: false,
-      installedDepList: []
+      installedDepList: [],
+      depLoadingDict: {}
     }
   },
   computed: {
@@ -147,6 +163,59 @@ export default {
       if (val) {
         this.getInstalledDepList()
       }
+    },
+    async onClickInstallDep (dep) {
+      const name = dep.name
+      this.$set(this.depLoadingDict, name, true)
+      const arr = this.$route.path.split('/')
+      const id = arr[arr.length - 1]
+      const data = await this.$request.post(`/nodes/${id}/deps/install`, {
+        lang: this.activeLang.executable_name,
+        dep_name: name
+      })
+      if (!data || data.error) {
+        this.$notify.error({
+          title: this.$t('Installing dependency failed'),
+          message: this.$t('The dependency installation is unsuccessful: ') + name
+        })
+      } else {
+        this.$notify.success({
+          title: this.$t('Installing dependency successful'),
+          message: this.$t('You have successfully installed a dependency: ') + name
+        })
+        dep.installed = true
+      }
+      this.$set(this.depLoadingDict, name, false)
+    },
+    async onClickUninstallDep (dep) {
+      const name = dep.name
+      this.$set(this.depLoadingDict, name, true)
+      const arr = this.$route.path.split('/')
+      const id = arr[arr.length - 1]
+      const data = await this.$request.post(`/nodes/${id}/deps/uninstall`, {
+        lang: this.activeLang.executable_name,
+        dep_name: name
+      })
+      if (!data || data.error) {
+        this.$notify.error({
+          title: this.$t('Uninstalling dependency failed'),
+          message: this.$t('The dependency uninstallation is unsuccessful: ') + name
+        })
+      } else {
+        this.$notify.success({
+          title: this.$t('Uninstalling dependency successful'),
+          message: this.$t('You have successfully uninstalled a dependency: ') + name
+        })
+        dep.installed = false
+      }
+      this.$set(this.depLoadingDict, name, false)
+    },
+    getDepLoading (dep) {
+      const name = dep.name
+      if (this.depLoadingDict[name] === undefined) {
+        return false
+      }
+      return this.depLoadingDict[name]
     }
   },
   async created () {
@@ -160,5 +229,7 @@ export default {
 </script>
 
 <style scoped>
-
+  .install-wrapper >>> .el-button .el-loading-spinner {
+    height: 100%;
+  }
 </style>
