@@ -300,7 +300,7 @@ export default {
   'Disclaimer': '免责声明',
   'Please search dependencies': '请搜索依赖',
   'No Data': '暂无数据',
-  'Show installed': '只看已安装',
+  'Show installed': '查看已安装',
   'Installing dependency successful': '安装依赖成功',
   'Installing dependency failed': '安装依赖失败',
   'You have successfully installed a dependency: ': '您已成功安装依赖: ',
@@ -309,6 +309,10 @@ export default {
   'Uninstalling dependency failed': '卸载依赖失败',
   'You have successfully uninstalled a dependency: ': '您已成功卸载依赖: ',
   'The dependency uninstallation is unsuccessful: ': '卸载依赖失败: ',
+  'Installing language successful': '安装语言成功',
+  'Installing language failed': '安装语言失败',
+  'You have successfully installed a language: ': '您已成功安装语言: ',
+  'The language installation is unsuccessful: ': '安装语言失败: ',
 
   // 登录
   'Sign in': '登录',

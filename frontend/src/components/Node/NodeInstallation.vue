@@ -3,6 +3,7 @@
     <el-form inline>
       <el-form-item>
         <el-autocomplete
+          v-if="activeLang.executable_name === 'python'"
           v-model="depName"
           style="width: 240px"
           :placeholder="$t('Search Dependencies')"
@@ -10,6 +11,13 @@
           :minlength="2"
           :disabled="isShowInstalled"
           @select="onSearch"
+        />
+        <el-input
+          v-else
+          v-model="depName"
+          style="width: 240px"
+          :placeholder="$t('Search Dependencies')"
+          :disabled="isShowInstalled"
         />
       </el-form-item>
       <el-form-item>
@@ -26,7 +34,7 @@
         <el-checkbox v-model="isShowInstalled" :label="$t('Show installed')" @change="onIsShowInstalledChange"/>
       </el-form-item>
     </el-form>
-    <el-tabs v-model="activeTab">
+    <el-tabs v-model="activeTab" @tab-click="onTabChange">
       <el-tab-pane v-for="lang in langList" :key="lang.name" :label="lang.name" :name="lang.executable_name"/>
     </el-tabs>
     <template v-if="activeLang.installed">
@@ -59,6 +67,7 @@
             <el-button
               v-if="!scope.row.installed"
               v-loading="getDepLoading(scope.row)"
+              :disabled="getDepLoading(scope.row)"
               size="mini"
               type="primary"
               @click="onClickInstallDep(scope.row)"
@@ -68,6 +77,7 @@
             <el-button
               v-else
               v-loading="getDepLoading(scope.row)"
+              :disabled="getDepLoading(scope.row)"
               size="mini"
               type="danger"
               @click="onClickUninstallDep(scope.row)"
@@ -82,8 +92,11 @@
       <div class="install-wrapper">
         <h3>{{activeLang.name + $t(' is not installed, do you want to install it?')}}</h3>
         <el-button
+          v-loading="isLoadingInstallLang"
+          :disabled="isLoadingInstallLang"
           type="primary"
           style="width: 240px;font-weight: bolder;font-size: 18px"
+          @click="onClickInstallLang"
         >
           {{$t('Install')}}
         </el-button>
@@ -108,7 +121,8 @@ export default {
       loading: false,
       isShowInstalled: false,
       installedDepList: [],
-      depLoadingDict: {}
+      depLoadingDict: {},
+      isLoadingInstallLang: false
     }
   },
   computed: {
@@ -122,6 +136,9 @@ export default {
         }
       }
       return {}
+    },
+    activeLangName () {
+      return this.activeLang.executable_name
     },
     computedDepList () {
       if (this.isShowInstalled) {
@@ -139,12 +156,19 @@ export default {
         dep_name: this.depName
       })
       this.loading = false
-      this.depList = res.data.data.sort((a, b) => a.name > b.name ? 1 : -1)
-      this.depList.map(async dep => {
-        const res = await this.$request.get(`/system/deps/${this.activeLang.executable_name}/${dep.name}/json`)
-        dep.version = res.data.data.version
-        dep.description = res.data.data.description
-      })
+      this.depList = res.data.data
+
+      if (this.activeLangName === 'python') {
+        // 排序
+        this.depList = this.depList.sort((a, b) => a.name > b.name ? 1 : -1)
+
+        // 异步获取python附加信息
+        this.depList.map(async dep => {
+          const res = await this.$request.get(`/system/deps/${this.activeLang.executable_name}/${dep.name}/json`)
+          dep.version = res.data.data.version
+          dep.description = res.data.data.description
+        })
+      }
     },
     async getInstalledDepList () {
       this.loading = true
@@ -172,6 +196,9 @@ export default {
     onIsShowInstalledChange (val) {
       if (val) {
         this.getInstalledDepList()
+      } else {
+        this.depName = ''
+        this.depList = []
       }
     },
     async onClickInstallDep (dep) {
@@ -226,6 +253,32 @@ export default {
         return false
       }
       return this.depLoadingDict[name]
+    },
+    async onClickInstallLang () {
+      this.isLoadingInstallLang = true
+      const res = await this.$request.post(`/nodes/${this.nodeForm._id}/langs/install`, {
+        lang: this.activeLang.executable_name
+      })
+      if (!res || res.error) {
+        this.$notify.error({
+          title: this.$t('Installing language failed'),
+          message: this.$t('The language installation is unsuccessful: ') + this.activeLang.name
+        })
+      } else {
+        this.$notify.success({
+          title: this.$t('Installing language successful'),
+          message: this.$t('You have successfully installed a language: ') + this.activeLang.name
+        })
+      }
+      this.isLoadingInstallLang = false
+    },
+    onTabChange () {
+      if (this.isShowInstalled) {
+        this.getInstalledDepList()
+      } else {
+        this.depName = ''
+        this.depList = []
+      }
     }
   },
   async created () {
