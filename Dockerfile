@@ -59,4 +59,4 @@ EXPOSE 8080
 EXPOSE 8000
 
 # start backend
-CMD ["/bin/sh", "/app/docker_init.sh"]
+CMD ["/bin/bash", "/app/docker_init.sh"]

@@ -415,6 +415,7 @@ func UninstallPythonLocalDep(depName string) (string, error) {
 	cmd := exec.Command("pip", "uninstall", "-y", depName)
 	outputBytes, err := cmd.Output()
 	if err != nil {
+		log.Errorf(string(outputBytes))
 		log.Errorf(err.Error())
 		debug.PrintStack()
 		return fmt.Sprintf("error: %s", err.Error()), err
