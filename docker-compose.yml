@@ -8,7 +8,7 @@ services:
       CRAWLAB_SERVER_MASTER: "Y"  # whether to be master node 是否为主节点，主节点为 Y，工作节点为 N
       CRAWLAB_MONGO_HOST: "mongo"  # MongoDB host address MongoDB 的地址，在 docker compose 网络中，直接引用服务名称
       CRAWLAB_REDIS_ADDRESS: "redis"  # Redis host address Redis 的地址，在 docker compose 网络中，直接引用服务名称
-      CRAWLAB_SERVER_LANG_NODE: "Y"  # 预安装 Node.js 语言环境
+      # CRAWLAB_SERVER_LANG_NODE: "Y"  # 预安装 Node.js 语言环境
     ports:    
       - "8080:8080" # frontend port mapping 前端端口映射
       - "8000:8000" # backend port mapping 后端端口映射 
