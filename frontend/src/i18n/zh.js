@@ -267,6 +267,7 @@ export default {
   'Number of CPU': 'CPU数',
   'Executables': '执行文件',
   'Latest Version': '最新版本',
+  'Version': '版本',
 
   // 弹出框
   'Notification': '提示',

@@ -1,18 +1,24 @@
 <template>
   <div class="node-installation">
     <el-form inline>
-      <el-form-item v-if="!isShowInstalled">
+      <el-form-item>
         <el-autocomplete
           v-model="depName"
           style="width: 240px"
           :placeholder="$t('Search Dependencies')"
           :fetchSuggestions="fetchAllDepList"
           :minlength="2"
+          :disabled="isShowInstalled"
           @select="onSearch"
         />
       </el-form-item>
       <el-form-item>
-        <el-button icon="el-icon-search" type="success" @click="onSearch">
+        <el-button
+          icon="el-icon-search"
+          type="success"
+          :disabled="isShowInstalled"
+          @click="onSearch"
+        >
           {{$t('Search')}}
         </el-button>
       </el-form-item>
@@ -37,7 +43,7 @@
           width="180"
         />
         <el-table-column
-          :label="$t('Latest Version')"
+          :label="!isShowInstalled ? $t('Latest Version') : $t('Version')"
           prop="version"
           width="100"
         />
@@ -135,11 +141,9 @@ export default {
       this.loading = false
       this.depList = res.data.data.sort((a, b) => a.name > b.name ? 1 : -1)
       this.depList.map(async dep => {
-        this.$set(dep, 'loading', true)
         const res = await this.$request.get(`/system/deps/${this.activeLang.executable_name}/${dep.name}/json`)
         dep.version = res.data.data.version
         dep.description = res.data.data.description
-        this.$set(dep, 'loading', false)
       })
     },
     async getInstalledDepList () {
