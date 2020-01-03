@@ -77,7 +77,7 @@ func GetInstalledDepList(c *gin.Context) {
 }
 
 func GetAllDepList(c *gin.Context) {
-	lang := c.Query("lang")
+	lang := c.Param("lang")
 	depName := c.Query("dep_name")
 
 	// 获取所有依赖列表
@@ -195,5 +195,29 @@ func UninstallDep(c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
+	})
+}
+
+func GetDepJson(c *gin.Context) {
+	depName := c.Param("dep_name")
+	lang := c.Param("lang")
+
+	var dep entity.Dependency
+	if lang == constants.Python {
+		_dep, err := services.FetchPythonDepInfo(depName)
+		if err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+		}
+		dep = _dep
+	} else {
+		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("%s is not implemented", lang))
+		return
+	}
+
+	c.Header("Cache-Control", "max-age=86400")
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    dep,
 	})
 }

@@ -166,9 +166,9 @@ func GetPythonDepList(nodeId string, searchDepName string) ([]entity.Dependency,
 	// 根据依赖名排序
 	sort.Stable(depNameList)
 
-	// 遍历依赖名列表，取前10个
+	// 遍历依赖名列表，取前20个
 	for i, depNameDict := range depNameList {
-		if i > 10 {
+		if i > 20 {
 			break
 		}
 		dep := entity.Dependency{
@@ -179,7 +179,7 @@ func GetPythonDepList(nodeId string, searchDepName string) ([]entity.Dependency,
 	}
 
 	// 从依赖源获取信息
-	list, err = GetPythonDepListWithInfo(list)
+	//list, err = GetPythonDepListWithInfo(list)
 
 	return list, nil
 }
@@ -211,6 +211,28 @@ func GetPythonDepListWithInfo(depList []entity.Dependency) ([]entity.Dependency,
 	}
 	goSync.Wait()
 	return depList, nil
+}
+
+func FetchPythonDepInfo(depName string) (entity.Dependency, error) {
+	url := fmt.Sprintf("https://pypi.org/pypi/%s/json", depName)
+	res, err := req.Get(url)
+	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return entity.Dependency{}, err
+	}
+	var data PythonDepJsonData
+	if err := res.ToJSON(&data); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return entity.Dependency{}, err
+	}
+	dep := entity.Dependency{
+		Name:        depName,
+		Version:     data.Info.Version,
+		Description: data.Info.Summary,
+	}
+	return dep, nil
 }
 
 // 从Redis获取Python依赖列表

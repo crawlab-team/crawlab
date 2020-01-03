@@ -206,7 +206,8 @@ func main() {
 			// release版本
 			authGroup.GET("/version", routes.GetVersion) // 获取发布的版本
 			// 系统
-			authGroup.GET("/system/deps", routes.GetAllDepList) // 节点所有第三方依赖列表
+			authGroup.GET("/system/deps/:lang", routes.GetAllDepList)             // 节点所有第三方依赖列表
+			authGroup.GET("/system/deps/:lang/:dep_name/json", routes.GetDepJson) // 节点第三方依赖JSON
 		}
 
 	}
