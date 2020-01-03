@@ -8,6 +8,6 @@ const (
 
 const (
 	Python = "python"
-	NodeJS = "node"
+	Nodejs = "node"
 	Java   = "java"
 )

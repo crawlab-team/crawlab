@@ -21,8 +21,26 @@ type RpcMessage struct {
 }
 
 func RpcServerInstallLang(msg RpcMessage) RpcMessage {
-	// install dep rpc
+	lang := GetRpcParam("lang", msg.Params)
+	if lang == constants.Nodejs {
+		output, _ := InstallNodejsLocalLang()
+		msg.Result = output
+	}
 	return msg
+}
+
+func RpcClientInstallLang(nodeId string, lang string) (output string, err error) {
+	params := map[string]string{}
+	params["lang"] = lang
+
+	data, err := RpcClientFunc(nodeId, constants.RpcInstallLang, params, 600)()
+	if err != nil {
+		return
+	}
+
+	output = data
+
+	return
 }
 
 func RpcServerInstallDep(msg RpcMessage) RpcMessage {
@@ -79,6 +97,10 @@ func RpcServerGetInstalledDepList(nodeId string, msg RpcMessage) RpcMessage {
 	lang := GetRpcParam("lang", msg.Params)
 	if lang == constants.Python {
 		depList, _ := GetPythonLocalInstalledDepList(nodeId)
+		resultStr, _ := json.Marshal(depList)
+		msg.Result = string(resultStr)
+	} else if lang == constants.Nodejs {
+		depList, _ := GetNodejsLocalInstalledDepList(nodeId)
 		resultStr, _ := json.Marshal(depList)
 		msg.Result = string(resultStr)
 	}

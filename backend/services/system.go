@@ -13,6 +13,7 @@ import (
 	"github.com/apex/log"
 	"github.com/imroc/req"
 	"os/exec"
+	"path"
 	"regexp"
 	"runtime/debug"
 	"sort"
@@ -65,8 +66,8 @@ func GetSystemInfo(nodeId string) (sysInfo entity.SystemInfo, err error) {
 func GetLangList(nodeId string) []entity.Lang {
 	list := []entity.Lang{
 		{Name: "Python", ExecutableName: "python", ExecutablePath: "/usr/local/bin/python", DepExecutablePath: "/usr/local/bin/pip"},
-		{Name: "NodeJS", ExecutableName: "node", ExecutablePath: "/usr/local/bin/node"},
-		{Name: "Java", ExecutableName: "java", ExecutablePath: "/usr/local/bin/java"},
+		{Name: "Node.js", ExecutableName: "node", ExecutablePath: "/usr/local/bin/node", DepExecutablePath: "/usr/local/bin/npm"},
+		//{Name: "Java", ExecutableName: "java", ExecutablePath: "/usr/local/bin/java"},
 	}
 	for i, lang := range list {
 		list[i].Installed = IsInstalledLang(nodeId, lang)
@@ -433,3 +434,148 @@ func UninstallPythonRemoteDep(nodeId string, depName string) (string, error) {
 // ==============
 // Node.js
 // ==============
+
+func InstallNodejsLocalLang() (string, error) {
+	cmd := exec.Command("/bin/sh", path.Join("scripts", "install-nodejs.sh"))
+	output, err := cmd.Output()
+	if err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return string(output), err
+	}
+
+	// TODO: check if Node.js is installed successfully
+
+	return string(output), nil
+}
+
+// 获取Node.js远端依赖列表
+func InstallNodejsRemoteLang(nodeId string) (string, error) {
+	output, err := RpcClientInstallLang(nodeId, constants.Nodejs)
+	if err != nil {
+		return output, err
+	}
+	return output, nil
+}
+
+// 获取Nodejs本地已安装的依赖列表
+func GetNodejsLocalInstalledDepList(nodeId string) ([]entity.Dependency, error) {
+	var list []entity.Dependency
+
+	lang := GetLangFromLangName(nodeId, constants.Nodejs)
+	if !IsInstalledLang(nodeId, lang) {
+		return list, errors.New("nodejs is not installed")
+	}
+	cmd := exec.Command("npm", "ls", "-g", "--depth", "0")
+	outputBytes, _ := cmd.Output()
+	//if err != nil {
+	//	log.Error("error: " + string(outputBytes))
+	//	debug.PrintStack()
+	//	return list, err
+	//}
+
+	regex := regexp.MustCompile("\\s(.*)@(.*)")
+	for _, line := range strings.Split(string(outputBytes), "\n") {
+		arr := regex.FindStringSubmatch(line)
+		if len(arr) < 3 {
+			continue
+		}
+		dep := entity.Dependency{
+			Name:      strings.ToLower(arr[1]),
+			Version:   arr[2],
+			Installed: true,
+		}
+		list = append(list, dep)
+	}
+
+	return list, nil
+}
+
+// 获取Nodejs远端依赖列表
+func GetNodejsRemoteInstalledDepList(nodeId string) ([]entity.Dependency, error) {
+	depList, err := RpcClientGetInstalledDepList(nodeId, constants.Nodejs)
+	if err != nil {
+		return depList, err
+	}
+	return depList, nil
+}
+
+// 安装Nodejs本地依赖
+func InstallNodejsLocalDep(depName string) (string, error) {
+	// 依赖镜像URL
+	url := "https://registry.npm.taobao.org"
+
+	cmd := exec.Command("npm", "install", depName, "-g", "--registry", url)
+	outputBytes, err := cmd.Output()
+	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return fmt.Sprintf("error: %s", err.Error()), err
+	}
+	return string(outputBytes), nil
+}
+
+// 获取Nodejs远端依赖列表
+func InstallNodejsRemoteDep(nodeId string, depName string) (string, error) {
+	output, err := RpcClientInstallDep(nodeId, constants.Nodejs, depName)
+	if err != nil {
+		return output, err
+	}
+	return output, nil
+}
+
+// 安装Nodejs本地依赖
+func UninstallNodejsLocalDep(depName string) (string, error) {
+	cmd := exec.Command("npm", "uninstall", depName, "-g")
+	outputBytes, err := cmd.Output()
+	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return fmt.Sprintf("error: %s", err.Error()), err
+	}
+	return string(outputBytes), nil
+}
+
+// 获取Nodejs远端依赖列表
+func UninstallNodejsRemoteDep(nodeId string, depName string) (string, error) {
+	output, err := RpcClientUninstallDep(nodeId, constants.Nodejs, depName)
+	if err != nil {
+		return output, err
+	}
+	return output, nil
+}
+
+// 获取Nodejs本地依赖列表
+func GetNodejsDepList(nodeId string, searchDepName string) (depList []entity.Dependency, err error) {
+	// 执行shell命令
+	cmd := exec.Command("npm", "search", "--json", searchDepName)
+	outputBytes, _ := cmd.Output()
+
+	// 获取已安装依赖列表
+	var installedDepList []entity.Dependency
+	if IsMasterNode(nodeId) {
+		installedDepList, err = GetNodejsLocalInstalledDepList(nodeId)
+		if err != nil {
+			return depList, err
+		}
+	} else {
+		installedDepList, err = GetNodejsRemoteInstalledDepList(nodeId)
+		if err != nil {
+			return depList, err
+		}
+	}
+
+	// 反序列化
+	if err := json.Unmarshal(outputBytes, &depList); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return depList, err
+	}
+
+	// 遍历安装列表
+	for i, dep := range depList {
+		depList[i].Installed = IsInstalledDep(installedDepList, dep)
+	}
+
+	return depList, nil
+}

@@ -32,6 +32,13 @@ func GetDepList(c *gin.Context) {
 			return
 		}
 		depList = list
+	} else if lang == constants.Nodejs {
+		list, err := services.GetNodejsDepList(nodeId, depName)
+		if err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+		depList = list
 	} else {
 		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("%s is not implemented", lang))
 		return
@@ -58,6 +65,22 @@ func GetInstalledDepList(c *gin.Context) {
 			depList = list
 		} else {
 			list, err := services.GetPythonRemoteInstalledDepList(nodeId)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+			depList = list
+		}
+	} else if lang == constants.Nodejs {
+		if services.IsMasterNode(nodeId) {
+			list, err := services.GetNodejsLocalInstalledDepList(nodeId)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+			depList = list
+		} else {
+			list, err := services.GetNodejsRemoteInstalledDepList(nodeId)
 			if err != nil {
 				HandleError(http.StatusInternalServerError, c, err)
 				return
@@ -129,6 +152,7 @@ func InstallDep(c *gin.Context) {
 	var reqBody ReqBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		HandleError(http.StatusBadRequest, c, err)
+		return
 	}
 
 	if reqBody.Lang == constants.Python {
@@ -140,6 +164,20 @@ func InstallDep(c *gin.Context) {
 			}
 		} else {
 			_, err := services.InstallPythonRemoteDep(nodeId, reqBody.DepName)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+		}
+	} else if reqBody.Lang == constants.Nodejs {
+		if services.IsMasterNode(nodeId) {
+			_, err := services.InstallNodejsLocalDep(reqBody.DepName)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+		} else {
+			_, err := services.InstallNodejsRemoteDep(nodeId, reqBody.DepName)
 			if err != nil {
 				HandleError(http.StatusInternalServerError, c, err)
 				return
@@ -185,6 +223,20 @@ func UninstallDep(c *gin.Context) {
 				return
 			}
 		}
+	} else if reqBody.Lang == constants.Nodejs {
+		if services.IsMasterNode(nodeId) {
+			_, err := services.UninstallNodejsLocalDep(reqBody.DepName)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+		} else {
+			_, err := services.UninstallNodejsRemoteDep(nodeId, reqBody.DepName)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+		}
 	} else {
 		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("%s is not implemented", reqBody.Lang))
 		return
@@ -223,5 +275,41 @@ func GetDepJson(c *gin.Context) {
 }
 
 func InstallLang(c *gin.Context) {
-	//lang := c.Query("lang")
+	type ReqBody struct {
+		Lang string `json:"lang"`
+	}
+
+	nodeId := c.Param("id")
+
+	var reqBody ReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+
+	if reqBody.Lang == constants.Nodejs {
+		if services.IsMasterNode(nodeId) {
+			_, err := services.InstallNodejsLocalLang()
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+		} else {
+			_, err := services.InstallNodejsRemoteLang(nodeId)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+		}
+	} else {
+		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("%s is not implemented", reqBody.Lang))
+		return
+	}
+
+	// TODO: check if install is successful
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
 }
