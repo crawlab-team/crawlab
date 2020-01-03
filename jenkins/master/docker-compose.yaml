@@ -9,6 +9,7 @@ services:
       CRAWLAB_MONGO_HOST: "mongo"
       CRAWLAB_REDIS_ADDRESS: "redis"
       CRAWLAB_LOG_PATH: "/var/logs/crawlab"
+      CRAWLAB_SETTING_ALLOWREGISTER: "Y"
     ports:    
       - "8080:8080" # frontend
       - "8000:8000" # backend

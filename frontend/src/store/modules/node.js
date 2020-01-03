@@ -3,7 +3,7 @@ import request from '../../api/request'
 const state = {
   // NodeList
   nodeList: [],
-  nodeForm: { _id: {} },
+  nodeForm: {},
 
   // spider to deploy/run
   activeSpider: {}

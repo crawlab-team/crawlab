@@ -65,6 +65,8 @@ export default {
   'Back': '返回',
   'New File': '新建文件',
   'Rename': '重命名',
+  'Install': '安装',
+  'Uninstall': '卸载',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -85,6 +87,8 @@ export default {
   'Node Network': '节点拓扑图',
   'Master': '主节点',
   'Worker': '工作节点',
+  'Installation': '安装',
+  'Search Dependencies': '搜索依赖',
 
   // 节点列表
   'IP': 'IP地址',
@@ -262,6 +266,8 @@ export default {
   'ARCH': '操作架构',
   'Number of CPU': 'CPU数',
   'Executables': '执行文件',
+  'Latest Version': '最新版本',
+  'Version': '版本',
 
   // 弹出框
   'Notification': '提示',
@@ -290,7 +296,23 @@ export default {
   'NOTE: When uploading a zip file, please zip your spider files from the ROOT DIRECTORY.': '注意: 上传 zip 文件时，请从 根目录 下开始压缩爬虫文件。',
   'English': 'English',
   'Are you sure to delete the schedule task?': '确定删除定时任务?',
+  ' is not installed, do you want to install it?': ' 还没有安装，您是否打算安装它?',
   'Disclaimer': '免责声明',
+  'Please search dependencies': '请搜索依赖',
+  'No Data': '暂无数据',
+  'Show installed': '查看已安装',
+  'Installing dependency successful': '安装依赖成功',
+  'Installing dependency failed': '安装依赖失败',
+  'You have successfully installed a dependency: ': '您已成功安装依赖: ',
+  'The dependency installation is unsuccessful: ': '安装依赖失败: ',
+  'Uninstalling dependency successful': '卸载依赖成功',
+  'Uninstalling dependency failed': '卸载依赖失败',
+  'You have successfully uninstalled a dependency: ': '您已成功卸载依赖: ',
+  'The dependency uninstallation is unsuccessful: ': '卸载依赖失败: ',
+  'Installing language successful': '安装语言成功',
+  'Installing language failed': '安装语言失败',
+  'You have successfully installed a language: ': '您已成功安装语言: ',
+  'The language installation is unsuccessful: ': '安装语言失败: ',
 
   // 登录
   'Sign in': '登录',

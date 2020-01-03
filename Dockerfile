@@ -27,6 +27,9 @@ ADD . /app
 # set as non-interactive
 ENV DEBIAN_FRONTEND noninteractive
 
+# set CRAWLAB_IS_DOCKER
+ENV CRAWLAB_IS_DOCKER Y
+
 # install packages
 RUN apt-get update \
 	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip \
@@ -56,4 +59,4 @@ EXPOSE 8080
 EXPOSE 8000
 
 # start backend
-CMD ["/bin/sh", "/app/docker_init.sh"]
+CMD ["/bin/bash", "/app/docker_init.sh"]

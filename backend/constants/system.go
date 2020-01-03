@@ -5,3 +5,9 @@ const (
 	Linux   = "linux"
 	Darwin  = "darwin"
 )
+
+const (
+	Python = "python"
+	Nodejs = "node"
+	Java   = "java"
+)
