@@ -3,6 +3,7 @@
 ### Features / Enhancement
 - **Dependency Installation**. Allow users to install/uninstall dependencies and add programming languages (Node.js only for now) on the platform web interface.
 - **Pre-install Programming Languages in Docker**. Allow Docker users to set `CRAWLAB_SERVER_LANG_NODE` as `Y` to pre-install `Node.js` environments.
+- **Add Schedule List in Spider Detail Page**. Allow users to view / add / edit schedule cron jobs in the spider detail page. [#360](https://github.com/crawlab-team/crawlab/issues/360)
 
 
 # 0.4.2 (2019-12-26)
