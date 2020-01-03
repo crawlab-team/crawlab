@@ -25,6 +25,9 @@
       <el-tab-pane :label="$t('Analytics')" name="analytics">
         <spider-stats ref="spider-stats"/>
       </el-tab-pane>
+      <el-tab-pane :label="$t('Schedules')" name="schedules">
+        <spider-schedules/>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -38,10 +41,12 @@ import SpiderOverview from '../../components/Overview/SpiderOverview'
 import EnvironmentList from '../../components/Environment/EnvironmentList'
 import SpiderStats from '../../components/Stats/SpiderStats'
 import ConfigList from '../../components/Config/ConfigList'
+import SpiderSchedules from './SpiderSchedules'
 
 export default {
   name: 'SpiderDetail',
   components: {
+    SpiderSchedules,
     ConfigList,
     SpiderStats,
     EnvironmentList,

@@ -693,20 +693,6 @@ func RenameSpiderFile(c *gin.Context) {
 	})
 }
 
-// 爬虫类型
-func GetSpiderTypes(c *gin.Context) {
-	types, err := model.GetSpiderTypes()
-	if err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-		Data:    types,
-	})
-}
-
 func GetSpiderStats(c *gin.Context) {
 	type Overview struct {
 		TaskCount            int     `json:"task_count" bson:"task_count"`
@@ -824,5 +810,27 @@ func GetSpiderStats(c *gin.Context) {
 			Overview: overview,
 			Daily:    items,
 		},
+	})
+}
+
+func GetSpiderSchedules(c *gin.Context) {
+	id := c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "spider_id is invalid")
+		return
+	}
+
+	// 获取定时任务
+	list, err := model.GetScheduleList(bson.M{"spider_id": bson.ObjectIdHex(id)})
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    list,
 	})
 }

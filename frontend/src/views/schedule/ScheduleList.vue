@@ -32,8 +32,30 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('Spider')" prop="spider_id" required>
-          <el-select v-model="scheduleForm.spider_id" :placeholder="$t('Spider')" filterable>
+        <el-form-item v-if="!isDisabledSpiderSchedule" :label="$t('Spider')" prop="spider_id" required>
+          <el-select
+            v-model="scheduleForm.spider_id"
+            :placeholder="$t('Spider')"
+            filterable
+            :disabled="isDisabledSpiderSchedule"
+          >
+            <el-option
+              v-for="op in spiderList"
+              :key="op._id"
+              :value="op._id"
+              :label="`${op.display_name} (${op.name})`"
+              :disabled="isDisabledSpider(op)"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item v-else :label="$t('Spider')" required>
+          <el-select
+            :value="spiderId"
+            :placeholder="$t('Spider')"
+            filterable
+            :disabled="isDisabledSpiderSchedule"
+          >
             <el-option
               v-for="op in spiderList"
               :key="op._id"
@@ -199,6 +221,9 @@ export default {
         }
       }
       return {}
+    },
+    isDisabledSpiderSchedule () {
+      return false
     }
   },
   methods: {

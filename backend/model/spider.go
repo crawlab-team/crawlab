@@ -275,27 +275,7 @@ func GetSpiderCount() (int, error) {
 	return count, nil
 }
 
-// 获取爬虫类型
-func GetSpiderTypes() ([]*entity.SpiderType, error) {
-	s, c := database.GetCol("spiders")
-	defer s.Close()
-
-	group := bson.M{
-		"$group": bson.M{
-			"_id":   "$type",
-			"count": bson.M{"$sum": 1},
-		},
-	}
-	var types []*entity.SpiderType
-	if err := c.Pipe([]bson.M{group}).All(&types); err != nil {
-		log.Errorf("get spider types error: %s", err.Error())
-		debug.PrintStack()
-		return nil, err
-	}
-
-	return types, nil
-}
-
+// 获取爬虫定时任务
 func GetConfigSpiderData(spider Spider) (entity.ConfigSpiderData, error) {
 	// 构造配置数据
 	configData := entity.ConfigSpiderData{}

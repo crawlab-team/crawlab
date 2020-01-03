@@ -168,7 +168,7 @@ func main() {
 			authGroup.POST("/spiders/:id/file/rename", routes.RenameSpiderFile) // 爬虫文件重命名
 			authGroup.GET("/spiders/:id/dir", routes.GetSpiderDir)              // 爬虫目录
 			authGroup.GET("/spiders/:id/stats", routes.GetSpiderStats)          // 爬虫统计数据
-			authGroup.GET("/spider/types", routes.GetSpiderTypes)               // 爬虫类型
+			authGroup.GET("/spiders/:id/schedules", routes.GetSpiderSchedules)  // 爬虫定时任务
 			// 可配置爬虫
 			authGroup.GET("/config_spiders/:id/config", routes.GetConfigSpiderConfig)           // 获取可配置爬虫配置
 			authGroup.POST("/config_spiders/:id/config", routes.PostConfigSpiderConfig)         // 更改可配置爬虫配置
