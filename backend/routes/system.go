@@ -221,3 +221,7 @@ func GetDepJson(c *gin.Context) {
 		Data:    dep,
 	})
 }
+
+func InstallLang(c *gin.Context) {
+	//lang := c.Query("lang")
+}

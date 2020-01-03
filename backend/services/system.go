@@ -20,27 +20,6 @@ import (
 	"sync"
 )
 
-type PythonDepJsonData struct {
-	Info PythonDepJsonDataInfo `json:"info"`
-}
-
-type PythonDepJsonDataInfo struct {
-	Name    string `json:"name"`
-	Summary string `json:"summary"`
-	Version string `json:"version"`
-}
-
-type PythonDepNameDict struct {
-	Name   string `json:"name"`
-	Weight int    `json:"weight"`
-}
-
-type PythonDepNameDictSlice []PythonDepNameDict
-
-func (s PythonDepNameDictSlice) Len() int           { return len(s) }
-func (s PythonDepNameDictSlice) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
-func (s PythonDepNameDictSlice) Less(i, j int) bool { return s[i].Weight > s[j].Weight }
-
 // 系统信息 chan 映射
 var SystemInfoChanMap = utils.NewChanMap()
 
@@ -119,6 +98,55 @@ func IsInstalledLang(nodeId string, lang entity.Lang) bool {
 	}
 	return false
 }
+
+// 是否已安装该依赖
+func IsInstalledDep(installedDepList []entity.Dependency, dep entity.Dependency) bool {
+	for _, _dep := range installedDepList {
+		if strings.ToLower(_dep.Name) == strings.ToLower(dep.Name) {
+			return true
+		}
+	}
+	return false
+}
+
+// 初始化函数
+func InitDepsFetcher() error {
+	c := cron.New(cron.WithSeconds())
+	c.Start()
+	if _, err := c.AddFunc("0 */5 * * * *", UpdatePythonDepList); err != nil {
+		return err
+	}
+
+	go func() {
+		UpdatePythonDepList()
+	}()
+	return nil
+}
+
+// =========
+// Python
+// =========
+
+type PythonDepJsonData struct {
+	Info PythonDepJsonDataInfo `json:"info"`
+}
+
+type PythonDepJsonDataInfo struct {
+	Name    string `json:"name"`
+	Summary string `json:"summary"`
+	Version string `json:"version"`
+}
+
+type PythonDepNameDict struct {
+	Name   string `json:"name"`
+	Weight int    `json:"weight"`
+}
+
+type PythonDepNameDictSlice []PythonDepNameDict
+
+func (s PythonDepNameDictSlice) Len() int           { return len(s) }
+func (s PythonDepNameDictSlice) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s PythonDepNameDictSlice) Less(i, j int) bool { return s[i].Weight > s[j].Weight }
 
 // 获取Python本地依赖列表
 func GetPythonDepList(nodeId string, searchDepName string) ([]entity.Dependency, error) {
@@ -357,16 +385,6 @@ func GetPythonRemoteInstalledDepList(nodeId string) ([]entity.Dependency, error)
 	return depList, nil
 }
 
-// 是否已安装该依赖
-func IsInstalledDep(installedDepList []entity.Dependency, dep entity.Dependency) bool {
-	for _, _dep := range installedDepList {
-		if strings.ToLower(_dep.Name) == strings.ToLower(dep.Name) {
-			return true
-		}
-	}
-	return false
-}
-
 // 安装Python本地依赖
 func InstallPythonLocalDep(depName string) (string, error) {
 	// 依赖镜像URL
@@ -412,16 +430,6 @@ func UninstallPythonRemoteDep(nodeId string, depName string) (string, error) {
 	return output, nil
 }
 
-// 初始化函数
-func InitDepsFetcher() error {
-	c := cron.New(cron.WithSeconds())
-	c.Start()
-	if _, err := c.AddFunc("0 */5 * * * *", UpdatePythonDepList); err != nil {
-		return err
-	}
-
-	go func() {
-		UpdatePythonDepList()
-	}()
-	return nil
-}
+// ==============
+// Node.js
+// ==============
