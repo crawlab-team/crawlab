@@ -7,7 +7,7 @@
           style="width: 240px"
           :placeholder="$t('Search Dependencies')"
           :fetchSuggestions="fetchAllDepList"
-          minlength="2"
+          :minlength="2"
           @select="onSearch"
         />
       </el-form-item>
@@ -134,6 +134,13 @@ export default {
       })
       this.loading = false
       this.depList = res.data.data.sort((a, b) => a.name > b.name ? 1 : -1)
+      this.depList.map(async dep => {
+        this.$set(dep, 'loading', true)
+        const res = await this.$request.get(`/system/deps/${this.activeLang.executable_name}/${dep.name}/json`)
+        dep.version = res.data.data.version
+        dep.description = res.data.data.description
+        this.$set(dep, 'loading', false)
+      })
     },
     async getInstalledDepList () {
       this.loading = true
@@ -144,8 +151,7 @@ export default {
       this.installedDepList = res.data.data
     },
     async fetchAllDepList (queryString, callback) {
-      const res = await this.$request.get('/system/deps', {
-        lang: this.activeLang.executable_name,
+      const res = await this.$request.get(`/system/deps/${this.activeLang.executable_name}`, {
         dep_name: queryString
       })
       callback(res.data.data ? res.data.data.map(d => {
@@ -229,7 +235,13 @@ export default {
 </script>
 
 <style scoped>
-  .install-wrapper >>> .el-button .el-loading-spinner {
-    height: 100%;
+  .node-installation >>> .el-button .el-loading-spinner {
+    margin-top: -13px;
+    height: 28px;
+  }
+
+  .node-installation >>> .el-button .el-loading-spinner .circular {
+    width: 28px;
+    height: 28px;
   }
 </style>
