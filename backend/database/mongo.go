@@ -93,5 +93,14 @@ func InitMongo() error {
 		// 赋值给全局mongo session
 		Session = sess
 	}
+	//Add Unique index for 'key'
+	keyIndex := mgo.Index{
+		Key:    []string{"key"},
+		Unique: true,
+	}
+	s, c := GetCol("nodes")
+	defer s.Close()
+	c.EnsureIndex(keyIndex)
+
 	return nil
 }
