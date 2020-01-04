@@ -556,11 +556,6 @@ export default {
       }
       this.$store.dispatch('spider/getSpiderList', params)
     }
-    // getTypes () {
-    //   request.get(`/spider/types`).then(resp => {
-    //     this.types = resp.data.data
-    //   })
-    // }
   },
   async created () {
     // fetch spider types

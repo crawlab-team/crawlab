@@ -180,6 +180,11 @@ const actions = {
   async getTemplateList ({ state, commit }) {
     const res = await request.get(`/config_spiders_templates`)
     commit('SET_TEMPLATE_LIST', res.data.data)
+  },
+  async getScheduleList ({ state, commit }, payload) {
+    const { id } = payload
+    const res = await request.get(`/spiders/${id}/schedules`)
+    commit('schedule/SET_SCHEDULE_LIST', res.data.data, { root: true })
   }
 }
 
