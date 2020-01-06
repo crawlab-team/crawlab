@@ -19,8 +19,8 @@ Golang-based distributed web crawler management platform, supporting various lan
 ## Installation
 
 Two methods:
-1. [Docker](https://tikazyq.github.io/crawlab-docs/Installation/Docker.html) (Recommended)
-2. [Direct Deploy](https://tikazyq.github.io/crawlab-docs/Installation/Direct.html) (Check Internal Kernel)
+1. [Docker](http://docs.crawlab.cn/Installation/Docker.html) (Recommended)
+2. [Direct Deploy](http://docs.crawlab.cn/Installation/Direct.html) (Check Internal Kernel)
 3. [Kubernetes](https://juejin.im/post/5e0a02d851882549884c27ad) (Multi-Node Deployment)
 
 ### Pre-requisite (Docker)
