@@ -1,12 +1,13 @@
 # Crawlab
 
-![](http://114.67.75.98:8082/buildStatus/icon?job=crawlab%2Fmaster)
-![](https://img.shields.io/github/release/crawlab-team/crawlab.svg)
-![](https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg)
-![](https://img.shields.io/github/issues/crawlab-team/crawlab.svg)
-![](https://img.shields.io/github/contributors/crawlab-team/crawlab.svg)
-![](https://img.shields.io/docker/pulls/tikazyq/crawlab)
-![](https://img.shields.io/github/license/crawlab-team/crawlab.svg)
+![](http://jenkins.crawlab.cn/buildStatus/icon?job=crawlab%2Fmaster)
+![](https://img.shields.io/github/release/crawlab-team/crawlab.svg?logo=github)
+![](https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg?logo=github)
+![](https://img.shields.io/github/issues/crawlab-team/crawlab/bug.svg?logo=github&logoColor=red)
+![](https://img.shields.io/github/issues/crawlab-team/crawlab/enhancement.svg?logo=github&logoColor=cyan)
+![](https://img.shields.io/github/contributors/crawlab-team/crawlab.svg?logo=github)
+![](https://img.shields.io/docker/pulls/tikazyq/crawlab?logo=docker)
+![](https://img.shields.io/github/license/crawlab-team/crawlab.svg?logo=FreeBSD&logoColor=yellow)
 
 中文 | [English](https://github.com/crawlab-team/crawlab)
 
