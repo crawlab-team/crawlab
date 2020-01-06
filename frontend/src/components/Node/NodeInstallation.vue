@@ -186,7 +186,7 @@ export default {
     onSearch () {
       this.isShowInstalled = false
       this.getDepList()
-      this.$st.sendEv('节点详情', '安装', '搜索')
+      this.$st.sendEv('节点详情', '安装', '搜索依赖')
     },
     onIsShowInstalledChange (val) {
       if (val) {
@@ -219,7 +219,7 @@ export default {
         dep.installed = true
       }
       this.$set(this.depLoadingDict, name, false)
-      this.$st.sendEv('节点详情', '安装', '点击安装依赖')
+      this.$st.sendEv('节点详情', '安装', '安装依赖')
     },
     async onClickUninstallDep (dep) {
       const name = dep.name
@@ -243,7 +243,7 @@ export default {
         dep.installed = false
       }
       this.$set(this.depLoadingDict, name, false)
-      this.$st.sendEv('节点详情', '安装', '点击卸载依赖')
+      this.$st.sendEv('节点详情', '安装', '卸载依赖')
     },
     getDepLoading (dep) {
       const name = dep.name
@@ -269,7 +269,7 @@ export default {
         })
       }
       this.isLoadingInstallLang = false
-      this.$st.sendEv('节点详情', '安装', '点击安装语言')
+      this.$st.sendEv('节点详情', '安装', '安装语言')
     },
     onTabChange () {
       if (this.isShowInstalled) {
