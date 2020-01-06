@@ -34,7 +34,7 @@ spider:
 task:
   workers: 4
 other:
-  tmppath: "/tmp"
+  tmppath: "./tmp"
 version: 0.4.3
 setting:
   allowRegister: "N"

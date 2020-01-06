@@ -251,6 +251,9 @@ func FetchPythonDepInfo(depName string) (entity.Dependency, error) {
 		return entity.Dependency{}, err
 	}
 	var data PythonDepJsonData
+	if res.Response().StatusCode == 404 {
+		return entity.Dependency{}, errors.New("get depName from [https://pypi.org] error: 404")
+	}
 	if err := res.ToJSON(&data); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
