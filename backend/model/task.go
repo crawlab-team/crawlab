@@ -117,18 +117,12 @@ func GetTaskList(filter interface{}, skip int, limit int, sortKey string) ([]Tas
 
 	for i, task := range tasks {
 		// 获取爬虫名称
-		spider, err := task.GetSpider()
-		if err != nil || spider.Id.Hex() == "" {
-			_ = spider.Delete()
-		} else {
+		if spider, err := task.GetSpider(); err == nil {
 			tasks[i].SpiderName = spider.DisplayName
 		}
 
 		// 获取节点名称
-		node, err := task.GetNode()
-		if node.Id.Hex() == "" || err != nil {
-			_ = task.Delete()
-		} else {
+		if node, err := task.GetNode(); err == nil {
 			tasks[i].NodeName = node.Name
 		}
 	}
@@ -142,6 +136,8 @@ func GetTaskListTotal(filter interface{}) (int, error) {
 	var result int
 	result, err := c.Find(filter).Count()
 	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
 		return result, err
 	}
 	return result, nil
@@ -168,6 +164,8 @@ func AddTask(item Task) error {
 	item.UpdateTs = time.Now()
 
 	if err := c.Insert(&item); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
 		return err
 	}
 	return nil
@@ -179,6 +177,8 @@ func RemoveTask(id string) error {
 
 	var result Task
 	if err := c.FindId(id).One(&result); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
 		return err
 	}
 

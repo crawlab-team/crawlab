@@ -1,7 +1,7 @@
 package constants
 
 const (
-	ScheduleStatusStop    = "stop"
+	ScheduleStatusStop    = "stopped"
 	ScheduleStatusRunning = "running"
 	ScheduleStatusError   = "error"
 
