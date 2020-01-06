@@ -26,12 +26,15 @@ server:
     # mac地址 或者 ip地址，如果是ip，则需要手动指定IP
     type: "mac"
     ip: ""
+  lang: # 安装语言环境, Y 为安装，N 为不安装，只对 Docker 有效
+    python: "Y"
+    node: "N"
 spider:
   path: "./spiders"
 task:
   workers: 4
 other:
-  tmppath: "./tmp"
-version: 0.4.1
+  tmppath: "/tmp"
+version: 0.4.3
 setting:
   allowRegister: "N"

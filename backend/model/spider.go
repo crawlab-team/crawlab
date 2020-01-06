@@ -107,13 +107,13 @@ func (spider *Spider) Delete() error {
 }
 
 // 获取爬虫列表
-func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, int, error) {
+func GetSpiderList(filter interface{}, skip int, limit int, sortStr string) ([]Spider, int, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 
 	// 获取爬虫列表
 	var spiders []Spider
-	if err := c.Find(filter).Skip(skip).Limit(limit).Sort("+name").All(&spiders); err != nil {
+	if err := c.Find(filter).Skip(skip).Limit(limit).Sort(sortStr).All(&spiders); err != nil {
 		debug.PrintStack()
 		return spiders, 0, err
 	}
@@ -275,27 +275,7 @@ func GetSpiderCount() (int, error) {
 	return count, nil
 }
 
-// 获取爬虫类型
-func GetSpiderTypes() ([]*entity.SpiderType, error) {
-	s, c := database.GetCol("spiders")
-	defer s.Close()
-
-	group := bson.M{
-		"$group": bson.M{
-			"_id":   "$type",
-			"count": bson.M{"$sum": 1},
-		},
-	}
-	var types []*entity.SpiderType
-	if err := c.Pipe([]bson.M{group}).All(&types); err != nil {
-		log.Errorf("get spider types error: %s", err.Error())
-		debug.PrintStack()
-		return nil, err
-	}
-
-	return types, nil
-}
-
+// 获取爬虫定时任务
 func GetConfigSpiderData(spider Spider) (entity.ConfigSpiderData, error) {
 	// 构造配置数据
 	configData := entity.ConfigSpiderData{}

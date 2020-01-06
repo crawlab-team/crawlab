@@ -36,6 +36,19 @@ func (r *Redis) RPush(collection string, value interface{}) error {
 	defer utils.Close(c)
 
 	if _, err := c.Do("RPUSH", collection, value); err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return err
+	}
+	return nil
+}
+
+func (r *Redis) LPush(collection string, value interface{}) error {
+	c := r.pool.Get()
+	defer utils.Close(c)
+
+	if _, err := c.Do("RPUSH", collection, value); err != nil {
+		log.Error(err.Error())
 		debug.PrintStack()
 		return err
 	}
@@ -58,6 +71,7 @@ func (r *Redis) HSet(collection string, key string, value string) error {
 	defer utils.Close(c)
 
 	if _, err := c.Do("HSET", collection, key, value); err != nil {
+		log.Error(err.Error())
 		debug.PrintStack()
 		return err
 	}
@@ -70,6 +84,8 @@ func (r *Redis) HGet(collection string, key string) (string, error) {
 
 	value, err2 := redis.String(c.Do("HGET", collection, key))
 	if err2 != nil {
+		log.Error(err2.Error())
+		debug.PrintStack()
 		return value, err2
 	}
 	return value, nil
@@ -80,6 +96,8 @@ func (r *Redis) HDel(collection string, key string) error {
 	defer utils.Close(c)
 
 	if _, err := c.Do("HDEL", collection, key); err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
 		return err
 	}
 	return nil
@@ -91,9 +109,27 @@ func (r *Redis) HKeys(collection string) ([]string, error) {
 
 	value, err2 := redis.Strings(c.Do("HKeys", collection))
 	if err2 != nil {
+		log.Error(err2.Error())
+		debug.PrintStack()
 		return []string{}, err2
 	}
 	return value, nil
+}
+
+func (r *Redis) BRPop(collection string, timeout int) (string, error) {
+	if timeout <= 0 {
+		timeout = 60
+	}
+	c := r.pool.Get()
+	defer utils.Close(c)
+
+	values, err := redis.Strings(c.Do("BRPOP", collection, timeout))
+	if err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return "", err
+	}
+	return values[1], nil
 }
 
 func NewRedisPool() *redis.Pool {
@@ -112,8 +148,8 @@ func NewRedisPool() *redis.Pool {
 		Dial: func() (conn redis.Conn, e error) {
 			return redis.DialURL(url,
 				redis.DialConnectTimeout(time.Second*10),
-				redis.DialReadTimeout(time.Second*10),
-				redis.DialWriteTimeout(time.Second*15),
+				redis.DialReadTimeout(time.Second*600),
+				redis.DialWriteTimeout(time.Second*10),
 			)
 		},
 		TestOnBorrow: func(c redis.Conn, t time.Time) error {

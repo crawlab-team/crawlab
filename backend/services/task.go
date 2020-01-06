@@ -19,6 +19,7 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -104,6 +105,17 @@ func AssignTask(task model.Task) error {
 
 // 设置环境变量
 func SetEnv(cmd *exec.Cmd, envs []model.Env, taskId string, dataCol string) *exec.Cmd {
+	// 默认把Node.js的全局node_modules加入环境变量
+	envPath := os.Getenv("PATH")
+	for _, _path := range strings.Split(envPath, ":") {
+		if strings.Contains(_path, "/.nvm/versions/node/") {
+			pathNodeModules := strings.Replace(_path, "/bin", "/lib/node_modules", -1)
+			_ = os.Setenv("PATH", pathNodeModules+":"+envPath)
+			_ = os.Setenv("NODE_PATH", pathNodeModules)
+			break
+		}
+	}
+
 	// 默认环境变量
 	cmd.Env = append(os.Environ(), "CRAWLAB_TASK_ID="+taskId)
 	cmd.Env = append(cmd.Env, "CRAWLAB_COLLECTION="+dataCol)
@@ -615,11 +627,15 @@ func AddTask(t model.Task) error {
 
 	// 将任务存入数据库
 	if err := model.AddTask(t); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
 		return err
 	}
 
 	// 加入任务队列
 	if err := AssignTask(t); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
 		return err
 	}
 

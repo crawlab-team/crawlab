@@ -110,11 +110,19 @@ func main() {
 
 	// 初始化依赖服务
 	if err := services.InitDepsFetcher(); err != nil {
-		log.Error("init user service error:" + err.Error())
+		log.Error("init dependency fetcher error:" + err.Error())
 		debug.PrintStack()
 		panic(err)
 	}
 	log.Info("initialized dependency fetcher successfully")
+
+	// 初始化RPC服务
+	if err := services.InitRpcService(); err != nil {
+		log.Error("init rpc service error:" + err.Error())
+		debug.PrintStack()
+		panic(err)
+	}
+	log.Info("initialized rpc service successfully")
 
 	// 以下为主节点服务
 	if model.IsMaster() {
@@ -139,6 +147,9 @@ func main() {
 			authGroup.GET("/nodes/:id/langs", routes.GetLangList)                  // 节点语言环境列表
 			authGroup.GET("/nodes/:id/deps", routes.GetDepList)                    // 节点第三方依赖列表
 			authGroup.GET("/nodes/:id/deps/installed", routes.GetInstalledDepList) // 节点已安装第三方依赖列表
+			authGroup.POST("/nodes/:id/deps/install", routes.InstallDep)           // 节点安装依赖
+			authGroup.POST("/nodes/:id/deps/uninstall", routes.UninstallDep)       // 节点卸载依赖
+			authGroup.POST("/nodes/:id/langs/install", routes.InstallLang)         // 节点安装语言
 			// 爬虫
 			authGroup.GET("/spiders", routes.GetSpiderList)                     // 爬虫列表
 			authGroup.GET("/spiders/:id", routes.GetSpider)                     // 爬虫详情
@@ -157,7 +168,7 @@ func main() {
 			authGroup.POST("/spiders/:id/file/rename", routes.RenameSpiderFile) // 爬虫文件重命名
 			authGroup.GET("/spiders/:id/dir", routes.GetSpiderDir)              // 爬虫目录
 			authGroup.GET("/spiders/:id/stats", routes.GetSpiderStats)          // 爬虫统计数据
-			authGroup.GET("/spider/types", routes.GetSpiderTypes)               // 爬虫类型
+			authGroup.GET("/spiders/:id/schedules", routes.GetSpiderSchedules)  // 爬虫定时任务
 			// 可配置爬虫
 			authGroup.GET("/config_spiders/:id/config", routes.GetConfigSpiderConfig)           // 获取可配置爬虫配置
 			authGroup.POST("/config_spiders/:id/config", routes.PostConfigSpiderConfig)         // 更改可配置爬虫配置
@@ -178,13 +189,13 @@ func main() {
 			authGroup.GET("/tasks/:id/results", routes.GetTaskResults)                  // 任务结果
 			authGroup.GET("/tasks/:id/results/download", routes.DownloadTaskResultsCsv) // 下载任务结果
 			// 定时任务
-			authGroup.GET("/schedules", routes.GetScheduleList)        // 定时任务列表
-			authGroup.GET("/schedules/:id", routes.GetSchedule)        // 定时任务详情
-			authGroup.PUT("/schedules", routes.PutSchedule)            // 创建定时任务
-			authGroup.POST("/schedules/:id", routes.PostSchedule)      // 修改定时任务
-			authGroup.DELETE("/schedules/:id", routes.DeleteSchedule)  // 删除定时任务
-			authGroup.POST("/schedules/:id/stop", routes.StopSchedule) // 停止定时任务
-			authGroup.POST("/schedules/:id/run", routes.RunSchedule)   // 运行定时任务
+			authGroup.GET("/schedules", routes.GetScheduleList)              // 定时任务列表
+			authGroup.GET("/schedules/:id", routes.GetSchedule)              // 定时任务详情
+			authGroup.PUT("/schedules", routes.PutSchedule)                  // 创建定时任务
+			authGroup.POST("/schedules/:id", routes.PostSchedule)            // 修改定时任务
+			authGroup.DELETE("/schedules/:id", routes.DeleteSchedule)        // 删除定时任务
+			authGroup.POST("/schedules/:id/disable", routes.DisableSchedule) // 禁用定时任务
+			authGroup.POST("/schedules/:id/enable", routes.EnableSchedule)   // 启用定时任务
 			// 统计数据
 			authGroup.GET("/stats/home", routes.GetHomeStats) // 首页统计数据
 			// 用户
@@ -196,7 +207,8 @@ func main() {
 			// release版本
 			authGroup.GET("/version", routes.GetVersion) // 获取发布的版本
 			// 系统
-			authGroup.GET("/system/deps", routes.GetAllDepList) // 节点所有第三方依赖列表
+			authGroup.GET("/system/deps/:lang", routes.GetAllDepList)             // 节点所有第三方依赖列表
+			authGroup.GET("/system/deps/:lang/:dep_name/json", routes.GetDepJson) // 节点第三方依赖JSON
 		}
 
 	}

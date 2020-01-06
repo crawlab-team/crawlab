@@ -51,6 +51,10 @@
       </el-form>
     </el-row>
     <el-row class="button-container" v-if="!isView">
+      <el-button size="normal" v-if="isShowRun" type="danger" @click="onCrawl"
+                 icon="el-icon-video-play" style="margin-right: 10px">
+        {{$t('Run')}}
+      </el-button>
       <el-upload
         v-if="spiderForm.type === 'customized'"
         :action="$request.baseUrl + `/spiders/${spiderForm._id}/upload`"
@@ -69,8 +73,7 @@
                  icon="el-icon-video-play">
         {{$t('Run')}}
       </el-button>
-      <el-button size="small" type="success" @click="onSave"
-                 icon="el-icon-check">
+      <el-button size="small" type="success" @click="onSave" icon="el-icon-check">
         {{$t('Save')}}
       </el-button>
     </el-row>

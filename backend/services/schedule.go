@@ -53,6 +53,8 @@ func AddScheduleTask(s model.Schedule) func() {
 				Param:    s.Param,
 			}
 			if err := AddTask(t); err != nil {
+				log.Errorf(err.Error())
+				debug.PrintStack()
 				return
 			}
 			if err := AssignTask(t); err != nil {
@@ -137,7 +139,7 @@ func (s *Scheduler) Start() error {
 func (s *Scheduler) AddJob(job model.Schedule) error {
 	spec := job.Cron
 
-	// 添加任务
+	// 添加定时任务
 	eid, err := s.cron.AddFunc(spec, AddScheduleTask(job))
 	if err != nil {
 		log.Errorf("add func task error: %s", err.Error())
@@ -147,7 +149,12 @@ func (s *Scheduler) AddJob(job model.Schedule) error {
 
 	// 更新EntryID
 	job.EntryId = eid
+
+	// 更新状态
 	job.Status = constants.ScheduleStatusRunning
+	job.Enabled = true
+
+	// 保存定时任务
 	if err := job.Save(); err != nil {
 		log.Errorf("job save error: %s", err.Error())
 		debug.PrintStack()
@@ -176,8 +183,8 @@ func ParserCron(spec string) error {
 	return nil
 }
 
-// 停止定时任务
-func (s *Scheduler) Stop(id bson.ObjectId) error {
+// 禁用定时任务
+func (s *Scheduler) Disable(id bson.ObjectId) error {
 	schedule, err := model.GetSchedule(id)
 	if err != nil {
 		return err
@@ -185,17 +192,22 @@ func (s *Scheduler) Stop(id bson.ObjectId) error {
 	if schedule.EntryId == 0 {
 		return errors.New("entry id not found")
 	}
+
+	// 从cron服务中删除该任务
 	s.cron.Remove(schedule.EntryId)
+
 	// 更新状态
 	schedule.Status = constants.ScheduleStatusStop
+	schedule.Enabled = false
+
 	if err = schedule.Save(); err != nil {
 		return err
 	}
 	return nil
 }
 
-// 运行任务
-func (s *Scheduler) Run(id bson.ObjectId) error {
+// 启用定时任务
+func (s *Scheduler) Enable(id bson.ObjectId) error {
 	schedule, err := model.GetSchedule(id)
 	if err != nil {
 		return err

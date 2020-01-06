@@ -345,9 +345,9 @@ export default {
     this.$store.dispatch('node/getNodeList')
   },
   mounted () {
-    // this.handle = setInterval(() => {
-    //   this.$store.dispatch('task/getTaskList')
-    // }, 5000)
+    this.handle = setInterval(() => {
+      this.$store.dispatch('task/getTaskList')
+    }, 5000)
   },
   destroyed () {
     clearInterval(this.handle)
