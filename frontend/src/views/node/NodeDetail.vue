@@ -49,8 +49,7 @@ export default {
   },
   methods: {
     onTabClick (name) {
-      if (name === 'installation') {
-      }
+      this.$st.sendEv('节点详情', '切换标签', name)
     },
     onNodeChange (id) {
       this.$router.push(`/nodes/${id}`)

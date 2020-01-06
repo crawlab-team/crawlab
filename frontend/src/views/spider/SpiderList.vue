@@ -163,8 +163,8 @@
       <!--tabs-->
       <el-tabs v-model="filter.type" @tab-click="onClickTab">
         <el-tab-pane :label="$t('All')" name="all"></el-tab-pane>
-        <el-tab-pane :label="$t('Configurable')" name="configurable"></el-tab-pane>
         <el-tab-pane :label="$t('Customized')" name="customized"></el-tab-pane>
+        <el-tab-pane :label="$t('Configurable')" name="configurable"></el-tab-pane>
       </el-tabs>
       <!--./tabs-->
 

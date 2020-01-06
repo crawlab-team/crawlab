@@ -9,7 +9,6 @@
           :placeholder="$t('Search Dependencies')"
           :fetchSuggestions="fetchAllDepList"
           :minlength="2"
-          :disabled="isShowInstalled"
           @select="onSearch"
         />
         <el-input
@@ -17,14 +16,12 @@
           v-model="depName"
           style="width: 240px"
           :placeholder="$t('Search Dependencies')"
-          :disabled="isShowInstalled"
         />
       </el-form-item>
       <el-form-item>
         <el-button
           icon="el-icon-search"
           type="success"
-          :disabled="isShowInstalled"
           @click="onSearch"
         >
           {{$t('Search')}}
@@ -187,11 +184,9 @@ export default {
       }) : [])
     },
     onSearch () {
-      if (!this.isShowInstalled) {
-        this.getDepList()
-      } else {
-        this.getInstalledDepList()
-      }
+      this.isShowInstalled = false
+      this.getDepList()
+      this.$st.sendEv('节点详情', '安装', '搜索')
     },
     onIsShowInstalledChange (val) {
       if (val) {
@@ -200,6 +195,7 @@ export default {
         this.depName = ''
         this.depList = []
       }
+      this.$st.sendEv('节点详情', '安装', '点击查看已安装')
     },
     async onClickInstallDep (dep) {
       const name = dep.name
@@ -223,6 +219,7 @@ export default {
         dep.installed = true
       }
       this.$set(this.depLoadingDict, name, false)
+      this.$st.sendEv('节点详情', '安装', '点击安装依赖')
     },
     async onClickUninstallDep (dep) {
       const name = dep.name
@@ -246,6 +243,7 @@ export default {
         dep.installed = false
       }
       this.$set(this.depLoadingDict, name, false)
+      this.$st.sendEv('节点详情', '安装', '点击卸载依赖')
     },
     getDepLoading (dep) {
       const name = dep.name
@@ -271,6 +269,7 @@ export default {
         })
       }
       this.isLoadingInstallLang = false
+      this.$st.sendEv('节点详情', '安装', '点击安装语言')
     },
     onTabChange () {
       if (this.isShowInstalled) {
@@ -279,6 +278,7 @@ export default {
         this.depName = ''
         this.depList = []
       }
+      this.$st.sendEv('节点详情', '安装', '切换标签')
     }
   },
   async created () {
