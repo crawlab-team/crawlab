@@ -107,13 +107,13 @@ func (spider *Spider) Delete() error {
 }
 
 // 获取爬虫列表
-func GetSpiderList(filter interface{}, skip int, limit int) ([]Spider, int, error) {
+func GetSpiderList(filter interface{}, skip int, limit int, sortStr string) ([]Spider, int, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 
 	// 获取爬虫列表
 	var spiders []Spider
-	if err := c.Find(filter).Skip(skip).Limit(limit).Sort("+name").All(&spiders); err != nil {
+	if err := c.Find(filter).Skip(skip).Limit(limit).Sort(sortStr).All(&spiders); err != nil {
 		debug.PrintStack()
 		return spiders, 0, err
 	}

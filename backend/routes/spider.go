@@ -27,22 +27,38 @@ import (
 )
 
 func GetSpiderList(c *gin.Context) {
-	pageNum, _ := c.GetQuery("pageNum")
-	pageSize, _ := c.GetQuery("pageSize")
+	pageNum, _ := c.GetQuery("page_num")
+	pageSize, _ := c.GetQuery("page_size")
 	keyword, _ := c.GetQuery("keyword")
 	t, _ := c.GetQuery("type")
+	sortKey, _ := c.GetQuery("sort_key")
+	sortDirection, _ := c.GetQuery("sort_direction")
 
+	// 筛选
 	filter := bson.M{
 		"name": bson.M{"$regex": bson.RegEx{Pattern: keyword, Options: "im"}},
 	}
-
 	if t != "" && t != "all" {
 		filter["type"] = t
 	}
 
+	// 排序
+	sortStr := "-_id"
+	if sortKey != "" && sortDirection != "" {
+		if sortDirection == constants.DESCENDING {
+			sortStr = "-" + sortKey
+		} else if sortDirection == constants.ASCENDING {
+			sortStr = "+" + sortKey
+		} else {
+			HandleErrorF(http.StatusBadRequest, c, "invalid sort_direction")
+		}
+	}
+
+	// 分页
 	page := &entity.Page{}
 	page.GetPage(pageNum, pageSize)
-	results, count, err := model.GetSpiderList(filter, page.Skip, page.Limit)
+
+	results, count, err := model.GetSpiderList(filter, page.Skip, page.Limit, sortStr)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
