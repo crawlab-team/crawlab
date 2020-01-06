@@ -356,5 +356,8 @@ export default {
     add_cron: '生成Cron',
     // Cron Format: [second] [minute] [hour] [day of month] [month] [day of week]
     cron_format: 'Cron 格式: [秒] [分] [小时] [日] [月] [周]'
-  }
+  },
+
+  // 其他
+  'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'
 }

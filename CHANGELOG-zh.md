@@ -8,6 +8,8 @@
 - **启用/禁用定时任务**. 允许用户启用/禁用定时任务. [#297](https://github.com/crawlab-team/crawlab/issues/297)
 - **优化任务管理**. 允许用户批量删除任务. [#341](https://github.com/crawlab-team/crawlab/issues/341)
 - **优化爬虫管理**. 允许用户在爬虫列表页对爬虫进行筛选和排序.
+- **添加中文版 `CHANGELOG`**.
+- **在顶部添加 Github 加星按钮**.
 
 ### Bug 修复
 - **定时任务问题**. [#423](https://github.com/crawlab-team/crawlab/issues/423)

@@ -21,7 +21,7 @@
 三种方式:
 1. [Docker](https://tikazyq.github.io/crawlab-docs/Installation/Docker.html)（推荐）
 2. [直接部署](https://tikazyq.github.io/crawlab-docs/Installation/Direct.html)（了解内核）
-3. [Kubernetes](https://mp.weixin.qq.com/s/3Q1BQATUIEE_WXcHPqhYbA)
+3. [Kubernetes](https://juejin.im/post/5e0a02d851882549884c27ad) (多节点部署)
 
 ### 要求（Docker）
 - Docker 18.03+
@@ -31,8 +31,16 @@
 ### 要求（直接部署）
 - Go 1.12+
 - Node 8.12+
-- Redis
+- Redis 5.x+
 - MongoDB 3.6+
+
+## 快速开始
+
+```bash
+git clone https://github.com/crawlab-team/crawlab
+cd crawlab
+docker-compose up -d
+```
 
 ## 运行
 
@@ -122,6 +130,10 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-d
 #### 定时任务
 
 ![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/schedule.png)
+
+#### 依赖安装
+
+![](http://static-docs.crawlab.cn/node-install-dependencies.png)
 
 ## 架构
 

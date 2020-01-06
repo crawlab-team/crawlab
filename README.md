@@ -21,7 +21,7 @@ Golang-based distributed web crawler management platform, supporting various lan
 Two methods:
 1. [Docker](https://tikazyq.github.io/crawlab-docs/Installation/Docker.html) (Recommended)
 2. [Direct Deploy](https://tikazyq.github.io/crawlab-docs/Installation/Direct.html) (Check Internal Kernel)
-3. [Kubernetes](https://mp.weixin.qq.com/s/3Q1BQATUIEE_WXcHPqhYbA)
+3. [Kubernetes](https://juejin.im/post/5e0a02d851882549884c27ad) (Multi-Node Deployment)
 
 ### Pre-requisite (Docker)
 - Docker 18.03+
@@ -31,8 +31,16 @@ Two methods:
 ### Pre-requisite (Direct Deploy)
 - Go 1.12+
 - Node 8.12+
-- Redis
+- Redis 5.x+
 - MongoDB 3.6+
+
+## Quick Start
+
+```bash
+git clone https://github.com/crawlab-team/crawlab
+cd crawlab
+docker-compose up -d
+```
 
 ## Run
 
@@ -120,6 +128,10 @@ For Docker Deployment details, please refer to [relevant documentation](https://
 #### Cron Job
 
 ![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/schedule.png)
+
+#### Dependency Installation
+
+![](http://static-docs.crawlab.cn/node-install-dependencies.png)
 
 ## Architecture
 

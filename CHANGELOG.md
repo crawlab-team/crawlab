@@ -8,6 +8,8 @@
 - **Enable/Disable Schedule Cron**. Allow users to enable/disable the schedule jobs. [#297](https://github.com/crawlab-team/crawlab/issues/297)
 - **Better Task Management**. Allow users to batch delete tasks. [#341](https://github.com/crawlab-team/crawlab/issues/341)
 - **Better Spider Management**. Allow users to sort and filter spiders in the spider list page.
+- **Added Chinese `CHANGELOG`**.
+- **Added Github Star Button at Nav Bar**.
 
 ### Bug Fixes
 - **Schedule Cron Task Issue**. [#423](https://github.com/crawlab-team/crawlab/issues/423)

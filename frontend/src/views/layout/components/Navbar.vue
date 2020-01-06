@@ -34,6 +34,17 @@
       </a>
       <el-dropdown-menu slot="dropdown"></el-dropdown-menu>
     </el-dropdown>
+    <el-dropdown class="github right">
+      <!-- Place this tag where you want the button to render. -->
+      <github-button
+        href="https://github.com/crawlab-team/crawlab"
+        data-color-scheme="no-preference: light; light: light; dark: dark;"
+        data-size="large"
+        data-show-count="true"
+        :aria-label="$t('Star crawlab-team/crawlab on GitHub')">
+        Star
+      </github-button>
+    </el-dropdown>
   </div>
 </template>
 
@@ -41,11 +52,13 @@
 import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
+import GithubButton from 'vue-github-button'
 
 export default {
   components: {
     Breadcrumb,
-    Hamburger
+    Hamburger,
+    GithubButton
   },
   computed: {
     ...mapGetters([
@@ -120,6 +133,12 @@ export default {
       .span {
         margin-left: 5px;
       }
+    }
+
+    .github {
+      height: 50px;
+      margin-right: 35px;
+      margin-top: -10px;
     }
 
     .right {
