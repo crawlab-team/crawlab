@@ -1,25 +1,25 @@
 api:
   address: "localhost:8000"
 mongo:
-  host: localhost
+  host: "192.168.235.26"
   port: 27017
-  db: crawlab_test
-  username: ""
-  password: ""
+  db: crawlab_local
+  username: "root"
+  password: "example"
   authSource: "admin"
 redis:
-  address: localhost
-  password: ""
+  address: 127.0.0.1
+  password:
   database: 1
   port: 6379
 log:
   level: info
-  path: "/var/logs/crawlab"
+  path: "./logs/crawlab"
   isDeletePeriodically: "N"
   deleteFrequency: "@hourly"
 server:
   host: 0.0.0.0
-  port: 8000
+  port: 8001
   master: "Y"
   secret: "crawlab"
   register:
@@ -30,7 +30,7 @@ server:
     python: "Y"
     node: "N"
 spider:
-  path: "/app/spiders"
+  path: "./spiders"
 task:
   workers: 4
 other:

@@ -4,7 +4,7 @@
       <!--filter-->
       <div class="filter">
         <div class="left">
-          <el-form model="filter" label-width="100px" label-position="right" inline>
+          <el-form :model="filter" label-width="100px" label-position="right" inline>
             <el-form-item prop="node_id" :label="$t('Node')">
               <el-select v-model="filter.node_id" size="small" :placeholder="$t('Node')" @change="onFilterChange">
                 <el-option value="" :label="$t('All')"/>
@@ -125,7 +125,7 @@
                            :width="col.width">
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" fixed="right" width="150px">
+        <el-table-column :label="$t('Action')" align="left" fixed="right" width="120px">
           <template slot-scope="scope">
             <el-tooltip :content="$t('View')" placement="top">
               <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>

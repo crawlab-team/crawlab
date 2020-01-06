@@ -182,7 +182,7 @@
             <el-tooltip :content="$t('Remove')" placement="top">
               <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
             </el-tooltip>
-            <el-tooltip v-if="false" :content="$t(getStatusTooltip(scope.row))" placement="top">
+            <el-tooltip :content="$t(getStatusTooltip(scope.row))" placement="top">
               <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
             </el-tooltip>
           </template>
