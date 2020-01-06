@@ -117,7 +117,7 @@
 
       <!--table list-->
       <el-table :data="filteredTableData"
-                class="table"
+                class="table" height="500"
                 :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
                 border>
         <template v-for="col in columns">
@@ -172,7 +172,7 @@
             </template>
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" width="auto" fixed="right">
+        <el-table-column :label="$t('Action')" align="left" width="130" fixed="right">
           <template slot-scope="scope">
             <!-- 编辑 -->
             <el-tooltip :content="$t('Edit')" placement="top">
@@ -182,9 +182,9 @@
             <el-tooltip :content="$t('Remove')" placement="top">
               <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
             </el-tooltip>
-            <el-tooltip :content="$t(getStatusTooltip(scope.row))" placement="top">
-              <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>
-            </el-tooltip>
+            <!--<el-tooltip :content="$t(getStatusTooltip(scope.row))" placement="top">-->
+              <!--<el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>-->
+            <!--</el-tooltip>-->
           </template>
         </el-table-column>
       </el-table>
