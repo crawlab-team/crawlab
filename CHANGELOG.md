@@ -1,10 +1,18 @@
-# 0.4.3 (unknown)
+# 0.4.3 (2020-01-07)
 
 ### Features / Enhancement
 - **Dependency Installation**. Allow users to install/uninstall dependencies and add programming languages (Node.js only for now) on the platform web interface.
 - **Pre-install Programming Languages in Docker**. Allow Docker users to set `CRAWLAB_SERVER_LANG_NODE` as `Y` to pre-install `Node.js` environments.
 - **Add Schedule List in Spider Detail Page**. Allow users to view / add / edit schedule cron jobs in the spider detail page. [#360](https://github.com/crawlab-team/crawlab/issues/360)
+- **Align Cron Expression with Linux**. Change the expression of 6 elements to 5 elements as aligned in Linux.
+- **Enable/Disable Schedule Cron**. Allow users to enable/disable the schedule jobs. [#297](https://github.com/crawlab-team/crawlab/issues/297)
+- **Better Task Management**. Allow users to batch delete tasks. [#341](https://github.com/crawlab-team/crawlab/issues/341)
+- **Better Spider Management**. Allow users to sort and filter spiders in the spider list page.
 
+### Bug Fixes
+- **Schedule Cron Task Issue**. [#423](https://github.com/crawlab-team/crawlab/issues/423)
+- **Upload Spider Zip File Issue**. [#403](https://github.com/crawlab-team/crawlab/issues/403) [#407](https://github.com/crawlab-team/crawlab/issues/407)
+- **Exit due to Network Failure**. [#340](https://github.com/crawlab-team/crawlab/issues/340)
 
 # 0.4.2 (2019-12-26)
 ### Features / Enhancement
