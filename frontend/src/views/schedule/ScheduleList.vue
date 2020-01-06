@@ -67,8 +67,10 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('Cron')" prop="cron" required>
-          <el-input v-model="scheduleForm.cron"
-                    :placeholder="$t('schedules.cron')">
+          <el-input
+            v-model="scheduleForm.cron"
+            :placeholder="`${$t('[minute] [hour] [day] [month] [day of week]')}`"
+          >
           </el-input>
           <!--<el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('schedules.add_cron')}}</el-button>-->
         </el-form-item>
@@ -137,11 +139,26 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column v-else-if="col.name === 'run_type'" :key="col.name" :label="$t(col.label)">
+          <el-table-column v-else-if="col.name === 'run_type'" :key="col.name" :label="$t(col.label)" :width="col.width">
             <template slot-scope="scope">
               <template v-if="scope.row.run_type === 'all-nodes'">{{$t('All Nodes')}}</template>
               <template v-else-if="scope.row.run_type === 'selected-nodes'">{{$t('Selected Nodes')}}</template>
               <template v-else-if="scope.row.run_type === 'random'">{{$t('Random')}}</template>
+            </template>
+          </el-table-column>
+          <el-table-column v-else-if="col.name === 'node_names'" :key="col.name" :label="$t(col.label)" :width="col.width">
+            <template slot-scope="scope">
+              {{scope.row.nodes.map(d => d.name).join(', ')}}
+            </template>
+          </el-table-column>
+          <el-table-column v-else-if="col.name === 'enable'" :key="col.name" :label="$t(col.label)" :width="col.width">
+            <template slot-scope="scope">
+              <el-switch
+                v-model="scope.row.enabled"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+                @change="onEnabledChange(scope.row)"
+              />
             </template>
           </el-table-column>
           <el-table-column v-else :key="col.name"
@@ -155,7 +172,7 @@
             </template>
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" width="180px" fixed="right">
+        <el-table-column :label="$t('Action')" align="left" width="auto" fixed="right">
           <template slot-scope="scope">
             <!-- 编辑 -->
             <el-tooltip :content="$t('Edit')" placement="top">
@@ -188,14 +205,15 @@ export default {
   data () {
     return {
       columns: [
-        { name: 'name', label: 'Name', width: '180' },
-        { name: 'cron', label: 'Cron', width: '120' },
-        { name: 'run_type', label: 'Run Type', width: '150' },
-        { name: 'node_name', label: 'Node', width: '150' },
-        { name: 'spider_name', label: 'Spider', width: '150' },
-        { name: 'param', label: 'Parameters', width: '150' },
-        { name: 'description', label: 'Description', width: 'auto' },
-        { name: 'status', label: 'Status', width: 'auto' }
+        { name: 'name', label: 'Name', width: '150px' },
+        { name: 'cron', label: 'Cron', width: '120px' },
+        { name: 'run_type', label: 'Run Type', width: '120px' },
+        { name: 'node_names', label: 'Node', width: '150px' },
+        { name: 'spider_name', label: 'Spider', width: '150px' },
+        { name: 'param', label: 'Parameters', width: '150px' },
+        { name: 'description', label: 'Description', width: '200px' },
+        { name: 'enable', label: 'Enable/Disable', width: '120px' }
+        // { name: 'status', label: 'Status', width: '100px' }
       ],
       isEdit: false,
       dialogTitle: '',
@@ -242,23 +260,27 @@ export default {
     onAddSubmit () {
       this.$refs.scheduleForm.validate(res => {
         if (res) {
+          const form = JSON.parse(JSON.stringify(this.scheduleForm))
+          form.cron = '0 ' + this.scheduleForm.cron
           if (this.isEdit) {
-            request.post(`/schedules/${this.scheduleForm._id}`, this.scheduleForm).then(response => {
+            request.post(`/schedules/${this.scheduleForm._id}`, form).then(response => {
               if (response.data.error) {
                 this.$message.error(response.data.error)
                 return
               }
               this.dialogVisible = false
               this.$store.dispatch('schedule/getScheduleList')
+              this.$message.success(this.$t('The schedule has been saved'))
             })
           } else {
-            request.put('/schedules', this.scheduleForm).then(response => {
+            request.put('/schedules', form).then(response => {
               if (response.data.error) {
                 this.$message.error(response.data.error)
                 return
               }
               this.dialogVisible = false
               this.$store.dispatch('schedule/getScheduleList')
+              this.$message.success(this.$t('The schedule has been added'))
             })
           }
         }
@@ -283,56 +305,12 @@ export default {
           .then(() => {
             setTimeout(() => {
               this.$store.dispatch('schedule/getScheduleList')
-              this.$message.success(`Schedule "${row.name}" has been removed`)
+              this.$message.success(this.$t('The schedule has been removed'))
             }, 100)
           })
       }).catch(() => {
       })
       this.$st.sendEv('定时任务', '删除定时任务')
-    },
-    onCrawl (row) {
-      // 停止定时任务
-      if (!row.status || row.status === 'running') {
-        this.$confirm(this.$t('Are you sure to delete the schedule task?'), this.$t('Notification'), {
-          confirmButtonText: this.$t('Confirm'),
-          cancelButtonText: this.$t('Cancel'),
-          type: 'warning'
-        }).then(() => {
-          this.$store.dispatch('schedule/stopSchedule', row._id)
-            .then((resp) => {
-              if (resp.data.status === 'ok') {
-                this.$store.dispatch('schedule/getScheduleList')
-                return
-              }
-              this.$message({
-                type: 'error',
-                message: resp.data.error
-              })
-            })
-        }).catch(() => {
-        })
-      }
-      // 运行定时任务
-      if (row.status === 'stop') {
-        this.$confirm(this.$t('Are you sure to delete the schedule task?'), this.$t('Notification'), {
-          confirmButtonText: this.$t('Confirm'),
-          cancelButtonText: this.$t('Cancel'),
-          type: 'warning'
-        }).then(() => {
-          this.$store.dispatch('schedule/runSchedule', row._id)
-            .then((resp) => {
-              if (resp.data.status === 'ok') {
-                this.$store.dispatch('schedule/getScheduleList')
-                return
-              }
-              this.$message({
-                type: 'error',
-                message: resp.data.error
-              })
-            })
-        }).catch(() => {
-        })
-      }
     },
     isDisabledSpider (spider) {
       if (spider.type === 'customized') {
@@ -348,6 +326,19 @@ export default {
         return 'Stop'
       } else if (row.status === 'error') {
         return 'Start'
+      }
+    },
+    async onEnabledChange (row) {
+      let res
+      if (row.enabled) {
+        res = await this.$store.dispatch('schedule/enableSchedule', row._id)
+      } else {
+        res = await this.$store.dispatch('schedule/disableSchedule', row._id)
+      }
+      if (!res || res.data.error) {
+        this.$message.error(this.$t(`${row.enabled ? 'Enabling' : 'Disabling'} the schedule unsuccessful`))
+      } else {
+        this.$message.success(this.$t(`${row.enabled ? 'Enabling' : 'Disabling'} the schedule successful`))
       }
     }
   },
