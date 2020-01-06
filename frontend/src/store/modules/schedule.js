@@ -21,12 +21,14 @@ const actions = {
   getScheduleList ({ state, commit }) {
     request.get('/schedules')
       .then(response => {
-        commit('SET_SCHEDULE_LIST', response.data.data.map(d => {
-          const arr = d.cron.split(' ')
-          arr.splice(0, 1)
-          d.cron = arr.join(' ')
-          return d
-        }))
+        if (response.data.data) {
+          commit('SET_SCHEDULE_LIST', response.data.data.map(d => {
+            const arr = d.cron.split(' ')
+            arr.splice(0, 1)
+            d.cron = arr.join(' ')
+            return d
+          }))
+        }
       })
   },
   addSchedule ({ state }) {
