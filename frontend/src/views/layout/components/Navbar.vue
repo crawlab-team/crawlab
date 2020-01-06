@@ -44,6 +44,7 @@
         :aria-label="$t('Star crawlab-team/crawlab on GitHub')">
         Star
       </github-button>
+      <el-dropdown-menu slot="dropdown"></el-dropdown-menu>
     </el-dropdown>
   </div>
 </template>

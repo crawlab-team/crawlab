@@ -2,7 +2,7 @@
   <div class="node-installation">
     <el-form inline>
       <el-form-item>
-        <el-autocomplete
+        <el-autocomplete size="small" clearable @clear="onSearch"
           v-if="activeLang.executable_name === 'python'"
           v-model="depName"
           style="width: 240px"
@@ -10,7 +10,7 @@
           :fetchSuggestions="fetchAllDepList"
           :minlength="2"
           @select="onSearch"
-        />
+        ></el-autocomplete>
         <el-input
           v-else
           v-model="depName"
@@ -19,7 +19,7 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button
+        <el-button size="small"
           icon="el-icon-search"
           type="success"
           @click="onSearch"
@@ -161,9 +161,11 @@ export default {
 
         // 异步获取python附加信息
         this.depList.map(async dep => {
-          const res = await this.$request.get(`/system/deps/${this.activeLang.executable_name}/${dep.name}/json`)
-          dep.version = res.data.data.version
-          dep.description = res.data.data.description
+          const resp = await this.$request.get(`/system/deps/${this.activeLang.executable_name}/${dep.name}/json`)
+          if (resp) {
+            dep.version = resp.data.data.version
+            dep.description = resp.data.data.description
+          }
         })
       }
     },

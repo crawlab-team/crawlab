@@ -3,7 +3,7 @@
     <!--selector-->
     <div class="selector">
       <label class="label">{{$t('Node')}}: </label>
-      <el-select v-model="nodeForm._id" @change="onNodeChange">
+      <el-select size="small" v-model="nodeForm._id" @change="onNodeChange">
         <el-option v-for="op in nodeList" :key="op._id" :value="op._id" :label="op.name"></el-option>
       </el-select>
     </div>
