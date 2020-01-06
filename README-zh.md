@@ -1,8 +1,8 @@
 # Crawlab
 
-![](http://jenkins.crawlab.cn/buildStatus/icon?job=crawlab%2Fmaster)
-![](https://img.shields.io/github/release/crawlab-team/crawlab.svg?logo=github)
+![](https://img.shields.io/docker/cloud/build/tikazyq/crawlab.svg?label=build&logo=docker)
 ![](https://img.shields.io/docker/pulls/tikazyq/crawlab?label=pulls&logo=docker)
+![](https://img.shields.io/github/release/crawlab-team/crawlab.svg?logo=github)
 ![](https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg)
 ![](https://img.shields.io/github/issues/crawlab-team/crawlab/bug.svg?label=bugs&color=red)
 ![](https://img.shields.io/github/issues/crawlab-team/crawlab/enhancement.svg?label=enhancements&color=cyan)
