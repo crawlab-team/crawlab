@@ -75,12 +75,12 @@ func AddScheduleTask(s model.Schedule) func() {
 				if err := AddTask(t); err != nil {
 					return
 				}
-
-				if err := AssignTask(t); err != nil {
-					log.Errorf(err.Error())
-					debug.PrintStack()
-					return
-				}
+				// AddTask 方法已执行AssignTask
+				//if err := AssignTask(t); err != nil {
+				//	log.Errorf(err.Error())
+				//	debug.PrintStack()
+				//	return
+				//}
 			}
 		} else {
 			return
