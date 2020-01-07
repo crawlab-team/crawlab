@@ -15,6 +15,9 @@
 - **定时任务问题**. [#423](https://github.com/crawlab-team/crawlab/issues/423)
 - **上传爬虫zip文件问题**. [#403](https://github.com/crawlab-team/crawlab/issues/403) [#407](https://github.com/crawlab-team/crawlab/issues/407)
 - **因为网络原因导致崩溃**. [#340](https://github.com/crawlab-team/crawlab/issues/340)
+- **定时任务无法正常运行**
+- **定时任务列表列表错位问题**
+- **刷新按钮跳转错误问题**
 
 # 0.4.2 (2019-12-26)
 ### 功能 / 优化

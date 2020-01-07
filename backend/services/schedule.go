@@ -39,11 +39,6 @@ func AddScheduleTask(s model.Schedule) func() {
 				if err := AddTask(t); err != nil {
 					return
 				}
-				if err := AssignTask(t); err != nil {
-					log.Errorf(err.Error())
-					debug.PrintStack()
-					return
-				}
 			}
 		} else if s.RunType == constants.RunTypeRandom {
 			// 随机
@@ -53,11 +48,6 @@ func AddScheduleTask(s model.Schedule) func() {
 				Param:    s.Param,
 			}
 			if err := AddTask(t); err != nil {
-				log.Errorf(err.Error())
-				debug.PrintStack()
-				return
-			}
-			if err := AssignTask(t); err != nil {
 				log.Errorf(err.Error())
 				debug.PrintStack()
 				return
@@ -75,33 +65,10 @@ func AddScheduleTask(s model.Schedule) func() {
 				if err := AddTask(t); err != nil {
 					return
 				}
-
-				if err := AssignTask(t); err != nil {
-					log.Errorf(err.Error())
-					debug.PrintStack()
-					return
-				}
 			}
 		} else {
 			return
 		}
-
-		//node, err := model.GetNodeByKey(s.NodeKey)
-		//if err != nil || node.Id.Hex() == "" {
-		//	log.Errorf("get node by key error: %s", err.Error())
-		//	debug.PrintStack()
-		//	return
-		//}
-		//
-		//spider := model.GetSpiderByName(s.SpiderName)
-		//if spider == nil || spider.Id.Hex() == "" {
-		//	log.Errorf("get spider by name error: %s", err.Error())
-		//	debug.PrintStack()
-		//	return
-		//}
-		//
-		//// 同步ID到定时任务
-		//s.SyncNodeIdAndSpiderId(node, *spider)
 	}
 }
 

@@ -15,6 +15,9 @@
 - **Schedule Cron Task Issue**. [#423](https://github.com/crawlab-team/crawlab/issues/423)
 - **Upload Spider Zip File Issue**. [#403](https://github.com/crawlab-team/crawlab/issues/403) [#407](https://github.com/crawlab-team/crawlab/issues/407)
 - **Exit due to Network Failure**. [#340](https://github.com/crawlab-team/crawlab/issues/340)
+- **Cron Jobs not Running Correctly**
+- **Schedule List Columns Mis-positioned**
+- **Clicking Refresh Button Redirected to 404 Page**
 
 # 0.4.2 (2019-12-26)
 ### Features / Enhancement
