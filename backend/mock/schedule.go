@@ -23,7 +23,6 @@ var scheduleList = []model.Schedule{
 		EntryId:  10,
 		// 前端展示
 		SpiderName: "test scedule",
-		NodeName:   "测试节点",
 
 		CreateTs: time.Now(),
 		UpdateTs: time.Now(),
@@ -37,7 +36,6 @@ var scheduleList = []model.Schedule{
 		EntryId:  10,
 		// 前端展示
 		SpiderName: "test scedule2",
-		NodeName:   "测试节点",
 
 		CreateTs: time.Now(),
 		UpdateTs: time.Now(),
