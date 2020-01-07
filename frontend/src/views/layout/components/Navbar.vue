@@ -40,7 +40,9 @@
         data-color-scheme="no-preference: light; light: light; dark: dark;"
         data-size="large"
         data-show-count="true"
-        :aria-label="$t('Star crawlab-team/crawlab on GitHub')">
+        :aria-label="$t('Star crawlab-team/crawlab on GitHub')"
+        style="color: white"
+      >
         Star
       </github-button>
     </div>
