@@ -15,7 +15,7 @@ WORKDIR /app
 
 # install frontend
 RUN npm config set unsafe-perm true
-RUN npm install -g yarn && yarn install --registry=https://registry.npm.taobao.org # --sass_binary_site=https://npm.taobao.org/mirrors/node-sass/
+RUN npm install -g yarn && yarn install
 
 RUN npm run build:prod
 
@@ -37,7 +37,7 @@ RUN apt-get update \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
 
 # install backend
-RUN pip install scrapy pymongo bs4 requests -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip install scrapy pymongo bs4 requests
 
 # copy backend files
 COPY --from=backend-build /go/bin/crawlab /usr/local/bin
