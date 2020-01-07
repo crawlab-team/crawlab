@@ -627,11 +627,15 @@ func AddTask(t model.Task) error {
 
 	// 将任务存入数据库
 	if err := model.AddTask(t); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
 		return err
 	}
 
 	// 加入任务队列
 	if err := AssignTask(t); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
 		return err
 	}
 

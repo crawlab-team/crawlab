@@ -3,7 +3,7 @@
     <!--selector-->
     <div class="selector">
       <label class="label">{{$t('Node')}}: </label>
-      <el-select v-model="nodeForm._id" @change="onNodeChange">
+      <el-select size="small" v-model="nodeForm._id" @change="onNodeChange">
         <el-option v-for="op in nodeList" :key="op._id" :value="op._id" :label="op.name"></el-option>
       </el-select>
     </div>
@@ -49,8 +49,7 @@ export default {
   },
   methods: {
     onTabClick (name) {
-      if (name === 'installation') {
-      }
+      this.$st.sendEv('节点详情', '切换标签', name)
     },
     onNodeChange (id) {
       this.$router.push(`/nodes/${id}`)

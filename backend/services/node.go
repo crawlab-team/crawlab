@@ -103,7 +103,7 @@ func UpdateNodeStatus() {
 	model.ResetNodeStatusToOffline(list)
 }
 
-// 处理接到信息
+// 处理节点信息
 func handleNodeInfo(key string, data *Data) {
 	// 添加同步锁
 	v, err := database.RedisClient.Lock(key)
@@ -186,10 +186,12 @@ func UpdateNodeData() {
 		debug.PrintStack()
 		return
 	}
+
 	if err := database.RedisClient.HSet("nodes", key, utils.BytesToString(dataBytes)); err != nil {
 		log.Errorf(err.Error())
 		return
 	}
+  
 }
 
 func MasterNodeCallback(message redis.Message) (err error) {

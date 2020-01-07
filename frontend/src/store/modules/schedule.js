@@ -21,7 +21,14 @@ const actions = {
   getScheduleList ({ state, commit }) {
     request.get('/schedules')
       .then(response => {
-        commit('SET_SCHEDULE_LIST', response.data.data)
+        if (response.data.data) {
+          commit('SET_SCHEDULE_LIST', response.data.data.map(d => {
+            const arr = d.cron.split(' ')
+            arr.splice(0, 1)
+            d.cron = arr.join(' ')
+            return d
+          }))
+        }
       })
   },
   addSchedule ({ state }) {
@@ -33,11 +40,11 @@ const actions = {
   removeSchedule ({ state }, id) {
     request.delete(`/schedules/${id}`)
   },
-  stopSchedule ({ state, dispatch }, id) {
-    return request.post(`/schedules/${id}/stop`)
+  enableSchedule ({ state, dispatch }, id) {
+    return request.post(`/schedules/${id}/enable`)
   },
-  runSchedule ({ state, dispatch }, id) {
-    return request.post(`/schedules/${id}/run`)
+  disableSchedule ({ state, dispatch }, id) {
+    return request.post(`/schedules/${id}/disable`)
   }
 }
 

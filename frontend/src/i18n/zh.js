@@ -223,6 +223,9 @@ export default {
   'error': '错误',
   'Not Found Node': '节点配置错误',
   'Not Found Spider': '爬虫配置错误',
+  '[minute] [hour] [day] [month] [day of week]': '[分] [时] [天] [月] [星期几]',
+  'Enable/Disable': '启用/禁用',
+  'Cron': 'Cron',
 
   // 网站
   'Site': '网站',
@@ -313,6 +316,13 @@ export default {
   'Installing language failed': '安装语言失败',
   'You have successfully installed a language: ': '您已成功安装语言: ',
   'The language installation is unsuccessful: ': '安装语言失败: ',
+  'Enabling the schedule successful': '启用定时任务成功',
+  'Disabling the schedule successful': '禁用定时任务成功',
+  'Enabling the schedule unsuccessful': '启用定时任务失败',
+  'Disabling the schedule unsuccessful': '禁用定时任务失败',
+  'The schedule has been removed': '已删除定时任务',
+  'The schedule has been added': '已添加定时任务',
+  'The schedule has been saved': '已保存定时任务',
 
   // 登录
   'Sign in': '登录',
@@ -347,5 +357,8 @@ export default {
     add_cron: '生成Cron',
     // Cron Format: [second] [minute] [hour] [day of month] [month] [day of week]
     cron_format: 'Cron 格式: [秒] [分] [小时] [日] [月] [周]'
-  }
+  },
+
+  // 其他
+  'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'
 }

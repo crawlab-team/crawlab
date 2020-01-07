@@ -16,20 +16,17 @@ type Schedule struct {
 	Name        string          `json:"name" bson:"name"`
 	Description string          `json:"description" bson:"description"`
 	SpiderId    bson.ObjectId   `json:"spider_id" bson:"spider_id"`
-	//NodeId      bson.ObjectId   `json:"node_id" bson:"node_id"`
-	//NodeKey     string          `json:"node_key" bson:"node_key"`
 	Cron        string          `json:"cron" bson:"cron"`
 	EntryId     cron.EntryID    `json:"entry_id" bson:"entry_id"`
 	Param       string          `json:"param" bson:"param"`
 	RunType     string          `json:"run_type" bson:"run_type"`
 	NodeIds     []bson.ObjectId `json:"node_ids" bson:"node_ids"`
-
-	// 状态
-	Status string `json:"status" bson:"status"`
+	Status      string          `json:"status" bson:"status"`
+	Enabled     bool            `json:"enabled" bson:"enabled"`
 
 	// 前端展示
 	SpiderName string `json:"spider_name" bson:"spider_name"`
-	NodeName   string `json:"node_name" bson:"node_name"`
+	Nodes      []Node `json:"nodes" bson:"nodes"`
 	Message    string `json:"message" bson:"message"`
 
 	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
@@ -84,20 +81,15 @@ func GetScheduleList(filter interface{}) ([]Schedule, error) {
 
 	var schs []Schedule
 	for _, schedule := range schedules {
-		// TODO: 获取节点名称
-		//if schedule.NodeId == bson.ObjectIdHex(constants.ObjectIdNull) {
-		//	// 选择所有节点
-		//	schedule.NodeName = "All Nodes"
-		//} else {
-		//	// 选择单一节点
-		//	node, err := GetNode(schedule.NodeId)
-		//	if err != nil {
-		//		schedule.Status = constants.ScheduleStatusError
-		//		schedule.Message = constants.ScheduleStatusErrorNotFoundNode
-		//	} else {
-		//		schedule.NodeName = node.Name
-		//	}
-		//}
+		// 获取节点名称
+		schedule.Nodes = []Node{}
+		if schedule.RunType == constants.RunTypeSelectedNodes {
+			for _, nodeId := range schedule.NodeIds {
+				// 选择单一节点
+				node, _ := GetNode(nodeId)
+				schedule.Nodes = append(schedule.Nodes, node)
+			}
+		}
 
 		// 获取爬虫名称
 		spider, err := GetSpider(schedule.SpiderId)

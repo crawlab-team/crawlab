@@ -110,9 +110,9 @@ func DeleteSchedule(c *gin.Context) {
 }
 
 // 停止定时任务
-func StopSchedule(c *gin.Context) {
+func DisableSchedule(c *gin.Context) {
 	id := c.Param("id")
-	if err := services.Sched.Stop(bson.ObjectIdHex(id)); err != nil {
+	if err := services.Sched.Disable(bson.ObjectIdHex(id)); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
@@ -120,9 +120,9 @@ func StopSchedule(c *gin.Context) {
 }
 
 // 运行定时任务
-func RunSchedule(c *gin.Context) {
+func EnableSchedule(c *gin.Context) {
 	id := c.Param("id")
-	if err := services.Sched.Run(bson.ObjectIdHex(id)); err != nil {
+	if err := services.Sched.Enable(bson.ObjectIdHex(id)); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}

@@ -1,16 +1,16 @@
 # Crawlab
 
-![](http://114.67.75.98:8082/buildStatus/icon?job=crawlab%2Fmaster)
-![](https://img.shields.io/github/release/crawlab-team/crawlab.svg)
+![](https://img.shields.io/docker/cloud/build/tikazyq/crawlab.svg?label=build&logo=docker)
+![](https://img.shields.io/docker/pulls/tikazyq/crawlab?label=pulls&logo=docker)
+![](https://img.shields.io/github/release/crawlab-team/crawlab.svg?logo=github)
 ![](https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg)
-![](https://img.shields.io/github/issues/crawlab-team/crawlab.svg)
-![](https://img.shields.io/github/contributors/crawlab-team/crawlab.svg)
-![](https://img.shields.io/docker/pulls/tikazyq/crawlab)
+![](https://img.shields.io/github/issues/crawlab-team/crawlab/bug.svg?label=bugs&color=red)
+![](https://img.shields.io/github/issues/crawlab-team/crawlab/enhancement.svg?label=enhancements&color=cyan)
 ![](https://img.shields.io/github/license/crawlab-team/crawlab.svg)
 
 中文 | [English](https://github.com/crawlab-team/crawlab)
 
-[安装](#安装) | [运行](#运行) | [截图](#截图) | [架构](#架构) | [集成](#与其他框架的集成) | [比较](#与其他框架比较) | [相关文章](#相关文章) | [社区&赞助](#社区--赞助) | [免责声明](https://github.com/crawlab-team/crawlab/blob/master/DISCLAIMER-zh.md)
+[安装](#安装) | [运行](#运行) | [截图](#截图) | [架构](#架构) | [集成](#与其他框架的集成) | [比较](#与其他框架比较) | [相关文章](#相关文章) | [社区&赞助](#社区--赞助) | [更新日志](https://github.com/crawlab-team/crawlab/blob/master/CHANGELOG-zh.md) | [免责声明](https://github.com/crawlab-team/crawlab/blob/master/DISCLAIMER-zh.md)
 
 基于Golang的分布式爬虫管理平台，支持Python、NodeJS、Go、Java、PHP等多种编程语言以及多种爬虫框架。
 
@@ -19,9 +19,9 @@
 ## 安装
 
 三种方式:
-1. [Docker](https://tikazyq.github.io/crawlab-docs/Installation/Docker.html)（推荐）
-2. [直接部署](https://tikazyq.github.io/crawlab-docs/Installation/Direct.html)（了解内核）
-3. [Kubernetes](https://mp.weixin.qq.com/s/3Q1BQATUIEE_WXcHPqhYbA)
+1. [Docker](http://docs.crawlab.cn/Installation/Docker.html)（推荐）
+2. [直接部署](http://docs.crawlab.cn/Installation/Direct.html)（了解内核）
+3. [Kubernetes](https://juejin.im/post/5e0a02d851882549884c27ad) (多节点部署)
 
 ### 要求（Docker）
 - Docker 18.03+
@@ -31,8 +31,16 @@
 ### 要求（直接部署）
 - Go 1.12+
 - Node 8.12+
-- Redis
+- Redis 5.x+
 - MongoDB 3.6+
+
+## 快速开始
+
+```bash
+git clone https://github.com/crawlab-team/crawlab
+cd crawlab
+docker-compose up -d
+```
 
 ## 运行
 
@@ -122,6 +130,10 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-d
 #### 定时任务
 
 ![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/schedule.png)
+
+#### 依赖安装
+
+![](http://static-docs.crawlab.cn/node-install-dependencies.png)
 
 ## 架构
 

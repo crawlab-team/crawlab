@@ -51,7 +51,7 @@
       </el-form>
     </el-row>
     <el-row class="button-container" v-if="!isView">
-      <el-button size="normal" v-if="isShowRun" type="danger" @click="onCrawl"
+      <el-button size="small" v-if="isShowRun" type="danger" @click="onCrawl"
                  icon="el-icon-video-play" style="margin-right: 10px">
         {{$t('Run')}}
       </el-button>
@@ -65,12 +65,11 @@
         :file-list="fileList"
         style="display:inline-block;margin-right:10px"
       >
-        <el-button size="normal" type="primary" icon="el-icon-upload" v-loading="uploadLoading">
+        <el-button size="small" type="primary" icon="el-icon-upload" v-loading="uploadLoading">
           {{$t('Upload')}}
         </el-button>
       </el-upload>
-      <el-button size="normal" type="success" @click="onSave"
-                 icon="el-icon-check">
+      <el-button size="small" type="success" @click="onSave" icon="el-icon-check">
         {{$t('Save')}}
       </el-button>
     </el-row>

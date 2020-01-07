@@ -2,29 +2,26 @@
   <div class="node-installation">
     <el-form inline>
       <el-form-item>
-        <el-autocomplete
+        <el-autocomplete size="small" clearable @clear="onSearch"
           v-if="activeLang.executable_name === 'python'"
           v-model="depName"
           style="width: 240px"
           :placeholder="$t('Search Dependencies')"
           :fetchSuggestions="fetchAllDepList"
           :minlength="2"
-          :disabled="isShowInstalled"
           @select="onSearch"
-        />
+        ></el-autocomplete>
         <el-input
           v-else
           v-model="depName"
           style="width: 240px"
           :placeholder="$t('Search Dependencies')"
-          :disabled="isShowInstalled"
         />
       </el-form-item>
       <el-form-item>
-        <el-button
+        <el-button size="small"
           icon="el-icon-search"
           type="success"
-          :disabled="isShowInstalled"
           @click="onSearch"
         >
           {{$t('Search')}}
@@ -164,9 +161,11 @@ export default {
 
         // 异步获取python附加信息
         this.depList.map(async dep => {
-          const res = await this.$request.get(`/system/deps/${this.activeLang.executable_name}/${dep.name}/json`)
-          dep.version = res.data.data.version
-          dep.description = res.data.data.description
+          const resp = await this.$request.get(`/system/deps/${this.activeLang.executable_name}/${dep.name}/json`)
+          if (resp) {
+            dep.version = resp.data.data.version
+            dep.description = resp.data.data.description
+          }
         })
       }
     },
@@ -187,11 +186,9 @@ export default {
       }) : [])
     },
     onSearch () {
-      if (!this.isShowInstalled) {
-        this.getDepList()
-      } else {
-        this.getInstalledDepList()
-      }
+      this.isShowInstalled = false
+      this.getDepList()
+      this.$st.sendEv('节点详情', '安装', '搜索依赖')
     },
     onIsShowInstalledChange (val) {
       if (val) {
@@ -200,6 +197,7 @@ export default {
         this.depName = ''
         this.depList = []
       }
+      this.$st.sendEv('节点详情', '安装', '点击查看已安装')
     },
     async onClickInstallDep (dep) {
       const name = dep.name
@@ -223,6 +221,7 @@ export default {
         dep.installed = true
       }
       this.$set(this.depLoadingDict, name, false)
+      this.$st.sendEv('节点详情', '安装', '安装依赖')
     },
     async onClickUninstallDep (dep) {
       const name = dep.name
@@ -246,6 +245,7 @@ export default {
         dep.installed = false
       }
       this.$set(this.depLoadingDict, name, false)
+      this.$st.sendEv('节点详情', '安装', '卸载依赖')
     },
     getDepLoading (dep) {
       const name = dep.name
@@ -271,6 +271,7 @@ export default {
         })
       }
       this.isLoadingInstallLang = false
+      this.$st.sendEv('节点详情', '安装', '安装语言')
     },
     onTabChange () {
       if (this.isShowInstalled) {
@@ -279,6 +280,7 @@ export default {
         this.depName = ''
         this.depList = []
       }
+      this.$st.sendEv('节点详情', '安装', '切换标签')
     }
   },
   async created () {

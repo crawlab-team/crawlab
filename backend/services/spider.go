@@ -143,7 +143,7 @@ func ReadFileByStep(filePath string, handle func([]byte, *mgo.GridFile), fileCre
 // 发布所有爬虫
 func PublishAllSpiders() {
 	// 获取爬虫列表
-	spiders, _, _ := model.GetSpiderList(nil, 0, constants.Infinite)
+	spiders, _, _ := model.GetSpiderList(nil, 0, constants.Infinite, "-_id")
 	if len(spiders) == 0 {
 		return
 	}

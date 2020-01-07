@@ -34,6 +34,7 @@
                :visible.sync="addDialogVisible"
                :before-close="onAddDialogClose">
       <el-tabs :active-name="spiderType">
+        <!-- customized -->
         <el-tab-pane name="customized" :label="$t('Customized')">
           <el-form :model="spiderForm" ref="addCustomizedForm" inline-message label-width="120px">
             <el-form-item :label="$t('Spider Name')" prop="name" required>
@@ -55,8 +56,7 @@
                 :headers="{Authorization:token}"
                 :on-success="onUploadSuccess"
                 :file-list="fileList">
-                <el-button size="normal" type="primary" icon="el-icon-upload"
-                           style="width: 160px; font-size: 18px;font-weight: bolder">
+                <el-button size="small" type="primary" icon="el-icon-upload">
                   {{$t('Upload')}}
                 </el-button>
               </el-upload>
@@ -75,9 +75,10 @@
             </p>
           </el-alert>
           <div class="actions">
-            <el-button type="primary" @click="onAddCustomized">{{$t('Add')}}</el-button>
+            <el-button size="small" type="primary" @click="onAddCustomized">{{$t('Add')}}</el-button>
           </div>
         </el-tab-pane>
+        <!-- configurable -->
         <el-tab-pane name="configurable" :label="$t('Configurable')">
           <el-form :model="spiderForm" ref="addConfigurableForm" inline-message label-width="120px">
             <el-form-item :label="$t('Spider Name')" prop="name" required>
@@ -101,7 +102,7 @@
             </el-form-item>
           </el-form>
           <div class="actions">
-            <el-button type="primary" @click="onAddConfigurable">{{$t('Add')}}</el-button>
+            <el-button size="small" type="primary" @click="onAddConfigurable">{{$t('Add')}}</el-button>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -146,7 +147,7 @@
             {{$t('Import Spiders')}}
           </el-button>
           <el-button
-            size="normal"
+            size="small"
             type="success"
             icon="el-icon-plus"
             class="btn add"
@@ -163,73 +164,92 @@
       <!--tabs-->
       <el-tabs v-model="filter.type" @tab-click="onClickTab">
         <el-tab-pane :label="$t('All')" name="all"></el-tab-pane>
-        <el-tab-pane :label="$t('Configurable')" name="configurable"></el-tab-pane>
         <el-tab-pane :label="$t('Customized')" name="customized"></el-tab-pane>
+        <el-tab-pane :label="$t('Configurable')" name="configurable"></el-tab-pane>
       </el-tabs>
       <!--./tabs-->
 
       <!--table list-->
-      <el-table :data="spiderList"
-                class="table"
-                :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
-                border
-                @row-click="onRowClick"
+      <el-table
+        :data="spiderList"
+        class="table"
+        :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
+        border
+        @row-click="onRowClick"
+        @sort-change="onSortChange"
       >
         <template v-for="col in columns">
-          <el-table-column v-if="col.name === 'type'"
-                           :key="col.name"
-                           :label="$t(col.label)"
-                           align="left"
-                           :width="col.width">
+          <el-table-column
+            v-if="col.name === 'type'"
+            :key="col.name"
+            :label="$t(col.label)"
+            align="left"
+            :width="col.width"
+            :sortable="col.sortable"
+          >
             <template slot-scope="scope">
               {{$t(scope.row.type)}}
             </template>
           </el-table-column>
-          <el-table-column v-else-if="col.name === 'last_5_errors'"
-                           :key="col.name"
-                           :label="$t(col.label)"
-                           :width="col.width"
-                           align="center">
+          <el-table-column
+            v-else-if="col.name === 'last_5_errors'"
+            :key="col.name"
+            :label="$t(col.label)"
+            :width="col.width"
+            :sortable="col.sortable"
+            align="center"
+          >
             <template slot-scope="scope">
               <div :style="{color:scope.row[col.name]>0?'red':''}">
                 {{scope.row[col.name]}}
               </div>
             </template>
           </el-table-column>
-          <el-table-column v-else-if="col.name === 'cmd'"
-                           :key="col.name"
-                           :label="$t(col.label)"
-                           :width="col.width"
-                           align="left">
+          <el-table-column
+            v-else-if="col.name === 'cmd'"
+            :key="col.name"
+            :label="$t(col.label)"
+            :width="col.width"
+            :sortable="col.sortable"
+            align="left"
+          >
             <template slot-scope="scope">
               <el-input v-model="scope.row[col.name]"></el-input>
             </template>
           </el-table-column>
-          <el-table-column v-else-if="col.name.match(/_ts$/)"
-                           :key="col.name"
-                           :label="$t(col.label)"
-                           :sortable="col.sortable"
-                           :align="col.align"
-                           :width="col.width">
+          <el-table-column
+            v-else-if="col.name.match(/_ts$/)"
+            :key="col.name"
+            :label="$t(col.label)"
+            :sortable="col.sortable"
+            :align="col.align"
+            :width="col.width"
+          >
             <template slot-scope="scope">
               {{getTime(scope.row[col.name])}}
             </template>
           </el-table-column>
-          <el-table-column v-else-if="col.name === 'last_status'"
-                           :key="col.name"
-                           :label="$t(col.label)"
-                           align="left" :width="col.width">
+          <el-table-column
+            v-else-if="col.name === 'last_status'"
+            :key="col.name"
+            :label="$t(col.label)"
+            align="left"
+            :width="col.width"
+            :sortable="col.sortable"
+          >
             <template slot-scope="scope">
               <status-tag :status="scope.row.last_status"/>
             </template>
           </el-table-column>
-          <el-table-column v-else
-                           :key="col.name"
-                           :property="col.name"
-                           :label="$t(col.label)"
-                           :sortable="col.sortable"
-                           :align="col.align || 'left'"
-                           :width="col.width">
+          <el-table-column
+            v-else
+            :key="col.name"
+            :property="col.name"
+            :label="$t(col.label)"
+            :sortable="col.sortable"
+            :align="col.align || 'left'"
+            :width="col.width"
+          >
           </el-table-column>
         </template>
         <el-table-column :label="$t('Action')" align="left" fixed="right">
@@ -300,10 +320,14 @@ export default {
         keyword: '',
         type: 'all'
       },
+      sort: {
+        sortKey: '',
+        sortDirection: null
+      },
       types: [],
       columns: [
-        { name: 'display_name', label: 'Name', width: '160', align: 'left' },
-        { name: 'type', label: 'Spider Type', width: '120' },
+        { name: 'display_name', label: 'Name', width: '160', align: 'left', sortable: true },
+        { name: 'type', label: 'Spider Type', width: '120', sortable: true },
         { name: 'last_status', label: 'Last Status', width: '120' },
         { name: 'last_run_ts', label: 'Last Run', width: '140' },
         // { name: 'update_ts', label: 'Update Time', width: '140' },
@@ -543,24 +567,26 @@ export default {
     onRowClick (row, column, event) {
       this.onView(row, event)
     },
+    onSortChange ({ column, prop, order }) {
+      this.sort.sortKey = order ? prop : ''
+      this.sort.sortDirection = order
+      this.getList()
+    },
     onClickTab (tab) {
       this.filter.type = tab.name
       this.getList()
     },
     getList () {
       let params = {
-        pageNum: this.pagination.pageNum,
-        pageSize: this.pagination.pageSize,
+        page_num: this.pagination.pageNum,
+        page_size: this.pagination.pageSize,
+        sort_key: this.sort.sortKey,
+        sort_direction: this.sort.sortDirection,
         keyword: this.filter.keyword,
         type: this.filter.type
       }
       this.$store.dispatch('spider/getSpiderList', params)
     }
-    // getTypes () {
-    //   request.get(`/spider/types`).then(resp => {
-    //     this.types = resp.data.data
-    //   })
-    // }
   },
   async created () {
     // fetch spider types

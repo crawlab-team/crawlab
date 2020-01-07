@@ -1,16 +1,16 @@
 # Crawlab
 
-![](http://114.67.75.98:8082/buildStatus/icon?job=crawlab%2Fmaster)
-![](https://img.shields.io/github/release/crawlab-team/crawlab.svg)
+![](https://img.shields.io/docker/cloud/build/tikazyq/crawlab.svg?label=build&logo=docker)
+![](https://img.shields.io/docker/pulls/tikazyq/crawlab?label=pulls&logo=docker)
+![](https://img.shields.io/github/release/crawlab-team/crawlab.svg?logo=github)
 ![](https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg)
-![](https://img.shields.io/github/issues/crawlab-team/crawlab.svg)
-![](https://img.shields.io/github/contributors/crawlab-team/crawlab.svg)
-![](https://img.shields.io/docker/pulls/tikazyq/crawlab)
+![](https://img.shields.io/github/issues/crawlab-team/crawlab/bug.svg?label=bugs&color=red)
+![](https://img.shields.io/github/issues/crawlab-team/crawlab/enhancement.svg?label=enhancements&color=cyan)
 ![](https://img.shields.io/github/license/crawlab-team/crawlab.svg)
 
 [中文](https://github.com/crawlab-team/crawlab/blob/master/README-zh.md) | English
 
-[Installation](#installation) | [Run](#run) | [Screenshot](#screenshot) | [Architecture](#architecture) | [Integration](#integration-with-other-frameworks) | [Compare](#comparison-with-other-frameworks) | [Community & Sponsorship](#community--sponsorship) | [Disclaimer](https://github.com/crawlab-team/crawlab/blob/master/DISCLAIMER.md)
+[Installation](#installation) | [Run](#run) | [Screenshot](#screenshot) | [Architecture](#architecture) | [Integration](#integration-with-other-frameworks) | [Compare](#comparison-with-other-frameworks) | [Community & Sponsorship](#community--sponsorship) | [CHANGELOG](https://github.com/crawlab-team/crawlab/blob/master/CHANGELOG.md) | [Disclaimer](https://github.com/crawlab-team/crawlab/blob/master/DISCLAIMER.md)
 
 Golang-based distributed web crawler management platform, supporting various languages including Python, NodeJS, Go, Java, PHP and various web crawler frameworks including Scrapy, Puppeteer, Selenium.
 
@@ -19,9 +19,9 @@ Golang-based distributed web crawler management platform, supporting various lan
 ## Installation
 
 Two methods:
-1. [Docker](https://tikazyq.github.io/crawlab-docs/Installation/Docker.html) (Recommended)
-2. [Direct Deploy](https://tikazyq.github.io/crawlab-docs/Installation/Direct.html) (Check Internal Kernel)
-3. [Kubernetes](https://mp.weixin.qq.com/s/3Q1BQATUIEE_WXcHPqhYbA)
+1. [Docker](http://docs.crawlab.cn/Installation/Docker.html) (Recommended)
+2. [Direct Deploy](http://docs.crawlab.cn/Installation/Direct.html) (Check Internal Kernel)
+3. [Kubernetes](https://juejin.im/post/5e0a02d851882549884c27ad) (Multi-Node Deployment)
 
 ### Pre-requisite (Docker)
 - Docker 18.03+
@@ -31,8 +31,16 @@ Two methods:
 ### Pre-requisite (Direct Deploy)
 - Go 1.12+
 - Node 8.12+
-- Redis
+- Redis 5.x+
 - MongoDB 3.6+
+
+## Quick Start
+
+```bash
+git clone https://github.com/crawlab-team/crawlab
+cd crawlab
+docker-compose up -d
+```
 
 ## Run
 
@@ -120,6 +128,10 @@ For Docker Deployment details, please refer to [relevant documentation](https://
 #### Cron Job
 
 ![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/schedule.png)
+
+#### Dependency Installation
+
+![](http://static-docs.crawlab.cn/node-install-dependencies.png)
 
 ## Architecture
 
