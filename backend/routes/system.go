@@ -259,6 +259,7 @@ func GetDepJson(c *gin.Context) {
 		_dep, err := services.FetchPythonDepInfo(depName)
 		if err != nil {
 			HandleError(http.StatusInternalServerError, c, err)
+			return
 		}
 		dep = _dep
 	} else {

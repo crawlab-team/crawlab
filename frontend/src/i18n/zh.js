@@ -225,6 +225,7 @@ export default {
   'Not Found Spider': '爬虫配置错误',
   '[minute] [hour] [day] [month] [day of week]': '[分] [时] [天] [月] [星期几]',
   'Enable/Disable': '启用/禁用',
+  'Cron': 'Cron',
 
   // 网站
   'Site': '网站',

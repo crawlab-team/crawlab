@@ -51,7 +51,7 @@
       </el-form>
     </el-row>
     <el-row class="button-container" v-if="!isView">
-      <el-button size="normal" v-if="isShowRun" type="danger" @click="onCrawl"
+      <el-button size="small" v-if="isShowRun" type="danger" @click="onCrawl"
                  icon="el-icon-video-play" style="margin-right: 10px">
         {{$t('Run')}}
       </el-button>
@@ -69,10 +69,6 @@
           {{$t('Upload')}}
         </el-button>
       </el-upload>
-      <el-button size="small" v-if="isShowRun" type="danger" @click="onCrawl"
-                 icon="el-icon-video-play">
-        {{$t('Run')}}
-      </el-button>
       <el-button size="small" type="success" @click="onSave" icon="el-icon-check">
         {{$t('Save')}}
       </el-button>
