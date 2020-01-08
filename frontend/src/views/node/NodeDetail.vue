@@ -48,8 +48,8 @@ export default {
     ])
   },
   methods: {
-    onTabClick (name) {
-      this.$st.sendEv('节点详情', '切换标签', name)
+    onTabClick (tab) {
+      this.$st.sendEv('节点详情', '切换标签', tab.name)
     },
     onNodeChange (id) {
       this.$router.push(`/nodes/${id}`)
