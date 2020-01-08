@@ -76,6 +76,9 @@ export default {
         this.clicked = false
       }, 100)
       this.$router.push(`/spiders/${row.spider_id}`)
+      if (this.$route.path.match(/\/nodes\//)) {
+        this.$st.sendEv('节点详情', '概览', '查看爬虫')
+      }
     },
     onClickNode (row) {
       this.clicked = true
@@ -83,9 +86,19 @@ export default {
         this.clicked = false
       }, 100)
       this.$router.push(`/nodes/${row.node_id}`)
+      if (this.$route.path.match(/\/spiders\//)) {
+        this.$st.sendEv('爬虫详情', '概览', '查看节点')
+      }
     },
     onClickTask (row) {
-      if (!this.clicked) this.$router.push(`/tasks/${row._id}`)
+      if (!this.clicked) {
+        this.$router.push(`/tasks/${row._id}`)
+        if (this.$route.path.match(/\/nodes\//)) {
+          this.$st.sendEv('节点详情', '概览', '查看任务')
+        } else if (this.$route.path.match(/\/spiders\//)) {
+          this.$st.sendEv('爬虫详情', '概览', '查看任务')
+        }
+      }
     },
     onRefresh () {
       if (this.$route.path.split('/')[1] === 'spiders') {
