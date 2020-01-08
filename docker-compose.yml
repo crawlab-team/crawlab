@@ -15,8 +15,6 @@ services:
     depends_on:
       - mongo
       - redis
-    volumes:
-      - "/Users/marvzhang/projects/crawlab-team/crawlab/docker_init.sh:/app/docker_init.sh"
   worker:
     image: tikazyq/crawlab:latest
     container_name: worker

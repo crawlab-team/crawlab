@@ -80,7 +80,6 @@ func TestPostSchedule(t *testing.T) {
 		EntryId:  10,
 		// 前端展示
 		SpiderName: "test scedule",
-		NodeName:   "测试节点",
 
 		CreateTs: time.Now(),
 		UpdateTs: time.Now(),
@@ -117,7 +116,6 @@ func TestPutSchedule(t *testing.T) {
 		EntryId:  10,
 		// 前端展示
 		SpiderName: "test scedule",
-		NodeName:   "测试节点",
 
 		CreateTs: time.Now(),
 		UpdateTs: time.Now(),
