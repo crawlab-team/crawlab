@@ -137,7 +137,7 @@ For Docker Deployment details, please refer to [relevant documentation](https://
 
 The architecture of Crawlab is consisted of the Master Node and multiple Worker Nodes, and Redis and MongoDB databases which are mainly for nodes communication and data storage.
 
-![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/architecture.png)
+![](http://static-docs.crawlab.cn/architecture.png)
 
 The frontend app makes requests to the Master Node, which assigns tasks and deploys spiders through MongoDB and Redis. When a Worker Node receives a task, it begins to execute the crawling task, and stores the results to MongoDB. The architecture is much more concise compared with versions before `v0.3.0`. It has removed unnecessary Flower module which offers node monitoring services. They are now done by Redis.
 

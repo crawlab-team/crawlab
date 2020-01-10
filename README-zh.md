@@ -139,7 +139,7 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-d
 
 Crawlab的架构包括了一个主节点（Master Node）和多个工作节点（Worker Node），以及负责通信和数据储存的Redis和MongoDB数据库。
 
-![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/architecture.png)
+![](http://static-docs.crawlab.cn/architecture.png)
 
 前端应用向主节点请求数据，主节点通过MongoDB和Redis来执行任务派发调度以及部署，工作节点收到任务之后，开始执行爬虫任务，并将任务结果储存到MongoDB。架构相对于`v0.3.0`之前的Celery版本有所精简，去除了不必要的节点监控模块Flower，节点监控主要由Redis完成。
 
