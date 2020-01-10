@@ -185,7 +185,7 @@ func InitRpcService() error {
 			}
 
 			// 获取获取消息队列信息
-			dataStr, err := database.RedisClient.BRPop(fmt.Sprintf("rpc:%s", node.Id.Hex()), 0)
+			dataStr, err := database.RedisClient.BRPop(fmt.Sprintf("rpc:%s", node.Id.Hex()), constants.Infinite)
 			if err != nil {
 				log.Errorf(err.Error())
 				debug.PrintStack()
