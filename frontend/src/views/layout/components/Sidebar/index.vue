@@ -57,6 +57,7 @@ export default {
   async created () {
     const res = await this.$request.get('/version')
     this.version = res.data.data
+    sessionStorage.setItem('v', this.version)
   }
 }
 </script>

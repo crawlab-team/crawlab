@@ -25,6 +25,12 @@ export default {
     ...mapState('setting', ['setting']),
     useStats () {
       return localStorage.getItem('useStats')
+    },
+    uid () {
+      return localStorage.getItem('uid')
+    },
+    sid () {
+      return sessionStorage.getItem('sid')
     }
   },
   methods: {},
@@ -57,6 +63,16 @@ export default {
           '<button class="message-btn" onclick="setUseStats(0)">' + this.$t('No') + '</button>' +
           '</div>'
       })
+    }
+
+    // set uid if first visit
+    if (this.uid === undefined || this.uid === null) {
+      localStorage.setItem('uid', this.$utils.encrypt.UUID())
+    }
+
+    // set session id if starting a session
+    if (this.sid === undefined || this.sid === null) {
+      sessionStorage.setItem('sid', this.$utils.encrypt.UUID())
     }
   }
 }
