@@ -125,8 +125,6 @@ func (r *Redis) BRPop(collection string, timeout int) (string, error) {
 
 	values, err := redis.Strings(c.Do("BRPOP", collection, timeout))
 	if err != nil {
-		log.Error(err.Error())
-		debug.PrintStack()
 		return "", err
 	}
 	return values[1], nil
