@@ -4,7 +4,7 @@ services:
     image: tikazyq/crawlab:latest
     container_name: master
     environment:
-      # CRAWLAB_API_ADDRESS: "https://crawlab.cn/api"  # backend API address 后端 API 地址. 适用于 https 或者源码部署
+      # CRAWLAB_API_ADDRESS: "https://<your_api_ip>:<your_api_port>"  # backend API address 后端 API 地址. 适用于 https 或者源码部署
       CRAWLAB_SERVER_MASTER: "Y"  # whether to be master node 是否为主节点，主节点为 Y，工作节点为 N
       CRAWLAB_MONGO_HOST: "mongo"  # MongoDB host address MongoDB 的地址，在 docker compose 网络中，直接引用服务名称
       # CRAWLAB_MONGO_PORT: "27017"  # MongoDB port MongoDB 的端口
