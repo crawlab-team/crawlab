@@ -22,7 +22,6 @@
   <img src="https://img.shields.io/github/license/crawlab-team/crawlab.svg">
 </a>
 
- 
 中文 | [English](https://github.com/crawlab-team/crawlab)
 
 [安装](#安装) | [运行](#运行) | [截图](#截图) | [架构](#架构) | [集成](#与其他框架的集成) | [比较](#与其他框架比较) | [相关文章](#相关文章) | [社区&赞助](#社区--赞助) | [更新日志](https://github.com/crawlab-team/crawlab/blob/master/CHANGELOG-zh.md) | [免责声明](https://github.com/crawlab-team/crawlab/blob/master/DISCLAIMER-zh.md)
