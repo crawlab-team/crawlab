@@ -1,12 +1,28 @@
 # Crawlab
 
-![](https://img.shields.io/docker/cloud/build/tikazyq/crawlab.svg?label=build&logo=docker)
-![](https://img.shields.io/docker/pulls/tikazyq/crawlab?label=pulls&logo=docker)
-![](https://img.shields.io/github/release/crawlab-team/crawlab.svg?logo=github)
-![](https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg)
-![](https://img.shields.io/github/issues/crawlab-team/crawlab/bug.svg?label=bugs&color=red)
-![](https://img.shields.io/github/issues/crawlab-team/crawlab/enhancement.svg?label=enhancements&color=cyan)
-![](https://img.shields.io/github/license/crawlab-team/crawlab.svg)
+<p>
+  <a href="https://hub.docker.com/r/tikazyq/crawlab" target="_blank">
+    <img src="https://img.shields.io/docker/cloud/build/tikazyq/crawlab.svg?label=build&logo=docker">
+  </a>
+  <a href="https://hub.docker.com/r/tikazyq/crawlab/builds" target="_blank">
+    <img src="https://img.shields.io/docker/pulls/tikazyq/crawlab?label=pulls&logo=docker">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/releases" target="_blank">
+    <img src="https://img.shields.io/github/release/crawlab-team/crawlab.svg?logo=github">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/commits/master" target="_blank">
+    <img src="https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/issues?q=is%3Aissue+is%3Aopen+label%3Abug" target="_blank">
+    <img src="https://img.shields.io/github/issues/crawlab-team/crawlab/bug.svg?label=bugs&color=red">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement" target="_blank">
+    <img src="https://img.shields.io/github/issues/crawlab-team/crawlab/enhancement.svg?label=enhancements&color=cyan">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/blob/master/LICENSE" target="_blank">
+    <img src="https://img.shields.io/github/license/crawlab-team/crawlab.svg">
+  </a>
+</p>
 
 [中文](https://github.com/crawlab-team/crawlab/blob/master/README-zh.md) | English
 
