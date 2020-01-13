@@ -6,7 +6,7 @@ then
 	:
 else
 	jspath=`ls /app/dist/js/app.*.js`
-	sed -i "s?http://localhost:8000?${CRAWLAB_API_ADDRESS}?g" ${jspath}
+	sed -i "s?###CRAWLAB_API_ADDRESS###?${CRAWLAB_API_ADDRESS}?g" ${jspath}
 fi
 
 # replace base url
