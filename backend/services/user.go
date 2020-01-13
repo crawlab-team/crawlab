@@ -6,6 +6,7 @@ import (
 	"crawlab/utils"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
 	"github.com/spf13/viper"
 	"time"
@@ -90,4 +91,9 @@ func CheckToken(tokenStr string) (user model.User, err error) {
 	}
 
 	return
+}
+
+func GetCurrentUser(c *gin.Context) *model.User {
+	data, _ := c.Get("currentUser")
+	return data.(*model.User)
 }

@@ -112,6 +112,7 @@ func PutTask(c *gin.Context) {
 				SpiderId: reqBody.SpiderId,
 				NodeId:   node.Id,
 				Param:    reqBody.Param,
+				UserId:   services.GetCurrentUser(c).Id,
 			}
 
 			if err := services.AddTask(t); err != nil {
@@ -124,6 +125,7 @@ func PutTask(c *gin.Context) {
 		t := model.Task{
 			SpiderId: reqBody.SpiderId,
 			Param:    reqBody.Param,
+			UserId:   services.GetCurrentUser(c).Id,
 		}
 		if err := services.AddTask(t); err != nil {
 			HandleError(http.StatusInternalServerError, c, err)
@@ -136,6 +138,7 @@ func PutTask(c *gin.Context) {
 				SpiderId: reqBody.SpiderId,
 				NodeId:   nodeId,
 				Param:    reqBody.Param,
+				UserId:   services.GetCurrentUser(c).Id,
 			}
 
 			if err := services.AddTask(t); err != nil {

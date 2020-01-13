@@ -210,6 +210,24 @@ export const constantRouterMap = [
       }
     ]
   },
+  {
+    path: '/setting',
+    component: Layout,
+    meta: {
+      title: 'Setting',
+      icon: 'fa fa-gear'
+    },
+    children: [
+      {
+        path: '',
+        component: () => import('../views/setting/Setting'),
+        meta: {
+          title: 'Setting',
+          icon: 'fa fa-gear'
+        }
+      }
+    ]
+  },
 
   { path: '*', redirect: '/404', hidden: true }
 ]

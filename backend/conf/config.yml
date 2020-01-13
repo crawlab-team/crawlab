@@ -38,3 +38,12 @@ other:
 version: 0.4.3
 setting:
   allowRegister: "N"
+notification:
+  mail:
+    server: ''
+    port: ''
+    senderEmail: ''
+    senderIdentity: ''
+    smtp:
+      user: ''
+      password: ''

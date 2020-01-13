@@ -22,6 +22,7 @@ type UserRequestData struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Role     string `json:"role"`
+	Email    string `json:"email"`
 }
 
 func GetUser(c *gin.Context) {
@@ -99,6 +100,7 @@ func PutUser(c *gin.Context) {
 		Username: strings.ToLower(reqData.Username),
 		Password: utils.EncryptPassword(reqData.Password),
 		Role:     reqData.Role,
+		Email:    reqData.Email,
 	}
 	if err := user.Add(); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
@@ -204,4 +206,40 @@ func GetMe(c *gin.Context) {
 	}{
 		User: user,
 	}, nil)
+}
+
+func PostMe(c *gin.Context) {
+	type ReqBody struct {
+		Email               string `json:"email"`
+		Password            string `json:"password"`
+		NotificationTrigger string `json:"notification_trigger"`
+	}
+	ctx := context.WithGinContext(c)
+	user := ctx.User()
+	if user == nil {
+		ctx.FailedWithError(constants.ErrorUserNotFound, http.StatusUnauthorized)
+		return
+	}
+	var reqBody ReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleErrorF(http.StatusBadRequest, c, "invalid request")
+		return
+	}
+	if reqBody.Email != "" {
+		user.Email = reqBody.Email
+	}
+	if reqBody.Password != "" {
+		user.Password = utils.EncryptPassword(reqBody.Password)
+	}
+	if reqBody.NotificationTrigger != "" {
+		user.Setting.NotificationTrigger = reqBody.NotificationTrigger
+	}
+	if err := user.Save(); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
 }

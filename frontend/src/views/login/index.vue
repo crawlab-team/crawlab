@@ -34,6 +34,14 @@
           @keyup.enter.native="onKeyEnter"
         />
       </el-form-item>
+      <el-form-item v-if="isSignUp" prop="email" style="margin-bottom: 28px;">
+        <el-input
+          v-model="loginForm.email"
+          name="email"
+          :placeholder="$t('Email')"
+          @keyup.enter.native="onKeyEnter"
+        />
+      </el-form-item>
       <el-form-item style="border: none">
         <el-button v-if="isSignUp" :loading="loading" type="primary" style="width:100%;"
                    @click.native.prevent="handleSignup">
@@ -104,7 +112,8 @@ export default {
       loginForm: {
         username: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        email: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],

@@ -6,9 +6,11 @@ import (
 	"crawlab/entity"
 	"crawlab/lib/cron"
 	"crawlab/model"
+	"crawlab/services/notification"
 	"crawlab/utils"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
 	uuid "github.com/satori/go.uuid"
@@ -498,6 +500,31 @@ func ExecuteTask(id int) {
 	t.FinishTs = time.Now()                                 // 结束时间
 	t.RuntimeDuration = t.FinishTs.Sub(t.StartTs).Seconds() // 运行时长
 	t.TotalDuration = t.FinishTs.Sub(t.CreateTs).Seconds()  // 总时长
+
+	// 获得触发任务用户
+	user, err := model.GetUser(t.UserId)
+	if err != nil {
+		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		return
+	}
+
+	// 如果是任务结束时发送通知，则发送通知
+	if user.Email != "" &&
+		user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd {
+		emailContent := fmt.Sprintf(`
+# Your task has finished
+
+The stats of the task are as below.
+
+Metric | Value
+--- | ---
+Create Time | %s
+Start Time | %s
+Finish Time | %s
+Total Duration | %.1f
+`, t.CreateTs, t.StartTs, t.FinishTs, t.TotalDuration)
+		_ = notification.SendMail(user.Email, fmt.Sprintf("[%s] Crawlab Task Finished", spider.Name), emailContent)
+	}
 
 	// 保存任务
 	if err := t.Save(); err != nil {

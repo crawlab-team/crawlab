@@ -23,6 +23,7 @@ type Schedule struct {
 	NodeIds     []bson.ObjectId `json:"node_ids" bson:"node_ids"`
 	Status      string          `json:"status" bson:"status"`
 	Enabled     bool            `json:"enabled" bson:"enabled"`
+	UserId      bson.ObjectId   `json:"user_id" bson:"user_id"`
 
 	// 前端展示
 	SpiderName string `json:"spider_name" bson:"spider_name"`
@@ -48,27 +49,6 @@ func (sch *Schedule) Delete() error {
 	defer s.Close()
 	return c.RemoveId(sch.Id)
 }
-
-//func (sch *Schedule) SyncNodeIdAndSpiderId(node Node, spider Spider) {
-//	sch.syncNodeId(node)
-//	sch.syncSpiderId(spider)
-//}
-
-//func (sch *Schedule) syncNodeId(node Node) {
-//	if node.Id.Hex() == sch.NodeId.Hex() {
-//		return
-//	}
-//	sch.NodeId = node.Id
-//	_ = sch.Save()
-//}
-
-//func (sch *Schedule) syncSpiderId(spider Spider) {
-//	if spider.Id.Hex() == sch.SpiderId.Hex() {
-//		return
-//	}
-//	sch.SpiderId = spider.Id
-//	_ = sch.Save()
-//}
 
 func GetScheduleList(filter interface{}) ([]Schedule, error) {
 	s, c := database.GetCol("schedules")
@@ -125,13 +105,8 @@ func UpdateSchedule(id bson.ObjectId, item Schedule) error {
 	if err := c.FindId(id).One(&result); err != nil {
 		return err
 	}
-	//node, err := GetNode(item.NodeId)
-	//if err != nil {
-	//	return err
-	//}
 
 	item.UpdateTs = time.Now()
-	//item.NodeKey = node.Key
 	if err := item.Save(); err != nil {
 		return err
 	}
@@ -142,15 +117,9 @@ func AddSchedule(item Schedule) error {
 	s, c := database.GetCol("schedules")
 	defer s.Close()
 
-	//node, err := GetNode(item.NodeId)
-	//if err != nil {
-	//	return err
-	//}
-
 	item.Id = bson.NewObjectId()
 	item.CreateTs = time.Now()
 	item.UpdateTs = time.Now()
-	//item.NodeKey = node.Key
 
 	if err := c.Insert(&item); err != nil {
 		debug.PrintStack()

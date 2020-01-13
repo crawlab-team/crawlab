@@ -11,6 +11,7 @@ export default {
   'Schedules': '定时任务',
   'Deploys': '部署',
   'Sites': '网站',
+  'Setting': '设置',
 
   // 标签
   'Overview': '概览',
@@ -323,6 +324,7 @@ export default {
   'The schedule has been removed': '已删除定时任务',
   'The schedule has been added': '已添加定时任务',
   'The schedule has been saved': '已保存定时任务',
+  'Email format invalid': '邮箱地址格式不正确',
 
   // 登录
   'Sign in': '登录',
@@ -343,6 +345,16 @@ export default {
   'Role': '角色',
   'Edit User': '更改用户',
   'Users': '用户',
+  'Email': '邮箱',
+  'Optional': '可选',
+
+  // 设置
+  'Notification Trigger': '通知触发',
+  'On Task End': '当任务结束',
+  'On Task Error': '当任务发生错误',
+  'Never': '从不',
+
+  // 其他
   tagsView: {
     closeOthers: '关闭其他',
     close: '关闭',
