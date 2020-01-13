@@ -119,6 +119,20 @@ func SetEnv(cmd *exec.Cmd, envs []model.Env, taskId string, dataCol string) *exe
 	// 默认环境变量
 	cmd.Env = append(os.Environ(), "CRAWLAB_TASK_ID="+taskId)
 	cmd.Env = append(cmd.Env, "CRAWLAB_COLLECTION="+dataCol)
+	cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_HOST="+viper.GetString("mongo.host"))
+	cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_PORT="+viper.GetString("mongo.port"))
+	if viper.GetString("mongo.db") != "" {
+		cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_DB="+viper.GetString("mongo.db"))
+	}
+	if viper.GetString("mongo.username") != "" {
+		cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_USERNAME="+viper.GetString("mongo.username"))
+	}
+	if viper.GetString("mongo.password") != "" {
+		cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_PASSWORD="+viper.GetString("mongo.password"))
+	}
+	if viper.GetString("mongo.authSource") != "" {
+		cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_AUTHSOURCE="+viper.GetString("mongo.authSource"))
+	}
 	cmd.Env = append(cmd.Env, "PYTHONUNBUFFERED=0")
 	cmd.Env = append(cmd.Env, "PYTHONIOENCODING=utf-8")
 	cmd.Env = append(cmd.Env, "TZ=Asia/Shanghai")

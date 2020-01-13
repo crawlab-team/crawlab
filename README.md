@@ -41,8 +41,9 @@ Two methods:
 
 ### Pre-requisite (Docker)
 - Docker 18.03+
-- Redis
+- Redis 5.x+
 - MongoDB 3.6+
+- Docker Compose 1.24+ (optional but recommended)
 
 ### Pre-requisite (Direct Deploy)
 - Go 1.12+
@@ -52,11 +53,15 @@ Two methods:
 
 ## Quick Start
 
+Please open the command line prompt and execute the command beloe. Make sure you have installed `docker-compose` in advance.
+
 ```bash
 git clone https://github.com/crawlab-team/crawlab
 cd crawlab
 docker-compose up -d
 ```
+
+Next, you can look into the `docker-compose.yml` (with detailed config params) and the [Documentation (Chinese)](http://docs.crawlab.cn) for further information. 
 
 ## Run
 
@@ -76,8 +81,7 @@ services:
       CRAWLAB_MONGO_HOST: "mongo"
       CRAWLAB_REDIS_ADDRESS: "redis"
     ports:    
-      - "8080:8080" # frontend
-      - "8000:8000" # backend
+      - "8080:8080"
     depends_on:
       - mongo
       - redis
