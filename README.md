@@ -1,10 +1,10 @@
 # Crawlab
 
 <p>
-  <a href="https://hub.docker.com/r/tikazyq/crawlab" target="_blank">
+  <a href="https://hub.docker.com/r/tikazyq/crawlab/builds" target="_blank">
     <img src="https://img.shields.io/docker/cloud/build/tikazyq/crawlab.svg?label=build&logo=docker">
   </a>
-  <a href="https://hub.docker.com/r/tikazyq/crawlab/builds" target="_blank">
+  <a href="https://hub.docker.com/r/tikazyq/crawlab" target="_blank">
     <img src="https://img.shields.io/docker/pulls/tikazyq/crawlab?label=pulls&logo=docker">
   </a>
   <a href="https://github.com/crawlab-team/crawlab/releases" target="_blank">
