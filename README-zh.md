@@ -41,8 +41,9 @@
 
 ### 要求（Docker）
 - Docker 18.03+
-- Redis
+- Redis 5.x+
 - MongoDB 3.6+
+- Docker Compose 1.24+ (可选，但推荐)
 
 ### 要求（直接部署）
 - Go 1.12+
@@ -52,11 +53,15 @@
 
 ## 快速开始
 
+请打开命令行并执行下列命令。请保证您已经提前安装了 `docker-compose`。
+
 ```bash
 git clone https://github.com/crawlab-team/crawlab
 cd crawlab
 docker-compose up -d
 ```
+
+接下来，您可以看看 `docker-compose.yml` (包含详细配置参数)，以及参考 [文档](http://docs.crawlab.cn) 来查看更多信息。
 
 ## 运行
 
@@ -71,13 +76,11 @@ services:
     image: tikazyq/crawlab:latest
     container_name: master
     environment:
-      CRAWLAB_API_ADDRESS: "http://localhost:8000"
       CRAWLAB_SERVER_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
       CRAWLAB_REDIS_ADDRESS: "redis"
     ports:    
-      - "8080:8080" # frontend
-      - "8000:8000" # backend
+      - "8080:8080"
     depends_on:
       - mongo
       - redis
