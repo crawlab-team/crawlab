@@ -192,34 +192,42 @@ Frontend is a SPA based on
 
 ## Integration with Other Frameworks
 
-A crawling task is actually executed through a shell command. The Task ID will be passed to the crawling task process in the form of environment variable named `CRAWLAB_TASK_ID`. By doing so, the data can be related to a task. Also, another environment variable `CRAWLAB_COLLECTION` is passed by Crawlab as the name of the collection to store results data.
+[Crawlab SDK](https://github.com/crawlab-team/crawlab-sdk) provides some `helper` methods to make it easier for you to integrate your spiders into Crawlab, e.g. saving results.
+
+⚠️Note: make sure you have already installed `crawlab-sdk` using pip.
 
 ### Scrapy
 
-Below is an example to integrate Crawlab with Scrapy in pipelines. 
+In `settings.py` in your Scrapy project, find the variable named `ITEM_PIPELINES` (a `dict` variable). Add content below.
 
 ```python
-import os
-from pymongo import MongoClient
-
-MONGO_HOST = '192.168.99.100'
-MONGO_PORT = 27017
-MONGO_DB = 'crawlab_test'
-
-# scrapy example in the pipeline
-class JuejinPipeline(object):
-    mongo = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
-    db = mongo[MONGO_DB]
-    col_name = os.environ.get('CRAWLAB_COLLECTION')
-    if not col_name:
-        col_name = 'test'
-    col = db[col_name]
-
-    def process_item(self, item, spider):
-        item['task_id'] = os.environ.get('CRAWLAB_TASK_ID')
-        self.col.save(item)
-        return item
+ITEM_PIPELINES = {
+    'crawlab.pipelines.CrawlabMongoPipeline': 888,
+}
 ```
+
+Then, start the Scrapy spider. After it's done, you should be able to see scraped results in **Task Detail -> Result**
+
+### General Python Spider
+
+Please add below content to your spider files to save results.
+
+```python
+# import result saving method
+from crawlab import save_item
+
+# this is a result record, must be dict type
+result = {'name': 'crawlab'}
+
+# call result saving method
+save_item(result)
+```
+
+Then, start the spider. After it's done, you should be able to see scraped results in **Task Detail -> Result**
+
+### Other Frameworks / Languages
+
+A crawling task is actually executed through a shell command. The Task ID will be passed to the crawling task process in the form of environment variable named `CRAWLAB_TASK_ID`. By doing so, the data can be related to a task. Also, another environment variable `CRAWLAB_COLLECTION` is passed by Crawlab as the name of the collection to store results data.
 
 ## Comparison with Other Frameworks
 
