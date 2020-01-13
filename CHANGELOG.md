@@ -1,3 +1,11 @@
+# 0.4.4 (unknown)
+### Features / Enhancement
+- **API Address Optimization**. Added relative URL path in frontend so that users don't have to specify `CRAWLAB_API_ADDRESS` explicitly.
+- **SDK Compatiblity**. Allow users to integrate Scrapy or general spiders with Crawlab SDK.
+
+### Bug Fixes
+- **`nil retuened` error**.
+
 # 0.4.3 (2020-01-07)
 
 ### Features / Enhancement
