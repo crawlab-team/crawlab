@@ -33,14 +33,16 @@
             v-model="userInfo.setting.ding_talk_app_secret"
             :placeholder="$t('DingTalk AppSecret')"
           />
+
+          <i class="icon el-icon-view" @click="toggleDingTalkAppSecret"></i>
         </template>
         <template v-else>
           <el-input
-            type="password"
-            suffix-icon="el-icon-view"
             v-model="userInfo.setting.ding_talk_app_secret"
+            type="password"
             :placeholder="$t('DingTalk AppSecret')"
           />
+          <i class="icon el-icon-view" @click="toggleDingTalkAppSecret"></i>
         </template>
       </el-form-item>
       <el-form-item>
@@ -104,6 +106,9 @@ export default {
           this.$message.success(this.$t('Saved successfully'))
         }
       })
+    },
+    toggleDingTalkAppSecret () {
+      this.isShowDingTalkAppSecret = !this.isShowDingTalkAppSecret
     }
   },
   async created () {
@@ -120,5 +125,12 @@ export default {
 
   .setting-form .buttons {
     text-align: right;
+  }
+
+  .setting-form .icon {
+    top: calc(50% - 14px / 2);
+    right: 14px;
+    position: absolute;
+    color: #DCDFE6;
   }
 </style>

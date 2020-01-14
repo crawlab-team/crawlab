@@ -519,6 +519,10 @@ func ExecuteTask(id int) {
 	if user.Email != "" &&
 		user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd {
 		SendTaskEmail(user, t, spider)
+		if err := notification.SendDingTalkNotification(t, spider); err != nil {
+			log.Errorf(err.Error())
+			debug.PrintStack()
+		}
 	}
 
 	// 保存任务
