@@ -24,6 +24,25 @@
           </el-radio>
         </el-radio-group>
       </el-form-item>
+      <el-form-item prop="ding_talk_app_key" :label="$t('DingTalk AppKey')">
+        <el-input v-model="userInfo.setting.ding_talk_app_key" :placeholder="$t('DingTalk AppKey')"></el-input>
+      </el-form-item>
+      <el-form-item prop="ding_talk_app_secret" :label="$t('DingTalk AppSecret')">
+        <template v-if="isShowDingTalkAppSecret">
+          <el-input
+            v-model="userInfo.setting.ding_talk_app_secret"
+            :placeholder="$t('DingTalk AppSecret')"
+          />
+        </template>
+        <template v-else>
+          <el-input
+            type="password"
+            suffix-icon="el-icon-view"
+            v-model="userInfo.setting.ding_talk_app_secret"
+            :placeholder="$t('DingTalk AppSecret')"
+          />
+        </template>
+      </el-form-item>
       <el-form-item>
         <div class="buttons">
           <el-button type="success" @click="saveUserInfo">{{$t('Save')}}</el-button>
@@ -58,7 +77,8 @@ export default {
       rules: {
         password: [{ trigger: 'blur', validator: validatePass }],
         email: [{ trigger: 'blur', validator: validateEmail }]
-      }
+      },
+      isShowDingTalkAppSecret: false
     }
   },
   methods: {
@@ -74,7 +94,9 @@ export default {
         const res = await this.$store.dispatch('user/postInfo', {
           password: this.userInfo.password,
           email: this.userInfo.email,
-          notification_trigger: this.userInfo.setting.notification_trigger
+          notification_trigger: this.userInfo.setting.notification_trigger,
+          ding_talk_app_key: this.userInfo.setting.ding_talk_app_key,
+          ding_talk_app_secret: this.userInfo.setting.ding_talk_app_secret
         })
         if (!res || res.error) {
           this.$message.error(res.error)

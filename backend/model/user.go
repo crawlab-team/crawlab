@@ -25,6 +25,8 @@ type User struct {
 
 type UserSetting struct {
 	NotificationTrigger string `json:"notification_trigger" bson:"notification_trigger"`
+	DingTalkAppKey      string `json:"ding_talk_app_key" bson:"ding_talk_app_key"`
+	DingTalkAppSecret   string `json:"ding_talk_app_secret" bson:"ding_talk_app_secret"`
 }
 
 func (user *User) Save() error {

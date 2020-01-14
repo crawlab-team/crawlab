@@ -216,6 +216,8 @@ func PostMe(c *gin.Context) {
 		Email               string `json:"email"`
 		Password            string `json:"password"`
 		NotificationTrigger string `json:"notification_trigger"`
+		DingTalkAppKey      string `json:"ding_talk_app_key"`
+		DingTalkAppSecret   string `json:"ding_talk_app_secret"`
 	}
 	ctx := context.WithGinContext(c)
 	user := ctx.User()
@@ -236,6 +238,12 @@ func PostMe(c *gin.Context) {
 	}
 	if reqBody.NotificationTrigger != "" {
 		user.Setting.NotificationTrigger = reqBody.NotificationTrigger
+	}
+	if reqBody.DingTalkAppKey != "" {
+		user.Setting.DingTalkAppKey = reqBody.DingTalkAppKey
+	}
+	if reqBody.DingTalkAppSecret != "" {
+		user.Setting.DingTalkAppSecret = reqBody.DingTalkAppSecret
 	}
 	if err := user.Save(); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
