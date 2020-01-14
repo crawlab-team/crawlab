@@ -476,9 +476,23 @@ func ExecuteTask(id int) {
 		defer cronExec.Stop()
 	}
 
+	// 获得触发任务用户
+	user, err := model.GetUser(t.UserId)
+	if err != nil {
+		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		return
+	}
+
 	// 执行Shell命令
 	if err := ExecuteShellCmd(cmd, cwd, t, spider); err != nil {
 		log.Errorf(GetWorkerPrefix(id) + err.Error())
+
+		// 如果发生错误，则发送通知
+		t, _ = model.GetTask(t.Id)
+		if user.Email != "" &&
+			(user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd || user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskError) {
+			SendTaskEmail(user, t, spider)
+		}
 		return
 	}
 
@@ -501,29 +515,10 @@ func ExecuteTask(id int) {
 	t.RuntimeDuration = t.FinishTs.Sub(t.StartTs).Seconds() // 运行时长
 	t.TotalDuration = t.FinishTs.Sub(t.CreateTs).Seconds()  // 总时长
 
-	// 获得触发任务用户
-	user, err := model.GetUser(t.UserId)
-	if err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
-		return
-	}
-
 	// 如果是任务结束时发送通知，则发送通知
 	if user.Email != "" &&
 		user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd {
-		emailContent := fmt.Sprintf(`
-# Your task has finished
-
-The stats of the task are as below.
-
-Metric | Value
---- | ---
-Create Time | %s
-Start Time | %s
-Finish Time | %s
-Total Duration | %.1f
-`, t.CreateTs, t.StartTs, t.FinishTs, t.TotalDuration)
-		_ = notification.SendMail(user.Email, fmt.Sprintf("[%s] Crawlab Task Finished", spider.Name), emailContent)
+		SendTaskEmail(user, t, spider)
 	}
 
 	// 保存任务
@@ -694,6 +689,70 @@ func HandleTaskError(t model.Task, err error) {
 		return
 	}
 	debug.PrintStack()
+}
+
+func GetTaskEmailContent(t model.Task, s model.Spider) string {
+	n, _ := model.GetNode(t.NodeId)
+	errMsg := ""
+	statusMsg := fmt.Sprintf(`<span style="color:green">%s</span>`, t.Status)
+	if t.Status == constants.StatusError {
+		errMsg = " with errors"
+		statusMsg = fmt.Sprintf(`<span style="color:red">%s</span>`, t.Status)
+	}
+	return fmt.Sprintf(`
+Your task has finished%s. Please find the task info below.
+
+ | 
+--: | :--
+**Task ID:** | %s
+**Task Status:** | %s
+**Task Param:** | %s
+**Spider ID:** | %s
+**Spider Name:** | %s
+**Node:** | %s
+**Create Time:** | %s
+**Start Time:** | %s
+**Finish Time:** | %s
+**Wait Duration:** | %.0f sec
+**Runtime Duration:** | %.0f sec
+**Total Duration:** | %.0f sec
+**Number of Results:** | %d
+**Error:** | <span style="color:red">%s</span>
+
+Please login to Crawlab to view the details.
+`,
+		errMsg,
+		t.Id,
+		statusMsg,
+		t.Param,
+		s.Id.Hex(),
+		s.Name,
+		n.Name,
+		utils.GetLocalTimeString(t.CreateTs),
+		utils.GetLocalTimeString(t.StartTs),
+		utils.GetLocalTimeString(t.FinishTs),
+		t.WaitDuration,
+		t.RuntimeDuration,
+		t.TotalDuration,
+		t.ResultCount,
+		t.Error,
+	)
+}
+
+func SendTaskEmail(u model.User, t model.Task, s model.Spider) {
+	statusMsg := "has finished"
+	if t.Status == constants.StatusError {
+		statusMsg = "has an error"
+	}
+	if err := notification.SendMail(
+		u.Email,
+		u.Username,
+		fmt.Sprintf("[Crawlab] Task for \"%s\" %s", s.Name, statusMsg),
+		GetTaskEmailContent(t, s),
+	); err != nil {
+		log.Errorf("mail error: " + err.Error())
+		debug.PrintStack()
+	}
 }
 
 func InitTaskExecutor() error {

@@ -11,13 +11,13 @@ import (
 	"strconv"
 )
 
-func SendMail(toEmail string, subject string, content string) error {
+func SendMail(toEmail string, toName string, subject string, content string) error {
 	// hermes instance
 	h := hermes.Hermes{
+		Theme: new(hermes.Default),
 		Product: hermes.Product{
-			Name: "Hermes",
-			Link: "https://example-hermes.com/",
-			Logo: "http://www.duchess-france.org/wp-content/uploads/2016/01/gopher.png",
+			Name:      "Crawlab Team",
+			Copyright: "© 2019 Crawlab, Made by Crawlab-Team",
 		},
 	}
 
@@ -41,7 +41,8 @@ func SendMail(toEmail string, subject string, content string) error {
 	// email instance
 	email := hermes.Email{
 		Body: hermes.Body{
-			FreeMarkdown: hermes.Markdown(content),
+			Name:         toName,
+			FreeMarkdown: hermes.Markdown(content + GetFooter()),
 		},
 	}
 
@@ -128,4 +129,10 @@ func send(smtpConfig smtpAuthentication, options sendOptions, htmlBody string, t
 	d := gomail.NewPlainDialer(smtpConfig.Server, smtpConfig.Port, smtpConfig.SMTPUser, smtpConfig.SMTPPassword)
 
 	return d.DialAndSend(m)
+}
+
+func GetFooter() string {
+	return `
+[Github](https://github.com/crawlab-team/crawlab) | [Documentation](http://docs.crawlab.cn) | [Docker](https://hub.docker.com/r/tikazyq/crawlab)
+`
 }
