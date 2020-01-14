@@ -17,6 +17,9 @@ func InitUserService() error {
 		Username: "admin",
 		Password: utils.EncryptPassword("admin"),
 		Role:     constants.RoleAdmin,
+		Setting: model.UserSetting{
+			NotificationTrigger: constants.NotificationTriggerNever,
+		},
 	}
 	_ = adminUser.Add()
 	return nil

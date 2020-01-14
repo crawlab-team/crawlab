@@ -101,6 +101,9 @@ func PutUser(c *gin.Context) {
 		Password: utils.EncryptPassword(reqData.Password),
 		Role:     reqData.Role,
 		Email:    reqData.Email,
+		Setting: model.UserSetting{
+			NotificationTrigger: constants.NotificationTriggerNever,
+		},
 	}
 	if err := user.Add(); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
