@@ -347,7 +347,7 @@ export default {
 
 <style scoped lang="scss">
   .file-list-container {
-    //margin-left: -15px;
+    margin-left: -15px;
     height: 100%;
     min-height: 100%;
 
