@@ -220,6 +220,7 @@ export const constantRouterMap = [
     children: [
       {
         path: '',
+        name: 'Setting',
         component: () => import('../views/setting/Setting'),
         meta: {
           title: 'Setting',
