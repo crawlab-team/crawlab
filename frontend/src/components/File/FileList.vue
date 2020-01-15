@@ -9,9 +9,14 @@
         @node-click="onFileClick"
       >
         <span class="custom-tree-node" slot-scope="{ node, data }">
-          <el-popover v-model="isShowCreatePopoverDict[data.path]" type="manual" placement="right"
-                      popper-class="create-item-popover">
-            <div class="create-item-title">{{$t('Create')}}</div>
+          <el-popover v-model="isShowCreatePopoverDict[data.path]" trigger="manual" placement="right"
+                      popper-class="create-item-popover" :visible-arrow="false" @hide="onHideCreate(data)">
+            <div class="create-item-title">
+              <span class="item-icon">
+                <font-awesome-icon icon="plus" color="rgba(3,47,98,.5)"/>
+              </span>
+              <span class="create-item-text">{{$t('Create')}}</span>
+            </div>
             <ul class="create-item-list">
               <li class="create-item">
                 <font-awesome-icon :icon="['fa', 'folder']" color="rgba(3,47,98,.5)"/>
@@ -47,81 +52,60 @@
         </span>
       </el-tree>
     </div>
+
     <div class="main-content">
-      <div class="top-part">
-        <!--back-->
-        <div class="action-container">
-          <!--          <el-button v-if="showFile" type="primary" size="small" style="margin-right: 10px;" @click="onBackFile">-->
-          <!--            <font-awesome-icon :icon="['fa', 'arrow-left']"/>-->
-          <!--            {{$t('Back')}}-->
-          <!--          </el-button>-->
-          <el-popover v-model="isShowDelete">
-            <el-button size="small" type="default" @click="() => this.isShowDelete = false">
-              {{$t('Cancel')}}
-            </el-button>
-            <el-button size="small" type="danger" @click="onFileDelete">
-              {{$t('Confirm')}}
-            </el-button>
-            <template slot="reference">
-              <el-button v-if="currentPath !== ''" type="danger" size="small" style="margin-right: 10px;"
-                         @click="() => this.isShowDelete = true">
-                <font-awesome-icon :icon="['fa', 'trash']"/>
-                {{$t('Remove')}}
+      <div v-if="!showFile" class="file-list">
+        {{$t('Please select a file on the left.')}}
+      </div>
+      <template v-else>
+        <div class="top-part">
+          <!--back-->
+          <div class="action-container">
+            <el-popover v-model="isShowDelete" trigger="click">
+              <el-button size="small" type="default" @click="() => this.isShowDelete = false">
+                {{$t('Cancel')}}
               </el-button>
-            </template>
-          </el-popover>
-          <el-popover v-model="isShowRename">
-            <el-input v-model="name" :placeholder="$t('Name')" style="margin-bottom: 10px"/>
-            <div style="text-align: right">
-              <el-button size="small" type="warning" @click="onRenameFile">
+              <el-button size="small" type="danger" @click="onFileDelete">
                 {{$t('Confirm')}}
               </el-button>
-            </div>
-            <template slot="reference">
-              <el-button v-if="showFile" type="warning" size="small" style="margin-right: 10px;"
-                         @click="onOpenRename">
-                <font-awesome-icon :icon="['fa', 'redo']"/>
-                {{$t('Rename')}}
-              </el-button>
-            </template>
-          </el-popover>
-          <el-button v-if="showFile" type="success" size="small" style="margin-right: 10px;" @click="onFileSave">
-            <font-awesome-icon :icon="['fa', 'save']"/>
-            {{$t('Save')}}
-          </el-button>
-          <el-popover v-model="isShowAdd" @hide="onHideAdd">
-            <el-input v-model="name" :placeholder="$t('Name')"/>
-            <div class="add-type-list">
-              <el-button size="small" type="success" icon="el-icon-document-add" @click="onAddFile">
-                {{$t('File')}}
-              </el-button>
-              <el-button size="small" type="primary" icon="el-icon-folder-add" @click="onAddDir">
-                {{$t('Directory')}}
-              </el-button>
-            </div>
-            <template slot="reference">
-              <el-button type="primary" size="small" style="margin-right: 10px;">
-                <font-awesome-icon :icon="['fa', 'plus']"/>
-                {{$t('Create')}}
-              </el-button>
-            </template>
-          </el-popover>
+              <template slot="reference">
+                <el-button type="danger" size="small" style="margin-right: 10px;">
+                  <font-awesome-icon :icon="['fa', 'trash']"/>
+                  {{$t('Remove')}}
+                </el-button>
+              </template>
+            </el-popover>
+            <el-popover v-model="isShowRename" trigger="click">
+              <el-input v-model="name" :placeholder="$t('Name')" style="margin-bottom: 10px"/>
+              <div style="text-align: right">
+                <el-button size="small" type="warning" @click="onRenameFile">
+                  {{$t('Confirm')}}
+                </el-button>
+              </div>
+              <template slot="reference">
+                <div>
+                  <el-button type="warning" size="small" style="margin-right: 10px;" @click="onOpenRename">
+                    <font-awesome-icon :icon="['fa', 'redo']"/>
+                    {{$t('Rename')}}
+                  </el-button>
+                </div>
+              </template>
+            </el-popover>
+            <el-button type="success" size="small" style="margin-right: 10px;" @click="onFileSave">
+              <font-awesome-icon :icon="['fa', 'save']"/>
+              {{$t('Save')}}
+            </el-button>
+          </div>
+          <!--./back-->
+
+          <!--file path-->
+          <div class="file-path-container">
+            <div class="file-path">{{currentPath}}</div>
+          </div>
+          <!--./file path-->
         </div>
-        <!--./back-->
-
-        <!--file path-->
-        <div class="file-path-container">
-          <div class="file-path">{{currentPath}}</div>
-        </div>
-        <!--./file path-->
-      </div>
-
-      <!--file list-->
-      <div v-if="!showFile" class="file-list">
-        {{$t('Please select a file on the left')}}
-      </div>
-
-      <file-detail v-else/>
+        <file-detail/>
+      </template>
     </div>
   </div>
 </template>
@@ -192,23 +176,10 @@ export default {
       }
       this.$st.sendEv('爬虫详情', '文件', '点击')
     },
-    onBack () {
-      const sep = '/'
-      let arr = this.currentPath.split(sep)
-      arr.splice(arr.length - 1, 1)
-      const path = arr.join(sep)
-      this.$store.commit('file/SET_CURRENT_PATH', path)
-      this.$store.dispatch('file/getFileList', { path: this.currentPath })
-      this.$st.sendEv('爬虫详情', '文件', '回退')
-    },
     async onFileSave () {
       await this.$store.dispatch('file/saveFileContent', { path: this.currentPath })
       this.$message.success(this.$t('Saved file successfully'))
       this.$st.sendEv('爬虫详情', '文件', '保存')
-    },
-    onBackFile () {
-      this.showFile = false
-      this.onBack()
     },
     onHideAdd () {
       this.name = ''
@@ -240,27 +211,24 @@ export default {
       this.$st.sendEv('爬虫详情', '文件', '添加')
     },
     async onFileDelete () {
-      await this.$store.dispatch('file/deleteFile', { path: this.currentPath })
+      await this.$store.dispatch('file/deleteFile', { path: this.currentFilePath })
+      await this.$store.dispatch('spider/getFileTree')
       this.$message.success(this.$t('Deleted successfully'))
       this.isShowDelete = false
-      this.onBackFile()
+      this.showFile = false
       this.$st.sendEv('爬虫详情', '文件', '删除')
     },
     onOpenRename () {
-      this.isShowRename = true
-      const arr = this.currentPath.split('/')
+      const arr = this.currentFilePath.split('/')
       this.name = arr[arr.length - 1]
     },
     async onRenameFile () {
-      let newPath
-      if (this.currentPath.split('/').length === 1) {
-        newPath = this.name
-      } else {
-        const arr = this.currentPath.split('/')
-        newPath = arr[0] + '/' + this.name
-      }
-      await this.$store.dispatch('file/renameFile', { path: this.currentPath, newPath })
-      this.$store.commit('file/SET_CURRENT_PATH', newPath)
+      await this.$store.dispatch('file/renameFile', { path: this.currentFilePath, newPath: this.name })
+      await this.$store.dispatch('spider/getFileTree')
+      const arr = this.currentFilePath.split('/')
+      arr[arr.length - 1] = this.name
+      this.currentFilePath = arr.join('/')
+      this.$store.commit('file/SET_CURRENT_PATH', this.currentFilePath)
       this.$message.success(this.$t('Renamed successfully'))
       this.isShowRename = false
       this.$st.sendEv('爬虫详情', '文件', '重命名')
@@ -310,18 +278,30 @@ export default {
       return node.path === this.currentFilePath
     },
     onFileRightClick (ev, data) {
-      console.log(data.path)
+      this.isShowCreatePopoverDict = {}
       this.$set(this.isShowCreatePopoverDict, data.path, true)
+    },
+    onHideCreate (data) {
+      this.$set(this.isShowCreatePopoverDict, data.path, false)
     }
   },
   async created () {
     await this.getFileTree()
+  },
+  mounted () {
+    this.listener = document.querySelector('body').addEventListener('click', ev => {
+      this.isShowCreatePopoverDict = {}
+    })
+  },
+  destroyed () {
+    document.querySelector('body').removeEventListener('click', this.listener)
   }
 }
 </script>
 
 <style scoped lang="scss">
   .file-list-container {
+    //margin-left: -15px;
     height: 100%;
     min-height: 100%;
 
@@ -379,8 +359,8 @@ export default {
       height: 100%;
       overflow-y: auto;
       min-height: 100%;
-      border-radius: 5px;
-      border: 1px solid #eaecef;
+      /*border-radius: 5px;*/
+      /*border: 1px solid #eaecef;*/
       display: flex;
       align-items: center;
       justify-content: center;
@@ -432,6 +412,7 @@ export default {
   .file-tree-wrapper {
     float: left;
     width: 240px;
+    height: calc(100vh - 200px);
   }
 
   .file-tree-wrapper >>> .el-tree-node__content {
@@ -446,6 +427,8 @@ export default {
     float: left;
     width: calc(100% - 240px);
     height: calc(100vh - 200px);
+    border-left: 1px solid #eaecef;
+    padding-left: 20px;
   }
 
 </style>
@@ -473,8 +456,8 @@ export default {
     display: flex;
     align-items: center;
     height: 35px;
-    margin: 0 0 0 15px;
-    padding: 0;
+    padding: 0 0 0 15px;
+    margin: 0;
     cursor: pointer;
   }
 

@@ -38,7 +38,8 @@ const actions = {
   },
   getFileContent ({ commit, rootState }, payload) {
     const { path } = payload
-    return request.get(`/file`, { path })
+    const spiderId = rootState.spider.spiderForm._id
+    return request.get(`/spiders/${spiderId}/file`, { path })
       .then(response => {
         commit('SET_FILE_CONTENT', response.data.data)
       })

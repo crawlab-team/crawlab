@@ -193,7 +193,7 @@ const actions = {
     commit('schedule/SET_SCHEDULE_LIST', res.data.data, { root: true })
   },
   async getFileTree ({ state, commit }, payload) {
-    const { id } = payload
+    const id = payload ? payload.id : state.spiderForm._id
     const res = await request.get(`/spiders/${id}/file/tree`)
     commit('SET_FILE_TREE', res.data.data)
   }

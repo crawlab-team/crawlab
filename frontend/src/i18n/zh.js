@@ -325,6 +325,7 @@ export default {
   'The schedule has been added': '已添加定时任务',
   'The schedule has been saved': '已保存定时任务',
   'Email format invalid': '邮箱地址格式不正确',
+  'Please select a file on the left.': '请在左侧选择一个文件.',
 
   // 登录
   'Sign in': '登录',
