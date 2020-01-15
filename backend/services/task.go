@@ -490,23 +490,7 @@ func ExecuteTask(id int) {
 		// 如果发生错误，则发送通知
 		t, _ = model.GetTask(t.Id)
 		if user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd || user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskError {
-			if user.Email != "" {
-				go func() {
-					SendTaskEmail(user, t, spider)
-				}()
-			}
-
-			if user.Setting.DingTalkRobotWebhook != "" {
-				go func() {
-					SendTaskDingTalk(user, t, spider)
-				}()
-			}
-
-			if user.Setting.WechatRobotWebhook != "" {
-				go func() {
-					SendTaskWechat(user, t, spider)
-				}()
-			}
+			SendNotifications(user, t, spider)
 		}
 		return
 	}
@@ -532,27 +516,7 @@ func ExecuteTask(id int) {
 
 	// 如果是任务结束时发送通知，则发送通知
 	if user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd {
-		if user.Email != "" {
-			go func() {
-				SendTaskEmail(user, t, spider)
-			}()
-		}
-
-		if user.Email != "" {
-			go func() {
-				if user.Setting.DingTalkRobotWebhook != "" {
-					SendTaskDingTalk(user, t, spider)
-				}
-			}()
-		}
-
-		if user.Email != "" {
-			go func() {
-				if user.Setting.WechatRobotWebhook != "" {
-					SendTaskWechat(user, t, spider)
-				}
-			}()
-		}
+		SendNotifications(user, t, spider)
 	}
 
 	// 保存任务
@@ -779,7 +743,7 @@ func GetTaskMarkdownContent(t model.Task, s model.Spider) string {
 	errLog := "-"
 	statusMsg := fmt.Sprintf(`<font color="#00FF00">%s</font>`, t.Status)
 	if t.Status == constants.StatusError {
-		errMsg = `<font color="#FF0000">（有错误）</font>`
+		errMsg = `（有错误）`
 		errLog = fmt.Sprintf(`<font color="#FF0000">%s</font>`, t.Error)
 		statusMsg = fmt.Sprintf(`<font color="#FF0000">%s</font>`, t.Status)
 	}
@@ -856,6 +820,26 @@ func SendTaskWechat(u model.User, t model.Task, s model.Spider) {
 	if err := notification.SendMobileNotification(u.Setting.WechatRobotWebhook, "", content); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
+	}
+}
+
+func SendNotifications(u model.User, t model.Task, s model.Spider) {
+	if u.Email != "" && utils.StringArrayContains(u.Setting.EnabledNotifications, constants.NotificationTypeMail) {
+		go func() {
+			SendTaskEmail(u, t, s)
+		}()
+	}
+
+	if u.Setting.DingTalkRobotWebhook != "" && utils.StringArrayContains(u.Setting.EnabledNotifications, constants.NotificationTypeDingTalk) {
+		go func() {
+			SendTaskDingTalk(u, t, s)
+		}()
+	}
+
+	if u.Setting.WechatRobotWebhook != "" && utils.StringArrayContains(u.Setting.EnabledNotifications, constants.NotificationTypeWechat) {
+		go func() {
+			SendTaskWechat(u, t, s)
+		}()
 	}
 }
 

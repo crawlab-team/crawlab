@@ -24,9 +24,10 @@ type User struct {
 }
 
 type UserSetting struct {
-	NotificationTrigger  string `json:"notification_trigger" bson:"notification_trigger"`
-	DingTalkRobotWebhook string `json:"ding_talk_robot_webhook" bson:"ding_talk_robot_webhook"`
-	WechatRobotWebhook   string `json:"wechat_robot_webhook" bson:"wechat_robot_webhook"`
+	NotificationTrigger  string   `json:"notification_trigger" bson:"notification_trigger"`
+	DingTalkRobotWebhook string   `json:"ding_talk_robot_webhook" bson:"ding_talk_robot_webhook"`
+	WechatRobotWebhook   string   `json:"wechat_robot_webhook" bson:"wechat_robot_webhook"`
+	EnabledNotifications []string `json:"enabled_notifications" bson:"enabled_notifications"`
 }
 
 func (user *User) Save() error {

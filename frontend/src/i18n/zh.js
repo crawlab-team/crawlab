@@ -349,11 +349,12 @@ export default {
   'Optional': '可选',
 
   // 设置
-  'Notification Trigger': '通知触发',
+  'Notification Trigger Timing': '消息通知触发时机',
   'On Task End': '当任务结束',
   'On Task Error': '当任务发生错误',
   'Never': '从不',
   'DingTalk Robot Webhook': '钉钉机器人 Webhook',
+  'Wechat Robot Webhook': '微信机器人 Webhook',
 
   // 其他
   tagsView: {

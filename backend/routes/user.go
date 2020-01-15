@@ -96,16 +96,7 @@ func PutUser(c *gin.Context) {
 	}
 
 	// 添加用户
-	user := model.User{
-		Username: strings.ToLower(reqData.Username),
-		Password: utils.EncryptPassword(reqData.Password),
-		Role:     reqData.Role,
-		Email:    reqData.Email,
-		Setting: model.UserSetting{
-			NotificationTrigger: constants.NotificationTriggerNever,
-		},
-	}
-	if err := user.Add(); err != nil {
+	if err := services.CreateNewUser(reqData.Username, reqData.Password, reqData.Role, reqData.Email); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
@@ -238,6 +229,7 @@ func PostMe(c *gin.Context) {
 	if reqBody.Setting.WechatRobotWebhook != "" {
 		user.Setting.WechatRobotWebhook = reqBody.Setting.WechatRobotWebhook
 	}
+	user.Setting.EnabledNotifications = reqBody.Setting.EnabledNotifications
 	if err := user.Save(); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return

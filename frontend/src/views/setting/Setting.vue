@@ -8,10 +8,8 @@
       <el-form-item prop="password" :label="$t('Password')">
         <el-input v-model="userInfo.password" type="password" :placeholder="$t('Password')"></el-input>
       </el-form-item>
-      <el-form-item prop="email" :label="$t('Email')">
-        <el-input v-model="userInfo.email" :placeholder="$t('Email')"></el-input>
-      </el-form-item>
-      <el-form-item :label="$t('Notification Trigger')">
+      <div style="border-bottom: 1px solid #DCDFE6"></div>
+      <el-form-item :label="$t('Notification Trigger Timing')">
         <el-radio-group v-model="userInfo.setting.notification_trigger">
           <el-radio label="notification_trigger_on_task_end">
             {{$t('On Task End')}}
@@ -24,8 +22,22 @@
           </el-radio>
         </el-radio-group>
       </el-form-item>
+      <el-form-item prop="enabledNotifications" :label="$t('消息通知方式')">
+        <el-checkbox-group v-model="userInfo.setting.enabled_notifications">
+          <el-checkbox label="notification_type_mail">{{$t('邮件')}}</el-checkbox>
+          <el-checkbox label="notification_type_ding_talk">{{$t('钉钉')}}</el-checkbox>
+          <el-checkbox label="notification_type_wechat">{{$t('企业微信')}}</el-checkbox>
+        </el-checkbox-group>
+      </el-form-item>
+      <el-form-item prop="email" :label="$t('Email')">
+        <el-input v-model="userInfo.email" :placeholder="$t('Email')"></el-input>
+      </el-form-item>
       <el-form-item prop="setting.ding_talk_robot_webhook" :label="$t('DingTalk Robot Webhook')">
-        <el-input v-model="userInfo.setting.ding_talk_robot_webhook" :placeholder="$t('DingTalk Robot Webhook')"></el-input>
+        <el-input v-model="userInfo.setting.ding_talk_robot_webhook"
+                  :placeholder="$t('DingTalk Robot Webhook')"></el-input>
+      </el-form-item>
+      <el-form-item prop="setting.wechat_robot_webhook" :label="$t('Wechat Robot Webhook')">
+        <el-input v-model="userInfo.setting.wechat_robot_webhook" :placeholder="$t('Wechat Robot Webhook')"></el-input>
       </el-form-item>
       <el-form-item>
         <div class="buttons">
@@ -64,12 +76,21 @@ export default {
         callback()
       }
     }
+    const validateWechatRobotWebhook = (rule, value, callback) => {
+      if (!value) return callback()
+      if (!value.match(/^https:\/\/qyapi.weixin.qq.com\/cgi-bin\/webhook\/send\?key=.+/i)) {
+        callback(new Error(this.$t('DingTalk Robot Webhook format invalid')))
+      } else {
+        callback()
+      }
+    }
     return {
-      userInfo: { setting: {} },
+      userInfo: { setting: { enabled_notifications: [] } },
       rules: {
         password: [{ trigger: 'blur', validator: validatePass }],
         email: [{ trigger: 'blur', validator: validateEmail }],
-        'setting.ding_talk_robot_webhook': [{ trigger: 'blur', validator: validateDingTalkRobotWebhook }]
+        'setting.ding_talk_robot_webhook': [{ trigger: 'blur', validator: validateDingTalkRobotWebhook }],
+        'setting.wechat_robot_webhook': [{ trigger: 'blur', validator: validateWechatRobotWebhook }]
       },
       isShowDingTalkAppSecret: false
     }
@@ -80,16 +101,12 @@ export default {
       if (!data) return {}
       this.userInfo = JSON.parse(data)
       if (!this.userInfo.setting) this.userInfo.setting = {}
+      if (!this.userInfo.setting.enabled_notifications) this.userInfo.setting.enabled_notifications = []
     },
     saveUserInfo () {
       this.$refs['setting-form'].validate(async valid => {
         if (!valid) return
-        const res = await this.$store.dispatch('user/postInfo', {
-          password: this.userInfo.password,
-          email: this.userInfo.email,
-          notification_trigger: this.userInfo.setting.notification_trigger,
-          ding_talk_robot_webhook: this.userInfo.setting.ding_talk_robot_webhook
-        })
+        const res = await this.$store.dispatch('user/postInfo', this.userInfo)
         if (!res || res.error) {
           this.$message.error(res.error)
         } else {
