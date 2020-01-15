@@ -2,13 +2,12 @@ package notification
 
 import (
 	"crawlab/model"
-	"crawlab/utils"
 	"errors"
 	"fmt"
 	"github.com/apex/log"
 	"github.com/imroc/req"
+	"github.com/royeo/dingrobot"
 	"runtime/debug"
-	"time"
 )
 
 func SendDingTalkNotification(t model.Task, s model.Spider) error {
@@ -27,38 +26,50 @@ func SendDingTalkNotification(t model.Task, s model.Spider) error {
 	}
 
 	// 时间戳
-	timestamp := time.Now().Unix()
+	//timestamp := time.Now().Unix()
 
 	// 计算sign
-	signRawString := fmt.Sprintf("%d\n%s", timestamp, user.Setting.DingTalkAppSecret)
-	sign := utils.ComputeHmacSha256(signRawString, user.Setting.DingTalkAppSecret)
+	//signRawString := fmt.Sprintf("%d\n%s", timestamp, user.Setting.DingTalkAppSecret)
+	//sign := utils.ComputeHmacSha256(signRawString, user.Setting.DingTalkAppSecret)
 
 	// 请求数据
 	url := fmt.Sprintf("https://oapi.dingtalk.com/robot/send?access_token=%s", accessToken)
-	header := req.Header{
-		"Content-Type": "application/json",
-		"timestamp":    fmt.Sprintf("%d000", timestamp),
-		"sign":         sign,
-	}
-	data := req.Param{
-		"msgtype": "text",
-		"text": req.Param{
-			"text": "it works",
-		},
-	}
-	res, err := req.Post(url, header, req.BodyJSON(&data))
-	if err != nil {
-		log.Errorf("dingtalk notification error: " + err.Error())
+	robot := dingrobot.NewRobot(url)
+
+	text := "it works"
+	if err := robot.SendText(text, []string{}, false); err != nil {
+		log.Errorf(err.Error())
 		debug.PrintStack()
 		return err
 	}
-	log.Infof(fmt.Sprintf("%+v", res))
+	//header := req.Header{
+	//	"Content-Type": "application/json; charset=utf-8",
+	//	"timestamp":    fmt.Sprintf("%d000", timestamp),
+	//	"sign":         sign,
+	//}
+	//data := req.Param{
+	//	"msgtype": "text",
+	//	"text": req.Param{
+	//		"text": "it works",
+	//	},
+	//	"at": req.Param{
+	//		"atMobiles": []string{},
+	//		"isAtAll": false,
+	//	},
+	//}
+	//res, err := req.Post(url, header, req.BodyJSON(&data))
+	//if err != nil {
+	//	log.Errorf("dingtalk notification error: " + err.Error())
+	//	debug.PrintStack()
+	//	return err
+	//}
+	//log.Infof(fmt.Sprintf("%+v", res))
 	return nil
 }
 
 func GetDingTalkAccessToken(u model.User) (string, error) {
 	type ResBody struct {
-		ErrCode     int `json:"errcode"`
+		ErrCode     int    `json:"errcode"`
 		ErrMsg      string `json:"errmsg"`
 		AccessToken string `json:"access_token"`
 	}

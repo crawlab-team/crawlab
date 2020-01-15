@@ -82,6 +82,8 @@ github.com/olekukonko/tablewriter
 github.com/pelletier/go-toml
 # github.com/pkg/errors v0.8.1
 github.com/pkg/errors
+# github.com/royeo/dingrobot v1.0.0
+github.com/royeo/dingrobot
 # github.com/satori/go.uuid v1.2.0
 github.com/satori/go.uuid
 # github.com/shurcooL/sanitized_anchor_name v1.0.0
