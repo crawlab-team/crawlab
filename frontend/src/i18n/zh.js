@@ -353,8 +353,7 @@ export default {
   'On Task End': '当任务结束',
   'On Task Error': '当任务发生错误',
   'Never': '从不',
-  'DingTalk AppKey': '钉钉 AppKey',
-  'DingTalk AppSecret': '钉钉 AppSecret',
+  'DingTalk Robot Webhook': '钉钉机器人 Webhook',
 
   // 其他
   tagsView: {

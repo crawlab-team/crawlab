@@ -489,9 +489,14 @@ func ExecuteTask(id int) {
 
 		// 如果发生错误，则发送通知
 		t, _ = model.GetTask(t.Id)
-		if user.Email != "" &&
-			(user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd || user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskError) {
-			SendTaskEmail(user, t, spider)
+		if user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd || user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskError {
+			if user.Email != "" {
+				SendTaskEmail(user, t, spider)
+			}
+
+			if user.Setting.DingTalkRobotWebhook != "" {
+				SendTaskDingTalk(user, t, spider)
+			}
 		}
 		return
 	}
@@ -516,12 +521,13 @@ func ExecuteTask(id int) {
 	t.TotalDuration = t.FinishTs.Sub(t.CreateTs).Seconds()  // 总时长
 
 	// 如果是任务结束时发送通知，则发送通知
-	if user.Email != "" &&
-		user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd {
-		SendTaskEmail(user, t, spider)
-		if err := notification.SendDingTalkNotification(t, spider); err != nil {
-			log.Errorf(err.Error())
-			debug.PrintStack()
+	if user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd {
+		if user.Email != "" {
+			SendTaskEmail(user, t, spider)
+		}
+
+		if user.Setting.DingTalkRobotWebhook != "" {
+			SendTaskDingTalk(user, t, spider)
 		}
 	}
 
@@ -695,7 +701,7 @@ func HandleTaskError(t model.Task, err error) {
 	debug.PrintStack()
 }
 
-func GetTaskEmailContent(t model.Task, s model.Spider) string {
+func GetTaskEmailMarkdownContent(t model.Task, s model.Spider) string {
 	n, _ := model.GetNode(t.NodeId)
 	errMsg := ""
 	statusMsg := fmt.Sprintf(`<span style="color:green">%s</span>`, t.Status)
@@ -743,18 +749,78 @@ Please login to Crawlab to view the details.
 	)
 }
 
+func GetTaskDingTalkMarkdownContent(t model.Task, s model.Spider) string {
+	n, _ := model.GetNode(t.NodeId)
+	errMsg := ""
+	statusMsg := fmt.Sprintf(`<font color=green>%s</font>`, t.Status)
+	if t.Status == constants.StatusError {
+		errMsg = `<font color="red">(有错误)</font>`
+		statusMsg = fmt.Sprintf(`<font color=red>%s</font>`, t.Status)
+	}
+	return fmt.Sprintf(`
+您的任务已完成%s，请查看任务信息如下。
+
+> **任务ID:** %s  
+> **任务状态:** %s  
+> **任务参数:** %s  
+> **爬虫ID:** %s  
+> **爬虫名称:** %s  
+> **节点:** %s  
+> **创建时间:** %s  
+> **开始时间:** %s  
+> **完成时间:** %s  
+> **等待时间:** %.0f秒   
+> **运行时间:** %.0f秒  
+> **总时间:** %.0f秒  
+> **结果数:** %d  
+> **错误:** %s  
+
+请登录Crawlab查看详情。
+`,
+		errMsg,
+		t.Id,
+		statusMsg,
+		t.Param,
+		s.Id.Hex(),
+		s.Name,
+		n.Name,
+		utils.GetLocalTimeString(t.CreateTs),
+		utils.GetLocalTimeString(t.StartTs),
+		utils.GetLocalTimeString(t.FinishTs),
+		t.WaitDuration,
+		t.RuntimeDuration,
+		t.TotalDuration,
+		t.ResultCount,
+		t.Error,
+	)
+}
+
 func SendTaskEmail(u model.User, t model.Task, s model.Spider) {
 	statusMsg := "has finished"
 	if t.Status == constants.StatusError {
 		statusMsg = "has an error"
 	}
+	title := fmt.Sprintf("[Crawlab] Task for \"%s\" %s", s.Name, statusMsg)
 	if err := notification.SendMail(
 		u.Email,
 		u.Username,
-		fmt.Sprintf("[Crawlab] Task for \"%s\" %s", s.Name, statusMsg),
-		GetTaskEmailContent(t, s),
+		title,
+		GetTaskEmailMarkdownContent(t, s),
 	); err != nil {
 		log.Errorf("mail error: " + err.Error())
+		debug.PrintStack()
+	}
+}
+
+func SendTaskDingTalk(u model.User, t model.Task, s model.Spider) {
+	statusMsg := "has finished"
+	if t.Status == constants.StatusError {
+		statusMsg = "has an error"
+	}
+	title := fmt.Sprintf("[Crawlab] Task for \"%s\" %s", s.Name, statusMsg)
+	content := GetTaskDingTalkMarkdownContent(t, s)
+	if err := notification.SendDingTalkNotification(u.Setting.DingTalkRobotWebhook, title, content); err != nil {
+		log.Errorf(err.Error())
 		debug.PrintStack()
 	}
 }

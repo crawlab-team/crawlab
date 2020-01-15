@@ -213,11 +213,10 @@ func GetMe(c *gin.Context) {
 
 func PostMe(c *gin.Context) {
 	type ReqBody struct {
-		Email               string `json:"email"`
-		Password            string `json:"password"`
-		NotificationTrigger string `json:"notification_trigger"`
-		DingTalkAppKey      string `json:"ding_talk_app_key"`
-		DingTalkAppSecret   string `json:"ding_talk_app_secret"`
+		Email                string `json:"email"`
+		Password             string `json:"password"`
+		NotificationTrigger  string `json:"notification_trigger"`
+		DingTalkRobotWebhook string `json:"ding_talk_robot_webhook"`
 	}
 	ctx := context.WithGinContext(c)
 	user := ctx.User()
@@ -239,11 +238,8 @@ func PostMe(c *gin.Context) {
 	if reqBody.NotificationTrigger != "" {
 		user.Setting.NotificationTrigger = reqBody.NotificationTrigger
 	}
-	if reqBody.DingTalkAppKey != "" {
-		user.Setting.DingTalkAppKey = reqBody.DingTalkAppKey
-	}
-	if reqBody.DingTalkAppSecret != "" {
-		user.Setting.DingTalkAppSecret = reqBody.DingTalkAppSecret
+	if reqBody.DingTalkRobotWebhook != "" {
+		user.Setting.DingTalkRobotWebhook = reqBody.DingTalkRobotWebhook
 	}
 	if err := user.Save(); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
