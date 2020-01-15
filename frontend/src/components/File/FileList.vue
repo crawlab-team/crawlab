@@ -1,5 +1,35 @@
 <template>
   <div class="file-list-container">
+    <el-dialog
+      :title="$t('New Directory')"
+      :visible.sync="dirDialogVisible"
+      width="30%">
+      <el-form>
+        <el-form-item :label="$t('Enter new directory name')">
+          <el-input v-model="name" :placeholder="$t('New directory name')"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dirDialogVisible = false">{{$t('Cancel')}}</el-button>
+        <el-button type="primary" @click="onAddDir">{{$t('Confirm')}}</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog
+      :title="$t('New File')"
+      :visible.sync="fileDialogVisible"
+      width="30%">
+      <el-form>
+        <el-form-item :label="$t('Enter new file name')">
+          <el-input v-model="name" :placeholder="$t('New file name')"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="fileDialogVisible = false">{{$t('Cancel')}}</el-button>
+        <el-button type="primary" @click="onAddFile">{{$t('Confirm')}}</el-button>
+      </span>
+    </el-dialog>
+
     <div class="file-tree-wrapper">
       <el-tree
         :data="computedFileTree"
@@ -18,11 +48,11 @@
               <span class="create-item-text">{{$t('Create')}}</span>
             </div>
             <ul class="create-item-list">
-              <li class="create-item">
+              <li class="create-item" @click="dirDialogVisible = true">
                 <font-awesome-icon :icon="['fa', 'folder']" color="rgba(3,47,98,.5)"/>
                 <span class="create-item-text">{{$t('Directory')}}</span>
               </li>
-              <li class="create-item">
+              <li class="create-item" @click="fileDialogVisible = true">
                 <font-awesome-icon icon="file-alt" color="rgba(3,47,98,.5)"/>
                 <span class="create-item-text">{{$t('File')}}</span>
               </li>
@@ -134,7 +164,10 @@ export default {
         '__pycache__',
         'md5.txt',
         '.pyc'
-      ]
+      ],
+      activeFileNode: {},
+      dirDialogVisible: false,
+      fileDialogVisible: false
     }
   },
   computed: {
@@ -181,19 +214,22 @@ export default {
       this.$message.success(this.$t('Saved file successfully'))
       this.$st.sendEv('爬虫详情', '文件', '保存')
     },
-    onHideAdd () {
-      this.name = ''
-    },
     async onAddFile () {
       if (!this.name) {
         this.$message.error(this.$t('Name cannot be empty'))
         return
       }
-      const path = this.currentPath + '/' + this.name
+      const arr = this.activeFileNode.path.split('/')
+      if (this.activeFileNode.is_dir) {
+        arr.push(this.name)
+      } else {
+        arr[arr.length - 1] = this.name
+      }
+      const path = arr.join('/')
       await this.$store.dispatch('file/addFile', { path })
-      await this.$store.dispatch('file/getFileList', { path: this.currentPath })
+      await this.$store.dispatch('spider/getFileTree')
       this.isShowAdd = false
-
+      this.fileDialogVisible = false
       this.showFile = true
       this.$store.commit('file/SET_FILE_CONTENT', '')
       this.$store.commit('file/SET_CURRENT_PATH', path)
@@ -205,9 +241,17 @@ export default {
         this.$message.error(this.$t('Name cannot be empty'))
         return
       }
-      await this.$store.dispatch('file/addDir', { path: this.currentPath + '/' + this.name })
-      await this.$store.dispatch('file/getFileList', { path: this.currentPath })
+      const arr = this.activeFileNode.path.split('/')
+      if (this.activeFileNode.is_dir) {
+        arr.push(this.name)
+      } else {
+        arr[arr.length - 1] = this.name
+      }
+      const path = arr.join('/')
+      await this.$store.dispatch('file/addDir', { path })
+      await this.$store.dispatch('spider/getFileTree')
       this.isShowAdd = false
+      this.dirDialogVisible = false
       this.$st.sendEv('爬虫详情', '文件', '添加')
     },
     async onFileDelete () {
@@ -280,9 +324,11 @@ export default {
     onFileRightClick (ev, data) {
       this.isShowCreatePopoverDict = {}
       this.$set(this.isShowCreatePopoverDict, data.path, true)
+      this.activeFileNode = data
     },
     onHideCreate (data) {
       this.$set(this.isShowCreatePopoverDict, data.path, false)
+      this.name = ''
     }
   },
   async created () {
@@ -413,6 +459,7 @@ export default {
     float: left;
     width: 240px;
     height: calc(100vh - 200px);
+    overflow: auto;
   }
 
   .file-tree-wrapper >>> .el-tree-node__content {
