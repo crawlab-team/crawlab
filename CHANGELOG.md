@@ -1,10 +1,13 @@
 # 0.4.4 (unknown)
 ### Features / Enhancement
+- **Email Notification**. Allow users to send email notifications.
+- **DingTalk Robot Notification**. Allow users to send DingTalk Robot notifications.
 - **API Address Optimization**. Added relative URL path in frontend so that users don't have to specify `CRAWLAB_API_ADDRESS` explicitly.
 - **SDK Compatiblity**. Allow users to integrate Scrapy or general spiders with Crawlab SDK.
 
 ### Bug Fixes
 - **`nil retuened` error**.
+- **Error when using HTTPS**.
 
 # 0.4.3 (2020-01-07)
 
