@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form :model="userInfo" class="setting-form" ref="setting-form" label-width="150px" :rules="rules"
+    <el-form :model="userInfo" class="setting-form" ref="setting-form" label-width="200px" :rules="rules"
              inline-message>
       <el-form-item prop="username" :label="$t('Username')">
         <el-input v-model="userInfo.username" disabled></el-input>
@@ -24,26 +24,8 @@
           </el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item prop="ding_talk_app_key" :label="$t('DingTalk AppKey')">
-        <el-input v-model="userInfo.setting.ding_talk_app_key" :placeholder="$t('DingTalk AppKey')"></el-input>
-      </el-form-item>
-      <el-form-item prop="ding_talk_app_secret" :label="$t('DingTalk AppSecret')">
-        <template v-if="isShowDingTalkAppSecret">
-          <el-input
-            v-model="userInfo.setting.ding_talk_app_secret"
-            :placeholder="$t('DingTalk AppSecret')"
-          />
-
-          <i class="icon el-icon-view" @click="toggleDingTalkAppSecret"></i>
-        </template>
-        <template v-else>
-          <el-input
-            v-model="userInfo.setting.ding_talk_app_secret"
-            type="password"
-            :placeholder="$t('DingTalk AppSecret')"
-          />
-          <i class="icon el-icon-view" @click="toggleDingTalkAppSecret"></i>
-        </template>
+      <el-form-item prop="setting.ding_talk_robot_webhook" :label="$t('DingTalk Robot Webhook')">
+        <el-input v-model="userInfo.setting.ding_talk_robot_webhook" :placeholder="$t('DingTalk Robot Webhook')"></el-input>
       </el-form-item>
       <el-form-item>
         <div class="buttons">
@@ -74,11 +56,20 @@ export default {
         callback()
       }
     }
+    const validateDingTalkRobotWebhook = (rule, value, callback) => {
+      if (!value) return callback()
+      if (!value.match(/^https:\/\/oapi.dingtalk.com\/robot\/send\?access_token=[a-f0-9]+/i)) {
+        callback(new Error(this.$t('DingTalk Robot Webhook format invalid')))
+      } else {
+        callback()
+      }
+    }
     return {
       userInfo: { setting: {} },
       rules: {
         password: [{ trigger: 'blur', validator: validatePass }],
-        email: [{ trigger: 'blur', validator: validateEmail }]
+        email: [{ trigger: 'blur', validator: validateEmail }],
+        'setting.ding_talk_robot_webhook': [{ trigger: 'blur', validator: validateDingTalkRobotWebhook }]
       },
       isShowDingTalkAppSecret: false
     }
@@ -97,8 +88,7 @@ export default {
           password: this.userInfo.password,
           email: this.userInfo.email,
           notification_trigger: this.userInfo.setting.notification_trigger,
-          ding_talk_app_key: this.userInfo.setting.ding_talk_app_key,
-          ding_talk_app_secret: this.userInfo.setting.ding_talk_app_secret
+          ding_talk_robot_webhook: this.userInfo.setting.ding_talk_robot_webhook
         })
         if (!res || res.error) {
           this.$message.error(res.error)
@@ -132,5 +122,9 @@ export default {
     right: 14px;
     position: absolute;
     color: #DCDFE6;
+  }
+
+  .setting-form >>> .el-form-item__label {
+    height: 40px;
   }
 </style>

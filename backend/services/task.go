@@ -813,11 +813,11 @@ func SendTaskEmail(u model.User, t model.Task, s model.Spider) {
 }
 
 func SendTaskDingTalk(u model.User, t model.Task, s model.Spider) {
-	statusMsg := "has finished"
+	statusMsg := "已完成"
 	if t.Status == constants.StatusError {
-		statusMsg = "has an error"
+		statusMsg = "发生错误"
 	}
-	title := fmt.Sprintf("[Crawlab] Task for \"%s\" %s", s.Name, statusMsg)
+	title := fmt.Sprintf("[Crawlab] \"%s\" 任务%s", s.Name, statusMsg)
 	content := GetTaskDingTalkMarkdownContent(t, s)
 	if err := notification.SendDingTalkNotification(u.Setting.DingTalkRobotWebhook, title, content); err != nil {
 		log.Errorf(err.Error())
