@@ -5,6 +5,7 @@
 - **Wechat Robot Notification**. Allow users to send Wechat Robot notifications.
 - **API Address Optimization**. Added relative URL path in frontend so that users don't have to specify `CRAWLAB_API_ADDRESS` explicitly.
 - **SDK Compatiblity**. Allow users to integrate Scrapy or general spiders with Crawlab SDK.
+- **Enhanced File Management**. Added tree-like file sidebar to allow users to edit files much more easier.
 
 ### Bug Fixes
 - **`nil retuened` error**.
