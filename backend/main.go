@@ -160,6 +160,7 @@ func main() {
 			authGroup.POST("/spiders/:id/upload", routes.UploadSpiderFromId)    // 上传爬虫（ID）
 			authGroup.DELETE("/spiders/:id", routes.DeleteSpider)               // 删除爬虫
 			authGroup.GET("/spiders/:id/tasks", routes.GetSpiderTasks)          // 爬虫任务列表
+			authGroup.GET("/spiders/:id/file/tree", routes.GetSpiderFileTree)   // 爬虫文件目录树读取
 			authGroup.GET("/spiders/:id/file", routes.GetSpiderFile)            // 爬虫文件读取
 			authGroup.POST("/spiders/:id/file", routes.PostSpiderFile)          // 爬虫文件更改
 			authGroup.PUT("/spiders/:id/file", routes.PutSpiderFile)            // 爬虫文件创建
@@ -210,6 +211,8 @@ func main() {
 			// 系统
 			authGroup.GET("/system/deps/:lang", routes.GetAllDepList)             // 节点所有第三方依赖列表
 			authGroup.GET("/system/deps/:lang/:dep_name/json", routes.GetDepJson) // 节点第三方依赖JSON
+			// 文件
+			authGroup.GET("/file", routes.GetFile) // 获取文件
 		}
 
 	}

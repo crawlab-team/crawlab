@@ -440,6 +440,8 @@ func GetSpiderTasks(c *gin.Context) {
 	})
 }
 
+// 爬虫文件管理
+
 func GetSpiderDir(c *gin.Context) {
 	// 爬虫ID
 	id := c.Param("id")
@@ -481,8 +483,6 @@ func GetSpiderDir(c *gin.Context) {
 	})
 }
 
-// 爬虫文件管理
-
 type SpiderFileReqBody struct {
 	Path    string `json:"path"`
 	Content string `json:"content"`
@@ -514,6 +514,36 @@ func GetSpiderFile(c *gin.Context) {
 		Status:  "ok",
 		Message: "success",
 		Data:    utils.BytesToString(fileBytes),
+	})
+}
+
+func GetSpiderFileTree(c *gin.Context) {
+	// 爬虫ID
+	id := c.Param("id")
+
+	// 获取爬虫
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 获取目录下文件列表
+	spiderPath := viper.GetString("spider.path")
+	spiderFilePath := filepath.Join(spiderPath, spider.Name)
+
+	// 获取文件目录树
+	fileNodeTree, err := services.GetFileNodeTree(spiderFilePath, 0)
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 返回结果
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    fileNodeTree,
 	})
 }
 
