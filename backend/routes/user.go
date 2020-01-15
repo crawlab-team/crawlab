@@ -212,19 +212,13 @@ func GetMe(c *gin.Context) {
 }
 
 func PostMe(c *gin.Context) {
-	type ReqBody struct {
-		Email                string `json:"email"`
-		Password             string `json:"password"`
-		NotificationTrigger  string `json:"notification_trigger"`
-		DingTalkRobotWebhook string `json:"ding_talk_robot_webhook"`
-	}
 	ctx := context.WithGinContext(c)
 	user := ctx.User()
 	if user == nil {
 		ctx.FailedWithError(constants.ErrorUserNotFound, http.StatusUnauthorized)
 		return
 	}
-	var reqBody ReqBody
+	var reqBody model.User
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		HandleErrorF(http.StatusBadRequest, c, "invalid request")
 		return
@@ -235,11 +229,14 @@ func PostMe(c *gin.Context) {
 	if reqBody.Password != "" {
 		user.Password = utils.EncryptPassword(reqBody.Password)
 	}
-	if reqBody.NotificationTrigger != "" {
-		user.Setting.NotificationTrigger = reqBody.NotificationTrigger
+	if reqBody.Setting.NotificationTrigger != "" {
+		user.Setting.NotificationTrigger = reqBody.Setting.NotificationTrigger
 	}
-	if reqBody.DingTalkRobotWebhook != "" {
-		user.Setting.DingTalkRobotWebhook = reqBody.DingTalkRobotWebhook
+	if reqBody.Setting.DingTalkRobotWebhook != "" {
+		user.Setting.DingTalkRobotWebhook = reqBody.Setting.DingTalkRobotWebhook
+	}
+	if reqBody.Setting.WechatRobotWebhook != "" {
+		user.Setting.WechatRobotWebhook = reqBody.Setting.WechatRobotWebhook
 	}
 	if err := user.Save(); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)

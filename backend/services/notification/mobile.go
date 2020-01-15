@@ -7,7 +7,7 @@ import (
 	"runtime/debug"
 )
 
-func SendDingTalkNotification(webhook string, title string, content string) error {
+func SendMobileNotification(webhook string, title string, content string) error {
 	type ResBody struct {
 		ErrCode int    `json:"errcode"`
 		ErrMsg  string `json:"errmsg"`
@@ -22,8 +22,9 @@ func SendDingTalkNotification(webhook string, title string, content string) erro
 	data := req.Param{
 		"msgtype": "markdown",
 		"markdown": req.Param{
-			"title": title,
-			"text":  content,
+			"title":   title,
+			"text":    content,
+			"content": content,
 		},
 		"at": req.Param{
 			"atMobiles": []string{},

@@ -491,11 +491,21 @@ func ExecuteTask(id int) {
 		t, _ = model.GetTask(t.Id)
 		if user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd || user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskError {
 			if user.Email != "" {
-				SendTaskEmail(user, t, spider)
+				go func() {
+					SendTaskEmail(user, t, spider)
+				}()
 			}
 
 			if user.Setting.DingTalkRobotWebhook != "" {
-				SendTaskDingTalk(user, t, spider)
+				go func() {
+					SendTaskDingTalk(user, t, spider)
+				}()
+			}
+
+			if user.Setting.WechatRobotWebhook != "" {
+				go func() {
+					SendTaskWechat(user, t, spider)
+				}()
 			}
 		}
 		return
@@ -523,11 +533,25 @@ func ExecuteTask(id int) {
 	// 如果是任务结束时发送通知，则发送通知
 	if user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd {
 		if user.Email != "" {
-			SendTaskEmail(user, t, spider)
+			go func() {
+				SendTaskEmail(user, t, spider)
+			}()
 		}
 
-		if user.Setting.DingTalkRobotWebhook != "" {
-			SendTaskDingTalk(user, t, spider)
+		if user.Email != "" {
+			go func() {
+				if user.Setting.DingTalkRobotWebhook != "" {
+					SendTaskDingTalk(user, t, spider)
+				}
+			}()
+		}
+
+		if user.Email != "" {
+			go func() {
+				if user.Setting.WechatRobotWebhook != "" {
+					SendTaskWechat(user, t, spider)
+				}
+			}()
 		}
 	}
 
@@ -749,13 +773,15 @@ Please login to Crawlab to view the details.
 	)
 }
 
-func GetTaskDingTalkMarkdownContent(t model.Task, s model.Spider) string {
+func GetTaskMarkdownContent(t model.Task, s model.Spider) string {
 	n, _ := model.GetNode(t.NodeId)
 	errMsg := ""
-	statusMsg := fmt.Sprintf(`<font color=green>%s</font>`, t.Status)
+	errLog := "-"
+	statusMsg := fmt.Sprintf(`<font color="#00FF00">%s</font>`, t.Status)
 	if t.Status == constants.StatusError {
-		errMsg = `<font color="red">(有错误)</font>`
-		statusMsg = fmt.Sprintf(`<font color=red>%s</font>`, t.Status)
+		errMsg = `<font color="#FF0000">（有错误）</font>`
+		errLog = fmt.Sprintf(`<font color="#FF0000">%s</font>`, t.Error)
+		statusMsg = fmt.Sprintf(`<font color="#FF0000">%s</font>`, t.Status)
 	}
 	return fmt.Sprintf(`
 您的任务已完成%s，请查看任务信息如下。
@@ -791,7 +817,7 @@ func GetTaskDingTalkMarkdownContent(t model.Task, s model.Spider) string {
 		t.RuntimeDuration,
 		t.TotalDuration,
 		t.ResultCount,
-		t.Error,
+		errLog,
 	)
 }
 
@@ -818,8 +844,16 @@ func SendTaskDingTalk(u model.User, t model.Task, s model.Spider) {
 		statusMsg = "发生错误"
 	}
 	title := fmt.Sprintf("[Crawlab] \"%s\" 任务%s", s.Name, statusMsg)
-	content := GetTaskDingTalkMarkdownContent(t, s)
-	if err := notification.SendDingTalkNotification(u.Setting.DingTalkRobotWebhook, title, content); err != nil {
+	content := GetTaskMarkdownContent(t, s)
+	if err := notification.SendMobileNotification(u.Setting.DingTalkRobotWebhook, title, content); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+	}
+}
+
+func SendTaskWechat(u model.User, t model.Task, s model.Spider) {
+	content := GetTaskMarkdownContent(t, s)
+	if err := notification.SendMobileNotification(u.Setting.WechatRobotWebhook, "", content); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
 	}
