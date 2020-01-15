@@ -708,7 +708,7 @@ func RenameSpiderFile(c *gin.Context) {
 
 	// 原文件路径
 	filePath := path.Join(spider.Src, reqBody.Path)
-	newFilePath := path.Join(spider.Src, reqBody.NewPath)
+	newFilePath := path.Join(path.Join(path.Dir(filePath), reqBody.NewPath))
 
 	// 如果新文件已存在，则报错
 	if utils.Exists(newFilePath) {
