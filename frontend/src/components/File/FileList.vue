@@ -325,6 +325,7 @@ export default {
       this.isShowCreatePopoverDict = {}
       this.$set(this.isShowCreatePopoverDict, data.path, true)
       this.activeFileNode = data
+      this.$st.sendEv('爬虫详情', '文件', '右键点击导航栏')
     },
     onHideCreate (data) {
       this.$set(this.isShowCreatePopoverDict, data.path, false)

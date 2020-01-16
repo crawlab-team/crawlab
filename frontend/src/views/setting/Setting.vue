@@ -113,9 +113,7 @@ export default {
           this.$message.success(this.$t('Saved successfully'))
         }
       })
-    },
-    toggleDingTalkAppSecret () {
-      this.isShowDingTalkAppSecret = !this.isShowDingTalkAppSecret
+      this.$st.sendEv('设置', '保存')
     }
   },
   async created () {

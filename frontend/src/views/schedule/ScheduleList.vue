@@ -337,15 +337,6 @@ export default {
         return false
       }
     },
-    getStatusTooltip (row) {
-      if (row.status === 'stop') {
-        return 'Start'
-      } else if (row.status === 'running') {
-        return 'Stop'
-      } else if (row.status === 'error') {
-        return 'Start'
-      }
-    },
     async onEnabledChange (row) {
       let res
       if (row.enabled) {
@@ -358,10 +349,11 @@ export default {
       } else {
         this.$message.success(this.$t(`${row.enabled ? 'Enabling' : 'Disabling'} the schedule successful`))
       }
+      this.$st.sendEv('定时任务', '启用/禁用')
     },
     onCronChange (value) {
-      console.log(value)
       this.$set(this.scheduleForm, 'cron', value)
+      this.$st.sendEv('定时任务', '配置Cron')
     }
   },
   created () {
