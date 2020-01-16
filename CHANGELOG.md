@@ -1,4 +1,4 @@
-# 0.4.4 (unknown)
+# 0.4.4 (2020-01-17)
 ### Features / Enhancement
 - **Email Notification**. Allow users to send email notifications.
 - **DingTalk Robot Notification**. Allow users to send DingTalk Robot notifications.
