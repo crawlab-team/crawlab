@@ -146,7 +146,7 @@ For Docker Deployment details, please refer to [relevant documentation](https://
 
 #### Cron Job
 
-![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/schedule.png)
+![](http://static-docs.crawlab.cn/schedule-v0.4.4.png)
 
 #### Dependency Installation
 

@@ -148,7 +148,7 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-d
 
 #### 定时任务
 
-![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/schedule.png)
+![](http://static-docs.crawlab.cn/schedule-v0.4.4.png)
 
 #### 依赖安装
 
