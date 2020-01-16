@@ -156,7 +156,7 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-d
 
 #### 消息通知
 
-![](http://static-docs.crawlab.cn/notification-mail.jpeg)
+<img src="http://static-docs.crawlab.cn/notification-mobile.jpeg" height="480px">
 
 ## 架构
 
