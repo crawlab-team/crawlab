@@ -154,6 +154,10 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-d
 
 ![](http://static-docs.crawlab.cn/node-install-dependencies.png)
 
+#### 消息通知
+
+![](http://static-docs.crawlab.cn/notification-mail.jpeg)
+
 ## 架构
 
 Crawlab的架构包括了一个主节点（Master Node）和多个工作节点（Worker Node），以及负责通信和数据储存的Redis和MongoDB数据库。

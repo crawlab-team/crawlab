@@ -148,6 +148,10 @@ For Docker Deployment details, please refer to [relevant documentation](https://
 
 ![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/schedule.png)
 
+#### Notifications
+
+![](http://static-docs.crawlab.cn/notification-mail.jpeg)
+
 #### Dependency Installation
 
 ![](http://static-docs.crawlab.cn/node-install-dependencies.png)
