@@ -138,9 +138,9 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-d
 
 ![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-analytics.png)
 
-#### 爬虫文件
+#### 爬虫文件编辑
 
-![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-file.png)
+![](http://static-docs.crawlab.cn/file-edit.png)
 
 #### 任务详情 - 抓取结果
 

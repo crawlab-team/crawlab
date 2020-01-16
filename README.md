@@ -136,9 +136,9 @@ For Docker Deployment details, please refer to [relevant documentation](https://
 
 ![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-analytics.png)
 
-#### Spider Files
+#### Spider File Edit
 
-![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-file.png)
+![](http://static-docs.crawlab.cn/file-edit.png)
 
 #### Task Results
 
