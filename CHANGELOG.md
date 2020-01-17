@@ -11,6 +11,8 @@
 ### Bug Fixes
 - **`nil retuened` error**.
 - **Error when using HTTPS**.
+- **Unable to run Configurable Spiders on Spider List**.
+- **Missing form validation before uploading spider files**.
 
 # 0.4.3 (2020-01-07)
 
