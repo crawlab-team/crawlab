@@ -55,7 +55,9 @@
                 :data="uploadForm"
                 :headers="{Authorization:token}"
                 :on-success="onUploadSuccess"
-                :file-list="fileList">
+                :file-list="fileList"
+                :before-upload="beforeUpload"
+              >
                 <el-button size="small" type="primary" icon="el-icon-upload">
                   {{$t('Upload')}}
                 </el-button>
@@ -556,6 +558,17 @@ export default {
 
       // navigate to spider detail
       this.$router.push(`/spiders/${res.data._id}`)
+    },
+    beforeUpload (file) {
+      return new Promise((resolve, reject) => {
+        this.$refs['addCustomizedForm'].validate(res => {
+          if (res) {
+            resolve()
+          } else {
+            reject(new Error('form validation error'))
+          }
+        })
+      })
     },
     getTime (str) {
       if (!str || str.match('^0001')) return 'NA'
