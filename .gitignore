@@ -122,3 +122,4 @@ _book/
 *.lock
 
 backend/spiders
+spiders/*.zip

@@ -11,6 +11,7 @@ export default {
   'Schedules': '定时任务',
   'Deploys': '部署',
   'Sites': '网站',
+  'Setting': '设置',
 
   // 标签
   'Overview': '概览',
@@ -323,6 +324,13 @@ export default {
   'The schedule has been removed': '已删除定时任务',
   'The schedule has been added': '已添加定时任务',
   'The schedule has been saved': '已保存定时任务',
+  'Email format invalid': '邮箱地址格式不正确',
+  'Please select a file on the left.': '请在左侧选择一个文件.',
+  'New Directory': '新建目录',
+  'Enter new directory name': '输入新目录名称',
+  'New directory name': '新目录名称',
+  'Enter new file name': '输入新文件名称',
+  'New file name': '新文件名称',
 
   // 登录
   'Sign in': '登录',
@@ -343,6 +351,18 @@ export default {
   'Role': '角色',
   'Edit User': '更改用户',
   'Users': '用户',
+  'Email': '邮箱',
+  'Optional': '可选',
+
+  // 设置
+  'Notification Trigger Timing': '消息通知触发时机',
+  'On Task End': '当任务结束',
+  'On Task Error': '当任务发生错误',
+  'Never': '从不',
+  'DingTalk Robot Webhook': '钉钉机器人 Webhook',
+  'Wechat Robot Webhook': '微信机器人 Webhook',
+
+  // 其他
   tagsView: {
     closeOthers: '关闭其他',
     close: '关闭',

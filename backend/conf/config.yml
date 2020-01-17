@@ -35,6 +35,15 @@ task:
   workers: 4
 other:
   tmppath: "/tmp"
-version: 0.4.3
+version: 0.4.4
 setting:
   allowRegister: "N"
+notification:
+  mail:
+    server: ''
+    port: ''
+    senderEmail: ''
+    senderIdentity: ''
+    smtp:
+      user: ''
+      password: ''

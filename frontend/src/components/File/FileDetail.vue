@@ -62,7 +62,7 @@ export default {
         return 'text/x-php'
       } else if (fileName.match(/\.md$/)) {
         return 'text/x-markdown'
-      } else if (fileName === 'Spiderfile') {
+      } else if (fileName.match('Spiderfile')) {
         return 'text/x-yaml'
       } else {
         return 'text'

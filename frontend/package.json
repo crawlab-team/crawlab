@@ -1,6 +1,6 @@
 {
   "name": "crawlab",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --ip=0.0.0.0 --mode=development",
@@ -20,6 +20,7 @@
     "@tinymce/tinymce-vue": "^2.0.0",
     "ansi-to-html": "^0.6.13",
     "axios": "0.18.0",
+    "babel-polyfill": "^6.26.0",
     "cross-env": "^5.2.0",
     "dayjs": "^1.8.6",
     "echarts": "^4.1.0",

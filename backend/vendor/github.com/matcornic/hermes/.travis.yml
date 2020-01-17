@@ -1,0 +1,20 @@
+language: go
+
+go:
+  - 1.6
+  - 1.7
+  - 1.8
+  - 1.9
+
+install:
+- curl -L https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64 -o dep
+- chmod u+x dep && ./dep ensure
+- go get -u github.com/alecthomas/gometalinter
+- gometalinter -u -i -f
+
+script:
+- go test -race -coverprofile=coverage.txt -covermode=atomic
+- gometalinter --vendor --config=./gometalinter.json ./...
+
+after_success:
+- bash <(curl -s https://codecov.io/bash)

@@ -91,6 +91,11 @@ const user = {
         })
     },
 
+    // 修改用户信息
+    postInfo ({ commit }, form) {
+      return request.post('/me', form)
+    },
+
     // 注册
     register ({ dispatch, commit, state }, userInfo) {
       return new Promise((resolve, reject) => {

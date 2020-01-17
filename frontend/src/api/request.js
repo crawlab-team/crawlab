@@ -5,7 +5,7 @@ import { Message } from 'element-ui'
 // 根据 VUE_APP_BASE_URL 生成 baseUrl
 let baseUrl = process.env.VUE_APP_BASE_URL ? process.env.VUE_APP_BASE_URL : 'http://localhost:8000'
 if (!baseUrl.match(/^https?/i)) {
-  baseUrl = `http://${window.location.host}${process.env.VUE_APP_BASE_URL}`
+  baseUrl = `${window.location.protocol}//${window.location.host}${process.env.VUE_APP_BASE_URL}`
 }
 
 // 如果 Docker 中设置了 CRAWLAB_API_ADDRESS 这个环境变量，则会将 baseUrl 覆盖

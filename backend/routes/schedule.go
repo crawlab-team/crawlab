@@ -76,6 +76,9 @@ func PutSchedule(c *gin.Context) {
 		return
 	}
 
+	// 加入用户ID
+	item.UserId = services.GetCurrentUser(c).Id
+
 	// 更新数据库
 	if err := model.AddSchedule(item); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
