@@ -194,7 +194,6 @@ export default {
       if (!this.fileTree || !this.fileTree.children) return []
       let nodes = this.sortFiles(this.fileTree.children)
       nodes = this.filterFiles(nodes)
-      nodes = this.computeExpanded(nodes)
       return nodes
     },
     expandedPaths () {
@@ -309,7 +308,6 @@ export default {
     onDirClick (data, node) {
       const vm = this
       setTimeout(() => {
-        console.log(data.path, node.expanded)
         vm.$set(vm.nodeExpandedDict, data.path, node.expanded)
       }, 0)
     },
@@ -340,16 +338,6 @@ export default {
           }
         }
         return true
-      })
-    },
-    computeExpanded (nodes) {
-      return nodes.map(node => {
-        if (node.is_dir) {
-          node.children = this.computeExpanded(node.children)
-        } else {
-          node.expanded = !!this.nodeExpandedDict[node.path]
-        }
-        return node
       })
     },
     isActiveFile (node) {
