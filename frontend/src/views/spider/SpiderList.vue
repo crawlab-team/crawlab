@@ -508,11 +508,8 @@ export default {
       this.dialogVisible = true
     },
     isShowRun (row) {
-      if (row.cmd) {
-        return true
-      } else {
-        return false
-      }
+      if (!this.isCustomized(row)) return true
+      return !!row.cmd
     },
     isCustomized (row) {
       return row.type === 'customized'
