@@ -24,6 +24,12 @@ services:
       # CRAWLAB_TASK_WORKERS: 4  # number of task executors 任务执行器个数（并行执行任务数）
       # CRAWLAB_SERVER_LANG_NODE: "Y"  # whether to pre-install Node.js 预安装 Node.js 语言环境
       # CRAWLAB_SETTING_ALLOWREGISTER: "N"  # whether to allow user registration 是否允许用户注册
+      # CRAWLAB_NOTIFICATION_MAIL_SERVER: smtp.exmaple.com  # STMP server address STMP 服务器地址
+      # CRAWLAB_NOTIFICATION_MAIL_PORT: 465  # STMP server port STMP 服务器端口
+      # CRAWLAB_NOTIFICATION_MAIL_SENDEREMAIL: admin@exmaple.com  # sender email 发送者邮箱
+      # CRAWLAB_NOTIFICATION_MAIL_SENDEREIDENTITY: admin@exmaple.com  # sender ID 发送者 ID
+      # CRAWLAB_NOTIFICATION_MAIL_SMTP_USER: username  # SMTP username SMTP 用户名
+      # CRAWLAB_NOTIFICATION_MAIL_SMTP_PASSWORD: password  # SMTP password SMTP 密码
     ports:    
       - "8080:8080" # frontend port mapping 前端端口映射
     depends_on:
