@@ -33,10 +33,14 @@
     <div class="file-tree-wrapper">
       <el-tree
         :data="computedFileTree"
+        ref="tree"
         node-key="path"
         :highlight-current="true"
+        :default-expanded-keys="expandedPaths"
         @node-contextmenu="onFileRightClick"
         @node-click="onFileClick"
+        @node-expand="onDirClick"
+        @node-collapse="onDirClick"
       >
         <span class="custom-tree-node" slot-scope="{ node, data }">
           <el-popover v-model="isShowCreatePopoverDict[data.path]" trigger="manual" placement="right"
@@ -167,7 +171,8 @@ export default {
       ],
       activeFileNode: {},
       dirDialogVisible: false,
-      fileDialogVisible: false
+      fileDialogVisible: false,
+      nodeExpandedDict: {}
     }
   },
   computed: {
@@ -189,7 +194,19 @@ export default {
       if (!this.fileTree || !this.fileTree.children) return []
       let nodes = this.sortFiles(this.fileTree.children)
       nodes = this.filterFiles(nodes)
+      nodes = this.computeExpanded(nodes)
       return nodes
+    },
+    expandedPaths () {
+      return Object.keys(this.nodeExpandedDict)
+        .map(path => {
+          return {
+            path,
+            expanded: this.nodeExpandedDict[path]
+          }
+        })
+        .filter(d => d.expanded)
+        .map(d => d.path)
     }
   },
   methods: {
@@ -289,6 +306,13 @@ export default {
       this.currentFilePath = data.path
       this.onItemClick(data)
     },
+    onDirClick (data, node) {
+      const vm = this
+      setTimeout(() => {
+        console.log(data.path, node.expanded)
+        vm.$set(vm.nodeExpandedDict, data.path, node.expanded)
+      }, 0)
+    },
     sortFiles (nodes) {
       nodes.forEach(node => {
         if (node.is_dir) {
@@ -316,6 +340,16 @@ export default {
           }
         }
         return true
+      })
+    },
+    computeExpanded (nodes) {
+      return nodes.map(node => {
+        if (node.is_dir) {
+          node.children = this.computeExpanded(node.children)
+        } else {
+          node.expanded = !!this.nodeExpandedDict[node.path]
+        }
+        return node
       })
     },
     isActiveFile (node) {
