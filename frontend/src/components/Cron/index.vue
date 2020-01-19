@@ -264,11 +264,9 @@ export default {
   },
   watch: {
     data () {
-      console.log('data', this.data)
       this.updateCronFromData()
     },
     cron () {
-      console.log('cron', this.cron)
       this.$emit('change', this.cron)
     }
   },
