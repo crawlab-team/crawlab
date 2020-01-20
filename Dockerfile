@@ -22,8 +22,6 @@ RUN npm run build:prod
 # images
 FROM ubuntu:latest
 
-ADD . /app
-
 # set as non-interactive
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -32,18 +30,18 @@ ENV CRAWLAB_IS_DOCKER Y
 
 # install packages
 RUN apt-get update \
-	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip \
+	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip nginx \
 	&& ln -s /usr/bin/pip3 /usr/local/bin/pip \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
 
 # install backend
-RUN pip install scrapy pymongo bs4 requests
+RUN pip install scrapy pymongo bs4 requests crawlab-sdk
+
+# add files
+ADD . /app
 
 # copy backend files
 COPY --from=backend-build /go/bin/crawlab /usr/local/bin
-
-# install nginx
-RUN apt-get -y install nginx
 
 # copy frontend files
 COPY --from=frontend-build /app/dist /app/dist

@@ -6,20 +6,18 @@ import (
 	"crawlab/utils"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
 	"github.com/spf13/viper"
+	"strings"
 	"time"
 )
 
 func InitUserService() error {
-	adminUser := model.User{
-		Username: "admin",
-		Password: utils.EncryptPassword("admin"),
-		Role:     constants.RoleAdmin,
-	}
-	_ = adminUser.Add()
+	_ = CreateNewUser("admin", "admin", constants.RoleAdmin, "")
 	return nil
 }
+
 func MakeToken(user *model.User) (tokenStr string, err error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":       user.Id,
@@ -90,4 +88,30 @@ func CheckToken(tokenStr string) (user model.User, err error) {
 	}
 
 	return
+}
+
+func CreateNewUser(username string, password string, role string, email string) error {
+	user := model.User{
+		Username: strings.ToLower(username),
+		Password: utils.EncryptPassword(password),
+		Role:     role,
+		Email:    email,
+		Setting: model.UserSetting{
+			NotificationTrigger: constants.NotificationTriggerNever,
+			EnabledNotifications: []string{
+				constants.NotificationTypeMail,
+				constants.NotificationTypeDingTalk,
+				constants.NotificationTypeWechat,
+			},
+		},
+	}
+	if err := user.Add(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetCurrentUser(c *gin.Context) *model.User {
+	data, _ := c.Get("currentUser")
+	return data.(*model.User)
 }

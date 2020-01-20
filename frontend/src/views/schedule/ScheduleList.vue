@@ -67,11 +67,18 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('Cron')" prop="cron" required>
-          <el-input
-            v-model="scheduleForm.cron"
-            :placeholder="`${$t('[minute] [hour] [day] [month] [day of week]')}`"
-          >
-          </el-input>
+          <el-popover>
+            <template>
+              <vue-cron-linux :data="scheduleForm.cron" :i18n="lang" @change="onCronChange"/>
+            </template>
+            <template slot="reference">
+              <el-input
+                v-model="scheduleForm.cron"
+                :placeholder="`${$t('[minute] [hour] [day] [month] [day of week]')}`"
+              >
+              </el-input>
+            </template>
+          </el-popover>
           <!--<el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('schedules.add_cron')}}</el-button>-->
         </el-form-item>
         <el-form-item :label="$t('Execute Command')" prop="params">
@@ -139,14 +146,16 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column v-else-if="col.name === 'run_type'" :key="col.name" :label="$t(col.label)" :width="col.width">
+          <el-table-column v-else-if="col.name === 'run_type'" :key="col.name" :label="$t(col.label)"
+                           :width="col.width">
             <template slot-scope="scope">
               <template v-if="scope.row.run_type === 'all-nodes'">{{$t('All Nodes')}}</template>
               <template v-else-if="scope.row.run_type === 'selected-nodes'">{{$t('Selected Nodes')}}</template>
               <template v-else-if="scope.row.run_type === 'random'">{{$t('Random')}}</template>
             </template>
           </el-table-column>
-          <el-table-column v-else-if="col.name === 'node_names'" :key="col.name" :label="$t(col.label)" :width="col.width">
+          <el-table-column v-else-if="col.name === 'node_names'" :key="col.name" :label="$t(col.label)"
+                           :width="col.width">
             <template slot-scope="scope">
               {{scope.row.nodes.map(d => d.name).join(', ')}}
             </template>
@@ -183,7 +192,7 @@
               <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
             </el-tooltip>
             <!--<el-tooltip :content="$t(getStatusTooltip(scope.row))" placement="top">-->
-              <!--<el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>-->
+            <!--<el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>-->
             <!--</el-tooltip>-->
           </template>
         </el-table-column>
@@ -194,14 +203,17 @@
 </template>
 
 <script>
-// import vcrontab from 'vcrontab'
 import request from '../../api/request'
+import VueCronLinux from '../../components/Cron'
 import {
   mapState
 } from 'vuex'
 
 export default {
   name: 'ScheduleList',
+  components: {
+    VueCronLinux
+  },
   data () {
     return {
       columns: [
@@ -229,6 +241,12 @@ export default {
       'scheduleList',
       'scheduleForm'
     ]),
+    lang () {
+      const lang = this.$store.state.lang.lang || window.localStorage.getItem('lang')
+      if (!lang) return 'cn'
+      if (lang === 'zh') return 'cn'
+      return 'en'
+    },
     filteredTableData () {
       return this.scheduleList
     },
@@ -319,15 +337,6 @@ export default {
         return false
       }
     },
-    getStatusTooltip (row) {
-      if (row.status === 'stop') {
-        return 'Start'
-      } else if (row.status === 'running') {
-        return 'Stop'
-      } else if (row.status === 'error') {
-        return 'Start'
-      }
-    },
     async onEnabledChange (row) {
       let res
       if (row.enabled) {
@@ -340,6 +349,11 @@ export default {
       } else {
         this.$message.success(this.$t(`${row.enabled ? 'Enabling' : 'Disabling'} the schedule successful`))
       }
+      this.$st.sendEv('定时任务', '启用/禁用')
+    },
+    onCronChange (value) {
+      this.$set(this.scheduleForm, 'cron', value)
+      this.$st.sendEv('定时任务', '配置Cron')
     }
   },
   created () {

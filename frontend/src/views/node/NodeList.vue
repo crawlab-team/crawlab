@@ -26,6 +26,7 @@
                   class="table"
                   :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
                   border
+                  @row-click="onRowClick"
                   @expand-change="onRowExpand">
           <el-table-column type="expand">
             <template slot-scope="scope">
@@ -260,6 +261,9 @@ export default {
     onRowExpand (row) {
       this.$store.dispatch('node/getNodeSystemInfo', row._id)
     },
+    onRowClick (row) {
+      this.onView(row)
+    },
     getExecutables (row) {
       if (!row.systemInfo || !row.systemInfo.executables) return []
       return row.systemInfo.executables
@@ -353,5 +357,9 @@ export default {
 
   .node-detail .executable-list .executable-label {
     margin-left: 5px;
+  }
+
+  .table.el-table tr {
+    cursor: pointer;
   }
 </style>

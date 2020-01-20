@@ -1,3 +1,19 @@
+# 0.4.4 (2020-01-17)
+### Features / Enhancement
+- **Email Notification**. Allow users to send email notifications.
+- **DingTalk Robot Notification**. Allow users to send DingTalk Robot notifications.
+- **Wechat Robot Notification**. Allow users to send Wechat Robot notifications.
+- **API Address Optimization**. Added relative URL path in frontend so that users don't have to specify `CRAWLAB_API_ADDRESS` explicitly.
+- **SDK Compatiblity**. Allow users to integrate Scrapy or general spiders with Crawlab SDK.
+- **Enhanced File Management**. Added tree-like file sidebar to allow users to edit files much more easier.
+- **Advanced Schedule Cron**. Allow users to edit schedule cron with visualized cron editor.
+
+### Bug Fixes
+- **`nil retuened` error**.
+- **Error when using HTTPS**.
+- **Unable to run Configurable Spiders on Spider List**.
+- **Missing form validation before uploading spider files**.
+
 # 0.4.3 (2020-01-07)
 
 ### Features / Enhancement

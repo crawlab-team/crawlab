@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apex/log"
+	"github.com/gomodule/redigo/redis"
 	uuid "github.com/satori/go.uuid"
 	"runtime/debug"
 )
@@ -185,10 +186,12 @@ func InitRpcService() error {
 			}
 
 			// 获取获取消息队列信息
-			dataStr, err := database.RedisClient.BRPop(fmt.Sprintf("rpc:%s", node.Id.Hex()), 300)
+			dataStr, err := database.RedisClient.BRPop(fmt.Sprintf("rpc:%s", node.Id.Hex()), 0)
 			if err != nil {
-				log.Errorf(err.Error())
-				debug.PrintStack()
+				if err != redis.ErrNil {
+					log.Errorf(err.Error())
+					debug.PrintStack()
+				}
 				continue
 			}
 

@@ -4,14 +4,34 @@ services:
     image: tikazyq/crawlab:latest
     container_name: master
     environment:
-      CRAWLAB_API_ADDRESS: "http://localhost:8000"  # backend API address 后端 API 地址，设置为 http://<宿主机IP>:<端口>，端口为映射出来的端口
+      # CRAWLAB_API_ADDRESS: "https://<your_api_ip>:<your_api_port>"  # backend API address 后端 API 地址. 适用于 https 或者源码部署
       CRAWLAB_SERVER_MASTER: "Y"  # whether to be master node 是否为主节点，主节点为 Y，工作节点为 N
       CRAWLAB_MONGO_HOST: "mongo"  # MongoDB host address MongoDB 的地址，在 docker compose 网络中，直接引用服务名称
+      # CRAWLAB_MONGO_PORT: "27017"  # MongoDB port MongoDB 的端口
+      # CRAWLAB_MONGO_DB: "crawlab_test"  # MongoDB database MongoDB 的数据库
+      # CRAWLAB_MONGO_USERNAME: "username"  # MongoDB username MongoDB 的用户名
+      # CRAWLAB_MONGO_PASSWORD: "password"  # MongoDB password MongoDB 的密码
+      # CRAWLAB_MONGO_AUTHSOURCE: "admin"  # MongoDB auth source MongoDB 的验证源
       CRAWLAB_REDIS_ADDRESS: "redis"  # Redis host address Redis 的地址，在 docker compose 网络中，直接引用服务名称
-      # CRAWLAB_SERVER_LANG_NODE: "Y"  # 预安装 Node.js 语言环境
+      # CRAWLAB_REDIS_PORT: "6379"  # Redis port Redis 的端口
+      # CRAWLAB_REDIS_DATABASE: "1"  # Redis database Redis 的数据库
+      # CRAWLAB_REDIS_PASSWORD: "password"  # Redis password Redis 的密码
+      # CRAWLAB_LOG_LEVEL: "info"  # log level 日志级别. 默认为 info
+      # CRAWLAB_LOG_ISDELETEPERIODICALLY: "N"  # whether to periodically delete log files 是否周期性删除日志文件. 默认不删除
+      # CRAWLAB_LOG_DELETEFREQUENCY: "@hourly"  # frequency of deleting log files 删除日志文件的频率. 默认为每小时
+      # CRAWLAB_SERVER_REGISTER_TYPE: "mac"  # node register type 节点注册方式. 默认为 mac 地址，也可设置为 ip（防止 mac 地址冲突）
+      # CRAWLAB_SERVER_REGISTER_IP: "127.0.0.1"  # node register ip 节点注册IP. 节点唯一识别号，只有当 CRAWLAB_SERVER_REGISTER_TYPE 为 "ip" 时才生效
+      # CRAWLAB_TASK_WORKERS: 4  # number of task executors 任务执行器个数（并行执行任务数）
+      # CRAWLAB_SERVER_LANG_NODE: "Y"  # whether to pre-install Node.js 预安装 Node.js 语言环境
+      # CRAWLAB_SETTING_ALLOWREGISTER: "N"  # whether to allow user registration 是否允许用户注册
+      # CRAWLAB_NOTIFICATION_MAIL_SERVER: smtp.exmaple.com  # STMP server address STMP 服务器地址
+      # CRAWLAB_NOTIFICATION_MAIL_PORT: 465  # STMP server port STMP 服务器端口
+      # CRAWLAB_NOTIFICATION_MAIL_SENDEREMAIL: admin@exmaple.com  # sender email 发送者邮箱
+      # CRAWLAB_NOTIFICATION_MAIL_SENDEREIDENTITY: admin@exmaple.com  # sender ID 发送者 ID
+      # CRAWLAB_NOTIFICATION_MAIL_SMTP_USER: username  # SMTP username SMTP 用户名
+      # CRAWLAB_NOTIFICATION_MAIL_SMTP_PASSWORD: password  # SMTP password SMTP 密码
     ports:    
       - "8080:8080" # frontend port mapping 前端端口映射
-      - "8000:8000" # backend port mapping 后端端口映射 
     depends_on:
       - mongo
       - redis
@@ -35,6 +55,7 @@ services:
   redis:
     image: redis:latest
     restart: always
+    # command: redis --requirepass "password" # set redis password 设置 Redis 密码
     # volumes:
     #   - "/opt/crawlab/redis/data:/data"  # make data persistent 持久化
     # ports:

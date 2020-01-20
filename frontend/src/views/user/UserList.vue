@@ -15,6 +15,9 @@
             <el-option value="normal" :label="$t('normal')"></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item prop="email" :label="$t('Email')">
+          <el-input v-model="userForm.email" :placeholder="$t('Email')"/>
+        </el-form-item>
       </el-form>
       <template slot="footer">
         <el-button size="small" @click="dialogVisible=false">{{$t('Cancel')}}</el-button>
@@ -107,11 +110,20 @@ export default {
         callback()
       }
     }
+    const validateEmail = (rule, value, callback) => {
+      if (!value) return callback()
+      if (!value.match(/.+@.+/i)) {
+        callback(new Error(this.$t('Email format invalid')))
+      } else {
+        callback()
+      }
+    }
     return {
       dialogVisible: false,
       isAdd: false,
       rules: {
-        password: [{ validator: validatePass }]
+        password: [{ validator: validatePass }],
+        email: [{ validator: validateEmail }]
       }
     }
   },
@@ -205,6 +217,8 @@ export default {
       this.isAdd = true
       this.$store.commit('user/SET_USER_FORM', {})
       this.dialogVisible = true
+    },
+    onValidateEmail (value) {
     }
   },
   created () {

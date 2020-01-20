@@ -34,6 +34,7 @@ func AddScheduleTask(s model.Schedule) func() {
 					SpiderId: s.SpiderId,
 					NodeId:   node.Id,
 					Param:    s.Param,
+					UserId:   s.UserId,
 				}
 
 				if err := AddTask(t); err != nil {
@@ -46,6 +47,7 @@ func AddScheduleTask(s model.Schedule) func() {
 				Id:       id.String(),
 				SpiderId: s.SpiderId,
 				Param:    s.Param,
+				UserId:   s.UserId,
 			}
 			if err := AddTask(t); err != nil {
 				log.Errorf(err.Error())
@@ -60,6 +62,7 @@ func AddScheduleTask(s model.Schedule) func() {
 					SpiderId: s.SpiderId,
 					NodeId:   nodeId,
 					Param:    s.Param,
+					UserId:   s.UserId,
 				}
 
 				if err := AddTask(t); err != nil {

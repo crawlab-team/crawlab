@@ -20,10 +20,13 @@ type GridFs struct {
 }
 
 type File struct {
-	Name  string `json:"name"`
-	Path  string `json:"path"`
-	IsDir bool   `json:"is_dir"`
-	Size  int64  `json:"size"`
+	Name         string `json:"name"`
+	Path         string `json:"path"`
+	RelativePath string `json:"relative_path"`
+	IsDir        bool   `json:"is_dir"`
+	Size         int64  `json:"size"`
+	Children     []File `json:"children"`
+	Label        string `json:"label"`
 }
 
 func (f *GridFs) Remove() {

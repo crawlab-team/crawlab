@@ -1,12 +1,28 @@
 # Crawlab
 
-![](https://img.shields.io/docker/cloud/build/tikazyq/crawlab.svg?label=build&logo=docker)
-![](https://img.shields.io/docker/pulls/tikazyq/crawlab?label=pulls&logo=docker)
-![](https://img.shields.io/github/release/crawlab-team/crawlab.svg?logo=github)
-![](https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg)
-![](https://img.shields.io/github/issues/crawlab-team/crawlab/bug.svg?label=bugs&color=red)
-![](https://img.shields.io/github/issues/crawlab-team/crawlab/enhancement.svg?label=enhancements&color=cyan)
-![](https://img.shields.io/github/license/crawlab-team/crawlab.svg)
+<p>
+  <a href="https://hub.docker.com/r/tikazyq/crawlab/builds" target="_blank">
+    <img src="https://img.shields.io/docker/cloud/build/tikazyq/crawlab.svg?label=build&logo=docker">
+  </a>
+  <a href="https://hub.docker.com/r/tikazyq/crawlab" target="_blank">
+    <img src="https://img.shields.io/docker/pulls/tikazyq/crawlab?label=pulls&logo=docker">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/releases" target="_blank">
+    <img src="https://img.shields.io/github/release/crawlab-team/crawlab.svg?logo=github">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/commits/master" target="_blank">
+    <img src="https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/issues?q=is%3Aissue+is%3Aopen+label%3Abug" target="_blank">
+    <img src="https://img.shields.io/github/issues/crawlab-team/crawlab/bug.svg?label=bugs&color=red">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement" target="_blank">
+    <img src="https://img.shields.io/github/issues/crawlab-team/crawlab/enhancement.svg?label=enhancements&color=cyan">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/blob/master/LICENSE" target="_blank">
+    <img src="https://img.shields.io/github/license/crawlab-team/crawlab.svg">
+  </a>
+</p>
 
 中文 | [English](https://github.com/crawlab-team/crawlab)
 
@@ -25,8 +41,9 @@
 
 ### 要求（Docker）
 - Docker 18.03+
-- Redis
+- Redis 5.x+
 - MongoDB 3.6+
+- Docker Compose 1.24+ (可选，但推荐)
 
 ### 要求（直接部署）
 - Go 1.12+
@@ -36,11 +53,15 @@
 
 ## 快速开始
 
+请打开命令行并执行下列命令。请保证您已经提前安装了 `docker-compose`。
+
 ```bash
 git clone https://github.com/crawlab-team/crawlab
 cd crawlab
 docker-compose up -d
 ```
+
+接下来，您可以看看 `docker-compose.yml` (包含详细配置参数)，以及参考 [文档](http://docs.crawlab.cn) 来查看更多信息。
 
 ## 运行
 
@@ -55,13 +76,11 @@ services:
     image: tikazyq/crawlab:latest
     container_name: master
     environment:
-      CRAWLAB_API_ADDRESS: "http://localhost:8000"
       CRAWLAB_SERVER_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
       CRAWLAB_REDIS_ADDRESS: "redis"
     ports:    
-      - "8080:8080" # frontend
-      - "8000:8000" # backend
+      - "8080:8080"
     depends_on:
       - mongo
       - redis
@@ -119,9 +138,9 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-d
 
 ![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-analytics.png)
 
-#### 爬虫文件
+#### 爬虫文件编辑
 
-![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-file.png)
+![](http://static-docs.crawlab.cn/file-edit.png)
 
 #### 任务详情 - 抓取结果
 
@@ -129,17 +148,21 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-d
 
 #### 定时任务
 
-![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/schedule.png)
+![](http://static-docs.crawlab.cn/schedule-v0.4.4.png)
 
 #### 依赖安装
 
 ![](http://static-docs.crawlab.cn/node-install-dependencies.png)
 
+#### 消息通知
+
+<img src="http://static-docs.crawlab.cn/notification-mobile.jpeg" height="480px">
+
 ## 架构
 
 Crawlab的架构包括了一个主节点（Master Node）和多个工作节点（Worker Node），以及负责通信和数据储存的Redis和MongoDB数据库。
 
-![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/architecture.png)
+![](http://static-docs.crawlab.cn/architecture.png)
 
 前端应用向主节点请求数据，主节点通过MongoDB和Redis来执行任务派发调度以及部署，工作节点收到任务之后，开始执行爬虫任务，并将任务结果储存到MongoDB。架构相对于`v0.3.0`之前的Celery版本有所精简，去除了不必要的节点监控模块Flower，节点监控主要由Redis完成。
 
@@ -174,36 +197,42 @@ Redis是非常受欢迎的Key-Value数据库，在Crawlab中主要实现节点�
 
 ## 与其他框架的集成
 
+[Crawlab SDK](https://github.com/crawlab-team/crawlab-sdk) 提供了一些 `helper` 方法来让您的爬虫更好的集成到 Crawlab 中，例如保存结果数据到 Crawlab 中等等。
+
+### 集成 Scrapy
+
+在 `settings.py` 中找到 `ITEM_PIPELINES`（`dict` 类型的变量），在其中添加如下内容。
+
+```python
+ITEM_PIPELINES = {
+    'crawlab.pipelines.CrawlabMongoPipeline': 888,
+}
+```
+
+然后，启动 Scrapy 爬虫，运行完成之后，您就应该能看到抓取结果出现在 **任务详情-结果** 里。
+
+### 通用 Python 爬虫
+
+将下列代码加入到您爬虫中的结果保存部分。
+
+```python
+# 引入保存结果方法
+from crawlab import save_item
+
+# 这是一个结果，需要为 dict 类型
+result = {'name': 'crawlab'}
+
+# 调用保存结果方法
+save_item(result)
+```
+
+然后，启动爬虫，运行完成之后，您就应该能看到抓取结果出现在 **任务详情-结果** 里。
+
+### 其他框架和语言
+
 爬虫任务本质上是由一个shell命令来实现的。任务ID将以环境变量`CRAWLAB_TASK_ID`的形式存在于爬虫任务运行的进程中，并以此来关联抓取数据。另外，`CRAWLAB_COLLECTION`是Crawlab传过来的所存放collection的名称。
 
 在爬虫程序中，需要将`CRAWLAB_TASK_ID`的值以`task_id`作为可以存入数据库中`CRAWLAB_COLLECTION`的collection中。这样Crawlab就知道如何将爬虫任务与抓取数据关联起来了。当前，Crawlab只支持MongoDB。
-
-### 集成Scrapy
-
-以下是Crawlab跟Scrapy集成的例子，利用了Crawlab传过来的task_id和collection_name。
-
-```python
-import os
-from pymongo import MongoClient
-
-MONGO_HOST = '192.168.99.100'
-MONGO_PORT = 27017
-MONGO_DB = 'crawlab_test'
-
-# scrapy example in the pipeline
-class JuejinPipeline(object):
-    mongo = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
-    db = mongo[MONGO_DB]
-    col_name = os.environ.get('CRAWLAB_COLLECTION')
-    if not col_name:
-        col_name = 'test'
-    col = db[col_name]
-
-    def process_item(self, item, spider):
-        item['task_id'] = os.environ.get('CRAWLAB_TASK_ID')
-        self.col.save(item)
-        return item
-```
 
 ## 与其他框架比较
 

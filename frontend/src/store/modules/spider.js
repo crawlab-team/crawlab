@@ -38,7 +38,10 @@ const state = {
   previewCrawlData: [],
 
   // template list
-  templateList: []
+  templateList: [],
+
+  // spider file tree
+  fileTree: {}
 }
 
 const getters = {}
@@ -86,6 +89,9 @@ const mutations = {
   },
   SET_TEMPLATE_LIST (state, value) {
     state.templateList = value
+  },
+  SET_FILE_TREE (state, value) {
+    state.fileTree = value
   }
 }
 
@@ -185,6 +191,11 @@ const actions = {
     const { id } = payload
     const res = await request.get(`/spiders/${id}/schedules`)
     commit('schedule/SET_SCHEDULE_LIST', res.data.data, { root: true })
+  },
+  async getFileTree ({ state, commit }, payload) {
+    const id = payload ? payload.id : state.spiderForm._id
+    const res = await request.get(`/spiders/${id}/file/tree`)
+    commit('SET_FILE_TREE', res.data.data)
   }
 }
 
