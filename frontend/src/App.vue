@@ -39,7 +39,6 @@ export default {
   },
   mounted () {
     window.setUseStats = (value) => {
-      localStorage.setItem('useStats', value)
       document.querySelector('.el-message__closeBtn').click()
       if (value === 1) {
         this.$st.sendPv('/allow_stats')
@@ -48,6 +47,7 @@ export default {
         this.$st.sendPv('/disallow_stats')
         this.$st.sendEv('全局', '允许/禁止统计', '禁止')
       }
+      localStorage.setItem('useStats', value)
     }
 
     // first-time user
