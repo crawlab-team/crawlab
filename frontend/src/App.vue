@@ -34,10 +34,13 @@ export default {
     }
   },
   methods: {},
-  created () {
-    this.$store.dispatch('setting/getSetting')
+  async created () {
+    await this.$store.dispatch('setting/getSetting')
   },
-  mounted () {
+  async mounted () {
+    const res = await this.$request.get('/version')
+    this.version = res.data.data
+    sessionStorage.setItem('v', this.version)
     window.setUseStats = (value) => {
       document.querySelector('.el-message__closeBtn').click()
       if (value === 1) {
