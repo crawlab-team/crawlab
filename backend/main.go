@@ -133,6 +133,8 @@ func main() {
 			anonymousGroup.POST("/login", routes.Login)       // 用户登录
 			anonymousGroup.PUT("/users", routes.PutUser)      // 添加用户
 			anonymousGroup.GET("/setting", routes.GetSetting) // 获取配置信息
+			// release版本
+			anonymousGroup.GET("/version", routes.GetVersion) // 获取发布的版本
 		}
 		authGroup := app.Group("/", middlewares.AuthorizationMiddleware())
 		{
@@ -206,8 +208,6 @@ func main() {
 			authGroup.DELETE("/users/:id", routes.DeleteUser) // 删除用户
 			authGroup.GET("/me", routes.GetMe)                // 获取自己账户
 			authGroup.POST("/me", routes.PostMe)              // 修改自己账户
-			// release版本
-			authGroup.GET("/version", routes.GetVersion) // 获取发布的版本
 			// 系统
 			authGroup.GET("/system/deps/:lang", routes.GetAllDepList)             // 节点所有第三方依赖列表
 			authGroup.GET("/system/deps/:lang/:dep_name/json", routes.GetDepJson) // 节点第三方依赖JSON
