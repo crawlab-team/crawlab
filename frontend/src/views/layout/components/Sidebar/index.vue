@@ -47,11 +47,13 @@ export default {
     },
     isCollapse () {
       return !this.sidebar.opened
+    },
+    version () {
+      return window.sessionStorage.getItem('v')
     }
   },
   data () {
     return {
-      version: ''
     }
   },
   async created () {
