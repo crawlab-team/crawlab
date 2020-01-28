@@ -115,7 +115,8 @@
                 <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
               </el-tooltip>
               <el-tooltip :content="$t('Remove')" placement="top">
-                <el-button v-if="scope.row.status !== 'online'" type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
+                <el-button v-if="scope.row.status !== 'online'" type="danger" icon="el-icon-delete" size="mini"
+                           @click="onRemove(scope.row)"></el-button>
               </el-tooltip>
             </template>
           </el-table-column>
@@ -172,7 +173,8 @@ export default {
       nodeFormRules: {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
       },
-      activeTab: undefined
+      activeTab: undefined,
+      isButtonClicked: false
     }
   },
   computed: {
@@ -235,6 +237,11 @@ export default {
       this.dialogVisible = true
     },
     onRemove (row) {
+      this.isButtonClicked = true
+      setTimeout(() => {
+        this.isButtonClicked = false
+      }, 100)
+
       this.$confirm(this.$t('Are you sure to delete this node?'), this.$t('Notification'), {
         confirmButtonText: this.$t('Confirm'),
         cancelButtonText: this.$t('Cancel'),
@@ -251,6 +258,11 @@ export default {
       })
     },
     onView (row) {
+      this.isButtonClicked = true
+      setTimeout(() => {
+        this.isButtonClicked = false
+      }, 100)
+
       this.$router.push(`/nodes/${row._id}`)
 
       this.$st.sendEv('节点列表', '查看节点')
@@ -262,6 +274,7 @@ export default {
       this.$store.dispatch('node/getNodeSystemInfo', row._id)
     },
     onRowClick (row) {
+      if (this.isButtonClicked) return
       this.onView(row)
     },
     getExecutables (row) {
