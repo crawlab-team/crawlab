@@ -14,6 +14,7 @@ import lang from './modules/lang'
 import site from './modules/site'
 import stats from './modules/stats'
 import setting from './modules/setting'
+import version from './modules/version'
 import getters from './getters'
 
 Vue.use(Vuex)
@@ -33,7 +34,8 @@ const store = new Vuex.Store({
     lang,
     site,
     setting,
-    // 百度统计
+    version,
+    // 统计
     stats
   },
   getters

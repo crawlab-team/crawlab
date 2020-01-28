@@ -68,6 +68,9 @@ export default {
   'Rename': '重命名',
   'Install': '安装',
   'Uninstall': '卸载',
+  'Create Directory': '新建目录',
+  'Create File': '新建文件',
+  'Add Node': '添加节点',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -277,6 +280,7 @@ export default {
   'Notification': '提示',
   'Are you sure to delete this node?': '你确定要删除该节点?',
   'Are you sure to run this spider?': '你确定要运行该爬虫?',
+  'Are you sure to delete this file/directory?': '你确定要删除该文件/文件夹?',
   'Added spider successfully': '成功添加爬虫',
   'Uploaded spider files successfully': '成功上传爬虫文件',
   'Node info has been saved successfully': '节点信息已成功保存',
@@ -325,7 +329,7 @@ export default {
   'The schedule has been added': '已添加定时任务',
   'The schedule has been saved': '已保存定时任务',
   'Email format invalid': '邮箱地址格式不正确',
-  'Please select a file on the left.': '请在左侧选择一个文件.',
+  'Please select a file or click the add button on the left.': '请在左侧选择一个文件或点击添加按钮.',
   'New Directory': '新建目录',
   'Enter new directory name': '输入新目录名称',
   'New directory name': '新目录名称',
@@ -378,6 +382,29 @@ export default {
     // Cron Format: [second] [minute] [hour] [day of month] [month] [day of week]
     cron_format: 'Cron 格式: [秒] [分] [小时] [日] [月] [周]'
   },
+
+  // 内容
+  addNodeInstruction: `
+您不能在 Crawlab 的 Web 界面直接添加节点。
+
+添加节点的方式非常简单，您只需要在目标机器上运行一个 Crawlab 服务就可以了。
+
+#### Docker 部署
+如果您是用 Docker 启动 Crawlab，可以在目标机器上运行一个新的 \`worker\` 容器，或者在 \`docker-compose.yml\` 中添加 \`worker\` 服务。
+
+\`\`\`bash
+docker run -d --restart always --name crawlab_worker \\
+  -e CRAWLAB_SERVER_MASTER=N \\
+  -e CRAWLAB_MONGO_HOST=xxx.xxx.xxx.xxx \\ # 保证连接的是同一个 MongoDB
+  -e CRAWLAB_REDIS_ADDRESS=xxx.xxx.xxx.xxx \\ # 保证连接的是同一个 Redis
+  tikazyq/crawlab:latest
+\`\`\`
+
+#### 直接部署
+如果您是用直接部署，只需要在目标机器上启动一个后端服务，请参考 [直接部署文档](https://docs.crawlab.cn/Installation/Direct.html)。
+
+更多信息，请参考 [官方文档](https://docs.crawlab.cn)。
+`,
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'
