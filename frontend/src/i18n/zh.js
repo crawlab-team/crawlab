@@ -328,7 +328,7 @@ export default {
   'The schedule has been added': '已添加定时任务',
   'The schedule has been saved': '已保存定时任务',
   'Email format invalid': '邮箱地址格式不正确',
-  'Please select a file on the left.': '请在左侧选择一个文件.',
+  'Please select a file or click the add button on the left.': '请在左侧选择一个文件或点击添加按钮.',
   'New Directory': '新建目录',
   'Enter new directory name': '输入新目录名称',
   'New directory name': '新目录名称',

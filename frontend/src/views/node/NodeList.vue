@@ -9,12 +9,19 @@
                 @change="onSearch">
       </el-input>
       <div class="right">
-        <el-button type="success"
-                   icon="el-icon-refresh"
-                   class="refresh"
-                   @click="onRefresh">
-          {{$t('Refresh')}}
+        <el-button
+          type="success"
+          icon="el-icon-plus"
+          @click="onAddNode"
+        >
+          {{$t('Add Node')}}
         </el-button>
+<!--        <el-button type="success"-->
+<!--                   icon="el-icon-refresh"-->
+<!--                   class="refresh"-->
+<!--                   @click="onRefresh">-->
+<!--          {{$t('Refresh')}}-->
+<!--        </el-button>-->
       </div>
     </div>
     <!--./filter-->
@@ -198,11 +205,13 @@ export default {
   methods: {
     onSearch () {
     },
-    onAdd () {
-      this.$store.commit('node/SET_NODE_FORM', [])
-      this.isEditMode = false
-      this.dialogVisible = true
+    onAddNode () {
     },
+    // onAdd () {
+    //   this.$store.commit('node/SET_NODE_FORM', [])
+    //   this.isEditMode = false
+    //   this.dialogVisible = true
+    // },
     onRefresh () {
       this.$store.dispatch('node/getNodeList')
       this.$st.sendEv('节点列表', '刷新')

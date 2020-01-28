@@ -48,13 +48,13 @@
           <el-popover v-model="isShowCreatePopoverDict[data.path]" trigger="manual" placement="right"
                       popper-class="create-item-popover" :visible-arrow="false" @hide="onHideCreate(data)">
             <ul class="action-item-list">
-              <li class="action-item" @click="dirDialogVisible = true">
-                <font-awesome-icon :icon="['fa', 'folder']" color="rgba(3,47,98,.5)"/>
-                <span class="action-item-text">{{$t('Create Directory')}}</span>
-              </li>
               <li class="action-item" @click="fileDialogVisible = true">
                 <font-awesome-icon icon="file-alt" color="rgba(3,47,98,.5)"/>
                 <span class="action-item-text">{{$t('Create File')}}</span>
+              </li>
+              <li class="action-item" @click="dirDialogVisible = true">
+                <font-awesome-icon :icon="['fa', 'folder']" color="rgba(3,47,98,.5)"/>
+                <span class="action-item-text">{{$t('Create Directory')}}</span>
               </li>
             </ul>
             <ul class="action-item-list">
@@ -90,13 +90,13 @@
       <el-popover trigger="click" placement="right"
                   popper-class="create-item-popover" :visible-arrow="false">
         <ul class="action-item-list">
-          <li class="action-item" @click="dirDialogVisible = true">
-            <font-awesome-icon :icon="['fa', 'folder']" color="rgba(3,47,98,.5)"/>
-            <span class="action-item-text">{{$t('Create Directory')}}</span>
-          </li>
           <li class="action-item" @click="fileDialogVisible = true">
             <font-awesome-icon icon="file-alt" color="rgba(3,47,98,.5)"/>
             <span class="action-item-text">{{$t('Create File')}}</span>
+          </li>
+          <li class="action-item" @click="dirDialogVisible = true">
+            <font-awesome-icon :icon="['fa', 'folder']" color="rgba(3,47,98,.5)"/>
+            <span class="action-item-text">{{$t('Create Directory')}}</span>
           </li>
         </ul>
         <div
@@ -118,7 +118,7 @@
 
     <div class="main-content">
       <div v-if="!showFile" class="file-list">
-        {{$t('Please select a file on the left.')}}
+        {{$t('Please select a file or click the add button on the left.')}}
       </div>
       <template v-else>
         <div class="top-part">
