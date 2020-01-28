@@ -144,7 +144,11 @@ func SetEnv(cmd *exec.Cmd, envs []model.Env, taskId string, dataCol string) *exe
 		cmd.Env = append(cmd.Env, env.Name+"="+env.Value)
 	}
 
-	// TODO 全局环境变量
+	// 全局环境变量
+	variables := model.GetVariableList()
+	for _, variable := range variables {
+		cmd.Env = append(cmd.Env, variable.Key+"="+variable.Value)
+	}
 	return cmd
 }
 
