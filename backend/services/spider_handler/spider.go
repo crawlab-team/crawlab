@@ -38,6 +38,12 @@ func (s *SpiderSync) CreateMd5File(md5 string) {
 	}
 }
 
+func (s *SpiderSync) RemoveDownCreate(md5 string) {
+	s.RemoveSpiderFile()
+	s.Download()
+	s.CreateMd5File(md5)
+}
+
 // 获得下载锁的key
 func (s *SpiderSync) GetLockDownloadKey(spiderId string) string {
 	node, _ := model.GetCurrentNode()

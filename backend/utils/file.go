@@ -33,7 +33,14 @@ func ReadFileOneLine(fileName string) string {
 		return ""
 	}
 	return line
+}
 
+func GetSpiderMd5Str(file string) string {
+	md5Str := ReadFileOneLine(file)
+	// 去掉空格以及换行符
+	md5Str = strings.Replace(md5Str, " ", "", -1)
+	md5Str = strings.Replace(md5Str, "\n", "", -1)
+	return md5Str
 }
 
 // 创建文件

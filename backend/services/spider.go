@@ -12,12 +12,11 @@ import (
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
 	"runtime/debug"
-	"strings"
 )
 
 type SpiderFileData struct {
@@ -192,21 +191,14 @@ func PublishSpider(spider model.Spider) {
 	md5 := filepath.Join(path, spider_handler.Md5File)
 	if !utils.Exists(md5) {
 		log.Infof("md5 file not found: %s", md5)
-		spiderSync.RemoveSpiderFile()
-		spiderSync.Download()
-		spiderSync.CreateMd5File(gfFile.Md5)
+		spiderSync.RemoveDownCreate(gfFile.Md5)
 		return
 	}
 	// md5值不一样，则下载
-	md5Str := utils.ReadFileOneLine(md5)
-	// 去掉空格以及换行符
-	md5Str = strings.Replace(md5Str, " ", "", -1)
-	md5Str = strings.Replace(md5Str, "\n", "", -1)
+	md5Str := utils.GetSpiderMd5Str(md5)
 	if gfFile.Md5 != md5Str {
 		log.Infof("md5 is different, gf-md5:%s, file-md5:%s", gfFile.Md5, md5Str)
-		spiderSync.RemoveSpiderFile()
-		spiderSync.Download()
-		spiderSync.CreateMd5File(gfFile.Md5)
+		spiderSync.RemoveDownCreate(gfFile.Md5)
 		return
 	}
 }
