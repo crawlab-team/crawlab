@@ -407,7 +407,7 @@ export default {
       this.isShowDelete = false
       this.showFile = false
       this.$st.sendEv('爬虫详情', '文件', '删除')
-    },
+    }
   },
   async created () {
     await this.getFileTree()
@@ -584,7 +584,6 @@ export default {
     margin: 0;
     cursor: pointer;
   }
-
 
   .action-item-list .action-item:last-child {
     border-bottom: 1px solid #eaecef;
