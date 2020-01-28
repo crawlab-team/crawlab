@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+import store from '../store'
+import request from '../api/request'
 import stats from '../utils/stats'
 
 /* Layout */
@@ -257,8 +259,13 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-router.afterEach((to, from, next) => {
+router.afterEach(async (to, from, next) => {
   if (to.path) {
+    await store.dispatch('setting/getSetting')
+    const res = await request.get('/version')
+    const version = res.data.data
+    store.commit('version/SET_VERSION', version)
+    sessionStorage.setItem('v', version)
     stats.sendPv(to.path)
   }
 })
