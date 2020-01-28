@@ -1,33 +1,31 @@
 <template>
   <div class="app-container">
-    <!--filter-->
-    <div v-if="false" class="filter">
-      <el-input prefix-icon="el-icon-search"
-                :placeholder="$t('Search')"
-                class="filter-search"
-                v-model="filter.keyword"
-                @change="onSearch">
-      </el-input>
-      <div class="right">
-        <el-button
-          type="success"
-          icon="el-icon-plus"
-          @click="onAddNode"
-        >
-          {{$t('Add Node')}}
-        </el-button>
-<!--        <el-button type="success"-->
-<!--                   icon="el-icon-refresh"-->
-<!--                   class="refresh"-->
-<!--                   @click="onRefresh">-->
-<!--          {{$t('Refresh')}}-->
-<!--        </el-button>-->
+    <el-dialog
+      :visible.sync="isShowAddNodeInstruction"
+      :title="$t('Notification')"
+      width="720px"
+    >
+      <div
+        v-html="addNodeInstructionHtml"
+        class="content markdown-body"
+      >
       </div>
-    </div>
-    <!--./filter-->
+    </el-dialog>
 
     <el-tabs type="border-card" v-model="activeTab">
       <el-tab-pane :label="$t('Node List')">
+        <!--filter-->
+        <div class="filter-wrapper">
+          <el-button
+            size="small"
+            type="success"
+            icon="el-icon-plus"
+            @click="onAddNode"
+          >
+            {{$t('Add Node')}}
+          </el-button>
+        </div>
+        <!--./filter-->
         <!--table list-->
         <el-table :data="filteredTableData"
                   class="table"
@@ -149,9 +147,11 @@
 </template>
 
 <script>
+import showdown from 'showdown'
 import {
   mapState
 } from 'vuex'
+import 'github-markdown-css/github-markdown.css'
 import NodeNetwork from '../../components/Node/NodeNetwork'
 
 export default {
@@ -181,7 +181,10 @@ export default {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
       },
       activeTab: undefined,
-      isButtonClicked: false
+      isButtonClicked: false,
+      isShowAddNodeInstruction: false,
+      converter: new showdown.Converter(),
+      addNodeInstructionMarkdown: 'addNodeInstruction'
     }
   },
   computed: {
@@ -200,12 +203,17 @@ export default {
         }
         return false
       })
+    },
+    addNodeInstructionHtml () {
+      if (!this.converter) return
+      return this.converter.makeHtml(this.$t(this.addNodeInstructionMarkdown))
     }
   },
   methods: {
     onSearch () {
     },
     onAddNode () {
+      this.isShowAddNodeInstruction = true
     },
     // onAdd () {
     //   this.$store.commit('node/SET_NODE_FORM', [])
@@ -334,6 +342,9 @@ export default {
     padding: 7px;
   }
 
+  .filter-wrapper {
+    text-align: right;
+  }
 </style>
 <style>
   .node-detail .el-form-item {
