@@ -30,7 +30,9 @@
       </span>
     </el-dialog>
 
-    <div class="file-tree-wrapper">
+    <div
+      class="file-tree-wrapper"
+    >
       <el-tree
         :data="computedFileTree"
         ref="tree"
@@ -45,20 +47,20 @@
         <span class="custom-tree-node" slot-scope="{ node, data }">
           <el-popover v-model="isShowCreatePopoverDict[data.path]" trigger="manual" placement="right"
                       popper-class="create-item-popover" :visible-arrow="false" @hide="onHideCreate(data)">
-            <div class="create-item-title">
-              <span class="item-icon">
-                <font-awesome-icon icon="plus" color="rgba(3,47,98,.5)"/>
-              </span>
-              <span class="create-item-text">{{$t('Create')}}</span>
-            </div>
-            <ul class="create-item-list">
-              <li class="create-item" @click="dirDialogVisible = true">
+            <ul class="action-item-list">
+              <li class="action-item" @click="dirDialogVisible = true">
                 <font-awesome-icon :icon="['fa', 'folder']" color="rgba(3,47,98,.5)"/>
-                <span class="create-item-text">{{$t('Directory')}}</span>
+                <span class="action-item-text">{{$t('Create Directory')}}</span>
               </li>
-              <li class="create-item" @click="fileDialogVisible = true">
+              <li class="action-item" @click="fileDialogVisible = true">
                 <font-awesome-icon icon="file-alt" color="rgba(3,47,98,.5)"/>
-                <span class="create-item-text">{{$t('File')}}</span>
+                <span class="action-item-text">{{$t('Create File')}}</span>
+              </li>
+            </ul>
+            <ul class="action-item-list">
+              <li class="action-item" @click="onClickRemoveNav(data)">
+                <font-awesome-icon :icon="['fa', 'trash']" color="rgba(3,47,98,.5)"/>
+                <span class="action-item-text">{{$t('Remove')}}</span>
               </li>
             </ul>
             <template slot="reference">
@@ -85,6 +87,33 @@
           </el-popover>
         </span>
       </el-tree>
+      <el-popover trigger="click" placement="right"
+                  popper-class="create-item-popover" :visible-arrow="false">
+        <ul class="action-item-list">
+          <li class="action-item" @click="dirDialogVisible = true">
+            <font-awesome-icon :icon="['fa', 'folder']" color="rgba(3,47,98,.5)"/>
+            <span class="action-item-text">{{$t('Create Directory')}}</span>
+          </li>
+          <li class="action-item" @click="fileDialogVisible = true">
+            <font-awesome-icon icon="file-alt" color="rgba(3,47,98,.5)"/>
+            <span class="action-item-text">{{$t('Create File')}}</span>
+          </li>
+        </ul>
+        <div
+          class="add-btn-wrapper"
+          slot="reference"
+        >
+          <el-button
+            class="add-btn"
+            size="small"
+            type="primary"
+            icon="el-icon-plus"
+            @click="onEmptyClick"
+          >
+            {{$t('Add')}}
+          </el-button>
+        </div>
+      </el-popover>
     </div>
 
     <div class="main-content">
@@ -172,7 +201,8 @@ export default {
       activeFileNode: {},
       dirDialogVisible: false,
       fileDialogVisible: false,
-      nodeExpandedDict: {}
+      nodeExpandedDict: {},
+      isShowDeleteNav: false
     }
   },
   computed: {
@@ -349,10 +379,35 @@ export default {
       this.activeFileNode = data
       this.$st.sendEv('爬虫详情', '文件', '右键点击导航栏')
     },
+    onEmptyClick () {
+      const data = { path: '' }
+      this.isShowCreatePopoverDict = {}
+      this.$set(this.isShowCreatePopoverDict, data.path, true)
+      this.activeFileNode = data
+      this.$st.sendEv('爬虫详情', '文件', '空白点击添加')
+    },
     onHideCreate (data) {
       this.$set(this.isShowCreatePopoverDict, data.path, false)
       this.name = ''
-    }
+    },
+    onClickRemoveNav (data) {
+      this.$confirm(this.$t('Are you sure to delete this file/directory?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
+        confirmButtonClass: 'danger',
+        type: 'warning'
+      }).then(() => {
+        this.onFileDeleteNav(data.path)
+      })
+    },
+    async onFileDeleteNav (path) {
+      await this.$store.dispatch('file/deleteFile', { path })
+      await this.$store.dispatch('spider/getFileTree')
+      this.$message.success(this.$t('Deleted successfully'))
+      this.isShowDelete = false
+      this.showFile = false
+      this.$st.sendEv('爬虫详情', '文件', '删除')
+    },
   },
   async created () {
     await this.getFileTree()
@@ -509,33 +564,53 @@ export default {
     margin: 0;
   }
 
-  .create-item-list {
+  .action-item-list {
     list-style: none;
     padding: 0;
     margin: 0
   }
 
-  .create-item-title {
+  .action-item-title {
     padding-top: 10px;
     padding-left: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eaecef;
+    padding-bottom: 5px;
   }
 
-  .create-item-list .create-item {
+  .action-item-list .action-item {
     display: flex;
     align-items: center;
     height: 35px;
-    padding: 0 0 0 15px;
+    padding: 0 0 0 10px;
     margin: 0;
     cursor: pointer;
   }
 
-  .create-item-list .create-item:hover {
+
+  .action-item-list .action-item:last-child {
+    border-bottom: 1px solid #eaecef;
+  }
+
+  .action-item-list .action-item:hover {
     background: #F5F7FA;
   }
 
-  .create-item-list .create-item .create-item-text {
+  .action-item-list .action-item svg {
+    width: 20px;
+  }
+
+  .action-item-list .action-item .action-item-text {
     margin-left: 5px;
+  }
+
+  .add-btn-wrapper {
+    width: 220px;
+    border-top: 1px solid #eaecef;
+    margin: 10px 10px;
+  }
+
+  .add-btn-wrapper .add-btn {
+    width: 80px;
+    margin-left: calc(120px - 40px - 10px);
+    margin-top: 20px;
   }
 </style>

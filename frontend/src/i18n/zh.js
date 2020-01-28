@@ -68,6 +68,8 @@ export default {
   'Rename': '重命名',
   'Install': '安装',
   'Uninstall': '卸载',
+  'Create Directory': '新建目录',
+  'Create File': '新建文件',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -277,6 +279,7 @@ export default {
   'Notification': '提示',
   'Are you sure to delete this node?': '你确定要删除该节点?',
   'Are you sure to run this spider?': '你确定要运行该爬虫?',
+  'Are you sure to delete this file/directory?': '你确定要删除该文件/文件夹?',
   'Added spider successfully': '成功添加爬虫',
   'Uploaded spider files successfully': '成功上传爬虫文件',
   'Node info has been saved successfully': '节点信息已成功保存',
