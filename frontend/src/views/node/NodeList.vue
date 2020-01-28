@@ -345,6 +345,10 @@ export default {
   .filter-wrapper {
     text-align: right;
   }
+
+  .content {
+    word-break: break-word;
+  }
 </style>
 <style>
   .node-detail .el-form-item {
