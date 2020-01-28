@@ -9,6 +9,8 @@ const user = {
     avatar: '',
     roles: [],
     userList: [],
+    globalVariableList: [],
+    globalVariableForm: {},
     userForm: {},
     userInfo: undefined,
     adminPaths: [
@@ -61,6 +63,9 @@ const user = {
     },
     SET_TOTAL_COUNT: (state, value) => {
       state.totalCount = value
+    },
+    SET_GLOBAL_VARIABLE_LIST: (state, value) => {
+      state.globalVariableList = value
     }
   },
 
@@ -148,6 +153,23 @@ const user = {
     // 添加用户
     addUser ({ dispatch, commit, state }) {
       return request.put('/users', state.userForm)
+    },
+    // 新增全局变量
+    addGlobalVariable ({ commit, state }) {
+      return request.post(`/variable`, state.globalVariableForm)
+        .then(() => {
+          state.globalVariableForm = {}
+        })
+    },
+    // 获取全局变量列表
+    getGlobalVariable ({ commit, state }) {
+      request.get('/variables').then((response) => {
+        commit('SET_GLOBAL_VARIABLE_LIST', response.data.data)
+      })
+    },
+    // 删除全局变量
+    deleteGlobalVariable ({ commit, state }, id) {
+      return request.delete(`/variable/${id}`)
     }
   }
 }
