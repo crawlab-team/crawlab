@@ -118,9 +118,9 @@ export default {
     await this.$store.dispatch('spider/getSpiderList')
 
     // if spider is configurable spider, set to config tab by default
-    if (this.spiderForm.type === 'configurable') {
-      this.activeTabName = 'config'
-    }
+    // if (this.spiderForm.type === 'configurable') {
+    // this.activeTabName = 'config'
+    // }
   }
 }
 </script>

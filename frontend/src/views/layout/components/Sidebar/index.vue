@@ -47,17 +47,16 @@ export default {
     },
     isCollapse () {
       return !this.sidebar.opened
+    },
+    version () {
+      return this.$store.state.version.version || window.sessionStorage.getItem('v')
     }
   },
   data () {
     return {
-      version: ''
     }
   },
   async created () {
-    const res = await this.$request.get('/version')
-    this.version = res.data.data
-    sessionStorage.setItem('v', this.version)
   }
 }
 </script>
