@@ -49,7 +49,7 @@ export default {
       return !this.sidebar.opened
     },
     version () {
-      return window.sessionStorage.getItem('v')
+      return this.$store.state.version.version || window.sessionStorage.getItem('v')
     }
   },
   data () {

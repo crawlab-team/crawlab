@@ -34,13 +34,7 @@ export default {
     }
   },
   methods: {},
-  async created () {
-    await this.$store.dispatch('setting/getSetting')
-  },
   async mounted () {
-    const res = await this.$request.get('/version')
-    this.version = res.data.data
-    sessionStorage.setItem('v', this.version)
     window.setUseStats = (value) => {
       document.querySelector('.el-message__closeBtn').click()
       if (value === 1) {
