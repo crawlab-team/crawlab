@@ -6,13 +6,14 @@ services:
       CRAWLAB_API_ADDRESS: "https://crawlab.cn/api"
       CRAWLAB_BASE_URL: "/demo"
       CRAWLAB_SERVER_MASTER: "Y"
+      CRAWLAB_SERVER_REGISTER_TYPE: "ip"
+      CRAWLAB_SERVER_REGISTER_IP: "172.19.0.1"
       CRAWLAB_MONGO_HOST: "mongo"
       CRAWLAB_REDIS_ADDRESS: "redis"
       CRAWLAB_LOG_PATH: "/var/logs/crawlab"
       CRAWLAB_SETTING_ALLOWREGISTER: "Y"
     ports:    
       - "8080:8080" # frontend
-      - "8000:8000" # backend
     depends_on:
       - mongo
       - redis
@@ -20,6 +21,8 @@ services:
     image: "tikazyq/crawlab:master"
     environment:
       CRAWLAB_SERVER_MASTER: "N"
+      CRAWLAB_SERVER_REGISTER_TYPE: "ip"
+      CRAWLAB_SERVER_REGISTER_IP: "172.19.0.2"
       CRAWLAB_MONGO_HOST: "mongo"
       CRAWLAB_REDIS_ADDRESS: "redis"
     depends_on:
