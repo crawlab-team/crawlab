@@ -242,13 +242,12 @@ save_item(result)
 
 Crawlab使用起来很方便，也很通用，可以适用于几乎任何主流语言和框架。它还有一个精美的前端界面，让用户可以方便的管理和运行爬虫。
 
-|框架 | 类型 | 分布式 | 前端 | 依赖于Scrapyd |
-|:---:|:---:|:---:|:---:|:---:|
-| [Crawlab](https://github.com/crawlab-team/crawlab) | 管理平台 | Y | Y | N
-| [ScrapydWeb](https://github.com/my8100/scrapydweb) | 管理平台 | Y | Y | Y
-| [SpiderKeeper](https://github.com/DormyMo/SpiderKeeper) | 管理平台 | Y | Y | Y
-| [Gerapy](https://github.com/Gerapy/Gerapy) | 管理平台 | Y | Y | Y
-| [Scrapyd](https://github.com/scrapy/scrapyd) | 网络服务 | Y | N | N/A
+|框架 | 技术 | 优点 | 缺点 | Github 统计数据 |
+|:---|:---|:---|-----| :---- |
+| [Crawlab](https://github.com/crawlab-team/crawlab) | Golang + Vue|不局限于 scrapy，可以运行任何语言和框架的爬虫，精美的 UI 界面，天然支持分布式爬虫，支持节点管理、爬虫管理、任务管理、定时任务、结果导出、数据统计、消息通知、可配置爬虫、在线编辑代码等功能|暂时不支持爬虫版本管理| ![](https://img.shields.io/github/stars/crawlab-team/crawlab) ![](https://img.shields.io/github/forks/crawlab-team/crawlab) |
+| [ScrapydWeb](https://github.com/my8100/scrapydweb) | Python Flask + Vue|精美的 UI 界面，内置了 scrapy 日志解析器，有较多任务运行统计图表，支持节点管理、定时任务、邮件提醒、移动界面，算是 scrapy-based 中功能完善的爬虫管理平台|不支持 scrapy 以外的爬虫，Python Flask 为后端，性能上有一定局限性| ![](https://img.shields.io/github/stars/my8100/scrapydweb) ![](https://img.shields.io/github/forks/my8100/scrapydweb) |
+| [Gerapy](https://github.com/Gerapy/Gerapy) | Python Django + Vue|Gerapy 是崔庆才大神开发的爬虫管理平台，安装部署非常简单，同样基于 scrapyd，有精美的 UI 界面，支持节点管理、代码编辑、可配置规则等功能|同样不支持 scrapy 以外的爬虫，而且据使用者反馈，1.0 版本有很多 bug，期待 2.0 版本会有一定程度的改进| ![](https://img.shields.io/github/stars/Gerapy/Gerapy) ![](https://img.shields.io/github/forks/Gerapy/Gerapy) |
+| [SpiderKeeper](https://github.com/DormyMo/SpiderKeeper) | Python Flask|基于 scrapyd，开源版 Scrapyhub，非常简洁的 UI 界面，支持定时任务|可能有些过于简洁了，不支持分页，不支持节点管理，不支持 scrapy 以外的爬虫| ![](https://img.shields.io/github/stars/DormyMo/SpiderKeeper) ![](https://img.shields.io/github/forks/DormyMo/SpiderKeeper) |
 
 ## Q&A
 
