@@ -1,5 +1,9 @@
 <template>
   <div class="app-container">
+    <!--tour-->
+    <v-tour name="spider-list-tour" :steps="tourSteps" :callbacks="tourCallbacks"></v-tour>
+    <!--./tour-->
+
     <!--import popup-->
     <el-dialog
       :title="$t('Import Spider')"
@@ -339,7 +343,18 @@ export default {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
       },
       fileList: [],
-      spiderType: 'customized'
+      spiderType: 'customized',
+      tourSteps: [
+        {
+          target: '.btn.add',
+          content: this.$t('Click to add a new spider')
+        }
+      ],
+      tourCallbacks: {
+        onStop: () => {
+          this.$utils.tour.finishTour('spider-list')
+        }
+      }
     }
   },
   computed: {
@@ -609,11 +624,14 @@ export default {
     await this.$store.dispatch('spider/getTemplateList')
   },
   mounted () {
-    console.log(this.spiderForm)
     const vm = this
     this.$nextTick(() => {
       vm.$store.commit('spider/SET_SPIDER_FORM', this.spiderForm)
     })
+
+    if (!this.$utils.tour.isFinishedTour('spider-list')) {
+      this.$tours['spider-list-tour'].start()
+    }
   }
 }
 </script>

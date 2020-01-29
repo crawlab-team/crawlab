@@ -406,6 +406,9 @@ docker run -d --restart always --name crawlab_worker \\
 更多信息，请参考 [官方文档](https://docs.crawlab.cn)。
 `,
 
+  // 教程
+  'Click to add a new spider': '点击并添加爬虫',
+
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'
 }
