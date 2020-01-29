@@ -95,7 +95,7 @@ func (t *Task) GetResults(pageNum int, pageSize int) (results []interface{}, tot
 	query := bson.M{
 		"task_id": t.Id,
 	}
-	if err = c.Find(query).Skip((pageNum - 1) * pageSize).Limit(pageSize).Sort("-create_ts").All(&results); err != nil {
+	if err = c.Find(query).Skip((pageNum - 1) * pageSize).Limit(pageSize).All(&results); err != nil {
 		return
 	}
 
