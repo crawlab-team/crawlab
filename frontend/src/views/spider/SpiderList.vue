@@ -1,7 +1,12 @@
 <template>
   <div class="app-container">
     <!--tour-->
-    <v-tour name="spider-list-tour" :steps="tourSteps" :callbacks="tourCallbacks"></v-tour>
+    <v-tour
+      name="spider-list-tour"
+      :steps="tourSteps"
+      :callbacks="tourCallbacks"
+      :options="$utils.tour.options"
+    />
     <!--./tour-->
 
     <!--import popup-->
@@ -168,10 +173,10 @@
       <!--./filter-->
 
       <!--tabs-->
-      <el-tabs v-model="filter.type" @tab-click="onClickTab">
-        <el-tab-pane :label="$t('All')" name="all"></el-tab-pane>
-        <el-tab-pane :label="$t('Customized')" name="customized"></el-tab-pane>
-        <el-tab-pane :label="$t('Configurable')" name="configurable"></el-tab-pane>
+      <el-tabs v-model="filter.type" @tab-click="onClickTab" class="tabs">
+        <el-tab-pane :label="$t('All')" name="all" class="all"></el-tab-pane>
+        <el-tab-pane :label="$t('Customized')" name="customized" class="customized"></el-tab-pane>
+        <el-tab-pane :label="$t('Configurable')" name="configurable" class="configuable"></el-tab-pane>
       </el-tabs>
       <!--./tabs-->
 
@@ -346,9 +351,30 @@ export default {
       spiderType: 'customized',
       tourSteps: [
         {
+          target: '#tab-customized',
+          content: this.$t('View a list of <strong>Customized Spiders</strong>'),
+          params: {
+            highlight: false
+          }
+        },
+        {
+          target: '#tab-configurable',
+          content: this.$t('View a list of <strong>Configurable Spiders</strong>'),
+          params: {
+            highlight: false
+          }
+        },
+        {
+          target: '.table',
+          content: this.$t('You can view your created spiders here.<br>Click a table row to view <strong>spider details</strong>.'),
+          params: {
+            placement: 'top'
+          }
+        },
+        {
           target: '.btn.add',
           content: this.$t('Click to add a new spider')
-        }
+        },
       ],
       tourCallbacks: {
         onStop: () => {

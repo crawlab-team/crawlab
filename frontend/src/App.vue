@@ -139,4 +139,21 @@ export default {
     border-color: #f56c6c;
     color: #fff;
   }
+
+  .v-tour__target--highlighted {
+    box-shadow: 0 0 0 4px #f56c6c !important;
+  }
+
+  .v-step__button {
+    background: #67c23a !important;
+    border: none !important;
+    color: white !important;
+  }
+
+  .v-step__button:hover {
+    background: #67c23a !important;
+    border: none !important;
+    color: white !important;
+    opacity: 0.9 !important;
+  }
 </style>

@@ -407,7 +407,14 @@ docker run -d --restart always --name crawlab_worker \\
 `,
 
   // 教程
+  'Skip': '跳过',
+  'Previous': '上一步',
+  'Next': '下一步',
+  'Finish': '结束',
   'Click to add a new spider': '点击并添加爬虫',
+  'You can view your created spiders here.<br>Click a table row to view <strong>spider details</strong>.': '您可以查看创建的爬虫<br>点击行来查看<strong>爬虫详情</strong>',
+  'View a list of <strong>Configurable Spiders</strong>': '查看<strong>自定义爬虫</strong>列表',
+  'View a list of <strong>Customized Spiders</strong>': '查看<strong>可配置爬虫</strong>列表',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'
