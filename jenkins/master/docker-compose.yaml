@@ -39,3 +39,8 @@ services:
     restart: always
     volumes:
       - "/opt/crawlab/redis/data:/data"
+  splash:  # use Splash to run spiders on dynamic pages
+    image: scrapinghub/splash
+    container_name: splash
+    # ports:
+    #   - "8050:8050"

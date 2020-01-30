@@ -35,7 +35,7 @@ RUN apt-get update \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
 
 # install backend
-RUN pip install scrapy pymongo bs4 requests crawlab-sdk
+RUN pip install scrapy pymongo bs4 requests crawlab-sdk scrapy-splash
 
 # add files
 ADD . /app
