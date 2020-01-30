@@ -33,7 +33,7 @@ RUN chmod 777 /tmp \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
 
 # install backend
-RUN pip install scrapy pymongo bs4 requests crawlab-sdk -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip install scrapy pymongo bs4 requests crawlab-sdk scrapy-splash -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # add files
 ADD . /app
