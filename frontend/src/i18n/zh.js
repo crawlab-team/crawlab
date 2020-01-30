@@ -413,8 +413,17 @@ docker run -d --restart always --name crawlab_worker \\
   'Finish': '结束',
   'Click to add a new spider': '点击并添加爬虫',
   'You can view your created spiders here.<br>Click a table row to view <strong>spider details</strong>.': '您可以查看创建的爬虫<br>点击行来查看<strong>爬虫详情</strong>',
-  'View a list of <strong>Configurable Spiders</strong>': '查看<strong>自定义爬虫</strong>列表',
-  'View a list of <strong>Customized Spiders</strong>': '查看<strong>可配置爬虫</strong>列表',
+  'View a list of <strong>Configurable Spiders</strong>': '查看<strong>可配置爬虫</strong>列表',
+  'View a list of <strong>Customized Spiders</strong>': '查看<strong>自定义爬虫</strong>列表',
+  '<strong>Customized Spider</strong> is a highly customized spider, which is able to run on any programming language and any web crawler framework.': '<strong>自定义爬虫</strong>是高度自定义化的爬虫，能够运行任何编程语言和爬虫框架',
+  '<strong>Configurable Spider</strong> is a spider defined by config data, aimed at streamlining spider development and improving dev efficiency.': '<strong>可配置爬虫</strong>被配置数据所定义，旨在将爬虫开发流程化以及提高爬虫开发效率',
+  'Unique identifier for the spider': '爬虫的唯一识别符',
+  'How the spider is displayed on Crawlab': '爬虫在 Crawlab 上的展示名称',
+  'A shell command to be executed when the spider is triggered to run (only available for <strong>Customized Spider</strong>': '当爬虫被触发时执行的一行 Shell 命令（仅<strong>自定义爬虫</strong>有效）',
+  'Where the results are stored in the database': '抓取结果在数据库中储存的位置',
+  'Upload a zip file containing all spider files to create the spider (only available for <strong>Customized Spider</strong>)': '上传一个包含所有爬虫文件的 zip 文件，然后创建爬虫（仅<strong>自定义爬虫</strong>有效）',
+  'The spider template to create from (only available for <strong>Configurable Spider</strong>)': '创建爬虫时引用的模版（仅<strong>可配置爬虫</strong>有效）',
+  'Click to confirm to add the spider': '点击并确认添加爬虫',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

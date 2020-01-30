@@ -27,13 +27,15 @@ export default {
     data[tourName] = 1
     localStorage.setItem('tour', JSON.stringify(data))
   },
-  options: {
-    labels: {
-      buttonSkip: i18n.t('Skip'),
-      buttonPrevious: i18n.t('Previous'),
-      buttonNext: i18n.t('Next'),
-      buttonStop: i18n.t('Finish')
-    },
-    highlight: true
+  getOptions: (isShowHighlight) => {
+    return {
+      labels: {
+        buttonSkip: i18n.t('Skip'),
+        buttonPrevious: i18n.t('Previous'),
+        buttonNext: i18n.t('Next'),
+        buttonStop: i18n.t('Finish')
+      },
+      highlight: isShowHighlight
+    }
   }
 }

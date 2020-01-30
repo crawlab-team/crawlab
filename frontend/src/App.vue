@@ -141,7 +141,9 @@ export default {
   }
 
   .v-tour__target--highlighted {
-    box-shadow: 0 0 0 4px #f56c6c !important;
+    box-shadow: none !important;
+    /*box-shadow: 0 0 0 4px #f56c6c !important;*/
+    border: 3px solid #f56c6c;
   }
 
   .v-step__button {
