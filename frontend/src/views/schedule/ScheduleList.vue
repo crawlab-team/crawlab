@@ -108,7 +108,7 @@
     <!--<vcrontab @hide="showCron=false" @fill="onCrontabFill" :expression="expression"></vcrontab>-->
     <!--</el-dialog>-->
 
-    <el-card style="border-radius: 0">
+    <el-card style="border-radius: 0" class="schedule-list">
       <!--filter-->
       <div class="filter">
         <div class="right">

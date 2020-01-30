@@ -406,6 +406,35 @@ docker run -d --restart always --name crawlab_worker \\
 更多信息，请参考 [官方文档](https://docs.crawlab.cn)。
 `,
 
+  // 教程
+  'Skip': '跳过',
+  'Previous': '上一步',
+  'Next': '下一步',
+  'Finish': '结束',
+  'Click to add a new spider': '点击并添加爬虫',
+  'You can view your created spiders here.<br>Click a table row to view <strong>spider details</strong>.': '您可以查看创建的爬虫<br>点击行来查看<strong>爬虫详情</strong>',
+  'View a list of <strong>Configurable Spiders</strong>': '查看<strong>可配置爬虫</strong>列表',
+  'View a list of <strong>Customized Spiders</strong>': '查看<strong>自定义爬虫</strong>列表',
+  '<strong>Customized Spider</strong> is a highly customized spider, which is able to run on any programming language and any web crawler framework.': '<strong>自定义爬虫</strong>是高度自定义化的爬虫，能够运行任何编程语言和爬虫框架',
+  '<strong>Configurable Spider</strong> is a spider defined by config data, aimed at streamlining spider development and improving dev efficiency.': '<strong>可配置爬虫</strong>被配置数据所定义，旨在将爬虫开发流程化以及提高爬虫开发效率',
+  'Unique identifier for the spider': '爬虫的唯一识别符',
+  'How the spider is displayed on Crawlab': '爬虫在 Crawlab 上的展示名称',
+  'A shell command to be executed when the spider is triggered to run (only available for <strong>Customized Spider</strong>': '当爬虫被触发时执行的一行 Shell 命令（仅<strong>自定义爬虫</strong>有效）',
+  'Where the results are stored in the database': '抓取结果在数据库中储存的位置',
+  'Upload a zip file containing all spider files to create the spider (only available for <strong>Customized Spider</strong>)': '上传一个包含所有爬虫文件的 zip 文件，然后创建爬虫（仅<strong>自定义爬虫</strong>有效）',
+  'The spider template to create from (only available for <strong>Configurable Spider</strong>)': '创建爬虫时引用的模版（仅<strong>可配置爬虫</strong>有效）',
+  'Click to confirm to add the spider': '点击并确认添加爬虫',
+  'You can switch to each section of the spider detail.': '您可以切换到爬虫详情的每一个部分',
+  'You can switch to different spider using this selector.': '您可以通过这个选择器切换不同的爬虫',
+  'You can view latest tasks for this spider and click each row to view task detail.': '您可以查看最近的爬虫任务以及点击行来查看任务详情',
+  'You can edit the detail info for this spider.': '您可以编辑爬虫详情信息',
+  'Here you can action on the spider, including running a task, uploading a zip file and save the spider info.': '这里您可以对爬虫进行操作，包括运行爬虫任务、上传 zip 文件以及保存爬虫信息',
+  'File navigation panel.<br><br>You can right click on <br>each item to create or delete<br> a file/directory.': '文件导航栏<br><br>您可以右键点击一个元素<br>来添加或删除文件/文件夹',
+  'Click to add a file or directory<br> on the root directory.': '点击并添加一个文件<br>或文件夹',
+  'You can edit, save, rename<br> and delete the selected file <br>in this box.': '在这个栏位中，您可以<br>编辑、保存、重命名、<br>删除所选择的文件',
+  'Here you can add environment variables that will be passed to the spider program when running a task.': '这里您可以添加环境变量，这些环境变量会被传入运行的爬虫程序中',
+  'You can add, edit and delete schedules (cron jobs) for the spider.': '您可以添加、修改、删除爬虫的定时任务',
+
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'
 }

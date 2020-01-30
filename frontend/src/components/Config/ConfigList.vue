@@ -815,18 +815,14 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
       }
     },
     isList (stage) {
-      return !!stage.list_css || !!stage.list_xpath
+      return !!stage.is_list
     },
     onCheckIsList (value, stage) {
+      stage.is_list = value
       if (value) {
         this.$st.sendEv('爬虫详情', '配置', '勾选列表页')
-        if (!stage.list_css && !stage.list_xpath) {
-          stage.list_xpath = '//body'
-        }
       } else {
         this.$st.sendEv('爬虫详情', '配置', '取消勾选列表页')
-        stage.list_css = ''
-        stage.list_xpath = ''
       }
     },
     onClickStageList ($event, stage, type) {
