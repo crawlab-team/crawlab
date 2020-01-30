@@ -105,7 +105,8 @@
               <el-input v-model="spiderForm.display_name" :placeholder="$t('Display Name')"/>
             </el-form-item>
             <el-form-item :label="$t('Template')" prop="template" required>
-              <el-select id="template" v-model="spiderForm.template" :value="spiderForm.template" :placeholder="$t('Template')">
+              <el-select id="template" v-model="spiderForm.template" :value="spiderForm.template"
+                         :placeholder="$t('Template')">
                 <el-option
                   v-for="template in templateList"
                   :key="template"
@@ -598,14 +599,13 @@ export default {
         confirmButtonText: this.$t('Confirm'),
         cancelButtonText: this.$t('Cancel'),
         type: 'warning'
-      }).then(() => {
-        this.$store.dispatch('spider/deleteSpider', row._id)
-          .then(() => {
-            this.$message({
-              type: 'success',
-              message: 'Deleted successfully'
-            })
-          })
+      }).then(async () => {
+        await this.$store.dispatch('spider/deleteSpider', row._id)
+        this.$message({
+          type: 'success',
+          message: 'Deleted successfully'
+        })
+        await this.getList()
         this.$st.sendEv('爬虫列表', '删除爬虫')
       })
     },
@@ -721,7 +721,7 @@ export default {
       this.filter.type = tab.name
       this.getList()
     },
-    getList () {
+    async getList () {
       let params = {
         page_num: this.pagination.pageNum,
         page_size: this.pagination.pageSize,
@@ -730,7 +730,7 @@ export default {
         keyword: this.filter.keyword,
         type: this.filter.type
       }
-      this.$store.dispatch('spider/getSpiderList', params)
+      await this.$store.dispatch('spider/getSpiderList', params)
     }
   },
   async created () {
