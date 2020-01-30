@@ -105,15 +105,9 @@ const actions = {
   },
   editSpider ({ state, dispatch }) {
     return request.post(`/spiders/${state.spiderForm._id}`, state.spiderForm)
-      .then(() => {
-        dispatch('getSpiderList')
-      })
   },
   deleteSpider ({ state, dispatch }, id) {
     return request.delete(`/spiders/${id}`)
-      .then(() => {
-        dispatch('getSpiderList')
-      })
   },
   getSpiderData ({ state, commit }, id) {
     return request.get(`/spiders/${id}`)

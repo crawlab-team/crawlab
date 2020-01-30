@@ -1,5 +1,20 @@
 <template>
   <div class="app-container">
+    <!--tour-->
+    <v-tour
+      name="spider-list"
+      :steps="tourSteps"
+      :callbacks="tourCallbacks"
+      :options="$utils.tour.getOptions(true)"
+    />
+    <v-tour
+      name="spider-list-add"
+      :steps="tourAddSteps"
+      :callbacks="tourAddCallbacks"
+      :options="$utils.tour.getOptions(true)"
+    />
+    <!--./tour-->
+
     <!--import popup-->
     <el-dialog
       :title="$t('Import Spider')"
@@ -38,16 +53,16 @@
         <el-tab-pane name="customized" :label="$t('Customized')">
           <el-form :model="spiderForm" ref="addCustomizedForm" inline-message label-width="120px">
             <el-form-item :label="$t('Spider Name')" prop="name" required>
-              <el-input v-model="spiderForm.name" :placeholder="$t('Spider Name')"/>
+              <el-input id="spider-name" v-model="spiderForm.name" :placeholder="$t('Spider Name')"/>
             </el-form-item>
             <el-form-item :label="$t('Display Name')" prop="display_name" required>
-              <el-input v-model="spiderForm.display_name" :placeholder="$t('Display Name')"/>
+              <el-input id="display-name" v-model="spiderForm.display_name" :placeholder="$t('Display Name')"/>
             </el-form-item>
             <el-form-item :label="$t('Execute Command')" prop="cmd" required>
-              <el-input v-model="spiderForm.cmd" :placeholder="$t('Execute Command')"/>
+              <el-input id="cmd" v-model="spiderForm.cmd" :placeholder="$t('Execute Command')"/>
             </el-form-item>
             <el-form-item :label="$t('Results')" prop="col" required>
-              <el-input v-model="spiderForm.col" :placeholder="$t('Results')"/>
+              <el-input id="col" v-model="spiderForm.col" :placeholder="$t('Results')"/>
             </el-form-item>
             <el-form-item :label="$t('Upload Zip File')" label-width="120px" name="site">
               <el-upload
@@ -58,7 +73,7 @@
                 :file-list="fileList"
                 :before-upload="beforeUpload"
               >
-                <el-button size="small" type="primary" icon="el-icon-upload">
+                <el-button id="upload" size="small" type="primary" icon="el-icon-upload">
                   {{$t('Upload')}}
                 </el-button>
               </el-upload>
@@ -90,7 +105,8 @@
               <el-input v-model="spiderForm.display_name" :placeholder="$t('Display Name')"/>
             </el-form-item>
             <el-form-item :label="$t('Template')" prop="template" required>
-              <el-select v-model="spiderForm.template" :value="spiderForm.template" :placeholder="$t('Template')">
+              <el-select id="template" v-model="spiderForm.template" :value="spiderForm.template"
+                         :placeholder="$t('Template')">
                 <el-option
                   v-for="template in templateList"
                   :key="template"
@@ -104,7 +120,7 @@
             </el-form-item>
           </el-form>
           <div class="actions">
-            <el-button size="small" type="primary" @click="onAddConfigurable">{{$t('Add')}}</el-button>
+            <el-button id="add" size="small" type="primary" @click="onAddConfigurable">{{$t('Add')}}</el-button>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -164,10 +180,10 @@
       <!--./filter-->
 
       <!--tabs-->
-      <el-tabs v-model="filter.type" @tab-click="onClickTab">
-        <el-tab-pane :label="$t('All')" name="all"></el-tab-pane>
-        <el-tab-pane :label="$t('Customized')" name="customized"></el-tab-pane>
-        <el-tab-pane :label="$t('Configurable')" name="configurable"></el-tab-pane>
+      <el-tabs v-model="filter.type" @tab-click="onClickTab" class="tabs">
+        <el-tab-pane :label="$t('All')" name="all" class="all"></el-tab-pane>
+        <el-tab-pane :label="$t('Customized')" name="customized" class="customized"></el-tab-pane>
+        <el-tab-pane :label="$t('Configurable')" name="configurable" class="configuable"></el-tab-pane>
       </el-tabs>
       <!--./tabs-->
 
@@ -339,7 +355,121 @@ export default {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
       },
       fileList: [],
-      spiderType: 'customized'
+      spiderType: 'customized',
+      tourSteps: [
+        {
+          target: '#tab-customized',
+          content: this.$t('View a list of <strong>Customized Spiders</strong>'),
+          params: {
+            highlight: false
+          }
+        },
+        {
+          target: '#tab-configurable',
+          content: this.$t('View a list of <strong>Configurable Spiders</strong>'),
+          params: {
+            highlight: false
+          }
+        },
+        {
+          target: '.table',
+          content: this.$t('You can view your created spiders here.<br>Click a table row to view <strong>spider details</strong>.'),
+          params: {
+            placement: 'top'
+          }
+        },
+        {
+          target: '.btn.add',
+          content: this.$t('Click to add a new spider')
+        }
+      ],
+      tourCallbacks: {
+        onStop: () => {
+          this.$utils.tour.finishTour('spider-list')
+        }
+      },
+      tourAddSteps: [
+        {
+          target: '#tab-customized',
+          content: this.$t('<strong>Customized Spider</strong> is a highly customized spider, which is able to run on any programming language and any web crawler framework.'),
+          params: {
+            placement: 'bottom',
+            highlight: false
+          }
+        },
+        {
+          target: '#tab-configurable',
+          content: this.$t('<strong>Configurable Spider</strong> is a spider defined by config data, aimed at streamlining spider development and improving dev efficiency.'),
+          params: {
+            placement: 'bottom',
+            highlight: false
+          }
+        },
+        {
+          target: '#spider-name',
+          content: this.$t('Unique identifier for the spider'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '#display-name',
+          content: this.$t('How the spider is displayed on Crawlab'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '#cmd',
+          content: this.$t('A shell command to be executed when the spider is triggered to run (only available for <strong>Customized Spider</strong>'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '#col',
+          content: this.$t('Where the results are stored in the database'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '#upload',
+          content: this.$t('Upload a zip file containing all spider files to create the spider (only available for <strong>Customized Spider</strong>)'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '#template',
+          content: this.$t('The spider template to create from (only available for <strong>Configurable Spider</strong>)'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '#add',
+          content: this.$t('Click to confirm to add the spider'),
+          params: {
+            placement: 'right'
+          }
+        }
+      ],
+      tourAddCallbacks: {
+        onStop: () => {
+          this.$utils.tour.finishTour('spider-list-add')
+        },
+        onPreviousStep: (currentStep) => {
+          if (currentStep === 7) {
+            this.spiderType = 'customized'
+          }
+        },
+        onNextStep: (currentStep) => {
+          if (currentStep === 6) {
+            this.spiderType = 'configurable'
+          }
+        }
+      }
     }
   },
   computed: {
@@ -383,6 +513,12 @@ export default {
         template: this.templateList[0]
       })
       this.addDialogVisible = true
+
+      setTimeout(() => {
+        if (!this.$utils.tour.isFinishedTour('spider-list-add')) {
+          this.$tours['spider-list-add'].start()
+        }
+      }, 300)
     },
     onAddConfigurable () {
       this.$refs['addConfigurableForm'].validate(async res => {
@@ -395,8 +531,8 @@ export default {
           this.$message.error(this.$t('Something wrong happened'))
           return
         }
-        await this.$store.dispatch('spider/getSpiderList')
         this.$router.push(`/spiders/${res2.data.data._id}`)
+        await this.$store.dispatch('spider/getSpiderList')
         this.$st.sendEv('爬虫列表', '添加爬虫', '可配置爬虫')
       })
     },
@@ -410,8 +546,8 @@ export default {
           this.$message.error(this.$t('Something wrong happened'))
           return
         }
-        await this.$store.dispatch('spider/getSpiderList')
         this.$router.push(`/spiders/${res2.data.data._id}`)
+        await this.$store.dispatch('spider/getSpiderList')
         this.$st.sendEv('爬虫列表', '添加爬虫', '自定义爬虫')
       })
     },
@@ -463,14 +599,13 @@ export default {
         confirmButtonText: this.$t('Confirm'),
         cancelButtonText: this.$t('Cancel'),
         type: 'warning'
-      }).then(() => {
-        this.$store.dispatch('spider/deleteSpider', row._id)
-          .then(() => {
-            this.$message({
-              type: 'success',
-              message: 'Deleted successfully'
-            })
-          })
+      }).then(async () => {
+        await this.$store.dispatch('spider/deleteSpider', row._id)
+        this.$message({
+          type: 'success',
+          message: 'Deleted successfully'
+        })
+        await this.getList()
         this.$st.sendEv('爬虫列表', '删除爬虫')
       })
     },
@@ -586,7 +721,7 @@ export default {
       this.filter.type = tab.name
       this.getList()
     },
-    getList () {
+    async getList () {
       let params = {
         page_num: this.pagination.pageNum,
         page_size: this.pagination.pageSize,
@@ -595,7 +730,7 @@ export default {
         keyword: this.filter.keyword,
         type: this.filter.type
       }
-      this.$store.dispatch('spider/getSpiderList', params)
+      await this.$store.dispatch('spider/getSpiderList', params)
     }
   },
   async created () {
@@ -609,11 +744,14 @@ export default {
     await this.$store.dispatch('spider/getTemplateList')
   },
   mounted () {
-    console.log(this.spiderForm)
     const vm = this
     this.$nextTick(() => {
       vm.$store.commit('spider/SET_SPIDER_FORM', this.spiderForm)
     })
+
+    if (!this.$utils.tour.isFinishedTour('spider-list')) {
+      this.$tours['spider-list'].start()
+    }
   }
 }
 </script>

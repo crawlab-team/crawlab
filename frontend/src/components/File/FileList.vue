@@ -34,6 +34,7 @@
       class="file-tree-wrapper"
     >
       <el-tree
+        class="tree"
         :data="computedFileTree"
         ref="tree"
         node-key="path"
@@ -87,33 +88,33 @@
           </el-popover>
         </span>
       </el-tree>
-      <el-popover trigger="click" placement="right"
-                  popper-class="create-item-popover" :visible-arrow="false">
-        <ul class="action-item-list">
-          <li class="action-item" @click="fileDialogVisible = true">
-            <font-awesome-icon icon="file-alt" color="rgba(3,47,98,.5)"/>
-            <span class="action-item-text">{{$t('Create File')}}</span>
-          </li>
-          <li class="action-item" @click="dirDialogVisible = true">
-            <font-awesome-icon :icon="['fa', 'folder']" color="rgba(3,47,98,.5)"/>
-            <span class="action-item-text">{{$t('Create Directory')}}</span>
-          </li>
-        </ul>
-        <div
-          class="add-btn-wrapper"
-          slot="reference"
-        >
+      <div
+        class="add-btn-wrapper"
+      >
+        <el-popover trigger="click" placement="right"
+                    popper-class="create-item-popover" :visible-arrow="false">
+          <ul class="action-item-list">
+            <li class="action-item" @click="fileDialogVisible = true">
+              <font-awesome-icon icon="file-alt" color="rgba(3,47,98,.5)"/>
+              <span class="action-item-text">{{$t('Create File')}}</span>
+            </li>
+            <li class="action-item" @click="dirDialogVisible = true">
+              <font-awesome-icon :icon="['fa', 'folder']" color="rgba(3,47,98,.5)"/>
+              <span class="action-item-text">{{$t('Create Directory')}}</span>
+            </li>
+          </ul>
           <el-button
             class="add-btn"
             size="small"
             type="primary"
             icon="el-icon-plus"
+            slot="reference"
             @click="onEmptyClick"
           >
             {{$t('Add')}}
           </el-button>
-        </div>
-      </el-popover>
+        </el-popover>
+      </div>
     </div>
 
     <div class="main-content">
@@ -202,7 +203,18 @@ export default {
       dirDialogVisible: false,
       fileDialogVisible: false,
       nodeExpandedDict: {},
-      isShowDeleteNav: false
+      isShowDeleteNav: false,
+      tourSteps: [
+        {
+          target: '.add-btn',
+          content: this.$t('You can add a file or directory')
+        }
+      ],
+      tourCallbacks: {
+        onStop: () => {
+          this.$utils.tour.finishTour('spider-detail-file-list')
+        }
+      }
     }
   },
   computed: {

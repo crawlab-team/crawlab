@@ -4142,6 +4142,11 @@ hash-sum@^1.0.2:
   version "1.0.2"
   resolved "http://registry.npm.taobao.org/hash-sum/download/hash-sum-1.0.2.tgz#33b40777754c6432573c120cc3808bbd10d47f04"
 
+hash-sum@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npm.taobao.org/hash-sum/download/hash-sum-2.0.0.tgz#81d01bb5de8ea4a214ad5d6ead1b523460b0b45a"
+  integrity sha1-gdAbtd6OpKIUrV1urRtSNGCwtFo=
+
 hash.js@^1.0.0, hash.js@^1.0.3:
   version "1.1.7"
   resolved "http://registry.npm.taobao.org/hash.js/download/hash.js-1.1.7.tgz#0babca538e8d4ee4a0f8988d68866537a003cf42"
@@ -5321,6 +5326,11 @@ jsprim@^1.2.2:
     extsprintf "1.3.0"
     json-schema "0.2.3"
     verror "1.10.0"
+
+jump.js@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npm.taobao.org/jump.js/download/jump.js-1.0.2.tgz#e0641b47f40a38f2139c25fda0500bf28e43015a"
+  integrity sha1-4GQbR/QKOPITnCX9oFAL8o5DAVo=
 
 killable@^1.0.0:
   version "1.0.1"
@@ -6550,6 +6560,11 @@ pluralize@^7.0.0:
 pn@^1.1.0:
   version "1.1.0"
   resolved "http://registry.npm.taobao.org/pn/download/pn-1.1.0.tgz#e2f4cef0e219f463c179ab37463e4e1ecdccbafb"
+
+popper.js@^1.16.0:
+  version "1.16.1"
+  resolved "https://registry.npm.taobao.org/popper.js/download/popper.js-1.16.1.tgz#2a223cb3dc7b6213d740e40372be40de43e65b1b"
+  integrity sha1-KiI8s9x7YhPXQOQDcr5A3kPmWxs=
 
 portfinder@^1.0.20, portfinder@^1.0.9:
   version "1.0.20"
@@ -8674,6 +8689,16 @@ vue-template-es2015-compiler@^1.6.0, vue-template-es2015-compiler@^1.8.2:
   version "1.8.2"
   resolved "http://registry.npm.taobao.org/vue-template-es2015-compiler/download/vue-template-es2015-compiler-1.8.2.tgz#dd73e80ba58bb65dd7a8aa2aeef6089cf6116f2a"
 
+vue-tour@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.npm.taobao.org/vue-tour/download/vue-tour-1.2.0.tgz#340bbfec8f3778a9ea0c87176ce3611c69e0a4d4"
+  integrity sha1-NAu/7I83eKnqDIcXbONhHGngpNQ=
+  dependencies:
+    hash-sum "^2.0.0"
+    jump.js "^1.0.2"
+    popper.js "^1.16.0"
+    vue "^2.6.10"
+
 vue-virtual-scroll-list@^1.3.9:
   version "1.3.9"
   resolved "https://registry.npm.taobao.org/vue-virtual-scroll-list/download/vue-virtual-scroll-list-1.3.9.tgz#ba3ce6425374fb323ea83ab33daa2727117808ed"
@@ -8687,6 +8712,11 @@ vue@^2.3.3:
 vue@^2.5.17, vue@^2.5.22:
   version "2.6.6"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.6.tgz#dde41e483c11c46a7bf523909f4f2f816ab60d25"
+
+vue@^2.6.10:
+  version "2.6.11"
+  resolved "https://registry.npm.taobao.org/vue/download/vue-2.6.11.tgz#76594d877d4b12234406e84e35275c6d514125c5"
+  integrity sha1-dllNh31LEiNEBuhONSdcbVFBJcU=
 
 vuex@^3.0.1:
   version "3.1.0"

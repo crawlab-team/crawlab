@@ -60,3 +60,8 @@ services:
     #   - "/opt/crawlab/redis/data:/data"  # make data persistent 持久化
     # ports:
     #   - "6379:6379"  # expose port to host machine 暴露接口到宿主机
+  # splash:  # use Splash to run spiders on dynamic pages
+  #   image: scrapinghub/splash
+  #   container_name: splash
+  #   ports:
+  #     - "8050:8050"
