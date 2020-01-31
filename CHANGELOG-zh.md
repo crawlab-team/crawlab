@@ -8,6 +8,7 @@
 - **下载结果错误**. [#465](https://github.com/crawlab-team/crawlab/issues/465)
 - **crawlab-sdk CLI 错误**. [#458](https://github.com/crawlab-team/crawlab/issues/458)
 - **修复“删除爬虫后获取所有爬虫”错误**.
+- **修复 i18n warning 警告**.
 
 # 0.4.4 (2020-01-17)
 

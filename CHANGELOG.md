@@ -7,7 +7,8 @@
 - **Unable to create files in an empty spider**. [#479](https://github.com/crawlab-team/crawlab/issues/479)
 - **Download results error**. [#465](https://github.com/crawlab-team/crawlab/issues/465)
 - **crawlab-sdk CLI error**. [#458](https://github.com/crawlab-team/crawlab/issues/458)
-- **Fix getting all spider after deleting a spider**.
+- **Getting all spider after deleting a spider**.
+- **i18n warning**.
 
 # 0.4.4 (2020-01-17)
 ### Features / Enhancement
