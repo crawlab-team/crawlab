@@ -1,5 +1,14 @@
 <template>
   <div class="config-list">
+    <!--tour-->
+    <v-tour
+      name="spider-detail-config"
+      :steps="tourSteps"
+      :callbacks="tourCallbacks"
+      :options="$utils.tour.getOptions(true)"
+    />
+    <!--./tour-->
+
     <!--preview results-->
     <el-dialog :visible.sync="dialogVisible"
                :title="$t('Preview Results')"
@@ -57,6 +66,7 @@
               <li class="item">
                 <label>{{$t('Start URL')}}: </label>
                 <el-input
+                  id="start-url"
                   v-model="spiderForm.config.start_url"
                   :placeholder="$t('Start URL')"
                   :class="startUrlClass"
@@ -65,6 +75,7 @@
               <li class="item">
                 <label>{{$t('Start Stage')}}: </label>
                 <el-select
+                  id="start-stage"
                   v-model="spiderForm.config.start_stage"
                   :placeholder="$t('Start Stage')"
                   :class="startStageClass"
@@ -120,12 +131,12 @@
 
           <div class="button-group-container">
             <div class="button-group">
-              <el-button type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
+              <el-button id="btn-run" type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
               <!--              <el-button type="primary" @click="onExtractFields" v-loading="extractFieldsLoading">-->
               <!--                {{$t('ExtractFields')}}-->
               <!--              </el-button>-->
               <!--              <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>-->
-              <el-button type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
+              <el-button id="btn-save" type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
             </div>
           </div>
         </el-row>
@@ -141,7 +152,7 @@
             <template slot="title">
               <ul class="stage-list">
                 <!--actions-->
-                <li class="stage-item" style="min-width: 80px; flex-basis: 80px; justify-content: flex-end"
+                <li class="stage-item actions" style="min-width: 80px; flex-basis: 80px; justify-content: flex-end"
                     @click="$event.stopPropagation()">
                   <i class="action-item el-icon-copy-document" @click="onCopyStage(stage)"></i>
                   <i class="action-item el-icon-remove-outline" @click="onRemoveStage(stage)"></i>
@@ -377,6 +388,106 @@ export default {
         lineNumbers: true,
         line: true,
         matchBrackets: true
+      },
+      tourSteps: [
+        // stage
+        {
+          target: '.config-list .el-tabs__nav.is-top',
+          content: this.$t('You can switch to each section of configurable spider.')
+        },
+        {
+          target: '#start-url',
+          content: this.$t('Here is the starting URL of the spider.')
+        },
+        {
+          target: '#start-stage',
+          content: this.$t('Here is the starting stage of the spider.<br><br>A <strong>Stage</strong> is basically a callback in the Scrapy spider.')
+        },
+        {
+          target: '#btn-run',
+          content: this.$t('You can run a spider task.<br><br>Spider will be automatically saved When clicking on this button.')
+        },
+        {
+          target: '.stage-item.actions',
+          content: this.$t('Add/duplicate/delete a stage.'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '.fields-table-view td.action',
+          content: this.$t('Add/duplicate/delete an extract field in the stage.'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '.stage-item:nth-child(3)',
+          content: this.$t('You can decide whether this is a list page.<br><br>Click on the CSS/XPath tag to enter the selector expression for list items.<br>For example, "<code>ul > li</code>"'),
+          params: {
+            placement: 'top'
+          }
+        },
+        {
+          target: '.stage-item:nth-child(4)',
+          content: this.$t('You can decide whether this is a list page with pagination.<br><br>Click on the CSS/XPath tag to enter the selector expression for the pagination.<br>For example, "<code>a.next</code>"'),
+          params: {
+            placement: 'top'
+          }
+        },
+        {
+          target: '.fields-table-view',
+          content: this.$t('You should enter necessary information for all fields in the stage.'),
+          params: {
+            placement: 'top'
+          }
+        },
+        {
+          target: '.fields-table-view tr:nth-child(1) td:nth-child(7)',
+          content: this.$t('If you have multiple stages, e.g. list page + detail page, you should select the next stage in the detail link\'s field.'),
+          params: {
+            placement: 'top'
+          }
+        },
+        // process
+        {
+          target: '#tab-process',
+          content: this.$t('You can view the<br> visualization of the stage<br> workflow.')
+        },
+        // settings
+        {
+          target: '#tab-settings',
+          content: this.$t('You can add the settings here, which will be loaded in the Scrapy\'s <code>settings.py</code> file.<br><br>JSON and Array data are supported.')
+        },
+        // Spiderfile
+        {
+          target: '#tab-spiderfile',
+          content: this.$t('You can edit the <code>Spiderfile</code> here.<br><br>For more information, please refer to the <a href="https://docs.crawlab.cn/Usage/Spider/ConfigurableSpider.html" target="_blank" style="color: #409EFF">Documentation</a>.')
+        }
+      ],
+      tourCallbacks: {
+        onStop: (ev) => {
+          console.log(ev)
+          this.$utils.tour.finishTour('spider-detail-config')
+        },
+        onPreviousStep: (currentStep) => {
+          if (currentStep === 10) {
+            this.activeTab = 'stages'
+          } else if (currentStep === 11) {
+            this.activeTab = 'process'
+          } else if (currentStep === 12) {
+            this.activeTab = 'settings'
+          }
+        },
+        onNextStep: (currentStep) => {
+          if (currentStep === 9) {
+            this.activeTab = 'process'
+          } else if (currentStep === 10) {
+            this.activeTab = 'settings'
+          } else if (currentStep === 11) {
+            this.activeTab = 'spiderfile'
+          }
+        }
       }
     }
   },
