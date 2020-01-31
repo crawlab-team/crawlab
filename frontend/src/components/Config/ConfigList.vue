@@ -405,7 +405,7 @@ export default {
         },
         {
           target: '#btn-run',
-          content: this.$t('You can run a spider task.<br><br>Spider will be automatically saved When clicking on this button.')
+          content: this.$t('You can run a spider task.<br><br>Spider will be automatically saved when clicking on this button.')
         },
         {
           target: '.stage-item.actions',
@@ -462,7 +462,7 @@ export default {
         // Spiderfile
         {
           target: '#tab-spiderfile',
-          content: this.$t('You can edit the <code>Spiderfile</code> here.<br><br>For more information, please refer to the <a href="https://docs.crawlab.cn/Usage/Spider/ConfigurableSpider.html" target="_blank" style="color: #409EFF">Documentation</a>.')
+          content: this.$t('You can edit the <code>Spiderfile</code> here.<br><br>For more information, please refer to the <a href="https://docs.crawlab.cn/Usage/Spider/ConfigurableSpider.html" target="_blank" style="color: #409EFF">Documentation (Chinese)</a>.')
         }
       ],
       tourCallbacks: {
