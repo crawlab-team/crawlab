@@ -466,8 +466,7 @@ export default {
         }
       ],
       tourCallbacks: {
-        onStop: (ev) => {
-          console.log(ev)
+        onStop: () => {
           this.$utils.tour.finishTour('spider-detail-config')
         },
         onPreviousStep: (currentStep) => {

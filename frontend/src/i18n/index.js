@@ -10,7 +10,8 @@ const i18n = new VueI18n({
   messages: {
     en,
     zh
-  }
+  },
+  silentTranslationWarn: true
 })
 
 export default i18n
