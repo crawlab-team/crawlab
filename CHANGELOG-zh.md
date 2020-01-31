@@ -7,6 +7,7 @@
 - **无法在空爬虫里创建文件**. [#479](https://github.com/crawlab-team/crawlab/issues/479)
 - **下载结果错误**. [#465](https://github.com/crawlab-team/crawlab/issues/465)
 - **crawlab-sdk CLI 错误**. [#458](https://github.com/crawlab-team/crawlab/issues/458)
+- **页面刷新问题**. [#441](https://github.com/crawlab-team/crawlab/issues/441)
 - **修复“删除爬虫后获取所有爬虫”错误**.
 - **修复 i18n warning 警告**.
 
