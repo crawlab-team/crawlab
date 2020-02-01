@@ -3,13 +3,13 @@
     <el-form inline>
       <el-form-item>
         <el-autocomplete size="small" clearable @clear="onSearch"
-          v-if="activeLang.executable_name === 'python'"
-          v-model="depName"
-          style="width: 240px"
-          :placeholder="$t('Search Dependencies')"
-          :fetchSuggestions="fetchAllDepList"
-          :minlength="2"
-          @select="onSearch"
+                         v-if="activeLang.executable_name === 'python'"
+                         v-model="depName"
+                         style="width: 240px"
+                         :placeholder="$t('Search Dependencies')"
+                         :fetchSuggestions="fetchAllDepList"
+                         :minlength="2"
+                         @select="onSearch"
         ></el-autocomplete>
         <el-input
           v-else
@@ -20,9 +20,9 @@
       </el-form-item>
       <el-form-item>
         <el-button size="small"
-          icon="el-icon-search"
-          type="success"
-          @click="onSearch"
+                   icon="el-icon-search"
+                   type="success"
+                   @click="onSearch"
         >
           {{$t('Search')}}
         </el-button>
@@ -116,7 +116,7 @@ export default {
       depName: '',
       depList: [],
       loading: false,
-      isShowInstalled: false,
+      isShowInstalled: true,
       installedDepList: [],
       depLoadingDict: {},
       isLoadingInstallLang: false
@@ -289,6 +289,7 @@ export default {
     const res = await this.$request.get(`/nodes/${id}/langs`)
     this.langList = res.data.data
     this.activeTab = this.langList[0].executable_name || ''
+    await this.getInstalledDepList()
   }
 }
 </script>
