@@ -15,6 +15,7 @@ import site from './modules/site'
 import stats from './modules/stats'
 import setting from './modules/setting'
 import version from './modules/version'
+import tour from './modules/tour'
 import getters from './getters'
 
 Vue.use(Vuex)
@@ -35,6 +36,7 @@ const store = new Vuex.Store({
     site,
     setting,
     version,
+    tour,
     // 统计
     stats
   },

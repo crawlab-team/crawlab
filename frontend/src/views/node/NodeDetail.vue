@@ -86,11 +86,13 @@ export default {
           if (currentStep === 3) {
             this.activeTabName = 'overview'
           }
+          this.$utils.tour.prevStep('node-detail', currentStep)
         },
         onNextStep: (currentStep) => {
           if (currentStep === 2) {
             this.activeTabName = 'installation'
           }
+          this.$utils.tour.nextStep('node-detail', currentStep)
         }
       }
     }
@@ -123,6 +125,7 @@ export default {
   mounted () {
     if (!this.$utils.tour.isFinishedTour('node-detail')) {
       this.$tours['node-detail'].start()
+      this.$st.sendEv('教程', '开始', 'node-detail')
     }
   }
 }

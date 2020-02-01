@@ -480,6 +480,9 @@ docker run -d --restart always --name crawlab_worker \\
   'The parameters which will be passed into the spider program.': '将被传入爬虫程序里的参数',
   'The description for the schedule': '定时任务的描述',
   'Once you have filled all fields, click this button to submit.': '当您填完所有字段，请点击这个按钮来提交定时任务',
+  'Here you can set your password.': '这里您可以设置您的密码',
+  'In this tab you can configure your notification settings.': '在这个标签中，您可以配置您的消息通知配置',
+  'Here you can add/edit/delete global environment variables which will be passed into your spider programs.': '这里您可以添加/修改/删除全局环境变量，它们会被传入爬虫程序中',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

@@ -236,8 +236,10 @@ export default {
           this.$utils.tour.finishTour('task-list')
         },
         onPreviousStep: (currentStep) => {
+          this.$utils.tour.prevStep('task-list', currentStep)
         },
         onNextStep: (currentStep) => {
+          this.$utils.tour.nextStep('task-list', currentStep)
         }
       }
     }
@@ -401,6 +403,7 @@ export default {
 
     if (!this.$utils.tour.isFinishedTour('task-list')) {
       this.$tours['task-list'].start()
+      this.$st.sendEv('教程', '开始', 'task-list')
     }
   },
   destroyed () {

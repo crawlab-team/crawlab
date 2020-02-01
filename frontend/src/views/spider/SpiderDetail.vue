@@ -143,6 +143,7 @@ export default {
           } else if (currentStep === 9) {
             this.activeTabName = 'environment'
           }
+          this.$utils.tour.prevStep('spider-detail', currentStep)
         },
         onNextStep: (currentStep) => {
           if (currentStep === 4) {
@@ -152,6 +153,7 @@ export default {
           } else if (currentStep === 8) {
             this.activeTabName = 'schedules'
           }
+          this.$utils.tour.nextStep('spider-detail', currentStep)
         }
       }
     }
@@ -188,6 +190,7 @@ export default {
         if (!this.$utils.tour.isFinishedTour('spider-detail-config')) {
           setTimeout(() => {
             this.$tours['spider-detail-config'].start()
+            this.$st.sendEv('教程', '开始', 'spider-detail-config')
           }, 100)
         }
       }
@@ -222,6 +225,7 @@ export default {
   mounted () {
     if (!this.$utils.tour.isFinishedTour('spider-detail')) {
       this.$tours['spider-detail'].start()
+      this.$st.sendEv('教程', '开始', 'spider-detail')
     }
   }
 }

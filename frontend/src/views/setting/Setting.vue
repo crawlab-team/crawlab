@@ -180,6 +180,7 @@ export default {
           } else if (currentStep === 2) {
             this.activeName = 'notify'
           }
+          this.$utils.tour.prevStep('setting', currentStep)
         },
         onNextStep: (currentStep) => {
           if (currentStep === 0) {
@@ -187,8 +188,9 @@ export default {
           } else if (currentStep === 1) {
             this.activeName = 'global-variable'
           }
+          this.$utils.tour.nextStep('setting', currentStep)
         }
-      },
+      }
     }
   },
   computed: {
@@ -260,6 +262,7 @@ export default {
   mounted () {
     if (!this.$utils.tour.isFinishedTour('setting')) {
       this.$tours['setting'].start()
+      this.$st.sendEv('教程', '开始', 'setting')
     }
   }
 }

@@ -281,6 +281,7 @@ export default {
           if (currentStep === 2) {
             this.dialogVisible = false
           }
+          this.$utils.tour.prevStep('schedule-list', currentStep)
         },
         onNextStep: (currentStep) => {
           if (currentStep === 1) {
@@ -288,6 +289,7 @@ export default {
             this.dialogVisible = true
             this.$store.commit('schedule/SET_SCHEDULE_FORM', { node_ids: [] })
           }
+          this.$utils.tour.nextStep('schedule-list', currentStep)
         }
       },
       tourAddSteps: [
@@ -365,6 +367,7 @@ export default {
           } else if (currentStep === 6) {
             this.isShowCron = true
           }
+          this.$utils.tour.prevStep('schedule-list-add', currentStep)
         },
         onNextStep: (currentStep) => {
           if (currentStep === 3) {
@@ -372,6 +375,7 @@ export default {
           } else if (currentStep === 5) {
             this.isShowCron = false
           }
+          this.$utils.tour.nextStep('schedule-list-add', currentStep)
         }
       }
     }
@@ -418,6 +422,7 @@ export default {
       if (!this.$utils.tour.isFinishedTour('schedule-list-add')) {
         setTimeout(() => {
           this.$tours['schedule-list-add'].start()
+          this.$st.sendEv('教程', '开始', 'schedule-list-add')
         }, 500)
       }
     },
@@ -528,6 +533,7 @@ export default {
     if (!this.isDisabledSpiderSchedule) {
       if (!this.$utils.tour.isFinishedTour('schedule-list')) {
         this.$tours['schedule-list'].start()
+        this.$st.sendEv('教程', '开始', 'schedule-list')
       }
     }
   }

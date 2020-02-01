@@ -122,6 +122,7 @@ export default {
           } else if (currentStep === 6) {
             this.activeTabName = 'log'
           }
+          this.$utils.tour.prevStep('task-detail', currentStep)
         },
         onNextStep: (currentStep) => {
           if (currentStep === 4) {
@@ -129,6 +130,7 @@ export default {
           } else if (currentStep === 5) {
             this.activeTabName = 'results'
           }
+          this.$utils.tour.nextStep('task-detail', currentStep)
         }
       }
     }
@@ -201,6 +203,7 @@ export default {
   mounted () {
     if (!this.$utils.tour.isFinishedTour('task-detail')) {
       this.$tours['task-detail'].start()
+      this.$st.sendEv('教程', '开始', 'task-detail')
     }
   },
   destroyed () {
