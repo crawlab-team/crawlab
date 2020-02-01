@@ -465,6 +465,15 @@ docker run -d --restart always --name crawlab_worker \\
   'This is the detailed node info.': '这是节点详情',
   'Here you can install<br> dependencies and modules<br> that are required<br> in your spiders.': '这里您可以安装您爬虫中<br>需要的依赖或模块',
   'You can search dependencies in the search box and install them by clicking the "Install" button below.': '您可以在搜索框中搜索依赖并点击下面的"安装"按钮来进行安装',
+  'You should fill the form before adding the new schedule.': '在添加新定时任务前，您需要填写这个表单',
+  'The name of the schedule': '定时任务名称',
+  'The type of how to run the task.<br><br>Please refer to the <a href="https://docs.crawlab.cn/Usage/Spider/Run.html" target="_blank" style="color: #409EFF">Documentation (Chinese)</a> for detailed explanation for the options.<br><br>Let\'s select <strong>Selected Nodes</strong> for example.': '表示以哪种方式运行任务，<br><br>请参考 <a href="https://docs.crawlab.cn/Usage/Spider/Run.html" target="_blank" style="color: #409EFF">文档</a> 参考选项解释<br><br>让我们选择 <strong>指定节点</strong> 这个选项',
+  'The spider to run': '运行的爬虫',
+  '<strong>Cron</strong> expression for the schedule.<br><br>If you are not sure what a cron expression is, please refer to this <a href="https://baike.baidu.com/item/crontab/8819388" target="_blank" style="color: #409EFF">Article</a>.': '定时任务的 <strong>Cron</strong> 表达式<br><br>如果您不清楚什么是 Cron 表达式，请参考这篇 <a href="https://baike.baidu.com/item/crontab/8819388" target="_blank" style="color: #409EFF">文章（英文）</a>.',
+  'You can select the correct options in the cron config box to configure the cron expression.': '您可以在 Cron 配置栏里选择正确的选项来配置 Cron 表达式',
+  'The parameters which will be passed into the spider program.': '将被传入爬虫程序里的参数',
+  'The description for the schedule': '定时任务的描述',
+  'Once you have filled all fields, click this button to submit.': '当您填完所有字段，请点击这个按钮来提交定时任务',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

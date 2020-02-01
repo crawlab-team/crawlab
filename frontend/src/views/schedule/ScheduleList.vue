@@ -1,28 +1,44 @@
 <template>
   <div class="app-container">
+    <!--tour-->
+    <v-tour
+      name="schedule-list"
+      :steps="tourSteps"
+      :callbacks="tourCallbacks"
+      :options="$utils.tour.getOptions(true)"
+    />
+    <v-tour
+      name="schedule-list-add"
+      :steps="tourAddSteps"
+      :callbacks="tourAddCallbacks"
+      :options="$utils.tour.getOptions(true)"
+    />
+    <!--./tour-->
+
     <!--add popup-->
     <el-dialog
       :title="$t(dialogTitle)"
       :visible.sync="dialogVisible"
-      width="60%"
+      width="640px"
       :before-close="onDialogClose">
       <el-form label-width="180px"
+               class="add-form"
                :model="scheduleForm"
                :inline-message="true"
                ref="scheduleForm"
                label-position="right">
         <el-form-item :label="$t('Schedule Name')" prop="name" required>
-          <el-input v-model="scheduleForm.name" :placeholder="$t('Schedule Name')"></el-input>
+          <el-input id="schedule-name" v-model="scheduleForm.name" :placeholder="$t('Schedule Name')"></el-input>
         </el-form-item>
         <el-form-item :label="$t('Run Type')" prop="run_type" required>
-          <el-select v-model="scheduleForm.run_type" :placeholder="$t('Run Type')">
+          <el-select id="run-type" v-model="scheduleForm.run_type" :placeholder="$t('Run Type')">
             <el-option value="all-nodes" :label="$t('All Nodes')"/>
             <el-option value="selected-nodes" :label="$t('Selected Nodes')"/>
             <el-option value="random" :label="$t('Random')"/>
           </el-select>
         </el-form-item>
         <el-form-item v-if="scheduleForm.run_type === 'selected-nodes'" :label="$t('Nodes')" prop="node_ids" required>
-          <el-select v-model="scheduleForm.node_ids" :placeholder="$t('Nodes')" multiple filterable>
+          <el-select id="node-ids" v-model="scheduleForm.node_ids" :placeholder="$t('Nodes')" multiple filterable>
             <el-option
               v-for="op in nodeList"
               :key="op._id"
@@ -34,6 +50,7 @@
         </el-form-item>
         <el-form-item v-if="!isDisabledSpiderSchedule" :label="$t('Spider')" prop="spider_id" required>
           <el-select
+            id="spider-id"
             v-model="scheduleForm.spider_id"
             :placeholder="$t('Spider')"
             filterable
@@ -67,14 +84,18 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('Cron')" prop="cron" required>
-          <el-popover>
+          <el-popover v-model="isShowCron" trigger="manual">
             <template>
               <vue-cron-linux :data="scheduleForm.cron" :i18n="lang" @change="onCronChange"/>
             </template>
             <template slot="reference">
               <el-input
+                id="cron"
+                ref="cron"
                 v-model="scheduleForm.cron"
                 :placeholder="`${$t('[minute] [hour] [day] [month] [day of week]')}`"
+                @focus="isShowCron = true"
+                @blur="isShowCron = false"
               >
               </el-input>
             </template>
@@ -82,24 +103,29 @@
           <!--<el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('schedules.add_cron')}}</el-button>-->
         </el-form-item>
         <el-form-item :label="$t('Execute Command')" prop="params">
-          <el-input v-model="spider.cmd"
-                    :placeholder="$t('Execute Command')"
-                    disabled>
-          </el-input>
+          <el-input
+            id="cmd"
+            v-model="spider.cmd"
+            :placeholder="$t('Execute Command')"
+            disabled
+          />
         </el-form-item>
         <el-form-item :label="$t('Parameters')" prop="param">
-          <el-input v-model="scheduleForm.param"
-                    :placeholder="$t('Parameters')"></el-input>
+          <el-input
+            id="param"
+            v-model="scheduleForm.param"
+            :placeholder="$t('Parameters')"
+          />
         </el-form-item>
         <el-form-item :label="$t('Schedule Description')" prop="description">
-          <el-input v-model="scheduleForm.description" type="textarea"
+          <el-input id="schedule-description" v-model="scheduleForm.description" type="textarea"
                     :placeholder="$t('Schedule Description')"></el-input>
         </el-form-item>
       </el-form>
       <!--取消、保存-->
       <span slot="footer" class="dialog-footer">
         <el-button size="small" @click="onCancel">{{$t('Cancel')}}</el-button>
-        <el-button size="small" type="primary" @click="onAddSubmit">{{$t('Submit')}}</el-button>
+        <el-button id="btn-submit" size="small" type="primary" @click="onAddSubmit">{{$t('Submit')}}</el-button>
       </span>
     </el-dialog>
 
@@ -114,7 +140,7 @@
         <div class="right">
           <el-button size="small" type="primary"
                      icon="el-icon-plus"
-                     class="refresh"
+                     class="btn-add"
                      @click="onAdd">
             {{$t('Add Schedule')}}
           </el-button>
@@ -233,7 +259,121 @@ export default {
       showCron: false,
       expression: '',
       spiderList: [],
-      nodeList: []
+      nodeList: [],
+      isShowCron: false,
+
+      // tutorial
+      tourSteps: [
+        {
+          target: '.table',
+          content: this.$t('This is a list of schedules (cron jobs) to periodically run spider tasks. You can add/modify/edit your schedules here.<br><br>For more information, please refer to the <a href="https://docs.crawlab.cn/Usage/Schedule/" target="_blank" style="color: #409EFF">Documentation (Chinese)</a> for detail.')
+        },
+        {
+          target: '.btn-add',
+          content: this.$t('You can add a new schedule by clicking this button.')
+        }
+      ],
+      tourCallbacks: {
+        onStop: () => {
+          this.$utils.tour.finishTour('schedule-list')
+        },
+        onPreviousStep: (currentStep) => {
+          if (currentStep === 2) {
+            this.dialogVisible = false
+          }
+        },
+        onNextStep: (currentStep) => {
+          if (currentStep === 1) {
+            this.isEdit = false
+            this.dialogVisible = true
+            this.$store.commit('schedule/SET_SCHEDULE_FORM', { node_ids: [] })
+          }
+        }
+      },
+      tourAddSteps: [
+        {
+          target: '.add-form',
+          content: this.$t('You should fill the form before adding the new schedule.'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '#schedule-name',
+          content: this.$t('The name of the schedule'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '#run-type',
+          content: this.$t('The type of how to run the task.<br><br>Please refer to the <a href="https://docs.crawlab.cn/Usage/Spider/Run.html" target="_blank" style="color: #409EFF">Documentation (Chinese)</a> for detailed explanation for the options.<br><br>Let\'s select <strong>Selected Nodes</strong> for example.'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '#spider-id',
+          content: this.$t('The spider to run'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '#cron',
+          content: this.$t('<strong>Cron</strong> expression for the schedule.<br><br>If you are not sure what a cron expression is, please refer to this <a href="https://baike.baidu.com/item/crontab/8819388" target="_blank" style="color: #409EFF">Article</a>.'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '#change-crontab',
+          content: this.$t('You can select the correct options in the cron config box to configure the cron expression.'),
+          params: {
+            placement: 'top'
+          }
+        },
+        {
+          target: '#param',
+          content: this.$t('The parameters which will be passed into the spider program.'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '#schedule-description',
+          content: this.$t('The description for the schedule'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '#btn-submit',
+          content: this.$t('Once you have filled all fields, click this button to submit.'),
+          params: {
+            placement: 'right'
+          }
+        }
+      ],
+      tourAddCallbacks: {
+        onStop: () => {
+          this.$utils.tour.finishTour('schedule-list-add')
+        },
+        onPreviousStep: (currentStep) => {
+          if (currentStep === 4) {
+            this.isShowCron = false
+          } else if (currentStep === 6) {
+            this.isShowCron = true
+          }
+        },
+        onNextStep: (currentStep) => {
+          if (currentStep === 3) {
+            this.isShowCron = true
+          } else if (currentStep === 5) {
+            this.isShowCron = false
+          }
+        }
+      }
     }
   },
   computed: {
@@ -274,6 +414,12 @@ export default {
       this.dialogVisible = true
       this.$store.commit('schedule/SET_SCHEDULE_FORM', { node_ids: [] })
       this.$st.sendEv('定时任务', '添加定时任务')
+
+      if (!this.$utils.tour.isFinishedTour('schedule-list-add')) {
+        setTimeout(() => {
+          this.$tours['schedule-list-add'].start()
+        }, 500)
+      }
     },
     onAddSubmit () {
       this.$refs.scheduleForm.validate(res => {
@@ -377,6 +523,13 @@ export default {
       .then(response => {
         this.spiderList = response.data.data.list || []
       })
+  },
+  mounted () {
+    if (!this.isDisabledSpiderSchedule) {
+      if (!this.$utils.tour.isFinishedTour('schedule-list')) {
+        this.$tours['schedule-list'].start()
+      }
+    }
   }
 }
 </script>
