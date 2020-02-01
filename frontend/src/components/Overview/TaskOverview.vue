@@ -1,7 +1,7 @@
 <template>
   <el-row>
     <el-col :span="12" style="padding-right: 20px;">
-      <el-row>
+      <el-row class="task-info-overview-wrapper wrapper">
         <h4 class="title">{{$t('Task Info')}}</h4>
         <task-info-view/>
       </el-row>
@@ -9,12 +9,16 @@
     </el-col>
 
     <el-col :span="12">
-      <el-row>
-        <h4 class="title spider-title" @click="onClickSpiderTitle">{{$t('Spider Info')}}</h4>
+      <el-row class="task-info-spider-wrapper wrapper">
+        <h4 class="title spider-title" @click="onClickSpiderTitle">
+          <i class="fa fa-search" style="margin-right: 5px"></i>
+          {{$t('Spider Info')}}</h4>
         <spider-info-view :is-view="true"/>
       </el-row>
-      <el-row>
-        <h4 class="title node-title" @click="onClickNodeTitle">{{$t('Node Info')}}</h4>
+      <el-row class="task-info-node-wrapper wrapper">
+        <h4 class="title node-title" @click="onClickNodeTitle">
+          <i class="fa fa-search" style="margin-right: 5px"></i>
+          {{$t('Node Info')}}</h4>
         <node-info-view :is-view="true"/>
       </el-row>
     </el-col>
@@ -67,6 +71,12 @@ export default {
 <style scoped>
   .title {
     margin: 10px 0 3px 0;
+    text-align: center;
+    display: inline-block;
+  }
+
+  .wrapper {
+    text-align: center;
   }
 
   .spider-form {
@@ -79,13 +89,17 @@ export default {
     text-align: right;
   }
 
-  .title {
-    text-align: center;
-  }
-
   .node-title,
   .spider-title {
-    text-decoration: underline;
     cursor: pointer;
+  }
+
+  .node-title:hover,
+  .spider-title:hover {
+    text-decoration: underline;
+  }
+
+  .title > i {
+    color: grey;
   }
 </style>

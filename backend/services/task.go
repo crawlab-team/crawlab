@@ -7,6 +7,7 @@ import (
 	"crawlab/lib/cron"
 	"crawlab/model"
 	"crawlab/services/notification"
+	"crawlab/services/spider_handler"
 	"crawlab/utils"
 	"encoding/json"
 	"errors"
@@ -144,7 +145,11 @@ func SetEnv(cmd *exec.Cmd, envs []model.Env, taskId string, dataCol string) *exe
 		cmd.Env = append(cmd.Env, env.Name+"="+env.Value)
 	}
 
-	// TODO 全局环境变量
+	// 全局环境变量
+	variables := model.GetVariableList()
+	for _, variable := range variables {
+		cmd.Env = append(cmd.Env, variable.Key+"="+variable.Value)
+	}
 	return cmd
 }
 
@@ -446,15 +451,9 @@ func ExecuteTask(id int) {
 	t.Status = constants.StatusRunning                   // 任务状态
 	t.WaitDuration = t.StartTs.Sub(t.CreateTs).Seconds() // 等待时长
 
-	// 判断爬虫文件是否存在
-	gfFile := model.GetGridFs(spider.FileId)
-	if gfFile == nil {
-		t.Error = "找不到爬虫文件，请重新上传"
-		t.Status = constants.StatusError
-		t.FinishTs = time.Now()                                 // 结束时间
-		t.RuntimeDuration = t.FinishTs.Sub(t.StartTs).Seconds() // 运行时长
-		t.TotalDuration = t.FinishTs.Sub(t.CreateTs).Seconds()  // 总时长
-		_ = t.Save()
+	// 文件检查
+	if err := SpiderFileCheck(t, spider); err != nil {
+		log.Errorf("spider file check error: %s", err.Error())
 		return
 	}
 
@@ -532,6 +531,30 @@ func ExecuteTask(id int) {
 	duration := toc.Sub(tic).Seconds()
 	durationStr := strconv.FormatFloat(duration, 'f', 6, 64)
 	log.Infof(GetWorkerPrefix(id) + "任务(ID:" + t.Id + ")" + "执行完毕. 消耗时间:" + durationStr + "秒")
+}
+
+func SpiderFileCheck(t model.Task, spider model.Spider) error {
+	// 判断爬虫文件是否存在
+	gfFile := model.GetGridFs(spider.FileId)
+	if gfFile == nil {
+		t.Error = "找不到爬虫文件，请重新上传"
+		t.Status = constants.StatusError
+		t.FinishTs = time.Now()                                 // 结束时间
+		t.RuntimeDuration = t.FinishTs.Sub(t.StartTs).Seconds() // 运行时长
+		t.TotalDuration = t.FinishTs.Sub(t.CreateTs).Seconds()  // 总时长
+		_ = t.Save()
+		return errors.New(t.Error)
+	}
+
+	// 判断md5值是否一致
+	path := filepath.Join(viper.GetString("spider.path"), spider.Name)
+	md5File := filepath.Join(path, spider_handler.Md5File)
+	md5 := utils.GetSpiderMd5Str(md5File)
+	if gfFile.Md5 != md5 {
+		spiderSync := spider_handler.SpiderSync{Spider: spider}
+		spiderSync.RemoveDownCreate(gfFile.Md5)
+	}
+	return nil
 }
 
 func GetTaskLog(id string) (logStr string, err error) {
@@ -674,19 +697,6 @@ func AddTask(t model.Task) error {
 	}
 
 	return nil
-}
-
-func HandleTaskError(t model.Task, err error) {
-	log.Error("handle task error:" + err.Error())
-	t.Status = constants.StatusError
-	t.Error = err.Error()
-	t.FinishTs = time.Now()
-	if err := t.Save(); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
-	}
-	debug.PrintStack()
 }
 
 func GetTaskEmailMarkdownContent(t model.Task, s model.Spider) string {

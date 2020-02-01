@@ -203,18 +203,7 @@ export default {
       dirDialogVisible: false,
       fileDialogVisible: false,
       nodeExpandedDict: {},
-      isShowDeleteNav: false,
-      tourSteps: [
-        {
-          target: '.add-btn',
-          content: this.$t('You can add a file or directory')
-        }
-      ],
-      tourCallbacks: {
-        onStop: () => {
-          this.$utils.tour.finishTour('spider-detail-file-list')
-        }
-      }
+      isShowDeleteNav: false
     }
   },
   computed: {

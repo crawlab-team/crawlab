@@ -138,79 +138,99 @@ func main() {
 		}
 		authGroup := app.Group("/", middlewares.AuthorizationMiddleware())
 		{
-			// 路由
 			// 节点
-			authGroup.GET("/nodes", routes.GetNodeList)                            // 节点列表
-			authGroup.GET("/nodes/:id", routes.GetNode)                            // 节点详情
-			authGroup.POST("/nodes/:id", routes.PostNode)                          // 修改节点
-			authGroup.GET("/nodes/:id/tasks", routes.GetNodeTaskList)              // 节点任务列表
-			authGroup.GET("/nodes/:id/system", routes.GetSystemInfo)               // 节点任务列表
-			authGroup.DELETE("/nodes/:id", routes.DeleteNode)                      // 删除节点
-			authGroup.GET("/nodes/:id/langs", routes.GetLangList)                  // 节点语言环境列表
-			authGroup.GET("/nodes/:id/deps", routes.GetDepList)                    // 节点第三方依赖列表
-			authGroup.GET("/nodes/:id/deps/installed", routes.GetInstalledDepList) // 节点已安装第三方依赖列表
-			authGroup.POST("/nodes/:id/deps/install", routes.InstallDep)           // 节点安装依赖
-			authGroup.POST("/nodes/:id/deps/uninstall", routes.UninstallDep)       // 节点卸载依赖
-			authGroup.POST("/nodes/:id/langs/install", routes.InstallLang)         // 节点安装语言
+			{
+				authGroup.GET("/nodes", routes.GetNodeList)                            // 节点列表
+				authGroup.GET("/nodes/:id", routes.GetNode)                            // 节点详情
+				authGroup.POST("/nodes/:id", routes.PostNode)                          // 修改节点
+				authGroup.GET("/nodes/:id/tasks", routes.GetNodeTaskList)              // 节点任务列表
+				authGroup.GET("/nodes/:id/system", routes.GetSystemInfo)               // 节点任务列表
+				authGroup.DELETE("/nodes/:id", routes.DeleteNode)                      // 删除节点
+				authGroup.GET("/nodes/:id/langs", routes.GetLangList)                  // 节点语言环境列表
+				authGroup.GET("/nodes/:id/deps", routes.GetDepList)                    // 节点第三方依赖列表
+				authGroup.GET("/nodes/:id/deps/installed", routes.GetInstalledDepList) // 节点已安装第三方依赖列表
+				authGroup.POST("/nodes/:id/deps/install", routes.InstallDep)           // 节点安装依赖
+				authGroup.POST("/nodes/:id/deps/uninstall", routes.UninstallDep)       // 节点卸载依赖
+				authGroup.POST("/nodes/:id/langs/install", routes.InstallLang)         // 节点安装语言
+			}
 			// 爬虫
-			authGroup.GET("/spiders", routes.GetSpiderList)                     // 爬虫列表
-			authGroup.GET("/spiders/:id", routes.GetSpider)                     // 爬虫详情
-			authGroup.PUT("/spiders", routes.PutSpider)                         // 添加爬虫
-			authGroup.POST("/spiders", routes.UploadSpider)                     // 上传爬虫
-			authGroup.POST("/spiders/:id", routes.PostSpider)                   // 修改爬虫
-			authGroup.POST("/spiders/:id/publish", routes.PublishSpider)        // 发布爬虫
-			authGroup.POST("/spiders/:id/upload", routes.UploadSpiderFromId)    // 上传爬虫（ID）
-			authGroup.DELETE("/spiders/:id", routes.DeleteSpider)               // 删除爬虫
-			authGroup.GET("/spiders/:id/tasks", routes.GetSpiderTasks)          // 爬虫任务列表
-			authGroup.GET("/spiders/:id/file/tree", routes.GetSpiderFileTree)   // 爬虫文件目录树读取
-			authGroup.GET("/spiders/:id/file", routes.GetSpiderFile)            // 爬虫文件读取
-			authGroup.POST("/spiders/:id/file", routes.PostSpiderFile)          // 爬虫文件更改
-			authGroup.PUT("/spiders/:id/file", routes.PutSpiderFile)            // 爬虫文件创建
-			authGroup.PUT("/spiders/:id/dir", routes.PutSpiderDir)              // 爬虫目录创建
-			authGroup.DELETE("/spiders/:id/file", routes.DeleteSpiderFile)      // 爬虫文件删除
-			authGroup.POST("/spiders/:id/file/rename", routes.RenameSpiderFile) // 爬虫文件重命名
-			authGroup.GET("/spiders/:id/dir", routes.GetSpiderDir)              // 爬虫目录
-			authGroup.GET("/spiders/:id/stats", routes.GetSpiderStats)          // 爬虫统计数据
-			authGroup.GET("/spiders/:id/schedules", routes.GetSpiderSchedules)  // 爬虫定时任务
+			{
+				authGroup.GET("/spiders", routes.GetSpiderList)                     // 爬虫列表
+				authGroup.GET("/spiders/:id", routes.GetSpider)                     // 爬虫详情
+				authGroup.PUT("/spiders", routes.PutSpider)                         // 添加爬虫
+				authGroup.POST("/spiders", routes.UploadSpider)                     // 上传爬虫
+				authGroup.POST("/spiders/:id", routes.PostSpider)                   // 修改爬虫
+				authGroup.POST("/spiders/:id/publish", routes.PublishSpider)        // 发布爬虫
+				authGroup.POST("/spiders/:id/upload", routes.UploadSpiderFromId)    // 上传爬虫（ID）
+				authGroup.DELETE("/spiders/:id", routes.DeleteSpider)               // 删除爬虫
+				authGroup.GET("/spiders/:id/tasks", routes.GetSpiderTasks)          // 爬虫任务列表
+				authGroup.GET("/spiders/:id/file/tree", routes.GetSpiderFileTree)   // 爬虫文件目录树读取
+				authGroup.GET("/spiders/:id/file", routes.GetSpiderFile)            // 爬虫文件读取
+				authGroup.POST("/spiders/:id/file", routes.PostSpiderFile)          // 爬虫文件更改
+				authGroup.PUT("/spiders/:id/file", routes.PutSpiderFile)            // 爬虫文件创建
+				authGroup.PUT("/spiders/:id/dir", routes.PutSpiderDir)              // 爬虫目录创建
+				authGroup.DELETE("/spiders/:id/file", routes.DeleteSpiderFile)      // 爬虫文件删除
+				authGroup.POST("/spiders/:id/file/rename", routes.RenameSpiderFile) // 爬虫文件重命名
+				authGroup.GET("/spiders/:id/dir", routes.GetSpiderDir)              // 爬虫目录
+				authGroup.GET("/spiders/:id/stats", routes.GetSpiderStats)          // 爬虫统计数据
+				authGroup.GET("/spiders/:id/schedules", routes.GetSpiderSchedules)  // 爬虫定时任务
+			}
 			// 可配置爬虫
-			authGroup.GET("/config_spiders/:id/config", routes.GetConfigSpiderConfig)           // 获取可配置爬虫配置
-			authGroup.POST("/config_spiders/:id/config", routes.PostConfigSpiderConfig)         // 更改可配置爬虫配置
-			authGroup.PUT("/config_spiders", routes.PutConfigSpider)                            // 添加可配置爬虫
-			authGroup.POST("/config_spiders/:id", routes.PostConfigSpider)                      // 修改可配置爬虫
-			authGroup.POST("/config_spiders/:id/upload", routes.UploadConfigSpider)             // 上传可配置爬虫
-			authGroup.POST("/config_spiders/:id/spiderfile", routes.PostConfigSpiderSpiderfile) // 上传可配置爬虫
-			authGroup.GET("/config_spiders_templates", routes.GetConfigSpiderTemplateList)      // 获取可配置爬虫模版列表
+			{
+				authGroup.GET("/config_spiders/:id/config", routes.GetConfigSpiderConfig)           // 获取可配置爬虫配置
+				authGroup.POST("/config_spiders/:id/config", routes.PostConfigSpiderConfig)         // 更改可配置爬虫配置
+				authGroup.PUT("/config_spiders", routes.PutConfigSpider)                            // 添加可配置爬虫
+				authGroup.POST("/config_spiders/:id", routes.PostConfigSpider)                      // 修改可配置爬虫
+				authGroup.POST("/config_spiders/:id/upload", routes.UploadConfigSpider)             // 上传可配置爬虫
+				authGroup.POST("/config_spiders/:id/spiderfile", routes.PostConfigSpiderSpiderfile) // 上传可配置爬虫
+				authGroup.GET("/config_spiders_templates", routes.GetConfigSpiderTemplateList)      // 获取可配置爬虫模版列表
+			}
 			// 任务
-			authGroup.GET("/tasks", routes.GetTaskList)                                 // 任务列表
-			authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情
-			authGroup.PUT("/tasks", routes.PutTask)                                     // 派发任务
-			authGroup.DELETE("/tasks/:id", routes.DeleteTask)                           // 删除任务
-			authGroup.DELETE("/tasks_multiple", routes.DeleteMultipleTask)              // 删除多个任务
-			authGroup.DELETE("/tasks_by_status", routes.DeleteTaskByStatus)             //删除指定状态的任务
-			authGroup.POST("/tasks/:id/cancel", routes.CancelTask)                      // 取消任务
-			authGroup.GET("/tasks/:id/log", routes.GetTaskLog)                          // 任务日志
-			authGroup.GET("/tasks/:id/results", routes.GetTaskResults)                  // 任务结果
-			authGroup.GET("/tasks/:id/results/download", routes.DownloadTaskResultsCsv) // 下载任务结果
+			{
+				authGroup.GET("/tasks", routes.GetTaskList)                                 // 任务列表
+				authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情
+				authGroup.PUT("/tasks", routes.PutTask)                                     // 派发任务
+				authGroup.DELETE("/tasks/:id", routes.DeleteTask)                           // 删除任务
+				authGroup.DELETE("/tasks_multiple", routes.DeleteMultipleTask)              // 删除多个任务
+				authGroup.DELETE("/tasks_by_status", routes.DeleteTaskByStatus)             //删除指定状态的任务
+				authGroup.POST("/tasks/:id/cancel", routes.CancelTask)                      // 取消任务
+				authGroup.GET("/tasks/:id/log", routes.GetTaskLog)                          // 任务日志
+				authGroup.GET("/tasks/:id/results", routes.GetTaskResults)                  // 任务结果
+				authGroup.GET("/tasks/:id/results/download", routes.DownloadTaskResultsCsv) // 下载任务结果
+			}
 			// 定时任务
-			authGroup.GET("/schedules", routes.GetScheduleList)              // 定时任务列表
-			authGroup.GET("/schedules/:id", routes.GetSchedule)              // 定时任务详情
-			authGroup.PUT("/schedules", routes.PutSchedule)                  // 创建定时任务
-			authGroup.POST("/schedules/:id", routes.PostSchedule)            // 修改定时任务
-			authGroup.DELETE("/schedules/:id", routes.DeleteSchedule)        // 删除定时任务
-			authGroup.POST("/schedules/:id/disable", routes.DisableSchedule) // 禁用定时任务
-			authGroup.POST("/schedules/:id/enable", routes.EnableSchedule)   // 启用定时任务
+			{
+				authGroup.GET("/schedules", routes.GetScheduleList)              // 定时任务列表
+				authGroup.GET("/schedules/:id", routes.GetSchedule)              // 定时任务详情
+				authGroup.PUT("/schedules", routes.PutSchedule)                  // 创建定时任务
+				authGroup.POST("/schedules/:id", routes.PostSchedule)            // 修改定时任务
+				authGroup.DELETE("/schedules/:id", routes.DeleteSchedule)        // 删除定时任务
+				authGroup.POST("/schedules/:id/disable", routes.DisableSchedule) // 禁用定时任务
+				authGroup.POST("/schedules/:id/enable", routes.EnableSchedule)   // 启用定时任务
+			}
+			// 用户
+			{
+				authGroup.GET("/users", routes.GetUserList)       // 用户列表
+				authGroup.GET("/users/:id", routes.GetUser)       // 用户详情
+				authGroup.POST("/users/:id", routes.PostUser)     // 更改用户
+				authGroup.DELETE("/users/:id", routes.DeleteUser) // 删除用户
+				authGroup.GET("/me", routes.GetMe)                // 获取自己账户
+				authGroup.POST("/me", routes.PostMe)              // 修改自己账户
+			}
+			// 系统
+			{
+				authGroup.GET("/system/deps/:lang", routes.GetAllDepList)             // 节点所有第三方依赖列表
+				authGroup.GET("/system/deps/:lang/:dep_name/json", routes.GetDepJson) // 节点第三方依赖JSON
+			}
+			// 全局变量
+			{
+				authGroup.POST("/variable", routes.PostVariable)         // 新增
+				authGroup.PUT("/variable/:id", routes.PutVariable)       //修改
+				authGroup.DELETE("/variable/:id", routes.DeleteVariable) //删除
+				authGroup.GET("/variables", routes.GetVariableList)      // 列表
+			}
 			// 统计数据
 			authGroup.GET("/stats/home", routes.GetHomeStats) // 首页统计数据
-			// 用户
-			authGroup.GET("/users", routes.GetUserList)       // 用户列表
-			authGroup.GET("/users/:id", routes.GetUser)       // 用户详情
-			authGroup.POST("/users/:id", routes.PostUser)     // 更改用户
-			authGroup.DELETE("/users/:id", routes.DeleteUser) // 删除用户
-			authGroup.GET("/me", routes.GetMe)                // 获取自己账户
-			authGroup.POST("/me", routes.PostMe)              // 修改自己账户
-			// 系统
-			authGroup.GET("/system/deps/:lang", routes.GetAllDepList)             // 节点所有第三方依赖列表
-			authGroup.GET("/system/deps/:lang/:dep_name/json", routes.GetDepJson) // 节点第三方依赖JSON
 			// 文件
 			authGroup.GET("/file", routes.GetFile) // 获取文件
 		}

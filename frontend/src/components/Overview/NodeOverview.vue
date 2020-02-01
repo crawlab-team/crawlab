@@ -2,14 +2,16 @@
   <el-row>
     <el-col :span="12">
       <!--last tasks-->
-      <el-row>
+      <el-row class="latest-tasks-wrapper">
         <task-table-view :title="$t('Latest Tasks')"/>
       </el-row>
     </el-col>
 
     <el-col :span="12">
-      <!--basic info-->
-      <node-info-view/>
+      <el-row class="node-info-view-wrapper">
+        <!--basic info-->
+        <node-info-view/>
+      </el-row>
     </el-col>
   </el-row>
 </template>

@@ -477,6 +477,7 @@ export default {
           } else if (currentStep === 12) {
             this.activeTab = 'settings'
           }
+          this.$utils.tour.prevStep('spider-detail-confg', currentStep)
         },
         onNextStep: (currentStep) => {
           if (currentStep === 9) {
@@ -486,6 +487,7 @@ export default {
           } else if (currentStep === 11) {
             this.activeTab = 'spiderfile'
           }
+          this.$utils.tour.nextStep('spider-detail-config', currentStep)
         }
       }
     }
