@@ -200,6 +200,12 @@ func (s *Scheduler) Update() error {
 		return err
 	}
 
+	user, err := model.GetUserByUsername("admin")
+	if err != nil {
+		log.Errorf("get admin user error: %s", err.Error())
+		return err
+	}
+
 	// 遍历任务列表
 	for i := 0; i < len(sList); i++ {
 		// 单个任务
@@ -207,6 +213,11 @@ func (s *Scheduler) Update() error {
 
 		if job.Status == constants.ScheduleStatusStop {
 			continue
+		}
+
+		// 兼容以前版本
+		if job.UserId.Hex() == "" {
+			job.UserId = user.Id
 		}
 
 		// 添加到定时任务
