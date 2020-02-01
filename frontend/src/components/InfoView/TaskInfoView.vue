@@ -128,4 +128,8 @@ export default {
     line-height: 18px;
     padding: 5px 10px;
   }
+
+  .el-form-item {
+    text-align: left;
+  }
 </style>
