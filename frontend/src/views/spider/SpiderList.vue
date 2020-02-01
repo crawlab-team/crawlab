@@ -380,7 +380,7 @@ export default {
         },
         {
           target: '.btn.add',
-          content: this.$t('Click to add a new spider')
+          content: this.$t('Click to add a new spider.<br><br>You can also add a <strong>Customized Spider</strong> through <a href="https://docs.crawlab.cn/Usage/SDK/CLI.html" target="_blank" style="color: #409EFF">CLI Tool</a>.')
         }
       ],
       tourCallbacks: {

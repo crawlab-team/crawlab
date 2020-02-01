@@ -411,7 +411,7 @@ docker run -d --restart always --name crawlab_worker \\
   'Previous': '上一步',
   'Next': '下一步',
   'Finish': '结束',
-  'Click to add a new spider': '点击并添加爬虫',
+  'Click to add a new spider.<br><br>You can also add a <strong>Customized Spider</strong> through <a href="https://docs.crawlab.cn/Usage/SDK/CLI.html" target="_blank" style="color: #409EFF">CLI Tool</a>.': '点击并添加爬虫<br><br>您也可以通过 <a href="https://docs.crawlab.cn/Usage/SDK/CLI.html" target="_blank" style="color: #409EFF">CLI 工具</a> 添加<strong>自定义爬虫</strong>',
   'You can view your created spiders here.<br>Click a table row to view <strong>spider details</strong>.': '您可以查看创建的爬虫<br>点击行来查看<strong>爬虫详情</strong>',
   'View a list of <strong>Configurable Spiders</strong>': '查看<strong>可配置爬虫</strong>列表',
   'View a list of <strong>Customized Spiders</strong>': '查看<strong>自定义爬虫</strong>列表',
@@ -447,6 +447,19 @@ docker run -d --restart always --name crawlab_worker \\
   'You can view the<br> visualization of the stage<br> workflow.': '您可以查看阶段工作流的<br>可视化界面',
   'You can add the settings here, which will be loaded in the Scrapy\'s <code>settings.py</code> file.<br><br>JSON and Array data are supported.': '您可以在这里添加设置，它们会在 Scrapy 中的 <code>settings.py</code> 中被加载<br><br>JSON 和数组都支持',
   'You can edit the <code>Spiderfile</code> here.<br><br>For more information, please refer to the <a href="https://docs.crawlab.cn/Usage/Spider/ConfigurableSpider.html" target="_blank" style="color: #409EFF">Documentation (Chinese)</a>.': '您可以在这里编辑 <code>Spiderfile</code><br><br>更多信息, 请参考 <a href="https://docs.crawlab.cn/Usage/Spider/ConfigurableSpider.html" target="_blank" style="color: #409EFF">文档</a>.',
+  'You can filter tasks from this area.': '您可以在这个区域筛选任务',
+  'This is a list of spider tasks executed sorted in a time descending order.': '这是执行过的爬虫任务的列表，按时间降序排列',
+  'Click the row to or the view button to view the task detail.': '点击行或查看按钮来查看任务详情',
+  'Tick and select the tasks you would like to delete in batches.': '勾选您想批量删除的任务',
+  'Click this button to delete selected tasks.': '点击并删除勾选的任务',
+  'This is the info of the task detail.': '这是任务详情信息',
+  'This is the spider info of the task.': '这是任务的爬虫信息',
+  'You can click to view the spider detail for the task.': '您可以点击查看该任务的爬虫详情',
+  'This is the node info of the task.': '这是任务的节点信息',
+  'You can click to view the node detail for the task.': '您可以点击查看该任务的节点详情',
+  'Here you can view the log<br> details for the task. The<br> log is automatically updated.': '这里您可以查看该任务<br>的日志详情，日志是<br>自动更新的',
+  'Here you can view the results scraped by the spider.<br><br><strong>Note:</strong> If you find your results here are empty, please refer to the <a href="https://docs.crawlab.cn/Integration/" target="_blank" style="color: #409EFF">Documentation (Chinese)</a> about how to integrate your spider into Crawlab.': '这里您可以查看爬虫抓取下来的结果<br><br><strong>注意:</strong> 如果这里结果是空的，请参考 <a href="https://docs.crawlab.cn/Integration/" target="_blank" style="color: #409EFF">相关文档</a> 来集成您的爬虫到 Crawlab',
+  'You can download your results as a CSV file by clicking this button.': '您可以点击下载结果为 CSV 文件',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

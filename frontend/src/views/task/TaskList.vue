@@ -210,7 +210,7 @@ export default {
         },
         {
           target: '.table',
-          content: this.$t('This is a list of spider tasks executed sorted in a descending order.')
+          content: this.$t('This is a list of spider tasks executed sorted in a time descending order.')
         },
         {
           target: '.table .el-table__body-wrapper tr:nth-child(1)',
