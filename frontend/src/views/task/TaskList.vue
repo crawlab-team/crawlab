@@ -1,10 +1,19 @@
 <template>
   <div class="app-container">
+    <!--tour-->
+    <v-tour
+      name="task-list"
+      :steps="tourSteps"
+      :callbacks="tourCallbacks"
+      :options="$utils.tour.getOptions(true)"
+    />
+    <!--./tour-->
+
     <el-card style="border-radius: 0">
       <!--filter-->
       <div class="filter">
         <div class="left">
-          <el-form :model="filter" label-width="100px" label-position="right" inline>
+          <el-form class="filter-form" :model="filter" label-width="100px" label-position="right" inline>
             <el-form-item prop="node_id" :label="$t('Node')">
               <el-select v-model="filter.node_id" size="small" :placeholder="$t('Node')" @change="onFilterChange">
                 <el-option value="" :label="$t('All')"/>
@@ -29,7 +38,7 @@
           </el-form>
         </div>
         <div class="right">
-          <el-button @click="onRemoveMultipleTask" size="small" type="danger">
+          <el-button class="btn-delete" @click="onRemoveMultipleTask" size="small" type="danger">
             删除任务
           </el-button>
         </div>
@@ -191,7 +200,46 @@ export default {
         // { name: 'avg_num_results', label: 'Average Results Count per Second', width: '80' }
       ],
 
-      multipleSelection: []
+      multipleSelection: [],
+
+      // tutorial
+      tourSteps: [
+        {
+          target: '.filter-form',
+          content: this.$t('You can filter tasks from this area.')
+        },
+        {
+          target: '.table',
+          content: this.$t('This is a list of spider tasks executed sorted in a descending order.')
+        },
+        {
+          target: '.table .el-table__body-wrapper tr:nth-child(1)',
+          content: this.$t('Click the row to or the view button to view the task detail.')
+        },
+        {
+          target: '.table tr td:nth-child(1)',
+          content: this.$t('Tick and select the tasks you would like to delete in batches.'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '.btn-delete',
+          content: this.$t('Click this button to delete selected tasks.'),
+          params: {
+            placement: 'left'
+          }
+        }
+      ],
+      tourCallbacks: {
+        onStop: () => {
+          this.$utils.tour.finishTour('task-list')
+        },
+        onPreviousStep: (currentStep) => {
+        },
+        onNextStep: (currentStep) => {
+        }
+      }
     }
   },
   computed: {
@@ -350,6 +398,10 @@ export default {
     this.handle = setInterval(() => {
       this.$store.dispatch('task/getTaskList')
     }, 5000)
+
+    if (!this.$utils.tour.isFinishedTour('task-list')) {
+      this.$tours['task-list'].start()
+    }
   },
   destroyed () {
     clearInterval(this.handle)
