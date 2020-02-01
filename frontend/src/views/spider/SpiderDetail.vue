@@ -184,6 +184,12 @@ export default {
         setTimeout(() => {
           this.$refs['config'].update()
         }, 0)
+
+        if (!this.$utils.tour.isFinishedTour('spider-detail-config')) {
+          setTimeout(() => {
+            this.$tours['spider-detail-config'].start()
+          }, 100)
+        }
       }
       this.$st.sendEv('爬虫详情', '切换标签', tab.name)
     },

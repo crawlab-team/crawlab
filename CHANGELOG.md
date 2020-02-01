@@ -1,3 +1,16 @@
+# 0.4.5 (unkown)
+### Features / Enhancement
+- **Interactive Tutorial**. Guide users through the main functionalities of Crawlab.
+
+### Bug Fixes
+- **Click delete button results in redirect**. [#480](https://github.com/crawlab-team/crawlab/issues/480)
+- **Unable to create files in an empty spider**. [#479](https://github.com/crawlab-team/crawlab/issues/479)
+- **Download results error**. [#465](https://github.com/crawlab-team/crawlab/issues/465)
+- **crawlab-sdk CLI error**. [#458](https://github.com/crawlab-team/crawlab/issues/458)
+- **Page refresh issue**. [#441](https://github.com/crawlab-team/crawlab/issues/441)
+- **Getting all spider after deleting a spider**.
+- **i18n warning**.
+
 # 0.4.4 (2020-01-17)
 ### Features / Enhancement
 - **Email Notification**. Allow users to send email notifications.
