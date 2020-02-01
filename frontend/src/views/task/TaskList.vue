@@ -38,13 +38,15 @@
 
       <!--table list-->
       <el-table :data="filteredTableData"
+                ref="table"
                 class="table"
                 :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
                 border
+                row-key="_id"
                 @row-click="onRowClick"
                 @selection-change="onSelectionChange">
       >
-        <el-table-column type="selection" width="55"/>
+        <el-table-column type="selection" width="55" reserve-selection/>
         <template v-for="col in columns">
           <el-table-column v-if="col.name === 'spider_name'"
                            :key="col.name"
@@ -240,7 +242,6 @@ export default {
   },
   methods: {
     onSearch (value) {
-      console.log(value)
     },
     onRefresh () {
       this.$store.dispatch('task/getTaskList')
@@ -267,6 +268,7 @@ export default {
               message: '删除任务成功'
             })
             this.$store.dispatch('task/getTaskList')
+            this.$refs['table'].clearSelection()
             return
           }
           this.$message({

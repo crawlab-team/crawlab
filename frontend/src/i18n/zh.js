@@ -434,6 +434,19 @@ docker run -d --restart always --name crawlab_worker \\
   'You can edit, save, rename<br> and delete the selected file <br>in this box.': '在这个栏位中，您可以<br>编辑、保存、重命名、<br>删除所选择的文件',
   'Here you can add environment variables that will be passed to the spider program when running a task.': '这里您可以添加环境变量，这些环境变量会被传入运行的爬虫程序中',
   'You can add, edit and delete schedules (cron jobs) for the spider.': '您可以添加、修改、删除爬虫的定时任务',
+  'You can switch to each section of configurable spider.': '您可以切换到可配置爬虫的每一个部分',
+  'Here is the starting URL of the spider.': '这里是爬虫的起始URL',
+  'Here is the starting stage of the spider.<br><br>A <strong>Stage</strong> is basically a callback in the Scrapy spider.': '这里是爬虫的起始阶段<br><br><strong>阶段</strong>就是 Scrapy 爬虫中的回调函数',
+  'You can run a spider task.<br><br>Spider will be automatically saved when clicking on this button.': '您可以运行爬虫任务<br><br>点击该按钮会自动保存爬虫',
+  'Add/duplicate/delete a stage.': '添加/复制/删除阶段',
+  'Add/duplicate/delete an extract field in the stage.': '添加/复制/删除该阶段下的抓取字段',
+  'You can decide whether this is a list page.<br><br>Click on the CSS/XPath tag to enter the selector expression for list items.<br>For example, "<code>ul > li</code>"': '您可以决定这是否为一个列表页<br><br>点击 CSS/XPath 标签来输入列表元素的选择器表达式<br>例如 "<code>ul > li</code>"',
+  'You can decide whether this is a list page with pagination.<br><br>Click on the CSS/XPath tag to enter the selector expression for the pagination.<br>For example, "<code>a.next</code>"': '您可以决定这是否为一个含分页的列表页<br><br>点击 CSS/XPath 标签来输入分页的选择器表达式<br>例如 "<code>a.next</code>"',
+  'You should enter necessary information for all fields in the stage.': '您应该输入该阶段下所有字段的信息',
+  'If you have multiple stages, e.g. list page + detail page, you should select the next stage in the detail link\'s field.': '如果您有多个阶段，例如列表页+详情页，您应该在详情页链接字段中选择下一个阶段',
+  'You can view the<br> visualization of the stage<br> workflow.': '您可以查看阶段工作流的<br>可视化界面',
+  'You can add the settings here, which will be loaded in the Scrapy\'s <code>settings.py</code> file.<br><br>JSON and Array data are supported.': '您可以在这里添加设置，它们会在 Scrapy 中的 <code>settings.py</code> 中被加载<br><br>JSON 和数组都支持',
+  'You can edit the <code>Spiderfile</code> here.<br><br>For more information, please refer to the <a href="https://docs.crawlab.cn/Usage/Spider/ConfigurableSpider.html" target="_blank" style="color: #409EFF">Documentation (Chinese)</a>.': '您可以在这里编辑 <code>Spiderfile</code><br><br>更多信息, 请参考 <a href="https://docs.crawlab.cn/Usage/Spider/ConfigurableSpider.html" target="_blank" style="color: #409EFF">文档</a>.',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'
