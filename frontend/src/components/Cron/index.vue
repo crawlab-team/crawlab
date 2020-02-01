@@ -1,5 +1,5 @@
 <style lang="scss" scoped>
-  #changeContab {
+  #change-crontab {
     .language {
       position: absolute;
       right: 25px;
@@ -40,7 +40,7 @@
   }
 </style>
 <template>
-  <div id="changeContab">
+  <div id="change-crontab">
     <!--        <el-button class="language" type="text" @click="i18n=(i18n==='en'?'cn':'en')">{{i18n}}</el-button>-->
     <el-tabs type="border-card">
       <el-tab-pane>

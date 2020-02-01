@@ -380,12 +380,18 @@ export default {
         },
         {
           target: '.btn.add',
-          content: this.$t('Click to add a new spider')
+          content: this.$t('Click to add a new spider.<br><br>You can also add a <strong>Customized Spider</strong> through <a href="https://docs.crawlab.cn/Usage/SDK/CLI.html" target="_blank" style="color: #409EFF">CLI Tool</a>.')
         }
       ],
       tourCallbacks: {
         onStop: () => {
           this.$utils.tour.finishTour('spider-list')
+        },
+        onPreviousStep: (currentStep) => {
+          this.$utils.tour.prevStep('spider-list', currentStep)
+        },
+        onNextStep: (currentStep) => {
+          this.$utils.tour.nextStep('spider-list', currentStep)
         }
       },
       tourAddSteps: [
@@ -463,11 +469,13 @@ export default {
           if (currentStep === 7) {
             this.spiderType = 'customized'
           }
+          this.$utils.tour.prevStep('spider-list-add', currentStep)
         },
         onNextStep: (currentStep) => {
           if (currentStep === 6) {
             this.spiderType = 'configurable'
           }
+          this.$utils.tour.nextStep('spider-list-add', currentStep)
         }
       }
     }
@@ -517,6 +525,7 @@ export default {
       setTimeout(() => {
         if (!this.$utils.tour.isFinishedTour('spider-list-add')) {
           this.$tours['spider-list-add'].start()
+          this.$st.sendEv('教程', '开始', 'spider-list-add')
         }
       }, 300)
     },
@@ -751,6 +760,7 @@ export default {
 
     if (!this.$utils.tour.isFinishedTour('spider-list')) {
       this.$tours['spider-list'].start()
+      this.$st.sendEv('教程', '开始', 'spider-list')
     }
   }
 }
