@@ -1,5 +1,14 @@
 <template>
   <div class="app-container">
+    <!--tour-->
+    <v-tour
+      name="node-detail"
+      :steps="tourSteps"
+      :callbacks="tourCallbacks"
+      :options="$utils.tour.getOptions(true)"
+    />
+    <!--./tour-->
+
     <!--selector-->
     <div class="selector">
       <label class="label">{{$t('Node')}}: </label>
@@ -38,7 +47,52 @@ export default {
   },
   data () {
     return {
-      activeTabName: 'overview'
+      activeTabName: 'overview',
+      tourSteps: [
+        // overview
+        {
+          target: '.selector',
+          content: this.$t('Switch between different nodes.')
+        },
+        {
+          target: '.latest-tasks-wrapper',
+          content: this.$t('You can view the latest executed spider tasks.'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '.node-info-view-wrapper',
+          content: this.$t('This is the detailed node info.'),
+          params: {
+            placement: 'left'
+          }
+        },
+        // installation
+        {
+          target: '#tab-installation',
+          content: this.$t('Here you can install<br> dependencies and modules<br> that are required<br> in your spiders.')
+        },
+        {
+          target: '.search-box',
+          content: this.$t('You can search dependencies in the search box and install them by clicking the "Install" button below.')
+        }
+      ],
+      tourCallbacks: {
+        onStop: () => {
+          this.$utils.tour.finishTour('node-detail')
+        },
+        onPreviousStep: (currentStep) => {
+          if (currentStep === 3) {
+            this.activeTabName = 'overview'
+          }
+        },
+        onNextStep: (currentStep) => {
+          if (currentStep === 2) {
+            this.activeTabName = 'installation'
+          }
+        }
+      }
     }
   },
   computed: {
@@ -65,6 +119,11 @@ export default {
 
     // get node task list
     this.$store.dispatch('node/getTaskList', this.$route.params.id)
+  },
+  mounted () {
+    if (!this.$utils.tour.isFinishedTour('node-detail')) {
+      this.$tours['node-detail'].start()
+    }
   }
 }
 </script>

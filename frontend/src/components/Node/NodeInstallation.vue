@@ -1,16 +1,20 @@
 <template>
   <div class="node-installation">
-    <el-form inline>
+    <el-form class="search-form" inline>
       <el-form-item>
-        <el-autocomplete size="small" clearable @clear="onSearch"
-                         v-if="activeLang.executable_name === 'python'"
-                         v-model="depName"
-                         style="width: 240px"
-                         :placeholder="$t('Search Dependencies')"
-                         :fetchSuggestions="fetchAllDepList"
-                         :minlength="2"
-                         @select="onSearch"
-        ></el-autocomplete>
+        <el-autocomplete
+          class="search-box"
+          size="small"
+          clearable
+          v-if="activeLang.executable_name === 'python'"
+          v-model="depName"
+          style="width: 240px"
+          :placeholder="$t('Search Dependencies')"
+          :fetchSuggestions="fetchAllDepList"
+          :minlength="2"
+          @select="onSearch"
+          @clear="onSearch"
+        />
         <el-input
           v-else
           v-model="depName"

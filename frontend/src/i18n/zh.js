@@ -460,6 +460,11 @@ docker run -d --restart always --name crawlab_worker \\
   'Here you can view the log<br> details for the task. The<br> log is automatically updated.': '这里您可以查看该任务<br>的日志详情，日志是<br>自动更新的',
   'Here you can view the results scraped by the spider.<br><br><strong>Note:</strong> If you find your results here are empty, please refer to the <a href="https://docs.crawlab.cn/Integration/" target="_blank" style="color: #409EFF">Documentation (Chinese)</a> about how to integrate your spider into Crawlab.': '这里您可以查看爬虫抓取下来的结果<br><br><strong>注意:</strong> 如果这里结果是空的，请参考 <a href="https://docs.crawlab.cn/Integration/" target="_blank" style="color: #409EFF">相关文档</a> 来集成您的爬虫到 Crawlab',
   'You can download your results as a CSV file by clicking this button.': '您可以点击下载结果为 CSV 文件',
+  'Switch between different nodes.': '在节点间切换',
+  'You can view the latest executed spider tasks.': '您可以查看最近执行过的爬虫任务',
+  'This is the detailed node info.': '这是节点详情',
+  'Here you can install<br> dependencies and modules<br> that are required<br> in your spiders.': '这里您可以安装您爬虫中<br>需要的依赖或模块',
+  'You can search dependencies in the search box and install them by clicking the "Install" button below.': '您可以在搜索框中搜索依赖并点击下面的"安装"按钮来进行安装',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'
