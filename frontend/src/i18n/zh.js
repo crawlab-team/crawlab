@@ -370,6 +370,7 @@ export default {
   'Global Variable': '全局变量',
   'Add Global Variable': '新增全局变量',
   'Are you sure to delete this global variable': '确定删除该全局变量？',
+  'Key': '设置',
 
   // 其他
   tagsView: {
