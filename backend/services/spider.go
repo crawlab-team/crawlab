@@ -69,6 +69,17 @@ func UploadSpiderToGridFsFromMaster(spider model.Spider) error {
 	spider.FileId = fid
 	_ = spider.Save()
 
+	// 获取爬虫同步实例
+	spiderSync := spider_handler.SpiderSync{
+		Spider: spider,
+	}
+
+	// 获取gfFile
+	gfFile2 := model.GetGridFs(spider.FileId)
+
+	// 生成MD5
+	spiderSync.CreateMd5File(gfFile2.Md5)
+
 	return nil
 }
 
@@ -101,6 +112,7 @@ func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, err er
 	}
 	// 关闭文件，提交写入
 	if err = f.Close(); err != nil {
+		debug.PrintStack()
 		return "", err
 	}
 	// 文件ID
