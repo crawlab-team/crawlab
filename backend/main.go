@@ -231,8 +231,6 @@ func main() {
 			}
 			// 统计数据
 			authGroup.GET("/stats/home", routes.GetHomeStats) // 首页统计数据
-			// release版本
-			authGroup.GET("/version", routes.GetVersion) // 获取发布的版本
 			// 文件
 			authGroup.GET("/file", routes.GetFile) // 获取文件
 		}
