@@ -1,8 +1,10 @@
 # 0.4.5 (unkown)
 ### Features / Enhancement
 - **Interactive Tutorial**. Guide users through the main functionalities of Crawlab.
+- **Global Environment Variables**. Allow users to set global environment variables, which will be passed into all spider programs.
 
 ### Bug Fixes
+- **Unable to find spider file error**. [#485](https://github.com/crawlab-team/crawlab/issues/485)
 - **Click delete button results in redirect**. [#480](https://github.com/crawlab-team/crawlab/issues/480)
 - **Unable to create files in an empty spider**. [#479](https://github.com/crawlab-team/crawlab/issues/479)
 - **Download results error**. [#465](https://github.com/crawlab-team/crawlab/issues/465)

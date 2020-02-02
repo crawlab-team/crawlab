@@ -1,15 +1,17 @@
 # 0.4.5 (unkown)
 ### 功能 / 优化
 - **交互式教程**. 引导用户了解 Crawlab 的主要功能.
+- **加入全局环境变量**. 可以设置全局环境变量，然后传入到所有爬虫程序中.
 
 ### Bug 修复
+- **无法找到爬虫文件错误**. [#485](https://github.com/crawlab-team/crawlab/issues/485)
 - **点击删除按钮导致跳转**. [#480](https://github.com/crawlab-team/crawlab/issues/480)
 - **无法在空爬虫里创建文件**. [#479](https://github.com/crawlab-team/crawlab/issues/479)
 - **下载结果错误**. [#465](https://github.com/crawlab-team/crawlab/issues/465)
 - **crawlab-sdk CLI 错误**. [#458](https://github.com/crawlab-team/crawlab/issues/458)
 - **页面刷新问题**. [#441](https://github.com/crawlab-team/crawlab/issues/441)
 - **修复“删除爬虫后获取所有爬虫”错误**.
-- **修复 i18n warning 警告**.
+- **修复 i18n 警告**.
 
 # 0.4.4 (2020-01-17)
 
