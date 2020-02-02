@@ -24,7 +24,6 @@
             :placeholder="$t('Project')"
             filterable
           >
-            <el-option value="000000000000000000000000" :label="$t('No project')"/>
             <el-option
               v-for="p in projectList"
               :key="p._id"
@@ -205,7 +204,7 @@ export default {
 
     // 兼容项目ID
     if (!this.spiderForm.project_id) {
-      this.spiderForm.project_id = '000000000000000000000000'
+      this.$set(this.spiderForm, 'project_id', '000000000000000000000000')
     }
   }
 }
