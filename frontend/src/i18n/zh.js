@@ -245,6 +245,9 @@ export default {
   'Home Page Response Time (sec)': '首页响应时间(秒)',
   'Home Page Response Status Code': '首页响应状态码',
 
+  // 用户
+  'Super Admin': '超级管理员',
+
   // 文件
   'Choose Folder': '选择文件',
   'File': '文件',
@@ -350,7 +353,7 @@ export default {
   'Username': '用户名',
   'Password': '密码',
   'Confirm Password': '确认密码',
-  'normal': '正常用户',
+  'normal': '普通用户',
   'admin': '管理用户',
   'Role': '角色',
   'Edit User': '更改用户',
