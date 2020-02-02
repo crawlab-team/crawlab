@@ -1,7 +1,7 @@
 # 0.4.5 (unkown)
 ### Features / Enhancement
 - **Interactive Tutorial**. Guide users through the main functionalities of Crawlab.
-- **Global Environment Variables**. Allow users to set global environment variables, which will be passed into all spider programs.
+- **Global Environment Variables**. Allow users to set global environment variables, which will be passed into all spider programs. [#177](https://github.com/crawlab-team/crawlab/issues/177)
 - **User Admin Optimization**. Restrict privilleges of admin users. [#456](https://github.com/crawlab-team/crawlab/issues/456)
 - **Setting Page Optimization**.
 

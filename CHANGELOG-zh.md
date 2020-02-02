@@ -1,7 +1,7 @@
 # 0.4.5 (unkown)
 ### 功能 / 优化
 - **交互式教程**. 引导用户了解 Crawlab 的主要功能.
-- **加入全局环境变量**. 可以设置全局环境变量，然后传入到所有爬虫程序中.
+- **加入全局环境变量**. 可以设置全局环境变量，然后传入到所有爬虫程序中. [#177](https://github.com/crawlab-team/crawlab/issues/177)
 - **用户管理优化**. 限制管理用户的权限. [#456](https://github.com/crawlab-team/crawlab/issues/456)
 - **设置页面优化**.
 
