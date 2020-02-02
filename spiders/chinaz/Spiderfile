@@ -1,0 +1,4 @@
+name: "chinaz"
+display_name: "站长之家 (Scrapy)"
+col: "results_chinaz"
+cmd: "scrapy crawl chinaz_spider"

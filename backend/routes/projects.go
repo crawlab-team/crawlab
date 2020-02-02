@@ -123,6 +123,24 @@ func DeleteProject(c *gin.Context) {
 		return
 	}
 
+	// 获取相关的爬虫
+	var spiders []model.Spider
+	s, col := database.GetCol("spiders")
+	defer s.Close()
+	if err := col.Find(bson.M{"project_id": bson.ObjectIdHex(id)}).All(&spiders); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 将爬虫的项目ID置空
+	for _, spider := range spiders {
+		spider.ProjectId = bson.ObjectIdHex(constants.ObjectIdNull)
+		if err := spider.Save(); err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+	}
+
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
