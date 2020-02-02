@@ -72,6 +72,7 @@ export default {
   'Create Directory': '新建目录',
   'Create File': '新建文件',
   'Add Node': '添加节点',
+  'Add Project': '添加项目',
 
   // 主页
   'Total Tasks': '总任务数',

@@ -58,6 +58,20 @@
             <el-form-item :label="$t('Display Name')" prop="display_name" required>
               <el-input id="display-name" v-model="spiderForm.display_name" :placeholder="$t('Display Name')"/>
             </el-form-item>
+            <el-form-item :label="$t('Project')" prop="project_id" required>
+              <el-select
+                v-model="spiderForm.project_id"
+                :placeholder="$t('Project')"
+                filterable
+              >
+                <el-option
+                  v-for="p in projectList"
+                  :key="p._id"
+                  :value="p._id"
+                  :label="p.name"
+                />
+              </el-select>
+            </el-form-item>
             <el-form-item :label="$t('Execute Command')" prop="cmd" required>
               <el-input id="cmd" v-model="spiderForm.cmd" :placeholder="$t('Execute Command')"/>
             </el-form-item>
@@ -104,6 +118,20 @@
             <el-form-item :label="$t('Display Name')" prop="display_name" required>
               <el-input v-model="spiderForm.display_name" :placeholder="$t('Display Name')"/>
             </el-form-item>
+            <el-form-item :label="$t('Project')" prop="project_id" required>
+              <el-select
+                v-model="spiderForm.project_id"
+                :placeholder="$t('Project')"
+                filterable
+              >
+                <el-option
+                  v-for="p in projectList"
+                  :key="p._id"
+                  :value="p._id"
+                  :label="p.name"
+                />
+              </el-select>
+            </el-form-item>
             <el-form-item :label="$t('Template')" prop="template" required>
               <el-select id="template" v-model="spiderForm.template" :value="spiderForm.template"
                          :placeholder="$t('Template')">
@@ -147,7 +175,29 @@
             <!--              </el-select>-->
             <!--            </el-form-item>-->
             <el-form-item>
-              <el-input clearable @keyup.enter.native="onSearch" size="small" placeholder="名称" v-model="filter.keyword">
+              <el-select
+                v-model="filter.project_id"
+                size="small"
+                :placeholder="$t('Project')"
+                @change="getList"
+              >
+                <el-option value="" :label="$t('All Projects')"/>
+                <el-option
+                  v-for="p in projectList"
+                  :key="p._id"
+                  :value="p._id"
+                  :label="p.name"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-input
+                v-model="filter.keyword"
+                size="small"
+                :placeholder="$t('Spider Name')"
+                clearable
+                @keyup.enter.native="onSearch"
+              >
                 <i slot="suffix" class="el-input__icon el-icon-search"></i>
               </el-input>
             </el-form-item>
@@ -335,6 +385,7 @@ export default {
       crawlConfirmDialogVisible: false,
       activeSpiderId: undefined,
       filter: {
+        project_id: '',
         keyword: '',
         type: 'all'
       },
@@ -491,6 +542,9 @@ export default {
     ...mapGetters('user', [
       'token'
     ]),
+    ...mapState('project', [
+      'projectList'
+    ]),
     uploadForm () {
       return {
         name: this.spiderForm.name,
@@ -518,6 +572,7 @@ export default {
     },
     onAdd () {
       this.$store.commit('spider/SET_SPIDER_FORM', {
+        project_id: '000000000000000000000000',
         template: this.templateList[0]
       })
       this.addDialogVisible = true
@@ -737,20 +792,27 @@ export default {
         sort_key: this.sort.sortKey,
         sort_direction: this.sort.sortDirection,
         keyword: this.filter.keyword,
-        type: this.filter.type
+        type: this.filter.type,
+        project_id: this.filter.project_id
       }
       await this.$store.dispatch('spider/getSpiderList', params)
     }
   },
   async created () {
-    // fetch spider types
-    // await this.getTypes()
+    // fetch project list
+    await this.$store.dispatch('project/getProjectList')
+
+    // project id
+    if (this.$route.params.project_id) {
+      this.filter.project_id = this.$route.params.project_id
+    }
 
     // fetch spider list
     await this.getList()
 
     // fetch template list
     await this.$store.dispatch('spider/getTemplateList')
+
   },
   mounted () {
     const vm = this
