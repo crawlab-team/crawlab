@@ -12,6 +12,7 @@ export default {
   'Deploys': '部署',
   'Sites': '网站',
   'Setting': '设置',
+  'Project': '项目',
 
   // 标签
   'Overview': '概览',

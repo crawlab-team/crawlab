@@ -101,3 +101,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  .menu-wrapper >>> .fa {
+    width: 16px;
+    text-align: center;
+  }
+</style>

@@ -48,6 +48,25 @@ export const constantRouterMap = [
     ]
   },
   {
+    path: '/projects',
+    component: Layout,
+    meta: {
+      title: 'Project',
+      icon: 'fa fa-gear'
+    },
+    children: [
+      {
+        path: '',
+        name: 'Project',
+        component: () => import('../views/project/ProjectList'),
+        meta: {
+          title: 'Project',
+          icon: 'fa fa-code-fork'
+        }
+      }
+    ]
+  },
+  {
     path: '/spiders',
     component: Layout,
     meta: {
