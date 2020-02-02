@@ -225,6 +225,7 @@ export default {
   'Project Description': '项目描述',
   'Tags': '标签',
   'Enter Tags': '输入标签',
+  'No Project': '无项目',
 
   // 定时任务
   'Schedule Name': '定时任务名称',

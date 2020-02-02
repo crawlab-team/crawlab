@@ -77,7 +77,7 @@
       <ul v-else class="list">
         <li
           class="item"
-          v-for="item in projectList"
+          v-for="(item, index) in projectList"
           :key="item._id"
           @click="onView(item)"
         >
@@ -87,7 +87,8 @@
             <i v-if="!isNoProject(item)" class="btn-edit fa fa-edit" @click="onEdit(item)"></i>
             <i v-if="!isNoProject(item)" class="btn-close fa fa-trash-o" @click="onRemove(item)"></i>
             <el-row>
-              <h4 class="title">{{ item.name }}</h4>
+              <h4 v-if="index !== projectList.length - 1" class="title">{{ item.name }}</h4>
+              <h4 v-else class="title">{{ $t('No Project') }}</h4>
             </el-row>
             <el-row>
               <div class="spider-count">
