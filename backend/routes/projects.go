@@ -2,6 +2,7 @@ package routes
 
 import (
 	"crawlab/constants"
+	"crawlab/database"
 	"crawlab/model"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
@@ -9,15 +10,23 @@ import (
 )
 
 func GetProjectList(c *gin.Context) {
+	tag := c.Query("tag")
+
+	// 筛选条件
+	query := bson.M{}
+	if tag != "" {
+		query["tags"] = tag
+	}
+
 	// 获取列表
-	projects, err := model.GetProjectList(nil, 0, "+_id")
+	projects, err := model.GetProjectList(query, 0, "+_id")
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
 	// 获取总数
-	total, err := model.GetProjectListTotal(nil)
+	total, err := model.GetProjectListTotal(query)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
@@ -34,18 +43,20 @@ func GetProjectList(c *gin.Context) {
 	}
 
 	// 获取未被分配的爬虫数量
-	noProject := model.Project{
-		Id:          bson.ObjectIdHex(constants.ObjectIdNull),
-		Name:        "No Project",
-		Description: "Not assigned to any project",
+	if tag == "" {
+		noProject := model.Project{
+			Id:          bson.ObjectIdHex(constants.ObjectIdNull),
+			Name:        "No Project",
+			Description: "Not assigned to any project",
+		}
+		spiders, err := noProject.GetSpiders()
+		if err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+		noProject.Spiders = spiders
+		projects = append(projects, noProject)
 	}
-	spiders, err := noProject.GetSpiders()
-	if err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-	noProject.Spiders = spiders
-	projects = append(projects, noProject)
 
 	c.JSON(http.StatusOK, ListResponse{
 		Status:  "ok",
@@ -115,5 +126,47 @@ func DeleteProject(c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
+	})
+}
+
+func GetProjectTags(c *gin.Context) {
+	type Result struct {
+		Tag string `json:"tag" bson:"tag"`
+	}
+
+	s, col := database.GetCol("projects")
+	defer s.Close()
+
+	pipeline := []bson.M{
+		{
+			"$unwind": "$tags",
+		},
+		{
+			"$group": bson.M{
+				"_id": "$tags",
+			},
+		},
+		{
+			"$sort": bson.M{
+				"_id": 1,
+			},
+		},
+		{
+			"$addFields": bson.M{
+				"tag": "$_id",
+			},
+		},
+	}
+
+	var items []Result
+	if err := col.Pipe(pipeline).All(&items); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    items,
 	})
 }

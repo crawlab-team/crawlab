@@ -2,6 +2,7 @@
 ### Features / Enhancement
 - **Interactive Tutorial**. Guide users through the main functionalities of Crawlab.
 - **Global Environment Variables**. Allow users to set global environment variables, which will be passed into all spider programs. [#177](https://github.com/crawlab-team/crawlab/issues/177)
+- **Project**. Allow users to link spiders to projects. [#316](https://github.com/crawlab-team/crawlab/issues/316)
 - **User Admin Optimization**. Restrict privilleges of admin users. [#456](https://github.com/crawlab-team/crawlab/issues/456)
 - **Setting Page Optimization**.
 

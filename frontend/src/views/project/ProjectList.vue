@@ -43,7 +43,23 @@
     <!--./add popup-->
 
     <div class="action-wrapper">
-      <div class="buttons">
+      <div class="left">
+        <el-select
+          v-model="filter.tag"
+          size="small"
+          :placeholder="$t('Select Tag')"
+          @change="onFilterChange"
+        >
+          <el-option value="" :label="$t('All Tags')"/>
+          <el-option
+            v-for="tag in projectTags"
+            :key="tag"
+            :label="tag"
+            :value="tag"
+          />
+        </el-select>
+      </div>
+      <div class="right">
         <el-button
           icon="el-icon-plus"
           type="primary"
@@ -112,18 +128,26 @@ export default {
   data () {
     return {
       defaultTags: [],
-      dialogVisible: false
+      dialogVisible: false,
+      filter: {
+        tag: ''
+      }
     }
   },
   computed: {
     ...mapState('project', [
       'projectForm',
-      'projectList'
+      'projectList',
+      'projectTags'
     ])
   },
   methods: {
     onDialogClose () {
       this.dialogVisible = false
+    },
+    onFilterChange () {
+      this.$store.dispatch('project/getProjectList', this.filter)
+      this.$st.sendEv('项目', '筛选项目')
     },
     onAdd () {
       this.isEdit = false
@@ -193,14 +217,16 @@ export default {
     }
   },
   async created () {
-    await this.$store.dispatch('project/getProjectList')
+    await this.$store.dispatch('project/getProjectList', this.filter)
+    await this.$store.dispatch('project/getProjectTags')
   }
 }
 </script>
 
 <style scoped>
   .action-wrapper {
-    text-align: right;
+    display: flex;
+    justify-content: space-between;
     padding-bottom: 10px;
     border-bottom: 1px solid #EBEEF5;
   }

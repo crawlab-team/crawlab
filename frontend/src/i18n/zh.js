@@ -219,6 +219,9 @@ export default {
   // 部署
   'Time': '时间',
 
+  // 项目
+  'All Tags': '全部标签',
+
   // 定时任务
   'Schedule Name': '定时任务名称',
   'Schedule Description': '定时任务描述',

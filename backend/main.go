@@ -232,6 +232,7 @@ func main() {
 			// 项目
 			{
 				authGroup.GET("/projects", routes.GetProjectList)       // 列表
+				authGroup.GET("/projects/tags", routes.GetProjectTags)  // 项目标签
 				authGroup.PUT("/projects", routes.PutProject)           //修改
 				authGroup.POST("/projects/:id", routes.PostProject)     // 新增
 				authGroup.DELETE("/projects/:id", routes.DeleteProject) //删除
