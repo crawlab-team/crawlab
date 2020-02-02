@@ -32,6 +32,7 @@ type Spider struct {
 	Envs        []Env         `json:"envs" bson:"envs"`                 // 环境变量
 	Remark      string        `json:"remark" bson:"remark"`             // 备注
 	Src         string        `json:"src" bson:"src"`                   // 源码位置
+	ProjectId   bson.ObjectId `json:"project_id" bson:"project_id"`     // 项目ID
 
 	// 自定义爬虫
 	Cmd string `json:"cmd" bson:"cmd"` // 执行命令
@@ -55,6 +56,11 @@ func (spider *Spider) Save() error {
 	defer s.Close()
 
 	spider.UpdateTs = time.Now()
+
+	// 兼容没有项目ID的爬虫
+	if spider.ProjectId.Hex() == "" {
+		spider.ProjectId = bson.ObjectIdHex(constants.ObjectIdNull)
+	}
 
 	if err := c.UpdateId(spider.Id, spider); err != nil {
 		debug.PrintStack()

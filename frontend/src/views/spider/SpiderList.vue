@@ -571,8 +571,12 @@ export default {
       this.getList()
     },
     onAdd () {
+      let projectId = '000000000000000000000000'
+      if (this.filter.project_id) {
+        projectId = this.filter.project_id
+      }
       this.$store.commit('spider/SET_SPIDER_FORM', {
-        project_id: '000000000000000000000000',
+        project_id: projectId,
         template: this.templateList[0]
       })
       this.addDialogVisible = true
@@ -812,7 +816,6 @@ export default {
 
     // fetch template list
     await this.$store.dispatch('spider/getTemplateList')
-
   },
   mounted () {
     const vm = this
