@@ -11,7 +11,7 @@
                :inline-message="true"
                ref="projectForm"
                label-position="right">
-        <el-form-item :label="$t('Proejct Name')" prop="name" required>
+        <el-form-item :label="$t('Project Name')" prop="name" required>
           <el-input id="name" v-model="projectForm.name" :placeholder="$t('Project Name')"></el-input>
         </el-form-item>
         <el-form-item :label="$t('Project Description')" prop="description">
@@ -84,8 +84,8 @@
           <el-card
             class="item-card"
           >
-            <i class="btn-edit fa fa-edit" @click="onEdit(item)"></i>
-            <i class="btn-close fa fa-trash-o" @click="onRemove(item)"></i>
+            <i v-if="!isNoProject(item)" class="btn-edit fa fa-edit" @click="onEdit(item)"></i>
+            <i v-if="!isNoProject(item)" class="btn-close fa fa-trash-o" @click="onRemove(item)"></i>
             <el-row>
               <h4 class="title">{{ item.name }}</h4>
             </el-row>
@@ -129,6 +129,7 @@ export default {
     return {
       defaultTags: [],
       dialogVisible: false,
+      isClickAction: false,
       filter: {
         tag: ''
       }
@@ -185,12 +186,22 @@ export default {
       this.$st.sendEv('项目', '提交项目')
     },
     onEdit (row) {
+      this.isClickAction = true
+      setTimeout(() => {
+        this.isClickAction = false
+      }, 100)
+
       this.$store.commit('project/SET_PROJECT_FORM', row)
       this.dialogVisible = true
       this.isEdit = true
       this.$st.sendEv('项目', '修改项目')
     },
     onRemove (row) {
+      this.isClickAction = true
+      setTimeout(() => {
+        this.isClickAction = false
+      }, 100)
+
       this.$confirm(this.$t('Are you sure to delete the project?'), this.$t('Notification'), {
         confirmButtonText: this.$t('Confirm'),
         cancelButtonText: this.$t('Cancel'),
@@ -208,12 +219,17 @@ export default {
       this.$st.sendEv('项目', '删除项目')
     },
     onView (row) {
+      if (this.isClickAction) return
+
       this.$router.push({
         name: 'SpiderList',
         params: {
           project_id: row._id
         }
       })
+    },
+    isNoProject (row) {
+      return row._id === '000000000000000000000000'
     }
   },
   async created () {

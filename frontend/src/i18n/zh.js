@@ -221,6 +221,10 @@ export default {
 
   // 项目
   'All Tags': '全部标签',
+  'Project Name': '项目名称',
+  'Project Description': '项目描述',
+  'Tags': '标签',
+  'Enter Tags': '输入标签',
 
   // 定时任务
   'Schedule Name': '定时任务名称',
