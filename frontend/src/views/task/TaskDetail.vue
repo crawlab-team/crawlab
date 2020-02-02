@@ -137,6 +137,7 @@ export default {
   },
   computed: {
     ...mapState('task', [
+      'taskForm',
       'taskResultsData',
       'taskResultsTotalCount'
     ]),
@@ -164,6 +165,9 @@ export default {
       set (value) {
         this.$store.commit('task/SET_RESULTS_PAGE_SIZE', value)
       }
+    },
+    isRunning () {
+      return ['pending', 'running'].includes(this.taskForm.status)
     }
   },
   methods: {
@@ -197,6 +201,9 @@ export default {
 
     this.getTaskLog()
     this.handle = setInterval(() => {
+      if (!this.isRunning) return
+      this.$store.dispatch('task/getTaskData', this.$route.params.id)
+      this.$store.dispatch('task/getTaskResults', this.$route.params.id)
       this.getTaskLog()
     }, 5000)
   },
