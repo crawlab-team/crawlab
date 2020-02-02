@@ -2,6 +2,7 @@
 ### Features / Enhancement
 - **Interactive Tutorial**. Guide users through the main functionalities of Crawlab.
 - **Global Environment Variables**. Allow users to set global environment variables, which will be passed into all spider programs.
+- **Setting Page Optimization**.
 
 ### Bug Fixes
 - **Unable to find spider file error**. [#485](https://github.com/crawlab-team/crawlab/issues/485)
