@@ -64,7 +64,7 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'realestate.pipelines.MongoPipeline': 300,
+    'crawlab.pipelines.CrawlabMongoPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

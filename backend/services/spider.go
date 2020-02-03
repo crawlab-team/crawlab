@@ -14,7 +14,10 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"runtime/debug"
 )
@@ -263,6 +266,109 @@ func InitSpiderService() error {
 	}
 	// 启动定时任务
 	c.Start()
+
+	if model.IsMaster() {
+		// 添加Demo爬虫
+		templateSpidersDir := "../spiders"
+		for _, info := range utils.ListDir(templateSpidersDir) {
+			if !info.IsDir() {
+				continue
+			}
+			spiderName := info.Name()
+
+			// 如果爬虫在数据库中不存在，则添加
+			spider := model.GetSpiderByName(spiderName)
+			if spider.Name != "" {
+				// 存在同名爬虫，跳过
+				continue
+			}
+
+			// 拷贝爬虫
+			templateSpiderPath := path.Join(templateSpidersDir, spiderName)
+			spiderPath := path.Join(viper.GetString("spider.path"), spiderName)
+			if utils.Exists(spiderPath) {
+				utils.RemoveFiles(spiderPath)
+			}
+			if err := utils.CopyDir(templateSpiderPath, spiderPath); err != nil {
+				log.Errorf("copy error: " + err.Error())
+				debug.PrintStack()
+				continue
+			}
+
+			// 构造配置数据
+			configData := entity.ConfigSpiderData{}
+
+			// 读取YAML文件
+			yamlFile, err := ioutil.ReadFile(path.Join(spiderPath, "Spiderfile"))
+			if err != nil {
+				log.Errorf("read yaml error: " + err.Error())
+				//debug.PrintStack()
+				continue
+			}
+
+			// 反序列化
+			if err := yaml.Unmarshal(yamlFile, &configData); err != nil {
+				log.Errorf("unmarshal error: " + err.Error())
+				debug.PrintStack()
+				continue
+			}
+
+			if configData.Type == constants.Customized {
+				// 添加该爬虫到数据库
+				spider = model.Spider{
+					Id:          bson.NewObjectId(),
+					Name:        configData.Name,
+					DisplayName: configData.DisplayName,
+					Type:        constants.Customized,
+					Col:         configData.Col,
+					Src:         spiderPath,
+					Remark:      configData.Remark,
+					ProjectId:   bson.ObjectIdHex(constants.ObjectIdNull),
+					FileId:      bson.ObjectIdHex(constants.ObjectIdNull),
+					Cmd:         configData.Cmd,
+				}
+				if err := spider.Add(); err != nil {
+					log.Errorf("add spider error: " + err.Error())
+					debug.PrintStack()
+					continue
+				}
+
+				// 上传爬虫到GridFS
+				if err := UploadSpiderToGridFsFromMaster(spider); err != nil {
+					log.Errorf("upload spider error: " + err.Error())
+					debug.PrintStack()
+					continue
+				}
+			} else if configData.Type == constants.Configurable || configData.Type == "config" {
+				// 添加该爬虫到数据库
+				spider = model.Spider{
+					Id:          bson.NewObjectId(),
+					Name:        configData.Name,
+					DisplayName: configData.DisplayName,
+					Type:        constants.Configurable,
+					Col:         configData.Col,
+					Src:         spiderPath,
+					Remark:      configData.Remark,
+					ProjectId:   bson.ObjectIdHex(constants.ObjectIdNull),
+					FileId:      bson.ObjectIdHex(constants.ObjectIdNull),
+					Config:      configData,
+				}
+				if err := spider.Add(); err != nil {
+					log.Errorf("add spider error: " + err.Error())
+					debug.PrintStack()
+					continue
+				}
+
+				// 根据序列化后的数据处理爬虫文件
+				if err := ProcessSpiderFilesFromConfigData(spider, configData); err != nil {
+					log.Errorf("add spider error: " + err.Error())
+					debug.PrintStack()
+					continue
+				}
+			}
+		}
+
+	}
 
 	return nil
 }

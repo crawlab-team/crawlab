@@ -18,6 +18,20 @@
         <el-form-item :label="$t('Spider Name')">
           <el-input v-model="spiderForm.display_name" :placeholder="$t('Spider Name')" :disabled="isView"></el-input>
         </el-form-item>
+        <el-form-item :label="$t('Project')" prop="project_id" required>
+          <el-select
+            v-model="spiderForm.project_id"
+            :placeholder="$t('Project')"
+            filterable
+          >
+            <el-option
+              v-for="p in projectList"
+              :key="p._id"
+              :value="p._id"
+              :label="p.name"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item :label="$t('Source Folder')">
           <el-input v-model="spiderForm.src" :placeholder="$t('Source Folder')" disabled></el-input>
         </el-form-item>
@@ -127,6 +141,9 @@ export default {
     ...mapGetters('user', [
       'token'
     ]),
+    ...mapState('project', [
+      'projectList'
+    ]),
     isShowRun () {
       if (this.spiderForm.type === 'customized') {
         return !!this.spiderForm.cmd
@@ -179,6 +196,15 @@ export default {
     },
     onUploadError () {
       this.uploadLoading = false
+    }
+  },
+  async created () {
+    // fetch project list
+    await this.$store.dispatch('project/getProjectList')
+
+    // 兼容项目ID
+    if (!this.spiderForm.project_id) {
+      this.$set(this.spiderForm, 'project_id', '000000000000000000000000')
     }
   }
 }

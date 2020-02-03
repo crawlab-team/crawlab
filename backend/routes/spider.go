@@ -30,6 +30,7 @@ func GetSpiderList(c *gin.Context) {
 	pageNum, _ := c.GetQuery("page_num")
 	pageSize, _ := c.GetQuery("page_size")
 	keyword, _ := c.GetQuery("keyword")
+	pid, _ := c.GetQuery("project_id")
 	t, _ := c.GetQuery("type")
 	sortKey, _ := c.GetQuery("sort_key")
 	sortDirection, _ := c.GetQuery("sort_direction")
@@ -40,6 +41,16 @@ func GetSpiderList(c *gin.Context) {
 	}
 	if t != "" && t != "all" {
 		filter["type"] = t
+	}
+	if pid == "" {
+		// do nothing
+	} else if pid == constants.ObjectIdNull {
+		filter["$or"] = []bson.M{
+			{"project_id": bson.ObjectIdHex(pid)},
+			{"project_id": bson.M{"$exists": false}},
+		}
+	} else {
+		filter["project_id"] = bson.ObjectIdHex(pid)
 	}
 
 	// 排序

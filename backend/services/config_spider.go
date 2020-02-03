@@ -6,6 +6,7 @@ import (
 	"crawlab/entity"
 	"crawlab/model"
 	"crawlab/model/config_spider"
+	"crawlab/services/spider_handler"
 	"crawlab/utils"
 	"errors"
 	"fmt"
@@ -226,6 +227,17 @@ func ProcessSpiderFilesFromConfigData(spider model.Spider, configData entity.Con
 	// 保存爬虫 FileId
 	spider.FileId = fid
 	_ = spider.Save()
+
+	// 获取爬虫同步实例
+	spiderSync := spider_handler.SpiderSync{
+		Spider: spider,
+	}
+
+	// 获取gfFile
+	gfFile2 := model.GetGridFs(spider.FileId)
+
+	// 生成MD5
+	spiderSync.CreateMd5File(gfFile2.Md5)
 
 	return nil
 }

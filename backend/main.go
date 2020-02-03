@@ -39,7 +39,6 @@ func main() {
 		log.SetLevelFromString(logLevel)
 	}
 	log.Info("initialized log config successfully")
-
 	if viper.GetString("log.isDeletePeriodically") == "Y" {
 		err := services.InitDeleteLogPeriodically()
 		if err != nil {
@@ -74,8 +73,24 @@ func main() {
 			debug.PrintStack()
 			panic(err)
 		}
+		log.Info("initialized schedule successfully")
+
+		// 初始化用户服务
+		if err := services.InitUserService(); err != nil {
+			log.Error("init user service error:" + err.Error())
+			debug.PrintStack()
+			panic(err)
+		}
+		log.Info("initialized user service successfully")
+
+		// 初始化依赖服务
+		if err := services.InitDepsFetcher(); err != nil {
+			log.Error("init dependency fetcher error:" + err.Error())
+			debug.PrintStack()
+			panic(err)
+		}
+		log.Info("initialized dependency fetcher successfully")
 	}
-	log.Info("initialized schedule successfully")
 
 	// 初始化任务执行器
 	if err := services.InitTaskExecutor(); err != nil {
@@ -99,22 +114,6 @@ func main() {
 		panic(err)
 	}
 	log.Info("initialized spider service successfully")
-
-	// 初始化用户服务
-	if err := services.InitUserService(); err != nil {
-		log.Error("init user service error:" + err.Error())
-		debug.PrintStack()
-		panic(err)
-	}
-	log.Info("initialized user service successfully")
-
-	// 初始化依赖服务
-	if err := services.InitDepsFetcher(); err != nil {
-		log.Error("init dependency fetcher error:" + err.Error())
-		debug.PrintStack()
-		panic(err)
-	}
-	log.Info("initialized dependency fetcher successfully")
 
 	// 初始化RPC服务
 	if err := services.InitRpcService(); err != nil {
@@ -224,10 +223,18 @@ func main() {
 			}
 			// 全局变量
 			{
-				authGroup.POST("/variable", routes.PostVariable)         // 新增
-				authGroup.PUT("/variable/:id", routes.PutVariable)       //修改
-				authGroup.DELETE("/variable/:id", routes.DeleteVariable) //删除
 				authGroup.GET("/variables", routes.GetVariableList)      // 列表
+				authGroup.PUT("/variable", routes.PutVariable)           // 新增
+				authGroup.POST("/variable/:id", routes.PostVariable)     //修改
+				authGroup.DELETE("/variable/:id", routes.DeleteVariable) //删除
+			}
+			// 项目
+			{
+				authGroup.GET("/projects", routes.GetProjectList)       // 列表
+				authGroup.GET("/projects/tags", routes.GetProjectTags)  // 项目标签
+				authGroup.PUT("/projects", routes.PutProject)           //修改
+				authGroup.POST("/projects/:id", routes.PostProject)     // 新增
+				authGroup.DELETE("/projects/:id", routes.DeleteProject) //删除
 			}
 			// 统计数据
 			authGroup.GET("/stats/home", routes.GetHomeStats) // 首页统计数据

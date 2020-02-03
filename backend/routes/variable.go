@@ -8,7 +8,7 @@ import (
 )
 
 // 新增
-func PostVariable(c *gin.Context) {
+func PutVariable(c *gin.Context) {
 	var variable model.Variable
 	if err := c.ShouldBindJSON(&variable); err != nil {
 		HandleError(http.StatusBadRequest, c, err)
@@ -22,7 +22,7 @@ func PostVariable(c *gin.Context) {
 }
 
 // 修改
-func PutVariable(c *gin.Context) {
+func PostVariable(c *gin.Context) {
 	var id = c.Param("id")
 	var variable model.Variable
 	if err := c.ShouldBindJSON(&variable); err != nil {
