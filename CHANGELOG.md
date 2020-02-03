@@ -6,6 +6,7 @@
 - **Demo Spiders**. Added demo spiders when Crawlab is initialized. [#379](https://github.com/crawlab-team/crawlab/issues/379)
 - **User Admin Optimization**. Restrict privilleges of admin users. [#456](https://github.com/crawlab-team/crawlab/issues/456)
 - **Setting Page Optimization**.
+- **Task Results Optimization**.
 
 ### Bug Fixes
 - **Unable to find spider file error**. [#485](https://github.com/crawlab-team/crawlab/issues/485)

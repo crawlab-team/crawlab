@@ -6,6 +6,7 @@
 - **示例爬虫**. 当初始化时，自动加入示例爬虫. [#379](https://github.com/crawlab-team/crawlab/issues/379)
 - **用户管理优化**. 限制管理用户的权限. [#456](https://github.com/crawlab-team/crawlab/issues/456)
 - **设置页面优化**.
+- **任务结果页面优化**.
 
 ### Bug 修复
 - **无法找到爬虫文件错误**. [#485](https://github.com/crawlab-team/crawlab/issues/485)
