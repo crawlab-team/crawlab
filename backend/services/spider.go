@@ -317,7 +317,7 @@ func InitSpiderService() error {
 				// 添加该爬虫到数据库
 				spider = model.Spider{
 					Id:          bson.NewObjectId(),
-					Name:        configData.Name,
+					Name:        spiderName,
 					DisplayName: configData.DisplayName,
 					Type:        constants.Customized,
 					Col:         configData.Col,
