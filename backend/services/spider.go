@@ -269,7 +269,7 @@ func InitSpiderService() error {
 
 	if model.IsMaster() {
 		// 添加Demo爬虫
-		templateSpidersDir := "../spiders"
+		templateSpidersDir := "./template/spiders"
 		for _, info := range utils.ListDir(templateSpidersDir) {
 			if !info.IsDir() {
 				continue
