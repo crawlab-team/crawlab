@@ -19,7 +19,7 @@ NEWSPIDER_MODULE = 'jd.spiders'
 #USER_AGENT = 'jd (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -65,7 +65,7 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'jd.pipelines.JdPipeline': 300,
+   'crawlab.pipelines.CrawlabMongoPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

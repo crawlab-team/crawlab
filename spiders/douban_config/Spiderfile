@@ -1,0 +1,57 @@
+name: "douban_config"
+display_name: "豆瓣读书（可配置）"
+remark: "豆瓣读书新书推荐，列表"
+type: "configurable"
+col: "results_douban_config"
+engine: scrapy
+start_url: https://book.douban.com/latest
+start_stage: list
+stages:
+- name: list
+  is_list: true
+  list_css: ul.cover-col-4 > li
+  list_xpath: ""
+  page_css: ""
+  page_xpath: ""
+  page_attr: ""
+  fields:
+  - name: title
+    css: h2 > a
+    xpath: ""
+    attr: ""
+    next_stage: ""
+    remark: ""
+  - name: url
+    css: h2 > a
+    xpath: ""
+    attr: href
+    next_stage: ""
+    remark: ""
+  - name: img
+    css: a.cover img
+    xpath: ""
+    attr: src
+    next_stage: ""
+    remark: ""
+  - name: rating
+    css: p.rating > .color-lightgray
+    xpath: ""
+    attr: ""
+    next_stage: ""
+    remark: ""
+  - name: abstract
+    css: p:last-child
+    xpath: ""
+    attr: ""
+    next_stage: ""
+    remark: ""
+  - name: info
+    css: .color-gray
+    xpath: ""
+    attr: ""
+    next_stage: ""
+    remark: ""
+settings:
+  ROBOTSTXT_OBEY: "false"
+  USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML,
+    like Gecko) Chrome/78.0.3904.108 Safari/537.36

@@ -1,0 +1,39 @@
+name: "xueqiu_config"
+display_name: "雪球网（可配置）"
+remark: "雪球网新闻，列表"
+type: "configurable"
+col: "results_xueqiu_config"
+engine: scrapy
+start_url: https://xueqiu.com/
+start_stage: list
+stages:
+- name: list
+  is_list: true
+  list_css: ""
+  list_xpath: .//*[contains(@class, "AnonymousHome_home__timeline__item")]
+  page_css: ""
+  page_xpath: ""
+  page_attr: ""
+  fields:
+  - name: title
+    css: h3 > a
+    xpath: ""
+    attr: ""
+    next_stage: ""
+    remark: ""
+  - name: url
+    css: h3 > a
+    xpath: ""
+    attr: href
+    next_stage: ""
+    remark: ""
+  - name: abstract
+    css: p
+    xpath: ""
+    attr: ""
+    next_stage: ""
+    remark: ""
+settings:
+  ROBOTSTXT_OBEY: "false"
+  USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML,
+    like Gecko) Chrome/78.0.3904.108 Safari/537.36

@@ -6,9 +6,9 @@ type ConfigSpiderData struct {
 	DisplayName string `yaml:"display_name" json:"display_name"`
 	Col         string `yaml:"col" json:"col"`
 	Remark      string `yaml:"remark" json:"remark"`
+	Type        string `yaml:"type" bson:"type"`
 
 	// 可配置爬虫
-	Version    string            `yaml:"version" json:"version"`
 	Engine     string            `yaml:"engine" json:"engine"`
 	StartUrl   string            `yaml:"start_url" json:"start_url"`
 	StartStage string            `yaml:"start_stage" json:"start_stage"`

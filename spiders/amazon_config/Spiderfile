@@ -1,0 +1,51 @@
+name: "amazon_config"
+display_name: "亚马逊中国（可配置）"
+remark: "亚马逊中国搜索手机，列表+分页"
+type: "configurable"
+col: "results_amazon_config"
+engine: scrapy
+start_url: https://www.amazon.cn/s?k=%E6%89%8B%E6%9C%BA&__mk_zh_CN=%E4%BA%9A%E9%A9%AC%E9%80%8A%E7%BD%91%E7%AB%99&ref=nb_sb_noss_2
+start_stage: list
+stages:
+- name: list
+  is_list: true
+  list_css: .s-result-item
+  list_xpath: ""
+  page_css: .a-last > a
+  page_xpath: ""
+  page_attr: href
+  fields:
+  - name: title
+    css: span.a-text-normal
+    xpath: ""
+    attr: ""
+    next_stage: ""
+    remark: ""
+  - name: url
+    css: .a-link-normal
+    xpath: ""
+    attr: href
+    next_stage: ""
+    remark: ""
+  - name: price
+    css: ""
+    xpath: .//*[@class="a-price-whole"]
+    attr: ""
+    next_stage: ""
+    remark: ""
+  - name: price_fraction
+    css: ""
+    xpath: .//*[@class="a-price-fraction"]
+    attr: ""
+    next_stage: ""
+    remark: ""
+  - name: img
+    css: .s-image-square-aspect > img
+    xpath: ""
+    attr: src
+    next_stage: ""
+    remark: ""
+settings:
+  ROBOTSTXT_OBEY: "false"
+  USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML,
+    like Gecko) Chrome/78.0.3904.108 Safari/537.36
