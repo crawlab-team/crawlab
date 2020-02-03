@@ -55,7 +55,7 @@ func OpenFile(fileName string) *os.File {
 }
 
 // 创建文件夹
-func CreateFilePath(filePath string) {
+func CreateDirPath(filePath string) {
 	if !Exists(filePath) {
 		if err := os.MkdirAll(filePath, os.ModePerm); err != nil {
 			log.Errorf("create file error: %s, file_path: %s", err.Error(), filePath)
