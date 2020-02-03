@@ -1,12 +1,22 @@
 package entity
 
 type ConfigSpiderData struct {
-	Version    string            `yaml:"version" json:"version"`
+	// 通用
+	Name        string `yaml:"name" json:"name"`
+	DisplayName string `yaml:"display_name" json:"display_name"`
+	Col         string `yaml:"col" json:"col"`
+	Remark      string `yaml:"remark" json:"remark"`
+	Type        string `yaml:"type" bson:"type"`
+
+	// 可配置爬虫
 	Engine     string            `yaml:"engine" json:"engine"`
 	StartUrl   string            `yaml:"start_url" json:"start_url"`
 	StartStage string            `yaml:"start_stage" json:"start_stage"`
 	Stages     []Stage           `yaml:"stages" json:"stages"`
 	Settings   map[string]string `yaml:"settings" json:"settings"`
+
+	// 自定义爬虫
+	Cmd string `yaml:"cmd" json:"cmd"`
 }
 
 type Stage struct {

@@ -12,6 +12,7 @@ export default {
   'Deploys': '部署',
   'Sites': '网站',
   'Setting': '设置',
+  'Project': '项目',
 
   // 标签
   'Overview': '概览',
@@ -71,6 +72,7 @@ export default {
   'Create Directory': '新建目录',
   'Create File': '新建文件',
   'Add Node': '添加节点',
+  'Add Project': '添加项目',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -217,6 +219,14 @@ export default {
   // 部署
   'Time': '时间',
 
+  // 项目
+  'All Tags': '全部标签',
+  'Project Name': '项目名称',
+  'Project Description': '项目描述',
+  'Tags': '标签',
+  'Enter Tags': '输入标签',
+  'No Project': '无项目',
+
   // 定时任务
   'Schedule Name': '定时任务名称',
   'Schedule Description': '定时任务描述',
@@ -244,6 +254,9 @@ export default {
   'Robots Protocol': 'Robots 协议',
   'Home Page Response Time (sec)': '首页响应时间(秒)',
   'Home Page Response Status Code': '首页响应状态码',
+
+  // 用户
+  'Super Admin': '超级管理员',
 
   // 文件
   'Choose Folder': '选择文件',
@@ -350,7 +363,7 @@ export default {
   'Username': '用户名',
   'Password': '密码',
   'Confirm Password': '确认密码',
-  'normal': '正常用户',
+  'normal': '普通用户',
   'admin': '管理用户',
   'Role': '角色',
   'Edit User': '更改用户',

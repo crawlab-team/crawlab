@@ -83,7 +83,7 @@ func (r *Redis) HGet(collection string, key string) (string, error) {
 	defer utils.Close(c)
 
 	value, err2 := redis.String(c.Do("HGET", collection, key))
-	if err2 != nil {
+	if err2 != nil && err2 != redis.ErrNil {
 		log.Error(err2.Error())
 		debug.PrintStack()
 		return value, err2

@@ -156,7 +156,7 @@ const user = {
     },
     // 新增全局变量
     addGlobalVariable ({ commit, state }) {
-      return request.post(`/variable`, state.globalVariableForm)
+      return request.put(`/variable`, state.globalVariableForm)
         .then(() => {
           state.globalVariableForm = {}
         })

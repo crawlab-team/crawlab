@@ -41,6 +41,13 @@
           <el-form-item prop="password" :label="$t('Password')">
             <el-input v-model="userInfo.password" type="password" :placeholder="$t('Password')"></el-input>
           </el-form-item>
+          <el-form-item>
+            <div style="text-align: right">
+              <el-button type="success" size="small" @click="saveUserInfo">
+                {{$t('Save')}}
+              </el-button>
+            </div>
+          </el-form-item>
         </el-form>
       </el-tab-pane>
       <el-tab-pane :label="$t('Notify Settings')" name="notify">
@@ -76,6 +83,13 @@
           <el-form-item prop="setting.wechat_robot_webhook" :label="$t('Wechat Robot Webhook')">
             <el-input v-model="userInfo.setting.wechat_robot_webhook"
                       :placeholder="$t('Wechat Robot Webhook')"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <div style="text-align: right">
+              <el-button type="success" size="small" @click="saveUserInfo">
+                {{$t('Save')}}
+              </el-button>
+            </div>
           </el-form-item>
         </el-form>
       </el-tab-pane>
@@ -198,6 +212,11 @@ export default {
       'globalVariableList',
       'globalVariableForm'
     ])
+  },
+  watch: {
+    userInfoStr () {
+      this.saveUserInfo()
+    }
   },
   methods: {
     deleteGlobalVariableHandle (id) {

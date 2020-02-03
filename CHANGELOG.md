@@ -1,13 +1,21 @@
-# 0.4.5 (unkown)
+# 0.4.5 (2020-02-03)
 ### Features / Enhancement
 - **Interactive Tutorial**. Guide users through the main functionalities of Crawlab.
+- **Global Environment Variables**. Allow users to set global environment variables, which will be passed into all spider programs. [#177](https://github.com/crawlab-team/crawlab/issues/177)
+- **Project**. Allow users to link spiders to projects. [#316](https://github.com/crawlab-team/crawlab/issues/316)
+- **Demo Spiders**. Added demo spiders when Crawlab is initialized. [#379](https://github.com/crawlab-team/crawlab/issues/379)
+- **User Admin Optimization**. Restrict privilleges of admin users. [#456](https://github.com/crawlab-team/crawlab/issues/456)
+- **Setting Page Optimization**.
+- **Task Results Optimization**.
 
 ### Bug Fixes
+- **Unable to find spider file error**. [#485](https://github.com/crawlab-team/crawlab/issues/485)
 - **Click delete button results in redirect**. [#480](https://github.com/crawlab-team/crawlab/issues/480)
 - **Unable to create files in an empty spider**. [#479](https://github.com/crawlab-team/crawlab/issues/479)
 - **Download results error**. [#465](https://github.com/crawlab-team/crawlab/issues/465)
 - **crawlab-sdk CLI error**. [#458](https://github.com/crawlab-team/crawlab/issues/458)
 - **Page refresh issue**. [#441](https://github.com/crawlab-team/crawlab/issues/441)
+- **Results not support JSON**. [#202](https://github.com/crawlab-team/crawlab/issues/202)
 - **Getting all spider after deleting a spider**.
 - **i18n warning**.
 
