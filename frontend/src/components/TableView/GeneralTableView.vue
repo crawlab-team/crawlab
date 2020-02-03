@@ -6,6 +6,9 @@
       border>
       <template v-for="col in columns">
         <el-table-column :key="col" :label="col" :property="col" min-width="120">
+          <template slot-scope="scope">
+            {{scope.row[col] !== undefined ? JSON.stringify(scope.row[col]).replace(/^"/, '').replace(/"$/, '') : ''}}
+          </template>
         </el-table-column>
       </template>
     </el-table>
