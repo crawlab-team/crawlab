@@ -197,7 +197,15 @@ export default {
     ...mapState('user', [
       'globalVariableList',
       'globalVariableForm'
-    ])
+    ]),
+    userInfoStr () {
+      return JSON.stringify(this.userInfo)
+    }
+  },
+  watch: {
+    userInfoStr () {
+      this.saveUserInfo()
+    }
   },
   methods: {
     deleteGlobalVariableHandle (id) {
