@@ -368,6 +368,8 @@ func InitSpiderService() error {
 			}
 		}
 
+		// 发布所有爬虫
+		PublishAllSpiders()
 	}
 
 	return nil
