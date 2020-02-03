@@ -1,4 +1,4 @@
-# 0.4.5 (unkown)
+# 0.4.5 (2020-02-03)
 ### Features / Enhancement
 - **Interactive Tutorial**. Guide users through the main functionalities of Crawlab.
 - **Global Environment Variables**. Allow users to set global environment variables, which will be passed into all spider programs. [#177](https://github.com/crawlab-team/crawlab/issues/177)
