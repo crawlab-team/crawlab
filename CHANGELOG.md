@@ -6,6 +6,7 @@
 - **Demo Spiders**. Added demo spiders when Crawlab is initialized. [#379](https://github.com/crawlab-team/crawlab/issues/379)
 - **User Admin Optimization**. Restrict privilleges of admin users. [#456](https://github.com/crawlab-team/crawlab/issues/456)
 - **Setting Page Optimization**.
+- **Task Results Optimization**.
 
 ### Bug Fixes
 - **Unable to find spider file error**. [#485](https://github.com/crawlab-team/crawlab/issues/485)
@@ -14,6 +15,7 @@
 - **Download results error**. [#465](https://github.com/crawlab-team/crawlab/issues/465)
 - **crawlab-sdk CLI error**. [#458](https://github.com/crawlab-team/crawlab/issues/458)
 - **Page refresh issue**. [#441](https://github.com/crawlab-team/crawlab/issues/441)
+- **Results not support JSON**. [#202](https://github.com/crawlab-team/crawlab/issues/202)
 - **Getting all spider after deleting a spider**.
 - **i18n warning**.
 
