@@ -6,10 +6,15 @@ import (
 	"crawlab/entity"
 	"crawlab/lib/cron"
 	"crawlab/model"
+	"crawlab/services/notification"
+	"crawlab/services/spider_handler"
 	"crawlab/utils"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo/bson"
+	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"os"
 	"os/exec"
@@ -17,6 +22,7 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -102,9 +108,34 @@ func AssignTask(task model.Task) error {
 
 // 设置环境变量
 func SetEnv(cmd *exec.Cmd, envs []model.Env, taskId string, dataCol string) *exec.Cmd {
+	// 默认把Node.js的全局node_modules加入环境变量
+	envPath := os.Getenv("PATH")
+	for _, _path := range strings.Split(envPath, ":") {
+		if strings.Contains(_path, "/.nvm/versions/node/") {
+			pathNodeModules := strings.Replace(_path, "/bin", "/lib/node_modules", -1)
+			_ = os.Setenv("PATH", pathNodeModules+":"+envPath)
+			_ = os.Setenv("NODE_PATH", pathNodeModules)
+			break
+		}
+	}
+
 	// 默认环境变量
 	cmd.Env = append(os.Environ(), "CRAWLAB_TASK_ID="+taskId)
 	cmd.Env = append(cmd.Env, "CRAWLAB_COLLECTION="+dataCol)
+	cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_HOST="+viper.GetString("mongo.host"))
+	cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_PORT="+viper.GetString("mongo.port"))
+	if viper.GetString("mongo.db") != "" {
+		cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_DB="+viper.GetString("mongo.db"))
+	}
+	if viper.GetString("mongo.username") != "" {
+		cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_USERNAME="+viper.GetString("mongo.username"))
+	}
+	if viper.GetString("mongo.password") != "" {
+		cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_PASSWORD="+viper.GetString("mongo.password"))
+	}
+	if viper.GetString("mongo.authSource") != "" {
+		cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_AUTHSOURCE="+viper.GetString("mongo.authSource"))
+	}
 	cmd.Env = append(cmd.Env, "PYTHONUNBUFFERED=0")
 	cmd.Env = append(cmd.Env, "PYTHONIOENCODING=utf-8")
 	cmd.Env = append(cmd.Env, "TZ=Asia/Shanghai")
@@ -114,7 +145,11 @@ func SetEnv(cmd *exec.Cmd, envs []model.Env, taskId string, dataCol string) *exe
 		cmd.Env = append(cmd.Env, env.Name+"="+env.Value)
 	}
 
-	// TODO 全局环境变量
+	// 全局环境变量
+	variables := model.GetVariableList()
+	for _, variable := range variables {
+		cmd.Env = append(cmd.Env, variable.Key+"="+variable.Value)
+	}
 	return cmd
 }
 
@@ -136,8 +171,15 @@ func FinishOrCancelTask(ch chan string, cmd *exec.Cmd, t model.Task) {
 	log.Infof("process received signal: %s", signal)
 
 	if signal == constants.TaskCancel && cmd.Process != nil {
+		var err error
+		// 兼容windows
+		if runtime.GOOS == constants.Windows {
+			err = cmd.Process.Kill()
+		} else {
+			err = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+		}
 		// 取消进程
-		if err := syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL); err != nil {
+		if err != nil {
 			log.Errorf("process kill error: %s", err.Error())
 			debug.PrintStack()
 
@@ -217,7 +259,22 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	}
 
 	// 环境变量配置
-	cmd = SetEnv(cmd, s.Envs, t.Id, s.Col)
+	envs := s.Envs
+	if s.Type == constants.Configurable {
+		// 数据库配置
+		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_HOST", Value: viper.GetString("mongo.host")})
+		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_PORT", Value: viper.GetString("mongo.port")})
+		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_DB", Value: viper.GetString("mongo.db")})
+		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_USERNAME", Value: viper.GetString("mongo.username")})
+		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_PASSWORD", Value: viper.GetString("mongo.password")})
+		envs = append(envs, model.Env{Name: "CRAWLAB_MONGO_AUTHSOURCE", Value: viper.GetString("mongo.authSource")})
+
+		// 设置配置
+		for envName, envValue := range s.Config.Settings {
+			envs = append(envs, model.Env{Name: "CRAWLAB_SETTING_" + envName, Value: envValue})
+		}
+	}
+	cmd = SetEnv(cmd, envs, t.Id, s.Col)
 
 	// 起一个goroutine来监控进程
 	ch := utils.TaskExecChanMap.ChanBlocked(t.Id)
@@ -225,7 +282,9 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	go FinishOrCancelTask(ch, cmd, t)
 
 	// kill的时候，可以kill所有的子进程
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	if runtime.GOOS != constants.Windows {
+		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	}
 
 	// 启动进程
 	if err := StartTaskProcess(cmd, t); err != nil {
@@ -293,9 +352,12 @@ func SaveTaskResultCount(id string) func() {
 
 // 执行任务
 func ExecuteTask(id int) {
-	if flag, _ := LockList.Load(id); flag.(bool) {
-		log.Debugf(GetWorkerPrefix(id) + "正在执行任务...")
-		return
+	if flag, ok := LockList.Load(id); ok {
+		if flag.(bool) {
+			log.Debugf(GetWorkerPrefix(id) + "正在执行任务...")
+			return
+		}
+
 	}
 
 	// 上锁
@@ -369,7 +431,14 @@ func ExecuteTask(id int) {
 	)
 
 	// 执行命令
-	cmd := spider.Cmd
+	var cmd string
+	if spider.Type == constants.Configurable {
+		// 可配置爬虫命令
+		cmd = "scrapy crawl config_spider"
+	} else {
+		// 自定义爬虫命令
+		cmd = spider.Cmd
+	}
 
 	// 加入参数
 	if t.Param != "" {
@@ -382,15 +451,17 @@ func ExecuteTask(id int) {
 	t.Status = constants.StatusRunning                   // 任务状态
 	t.WaitDuration = t.StartTs.Sub(t.CreateTs).Seconds() // 等待时长
 
+	// 文件检查
+	if err := SpiderFileCheck(t, spider); err != nil {
+		log.Errorf("spider file check error: %s", err.Error())
+		return
+	}
+
 	// 开始执行任务
 	log.Infof(GetWorkerPrefix(id) + "开始执行任务(ID:" + t.Id + ")")
 
 	// 储存任务
-	if err := t.Save(); err != nil {
-		log.Errorf(err.Error())
-		HandleTaskError(t, err)
-		return
-	}
+	_ = t.Save()
 
 	// 起一个cron执行器来统计任务结果数
 	if spider.Col != "" {
@@ -404,9 +475,22 @@ func ExecuteTask(id int) {
 		defer cronExec.Stop()
 	}
 
+	// 获得触发任务用户
+	user, err := model.GetUser(t.UserId)
+	if err != nil {
+		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		return
+	}
+
 	// 执行Shell命令
 	if err := ExecuteShellCmd(cmd, cwd, t, spider); err != nil {
 		log.Errorf(GetWorkerPrefix(id) + err.Error())
+
+		// 如果发生错误，则发送通知
+		t, _ = model.GetTask(t.Id)
+		if user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd || user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskError {
+			SendNotifications(user, t, spider)
+		}
 		return
 	}
 
@@ -429,6 +513,11 @@ func ExecuteTask(id int) {
 	t.RuntimeDuration = t.FinishTs.Sub(t.StartTs).Seconds() // 运行时长
 	t.TotalDuration = t.FinishTs.Sub(t.CreateTs).Seconds()  // 总时长
 
+	// 如果是任务结束时发送通知，则发送通知
+	if user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd {
+		SendNotifications(user, t, spider)
+	}
+
 	// 保存任务
 	if err := t.Save(); err != nil {
 		log.Errorf(GetWorkerPrefix(id) + err.Error())
@@ -444,6 +533,30 @@ func ExecuteTask(id int) {
 	log.Infof(GetWorkerPrefix(id) + "任务(ID:" + t.Id + ")" + "执行完毕. 消耗时间:" + durationStr + "秒")
 }
 
+func SpiderFileCheck(t model.Task, spider model.Spider) error {
+	// 判断爬虫文件是否存在
+	gfFile := model.GetGridFs(spider.FileId)
+	if gfFile == nil {
+		t.Error = "找不到爬虫文件，请重新上传"
+		t.Status = constants.StatusError
+		t.FinishTs = time.Now()                                 // 结束时间
+		t.RuntimeDuration = t.FinishTs.Sub(t.StartTs).Seconds() // 运行时长
+		t.TotalDuration = t.FinishTs.Sub(t.CreateTs).Seconds()  // 总时长
+		_ = t.Save()
+		return errors.New(t.Error)
+	}
+
+	// 判断md5值是否一致
+	path := filepath.Join(viper.GetString("spider.path"), spider.Name)
+	md5File := filepath.Join(path, spider_handler.Md5File)
+	md5 := utils.GetSpiderMd5Str(md5File)
+	if gfFile.Md5 != md5 {
+		spiderSync := spider_handler.SpiderSync{Spider: spider}
+		spiderSync.RemoveDownCreate(gfFile.Md5)
+	}
+	return nil
+}
+
 func GetTaskLog(id string) (logStr string, err error) {
 	task, err := model.GetTask(id)
 
@@ -452,6 +565,29 @@ func GetTaskLog(id string) (logStr string, err error) {
 	}
 
 	if IsMasterNode(task.NodeId.Hex()) {
+		if !utils.Exists(task.LogPath) {
+			fileDir, err := MakeLogDir(task)
+
+			if err != nil {
+				log.Errorf(err.Error())
+			}
+
+			fileP := GetLogFilePaths(fileDir)
+
+			// 获取日志文件路径
+			fLog, err := os.Create(fileP)
+			defer fLog.Close()
+			if err != nil {
+				log.Errorf("create task log file error: %s", fileP)
+				debug.PrintStack()
+			}
+			task.LogPath = fileP
+			if err := task.Save(); err != nil {
+				log.Errorf(err.Error())
+				debug.PrintStack()
+			}
+
+		}
 		// 若为主节点，获取本机日志
 		logBytes, err := model.GetLocalLog(task.LogPath)
 		if err != nil {
@@ -533,17 +669,188 @@ func CancelTask(id string) (err error) {
 	return nil
 }
 
-func HandleTaskError(t model.Task, err error) {
-	log.Error("handle task error:" + err.Error())
-	t.Status = constants.StatusError
-	t.Error = err.Error()
-	t.FinishTs = time.Now()
-	if err := t.Save(); err != nil {
+func AddTask(t model.Task) error {
+	// 生成任务ID
+	id := uuid.NewV4()
+	t.Id = id.String()
+
+	// 设置任务状态
+	t.Status = constants.StatusPending
+
+	// 如果没有传入node_id，则置为null
+	if t.NodeId.Hex() == "" {
+		t.NodeId = bson.ObjectIdHex(constants.ObjectIdNull)
+	}
+
+	// 将任务存入数据库
+	if err := model.AddTask(t); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return
+		return err
 	}
-	debug.PrintStack()
+
+	// 加入任务队列
+	if err := AssignTask(t); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	return nil
+}
+
+func GetTaskEmailMarkdownContent(t model.Task, s model.Spider) string {
+	n, _ := model.GetNode(t.NodeId)
+	errMsg := ""
+	statusMsg := fmt.Sprintf(`<span style="color:green">%s</span>`, t.Status)
+	if t.Status == constants.StatusError {
+		errMsg = " with errors"
+		statusMsg = fmt.Sprintf(`<span style="color:red">%s</span>`, t.Status)
+	}
+	return fmt.Sprintf(`
+Your task has finished%s. Please find the task info below.
+
+ | 
+--: | :--
+**Task ID:** | %s
+**Task Status:** | %s
+**Task Param:** | %s
+**Spider ID:** | %s
+**Spider Name:** | %s
+**Node:** | %s
+**Create Time:** | %s
+**Start Time:** | %s
+**Finish Time:** | %s
+**Wait Duration:** | %.0f sec
+**Runtime Duration:** | %.0f sec
+**Total Duration:** | %.0f sec
+**Number of Results:** | %d
+**Error:** | <span style="color:red">%s</span>
+
+Please login to Crawlab to view the details.
+`,
+		errMsg,
+		t.Id,
+		statusMsg,
+		t.Param,
+		s.Id.Hex(),
+		s.Name,
+		n.Name,
+		utils.GetLocalTimeString(t.CreateTs),
+		utils.GetLocalTimeString(t.StartTs),
+		utils.GetLocalTimeString(t.FinishTs),
+		t.WaitDuration,
+		t.RuntimeDuration,
+		t.TotalDuration,
+		t.ResultCount,
+		t.Error,
+	)
+}
+
+func GetTaskMarkdownContent(t model.Task, s model.Spider) string {
+	n, _ := model.GetNode(t.NodeId)
+	errMsg := ""
+	errLog := "-"
+	statusMsg := fmt.Sprintf(`<font color="#00FF00">%s</font>`, t.Status)
+	if t.Status == constants.StatusError {
+		errMsg = `（有错误）`
+		errLog = fmt.Sprintf(`<font color="#FF0000">%s</font>`, t.Error)
+		statusMsg = fmt.Sprintf(`<font color="#FF0000">%s</font>`, t.Status)
+	}
+	return fmt.Sprintf(`
+您的任务已完成%s，请查看任务信息如下。
+
+> **任务ID:** %s  
+> **任务状态:** %s  
+> **任务参数:** %s  
+> **爬虫ID:** %s  
+> **爬虫名称:** %s  
+> **节点:** %s  
+> **创建时间:** %s  
+> **开始时间:** %s  
+> **完成时间:** %s  
+> **等待时间:** %.0f秒   
+> **运行时间:** %.0f秒  
+> **总时间:** %.0f秒  
+> **结果数:** %d  
+> **错误:** %s  
+
+请登录Crawlab查看详情。
+`,
+		errMsg,
+		t.Id,
+		statusMsg,
+		t.Param,
+		s.Id.Hex(),
+		s.Name,
+		n.Name,
+		utils.GetLocalTimeString(t.CreateTs),
+		utils.GetLocalTimeString(t.StartTs),
+		utils.GetLocalTimeString(t.FinishTs),
+		t.WaitDuration,
+		t.RuntimeDuration,
+		t.TotalDuration,
+		t.ResultCount,
+		errLog,
+	)
+}
+
+func SendTaskEmail(u model.User, t model.Task, s model.Spider) {
+	statusMsg := "has finished"
+	if t.Status == constants.StatusError {
+		statusMsg = "has an error"
+	}
+	title := fmt.Sprintf("[Crawlab] Task for \"%s\" %s", s.Name, statusMsg)
+	if err := notification.SendMail(
+		u.Email,
+		u.Username,
+		title,
+		GetTaskEmailMarkdownContent(t, s),
+	); err != nil {
+		log.Errorf("mail error: " + err.Error())
+		debug.PrintStack()
+	}
+}
+
+func SendTaskDingTalk(u model.User, t model.Task, s model.Spider) {
+	statusMsg := "已完成"
+	if t.Status == constants.StatusError {
+		statusMsg = "发生错误"
+	}
+	title := fmt.Sprintf("[Crawlab] \"%s\" 任务%s", s.Name, statusMsg)
+	content := GetTaskMarkdownContent(t, s)
+	if err := notification.SendMobileNotification(u.Setting.DingTalkRobotWebhook, title, content); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+	}
+}
+
+func SendTaskWechat(u model.User, t model.Task, s model.Spider) {
+	content := GetTaskMarkdownContent(t, s)
+	if err := notification.SendMobileNotification(u.Setting.WechatRobotWebhook, "", content); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+	}
+}
+
+func SendNotifications(u model.User, t model.Task, s model.Spider) {
+	if u.Email != "" && utils.StringArrayContains(u.Setting.EnabledNotifications, constants.NotificationTypeMail) {
+		go func() {
+			SendTaskEmail(u, t, s)
+		}()
+	}
+
+	if u.Setting.DingTalkRobotWebhook != "" && utils.StringArrayContains(u.Setting.EnabledNotifications, constants.NotificationTypeDingTalk) {
+		go func() {
+			SendTaskDingTalk(u, t, s)
+		}()
+	}
+
+	if u.Setting.WechatRobotWebhook != "" && utils.StringArrayContains(u.Setting.EnabledNotifications, constants.NotificationTypeWechat) {
+		go func() {
+			SendTaskWechat(u, t, s)
+		}()
+	}
 }
 
 func InitTaskExecutor() error {

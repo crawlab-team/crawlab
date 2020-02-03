@@ -9,6 +9,7 @@
         :key="tag.path"
         tag="span"
         class="tags-view-item"
+        @click.native="clickSelectedTag(tag)"
         @click.middle.native="closeSelectedTag(tag)"
         @contextmenu.prevent.native="openMenu(tag,$event)">
         {{ $t(generateTitle(tag.title)) }}
@@ -130,12 +131,16 @@ export default {
     refreshSelectedTag (view) {
       this.$store.dispatch('delCachedView', view).then(() => {
         const { fullPath } = view
+        console.log('fullPath', fullPath)
         this.$nextTick(() => {
           this.$router.replace({
-            path: '/redirect' + fullPath
+            path: fullPath
           })
         })
       })
+    },
+    clickSelectedTag (tag) {
+      this.$st.sendEv('全局', '点击标签', tag.name)
     },
     closeSelectedTag (view) {
       this.$store.dispatch('delView', view).then(({ visitedViews }) => {

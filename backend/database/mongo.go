@@ -61,11 +61,46 @@ func InitMongo() error {
 			dialInfo.Password = mongoPassword
 			dialInfo.Source = mongoAuth
 		}
-		sess, err := mgo.DialWithInfo(&dialInfo)
-		if err != nil {
-			return err
+
+		// mongo session
+		var sess *mgo.Session
+
+		// 错误次数
+		errNum := 0
+
+		// 重复尝试连接mongo
+		for {
+			var err error
+
+			// 连接mongo
+			sess, err = mgo.DialWithInfo(&dialInfo)
+
+			if err != nil {
+				// 如果连接错误，休息1秒，错误次数+1
+				time.Sleep(1 * time.Second)
+				errNum++
+
+				// 如果错误次数超过30，返回错误
+				if errNum >= 30 {
+					return err
+				}
+			} else {
+				// 如果没有错误，退出循环
+				break
+			}
 		}
+
+		// 赋值给全局mongo session
 		Session = sess
 	}
+	//Add Unique index for 'key'
+	keyIndex := mgo.Index{
+		Key:    []string{"key"},
+		Unique: true,
+	}
+	s, c := GetCol("nodes")
+	defer s.Close()
+	c.EnsureIndex(keyIndex)
+
 	return nil
 }

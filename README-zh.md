@@ -1,38 +1,67 @@
 # Crawlab
 
-![](http://114.67.75.98:8082/buildStatus/icon?job=crawlab%2Fmaster)
-![](https://img.shields.io/github/release/crawlab-team/crawlab.svg)
-![](https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg)
-![](https://img.shields.io/github/issues/crawlab-team/crawlab.svg)
-![](https://img.shields.io/github/contributors/crawlab-team/crawlab.svg)
-![](https://img.shields.io/docker/pulls/tikazyq/crawlab)
-![](https://img.shields.io/github/license/crawlab-team/crawlab.svg)
+<p>
+  <a href="https://hub.docker.com/r/tikazyq/crawlab/builds" target="_blank">
+    <img src="https://img.shields.io/docker/cloud/build/tikazyq/crawlab.svg?label=build&logo=docker">
+  </a>
+  <a href="https://hub.docker.com/r/tikazyq/crawlab" target="_blank">
+    <img src="https://img.shields.io/docker/pulls/tikazyq/crawlab?label=pulls&logo=docker">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/releases" target="_blank">
+    <img src="https://img.shields.io/github/release/crawlab-team/crawlab.svg?logo=github">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/commits/master" target="_blank">
+    <img src="https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/issues?q=is%3Aissue+is%3Aopen+label%3Abug" target="_blank">
+    <img src="https://img.shields.io/github/issues/crawlab-team/crawlab/bug.svg?label=bugs&color=red">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement" target="_blank">
+    <img src="https://img.shields.io/github/issues/crawlab-team/crawlab/enhancement.svg?label=enhancements&color=cyan">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/blob/master/LICENSE" target="_blank">
+    <img src="https://img.shields.io/github/license/crawlab-team/crawlab.svg">
+  </a>
+</p>
 
 中文 | [English](https://github.com/crawlab-team/crawlab)
 
-[安装](#安装) | [运行](#运行) | [截图](#截图) | [架构](#架构) | [集成](#与其他框架的集成) | [比较](#与其他框架比较) | [相关文章](#相关文章) | [社区&赞助](#社区--赞助)
+[安装](#安装) | [运行](#运行) | [截图](#截图) | [架构](#架构) | [集成](#与其他框架的集成) | [比较](#与其他框架比较) | [相关文章](#相关文章) | [社区&赞助](#社区--赞助) | [更新日志](https://github.com/crawlab-team/crawlab/blob/master/CHANGELOG-zh.md) | [免责声明](https://github.com/crawlab-team/crawlab/blob/master/DISCLAIMER-zh.md)
 
 基于Golang的分布式爬虫管理平台，支持Python、NodeJS、Go、Java、PHP等多种编程语言以及多种爬虫框架。
 
-[查看演示 Demo](http://crawlab.cn/demo) | [文档](https://tikazyq.github.io/crawlab-docs)
+[查看演示 Demo](http://crawlab.cn/demo) | [文档](http://docs.crawlab.cn)
 
 ## 安装
 
 三种方式:
-1. [Docker](https://tikazyq.github.io/crawlab-docs/Installation/Docker.html)（推荐）
-2. [直接部署](https://tikazyq.github.io/crawlab-docs/Installation/Direct.html)（了解内核）
-3. [Kubernetes](https://mp.weixin.qq.com/s/3Q1BQATUIEE_WXcHPqhYbA)
+1. [Docker](http://docs.crawlab.cn/Installation/Docker.html)（推荐）
+2. [直接部署](http://docs.crawlab.cn/Installation/Direct.html)（了解内核）
+3. [Kubernetes](https://juejin.im/post/5e0a02d851882549884c27ad) (多节点部署)
 
 ### 要求（Docker）
 - Docker 18.03+
-- Redis
+- Redis 5.x+
 - MongoDB 3.6+
+- Docker Compose 1.24+ (可选，但推荐)
 
 ### 要求（直接部署）
 - Go 1.12+
 - Node 8.12+
-- Redis
+- Redis 5.x+
 - MongoDB 3.6+
+
+## 快速开始
+
+请打开命令行并执行下列命令。请保证您已经提前安装了 `docker-compose`。
+
+```bash
+git clone https://github.com/crawlab-team/crawlab
+cd crawlab
+docker-compose up -d
+```
+
+接下来，您可以看看 `docker-compose.yml` (包含详细配置参数)，以及参考 [文档](http://docs.crawlab.cn) 来查看更多信息。
 
 ## 运行
 
@@ -47,13 +76,11 @@ services:
     image: tikazyq/crawlab:latest
     container_name: master
     environment:
-      CRAWLAB_API_ADDRESS: "http://localhost:8000"
       CRAWLAB_SERVER_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
       CRAWLAB_REDIS_ADDRESS: "redis"
     ports:    
-      - "8080:8080" # frontend
-      - "8000:8000" # backend
+      - "8080:8080"
     depends_on:
       - mongo
       - redis
@@ -111,9 +138,9 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-d
 
 ![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-analytics.png)
 
-#### 爬虫文件
+#### 爬虫文件编辑
 
-![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-file.png)
+![](http://static-docs.crawlab.cn/file-edit.png)
 
 #### 任务详情 - 抓取结果
 
@@ -121,13 +148,21 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-d
 
 #### 定时任务
 
-![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/schedule.png)
+![](http://static-docs.crawlab.cn/schedule-v0.4.4.png)
+
+#### 依赖安装
+
+![](http://static-docs.crawlab.cn/node-install-dependencies.png)
+
+#### 消息通知
+
+<img src="http://static-docs.crawlab.cn/notification-mobile.jpeg" height="480px">
 
 ## 架构
 
 Crawlab的架构包括了一个主节点（Master Node）和多个工作节点（Worker Node），以及负责通信和数据储存的Redis和MongoDB数据库。
 
-![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/architecture.png)
+![](http://static-docs.crawlab.cn/architecture.png)
 
 前端应用向主节点请求数据，主节点通过MongoDB和Redis来执行任务派发调度以及部署，工作节点收到任务之后，开始执行爬虫任务，并将任务结果储存到MongoDB。架构相对于`v0.3.0`之前的Celery版本有所精简，去除了不必要的节点监控模块Flower，节点监控主要由Redis完成。
 
@@ -162,36 +197,42 @@ Redis是非常受欢迎的Key-Value数据库，在Crawlab中主要实现节点�
 
 ## 与其他框架的集成
 
+[Crawlab SDK](https://github.com/crawlab-team/crawlab-sdk) 提供了一些 `helper` 方法来让您的爬虫更好的集成到 Crawlab 中，例如保存结果数据到 Crawlab 中等等。
+
+### 集成 Scrapy
+
+在 `settings.py` 中找到 `ITEM_PIPELINES`（`dict` 类型的变量），在其中添加如下内容。
+
+```python
+ITEM_PIPELINES = {
+    'crawlab.pipelines.CrawlabMongoPipeline': 888,
+}
+```
+
+然后，启动 Scrapy 爬虫，运行完成之后，您就应该能看到抓取结果出现在 **任务详情-结果** 里。
+
+### 通用 Python 爬虫
+
+将下列代码加入到您爬虫中的结果保存部分。
+
+```python
+# 引入保存结果方法
+from crawlab import save_item
+
+# 这是一个结果，需要为 dict 类型
+result = {'name': 'crawlab'}
+
+# 调用保存结果方法
+save_item(result)
+```
+
+然后，启动爬虫，运行完成之后，您就应该能看到抓取结果出现在 **任务详情-结果** 里。
+
+### 其他框架和语言
+
 爬虫任务本质上是由一个shell命令来实现的。任务ID将以环境变量`CRAWLAB_TASK_ID`的形式存在于爬虫任务运行的进程中，并以此来关联抓取数据。另外，`CRAWLAB_COLLECTION`是Crawlab传过来的所存放collection的名称。
 
 在爬虫程序中，需要将`CRAWLAB_TASK_ID`的值以`task_id`作为可以存入数据库中`CRAWLAB_COLLECTION`的collection中。这样Crawlab就知道如何将爬虫任务与抓取数据关联起来了。当前，Crawlab只支持MongoDB。
-
-### 集成Scrapy
-
-以下是Crawlab跟Scrapy集成的例子，利用了Crawlab传过来的task_id和collection_name。
-
-```python
-import os
-from pymongo import MongoClient
-
-MONGO_HOST = '192.168.99.100'
-MONGO_PORT = 27017
-MONGO_DB = 'crawlab_test'
-
-# scrapy example in the pipeline
-class JuejinPipeline(object):
-    mongo = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
-    db = mongo[MONGO_DB]
-    col_name = os.environ.get('CRAWLAB_COLLECTION')
-    if not col_name:
-        col_name = 'test'
-    col = db[col_name]
-
-    def process_item(self, item, spider):
-        item['task_id'] = os.environ.get('CRAWLAB_TASK_ID')
-        self.col.save(item)
-        return item
-```
 
 ## 与其他框架比较
 
@@ -201,13 +242,12 @@ class JuejinPipeline(object):
 
 Crawlab使用起来很方便，也很通用，可以适用于几乎任何主流语言和框架。它还有一个精美的前端界面，让用户可以方便的管理和运行爬虫。
 
-|框架 | 类型 | 分布式 | 前端 | 依赖于Scrapyd |
-|:---:|:---:|:---:|:---:|:---:|
-| [Crawlab](https://github.com/crawlab-team/crawlab) | 管理平台 | Y | Y | N
-| [ScrapydWeb](https://github.com/my8100/scrapydweb) | 管理平台 | Y | Y | Y
-| [SpiderKeeper](https://github.com/DormyMo/SpiderKeeper) | 管理平台 | Y | Y | Y
-| [Gerapy](https://github.com/Gerapy/Gerapy) | 管理平台 | Y | Y | Y
-| [Scrapyd](https://github.com/scrapy/scrapyd) | 网络服务 | Y | N | N/A
+|框架 | 技术 | 优点 | 缺点 | Github 统计数据 |
+|:---|:---|:---|-----| :---- |
+| [Crawlab](https://github.com/crawlab-team/crawlab) | Golang + Vue|不局限于 scrapy，可以运行任何语言和框架的爬虫，精美的 UI 界面，天然支持分布式爬虫，支持节点管理、爬虫管理、任务管理、定时任务、结果导出、数据统计、消息通知、可配置爬虫、在线编辑代码等功能|暂时不支持爬虫版本管理| ![](https://img.shields.io/github/stars/crawlab-team/crawlab) ![](https://img.shields.io/github/forks/crawlab-team/crawlab) |
+| [ScrapydWeb](https://github.com/my8100/scrapydweb) | Python Flask + Vue|精美的 UI 界面，内置了 scrapy 日志解析器，有较多任务运行统计图表，支持节点管理、定时任务、邮件提醒、移动界面，算是 scrapy-based 中功能完善的爬虫管理平台|不支持 scrapy 以外的爬虫，Python Flask 为后端，性能上有一定局限性| ![](https://img.shields.io/github/stars/my8100/scrapydweb) ![](https://img.shields.io/github/forks/my8100/scrapydweb) |
+| [Gerapy](https://github.com/Gerapy/Gerapy) | Python Django + Vue|Gerapy 是崔庆才大神开发的爬虫管理平台，安装部署非常简单，同样基于 scrapyd，有精美的 UI 界面，支持节点管理、代码编辑、可配置规则等功能|同样不支持 scrapy 以外的爬虫，而且据使用者反馈，1.0 版本有很多 bug，期待 2.0 版本会有一定程度的改进| ![](https://img.shields.io/github/stars/Gerapy/Gerapy) ![](https://img.shields.io/github/forks/Gerapy/Gerapy) |
+| [SpiderKeeper](https://github.com/DormyMo/SpiderKeeper) | Python Flask|基于 scrapyd，开源版 Scrapyhub，非常简洁的 UI 界面，支持定时任务|可能有些过于简洁了，不支持分页，不支持节点管理，不支持 scrapy 以外的爬虫| ![](https://img.shields.io/github/stars/DormyMo/SpiderKeeper) ![](https://img.shields.io/github/forks/DormyMo/SpiderKeeper) |
 
 ## Q&A
 
@@ -253,6 +293,9 @@ Crawlab使用起来很方便，也很通用，可以适用于几乎任何主流�
 </a>
 <a href="https://github.com/hantmac">
   <img src="https://avatars2.githubusercontent.com/u/7600925?s=460&v=4" height="80">
+</a>
+<a href="https://github.com/duanbin0414">
+  <img src="https://avatars3.githubusercontent.com/u/50389867?s=460&v=4" height="80">
 </a>
 
 ## 社区 & 赞助

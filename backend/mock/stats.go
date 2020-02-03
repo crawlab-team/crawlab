@@ -6,8 +6,6 @@ import (
 	"net/http"
 )
 
-
-
 var taskDailyItems = []model.TaskDailyItem{
 	{
 		Date:               "2019/08/19",

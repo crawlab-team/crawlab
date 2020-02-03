@@ -4,12 +4,14 @@ import (
 	"crawlab/database"
 	"crawlab/model"
 	"crawlab/utils"
+	"fmt"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
 	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime/debug"
 )
@@ -24,7 +26,7 @@ type SpiderSync struct {
 
 func (s *SpiderSync) CreateMd5File(md5 string) {
 	path := filepath.Join(viper.GetString("spider.path"), s.Spider.Name)
-	utils.CreateFilePath(path)
+	utils.CreateDirPath(path)
 
 	fileName := filepath.Join(path, Md5File)
 	file := utils.OpenFile(fileName)
@@ -35,6 +37,12 @@ func (s *SpiderSync) CreateMd5File(md5 string) {
 			debug.PrintStack()
 		}
 	}
+}
+
+func (s *SpiderSync) RemoveDownCreate(md5 string) {
+	s.RemoveSpiderFile()
+	s.Download()
+	s.CreateMd5File(md5)
 }
 
 // 获得下载锁的key
@@ -59,10 +67,14 @@ func (s *SpiderSync) RemoveSpiderFile() {
 // 检测是否已经下载中
 func (s *SpiderSync) CheckDownLoading(spiderId string, fileId string) (bool, string) {
 	key := s.GetLockDownloadKey(spiderId)
-	if _, err := database.RedisClient.HGet("spider", key); err == nil {
-		return true, key
+	key2, err := database.RedisClient.HGet("spider", key)
+	if err != nil {
+		return false, key2
 	}
-	return false, key
+	if key2 == "" {
+		return false, key2
+	}
+	return true, key2
 }
 
 // 下载爬虫
@@ -71,6 +83,7 @@ func (s *SpiderSync) Download() {
 	fileId := s.Spider.FileId.Hex()
 	isDownloading, key := s.CheckDownLoading(spiderId, fileId)
 	if isDownloading {
+		log.Infof(fmt.Sprintf("spider is already being downloaded, spider id: %s", s.Spider.Id.Hex()))
 		return
 	} else {
 		_ = database.RedisClient.HSet("spider", key, key)
@@ -99,7 +112,6 @@ func (s *SpiderSync) Download() {
 	// 创建临时文件
 	tmpFilePath := filepath.Join(tmpPath, randomId.String()+".zip")
 	tmpFile := utils.OpenFile(tmpFilePath)
-	defer utils.Close(tmpFile)
 
 	// 将该文件写入临时文件
 	if _, err := io.Copy(tmpFile, f); err != nil {
@@ -114,6 +126,15 @@ func (s *SpiderSync) Download() {
 		s.Spider.Name,
 	)
 	if err := utils.DeCompress(tmpFile, dstPath); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return
+	}
+
+	//递归修改目标文件夹权限
+	// 解决scrapy.setting中开启LOG_ENABLED 和 LOG_FILE时不能创建log文件的问题
+	cmd := exec.Command("chmod", "-R", "777", dstPath)
+	if err := cmd.Run(); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
 		return

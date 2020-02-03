@@ -1,31 +1,37 @@
 <template>
   <div class="app-container">
-    <!--filter-->
-    <div v-if="false" class="filter">
-      <el-input prefix-icon="el-icon-search"
-                :placeholder="$t('Search')"
-                class="filter-search"
-                v-model="filter.keyword"
-                @change="onSearch">
-      </el-input>
-      <div class="right">
-        <el-button type="success"
-                   icon="el-icon-refresh"
-                   class="refresh"
-                   @click="onRefresh">
-          {{$t('Refresh')}}
-        </el-button>
+    <el-dialog
+      :visible.sync="isShowAddNodeInstruction"
+      :title="$t('Notification')"
+      width="720px"
+    >
+      <div
+        v-html="addNodeInstructionHtml"
+        class="content markdown-body"
+      >
       </div>
-    </div>
-    <!--./filter-->
+    </el-dialog>
 
     <el-tabs type="border-card" v-model="activeTab">
       <el-tab-pane :label="$t('Node List')">
+        <!--filter-->
+        <div class="filter-wrapper">
+          <el-button
+            size="small"
+            type="success"
+            icon="el-icon-plus"
+            @click="onAddNode"
+          >
+            {{$t('Add Node')}}
+          </el-button>
+        </div>
+        <!--./filter-->
         <!--table list-->
         <el-table :data="filteredTableData"
                   class="table"
                   :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
                   border
+                  @row-click="onRowClick"
                   @expand-change="onRowExpand">
           <el-table-column type="expand">
             <template slot-scope="scope">
@@ -114,7 +120,8 @@
                 <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
               </el-tooltip>
               <el-tooltip :content="$t('Remove')" placement="top">
-                <el-button v-if="scope.row.status !== 'online'" type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
+                <el-button v-if="scope.row.status !== 'online'" type="danger" icon="el-icon-delete" size="mini"
+                           @click="onRemove(scope.row)"></el-button>
               </el-tooltip>
             </template>
           </el-table-column>
@@ -140,9 +147,11 @@
 </template>
 
 <script>
+import showdown from 'showdown'
 import {
   mapState
 } from 'vuex'
+import 'github-markdown-css/github-markdown.css'
 import NodeNetwork from '../../components/Node/NodeNetwork'
 
 export default {
@@ -171,7 +180,11 @@ export default {
       nodeFormRules: {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
       },
-      activeTab: undefined
+      activeTab: undefined,
+      isButtonClicked: false,
+      isShowAddNodeInstruction: false,
+      converter: new showdown.Converter(),
+      addNodeInstructionMarkdown: 'addNodeInstruction'
     }
   },
   computed: {
@@ -190,19 +203,26 @@ export default {
         }
         return false
       })
+    },
+    addNodeInstructionHtml () {
+      if (!this.converter) return
+      return this.converter.makeHtml(this.$t(this.addNodeInstructionMarkdown))
     }
   },
   methods: {
     onSearch () {
     },
-    onAdd () {
-      this.$store.commit('node/SET_NODE_FORM', [])
-      this.isEditMode = false
-      this.dialogVisible = true
+    onAddNode () {
+      this.isShowAddNodeInstruction = true
     },
+    // onAdd () {
+    //   this.$store.commit('node/SET_NODE_FORM', [])
+    //   this.isEditMode = false
+    //   this.dialogVisible = true
+    // },
     onRefresh () {
       this.$store.dispatch('node/getNodeList')
-      this.$st.sendEv('节点', '刷新')
+      this.$st.sendEv('节点列表', '刷新')
     },
     onSubmit () {
       const vm = this
@@ -234,6 +254,11 @@ export default {
       this.dialogVisible = true
     },
     onRemove (row) {
+      this.isButtonClicked = true
+      setTimeout(() => {
+        this.isButtonClicked = false
+      }, 100)
+
       this.$confirm(this.$t('Are you sure to delete this node?'), this.$t('Notification'), {
         confirmButtonText: this.$t('Confirm'),
         cancelButtonText: this.$t('Cancel'),
@@ -246,19 +271,28 @@ export default {
               message: 'Deleted successfully'
             })
           })
-        this.$st.sendEv('节点', '删除', 'id', row._id)
+        this.$st.sendEv('节点列表', '删除节点')
       })
     },
     onView (row) {
+      this.isButtonClicked = true
+      setTimeout(() => {
+        this.isButtonClicked = false
+      }, 100)
+
       this.$router.push(`/nodes/${row._id}`)
 
-      this.$st.sendEv('节点', '查看', 'id', row._id)
+      this.$st.sendEv('节点列表', '查看节点')
     },
     onPageChange () {
       this.$store.dispatch('node/getNodeList')
     },
     onRowExpand (row) {
       this.$store.dispatch('node/getNodeSystemInfo', row._id)
+    },
+    onRowClick (row) {
+      if (this.isButtonClicked) return
+      this.onView(row)
     },
     getExecutables (row) {
       if (!row.systemInfo || !row.systemInfo.executables) return []
@@ -308,6 +342,13 @@ export default {
     padding: 7px;
   }
 
+  .filter-wrapper {
+    text-align: right;
+  }
+
+  .content {
+    word-break: break-word;
+  }
 </style>
 <style>
   .node-detail .el-form-item {
@@ -353,5 +394,9 @@ export default {
 
   .node-detail .executable-list .executable-label {
     margin-left: 5px;
+  }
+
+  .table.el-table tr {
+    cursor: pointer;
   }
 </style>

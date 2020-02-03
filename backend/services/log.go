@@ -49,10 +49,8 @@ func GetRemoteLog(task model.Task) (logStr string, err error) {
 	select {
 	case logStr = <-ch:
 		log.Infof("get remote log")
-		break
 	case <-time.After(30 * time.Second):
 		logStr = "get remote log timeout"
-		break
 	}
 
 	return logStr, nil
@@ -116,6 +114,18 @@ func RemoveLogByTaskId(id string) error {
 	}
 	removeLog(t)
 
+	return nil
+}
+
+func RemoveLogByTaskStatus(status string) error {
+	tasks, err := model.GetTaskList(bson.M{"status": status}, 0, constants.Infinite, "-create_ts")
+	if err != nil {
+		log.Error("get tasks error:" + err.Error())
+		return err
+	}
+	for _, task := range tasks {
+		RemoveLogByTaskId(task.Id)
+	}
 	return nil
 }
 

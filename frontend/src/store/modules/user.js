@@ -9,6 +9,8 @@ const user = {
     avatar: '',
     roles: [],
     userList: [],
+    globalVariableList: [],
+    globalVariableForm: {},
     userForm: {},
     userInfo: undefined,
     adminPaths: [
@@ -61,6 +63,9 @@ const user = {
     },
     SET_TOTAL_COUNT: (state, value) => {
       state.totalCount = value
+    },
+    SET_GLOBAL_VARIABLE_LIST: (state, value) => {
+      state.globalVariableList = value
     }
   },
 
@@ -89,6 +94,11 @@ const user = {
           commit('SET_USER_INFO', response.data.data)
           window.localStorage.setItem('user_info', JSON.stringify(response.data.data))
         })
+    },
+
+    // 修改用户信息
+    postInfo ({ commit }, form) {
+      return request.post('/me', form)
     },
 
     // 注册
@@ -138,6 +148,28 @@ const user = {
     // 编辑用户
     editUser ({ state }) {
       return request.post(`/users/${state.userForm._id}`, state.userForm)
+    },
+
+    // 添加用户
+    addUser ({ dispatch, commit, state }) {
+      return request.put('/users', state.userForm)
+    },
+    // 新增全局变量
+    addGlobalVariable ({ commit, state }) {
+      return request.put(`/variable`, state.globalVariableForm)
+        .then(() => {
+          state.globalVariableForm = {}
+        })
+    },
+    // 获取全局变量列表
+    getGlobalVariable ({ commit, state }) {
+      request.get('/variables').then((response) => {
+        commit('SET_GLOBAL_VARIABLE_LIST', response.data.data)
+      })
+    },
+    // 删除全局变量
+    deleteGlobalVariable ({ commit, state }, id) {
+      return request.delete(`/variable/${id}`)
     }
   }
 }

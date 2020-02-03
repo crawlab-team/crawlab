@@ -1,7 +1,7 @@
 <template>
   <el-scrollbar wrap-class="scrollbar-wrapper">
     <div class="sidebar-logo" :class="isCollapse ? 'collapsed' : ''">
-      <span>C</span><span v-show="!isCollapse">rawlab</span>
+      <span>C</span><span v-show="!isCollapse">rawlab<span class="version">v{{version}}</span></span>
     </div>
     <el-menu
       :show-timeout="200"
@@ -12,7 +12,13 @@
       :active-text-color="variables.menuActiveText"
       mode="vertical"
     >
-      <sidebar-item v-for="route in routes" :key="route.path" :item="route" :base-path="route.path"/>
+      <sidebar-item
+        v-for="route in routes"
+        :class="route.path.replace('/', '')"
+        :key="route.path"
+        :item="route"
+        :base-path="route.path"
+      />
     </el-menu>
   </el-scrollbar>
 </template>
@@ -47,7 +53,17 @@ export default {
     },
     isCollapse () {
       return !this.sidebar.opened
+    },
+    version () {
+      return this.$store.state.version.version || window.sessionStorage.getItem('v')
     }
+  },
+  data () {
+    return {}
+  },
+  async created () {
+  },
+  mounted () {
   }
 }
 </script>
@@ -72,5 +88,11 @@ export default {
 
   .sidebar-container .sidebar-logo.collapsed {
     padding-left: 8px;
+  }
+
+  .sidebar-container .sidebar-logo .version {
+    margin-left: 5px;
+    font-weight: normal;
+    font-size: 12px;
   }
 </style>

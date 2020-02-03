@@ -240,7 +240,7 @@ export default {
               message: 'Deleted successfully'
             })
           })
-      })
+      }))
     },
     onDeploy (row) {
       this.$store.dispatch('spider/getSpiderData', row._id)

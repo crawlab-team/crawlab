@@ -10,17 +10,19 @@ import (
 	"time"
 )
 
+var NodeIdss = []bson.ObjectId{bson.ObjectIdHex("5d429e6c19f7abede924fee2"),
+	bson.ObjectIdHex("5d429e6c19f7abede924fee1")}
+
 var scheduleList = []model.Schedule{
 	{
 		Id:       bson.ObjectId("5d429e6c19f7abede924fee2"),
 		Name:     "test schedule",
 		SpiderId: "123",
-		NodeId:   bson.ObjectId("5d429e6c19f7abede924fee2"),
+		NodeIds:  NodeIdss,
 		Cron:     "***1*",
 		EntryId:  10,
 		// 前端展示
 		SpiderName: "test scedule",
-		NodeName:   "测试节点",
 
 		CreateTs: time.Now(),
 		UpdateTs: time.Now(),
@@ -29,12 +31,11 @@ var scheduleList = []model.Schedule{
 		Id:       bson.ObjectId("xx429e6c19f7abede924fee2"),
 		Name:     "test schedule2",
 		SpiderId: "234",
-		NodeId:   bson.ObjectId("5d429e6c19f7abede924fee2"),
+		NodeIds:  NodeIdss,
 		Cron:     "***1*",
 		EntryId:  10,
 		// 前端展示
 		SpiderName: "test scedule2",
-		NodeName:   "测试节点",
 
 		CreateTs: time.Now(),
 		UpdateTs: time.Now(),
@@ -100,8 +101,10 @@ func PutSchedule(c *gin.Context) {
 	}
 
 	// 如果node_id为空，则置为空ObjectId
-	if item.NodeId == "" {
-		item.NodeId = bson.ObjectIdHex(constants.ObjectIdNull)
+	for _, NodeId := range item.NodeIds {
+		if NodeId == "" {
+			NodeId = bson.ObjectIdHex(constants.ObjectIdNull)
+		}
 	}
 
 	c.JSON(http.StatusOK, Response{

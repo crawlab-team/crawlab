@@ -12,19 +12,23 @@ import (
 )
 
 type Schedule struct {
-	Id          bson.ObjectId `json:"_id" bson:"_id"`
-	Name        string        `json:"name" bson:"name"`
-	Description string        `json:"description" bson:"description"`
-	SpiderId    bson.ObjectId `json:"spider_id" bson:"spider_id"`
-	NodeId      bson.ObjectId `json:"node_id" bson:"node_id"`
-	NodeKey     string        `json:"node_key" bson:"node_key"`
-	Cron        string        `json:"cron" bson:"cron"`
-	EntryId     cron.EntryID  `json:"entry_id" bson:"entry_id"`
-	Param       string        `json:"param" bson:"param"`
+	Id          bson.ObjectId   `json:"_id" bson:"_id"`
+	Name        string          `json:"name" bson:"name"`
+	Description string          `json:"description" bson:"description"`
+	SpiderId    bson.ObjectId   `json:"spider_id" bson:"spider_id"`
+	Cron        string          `json:"cron" bson:"cron"`
+	EntryId     cron.EntryID    `json:"entry_id" bson:"entry_id"`
+	Param       string          `json:"param" bson:"param"`
+	RunType     string          `json:"run_type" bson:"run_type"`
+	NodeIds     []bson.ObjectId `json:"node_ids" bson:"node_ids"`
+	Status      string          `json:"status" bson:"status"`
+	Enabled     bool            `json:"enabled" bson:"enabled"`
+	UserId      bson.ObjectId   `json:"user_id" bson:"user_id"`
 
 	// 前端展示
 	SpiderName string `json:"spider_name" bson:"spider_name"`
-	NodeName   string `json:"node_name" bson:"node_name"`
+	Nodes      []Node `json:"nodes" bson:"nodes"`
+	Message    string `json:"message" bson:"message"`
 
 	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
 	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
@@ -46,27 +50,6 @@ func (sch *Schedule) Delete() error {
 	return c.RemoveId(sch.Id)
 }
 
-func (sch *Schedule) SyncNodeIdAndSpiderId(node Node, spider Spider) {
-	sch.syncNodeId(node)
-	sch.syncSpiderId(spider)
-}
-
-func (sch *Schedule) syncNodeId(node Node) {
-	if node.Id.Hex() == sch.NodeId.Hex() {
-		return
-	}
-	sch.NodeId = node.Id
-	_ = sch.Save()
-}
-
-func (sch *Schedule) syncSpiderId(spider Spider) {
-	if spider.Id.Hex() == sch.SpiderId.Hex() {
-		return
-	}
-	sch.SpiderId = spider.Id
-	_ = sch.Save()
-}
-
 func GetScheduleList(filter interface{}) ([]Schedule, error) {
 	s, c := database.GetCol("schedules")
 	defer s.Close()
@@ -79,28 +62,25 @@ func GetScheduleList(filter interface{}) ([]Schedule, error) {
 	var schs []Schedule
 	for _, schedule := range schedules {
 		// 获取节点名称
-		if schedule.NodeId == bson.ObjectIdHex(constants.ObjectIdNull) {
-			// 选择所有节点
-			schedule.NodeName = "All Nodes"
-		} else {
-			// 选择单一节点
-			node, err := GetNode(schedule.NodeId)
-			if err != nil {
-				log.Errorf(err.Error())
-				continue
+		schedule.Nodes = []Node{}
+		if schedule.RunType == constants.RunTypeSelectedNodes {
+			for _, nodeId := range schedule.NodeIds {
+				// 选择单一节点
+				node, _ := GetNode(nodeId)
+				schedule.Nodes = append(schedule.Nodes, node)
 			}
-			schedule.NodeName = node.Name
 		}
 
 		// 获取爬虫名称
 		spider, err := GetSpider(schedule.SpiderId)
 		if err != nil && err == mgo.ErrNotFound {
 			log.Errorf("get spider by id: %s, error: %s", schedule.SpiderId.Hex(), err.Error())
-			debug.PrintStack()
-			_ = schedule.Delete()
-			continue
+			schedule.Status = constants.ScheduleStatusError
+			schedule.Message = constants.ScheduleStatusErrorNotFoundSpider
+		} else {
+			schedule.SpiderName = spider.Name
 		}
-		schedule.SpiderName = spider.Name
+
 		schs = append(schs, schedule)
 	}
 	return schs, nil
@@ -125,12 +105,8 @@ func UpdateSchedule(id bson.ObjectId, item Schedule) error {
 	if err := c.FindId(id).One(&result); err != nil {
 		return err
 	}
-	node, err := GetNode(item.NodeId)
-	if err != nil {
-		return err
-	}
 
-	item.NodeKey = node.Key
+	item.UpdateTs = time.Now()
 	if err := item.Save(); err != nil {
 		return err
 	}
@@ -141,15 +117,9 @@ func AddSchedule(item Schedule) error {
 	s, c := database.GetCol("schedules")
 	defer s.Close()
 
-	node, err := GetNode(item.NodeId)
-	if err != nil {
-		return err
-	}
-
 	item.Id = bson.NewObjectId()
 	item.CreateTs = time.Now()
 	item.UpdateTs = time.Now()
-	item.NodeKey = node.Key
 
 	if err := c.Insert(&item); err != nil {
 		debug.PrintStack()

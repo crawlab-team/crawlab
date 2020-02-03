@@ -1,0 +1,21 @@
+name: toscrapy_books
+start_url: http://www.baidu.com/s?wd=crawlab
+start_stage: list
+engine: scrapy
+stages:
+- name: list
+  is_list: true
+  list_xpath: //*[contains(@class, "c-container")]
+  page_xpath: //*[@id="page"]//a[@class="n"][last()]
+  page_attr: href
+  fields:
+  - name: title
+    xpath: .//h3/a
+  - name: url
+    xpath: .//h3/a
+    attr: href
+  - name: abstract
+    xpath: .//*[@class="c-abstract"]
+settings:
+  ROBOTSTXT_OBEY: false
+  USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36

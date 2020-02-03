@@ -1,53 +1,49 @@
 import axios from 'axios'
 import router from '../router'
+import { Message } from 'element-ui'
 
+// 根据 VUE_APP_BASE_URL 生成 baseUrl
 let baseUrl = process.env.VUE_APP_BASE_URL ? process.env.VUE_APP_BASE_URL : 'http://localhost:8000'
+if (!baseUrl.match(/^https?/i)) {
+  baseUrl = `${window.location.protocol}//${window.location.host}${process.env.VUE_APP_BASE_URL}`
+}
 
-const request = async (method, path, params, data, others = {}) => {
-  try {
-    const url = baseUrl + path
-    const headers = {
-      'Authorization': window.localStorage.getItem('token')
+// 如果 Docker 中设置了 CRAWLAB_API_ADDRESS 这个环境变量，则会将 baseUrl 覆盖
+const CRAWLAB_API_ADDRESS = '###CRAWLAB_API_ADDRESS###'
+if (!CRAWLAB_API_ADDRESS.match('CRAWLAB_API_ADDRESS')) {
+  baseUrl = CRAWLAB_API_ADDRESS
+}
+
+const request = (method, path, params, data, others = {}) => {
+  const url = baseUrl + path
+  const headers = {
+    'Authorization': window.localStorage.getItem('token')
+  }
+  return axios({
+    method,
+    url,
+    params,
+    data,
+    headers,
+    ...others
+  }).then((response) => {
+    if (response.status === 200) {
+      return Promise.resolve(response)
     }
-    const response = await axios({
-      method,
-      url,
-      params,
-      data,
-      headers,
-      ...others
-    })
-    // console.log(response)
-    return response
-  } catch (e) {
-    if (e.response.status === 401 && router.currentRoute.path !== '/login') {
+    return Promise.reject(response)
+  }).catch((e) => {
+    let response = e.response
+    if (response.status === 400) {
+      Message.error(response.data.error)
+    }
+    if (response.status === 401 && router.currentRoute.path !== '/login') {
+      console.log('login')
       router.push('/login')
     }
-    await Promise.reject(e)
-  }
-
-  // return new Promise((resolve, reject) => {
-  //   const url = baseUrl + path
-  //   const headers = {
-  //     'Authorization': window.localStorage.getItem('token')
-  //   }
-  //   axios({
-  //     method,
-  //     url,
-  //     params,
-  //     data,
-  //     headers,
-  //     ...others
-  //   })
-  //     .then(resolve)
-  //     .catch(error => {
-  //       console.log(error)
-  //       if (error.response.status === 401) {
-  //         router.push('/login')
-  //       }
-  //       reject(error)
-  //     })
-  // })
+    if (response.status === 500) {
+      Message.error(response.data.error)
+    }
+  })
 }
 
 const get = (path, params) => {
@@ -63,7 +59,7 @@ const put = (path, data) => {
 }
 
 const del = (path, data) => {
-  return request('DELETE', path)
+  return request('DELETE', path, {}, data)
 }
 
 export default {

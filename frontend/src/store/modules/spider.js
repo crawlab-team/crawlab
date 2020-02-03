@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import request from '../../api/request'
 
 const state = {
@@ -34,7 +35,13 @@ const state = {
   filterSite: '',
 
   // preview crawl data
-  previewCrawlData: []
+  previewCrawlData: [],
+
+  // template list
+  templateList: [],
+
+  // spider file tree
+  fileTree: {}
 }
 
 const getters = {}
@@ -72,6 +79,19 @@ const mutations = {
   },
   SET_PREVIEW_CRAWL_DATA (state, value) {
     state.previewCrawlData = value
+  },
+  SET_SPIDER_FORM_CONFIG_SETTINGS (state, payload) {
+    const settings = {}
+    payload.forEach(row => {
+      settings[row.name] = row.value
+    })
+    Vue.set(state.spiderForm.config, 'settings', settings)
+  },
+  SET_TEMPLATE_LIST (state, value) {
+    state.templateList = value
+  },
+  SET_FILE_TREE (state, value) {
+    state.fileTree = value
   }
 }
 
@@ -85,15 +105,9 @@ const actions = {
   },
   editSpider ({ state, dispatch }) {
     return request.post(`/spiders/${state.spiderForm._id}`, state.spiderForm)
-      .then(() => {
-        dispatch('getSpiderList')
-      })
   },
   deleteSpider ({ state, dispatch }, id) {
     return request.delete(`/spiders/${id}`)
-      .then(() => {
-        dispatch('getSpiderList')
-      })
   },
   getSpiderData ({ state, commit }, id) {
     return request.get(`/spiders/${id}`)
@@ -103,10 +117,11 @@ const actions = {
       })
   },
   crawlSpider ({ state, dispatch }, payload) {
-    const { id, nodeId, param } = payload
+    const { spiderId, runType, nodeIds, param } = payload
     return request.put(`/tasks`, {
-      spider_id: id,
-      node_id: nodeId,
+      spider_id: spiderId,
+      run_type: runType,
+      node_ids: nodeIds,
       param: param
     })
   },
@@ -148,6 +163,33 @@ const actions = {
   },
   extractFields ({ state, commit }) {
     return request.post(`/spiders/${state.spiderForm._id}/extract_fields`)
+  },
+  postConfigSpiderConfig ({ state }) {
+    return request.post(`/config_spiders/${state.spiderForm._id}/config`, state.spiderForm.config)
+  },
+  saveConfigSpiderSpiderfile ({ state, rootState }) {
+    const content = rootState.file.fileContent
+    return request.post(`/config_spiders/${state.spiderForm._id}/spiderfile`, { content })
+  },
+  addConfigSpider ({ state }) {
+    return request.put(`/config_spiders`, state.spiderForm)
+  },
+  addSpider ({ state }) {
+    return request.put(`/spiders`, state.spiderForm)
+  },
+  async getTemplateList ({ state, commit }) {
+    const res = await request.get(`/config_spiders_templates`)
+    commit('SET_TEMPLATE_LIST', res.data.data)
+  },
+  async getScheduleList ({ state, commit }, payload) {
+    const { id } = payload
+    const res = await request.get(`/spiders/${id}/schedules`)
+    commit('schedule/SET_SCHEDULE_LIST', res.data.data, { root: true })
+  },
+  async getFileTree ({ state, commit }, payload) {
+    const id = payload ? payload.id : state.spiderForm._id
+    const res = await request.get(`/spiders/${id}/file/tree`)
+    commit('SET_FILE_TREE', res.data.data)
   }
 }
 

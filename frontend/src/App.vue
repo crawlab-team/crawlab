@@ -6,6 +6,9 @@
 </template>
 
 <script>
+import {
+  mapState
+} from 'vuex'
 import DialogView from './components/Common/DialogView'
 
 export default {
@@ -19,22 +22,29 @@ export default {
     DialogView
   },
   computed: {
+    ...mapState('setting', ['setting']),
     useStats () {
       return localStorage.getItem('useStats')
+    },
+    uid () {
+      return localStorage.getItem('uid')
+    },
+    sid () {
+      return sessionStorage.getItem('sid')
     }
   },
   methods: {},
-  mounted () {
+  async mounted () {
     window.setUseStats = (value) => {
-      localStorage.setItem('useStats', value)
       document.querySelector('.el-message__closeBtn').click()
       if (value === 1) {
         this.$st.sendPv('/allow_stats')
-        this.$st.sendEv('全局', '允许/禁止统计', 'value', 'allow')
+        this.$st.sendEv('全局', '允许/禁止统计', '允许')
       } else {
         this.$st.sendPv('/disallow_stats')
-        this.$st.sendEv('全局', '允许/禁止统计', 'value', 'disallow')
+        this.$st.sendEv('全局', '允许/禁止统计', '禁止')
       }
+      localStorage.setItem('useStats', value)
     }
 
     // first-time user
@@ -50,6 +60,16 @@ export default {
           '<button class="message-btn" onclick="setUseStats(0)">' + this.$t('No') + '</button>' +
           '</div>'
       })
+    }
+
+    // set uid if first visit
+    if (this.uid === undefined || this.uid === null) {
+      localStorage.setItem('uid', this.$utils.encrypt.UUID())
+    }
+
+    // set session id if starting a session
+    if (this.sid === undefined || this.sid === null) {
+      sessionStorage.setItem('sid', this.$utils.encrypt.UUID())
     }
   }
 }
@@ -118,5 +138,24 @@ export default {
     background: #f56c6c;
     border-color: #f56c6c;
     color: #fff;
+  }
+
+  .v-tour__target--highlighted {
+    box-shadow: none !important;
+    /*box-shadow: 0 0 0 4px #f56c6c !important;*/
+    border: 3px solid #f56c6c !important;
+  }
+
+  .v-step__button {
+    background: #67c23a !important;
+    border: none !important;
+    color: white !important;
+  }
+
+  .v-step__button:hover {
+    background: #67c23a !important;
+    border: none !important;
+    color: white !important;
+    opacity: 0.9 !important;
   }
 </style>

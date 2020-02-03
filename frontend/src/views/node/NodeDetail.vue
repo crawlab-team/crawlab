@@ -1,9 +1,18 @@
 <template>
   <div class="app-container">
+    <!--tour-->
+    <v-tour
+      name="node-detail"
+      :steps="tourSteps"
+      :callbacks="tourCallbacks"
+      :options="$utils.tour.getOptions(true)"
+    />
+    <!--./tour-->
+
     <!--selector-->
     <div class="selector">
       <label class="label">{{$t('Node')}}: </label>
-      <el-select v-model="nodeForm._id" @change="onNodeChange">
+      <el-select size="small" v-model="nodeForm._id" @change="onNodeChange">
         <el-option v-for="op in nodeList" :key="op._id" :value="op._id" :label="op.name"></el-option>
       </el-select>
     </div>
@@ -12,6 +21,9 @@
     <el-tabs v-model="activeTabName" @tab-click="onTabClick" type="card">
       <el-tab-pane :label="$t('Overview')" name="overview">
         <node-overview></node-overview>
+      </el-tab-pane>
+      <el-tab-pane :label="$t('Installation')" name="installation">
+        <node-installation></node-installation>
       </el-tab-pane>
       <el-tab-pane :label="$t('Deployed Spiders')" name="spiders" v-if="false">
         {{$t('Deployed Spiders')}}
@@ -25,15 +37,64 @@ import {
   mapState
 } from 'vuex'
 import NodeOverview from '../../components/Overview/NodeOverview'
+import NodeInstallation from '../../components/Node/NodeInstallation'
 
 export default {
   name: 'NodeDetail',
   components: {
-    NodeOverview
+    NodeOverview,
+    NodeInstallation
   },
   data () {
     return {
-      activeTabName: 'overview'
+      activeTabName: 'overview',
+      tourSteps: [
+        // overview
+        {
+          target: '.selector',
+          content: this.$t('Switch between different nodes.')
+        },
+        {
+          target: '.latest-tasks-wrapper',
+          content: this.$t('You can view the latest executed spider tasks.'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '.node-info-view-wrapper',
+          content: this.$t('This is the detailed node info.'),
+          params: {
+            placement: 'left'
+          }
+        },
+        // installation
+        {
+          target: '#tab-installation',
+          content: this.$t('Here you can install<br> dependencies and modules<br> that are required<br> in your spiders.')
+        },
+        {
+          target: '.search-box',
+          content: this.$t('You can search dependencies in the search box and install them by clicking the "Install" button below.')
+        }
+      ],
+      tourCallbacks: {
+        onStop: () => {
+          this.$utils.tour.finishTour('node-detail')
+        },
+        onPreviousStep: (currentStep) => {
+          if (currentStep === 3) {
+            this.activeTabName = 'overview'
+          }
+          this.$utils.tour.prevStep('node-detail', currentStep)
+        },
+        onNextStep: (currentStep) => {
+          if (currentStep === 2) {
+            this.activeTabName = 'installation'
+          }
+          this.$utils.tour.nextStep('node-detail', currentStep)
+        }
+      }
     }
   },
   computed: {
@@ -43,7 +104,8 @@ export default {
     ])
   },
   methods: {
-    onTabClick () {
+    onTabClick (tab) {
+      this.$st.sendEv('节点详情', '切换标签', tab.name)
     },
     onNodeChange (id) {
       this.$router.push(`/nodes/${id}`)
@@ -59,6 +121,12 @@ export default {
 
     // get node task list
     this.$store.dispatch('node/getTaskList', this.$route.params.id)
+  },
+  mounted () {
+    if (!this.$utils.tour.isFinishedTour('node-detail')) {
+      this.$tours['node-detail'].start()
+      this.$st.sendEv('教程', '开始', 'node-detail')
+    }
   }
 }
 </script>

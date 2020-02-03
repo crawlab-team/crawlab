@@ -1,3 +1,95 @@
+# 0.4.5 (2020-02-03)
+### Features / Enhancement
+- **Interactive Tutorial**. Guide users through the main functionalities of Crawlab.
+- **Global Environment Variables**. Allow users to set global environment variables, which will be passed into all spider programs. [#177](https://github.com/crawlab-team/crawlab/issues/177)
+- **Project**. Allow users to link spiders to projects. [#316](https://github.com/crawlab-team/crawlab/issues/316)
+- **Demo Spiders**. Added demo spiders when Crawlab is initialized. [#379](https://github.com/crawlab-team/crawlab/issues/379)
+- **User Admin Optimization**. Restrict privilleges of admin users. [#456](https://github.com/crawlab-team/crawlab/issues/456)
+- **Setting Page Optimization**.
+- **Task Results Optimization**.
+
+### Bug Fixes
+- **Unable to find spider file error**. [#485](https://github.com/crawlab-team/crawlab/issues/485)
+- **Click delete button results in redirect**. [#480](https://github.com/crawlab-team/crawlab/issues/480)
+- **Unable to create files in an empty spider**. [#479](https://github.com/crawlab-team/crawlab/issues/479)
+- **Download results error**. [#465](https://github.com/crawlab-team/crawlab/issues/465)
+- **crawlab-sdk CLI error**. [#458](https://github.com/crawlab-team/crawlab/issues/458)
+- **Page refresh issue**. [#441](https://github.com/crawlab-team/crawlab/issues/441)
+- **Results not support JSON**. [#202](https://github.com/crawlab-team/crawlab/issues/202)
+- **Getting all spider after deleting a spider**.
+- **i18n warning**.
+
+# 0.4.4 (2020-01-17)
+### Features / Enhancement
+- **Email Notification**. Allow users to send email notifications.
+- **DingTalk Robot Notification**. Allow users to send DingTalk Robot notifications.
+- **Wechat Robot Notification**. Allow users to send Wechat Robot notifications.
+- **API Address Optimization**. Added relative URL path in frontend so that users don't have to specify `CRAWLAB_API_ADDRESS` explicitly.
+- **SDK Compatiblity**. Allow users to integrate Scrapy or general spiders with Crawlab SDK.
+- **Enhanced File Management**. Added tree-like file sidebar to allow users to edit files much more easier.
+- **Advanced Schedule Cron**. Allow users to edit schedule cron with visualized cron editor.
+
+### Bug Fixes
+- **`nil retuened` error**.
+- **Error when using HTTPS**.
+- **Unable to run Configurable Spiders on Spider List**.
+- **Missing form validation before uploading spider files**.
+
+# 0.4.3 (2020-01-07)
+
+### Features / Enhancement
+- **Dependency Installation**. Allow users to install/uninstall dependencies and add programming languages (Node.js only for now) on the platform web interface.
+- **Pre-install Programming Languages in Docker**. Allow Docker users to set `CRAWLAB_SERVER_LANG_NODE` as `Y` to pre-install `Node.js` environments.
+- **Add Schedule List in Spider Detail Page**. Allow users to view / add / edit schedule cron jobs in the spider detail page. [#360](https://github.com/crawlab-team/crawlab/issues/360)
+- **Align Cron Expression with Linux**. Change the expression of 6 elements to 5 elements as aligned in Linux.
+- **Enable/Disable Schedule Cron**. Allow users to enable/disable the schedule jobs. [#297](https://github.com/crawlab-team/crawlab/issues/297)
+- **Better Task Management**. Allow users to batch delete tasks. [#341](https://github.com/crawlab-team/crawlab/issues/341)
+- **Better Spider Management**. Allow users to sort and filter spiders in the spider list page.
+- **Added Chinese `CHANGELOG`**.
+- **Added Github Star Button at Nav Bar**.
+
+### Bug Fixes
+- **Schedule Cron Task Issue**. [#423](https://github.com/crawlab-team/crawlab/issues/423)
+- **Upload Spider Zip File Issue**. [#403](https://github.com/crawlab-team/crawlab/issues/403) [#407](https://github.com/crawlab-team/crawlab/issues/407)
+- **Exit due to Network Failure**. [#340](https://github.com/crawlab-team/crawlab/issues/340)
+- **Cron Jobs not Running Correctly**
+- **Schedule List Columns Mis-positioned**
+- **Clicking Refresh Button Redirected to 404 Page**
+
+# 0.4.2 (2019-12-26)
+### Features / Enhancement
+- **Disclaimer**. Added page for Disclaimer.
+- **Call API to fetch version**. [#371](https://github.com/crawlab-team/crawlab/issues/371)
+- **Configure to allow user registration**. [#346](https://github.com/crawlab-team/crawlab/issues/346)
+- **Allow adding new users**.
+- **More Advanced File Management**. Allow users to add / edit / rename / delete files. [#286](https://github.com/crawlab-team/crawlab/issues/286)
+- **Optimized Spider Creation Process**. Allow users to create an empty customized spider before uploading the zip file.
+- **Better Task Management**. Allow users to filter tasks by selecting through certian criterions. [#341](https://github.com/crawlab-team/crawlab/issues/341)
+
+### Bug Fixes
+- **Duplicated nodes**. [#391](https://github.com/crawlab-team/crawlab/issues/391)
+- **"mongodb no reachable" error**. [#373](https://github.com/crawlab-team/crawlab/issues/373)
+
+# 0.4.1 (2019-12-13)
+### Features / Enhancement
+- **Spiderfile Optimization**. Stages changed from dictionary to array. [#358](https://github.com/crawlab-team/crawlab/issues/358)
+- **Baidu Tongji Update**.
+
+### Bug Fixes
+- **Unable to display schedule tasks**. [#353](https://github.com/crawlab-team/crawlab/issues/353)
+- **Duplicate node registration**. [#334](https://github.com/crawlab-team/crawlab/issues/334)
+
+# 0.4.0 (2019-12-06)
+### Features / Enhancement
+- **Configurable Spider**. Allow users to add spiders using *Spiderfile* to configure crawling rules.
+- **Execution Mode**. Allow users to select 3 modes for task execution: *All Nodes*, *Selected Nodes* and *Random*.
+
+### Bug Fixes
+- **Task accidentally killed**. [#306](https://github.com/crawlab-team/crawlab/issues/306)
+- **Documentation fix**. [#301](https://github.com/crawlab-team/crawlab/issues/258) [#301](https://github.com/crawlab-team/crawlab/issues/258)
+- **Direct deploy incompatible with Windows**. [#288](https://github.com/crawlab-team/crawlab/issues/288)
+- **Log files lost**. [#269](https://github.com/crawlab-team/crawlab/issues/269)
+
 # 0.3.5 (2019-10-28)
 ### Features / Enhancement
 - **Graceful Showdown**. [detail](https://github.com/crawlab-team/crawlab/commit/63fab3917b5a29fd9770f9f51f1572b9f0420385)

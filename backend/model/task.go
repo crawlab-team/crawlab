@@ -25,6 +25,7 @@ type Task struct {
 	RuntimeDuration float64       `json:"runtime_duration" bson:"runtime_duration"`
 	TotalDuration   float64       `json:"total_duration" bson:"total_duration"`
 	Pid             int           `json:"pid" bson:"pid"`
+	UserId          bson.ObjectId `json:"user_id" bson:"user_id"`
 
 	// 前端数据
 	SpiderName string `json:"spider_name"`
@@ -61,6 +62,7 @@ func (t *Task) Save() error {
 	defer s.Close()
 	t.UpdateTs = time.Now()
 	if err := c.UpdateId(t.Id, t); err != nil {
+		log.Errorf("update task error: %s", err.Error())
 		debug.PrintStack()
 		return err
 	}
@@ -93,7 +95,7 @@ func (t *Task) GetResults(pageNum int, pageSize int) (results []interface{}, tot
 	query := bson.M{
 		"task_id": t.Id,
 	}
-	if err = c.Find(query).Skip((pageNum - 1) * pageSize).Limit(pageSize).Sort("-create_ts").All(&results); err != nil {
+	if err = c.Find(query).Skip((pageNum - 1) * pageSize).Limit(pageSize).All(&results); err != nil {
 		return
 	}
 
@@ -116,18 +118,12 @@ func GetTaskList(filter interface{}, skip int, limit int, sortKey string) ([]Tas
 
 	for i, task := range tasks {
 		// 获取爬虫名称
-		spider, err := task.GetSpider()
-		if err != nil || spider.Id.Hex() == "" {
-			_ = spider.Delete()
-		} else {
+		if spider, err := task.GetSpider(); err == nil {
 			tasks[i].SpiderName = spider.DisplayName
 		}
 
 		// 获取节点名称
-		node, err := task.GetNode()
-		if node.Id.Hex() == "" || err != nil {
-			_ = task.Delete()
-		} else {
+		if node, err := task.GetNode(); err == nil {
 			tasks[i].NodeName = node.Name
 		}
 	}
@@ -141,6 +137,8 @@ func GetTaskListTotal(filter interface{}) (int, error) {
 	var result int
 	result, err := c.Find(filter).Count()
 	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
 		return result, err
 	}
 	return result, nil
@@ -152,6 +150,7 @@ func GetTask(id string) (Task, error) {
 
 	var task Task
 	if err := c.FindId(id).One(&task); err != nil {
+		log.Infof("get task error: %s, id: %s", err.Error(), id)
 		debug.PrintStack()
 		return task, err
 	}
@@ -166,6 +165,8 @@ func AddTask(item Task) error {
 	item.UpdateTs = time.Now()
 
 	if err := c.Insert(&item); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
 		return err
 	}
 	return nil
@@ -177,6 +178,8 @@ func RemoveTask(id string) error {
 
 	var result Task
 	if err := c.FindId(id).One(&result); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
 		return err
 	}
 
@@ -184,6 +187,20 @@ func RemoveTask(id string) error {
 		return err
 	}
 
+	return nil
+}
+
+func RemoveTaskByStatus(status string) error {
+	tasks, err := GetTaskList(bson.M{"status": status}, 0, constants.Infinite, "-create_ts")
+	if err != nil {
+		log.Error("get tasks error:" + err.Error())
+	}
+	for _, task := range tasks {
+		if err := RemoveTask(task.Id); err != nil {
+			log.Error("remove task error:" + err.Error())
+			continue
+		}
+	}
 	return nil
 }
 

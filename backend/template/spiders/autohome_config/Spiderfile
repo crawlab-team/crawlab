@@ -1,0 +1,57 @@
+name: "autohome_config"
+display_name: "汽车之家（可配置）"
+remark: "汽车之家文章，列表+详情+分页"
+type: "configurable"
+col: "results_autohome_config"
+engine: scrapy
+start_url: https://www.autohome.com.cn/all/
+start_stage: list
+stages:
+- name: list
+  is_list: true
+  list_css: ul.article > li
+  list_xpath: ""
+  page_css: a.page-item-next
+  page_xpath: ""
+  page_attr: href
+  fields:
+  - name: title
+    css: li > a > h3
+    xpath: ""
+    attr: ""
+    next_stage: ""
+    remark: ""
+  - name: url
+    css: li > a
+    xpath: ""
+    attr: href
+    next_stage: ""
+    remark: ""
+  - name: abstract
+    css: li > a > p
+    xpath: ""
+    attr: ""
+    next_stage: ""
+    remark: ""
+  - name: time
+    css: li > a .fn-left
+    xpath: ""
+    attr: ""
+    next_stage: ""
+    remark: ""
+  - name: views
+    css: li > a .fn-right > em:first-child
+    xpath: ""
+    attr: ""
+    next_stage: ""
+    remark: ""
+  - name: comments
+    css: li > a .fn-right > em:last-child
+    xpath: ""
+    attr: ""
+    next_stage: ""
+    remark: ""
+settings:
+  ROBOTSTXT_OBEY: "false"
+  USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML,
+    like Gecko) Chrome/78.0.3904.108 Safari/537.36

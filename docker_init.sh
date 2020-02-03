@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # replace default api path to new one
 if [ "${CRAWLAB_API_ADDRESS}" = "" ]; 
@@ -6,7 +6,7 @@ then
 	:
 else
 	jspath=`ls /app/dist/js/app.*.js`
-	sed -i "s?http://localhost:8000?${CRAWLAB_API_ADDRESS}?g" ${jspath}
+	sed -i "s?###CRAWLAB_API_ADDRESS###?${CRAWLAB_API_ADDRESS}?g" ${jspath}
 fi
 
 # replace base url
@@ -22,4 +22,12 @@ fi
 # start nginx
 service nginx start
 
+# install languages: Node.js
+if [ "${CRAWLAB_SERVER_LANG_NODE}" = "Y" ];
+then
+	echo "installing node.js"
+	/bin/sh /app/backend/scripts/install-nodejs.sh
+fi
+
+# start backend
 crawlab

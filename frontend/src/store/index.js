@@ -13,6 +13,10 @@ import schedule from './modules/schedule'
 import lang from './modules/lang'
 import site from './modules/site'
 import stats from './modules/stats'
+import setting from './modules/setting'
+import version from './modules/version'
+import tour from './modules/tour'
+import project from './modules/project'
 import getters from './getters'
 
 Vue.use(Vuex)
@@ -31,7 +35,11 @@ const store = new Vuex.Store({
     schedule,
     lang,
     site,
-    // 百度统计
+    setting,
+    version,
+    tour,
+    project,
+    // 统计
     stats
   },
   getters

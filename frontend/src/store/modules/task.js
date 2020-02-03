@@ -12,7 +12,8 @@ const state = {
   // filter
   filter: {
     node_id: '',
-    spider_id: ''
+    spider_id: '',
+    status: ''
   },
   // pagination
   pageNum: 1,
@@ -89,7 +90,8 @@ const actions = {
       page_num: state.pageNum,
       page_size: state.pageSize,
       node_id: state.filter.node_id || undefined,
-      spider_id: state.filter.spider_id || undefined
+      spider_id: state.filter.spider_id || undefined,
+      status: state.filter.status || undefined
     })
       .then(response => {
         commit('SET_TASK_LIST', response.data.data || [])
@@ -101,6 +103,11 @@ const actions = {
       .then(() => {
         dispatch('getTaskList')
       })
+  },
+  deleteTaskMultiple ({ state }, ids) {
+    return request.delete(`/tasks_multiple`, {
+      ids: ids
+    })
   },
   getTaskLog ({ state, commit }, id) {
     commit('SET_TASK_LOG', '')

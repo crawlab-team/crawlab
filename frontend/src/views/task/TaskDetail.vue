@@ -1,5 +1,14 @@
 <template>
   <div class="app-container">
+    <!--tour-->
+    <v-tour
+      name="task-detail"
+      :steps="tourSteps"
+      :callbacks="tourCallbacks"
+      :options="$utils.tour.getOptions(true)"
+    />
+    <!--./tour-->
+
     <!--tabs-->
     <el-tabs v-model="activeTabName" @tab-click="onTabClick" type="card">
       <el-tab-pane :label="$t('Overview')" name="overview">
@@ -12,7 +21,7 @@
       </el-tab-pane>
       <el-tab-pane :label="$t('Results')" name="results">
         <div class="button-group">
-          <el-button type="primary" icon="el-icon-download" @click="downloadCSV">
+          <el-button class="btn-download" type="primary" icon="el-icon-download" @click="downloadCSV">
             {{$t('Download CSV')}}
           </el-button>
         </div>
@@ -48,11 +57,87 @@ export default {
     return {
       activeTabName: 'overview',
       handle: undefined,
-      taskLog: ''
+      taskLog: '',
+
+      // tutorial
+      tourSteps: [
+        // overview
+        {
+          target: '.task-info-overview-wrapper',
+          content: this.$t('This is the info of the task detail.'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '.task-info-spider-wrapper',
+          content: this.$t('This is the spider info of the task.'),
+          params: {
+            placement: 'left'
+          }
+        },
+        {
+          target: '.spider-title',
+          content: this.$t('You can click to view the spider detail for the task.'),
+          params: {
+            placement: 'left'
+          }
+        },
+        {
+          target: '.task-info-node-wrapper',
+          content: this.$t('This is the node info of the task.'),
+          params: {
+            placement: 'left'
+          }
+        },
+        {
+          target: '.node-title',
+          content: this.$t('You can click to view the node detail for the task.'),
+          params: {
+            placement: 'left'
+          }
+        },
+        // log
+        {
+          target: '#tab-log',
+          content: this.$t('Here you can view the log<br> details for the task. The<br> log is automatically updated.')
+        },
+        // results
+        {
+          target: '#tab-results',
+          content: this.$t('Here you can view the results scraped by the spider.<br><br><strong>Note:</strong> If you find your results here are empty, please refer to the <a href="https://docs.crawlab.cn/Integration/" target="_blank" style="color: #409EFF">Documentation (Chinese)</a> about how to integrate your spider into Crawlab.')
+        },
+        {
+          target: '.btn-download',
+          content: this.$t('You can download your results as a CSV file by clicking this button.')
+        }
+      ],
+      tourCallbacks: {
+        onStop: () => {
+          this.$utils.tour.finishTour('task-detail')
+        },
+        onPreviousStep: (currentStep) => {
+          if (currentStep === 5) {
+            this.activeTabName = 'overview'
+          } else if (currentStep === 6) {
+            this.activeTabName = 'log'
+          }
+          this.$utils.tour.prevStep('task-detail', currentStep)
+        },
+        onNextStep: (currentStep) => {
+          if (currentStep === 4) {
+            this.activeTabName = 'log'
+          } else if (currentStep === 5) {
+            this.activeTabName = 'results'
+          }
+          this.$utils.tour.nextStep('task-detail', currentStep)
+        }
+      }
     }
   },
   computed: {
     ...mapState('task', [
+      'taskForm',
       'taskResultsData',
       'taskResultsTotalCount'
     ]),
@@ -80,6 +165,9 @@ export default {
       set (value) {
         this.$store.commit('task/SET_RESULTS_PAGE_SIZE', value)
       }
+    },
+    isRunning () {
+      return ['pending', 'running'].includes(this.taskForm.status)
     }
   },
   methods: {
@@ -97,7 +185,7 @@ export default {
     },
     downloadCSV () {
       this.$store.dispatch('task/getTaskResultExcel', this.$route.params.id)
-      this.$st.sendEv('任务详情-结果', '下载CSV')
+      this.$st.sendEv('任务详情', '结果', '下载CSV')
     },
     getTaskLog () {
       if (this.$route.params.id) {
@@ -113,8 +201,17 @@ export default {
 
     this.getTaskLog()
     this.handle = setInterval(() => {
+      if (!this.isRunning) return
+      this.$store.dispatch('task/getTaskData', this.$route.params.id)
+      this.$store.dispatch('task/getTaskResults', this.$route.params.id)
       this.getTaskLog()
     }, 5000)
+  },
+  mounted () {
+    if (!this.$utils.tour.isFinishedTour('task-detail')) {
+      this.$tours['task-detail'].start()
+      this.$st.sendEv('教程', '开始', 'task-detail')
+    }
   },
   destroyed () {
     clearInterval(this.handle)

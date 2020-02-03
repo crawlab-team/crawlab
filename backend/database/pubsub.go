@@ -58,9 +58,9 @@ func (r *Redis) subscribe(ctx context.Context, consume ConsumeFunc, channel ...s
 			}
 			done <- nil
 		case <-tick.C:
-			//fmt.Printf("ping message  \n")
 			if err := psc.Ping(""); err != nil {
-				done <- err
+				fmt.Printf("ping message error: %s \n", err)
+				//done <- err
 			}
 		case err := <-done:
 			close(done)
