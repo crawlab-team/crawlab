@@ -7,7 +7,11 @@
       <template v-for="col in columns">
         <el-table-column :key="col" :label="col" :property="col" min-width="120">
           <template slot-scope="scope">
-            {{getString(scope.row[col])}}
+            <el-popover trigger="hover" :content="getString(scope.row[col])" popper-class="cell-popover">
+              <div slot="reference" class="wrapper">
+                {{getString(scope.row[col])}}
+              </div>
+            </el-popover>
           </template>
         </el-table-column>
       </template>
@@ -78,5 +82,22 @@ export default {
 </script>
 
 <style scoped>
+  .general-table-view >>> .cell .wrapper:hover {
+    text-decoration: underline;
+  }
 
+  .general-table-view >>> .cell .wrapper {
+    font-size: 12px;
+    height: 24px;
+    line-height: 24px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>
+
+<style>
+  .cell-popover {
+    max-width: 480px;
+  }
 </style>
