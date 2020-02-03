@@ -14,6 +14,7 @@
 - **下载结果错误**. [#465](https://github.com/crawlab-team/crawlab/issues/465)
 - **crawlab-sdk CLI 错误**. [#458](https://github.com/crawlab-team/crawlab/issues/458)
 - **页面刷新问题**. [#441](https://github.com/crawlab-team/crawlab/issues/441)
+- **结果不支持 JSON**. [#202](https://github.com/crawlab-team/crawlab/issues/202)
 - **修复“删除爬虫后获取所有爬虫”错误**.
 - **修复 i18n 警告**.
 

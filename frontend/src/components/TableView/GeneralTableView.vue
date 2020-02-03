@@ -7,7 +7,7 @@
       <template v-for="col in columns">
         <el-table-column :key="col" :label="col" :property="col" min-width="120">
           <template slot-scope="scope">
-            {{scope.row[col] !== undefined ? JSON.stringify(scope.row[col]).replace(/^"/, '').replace(/"$/, '') : ''}}
+            {{getString(scope.row[col])}}
           </template>
         </el-table-column>
       </template>
@@ -61,18 +61,17 @@ export default {
   computed: {
     filteredData () {
       return this.data
-      // .map(d => d)
-      // .filter((d, index) => {
-      //   // pagination
-      //   const pageNum = this.pageNum
-      //   const pageSize = this.pageSize
-      //   return (pageSize * (pageNum - 1) <= index) && (index < pageSize * pageNum)
-      // })
     }
   },
   methods: {
     onPageChange () {
       this.$emit('page-change', { pageNum: this.pageNum, pageSize: this.pageSize })
+    },
+    getString (value) {
+      if (value === undefined) return ''
+      const str = JSON.stringify(value)
+      if (str.match(/^"(.*)"$/)) return str.match(/^"(.*)"$/)[1]
+      return str
     }
   }
 }
