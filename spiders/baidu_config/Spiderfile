@@ -9,16 +9,16 @@ start_stage: list
 stages:
 - name: list
   is_list: true
-  list_css: ""
-  list_xpath: //body
-  page_css: ""
-  page_xpath: //body
+  list_css: ".result.c-container"
+  list_xpath: ""
+  page_css: "a.n"
+  page_xpath: ""
   page_attr: href
   fields:
   - name: title
     css: ""
     xpath: .//h3/a
-    attr: href
+    attr: ""
     next_stage: ""
     remark: ""
   - name: url
@@ -30,7 +30,7 @@ stages:
   - name: abstract
     css: ""
     xpath: .//*[@class="c-abstract"]
-    attr: href
+    attr: ""
     next_stage: ""
     remark: ""
 settings:
