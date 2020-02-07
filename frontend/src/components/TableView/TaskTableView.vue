@@ -15,6 +15,11 @@
           <a class="a-tag" @click="onClickSpider(scope.row)">{{scope.row.spider_name}}</a>
         </template>
       </el-table-column>
+      <el-table-column property="param" :label="$t('Parameters')" width="120">
+        <template slot-scope="scope">
+          <span>{{scope.row.param}}</span>
+        </template>
+      </el-table-column>
       <el-table-column property="result_count" :label="$t('Results Count')" width="60" align="right">
         <template slot-scope="scope">
           <span>{{scope.row.result_count}}</span>
