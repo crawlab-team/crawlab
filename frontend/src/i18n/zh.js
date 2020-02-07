@@ -496,6 +496,7 @@ docker run -d --restart always --name crawlab_worker \\
   'Here you can set your password.': '这里您可以设置您的密码',
   'In this tab you can configure your notification settings.': '在这个标签中，您可以配置您的消息通知配置',
   'Here you can add/edit/delete global environment variables which will be passed into your spider programs.': '这里您可以添加/修改/删除全局环境变量，它们会被传入爬虫程序中',
+  'You are running on a mobile device, which is not optimized yet. Please try with a laptop or desktop.': '您正在没有优化过的移动端上浏览，我们建议您用电脑来访问',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

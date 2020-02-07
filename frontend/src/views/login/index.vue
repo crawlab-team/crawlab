@@ -73,6 +73,11 @@
         <span @click="setLang('zh')" :class="lang==='zh'?'active':''">中文</span>
         <span @click="setLang('en')" :class="lang==='en'?'active':''">English</span>
       </div>
+      <div v-if="isShowMobileWarning" class="mobile-warning">
+        <el-alert type="error" :closable="false">
+          {{$t('You are running on a mobile device, which is not optimized yet. Please try with a laptop or desktop.')}}
+        </el-alert>
+      </div>
     </el-form>
   </div>
 </template>
@@ -121,7 +126,8 @@ export default {
         confirmPassword: [{ required: true, trigger: 'blur', validator: validateConfirmPass }]
       },
       loading: false,
-      pwdType: 'password'
+      pwdType: 'password',
+      isShowMobileWarning: false
     }
   },
   computed: {
@@ -179,7 +185,11 @@ export default {
     }
   },
   mounted () {
-    initCanvas()
+    if (window.innerWidth >= 1024) {
+      initCanvas()
+    } else {
+      this.isShowMobileWarning = true
+    }
   }
 }
 
@@ -455,5 +465,15 @@ const initCanvas = () => {
         text-decoration: underline;
       }
     }
+
+    .mobile-warning {
+      margin-top: 20px;
+    }
+
+  }
+</style>
+<style scoped>
+  .mobile-warning >>> .el-alert .el-alert__description {
+    font-size: 1.2rem;
   }
 </style>
