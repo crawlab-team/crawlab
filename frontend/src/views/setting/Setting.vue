@@ -32,7 +32,7 @@
     </el-dialog>
 
     <el-tabs v-model="activeName" @tab-click="tabActiveHandle">
-      <el-tab-pane :label="$t('Password Settings')" name="password">
+      <el-tab-pane :label="$t('General')" name="general">
         <el-form :model="userInfo" class="setting-form" ref="setting-form" label-width="200px" :rules="rules"
                  inline-message>
           <el-form-item prop="username" :label="$t('Username')">
@@ -40,6 +40,14 @@
           </el-form-item>
           <el-form-item prop="password" :label="$t('Password')">
             <el-input v-model="userInfo.password" type="password" :placeholder="$t('Password')"></el-input>
+          </el-form-item>
+          <el-form-item :label="$t('Allow Sending Statistics')">
+            <el-switch
+              v-model="isAllowSendingStatistics"
+              @change="onAllowSendingStatisticsChange"
+              active-color="#67C23A"
+              inactive-color="#909399"
+            />
           </el-form-item>
           <el-form-item>
             <div style="text-align: right">
@@ -50,7 +58,7 @@
           </el-form-item>
         </el-form>
       </el-tab-pane>
-      <el-tab-pane :label="$t('Notify Settings')" name="notify">
+      <el-tab-pane :label="$t('Notifications')" name="notify">
         <el-form :model="userInfo" class="setting-form" ref="setting-form" label-width="200px" :rules="rules"
                  inline-message>
           <el-form-item :label="$t('Notification Trigger Timing')">
@@ -165,7 +173,7 @@ export default {
         'setting.wechat_robot_webhook': [{ trigger: 'blur', validator: validateWechatRobotWebhook }]
       },
       isShowDingTalkAppSecret: false,
-      activeName: 'password',
+      activeName: 'general',
       addDialogVisible: false,
       tourSteps: [
         {
@@ -204,7 +212,8 @@ export default {
           }
           this.$utils.tour.nextStep('setting', currentStep)
         }
-      }
+      },
+      isAllowSendingStatistics: localStorage.getItem('useStats') === '1'
     }
   },
   computed: {
@@ -271,6 +280,17 @@ export default {
       this.$st.sendEv('设置', '保存')
     },
     tabActiveHandle () {
+    },
+    onAllowSendingStatisticsChange (value) {
+      if (value) {
+        this.$st.sendPv('/allow_stats')
+        this.$st.sendEv('全局', '允许/禁止统计', '允许')
+      } else {
+        this.$st.sendPv('/disallow_stats')
+        this.$st.sendEv('全局', '允许/禁止统计', '禁止')
+      }
+      this.$message.success(this.$t('Saved successfully'))
+      localStorage.setItem('useStats', value ? '1' : '0')
     }
   },
   async created () {
