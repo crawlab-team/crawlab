@@ -380,11 +380,13 @@ export default {
   'DingTalk Robot Webhook': '钉钉机器人 Webhook',
   'Wechat Robot Webhook': '微信机器人 Webhook',
   'Password Settings': '密码设置',
-  'Notify Settings': '通知设置',
+  'Notifications': '消息通知',
   'Global Variable': '全局变量',
   'Add Global Variable': '新增全局变量',
   'Are you sure to delete this global variable': '确定删除该全局变量？',
   'Key': '设置',
+  'Allow Sending Statistics': '允许发送统计信息',
+  'General': '通用',
 
   // 其他
   tagsView: {

@@ -35,32 +35,32 @@ export default {
   },
   methods: {},
   async mounted () {
-    window.setUseStats = (value) => {
-      document.querySelector('.el-message__closeBtn').click()
-      if (value === 1) {
-        this.$st.sendPv('/allow_stats')
-        this.$st.sendEv('全局', '允许/禁止统计', '允许')
-      } else {
-        this.$st.sendPv('/disallow_stats')
-        this.$st.sendEv('全局', '允许/禁止统计', '禁止')
-      }
-      localStorage.setItem('useStats', value)
-    }
+    // window.setUseStats = (value) => {
+    //   document.querySelector('.el-message__closeBtn').click()
+    //   if (value === 1) {
+    //     this.$st.sendPv('/allow_stats')
+    //     this.$st.sendEv('全局', '允许/禁止统计', '允许')
+    //   } else {
+    //     this.$st.sendPv('/disallow_stats')
+    //     this.$st.sendEv('全局', '允许/禁止统计', '禁止')
+    //   }
+    //   localStorage.setItem('useStats', value)
+    // }
 
     // first-time user
-    if (this.useStats === undefined || this.useStats === null) {
-      this.$message({
-        type: 'info',
-        dangerouslyUseHTMLString: true,
-        showClose: true,
-        duration: 0,
-        message: '<p>' + this.$t('Do you allow us to collect some statistics to improve Crawlab?') + '</p>' +
-          '<div style="text-align: center;margin-top: 10px;">' +
-          '<button class="message-btn" onclick="setUseStats(1)">' + this.$t('Yes') + '</button>' +
-          '<button class="message-btn" onclick="setUseStats(0)">' + this.$t('No') + '</button>' +
-          '</div>'
-      })
-    }
+    // if (this.useStats === undefined || this.useStats === null) {
+    // this.$message({
+    //   type: 'info',
+    //   dangerouslyUseHTMLString: true,
+    //   showClose: true,
+    //   duration: 0,
+    //   message: '<p>' + this.$t('Do you allow us to collect some statistics to improve Crawlab?') + '</p>' +
+    //     '<div style="text-align: center;margin-top: 10px;">' +
+    //     '<button class="message-btn" onclick="setUseStats(1)">' + this.$t('Yes') + '</button>' +
+    //     '<button class="message-btn" onclick="setUseStats(0)">' + this.$t('No') + '</button>' +
+    //     '</div>'
+    // })
+    // }
 
     // set uid if first visit
     if (this.uid === undefined || this.uid === null) {
