@@ -177,8 +177,8 @@ export default {
       addDialogVisible: false,
       tourSteps: [
         {
-          target: '#tab-password',
-          content: this.$t('Here you can set your password.'),
+          target: '#tab-general',
+          content: this.$t('Here you can set your general settings.'),
           params: {
             placement: 'right'
           }
@@ -300,8 +300,8 @@ export default {
   },
   mounted () {
     if (!this.$utils.tour.isFinishedTour('setting')) {
-      this.$tours['setting'].start()
-      this.$st.sendEv('教程', '开始', 'setting')
+      // this.$tours['setting'].start()
+      // this.$st.sendEv('教程', '开始', 'setting')
     }
   }
 }
