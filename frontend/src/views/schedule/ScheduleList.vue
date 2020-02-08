@@ -84,7 +84,7 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('Cron')" prop="cron" required>
-          <el-popover v-model="isShowCron" trigger="manual">
+          <el-popover v-model="isShowCron" trigger="focus">
             <template>
               <vue-cron-linux :data="scheduleForm.cron" :i18n="lang" @change="onCronChange"/>
             </template>
@@ -94,8 +94,6 @@
                 ref="cron"
                 v-model="scheduleForm.cron"
                 :placeholder="`${$t('[minute] [hour] [day] [month] [day of week]')}`"
-                @focus="isShowCron = true"
-                @blur="isShowCron = false"
               >
               </el-input>
             </template>
