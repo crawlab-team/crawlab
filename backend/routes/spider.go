@@ -295,7 +295,12 @@ func UploadSpider(c *gin.Context) {
 		if cmd != "" {
 			spider.Cmd = cmd
 		}
-		_ = spider.Add()
+		if err := spider.Add(); err != nil {
+			log.Error("add spider error: " + err.Error())
+			debug.PrintStack()
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
 	} else {
 		if name != "" {
 			spider.Name = name
@@ -311,7 +316,12 @@ func UploadSpider(c *gin.Context) {
 		}
 		// 更新file_id
 		spider.FileId = fid
-		_ = spider.Save()
+		if err := spider.Add(); err != nil {
+			log.Error("add spider error: " + err.Error())
+			debug.PrintStack()
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
 	}
 
 	// 发起同步
