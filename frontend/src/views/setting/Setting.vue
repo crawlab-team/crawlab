@@ -300,8 +300,8 @@ export default {
   },
   mounted () {
     if (!this.$utils.tour.isFinishedTour('setting')) {
-      // this.$tours['setting'].start()
-      // this.$st.sendEv('教程', '开始', 'setting')
+      this.$tours['setting'].start()
+      this.$st.sendEv('教程', '开始', 'setting')
     }
   }
 }

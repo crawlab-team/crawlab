@@ -78,6 +78,10 @@ func (spider *Spider) Add() error {
 	spider.CreateTs = time.Now()
 	spider.UpdateTs = time.Now()
 
+	if !spider.ProjectId.Valid() {
+		spider.ProjectId = bson.ObjectIdHex(constants.ObjectIdNull)
+	}
+
 	if err := c.Insert(&spider); err != nil {
 		return err
 	}
