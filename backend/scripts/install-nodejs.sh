@@ -18,5 +18,4 @@ export PATH=$NODE_PATH:$PATH
 
 # install default dependencies
 npm config set PUPPETEER_DOWNLOAD_HOST=https://npm.taobao.org/mirrors
-npm install puppeteer -g --unsafe-perm=true
-npm install puppeteer-core puppeteer-chromium-resolver crawlab-sdk -g --ignore-scripts
+npm install puppeteer-chromium-resolver crawlab-sdk  -g --unsafe-perm=true
