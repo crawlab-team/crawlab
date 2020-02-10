@@ -30,4 +30,5 @@ apt-get update && apt-get install -y --no-install-recommends gconf-service libas
 
 # install default dependencies
 PUPPETEER_DOWNLOAD_HOST=https://npm.taobao.org/mirrors
+npm config set puppeteer_download_host=https://npm.taobao.org/mirrors
 npm install puppeteer-chromium-resolver crawlab-sdk -g --unsafe-perm=true --registry=https://registry.npm.taobao.org
