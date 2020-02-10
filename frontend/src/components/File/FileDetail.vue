@@ -42,6 +42,8 @@ export default {
         mode: this.language,
         theme: 'darcula',
         styleActiveLine: true,
+        smartIndent: true,
+        indentUnit: 4,
         lineNumbers: true,
         line: true,
         matchBrackets: true

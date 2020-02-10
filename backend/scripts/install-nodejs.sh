@@ -15,3 +15,8 @@ ln -s $HOME/.nvm/versions/node/v8.12.0/bin/node /usr/local/bin/node
 # environments manipulation
 export NODE_PATH=$HOME.nvm/versions/node/v8.12.0/lib/node_modules
 export PATH=$NODE_PATH:$PATH
+
+# install default dependencies
+npm config set PUPPETEER_DOWNLOAD_HOST=https://npm.taobao.org/mirrors
+npm install puppeteer -g --unsafe-perm=true
+npm install puppeteer-core puppeteer-chromium-resolver crawlab-sdk -g --ignore-scripts
