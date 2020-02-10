@@ -18,11 +18,11 @@ import (
 	"github.com/spf13/viper"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"runtime"
 	"runtime/debug"
 	"strconv"
-	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -110,14 +110,11 @@ func AssignTask(task model.Task) error {
 func SetEnv(cmd *exec.Cmd, envs []model.Env, taskId string, dataCol string) *exec.Cmd {
 	// 默认把Node.js的全局node_modules加入环境变量
 	envPath := os.Getenv("PATH")
-	for _, _path := range strings.Split(envPath, ":") {
-		if strings.Contains(_path, "/.nvm/versions/node/") {
-			pathNodeModules := strings.Replace(_path, "/bin", "/lib/node_modules", -1)
-			_ = os.Setenv("PATH", pathNodeModules+":"+envPath)
-			_ = os.Setenv("NODE_PATH", pathNodeModules)
-			break
-		}
-	}
+	homePath := os.Getenv("HOME")
+	nodeVersion := "v8.12.0"
+	nodePath := path.Join(homePath, ".nvm/versions/node", nodeVersion, "lib/node_modules")
+	_ = os.Setenv("PATH", nodePath+":"+envPath)
+	_ = os.Setenv("NODE_PATH", nodePath)
 
 	// 默认环境变量
 	cmd.Env = append(os.Environ(), "CRAWLAB_TASK_ID="+taskId)
