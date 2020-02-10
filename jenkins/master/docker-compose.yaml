@@ -12,6 +12,7 @@ services:
       CRAWLAB_REDIS_ADDRESS: "redis"
       CRAWLAB_LOG_PATH: "/var/logs/crawlab"
       CRAWLAB_SETTING_ALLOWREGISTER: "Y"
+      CRAWLAB_SERVER_LANG_NODE: "Y"
     ports:    
       - "8080:8080" # frontend
     depends_on:
@@ -25,6 +26,7 @@ services:
       CRAWLAB_SERVER_REGISTER_IP: "172.19.0.2"
       CRAWLAB_MONGO_HOST: "mongo"
       CRAWLAB_REDIS_ADDRESS: "redis"
+      CRAWLAB_SERVER_LANG_NODE: "Y"
     depends_on:
       - mongo
       - redis
