@@ -30,7 +30,6 @@ services:
       # CRAWLAB_NOTIFICATION_MAIL_SENDERIDENTITY: admin@exmaple.com  # sender ID 发送者 ID
       # CRAWLAB_NOTIFICATION_MAIL_SMTP_USER: username  # SMTP username SMTP 用户名
       # CRAWLAB_NOTIFICATION_MAIL_SMTP_PASSWORD: password  # SMTP password SMTP 密码
-      # CRAWLAB_SERVER_LANG_NODE: "Y"  # 预安装 Node.js 语言环境
     ports:    
       - "8080:8080" # frontend port mapping 前端端口映射
     depends_on:
