@@ -208,6 +208,7 @@ export default {
   'Run Type': '运行类型',
   'Random': '随机',
   'Selected Nodes': '指定节点',
+  'Search Log': '搜索日志',
 
   // 任务列表
   'Node': '节点',
