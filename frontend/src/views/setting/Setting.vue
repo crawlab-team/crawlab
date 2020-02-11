@@ -31,7 +31,7 @@
       </el-form>
     </el-dialog>
 
-    <el-tabs v-model="activeName" @tab-click="tabActiveHandle">
+    <el-tabs v-model="activeName" @tab-click="tabActiveHandle" type="border-card">
       <el-tab-pane :label="$t('General')" name="general">
         <el-form :model="userInfo" class="setting-form" ref="setting-form" label-width="200px" :rules="rules"
                  inline-message>
