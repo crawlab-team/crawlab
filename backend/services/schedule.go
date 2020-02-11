@@ -37,7 +37,7 @@ func AddScheduleTask(s model.Schedule) func() {
 					UserId:   s.UserId,
 				}
 
-				if err := AddTask(t); err != nil {
+				if _, err := AddTask(t); err != nil {
 					return
 				}
 			}
@@ -49,7 +49,7 @@ func AddScheduleTask(s model.Schedule) func() {
 				Param:    s.Param,
 				UserId:   s.UserId,
 			}
-			if err := AddTask(t); err != nil {
+			if _, err := AddTask(t); err != nil {
 				log.Errorf(err.Error())
 				debug.PrintStack()
 				return
@@ -65,7 +65,7 @@ func AddScheduleTask(s model.Schedule) func() {
 					UserId:   s.UserId,
 				}
 
-				if err := AddTask(t); err != nil {
+				if _, err := AddTask(t); err != nil {
 					return
 				}
 			}

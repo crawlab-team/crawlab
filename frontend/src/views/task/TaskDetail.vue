@@ -10,14 +10,12 @@
     <!--./tour-->
 
     <!--tabs-->
-    <el-tabs v-model="activeTabName" @tab-click="onTabClick" type="card">
+    <el-tabs v-model="activeTabName" @tab-click="onTabClick" type="border-card">
       <el-tab-pane :label="$t('Overview')" name="overview">
         <task-overview/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Log')" name="log">
-        <el-card>
-          <log-view :data="taskLog"/>
-        </el-card>
+        <log-view :data="taskLog"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Results')" name="results">
         <div class="button-group">
