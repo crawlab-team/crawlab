@@ -19,7 +19,7 @@
       </el-tab-pane>
       <el-tab-pane :label="$t('Results')" name="results">
         <div class="button-group">
-          <el-button class="btn-download" type="primary" icon="el-icon-download" @click="downloadCSV">
+          <el-button size="small" class="btn-download" type="primary" icon="el-icon-download" @click="downloadCSV">
             {{$t('Download CSV')}}
           </el-button>
         </div>
