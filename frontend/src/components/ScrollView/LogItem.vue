@@ -1,7 +1,10 @@
 <template>
   <div class="log-item">
     <div class="line-no">{{index}}</div>
-    <div class="line-content" ><span v-if="isAnsi" v-html="data">{{data}}</span><span v-else="">{{data}}</span></div>
+    <div class="line-content">
+      <span v-if="isAnsi" v-html="dataHtml"></span>
+      <span v-else="" v-html="dataHtml"></span>
+    </div>
   </div>
 </template>
 
@@ -20,6 +23,16 @@ export default {
     isAnsi: {
       type: Boolean,
       default: false
+    },
+    searchString: {
+      type: String,
+      default: ''
+    }
+  },
+  computed: {
+    dataHtml () {
+      if (!this.searchString) return this.data
+      return this.data.replace(new RegExp(`(${this.searchString})`, 'gi'), '<mark>$1</mark>')
     }
   }
 }
