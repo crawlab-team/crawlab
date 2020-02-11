@@ -8,7 +8,12 @@
         <el-table-column :key="col" :label="col" :property="col" min-width="120">
           <template slot-scope="scope">
             <el-popover trigger="hover" :content="getString(scope.row[col])" popper-class="cell-popover">
-              <div slot="reference" class="wrapper">
+              <div v-if="isUrl(scope.row[col])" slot="reference" class="wrapper">
+                <a :href="getString(scope.row[col])" target="_blank" style="color: #409eff">
+                  {{getString(scope.row[col])}}
+                </a>
+              </div>
+              <div v-else slot="reference" class="wrapper">
                 {{getString(scope.row[col])}}
               </div>
             </el-popover>
@@ -68,6 +73,11 @@ export default {
     }
   },
   methods: {
+    isUrl (value) {
+      if (!value) return false
+      if (!value.match) return false
+      return !!value.match(/^https?:\/\//)
+    },
     onPageChange () {
       this.$emit('page-change', { pageNum: this.pageNum, pageSize: this.pageSize })
     },
