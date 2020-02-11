@@ -100,6 +100,9 @@ func PutTask(c *gin.Context) {
 		return
 	}
 
+	// 任务ID
+	var taskIds []string
+
 	if reqBody.RunType == constants.RunTypeAllNodes {
 		// 所有节点
 		nodes, err := model.GetNodeList(nil)
@@ -115,10 +118,13 @@ func PutTask(c *gin.Context) {
 				UserId:   services.GetCurrentUser(c).Id,
 			}
 
-			if err := services.AddTask(t); err != nil {
+			id, err := services.AddTask(t);
+			if err != nil {
 				HandleError(http.StatusInternalServerError, c, err)
 				return
 			}
+
+			taskIds = append(taskIds, id)
 		}
 	} else if reqBody.RunType == constants.RunTypeRandom {
 		// 随机
@@ -127,10 +133,12 @@ func PutTask(c *gin.Context) {
 			Param:    reqBody.Param,
 			UserId:   services.GetCurrentUser(c).Id,
 		}
-		if err := services.AddTask(t); err != nil {
+		id, err := services.AddTask(t);
+		if err != nil {
 			HandleError(http.StatusInternalServerError, c, err)
 			return
 		}
+		taskIds = append(taskIds, id)
 	} else if reqBody.RunType == constants.RunTypeSelectedNodes {
 		// 指定节点
 		for _, nodeId := range reqBody.NodeIds {
@@ -141,16 +149,19 @@ func PutTask(c *gin.Context) {
 				UserId:   services.GetCurrentUser(c).Id,
 			}
 
-			if err := services.AddTask(t); err != nil {
+			id, err := services.AddTask(t);
+			if err != nil {
 				HandleError(http.StatusInternalServerError, c, err)
 				return
 			}
+			taskIds = append(taskIds, id)
 		}
 	} else {
 		HandleErrorF(http.StatusInternalServerError, c, "invalid run_type")
 		return
 	}
-	HandleSuccess(c)
+
+	HandleSuccessData(c, taskIds)
 }
 
 func DeleteTaskByStatus(c *gin.Context) {

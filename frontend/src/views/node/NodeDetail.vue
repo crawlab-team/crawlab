@@ -18,7 +18,7 @@
     </div>
 
     <!--tabs-->
-    <el-tabs v-model="activeTabName" @tab-click="onTabClick" type="card">
+    <el-tabs v-model="activeTabName" @tab-click="onTabClick" type="border-card">
       <el-tab-pane :label="$t('Overview')" name="overview">
         <node-overview></node-overview>
       </el-tab-pane>
@@ -136,8 +136,8 @@ export default {
     display: flex;
     align-items: center;
     position: absolute;
-    right: 20px;
-    margin-top: -7px;
+    right: 30px;
+    margin-top: 4px;
     /*float: right;*/
     z-index: 999;
   }
@@ -147,6 +147,8 @@ export default {
   }
 
   .label {
+    color: #909399;
+    font-weight: 100;
     width: 100px;
     text-align: right;
   }

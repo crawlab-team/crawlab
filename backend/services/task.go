@@ -666,7 +666,7 @@ func CancelTask(id string) (err error) {
 	return nil
 }
 
-func AddTask(t model.Task) error {
+func AddTask(t model.Task) (string, error) {
 	// 生成任务ID
 	id := uuid.NewV4()
 	t.Id = id.String()
@@ -683,17 +683,17 @@ func AddTask(t model.Task) error {
 	if err := model.AddTask(t); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return err
+		return t.Id, err
 	}
 
 	// 加入任务队列
 	if err := AssignTask(t); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return err
+		return t.Id, err
 	}
 
-	return nil
+	return t.Id, nil
 }
 
 func GetTaskEmailMarkdownContent(t model.Task, s model.Spider) string {

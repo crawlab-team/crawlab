@@ -30,13 +30,22 @@
         <el-input v-model="form.param" :placeholder="$t('Parameters')"></el-input>
       </el-form-item>
       <el-form-item class="disclaimer-wrapper">
-        <el-checkbox v-model="isAllowDisclaimer"/>
-        <span style="margin-left: 5px">我已阅读并同意 <a href="javascript:" @click="onClickDisclaimer">《免责声明》</a> 所有内容</span>
+        <div>
+          <el-checkbox v-model="isAllowDisclaimer"/>
+          <span style="margin-left: 5px">我已阅读并同意 <a href="javascript:" @click="onClickDisclaimer">《免责声明》</a> 所有内容</span>
+        </div>
+        <div>
+          <el-checkbox v-model="isRedirect"/>
+          <span style="margin-left: 5px">跳转到任务详情页</span>
+        </div>
+      </el-form-item>
+      <el-form-item>
       </el-form-item>
     </el-form>
     <template slot="footer">
       <el-button type="plain" size="small" @click="$emit('close')">{{$t('Cancel')}}</el-button>
-      <el-button type="primary" size="small" @click="onConfirm" :disabled="!isAllowDisclaimer">{{$t('Confirm')}}</el-button>
+      <el-button type="primary" size="small" @click="onConfirm" :disabled="!isAllowDisclaimer">{{$t('Confirm')}}
+      </el-button>
     </template>
   </el-dialog>
 </template>
@@ -64,7 +73,8 @@ export default {
         param: '',
         nodeList: []
       },
-      isAllowDisclaimer: true
+      isAllowDisclaimer: true,
+      isRedirect: true
     }
   },
   methods: {
@@ -72,20 +82,27 @@ export default {
       this.$emit('close')
     },
     onConfirm () {
-      this.$refs['form'].validate(res => {
-        if (!res) return
+      this.$refs['form'].validate(async valid => {
+        if (!valid) return
 
-        this.$store.dispatch('spider/crawlSpider', {
+        const res = await this.$store.dispatch('spider/crawlSpider', {
           spiderId: this.spiderId,
           nodeIds: this.form.nodeIds,
           param: this.form.param,
           runType: this.form.runType
         })
-          .then(() => {
-            this.$message.success(this.$t('A task has been scheduled successfully'))
-          })
+
+        const id = res.data.data[0]
+
+        this.$message.success(this.$t('A task has been scheduled successfully'))
+
         this.$emit('close')
         this.$st.sendEv('爬虫确认', '确认运行', this.form.runType)
+
+        if (this.isRedirect) {
+          this.$router.push('/tasks/' + id)
+          this.$st.sendEv('爬虫确认', '跳转到任务详情')
+        }
       })
     },
     onClickDisclaimer () {
