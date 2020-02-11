@@ -131,12 +131,16 @@
 
           <div class="button-group-container">
             <div class="button-group">
-              <el-button id="btn-run" type="danger" @click="onCrawl">{{$t('Run')}}</el-button>
+              <el-button id="btn-run" size="small" type="danger" @click="onCrawl">
+                {{$t('Run')}}
+              </el-button>
               <!--              <el-button type="primary" @click="onExtractFields" v-loading="extractFieldsLoading">-->
               <!--                {{$t('ExtractFields')}}-->
               <!--              </el-button>-->
               <!--              <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>-->
-              <el-button id="btn-save" type="success" @click="onSave" v-loading="saveLoading">{{$t('Save')}}</el-button>
+              <el-button id="btn-save" size="small" type="success" @click="onSave" v-loading="saveLoading">
+                {{$t('Save')}}
+              </el-button>
             </div>
           </div>
         </el-row>
