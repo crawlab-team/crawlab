@@ -209,6 +209,8 @@ export default {
   'Random': '随机',
   'Selected Nodes': '指定节点',
   'Search Log': '搜索日志',
+  'Auto-Scroll': '自动滚动',
+  'Updating log...': '正在更新日志...',
 
   // 任务列表
   'Node': '节点',
