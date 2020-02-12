@@ -1,29 +1,49 @@
 <template>
   <div class="log-view-wrapper">
     <div class="filter-wrapper">
+      <el-button
+        size="small"
+        type="primary"
+        icon="el-icon-download"
+        style="margin-right: 10px"
+        :disabled="isToBottom"
+        @click="onAutoScroll"
+      >
+        {{$t('Auto-Scroll')}}
+      </el-button>
       <el-input
         v-model="searchString"
+        size="small"
         suffix-icon="el-icon-search"
         :placeholder="$t('Search Log')"
         style="width: 240px"
       />
     </div>
-    <virtual-list
-      class="log-view"
-      :size="6"
-      :remain="100"
-      :item="item"
-      :itemcount="filteredLogData.length"
-      :itemprops="getItemProps"
-    />
+    <div class="log-view-wrapper" ref="log-view-wrapper">
+      <virtual-list
+        class="log-view"
+        ref="log-view"
+        :size="6"
+        :remain="100"
+        :item="item"
+        :itemcount="filteredLogData.length"
+        :itemprops="getItemProps"
+        :tobottom="onToBottom"
+        :onscroll="onScroll"
+      />
+    </div>
   </div>
 </template>
 
 <script>
-import LogItem from './LogItem'
+import {
+  mapState
+} from 'vuex'
 import VirtualList from 'vue-virtual-scroll-list'
 import Convert from 'ansi-to-html'
 import hasAnsi from 'has-ansi'
+
+import LogItem from './LogItem'
 
 const convert = new Convert()
 export default {
@@ -40,18 +60,35 @@ export default {
   data () {
     return {
       item: LogItem,
-      searchString: ''
+      searchString: '',
+      isToBottom: false,
+      isScrolling: false,
+      isScrolling2nd: false
     }
   },
   computed: {
+    ...mapState('task', [
+      'taskForm'
+    ]),
     logData () {
-      return this.data.split('\n')
+      const data = this.data.split('\n')
         .map((d, i) => {
           return {
             index: i + 1,
             data: d
           }
         })
+      if (this.taskForm && this.taskForm.status === 'running') {
+        data.push({
+          index: data.length + 1,
+          data: '###LOG_END###'
+        })
+        data.push({
+          index: data.length + 2,
+          data: ''
+        })
+      }
+      return data
     },
     filteredLogData () {
       return this.logData.filter(d => {
@@ -79,9 +116,45 @@ export default {
           isAnsi
         }
       }
+    },
+    onToBottom () {
+      if (this.isScrolling) return
+      this.isToBottom = true
+    },
+    onScroll () {
+      if (this.isScrolling2nd) {
+        this.isToBottom = false
+      }
+      this.isScrolling = true
+      setTimeout(() => {
+        this.isScrolling2nd = true
+        setTimeout(() => {
+          this.isScrolling2nd = false
+        }, 50)
+      }, 50)
+      setTimeout(() => {
+        this.isScrolling = false
+      }, 100)
+    },
+    toBottom () {
+      this.$el.querySelector('.log-view').scrollTo({ top: 99999999 })
+      setTimeout(() => {
+        this.isToBottom = true
+      }, 50)
+    },
+    onAutoScroll () {
+      this.toBottom()
     }
   },
   mounted () {
+    this.handle = setInterval(() => {
+      if (this.isToBottom) {
+        this.toBottom()
+      }
+    }, 100)
+  },
+  destroyed () {
+    clearInterval(this.handle)
   }
 }
 </script>
