@@ -1,4 +1,4 @@
-# 0.4.6 (unkown)
+# 0.4.6 (2020-02-13)
 ### Features / Enhancement
 - **SDK for Node.js**. Users can apply SDK in their Node.js spiders.
 - **Log Management Optimization**. Log search, error highlight, auto-scrolling.
