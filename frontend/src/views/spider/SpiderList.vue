@@ -399,7 +399,8 @@ export default {
         { name: 'type', label: 'Spider Type', width: '120', sortable: true },
         { name: 'last_status', label: 'Last Status', width: '120' },
         { name: 'last_run_ts', label: 'Last Run', width: '140' },
-        // { name: 'update_ts', label: 'Update Time', width: '140' },
+        { name: 'update_ts', label: 'Update Time', width: '140' },
+        { name: 'create_ts', label: 'Create Time', width: '140' },
         { name: 'remark', label: 'Remark', width: '140' }
       ],
       spiderFormRules: {
