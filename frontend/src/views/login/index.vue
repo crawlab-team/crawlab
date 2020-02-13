@@ -362,7 +362,7 @@ const initCanvas = () => {
 </style>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  $bg: transparent;
+  $bg: white;
   $dark_gray: #889aa4;
   $light_gray: #aaa;
   .login-container {
