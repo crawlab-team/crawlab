@@ -59,7 +59,7 @@ services:
   redis:
     image: redis:latest
     restart: always
-    # command: redis --requirepass "password" # set redis password 设置 Redis 密码
+    # command: redis-server --requirepass "password" # set redis password 设置 Redis 密码
     # volumes:
     #   - "/opt/crawlab/redis/data:/data"  # make data persistent 持久化
     # ports:

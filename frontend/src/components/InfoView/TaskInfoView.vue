@@ -11,6 +11,15 @@
         </el-form-item>
         <el-form-item :label="$t('Status')">
           <status-tag :status="taskForm.status"/>
+          <el-badge
+            v-if="errorLogData.length > 0"
+            :value="errorLogData.length"
+            style="margin-left:10px; cursor:pointer;"
+          >
+            <el-tag type="danger" @click="onClickLogWithErrors">
+              {{$t('Log with errors')}}
+            </el-tag>
+          </el-badge>
         </el-form-item>
         <el-form-item :label="$t('Log File Path')">
           <el-input v-model="taskForm.log_path" placeholder="Log File Path" disabled></el-input>
@@ -28,7 +37,7 @@
           <el-input :value="getTime(taskForm.finish_ts)" placeholder="Finish Time" disabled></el-input>
         </el-form-item>
         <el-form-item :label="$t('Wait Duration (sec)')">
-        <el-input :value="getWaitDuration(taskForm)" placeholder="Wait Duration" disabled></el-input>
+          <el-input :value="getWaitDuration(taskForm)" placeholder="Wait Duration" disabled></el-input>
         </el-form-item>
         <el-form-item :label="$t('Runtime Duration (sec)')">
           <el-input :value="getRuntimeDuration(taskForm)" placeholder="Runtime Duration" disabled></el-input>
@@ -37,7 +46,7 @@
           <el-input :value="getTotalDuration(taskForm)" placeholder="Runtime Duration" disabled></el-input>
         </el-form-item>
         <el-form-item :label="$t('Results Count')">
-        <el-input v-model="taskForm.result_count" placeholder="Results Count" disabled></el-input>
+          <el-input v-model="taskForm.result_count" placeholder="Results Count" disabled></el-input>
         </el-form-item>
         <!--<el-form-item :label="$t('Average Results Count per Second')">-->
         <!--<el-input v-model="taskForm.avg_num_results" placeholder="Average Results Count per Second" disabled>-->
@@ -59,7 +68,8 @@
 
 <script>
 import {
-  mapState
+  mapState,
+  mapGetters
 } from 'vuex'
 import StatusTag from '../Status/StatusTag'
 import dayjs from 'dayjs'
@@ -69,7 +79,11 @@ export default {
   components: { StatusTag },
   computed: {
     ...mapState('task', [
-      'taskForm'
+      'taskForm',
+      'taskLog'
+    ]),
+    ...mapGetters('task', [
+      'errorLogData'
     ]),
     isRunning () {
       return ['pending', 'running'].includes(this.taskForm.status)
@@ -99,6 +113,9 @@ export default {
     getTotalDuration (row) {
       if (!row.finish_ts || row.finish_ts.match('^0001')) return 'NA'
       return dayjs(row.finish_ts).diff(row.create_ts, 'second')
+    },
+    onClickLogWithErrors () {
+      this.$emit('click-log')
     }
   }
 }
