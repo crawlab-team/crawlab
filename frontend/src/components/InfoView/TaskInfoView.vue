@@ -69,7 +69,9 @@
       </el-form>
     </el-row>
     <el-row class="button-container">
-      <el-button v-if="isRunning" type="danger" @click="onStop">{{$t('Stop')}}</el-button>
+      <el-button v-if="isRunning" size="small" type="danger" @click="onStop" icon="el-icon-video-pause">
+        {{$t('Stop')}}
+      </el-button>
       <!--<el-button type="danger" @click="onRestart">Restart</el-button>-->
     </el-row>
   </div>
