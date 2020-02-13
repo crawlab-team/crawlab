@@ -127,6 +127,7 @@ export default {
     },
     onClickLogWithErrors () {
       this.$emit('click-log')
+      this.$st.sendEv('任务详情', '概览', '点击日志错误')
     }
   }
 }
