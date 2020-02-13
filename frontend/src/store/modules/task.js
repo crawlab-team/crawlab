@@ -141,7 +141,6 @@ const actions = {
     })
   },
   getTaskLog ({ state, commit }, id) {
-    commit('SET_TASK_LOG', '')
     return request.get(`/tasks/${id}/log`)
       .then(response => {
         commit('SET_TASK_LOG', response.data.data)
