@@ -1,4 +1,5 @@
 import request from '../../api/request'
+import utils from '../../utils'
 
 const state = {
   // TaskList
@@ -6,6 +7,7 @@ const state = {
   taskListTotalCount: 0,
   taskForm: {},
   taskLog: '',
+  currentLogIndex: 0,
   taskResultsData: [],
   taskResultsColumns: [],
   taskResultsTotalCount: 0,
@@ -36,6 +38,32 @@ const getters = {
       }
     }
     return keys
+  },
+  logData (state) {
+    const data = state.taskLog.split('\n')
+      .map((d, i) => {
+        return {
+          index: i + 1,
+          data: d,
+          active: state.currentLogIndex === i + 1
+        }
+      })
+    if (state.taskForm && state.taskForm.status === 'running') {
+      data.push({
+        index: data.length + 1,
+        data: '###LOG_END###'
+      })
+      data.push({
+        index: data.length + 1,
+        data: ''
+      })
+    }
+    return data
+  },
+  errorLogData (state, getters) {
+    return getters.logData.filter(d => {
+      return d.data.match(utils.log.errorRegex)
+    })
   }
 }
 
@@ -48,6 +76,9 @@ const mutations = {
   },
   SET_TASK_LOG (state, value) {
     state.taskLog = value
+  },
+  SET_CURRENT_LOG_INDEX (state, value) {
+    state.currentLogIndex = value
   },
   SET_TASK_RESULTS_DATA (state, value) {
     state.taskResultsData = value

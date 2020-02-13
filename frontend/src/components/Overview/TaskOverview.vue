@@ -3,7 +3,7 @@
     <el-col :span="12" style="padding-right: 20px;">
       <el-row class="task-info-overview-wrapper wrapper">
         <h4 class="title">{{$t('Task Info')}}</h4>
-        <task-info-view/>
+        <task-info-view @click-log="() => $emit('click-log')"/>
       </el-row>
       <el-row style="border-bottom:1px solid #e4e7ed;margin:0 0 20px 0;padding-bottom:20px;"/>
     </el-col>

@@ -1,9 +1,9 @@
 <template>
-  <div class="log-item" :style="style">
+  <div class="log-item" :style="style" :class="`log-item-${index} ${active ? 'active' : ''}`">
     <div class="line-no">{{index}}</div>
     <div class="line-content">
-      <span v-if="isLogEnd" style="color: #E6A23C" class="loading-text">
-        {{$t('Updating log...')}}
+      <span v-if="isLogEnd" style="color: #E6A23C">
+        <span class="loading-text">{{$t('Updating log...')}}</span>
         <i class="el-icon-loading"></i>
       </span>
       <span v-else-if="isAnsi" v-html="dataHtml"></span>
@@ -31,13 +31,15 @@ export default {
     searchString: {
       type: String,
       default: ''
+    },
+    active: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
-    const token = ' :,.'
     return {
-      errorRegex: new RegExp(`(?:[${token}]|^)((?:error|exception|traceback)s?)(?:[${token}]|$)`, 'gi')
-      // errorRegex: new RegExp('(error|exception|traceback)', 'gi')
+      errorRegex: this.$utils.log.errorRegex
     }
   },
   computed: {
@@ -65,42 +67,56 @@ export default {
 
 <style scoped>
   .log-item {
-    display: table;
+    display: block;
+  }
+
+  .log-item:hover {
+    background: rgba(55, 57, 59, 0.5);
   }
 
   .log-item:first-child .line-no {
     padding-top: 10px;
+    text-align: right;
   }
 
   .log-item .line-no {
-    display: table-cell;
+    display: inline-block;
+    width: 70px;
     color: #A9B7C6;
     background: #313335;
     padding-right: 10px;
     text-align: right;
-    flex-basis: 40px;
-    width: 70px;
+  }
+
+  .log-item.active .line-no {
+    background: #E6A23C;
+    color: white;
+    font-weight: bolder;
   }
 
   .log-item .line-content {
     padding-left: 10px;
-    display: table-cell;
-    /*display: inline-block;*/
-    word-break: break-word;
-    flex-basis: calc(100% - 50px);
+    display: inline-block;
+    width: calc(100% - 70px);
+    white-space: nowrap;
   }
 
   .loading-text {
-    animation: blink;
+    margin-right: 5px;
+    animation: blink 2s ease-in infinite;
   }
 
   @keyframes blink {
     0% {
-      opacity: 0;
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.3;
     }
 
     100% {
-      opacity: 100%;
+      opacity: 1;
     }
   }
 </style>

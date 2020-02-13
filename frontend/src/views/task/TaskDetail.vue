@@ -12,10 +12,10 @@
     <!--tabs-->
     <el-tabs v-model="activeTabName" @tab-click="onTabClick" type="border-card">
       <el-tab-pane :label="$t('Overview')" name="overview">
-        <task-overview/>
+        <task-overview @click-log="activeTabName = 'log'"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Log')" name="log">
-        <log-view :data="taskLog"/>
+        <log-view/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Results')" name="results">
         <div class="button-group">
@@ -55,7 +55,6 @@ export default {
     return {
       activeTabName: 'overview',
       handle: undefined,
-      taskLog: '',
 
       // tutorial
       tourSteps: [
@@ -137,7 +136,8 @@ export default {
     ...mapState('task', [
       'taskForm',
       'taskResultsData',
-      'taskResultsTotalCount'
+      'taskResultsTotalCount',
+      'taskLog'
     ]),
     ...mapGetters('task', [
       'taskResultsColumns'
@@ -186,11 +186,7 @@ export default {
       this.$st.sendEv('任务详情', '结果', '下载CSV')
     },
     getTaskLog () {
-      if (this.$route.params.id) {
-        request.get(`/tasks/${this.$route.params.id}/log`).then(response => {
-          this.taskLog = response.data.data
-        })
-      }
+      this.$store.dispatch('task/getTaskLog', this.$route.params.id)
     }
   },
   created () {
