@@ -17,9 +17,18 @@
             style="margin-left:10px; cursor:pointer;"
           >
             <el-tag type="danger" @click="onClickLogWithErrors">
+              <i class="el-icon-warning"></i>
               {{$t('Log with errors')}}
             </el-tag>
           </el-badge>
+          <el-tag
+            v-if="taskForm.status === 'finished' && taskForm.result_count === 0"
+            type="danger"
+            style="margin-left: 10px"
+          >
+            <i class="el-icon-warning"></i>
+            {{$t('Empty results')}}
+          </el-tag>
         </el-form-item>
         <el-form-item :label="$t('Log File Path')">
           <el-input v-model="taskForm.log_path" placeholder="Log File Path" disabled></el-input>
@@ -60,7 +69,9 @@
       </el-form>
     </el-row>
     <el-row class="button-container">
-      <el-button v-if="isRunning" type="danger" @click="onStop">{{$t('Stop')}}</el-button>
+      <el-button v-if="isRunning" size="small" type="danger" @click="onStop" icon="el-icon-video-pause">
+        {{$t('Stop')}}
+      </el-button>
       <!--<el-button type="danger" @click="onRestart">Restart</el-button>-->
     </el-row>
   </div>

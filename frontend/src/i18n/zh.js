@@ -213,6 +213,7 @@ export default {
   'Updating log...': '正在更新日志...',
   'Error Count': '错误数',
   'Log with errors': '日志错误',
+  'Empty results': '空结果',
 
   // 任务列表
   'Node': '节点',

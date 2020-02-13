@@ -1,5 +1,6 @@
 <template>
-  <el-tag :type="type">
+  <el-tag :type="type" class="status-tag">
+    <i :class="icon"></i>
     {{$t(label)}}
   </el-tag>
 </template>
@@ -38,6 +39,16 @@ export default {
         return s.label
       }
       return 'NA'
+    },
+    icon () {
+      if (this.status === 'finished') {
+        return 'el-icon-check'
+      } else if (this.status === 'running') {
+        return 'el-icon-loading'
+      } else if (this.status === 'error') {
+        return 'el-icon-error'
+      }
+      return ''
     }
   }
 }
