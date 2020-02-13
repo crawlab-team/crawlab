@@ -212,11 +212,12 @@ export default {
     }
   },
   mounted () {
+    this.currentLogIndex = 0
     this.handle = setInterval(() => {
       if (this.isToBottom) {
         this.toBottom()
       }
-    }, 500)
+    }, 200)
   },
   destroyed () {
     clearInterval(this.handle)
@@ -269,6 +270,7 @@ export default {
     border-bottom: 1px solid #DCDFE6;
     height: calc(100vh - 240px);
     font-size: 16px;
+    overflow: auto;
   }
 
   .errors-wrapper.collapsed {

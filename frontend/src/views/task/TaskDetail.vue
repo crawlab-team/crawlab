@@ -42,7 +42,6 @@ import {
 import TaskOverview from '../../components/Overview/TaskOverview'
 import GeneralTableView from '../../components/TableView/GeneralTableView'
 import LogView from '../../components/ScrollView/LogView'
-import request from '../../api/request'
 
 export default {
   name: 'TaskDetail',
