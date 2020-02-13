@@ -23,6 +23,7 @@
             v-model="spiderForm.project_id"
             :placeholder="$t('Project')"
             filterable
+            :disabled="isView"
           >
             <el-option
               v-for="p in projectList"
@@ -60,7 +61,7 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('Remark')">
-          <el-input type="textarea" v-model="spiderForm.remark" :placeholder="$t('Remark')"/>
+          <el-input type="textarea" v-model="spiderForm.remark" :placeholder="$t('Remark')" :disabled="isView"/>
         </el-form-item>
       </el-form>
     </el-row>

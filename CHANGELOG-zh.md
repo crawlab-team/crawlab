@@ -1,3 +1,16 @@
+# 0.4.6 (2020-02-13)
+### 功能 / 优化
+- **Node.js SDK **. 用户可以将 SDK 应用到他们的 Node.js 爬虫中.
+- **日志管理优化**. 日志搜索，错误高亮，自动滚动.
+- **任务执行流程优化**. 允许用户在触发任务后跳转到该任务详情页.
+- **任务展示优化**. 在爬虫详情页的最近任务表格中加入了“参数”列. [#295](https://github.com/crawlab-team/crawlab/issues/295)
+- **爬虫列表优化**. 在爬虫列表页加入"更新时间"和"创建时间". [#505](https://github.com/crawlab-team/crawlab/issues/505)
+- **页面加载展位器**. 
+
+### Bug 修复
+- **定时任务配置失去焦点**. [#519](https://github.com/crawlab-team/crawlab/issues/519)
+- **无法用 CLI 工具上传爬虫**. [#524](https://github.com/crawlab-team/crawlab/issues/524)
+
 # 0.4.5 (2020-02-03)
 ### 功能 / 优化
 - **交互式教程**. 引导用户了解 Crawlab 的主要功能.

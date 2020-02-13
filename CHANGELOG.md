@@ -1,3 +1,16 @@
+# 0.4.6 (2020-02-13)
+### Features / Enhancement
+- **SDK for Node.js**. Users can apply SDK in their Node.js spiders.
+- **Log Management Optimization**. Log search, error highlight, auto-scrolling.
+- **Task Execution Process Optimization**. Allow users to be redirected to task detail page after triggering a task.
+- **Task Display Optimization**. Added "Param" in the Latest Tasks table in the spider detail page. [#295](https://github.com/crawlab-team/crawlab/issues/295)
+- **Spider List Optimization**. Added "Update Time" and "Create Time" in spider list page.
+- **Page Loading Placeholder**. 
+
+### Bug Fixes
+- **Lost Focus in Schedule Configuration**. [#519](https://github.com/crawlab-team/crawlab/issues/519)
+- **Unable to Upload Spider using CLI**. [#524](https://github.com/crawlab-team/crawlab/issues/524)
+
 # 0.4.5 (2020-02-03)
 ### Features / Enhancement
 - **Interactive Tutorial**. Guide users through the main functionalities of Crawlab.

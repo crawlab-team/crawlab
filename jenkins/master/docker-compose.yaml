@@ -18,6 +18,8 @@ services:
     depends_on:
       - mongo
       - redis
+    volumes:
+      - "/opt/crawlab/log:/var/logs/crawlab" # log persistent 日志持久化
   worker:
     image: "tikazyq/crawlab:master"
     environment:
@@ -30,6 +32,8 @@ services:
     depends_on:
       - mongo
       - redis
+    volumes:
+      - "/opt/crawlab/log:/var/logs/crawlab" # log persistent 日志持久化
   mongo:
     image: mongo:latest
     restart: always

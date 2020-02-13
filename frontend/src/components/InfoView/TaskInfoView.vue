@@ -11,6 +11,24 @@
         </el-form-item>
         <el-form-item :label="$t('Status')">
           <status-tag :status="taskForm.status"/>
+          <el-badge
+            v-if="errorLogData.length > 0"
+            :value="errorLogData.length"
+            style="margin-left:10px; cursor:pointer;"
+          >
+            <el-tag type="danger" @click="onClickLogWithErrors">
+              <i class="el-icon-warning"></i>
+              {{$t('Log with errors')}}
+            </el-tag>
+          </el-badge>
+          <el-tag
+            v-if="taskForm.status === 'finished' && taskForm.result_count === 0"
+            type="danger"
+            style="margin-left: 10px"
+          >
+            <i class="el-icon-warning"></i>
+            {{$t('Empty results')}}
+          </el-tag>
         </el-form-item>
         <el-form-item :label="$t('Log File Path')">
           <el-input v-model="taskForm.log_path" placeholder="Log File Path" disabled></el-input>
@@ -28,7 +46,7 @@
           <el-input :value="getTime(taskForm.finish_ts)" placeholder="Finish Time" disabled></el-input>
         </el-form-item>
         <el-form-item :label="$t('Wait Duration (sec)')">
-        <el-input :value="getWaitDuration(taskForm)" placeholder="Wait Duration" disabled></el-input>
+          <el-input :value="getWaitDuration(taskForm)" placeholder="Wait Duration" disabled></el-input>
         </el-form-item>
         <el-form-item :label="$t('Runtime Duration (sec)')">
           <el-input :value="getRuntimeDuration(taskForm)" placeholder="Runtime Duration" disabled></el-input>
@@ -37,7 +55,7 @@
           <el-input :value="getTotalDuration(taskForm)" placeholder="Runtime Duration" disabled></el-input>
         </el-form-item>
         <el-form-item :label="$t('Results Count')">
-        <el-input v-model="taskForm.result_count" placeholder="Results Count" disabled></el-input>
+          <el-input v-model="taskForm.result_count" placeholder="Results Count" disabled></el-input>
         </el-form-item>
         <!--<el-form-item :label="$t('Average Results Count per Second')">-->
         <!--<el-input v-model="taskForm.avg_num_results" placeholder="Average Results Count per Second" disabled>-->
@@ -51,7 +69,9 @@
       </el-form>
     </el-row>
     <el-row class="button-container">
-      <el-button v-if="isRunning" type="danger" @click="onStop">{{$t('Stop')}}</el-button>
+      <el-button v-if="isRunning" size="small" type="danger" @click="onStop" icon="el-icon-video-pause">
+        {{$t('Stop')}}
+      </el-button>
       <!--<el-button type="danger" @click="onRestart">Restart</el-button>-->
     </el-row>
   </div>
@@ -59,7 +79,8 @@
 
 <script>
 import {
-  mapState
+  mapState,
+  mapGetters
 } from 'vuex'
 import StatusTag from '../Status/StatusTag'
 import dayjs from 'dayjs'
@@ -69,7 +90,11 @@ export default {
   components: { StatusTag },
   computed: {
     ...mapState('task', [
-      'taskForm'
+      'taskForm',
+      'taskLog'
+    ]),
+    ...mapGetters('task', [
+      'errorLogData'
     ]),
     isRunning () {
       return ['pending', 'running'].includes(this.taskForm.status)
@@ -99,6 +124,10 @@ export default {
     getTotalDuration (row) {
       if (!row.finish_ts || row.finish_ts.match('^0001')) return 'NA'
       return dayjs(row.finish_ts).diff(row.create_ts, 'second')
+    },
+    onClickLogWithErrors () {
+      this.$emit('click-log')
+      this.$st.sendEv('任务详情', '概览', '点击日志错误')
     }
   }
 }

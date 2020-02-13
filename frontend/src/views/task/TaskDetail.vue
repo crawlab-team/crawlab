@@ -10,18 +10,16 @@
     <!--./tour-->
 
     <!--tabs-->
-    <el-tabs v-model="activeTabName" @tab-click="onTabClick" type="card">
+    <el-tabs v-model="activeTabName" @tab-click="onTabClick" type="border-card">
       <el-tab-pane :label="$t('Overview')" name="overview">
-        <task-overview/>
+        <task-overview @click-log="activeTabName = 'log'"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Log')" name="log">
-        <el-card>
-          <log-view :data="taskLog"/>
-        </el-card>
+        <log-view/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Results')" name="results">
         <div class="button-group">
-          <el-button class="btn-download" type="primary" icon="el-icon-download" @click="downloadCSV">
+          <el-button size="small" class="btn-download" type="primary" icon="el-icon-download" @click="downloadCSV">
             {{$t('Download CSV')}}
           </el-button>
         </div>
@@ -44,7 +42,6 @@ import {
 import TaskOverview from '../../components/Overview/TaskOverview'
 import GeneralTableView from '../../components/TableView/GeneralTableView'
 import LogView from '../../components/ScrollView/LogView'
-import request from '../../api/request'
 
 export default {
   name: 'TaskDetail',
@@ -57,7 +54,6 @@ export default {
     return {
       activeTabName: 'overview',
       handle: undefined,
-      taskLog: '',
 
       // tutorial
       tourSteps: [
@@ -139,7 +135,8 @@ export default {
     ...mapState('task', [
       'taskForm',
       'taskResultsData',
-      'taskResultsTotalCount'
+      'taskResultsTotalCount',
+      'taskLog'
     ]),
     ...mapGetters('task', [
       'taskResultsColumns'
@@ -188,11 +185,7 @@ export default {
       this.$st.sendEv('任务详情', '结果', '下载CSV')
     },
     getTaskLog () {
-      if (this.$route.params.id) {
-        request.get(`/tasks/${this.$route.params.id}/log`).then(response => {
-          this.taskLog = response.data.data
-        })
-      }
+      this.$store.dispatch('task/getTaskLog', this.$route.params.id)
     }
   },
   created () {
