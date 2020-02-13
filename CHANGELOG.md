@@ -4,6 +4,7 @@
 - **Log Management Optimization**. Log search, error highlight, auto-scrolling.
 - **Task Execution Process Optimization**. Allow users to be redirected to task detail page after triggering a task.
 - **Task Display Optimization**. Added "Param" in the Latest Tasks table in the spider detail page. [#295](https://github.com/crawlab-team/crawlab/issues/295)
+- **Spider List Optimization**. Added "Update Time" and "Create Time" in spider list page.
 
 ### Bug Fixes
 - **Lost Focus in Schedule Configuration**. [#519](https://github.com/crawlab-team/crawlab/issues/519)
