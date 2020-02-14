@@ -5,7 +5,7 @@
 - **任务执行流程优化**. 允许用户在触发任务后跳转到该任务详情页.
 - **任务展示优化**. 在爬虫详情页的最近任务表格中加入了“参数”列. [#295](https://github.com/crawlab-team/crawlab/issues/295)
 - **爬虫列表优化**. 在爬虫列表页加入"更新时间"和"创建时间". [#505](https://github.com/crawlab-team/crawlab/issues/505)
-- **页面加载展位器**. 
+- **页面加载占位器**. 
 
 ### Bug 修复
 - **定时任务配置失去焦点**. [#519](https://github.com/crawlab-team/crawlab/issues/519)
