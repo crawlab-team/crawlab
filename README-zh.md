@@ -142,9 +142,13 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-d
 
 ![](http://static-docs.crawlab.cn/file-edit.png)
 
-#### 任务详情 - 抓取结果
+#### 任务抓取结果
 
 ![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/task-results.png)
+
+#### 任务日志
+
+![](http://static-docs.crawlab.cn/task-log2.png)
 
 #### 定时任务
 
