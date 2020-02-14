@@ -192,6 +192,7 @@ export default {
     },
     onAutoScroll () {
       this.toBottom()
+      this.$st.sendEv('任务详情', '日志', '点击自动滚动')
     },
     toggleErrors () {
       this.isErrorsCollapsed = !this.isErrorsCollapsed

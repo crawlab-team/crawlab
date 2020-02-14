@@ -140,6 +140,10 @@ For Docker Deployment details, please refer to [relevant documentation](https://
 
 ![](http://static-docs.crawlab.cn/file-edit.png)
 
+#### Task Log
+
+![](http://static-docs.crawlab.cn/task-log2.png)
+
 #### Task Results
 
 ![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/task-results.png)
