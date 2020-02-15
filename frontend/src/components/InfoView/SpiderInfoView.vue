@@ -36,23 +36,18 @@
         <el-form-item :label="$t('Source Folder')">
           <el-input v-model="spiderForm.src" :placeholder="$t('Source Folder')" disabled></el-input>
         </el-form-item>
-        <el-form-item v-if="spiderForm.type === 'customized'" :label="$t('Execute Command')" prop="cmd" required
-                      :inline-message="true">
-          <el-input v-model="spiderForm.cmd" :placeholder="$t('Execute Command')"
-                    :disabled="isView"></el-input>
-        </el-form-item>
+        <template v-if="spiderForm.type === 'customized'">
+          <el-form-item :label="$t('Execute Command')" prop="cmd" required :inline-message="true">
+            <el-input
+              v-model="spiderForm.cmd"
+              :placeholder="$t('Execute Command')"
+              :disabled="isView || spiderForm.is_scrapy"
+            />
+          </el-form-item>
+        </template>
         <el-form-item :label="$t('Results Collection')" prop="col" required :inline-message="true">
           <el-input v-model="spiderForm.col" :placeholder="$t('Results Collection')"
                     :disabled="isView"></el-input>
-        </el-form-item>
-        <el-form-item v-if="false" :label="$t('Site')">
-          <el-autocomplete v-model="spiderForm.site"
-                           :placeholder="$t('Site')"
-                           :fetch-suggestions="fetchSiteSuggestions"
-                           clearable
-                           :disabled="isView"
-                           @select="onSiteSelect">
-          </el-autocomplete>
         </el-form-item>
         <el-form-item :label="$t('Spider Type')">
           <el-select v-model="spiderForm.type" :placeholder="$t('Spider Type')" :disabled="true" clearable>
@@ -62,6 +57,13 @@
         </el-form-item>
         <el-form-item :label="$t('Remark')">
           <el-input type="textarea" v-model="spiderForm.remark" :placeholder="$t('Remark')" :disabled="isView"/>
+        </el-form-item>
+        <el-form-item v-if="spiderForm.type === 'customized'" :label="$t('Is Scrapy')" prop="is_scrapy">
+          <el-switch
+            v-model="spiderForm.is_scrapy"
+            active-color="#13ce66"
+            @change="onIsScrapyChange"
+          />
         </el-form-item>
       </el-form>
     </el-row>
@@ -159,16 +161,14 @@ export default {
       this.$st.sendEv('爬虫详情', '概览', '点击运行')
     },
     onSave () {
-      this.$refs['spiderForm'].validate(res => {
-        if (res) {
-          this.$store.dispatch('spider/editSpider')
-            .then(() => {
-              this.$message.success(this.$t('Spider info has been saved successfully'))
-            })
-            .catch(error => {
-              this.$message.error(error)
-            })
+      this.$refs['spiderForm'].validate(async valid => {
+        if (!valid) return
+        const res = await this.$store.dispatch('spider/editSpider')
+        if (!res.data.error) {
+          this.$message.success(this.$t('Spider info has been saved successfully'))
         }
+        await this.$store.dispatch('spider/getSpiderData', this.$route.params.id)
+        await this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
       })
       this.$st.sendEv('爬虫详情', '概览', '保存')
     },
@@ -197,6 +197,11 @@ export default {
     },
     onUploadError () {
       this.uploadLoading = false
+    },
+    onIsScrapyChange (value) {
+      if (value) {
+        this.spiderForm.cmd = 'scrapy crawl'
+      }
     }
   },
   async created () {

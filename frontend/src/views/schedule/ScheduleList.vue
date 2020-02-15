@@ -83,6 +83,17 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item v-if="spiderForm.is_scrapy" :label="$t('Scrapy Spider')" prop="scrapy_spider" required
+                      inline-message>
+          <el-select v-model="scheduleForm.scrapy_spider" :placeholder="$t('Scrapy Spider')" :disabled="isLoading">
+            <el-option
+              v-for="s in spiderForm.spider_names"
+              :key="s"
+              :label="s"
+              :value="s"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item :label="$t('Cron')" prop="cron" required>
           <el-popover v-model="isShowCron" trigger="focus">
             <template>
@@ -103,7 +114,7 @@
         <el-form-item :label="$t('Execute Command')" prop="params">
           <el-input
             id="cmd"
-            v-model="spider.cmd"
+            v-model="spiderForm.cmd"
             :placeholder="$t('Execute Command')"
             disabled
           />
@@ -123,7 +134,7 @@
       <!--取消、保存-->
       <span slot="footer" class="dialog-footer">
         <el-button size="small" @click="onCancel">{{$t('Cancel')}}</el-button>
-        <el-button id="btn-submit" size="small" type="primary" @click="onAddSubmit">{{$t('Submit')}}</el-button>
+        <el-button id="btn-submit" size="small" type="primary" @click="onAddSubmit" :disabled="isLoading">{{$t('Submit')}}</el-button>
       </span>
     </el-dialog>
 
@@ -246,6 +257,7 @@ export default {
         { name: 'run_type', label: 'Run Type', width: '120px' },
         { name: 'node_names', label: 'Node', width: '150px' },
         { name: 'spider_name', label: 'Spider', width: '150px' },
+        { name: 'scrapy_spider', label: 'Scrapy Spider', width: '150px' },
         { name: 'param', label: 'Parameters', width: '150px' },
         { name: 'description', label: 'Description', width: '200px' },
         { name: 'enable', label: 'Enable/Disable', width: '120px' }
@@ -259,6 +271,7 @@ export default {
       spiderList: [],
       nodeList: [],
       isShowCron: false,
+      isLoading: false,
 
       // tutorial
       tourSteps: [
@@ -379,6 +392,9 @@ export default {
     }
   },
   computed: {
+    ...mapState('spider', [
+      'spiderForm'
+    ]),
     ...mapState('schedule', [
       'scheduleList',
       'scheduleForm'
@@ -456,11 +472,23 @@ export default {
     },
     isShowRun (row) {
     },
-    onEdit (row) {
+    async onEdit (row) {
       this.$store.commit('schedule/SET_SCHEDULE_FORM', row)
       this.dialogVisible = true
       this.isEdit = true
       this.$st.sendEv('定时任务', '修改定时任务')
+
+      this.isLoading = true
+      await this.$store.dispatch('spider/getSpiderData', row.spider_id)
+      if (this.spiderForm.is_scrapy) {
+        await this.$store.dispatch('spider/getSpiderScrapySpiders', row.spider_id)
+        if (!this.scheduleForm.scrapy_spider) {
+          if (this.spiderForm.spider_names && this.spiderForm.spider_names.length > 0) {
+            this.$set(this.scheduleForm, 'scrapy_spider', this.spiderForm.spider_names[0])
+          }
+        }
+      }
+      this.isLoading = false
     },
     onRemove (row) {
       this.$confirm(this.$t('Are you sure to delete the schedule task?'), this.$t('Notification'), {

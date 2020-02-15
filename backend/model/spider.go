@@ -37,6 +37,10 @@ type Spider struct {
 	// 自定义爬虫
 	Cmd string `json:"cmd" bson:"cmd"` // 执行命令
 
+	// Scrapy 爬虫（属于自定义爬虫）
+	IsScrapy    bool     `json:"is_scrapy" bson:"is_scrapy"`       // 是否为 Scrapy 爬虫
+	SpiderNames []string `json:"spider_names" bson:"spider_names"` // 爬虫名称列表
+
 	// 可配置爬虫
 	Template string `json:"template" bson:"template"` // Spiderfile模版
 

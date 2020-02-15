@@ -182,6 +182,8 @@ export default {
   'Settings': '设置',
   'Display Name': '显示名称',
   'Template': '模版',
+  'Is Scrapy': '是否为 Scrapy',
+  'Scrapy Spider': 'Scrapy 爬虫',
 
   // 爬虫列表
   'Name': '名称',

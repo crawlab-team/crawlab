@@ -116,6 +116,11 @@ const actions = {
         commit('SET_SPIDER_FORM', data)
       })
   },
+  async getSpiderScrapySpiders ({ state, commit }, id) {
+    const res = await request.get(`/spiders/${id}/scrapy/spiders`)
+    state.spiderForm.spider_names = res.data.data
+    commit('SET_SPIDER_FORM', state.spiderForm)
+  },
   crawlSpider ({ state, dispatch }, payload) {
     const { spiderId, runType, nodeIds, param } = payload
     return request.put(`/tasks`, {

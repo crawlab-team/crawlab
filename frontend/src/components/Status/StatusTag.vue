@@ -47,6 +47,10 @@ export default {
         return 'el-icon-loading'
       } else if (this.status === 'error') {
         return 'el-icon-error'
+      } else if (this.status === 'cancelled') {
+        return 'el-icon-video-pause'
+      } else if (this.status === 'abnormal') {
+        return 'el-icon-question'
       }
       return ''
     }

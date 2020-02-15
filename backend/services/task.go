@@ -243,7 +243,6 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	if runtime.GOOS == constants.Windows {
 		cmd = exec.Command("cmd", "/C", cmdStr)
 	} else {
-		cmd = exec.Command("")
 		cmd = exec.Command("sh", "-c", cmdStr)
 	}
 

@@ -88,15 +88,16 @@ func GetSpider(c *gin.Context) {
 		HandleErrorF(http.StatusBadRequest, c, "invalid id")
 	}
 
-	result, err := model.GetSpider(bson.ObjectIdHex(id))
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
+
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
-		Data:    result,
+		Data:    spider,
 	})
 }
 
@@ -899,5 +900,32 @@ func GetSpiderSchedules(c *gin.Context) {
 		Status:  "ok",
 		Message: "success",
 		Data:    list,
+	})
+}
+
+func GetSpiderScrapySpiders(c *gin.Context) {
+	id := c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "spider_id is invalid")
+		return
+	}
+
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	spiderNames, err := services.GetScrapySpiderNames(spider)
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    spiderNames,
 	})
 }

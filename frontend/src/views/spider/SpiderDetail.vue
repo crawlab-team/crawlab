@@ -217,6 +217,11 @@ export default {
     // get spider list
     await this.$store.dispatch('spider/getSpiderList')
 
+    // get scrapy spider names
+    if (this.spiderForm.is_scrapy) {
+      await this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
+    }
+
     // if spider is configurable spider, set to config tab by default
     // if (this.spiderForm.type === 'configurable') {
     // this.activeTabName = 'config'

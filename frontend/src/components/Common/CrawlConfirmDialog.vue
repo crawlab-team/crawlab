@@ -3,11 +3,11 @@
     :title="$t('Notification')"
     :visible="visible"
     class="crawl-confirm-dialog"
-    width="480px"
+    width="540px"
     :before-close="beforeClose"
   >
     <div style="margin-bottom: 20px;">{{$t('Are you sure to run this spider?')}}</div>
-    <el-form label-width="80px" :model="form" ref="form">
+    <el-form label-width="120px" :model="form" ref="form">
       <el-form-item :label="$t('Run Type')" prop="runType" required inline-message>
         <el-select v-model="form.runType" :placeholder="$t('Run Type')">
           <el-option value="all-nodes" :label="$t('All Nodes')"/>
@@ -23,6 +23,16 @@
             :value="op._id"
             :disabled="op.status !== 'online'"
             :label="op.name"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item v-if="spiderForm.is_scrapy" :label="$t('Scrapy Spider')" prop="spider" required inline-message>
+        <el-select v-model="form.spider" :placeholder="$t('Scrapy Spider')" :disabled="isLoading">
+          <el-option
+            v-for="s in spiderForm.spider_names"
+            :key="s"
+            :label="s"
+            :value="s"
           />
         </el-select>
       </el-form-item>
@@ -44,14 +54,17 @@
     </el-form>
     <template slot="footer">
       <el-button type="plain" size="small" @click="$emit('close')">{{$t('Cancel')}}</el-button>
-      <el-button type="primary" size="small" @click="onConfirm" :disabled="!isAllowDisclaimer">{{$t('Confirm')}}
+      <el-button type="primary" size="small" @click="onConfirm" :disabled="isConfirmDisabled">
+        {{$t('Confirm')}}
       </el-button>
     </template>
   </el-dialog>
 </template>
 
 <script>
-import request from '../../api/request'
+import {
+  mapState
+} from 'vuex'
 
 export default {
   name: 'CrawlConfirmDialog',
@@ -70,11 +83,30 @@ export default {
       form: {
         runType: 'random',
         nodeIds: undefined,
+        spider: undefined,
         param: '',
         nodeList: []
       },
       isAllowDisclaimer: true,
-      isRedirect: true
+      isRedirect: true,
+      isLoading: false
+    }
+  },
+  computed: {
+    ...mapState('spider', [
+      'spiderForm'
+    ]),
+    isConfirmDisabled () {
+      if (this.isLoading) return true
+      if (!this.isAllowDisclaimer) return true
+      return false
+    }
+  },
+  watch: {
+    visible (value) {
+      if (value) {
+        this.onOpen()
+      }
     }
   },
   methods: {
@@ -88,7 +120,7 @@ export default {
         const res = await this.$store.dispatch('spider/crawlSpider', {
           spiderId: this.spiderId,
           nodeIds: this.form.nodeIds,
-          param: this.form.param,
+          param: this.form.param + ' ' + this.form.spider,
           runType: this.form.runType
         })
 
@@ -107,21 +139,32 @@ export default {
     },
     onClickDisclaimer () {
       this.$router.push('/disclaimer')
-    }
-  },
-  created () {
-    // 节点列表
-    request.get('/nodes', {}).then(response => {
-      this.nodeList = response.data.data.map(d => {
-        d.systemInfo = {
-          os: '',
-          arch: '',
-          num_cpu: '',
-          executables: []
-        }
-        return d
+    },
+    async onOpen () {
+      // 节点列表
+      this.$request.get('/nodes', {}).then(response => {
+        this.nodeList = response.data.data.map(d => {
+          d.systemInfo = {
+            os: '',
+            arch: '',
+            num_cpu: '',
+            executables: []
+          }
+          return d
+        })
       })
-    })
+
+      // 爬虫列表
+      this.isLoading = true
+      await this.$store.dispatch('spider/getSpiderData', this.spiderId)
+      if (this.spiderForm.is_scrapy) {
+        await this.$store.dispatch('spider/getSpiderScrapySpiders', this.spiderId)
+        if (this.spiderForm.spider_names && this.spiderForm.spider_names.length > 0) {
+          this.$set(this.form, 'spider', this.spiderForm.spider_names[0])
+        }
+      }
+      this.isLoading = false
+    }
   }
 }
 </script>
