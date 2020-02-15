@@ -184,6 +184,7 @@ export default {
   'Template': '模版',
   'Is Scrapy': '是否为 Scrapy',
   'Scrapy Spider': 'Scrapy 爬虫',
+  'Scrapy Log Level': 'Scrapy 日志等级',
 
   // 爬虫列表
   'Name': '名称',

@@ -12,18 +12,19 @@ import (
 )
 
 type Schedule struct {
-	Id          bson.ObjectId   `json:"_id" bson:"_id"`
-	Name        string          `json:"name" bson:"name"`
-	Description string          `json:"description" bson:"description"`
-	SpiderId    bson.ObjectId   `json:"spider_id" bson:"spider_id"`
-	Cron        string          `json:"cron" bson:"cron"`
-	EntryId     cron.EntryID    `json:"entry_id" bson:"entry_id"`
-	Param       string          `json:"param" bson:"param"`
-	RunType     string          `json:"run_type" bson:"run_type"`
-	NodeIds     []bson.ObjectId `json:"node_ids" bson:"node_ids"`
-	Status      string          `json:"status" bson:"status"`
-	Enabled     bool            `json:"enabled" bson:"enabled"`
-	UserId      bson.ObjectId   `json:"user_id" bson:"user_id"`
+	Id           bson.ObjectId   `json:"_id" bson:"_id"`
+	Name         string          `json:"name" bson:"name"`
+	Description  string          `json:"description" bson:"description"`
+	SpiderId     bson.ObjectId   `json:"spider_id" bson:"spider_id"`
+	Cron         string          `json:"cron" bson:"cron"`
+	EntryId      cron.EntryID    `json:"entry_id" bson:"entry_id"`
+	Param        string          `json:"param" bson:"param"`
+	RunType      string          `json:"run_type" bson:"run_type"`
+	NodeIds      []bson.ObjectId `json:"node_ids" bson:"node_ids"`
+	Status       string          `json:"status" bson:"status"`
+	Enabled      bool            `json:"enabled" bson:"enabled"`
+	UserId       bson.ObjectId   `json:"user_id" bson:"user_id"`
+	ScrapySpider string          `json:"scrapy_spider" bson:"scrapy_spider"`
 
 	// 前端展示
 	SpiderName string `json:"spider_name" bson:"spider_name"`

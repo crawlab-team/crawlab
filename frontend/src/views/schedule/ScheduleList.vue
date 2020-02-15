@@ -94,6 +94,15 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item v-if="spiderForm.is_scrapy" :label="$t('Scrapy Log Level')" prop="scrapy_spider" required
+                      inline-message>
+          <el-select v-model="scheduleForm.scrapy_log_level" :placeholder="$t('Scrapy Log Level')">
+            <el-option value="INFO" label="INFO"/>
+            <el-option value="DEBUG" label="DEBUG"/>
+            <el-option value="WARN" label="WARN"/>
+            <el-option value="ERROR" label="ERROR"/>
+          </el-select>
+        </el-form-item>
         <el-form-item :label="$t('Cron')" prop="cron" required>
           <el-popover v-model="isShowCron" trigger="focus">
             <template>
@@ -111,7 +120,7 @@
           </el-popover>
           <!--<el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('schedules.add_cron')}}</el-button>-->
         </el-form-item>
-        <el-form-item :label="$t('Execute Command')" prop="params">
+        <el-form-item :label="$t('Execute Command')" prop="cmd">
           <el-input
             id="cmd"
             v-model="spiderForm.cmd"
@@ -119,7 +128,7 @@
             disabled
           />
         </el-form-item>
-        <el-form-item :label="$t('Parameters')" prop="param">
+        <el-form-item v-if="spiderForm.type === 'customized'" :label="$t('Parameters')" prop="param">
           <el-input
             id="param"
             v-model="scheduleForm.param"
@@ -445,6 +454,9 @@ export default {
         if (res) {
           const form = JSON.parse(JSON.stringify(this.scheduleForm))
           form.cron = '0 ' + this.scheduleForm.cron
+          if (this.spiderForm.is_scrapy) {
+            form.param += form.param + ' --loglevel=' + form.scrapy_log_level
+          }
           if (this.isEdit) {
             request.post(`/schedules/${this.scheduleForm._id}`, form).then(response => {
               if (response.data.error) {
@@ -479,6 +491,9 @@ export default {
       this.$st.sendEv('定时任务', '修改定时任务')
 
       this.isLoading = true
+      if (!this.scheduleForm.scrapy_log_level) {
+        this.$set(this.scheduleForm, 'scrapy_log_level', 'INFO')
+      }
       await this.$store.dispatch('spider/getSpiderData', row.spider_id)
       if (this.spiderForm.is_scrapy) {
         await this.$store.dispatch('spider/getSpiderScrapySpiders', row.spider_id)

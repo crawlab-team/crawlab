@@ -3,11 +3,11 @@
     :title="$t('Notification')"
     :visible="visible"
     class="crawl-confirm-dialog"
-    width="540px"
+    width="580px"
     :before-close="beforeClose"
   >
     <div style="margin-bottom: 20px;">{{$t('Are you sure to run this spider?')}}</div>
-    <el-form label-width="120px" :model="form" ref="form">
+    <el-form label-width="140px" :model="form" ref="form">
       <el-form-item :label="$t('Run Type')" prop="runType" required inline-message>
         <el-select v-model="form.runType" :placeholder="$t('Run Type')">
           <el-option value="all-nodes" :label="$t('All Nodes')"/>
@@ -36,8 +36,23 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item :label="$t('Parameters')" prop="param" inline-message>
-        <el-input v-model="form.param" :placeholder="$t('Parameters')"></el-input>
+      <el-form-item v-if="spiderForm.is_scrapy" :label="$t('Scrapy Log Level')" prop="scrapy_log_level" required
+                    inline-message>
+        <el-select v-model="form.scrapy_log_level" :placeholder="$t('Scrapy Log Level')">
+          <el-option value="INFO" label="INFO"/>
+          <el-option value="DEBUG" label="DEBUG"/>
+          <el-option value="WARN" label="WARN"/>
+          <el-option value="ERROR" label="ERROR"/>
+        </el-select>
+      </el-form-item>
+      <el-form-item v-if="spiderForm.type === 'customized'" :label="$t('Parameters')" prop="param" inline-message>
+        <template v-if="spiderForm.is_scrapy">
+          <el-input v-model="form.param" :placeholder="$t('Parameters')" class="param-input"/>
+          <el-button type="primary" icon="el-icon-edit" class="param-btn"/>
+        </template>
+        <template v-else>
+          <el-input v-model="form.param" :placeholder="$t('Parameters')"></el-input>
+        </template>
       </el-form-item>
       <el-form-item class="disclaimer-wrapper">
         <div>
@@ -84,6 +99,7 @@ export default {
         runType: 'random',
         nodeIds: undefined,
         spider: undefined,
+        scrapy_log_level: 'INFO',
         param: '',
         nodeList: []
       },
@@ -120,7 +136,7 @@ export default {
         const res = await this.$store.dispatch('spider/crawlSpider', {
           spiderId: this.spiderId,
           nodeIds: this.form.nodeIds,
-          param: this.form.param + ' ' + this.form.spider,
+          param: `${this.form.spider} --loglevel=${this.form.scrapy_log_level} ${this.form.param}`,
           runType: this.form.runType
         })
 
@@ -176,5 +192,20 @@ export default {
 
   .crawl-confirm-dialog >>> .disclaimer-wrapper a {
     color: #409eff;
+  }
+
+  .crawl-confirm-dialog >>> .param-input {
+    width: calc(100% - 56px);
+  }
+  .crawl-confirm-dialog >>> .param-input .el-input__inner {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+  }
+
+  .crawl-confirm-dialog >>> .param-btn {
+    width: 56px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
 </style>
