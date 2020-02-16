@@ -1,5 +1,12 @@
 <template>
-  <div class="app-container">
+  <div class="app-container schedule-list">
+    <parameters-dialog
+      :visible="isParametersVisible"
+      :param="scheduleForm.param"
+      @confirm="onParametersConfirm"
+      @close="isParametersVisible = false"
+    />
+
     <!--tour-->
     <v-tour
       name="schedule-list"
@@ -129,11 +136,13 @@
           />
         </el-form-item>
         <el-form-item v-if="spiderForm.type === 'customized'" :label="$t('Parameters')" prop="param">
-          <el-input
-            id="param"
-            v-model="scheduleForm.param"
-            :placeholder="$t('Parameters')"
-          />
+          <template v-if="spiderForm.is_scrapy">
+            <el-input v-model="scheduleForm.param" :placeholder="$t('Parameters')" class="param-input"/>
+            <el-button type="primary" icon="el-icon-edit" class="param-btn" @click="onOpenParameters"/>
+          </template>
+          <template v-else>
+            <el-input v-model="scheduleForm.param" :placeholder="$t('Parameters')"></el-input>
+          </template>
         </el-form-item>
         <el-form-item :label="$t('Schedule Description')" prop="description">
           <el-input id="schedule-description" v-model="scheduleForm.description" type="textarea"
@@ -252,11 +261,13 @@ import VueCronLinux from '../../components/Cron'
 import {
   mapState
 } from 'vuex'
+import ParametersDialog from '../../components/Common/ParametersDialog'
 
 export default {
   name: 'ScheduleList',
   components: {
-    VueCronLinux
+    VueCronLinux,
+    ParametersDialog
   },
   data () {
     return {
@@ -281,6 +292,7 @@ export default {
       nodeList: [],
       isShowCron: false,
       isLoading: false,
+      isParametersVisible: false,
 
       // tutorial
       tourSteps: [
@@ -546,6 +558,13 @@ export default {
     onCronChange (value) {
       this.$set(this.scheduleForm, 'cron', value)
       this.$st.sendEv('定时任务', '配置Cron')
+    },
+    onOpenParameters () {
+      this.isParametersVisible = true
+    },
+    onParametersConfirm (value) {
+      this.scheduleForm.param = value
+      this.isParametersVisible = false
     }
   },
   created () {
@@ -593,5 +612,21 @@ export default {
 
   .status-tag {
     cursor: pointer;
+  }
+
+  .schedule-list >>> .param-input {
+    width: calc(100% - 56px);
+  }
+
+  .schedule-list >>> .param-input .el-input__inner {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+  }
+
+  .schedule-list >>> .param-btn {
+    width: 56px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
 </style>
