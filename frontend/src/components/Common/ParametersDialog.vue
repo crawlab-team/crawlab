@@ -50,6 +50,7 @@
             v-model="scope.row.name"
             size="small"
             suffix-icon="el-icon-edit"
+            :fetch-suggestions="querySearch"
           />
           <el-input
             v-else-if="scope.row.type === 'spider'"
@@ -174,6 +175,20 @@ export default {
     },
     onAdd () {
       this.paramData.push({ type: 'spider', name: '', value: '' })
+    },
+    querySearch (queryString, cb) {
+      let data = this.$utils.scrapy.settingParamNames
+      if (!queryString) {
+        return cb(data.map(s => {
+          return { value: s, label: s }
+        }))
+      }
+      data = data
+        .filter(s => s.match(new RegExp(queryString, 'i')))
+        .sort((a, b) => a < b ? 1 : -1)
+      cb(data.map(s => {
+        return { value: s, label: s }
+      }))
     }
   }
 }
