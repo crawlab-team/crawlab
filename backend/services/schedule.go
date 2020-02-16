@@ -38,8 +38,7 @@ func AddScheduleTask(s model.Schedule) func() {
 				debug.PrintStack()
 				return
 			}
-
-			param = s.ScrapySpider + " " + s.Param
+			param = s.ScrapySpider + " -L " + s.ScrapyLogLevel + " " + s.Param
 		} else {
 			param = s.Param
 		}

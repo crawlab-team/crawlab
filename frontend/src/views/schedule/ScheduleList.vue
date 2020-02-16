@@ -466,9 +466,6 @@ export default {
         if (res) {
           const form = JSON.parse(JSON.stringify(this.scheduleForm))
           form.cron = '0 ' + this.scheduleForm.cron
-          if (this.spiderForm.is_scrapy) {
-            form.param += form.param + ' --loglevel=' + form.scrapy_log_level
-          }
           if (this.isEdit) {
             request.post(`/schedules/${this.scheduleForm._id}`, form).then(response => {
               if (response.data.error) {
