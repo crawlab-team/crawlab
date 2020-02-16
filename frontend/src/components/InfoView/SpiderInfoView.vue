@@ -58,7 +58,7 @@
         <el-form-item :label="$t('Remark')">
           <el-input type="textarea" v-model="spiderForm.remark" :placeholder="$t('Remark')" :disabled="isView"/>
         </el-form-item>
-        <el-form-item v-if="spiderForm.type === 'customized'" :label="$t('Is Scrapy')" prop="is_scrapy">
+        <el-form-item v-if="spiderForm.type === 'customized' && !isView" :label="$t('Is Scrapy')" prop="is_scrapy">
           <el-switch
             v-model="spiderForm.is_scrapy"
             active-color="#13ce66"

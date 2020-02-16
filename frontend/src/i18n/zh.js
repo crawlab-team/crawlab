@@ -185,6 +185,10 @@ export default {
   'Is Scrapy': '是否为 Scrapy',
   'Scrapy Spider': 'Scrapy 爬虫',
   'Scrapy Log Level': 'Scrapy 日志等级',
+  'Parameter Name': '参数名',
+  'Parameter Value': '参数值',
+  'Parameter Type': '参数类别',
+  'Other': '其他',
 
   // 爬虫列表
   'Name': '名称',
