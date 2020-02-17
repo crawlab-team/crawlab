@@ -150,6 +150,10 @@ const actions = {
   async saveSpiderScrapySettings ({ state }, id) {
     return request.post(`/spiders/${id}/scrapy/settings`, state.spiderScrapySettings)
   },
+  addSpiderScrapySpider ({ state }, payload) {
+    const { id, form } = payload
+    return request.put(`/spiders/${id}/scrapy/spiders`, form)
+  },
   crawlSpider ({ state, dispatch }, payload) {
     const { spiderId, runType, nodeIds, param } = payload
     return request.put(`/tasks`, {

@@ -83,6 +83,9 @@ func UploadSpiderToGridFsFromMaster(spider model.Spider) error {
 	// 生成MD5
 	spiderSync.CreateMd5File(gfFile2.Md5)
 
+	// 检查是否为 Scrapy 爬虫
+	spiderSync.CheckIsScrapy()
+
 	return nil
 }
 
@@ -200,6 +203,7 @@ func PublishSpider(spider model.Spider) {
 		log.Infof("path not found: %s", path)
 		spiderSync.Download()
 		spiderSync.CreateMd5File(gfFile.Md5)
+		spiderSync.CheckIsScrapy()
 		return
 	}
 	// md5文件不存在，则下载

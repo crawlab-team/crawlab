@@ -134,3 +134,20 @@ func SaveScrapySettings(s model.Spider, settingsData []entity.ScrapySettingParam
 
 	return
 }
+
+func CreateScrapySpider(s model.Spider, name string, domain string) (err error) {
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	cmd := exec.Command("scrapy", "genspider", name, domain)
+	cmd.Dir = s.Src
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	return
+}

@@ -33,10 +33,16 @@
         >
           <template slot-scope="scope">
             <el-input
+              v-if="activeParam.type === 'object'"
               v-model="scope.row.value"
               size="small"
               type="number"
               @change="() => scope.row.value = Number(scope.row.value)"
+            />
+            <el-input
+              v-else-if="activeParam.type === 'array'"
+              v-model="scope.row.value"
+              size="small"
             />
           </template>
         </el-table-column>
@@ -63,8 +69,51 @@
         </el-button>
       </template>
     </el-dialog>
+
+    <el-dialog
+      :title="$t('Add Scrapy Spider')"
+      :visible.sync="isAddSpiderVisible"
+      width="480px"
+    >
+      <el-form
+        :model="addSpiderForm"
+        label-width="80px"
+        ref="add-spider-form"
+        inline-message
+      >
+        <el-form-item :label="$t('Name')" prop="name" required>
+          <el-input v-model="addSpiderForm.name" :placeholder="$t('Name')"/>
+        </el-form-item>
+        <el-form-item :label="$t('Domain')" prop="domain" required>
+          <el-input v-model="addSpiderForm.domain" :placeholder="$t('Domain')"/>
+        </el-form-item>
+      </el-form>
+      <template slot="footer">
+        <el-button type="plain" size="small" @click="isAddSpiderVisible = false">{{$t('Cancel')}}</el-button>
+        <el-button
+          type="primary"
+          size="small"
+          @click="onAddSpiderConfirm"
+          :icon="isAddSpiderLoading ? 'el-icon-loading' : ''"
+          :disabled="isAddSpiderLoading"
+        >
+          {{$t('Confirm')}}
+        </el-button>
+      </template>
+    </el-dialog>
+
     <div class="spiders">
       <h3 class="title">{{$t('Scrapy Spiders')}}</h3>
+      <div class="action-wrapper">
+        <el-button
+          type="primary"
+          size="small"
+          icon="el-icon-plus"
+          @click="isAddSpiderVisible = true"
+        >
+          {{$t('Add Spider')}}
+        </el-button>
+      </div>
       <ul class="spider-list">
         <li
           v-for="s in spiderForm.spider_names"
@@ -95,7 +144,7 @@
         :data="spiderScrapySettings"
         border
         :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
-        max-height="calc(100vh - 240px"
+        max-height="calc(100vh - 240px)"
       >
         <el-table-column
           :label="$t('Variable Name')"
@@ -150,6 +199,7 @@
               <el-switch
                 v-model="scope.row.value"
                 size="small"
+                active-color="#67C23A"
               />
             </div>
             <div
@@ -219,7 +269,13 @@ export default {
     return {
       dialogVisible: false,
       activeParam: {},
-      activeParamIndex: undefined
+      activeParamIndex: undefined,
+      isAddSpiderVisible: false,
+      addSpiderForm: {
+        name: '',
+        domain: ''
+      },
+      isAddSpiderLoading: false
     }
   },
   methods: {
@@ -308,6 +364,22 @@ export default {
       if (row.type === 'number') {
         row.value = Number(row.value)
       }
+    },
+    onAddSpiderConfirm () {
+      this.$refs['add-spider-form'].validate(async valid => {
+        if (!valid) return
+        this.isAddSpiderLoading = true
+        const res = await this.$store.dispatch('spider/addSpiderScrapySpider', {
+          id: this.$route.params.id,
+          form: this.addSpiderForm
+        })
+        console.log(res)
+        if (!res.data.error) {
+          this.$message.success('Saved successfully')
+        }
+        this.isAddSpiderVisible = false
+        this.isAddSpiderLoading = false
+      })
     }
   }
 }
@@ -332,6 +404,11 @@ export default {
   .spiders .title {
     border-bottom: 1px solid #DCDFE6;
     padding-bottom: 15px;
+  }
+
+  .spiders .action-wrapper {
+    margin-bottom: 10px;
+    text-align: right;
   }
 
   .spiders .spider-list {

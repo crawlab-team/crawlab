@@ -174,6 +174,7 @@ func main() {
 				authGroup.GET("/spiders/:id/stats", routes.GetSpiderStats)                      // 爬虫统计数据
 				authGroup.GET("/spiders/:id/schedules", routes.GetSpiderSchedules)              // 爬虫定时任务
 				authGroup.GET("/spiders/:id/scrapy/spiders", routes.GetSpiderScrapySpiders)     // Scrapy 爬虫名称列表
+				authGroup.PUT("/spiders/:id/scrapy/spiders", routes.PutSpiderScrapySpiders)     // Scrapy 爬虫创建爬虫
 				authGroup.GET("/spiders/:id/scrapy/settings", routes.GetSpiderScrapySettings)   // Scrapy 爬虫设置
 				authGroup.POST("/spiders/:id/scrapy/settings", routes.PostSpiderScrapySettings) // Scrapy 爬虫修改设置
 			}

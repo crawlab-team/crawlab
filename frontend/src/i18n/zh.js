@@ -195,6 +195,8 @@ export default {
   'Variable Name': '变量名',
   'Variable Type': '变量类型',
   'Variable Value': '变量值',
+  'Parameter Edit': '参数编辑',
+  'Add Scrapy Spider': '添加 Scrapy 爬虫',
 
   // 爬虫列表
   'Name': '名称',

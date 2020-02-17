@@ -930,6 +930,42 @@ func GetSpiderScrapySpiders(c *gin.Context) {
 	})
 }
 
+func PutSpiderScrapySpiders(c *gin.Context) {
+	type ReqBody struct {
+		Name   string `json:"name"`
+		Domain string `json:"domain"`
+	}
+
+	id := c.Param("id")
+
+	var reqBody ReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleErrorF(http.StatusBadRequest, c, "invalid request")
+		return
+	}
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "spider_id is invalid")
+		return
+	}
+
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	if err := services.CreateScrapySpider(spider, reqBody.Name, reqBody.Domain); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
 func GetSpiderScrapySettings(c *gin.Context) {
 	id := c.Param("id")
 
