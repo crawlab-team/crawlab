@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"path"
 	"runtime/debug"
+	"strconv"
 	"strings"
 )
 
@@ -58,7 +59,6 @@ func GetScrapySettings(s model.Spider) (res []map[string]interface{}, err error)
 		return res, err
 	}
 
-	log.Infof(stdout.String())
 	if err := json.Unmarshal([]byte(stdout.String()), &res); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
@@ -93,7 +93,9 @@ func SaveScrapySettings(s model.Spider, settingsData []entity.ScrapySettingParam
 		case constants.String:
 			line = fmt.Sprintf("%s = '%s'", param.Key, param.Value)
 		case constants.Number:
-			line = fmt.Sprintf("%s = %s", param.Key, param.Value)
+			n := int64(param.Value.(float64))
+			s := strconv.FormatInt(n, 10)
+			line = fmt.Sprintf("%s = %s", param.Key, s)
 		case constants.Boolean:
 			if param.Value.(bool) {
 				line = fmt.Sprintf("%s = %s", param.Key, "True")
@@ -111,8 +113,9 @@ func SaveScrapySettings(s model.Spider, settingsData []entity.ScrapySettingParam
 			value := param.Value.(map[string]interface{})
 			var arr []string
 			for k, v := range value {
-				str := v.(float64)
-				arr = append(arr, fmt.Sprintf("'%s': %.0f", k, str))
+				n := int64(v.(float64))
+				s := strconv.FormatInt(n, 10)
+				arr = append(arr, fmt.Sprintf("'%s': %s", k, s))
 			}
 			line = fmt.Sprintf("%s = {%s}", param.Key, strings.Join(arr, ","))
 		}

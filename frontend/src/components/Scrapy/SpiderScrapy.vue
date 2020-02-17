@@ -95,16 +95,18 @@
         :data="spiderScrapySettings"
         border
         :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
+        max-height="calc(100vh - 240px"
       >
         <el-table-column
           :label="$t('Variable Name')"
           width="240px"
         >
           <template slot-scope="scope">
-            <el-input
+            <el-autocomplete
               v-model="scope.row.key"
               size="small"
               suffix-icon="el-icon-edit"
+              :fetch-suggestions="settingsKeysFetchSuggestions"
             />
           </template>
         </el-table-column>
@@ -113,7 +115,7 @@
           width="120px"
         >
           <template slot-scope="scope">
-            <el-select v-model="scope.row.type" size="small">
+            <el-select v-model="scope.row.type" size="small" @change="onParamTypeChange(scope.row)">
               <el-option value="string" :label="$t('String')"/>
               <el-option value="number" :label="$t('Number')"/>
               <el-option value="boolean" :label="$t('Boolean')"/>
@@ -139,6 +141,7 @@
               v-model="scope.row.value"
               size="small"
               suffix-icon="el-icon-edit"
+              @change="scope.row.value = Number(scope.row.value)"
             />
             <div
               v-else-if="scope.row.type === 'boolean'"
@@ -282,6 +285,28 @@ export default {
         const value = JSON.parse(JSON.stringify(this.activeParam.value))
         delete value[key]
         this.$set(this.activeParam, 'value', value)
+      }
+    },
+    settingsKeysFetchSuggestions (queryString, cb) {
+      const data = this.$utils.scrapy.settingParamNames
+        .filter(s => {
+          if (!queryString) return true
+          return !!s.match(new RegExp(queryString, 'i'))
+        })
+        .map(s => {
+          return {
+            value: s,
+            label: s
+          }
+        })
+        .sort((a, b) => {
+          return a > b ? -1 : 1
+        })
+      cb(data)
+    },
+    onParamTypeChange (row) {
+      if (row.type === 'number') {
+        row.value = Number(row.value)
       }
     }
   }

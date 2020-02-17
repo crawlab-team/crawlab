@@ -22,7 +22,7 @@
       <el-tab-pane :label="$t('Overview')" name="overview">
         <spider-overview/>
       </el-tab-pane>
-      <el-tab-pane v-if="isScrapy" :label="$t('Scrapy Settings')" name="scrapy-config">
+      <el-tab-pane v-if="isScrapy" :label="$t('Scrapy Settings')" name="scrapy-settings">
         <spider-scrapy/>
       </el-tab-pane>
       <el-tab-pane v-if="isConfigurable" :label="$t('Config')" name="config">
@@ -69,9 +69,6 @@ export default {
   },
   watch: {
     activeTabName () {
-      // 初始化文件
-      this.$store.commit('file/SET_FILE_CONTENT', '')
-      this.$store.commit('file/SET_CURRENT_PATH', '')
     }
   },
   data () {
@@ -201,8 +198,13 @@ export default {
             this.$st.sendEv('教程', '开始', 'spider-detail-config')
           }, 100)
         }
-      } else if (this.activeTabName === 'scrapy-config') {
+      } else if (this.activeTabName === 'scrapy-settings') {
         this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
+        this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id)
+      } else if (this.activeTabName === 'files') {
+        if (this.currentPath) {
+          this.$store.dispatch('file/getFileContent', { path: this.currentPath })
+        }
       }
       this.$st.sendEv('爬虫详情', '切换标签', tab.name)
     },
