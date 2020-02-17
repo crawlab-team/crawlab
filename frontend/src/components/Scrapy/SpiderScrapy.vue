@@ -297,17 +297,20 @@ export default {
       }
       this.$set(this.spiderScrapySettings, this.activeParamIndex, JSON.parse(JSON.stringify(this.activeParam)))
       this.dialogVisible = false
+      this.$st('爬虫详情', 'Scrapy 设置', '确认编辑参数')
     },
     onEditParam (row, index) {
       this.activeParam = JSON.parse(JSON.stringify(row))
       this.activeParamIndex = index
       this.onOpenDialog()
+      this.$st('爬虫详情', 'Scrapy 设置', '点击编辑参数')
     },
     async onSave () {
       const res = await this.$store.dispatch('spider/saveSpiderScrapySettings', this.$route.params.id)
       if (!res.data.error) {
         this.$message.success(this.$t('Saved successfully'))
       }
+      this.$st('爬虫详情', 'Scrapy 设置', '保存设置')
     },
     onAdd () {
       const data = JSON.parse(JSON.stringify(this.spiderScrapySettings))
@@ -317,11 +320,13 @@ export default {
         type: 'string'
       })
       this.$store.commit('spider/SET_SPIDER_SCRAPY_SETTINGS', data)
+      this.$st('爬虫详情', 'Scrapy 设置', '添加参数')
     },
     onRemove (index) {
       const data = JSON.parse(JSON.stringify(this.spiderScrapySettings))
       data.splice(index, 1)
       this.$store.commit('spider/SET_SPIDER_SCRAPY_SETTINGS', data)
+      this.$st('爬虫详情', 'Scrapy 设置', '删除参数')
     },
     onActiveParamAdd () {
       if (this.activeParam.type === 'array') {
@@ -332,6 +337,7 @@ export default {
         }
         this.$set(this.activeParam.value, '', 999)
       }
+      this.$st('爬虫详情', 'Scrapy 设置', '添加参数中参数')
     },
     onActiveParamRemove (index) {
       if (this.activeParam.type === 'array') {
@@ -342,6 +348,7 @@ export default {
         delete value[key]
         this.$set(this.activeParam, 'value', value)
       }
+      this.$st('爬虫详情', 'Scrapy 设置', '删除参数中参数')
     },
     settingsKeysFetchSuggestions (queryString, cb) {
       const data = this.$utils.scrapy.settingParamNames
@@ -380,6 +387,7 @@ export default {
         this.isAddSpiderLoading = false
         await this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
       })
+      this.$st('爬虫详情', 'Scrapy 设置', '确认添加爬虫')
     },
     onAddSpider () {
       this.addSpiderForm = {
@@ -387,6 +395,7 @@ export default {
         domain: ''
       }
       this.isAddSpiderVisible = true
+      this.$st('爬虫详情', 'Scrapy 设置', '添加爬虫')
     }
   }
 }
