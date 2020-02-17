@@ -18,6 +18,7 @@
     <el-table
       :data="paramData"
       border
+      :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
     >
       <el-table-column
         :label="$t('Parameter Type')"

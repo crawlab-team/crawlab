@@ -184,11 +184,16 @@ export default {
   'Template': '模版',
   'Is Scrapy': '是否为 Scrapy',
   'Scrapy Spider': 'Scrapy 爬虫',
+  'Scrapy Spiders': 'Scrapy 爬虫',
   'Scrapy Log Level': 'Scrapy 日志等级',
   'Parameter Name': '参数名',
   'Parameter Value': '参数值',
   'Parameter Type': '参数类别',
   'Other': '其他',
+  'Scrapy Config': 'Scrapy 配置',
+  'Variable Name': '变量名',
+  'Variable Type': '变量类型',
+  'Variable Value': '变量值',
 
   // 爬虫列表
   'Name': '名称',
@@ -290,6 +295,13 @@ export default {
   User: '用户',
   Logout: '退出登录',
   Documentation: '文档',
+
+  // 变量类型
+  'String': '字符串',
+  'Number': '数字',
+  'Boolean': '布尔值',
+  'Array/List': '数组/列表',
+  'Object/Dict': '对象/字典',
 
   // 选择
   'Yes': '是',
