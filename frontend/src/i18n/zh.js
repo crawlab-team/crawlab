@@ -191,6 +191,7 @@ export default {
   'Parameter Type': '参数类别',
   'Other': '其他',
   'Scrapy Config': 'Scrapy 配置',
+  'Scrapy Settings': 'Scrapy 设置',
   'Variable Name': '变量名',
   'Variable Type': '变量类型',
   'Variable Value': '变量值',

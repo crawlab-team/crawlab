@@ -22,7 +22,7 @@
       <el-tab-pane :label="$t('Overview')" name="overview">
         <spider-overview/>
       </el-tab-pane>
-      <el-tab-pane v-if="isScrapy" :label="$t('Scrapy Config')" name="scrapy-config">
+      <el-tab-pane v-if="isScrapy" :label="$t('Scrapy Settings')" name="scrapy-config">
         <spider-scrapy/>
       </el-tab-pane>
       <el-tab-pane v-if="isConfigurable" :label="$t('Config')" name="config">
