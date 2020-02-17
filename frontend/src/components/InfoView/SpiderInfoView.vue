@@ -58,13 +58,25 @@
         <el-form-item :label="$t('Remark')">
           <el-input type="textarea" v-model="spiderForm.remark" :placeholder="$t('Remark')" :disabled="isView"/>
         </el-form-item>
-        <el-form-item v-if="spiderForm.type === 'customized' && !isView" :label="$t('Is Scrapy')" prop="is_scrapy">
-          <el-switch
-            v-model="spiderForm.is_scrapy"
-            active-color="#13ce66"
-            @change="onIsScrapyChange"
-          />
-        </el-form-item>
+        <el-row>
+          <el-col :span="6">
+            <el-form-item v-if="spiderForm.type === 'customized' && !isView" :label="$t('Is Scrapy')" prop="is_scrapy">
+              <el-switch
+                v-model="spiderForm.is_scrapy"
+                active-color="#13ce66"
+                @change="onIsScrapyChange"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item v-if="!isView" :label="$t('Is Git')" prop="is_git">
+              <el-switch
+                v-model="spiderForm.is_git"
+                active-color="#13ce66"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
     </el-row>
     <el-row class="button-container" v-if="!isView">

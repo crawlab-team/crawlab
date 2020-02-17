@@ -22,6 +22,9 @@
       <el-tab-pane :label="$t('Overview')" name="overview">
         <spider-overview/>
       </el-tab-pane>
+      <el-tab-pane v-if="isGit" :label="$t('Git Settings')" name="git-settings">
+        <git-settings/>
+      </el-tab-pane>
       <el-tab-pane v-if="isScrapy" :label="$t('Scrapy Settings')" name="scrapy-settings">
         <spider-scrapy/>
       </el-tab-pane>
@@ -55,10 +58,12 @@ import SpiderStats from '../../components/Stats/SpiderStats'
 import ConfigList from '../../components/Config/ConfigList'
 import SpiderSchedules from './SpiderSchedules'
 import SpiderScrapy from '../../components/Scrapy/SpiderScrapy'
+import GitSettings from '../../components/Settings/GitSettings'
 
 export default {
   name: 'SpiderDetail',
   components: {
+    GitSettings,
     SpiderScrapy,
     SpiderSchedules,
     ConfigList,
@@ -179,6 +184,9 @@ export default {
     },
     isScrapy () {
       return this.isCustomized && this.spiderForm.is_scrapy
+    },
+    isGit () {
+      return this.spiderForm.is_git
     }
   },
   methods: {

@@ -994,7 +994,6 @@ func GetSpiderScrapySettings(c *gin.Context) {
 }
 
 func PostSpiderScrapySettings(c *gin.Context) {
-
 	id := c.Param("id")
 
 	if !bson.IsObjectIdHex(id) {
@@ -1015,6 +1014,56 @@ func PostSpiderScrapySettings(c *gin.Context) {
 	}
 
 	if err := services.SaveScrapySettings(spider, reqData); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
+func PostSpiderSyncGit(c *gin.Context) {
+	id := c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "spider_id is invalid")
+		return
+	}
+
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	if err := services.SyncSpiderGit(spider); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
+func PostSpiderResetGit(c *gin.Context) {
+	id := c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "spider_id is invalid")
+		return
+	}
+
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	if err := services.ResetSpiderGit(spider); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}

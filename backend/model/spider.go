@@ -44,6 +44,16 @@ type Spider struct {
 	// 可配置爬虫
 	Template string `json:"template" bson:"template"` // Spiderfile模版
 
+	// Git 设置
+	IsGit            bool   `json:"is_git" bson:"is_git"`                         // 是否为 Git
+	GitUrl           string `json:"git_url" bson:"git_url"`                       // Git URL
+	GitBranch        string `json:"git_branch" bson:"git_branch"`                 // Git 分支
+	GitHasCredential bool   `json:"git_has_credential" bson:"git_has_credential"` // Git 是否加密
+	GitUsername      string `json:"git_username" bson:"git_username"`             // Git 用户名
+	GitPassword      string `json:"git_password" bson:"git_password"`             // Git 密码
+	GitAutoSync      bool   `json:"git_auto_sync" bson:"git_auto_sync"`           // Git 是否自动同步
+	GitSyncFrequency string `json:"git_sync_frequency" bson:"git_sync_frequency"` // Git 同步频率
+
 	// 前端展示
 	LastRunTs  time.Time               `json:"last_run_ts"` // 最后一次执行时间
 	LastStatus string                  `json:"last_status"` // 最后执行状态

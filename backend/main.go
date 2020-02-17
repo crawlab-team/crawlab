@@ -177,6 +177,8 @@ func main() {
 				authGroup.PUT("/spiders/:id/scrapy/spiders", routes.PutSpiderScrapySpiders)     // Scrapy 爬虫创建爬虫
 				authGroup.GET("/spiders/:id/scrapy/settings", routes.GetSpiderScrapySettings)   // Scrapy 爬虫设置
 				authGroup.POST("/spiders/:id/scrapy/settings", routes.PostSpiderScrapySettings) // Scrapy 爬虫修改设置
+				authGroup.POST("/spiders/:id/git/sync", routes.PostSpiderSyncGit)               // 爬虫 Git 同步
+				authGroup.POST("/spiders/:id/git/reset", routes.PostSpiderResetGit)             // 爬虫 Git 重置
 			}
 			// 可配置爬虫
 			{
@@ -244,6 +246,8 @@ func main() {
 			authGroup.GET("/stats/home", routes.GetHomeStats) // 首页统计数据
 			// 文件
 			authGroup.GET("/file", routes.GetFile) // 获取文件
+			// Git
+			authGroup.GET("/git/branches", routes.GetGitBranches) // 获取 Git 分支
 		}
 
 	}
