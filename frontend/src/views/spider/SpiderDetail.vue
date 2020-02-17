@@ -202,6 +202,7 @@ export default {
         this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
         this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id)
       } else if (this.activeTabName === 'files') {
+        this.$store.dispatch('spider/getFileTree')
         if (this.currentPath) {
           this.$store.dispatch('file/getFileContent', { path: this.currentPath })
         }

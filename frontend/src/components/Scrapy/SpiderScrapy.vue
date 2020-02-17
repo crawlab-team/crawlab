@@ -109,7 +109,7 @@
           type="primary"
           size="small"
           icon="el-icon-plus"
-          @click="isAddSpiderVisible = true"
+          @click="onAddSpider"
         >
           {{$t('Add Spider')}}
         </el-button>
@@ -373,13 +373,20 @@ export default {
           id: this.$route.params.id,
           form: this.addSpiderForm
         })
-        console.log(res)
         if (!res.data.error) {
-          this.$message.success('Saved successfully')
+          this.$message.success(this.$t('Saved successfully'))
         }
         this.isAddSpiderVisible = false
         this.isAddSpiderLoading = false
+        await this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
       })
+    },
+    onAddSpider () {
+      this.addSpiderForm = {
+        name: '',
+        domain: ''
+      }
+      this.isAddSpiderVisible = true
     }
   }
 }

@@ -189,7 +189,7 @@ export default {
       this.spiderForm.site = item._id
     },
     onUploadSuccess () {
-      this.$store.dispatch('file/getFileList', this.spiderForm.src)
+      this.$store.dispatch('spider/getFileTree')
 
       this.uploadLoading = false
 
