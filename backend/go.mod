@@ -3,6 +3,7 @@ module crawlab
 go 1.12
 
 require (
+	github.com/Unknwon/goconfig v0.0.0-20191126170842-860a72fb44fd
 	github.com/apex/log v1.1.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.7
@@ -16,7 +17,7 @@ require (
 	github.com/matcornic/hermes v1.2.0
 	github.com/matcornic/hermes/v2 v2.0.2 // indirect
 	github.com/pkg/errors v0.8.1
-	github.com/royeo/dingrobot v1.0.0
+	github.com/royeo/dingrobot v1.0.0 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337
 	github.com/spf13/viper v1.4.0

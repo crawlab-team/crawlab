@@ -244,7 +244,11 @@ export default {
       this.activeParamIndex = index
       this.onOpenDialog()
     },
-    onSave () {
+    async onSave () {
+      const res = await this.$store.dispatch('spider/saveSpiderScrapySettings', this.$route.params.id)
+      if (!res.data.error) {
+        this.$message.success(this.$t('Saved successfully'))
+      }
     },
     onAdd () {
       const data = JSON.parse(JSON.stringify(this.spiderScrapySettings))

@@ -956,3 +956,35 @@ func GetSpiderScrapySettings(c *gin.Context) {
 		Data:    data,
 	})
 }
+
+func PostSpiderScrapySettings(c *gin.Context) {
+
+	id := c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "spider_id is invalid")
+		return
+	}
+
+	var reqData []entity.ScrapySettingParam
+	if err := c.ShouldBindJSON(&reqData); err != nil {
+		HandleErrorF(http.StatusBadRequest, c, "invalid request")
+		return
+	}
+
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	if err := services.SaveScrapySettings(spider, reqData); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}

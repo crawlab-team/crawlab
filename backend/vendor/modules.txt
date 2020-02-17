@@ -2,6 +2,8 @@
 github.com/Masterminds/semver
 # github.com/Masterminds/sprig v2.16.0+incompatible
 github.com/Masterminds/sprig
+# github.com/Unknwon/goconfig v0.0.0-20191126170842-860a72fb44fd
+github.com/Unknwon/goconfig
 # github.com/aokoli/goutils v1.0.1
 github.com/aokoli/goutils
 # github.com/apex/log v1.1.1
@@ -82,8 +84,6 @@ github.com/olekukonko/tablewriter
 github.com/pelletier/go-toml
 # github.com/pkg/errors v0.8.1
 github.com/pkg/errors
-# github.com/royeo/dingrobot v1.0.0
-github.com/royeo/dingrobot
 # github.com/satori/go.uuid v1.2.0
 github.com/satori/go.uuid
 # github.com/shurcooL/sanitized_anchor_name v1.0.0

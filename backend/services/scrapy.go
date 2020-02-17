@@ -2,10 +2,17 @@ package services
 
 import (
 	"bytes"
+	"crawlab/constants"
+	"crawlab/entity"
 	"crawlab/model"
 	"encoding/json"
+	"fmt"
+	"github.com/Unknwon/goconfig"
 	"github.com/apex/log"
+	"io/ioutil"
+	"os"
 	"os/exec"
+	"path"
 	"runtime/debug"
 	"strings"
 )
@@ -59,4 +66,68 @@ func GetScrapySettings(s model.Spider) (res []map[string]interface{}, err error)
 	}
 
 	return res, nil
+}
+
+func SaveScrapySettings(s model.Spider, settingsData []entity.ScrapySettingParam) (err error) {
+	// 读取 scrapy.cfg
+	cfg, err := goconfig.LoadConfigFile(path.Join(s.Src, "scrapy.cfg"))
+	if err != nil {
+		return
+	}
+	modName, err := cfg.GetValue("settings", "default")
+	if err != nil {
+		return
+	}
+
+	// 定位到 settings.py 文件
+	arr := strings.Split(modName, ".")
+	dirName := arr[0]
+	fileName := arr[1]
+	filePath := fmt.Sprintf("%s/%s/%s.py", s.Src, dirName, fileName)
+
+	// 生成文件内容
+	content := ""
+	for _, param := range settingsData {
+		var line string
+		switch param.Type {
+		case constants.String:
+			line = fmt.Sprintf("%s = '%s'", param.Key, param.Value)
+		case constants.Number:
+			line = fmt.Sprintf("%s = %s", param.Key, param.Value)
+		case constants.Boolean:
+			if param.Value.(bool) {
+				line = fmt.Sprintf("%s = %s", param.Key, "True")
+			} else {
+				line = fmt.Sprintf("%s = %s", param.Key, "False")
+			}
+		case constants.Array:
+			arr := param.Value.([]interface{})
+			var arrStr []string
+			for _, s := range arr {
+				arrStr = append(arrStr, s.(string))
+			}
+			line = fmt.Sprintf("%s = ['%s']", param.Key, strings.Join(arrStr, "','"))
+		case constants.Object:
+			value := param.Value.(map[string]interface{})
+			var arr []string
+			for k, v := range value {
+				str := v.(float64)
+				arr = append(arr, fmt.Sprintf("'%s': %.0f", k, str))
+			}
+			line = fmt.Sprintf("%s = {%s}", param.Key, strings.Join(arr, ","))
+		}
+		content += line + "\n"
+	}
+
+	// 写到 settings.py
+	if err := ioutil.WriteFile(filePath, []byte(content), os.ModePerm); err != nil {
+		return err
+	}
+
+	// 同步到GridFS
+	if err := UploadSpiderToGridFsFromMaster(s); err != nil {
+		return err
+	}
+
+	return
 }

@@ -147,6 +147,9 @@ const actions = {
       }
     }))
   },
+  async saveSpiderScrapySettings ({ state }, id) {
+    return request.post(`/spiders/${id}/scrapy/settings`, state.spiderScrapySettings)
+  },
   crawlSpider ({ state, dispatch }, payload) {
     const { spiderId, runType, nodeIds, param } = payload
     return request.put(`/tasks`, {
