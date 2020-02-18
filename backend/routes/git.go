@@ -19,3 +19,11 @@ func GetGitBranches(c *gin.Context) {
 	})
 }
 
+func GetGitSshPublicKey(c *gin.Context) {
+	content := services.GetGitSshPublicKey()
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    content,
+	})
+}

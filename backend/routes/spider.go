@@ -119,6 +119,12 @@ func PostSpider(c *gin.Context) {
 		return
 	}
 
+	// 更新 GitCron
+	if err := services.GitCron.Update(); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
@@ -193,6 +199,12 @@ func PutSpider(c *gin.Context) {
 
 	// 同步到GridFS
 	if err := services.UploadSpiderToGridFsFromMaster(spider); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 更新 GitCron
+	if err := services.GitCron.Update(); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
@@ -430,6 +442,12 @@ func DeleteSpider(c *gin.Context) {
 	}
 
 	if err := services.RemoveSpider(id); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 更新 GitCron
+	if err := services.GitCron.Update(); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}

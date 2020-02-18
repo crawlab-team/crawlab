@@ -98,6 +98,34 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item
+        v-if="spiderForm.git_sync_error"
+        :label="$t('Error Message')"
+        prop="git_git_sync_error"
+      >
+        <el-alert
+          type="error"
+          :closable="false"
+        >
+          {{spiderForm.git_sync_error}}
+        </el-alert>
+      </el-form-item>
+      <el-form-item
+        v-if="sshPublicKey"
+        :label="$t('SSH Public Key')"
+      >
+        <el-alert
+          type="info"
+          :closable="false"
+        >
+          {{sshPublicKey}}
+        </el-alert>
+        <span class="copy" @click="copySshPublicKey">
+          <i class="el-icon-copy-document"></i>
+          {{$t('Copy')}}
+        </span>
+        <input id="ssh-public-key" v-model="sshPublicKey" v-show="true">
+      </el-form-item>
     </el-form>
     <div class="action-wrapper">
       <el-button
@@ -147,7 +175,8 @@ export default {
         { label: '6h', value: '0 0 0/6 * * *' },
         { label: '12h', value: '0 0 0/12 * * *' },
         { label: '1d', value: '0 0 0 0 * *' }
-      ]
+      ],
+      sshPublicKey: ''
     }
   },
   computed: {
@@ -169,12 +198,15 @@ export default {
     async onGitUrlChange () {
       if (!this.spiderForm.git_url) return
       this.isGitBranchesLoading = true
-      const res = await this.$request.get('/git/branches', { url: this.spiderForm.git_url })
-      this.gitBranches = res.data.data
-      if (!this.spiderForm.git_branch && this.gitBranches.length > 0) {
-        this.$set(this.spiderForm, 'git_branch', this.gitBranches[0])
+      try {
+        const res = await this.$request.get('/git/branches', { url: this.spiderForm.git_url })
+        this.gitBranches = res.data.data
+        if (!this.spiderForm.git_branch && this.gitBranches.length > 0) {
+          this.$set(this.spiderForm, 'git_branch', this.gitBranches[0])
+        }
+      } finally {
+        this.isGitBranchesLoading = false
       }
-      this.isGitBranchesLoading = false
     },
     async onSync () {
       this.isGitSyncLoading = true
@@ -185,6 +217,7 @@ export default {
         }
       } finally {
         this.isGitSyncLoading = false
+        await this.$store.dispatch('spider/getSpiderData', this.$route.params.id)
       }
     },
     onReset () {
@@ -207,12 +240,24 @@ export default {
             this.isGitResetLoading = false
           }
         })
+    },
+    async getSshPublicKey () {
+      const res = await this.$request.get('/git/public-key')
+      this.sshPublicKey = res.data.data
+    },
+    copySshPublicKey () {
+      const el = document.querySelector('#ssh-public-key')
+      el.focus()
+      el.setSelectionRange(0, this.sshPublicKey.length)
+      document.execCommand('copy')
+      this.$message.success(this.$t('SSH Public Key is copied to the clipboard'))
     }
   },
   async created () {
     if (this.spiderForm.git_url) {
       this.onGitUrlChange()
     }
+    await this.getSshPublicKey()
   }
 }
 </script>
@@ -224,6 +269,39 @@ export default {
 
   .git-settings .git-settings-form {
     width: 640px;
+  }
+
+  .git-settings .git-settings-form >>> .el-alert {
+    padding: 0 5px;
+    margin: 0;
+  }
+
+  .git-settings .git-settings-form >>> .el-alert__description {
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+    line-height: 24px;
+  }
+
+  .git-settings .git-settings-form .copy {
+    display: inline;
+    line-height: 14px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+  }
+
+  .git-settings .git-settings-form .copy {
+  }
+
+  #ssh-public-key {
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    height: 0;
+    /*visibility: hidden;*/
   }
 
   .git-settings .title {

@@ -53,6 +53,7 @@ type Spider struct {
 	GitPassword      string `json:"git_password" bson:"git_password"`             // Git 密码
 	GitAutoSync      bool   `json:"git_auto_sync" bson:"git_auto_sync"`           // Git 是否自动同步
 	GitSyncFrequency string `json:"git_sync_frequency" bson:"git_sync_frequency"` // Git 同步频率
+	GitSyncError     string `json:"git_sync_error" bson:"git_sync_error"`         // Git 同步错误
 
 	// 前端展示
 	LastRunTs  time.Time               `json:"last_run_ts"` // 最后一次执行时间
@@ -164,6 +165,15 @@ func GetSpiderList(filter interface{}, skip int, limit int, sortStr string) ([]S
 	count, _ := c.Find(filter).Count()
 
 	return spiders, count, nil
+}
+
+// 获取所有爬虫列表
+func GetSpiderAllList(filter interface{}) (spiders []Spider, err error) {
+	spiders, _, err = GetSpiderList(filter, 0, constants.Infinite, "_id")
+	if err != nil {
+		return spiders, err
+	}
+	return spiders, nil
 }
 
 // 获取爬虫(根据FileId)

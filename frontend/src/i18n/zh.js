@@ -77,6 +77,7 @@ export default {
   'Auto Sync': '自动同步',
   'Sync Frequency': '同步频率',
   'Reset': '重置',
+  'Copy': '复制',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -208,6 +209,7 @@ export default {
   'Git Username': 'Git 用户名',
   'Git Password': 'Git 密码',
   'Has Credential': '需要验证',
+  'SSH Public Key': 'SSH 公钥',
 
   // 爬虫列表
   'Name': '名称',
@@ -542,6 +544,7 @@ docker run -d --restart always --name crawlab_worker \\
   'Git has been synchronized successfully': 'Git 已经成功同步',
   'Git has been reset successfully': 'Git 已经成功重置',
   'This would delete all files of the spider. Are you sure to continue?': '重置将删除该爬虫所有文件，您希望继续吗？',
+  'SSH Public Key is copied to the clipboard': 'SSH 公钥已粘贴到剪切板',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

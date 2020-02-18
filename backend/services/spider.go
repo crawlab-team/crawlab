@@ -264,12 +264,13 @@ func RemoveSpider(id string) error {
 // 启动爬虫服务
 func InitSpiderService() error {
 	// 构造定时任务执行器
-	c := cron.New(cron.WithSeconds())
-	if _, err := c.AddFunc("0 * * * * *", PublishAllSpiders); err != nil {
+	cPub := cron.New(cron.WithSeconds())
+	if _, err := cPub.AddFunc("0 * * * * *", PublishAllSpiders); err != nil {
 		return err
 	}
+
 	// 启动定时任务
-	c.Start()
+	cPub.Start()
 
 	if model.IsMaster() {
 		// 添加Demo爬虫
@@ -374,6 +375,16 @@ func InitSpiderService() error {
 
 		// 发布所有爬虫
 		PublishAllSpiders()
+
+		// 构造 Git 定时任务
+		GitCron = &GitCronScheduler{
+			cron: cron.New(cron.WithSeconds()),
+		}
+
+		// 启动 Git 定时任务
+		if err := GitCron.Start(); err != nil {
+			return err
+		}
 	}
 
 	return nil

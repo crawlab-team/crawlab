@@ -247,7 +247,8 @@ func main() {
 			// 文件
 			authGroup.GET("/file", routes.GetFile) // 获取文件
 			// Git
-			authGroup.GET("/git/branches", routes.GetGitBranches) // 获取 Git 分支
+			authGroup.GET("/git/branches", routes.GetGitBranches)       // 获取 Git 分支
+			authGroup.GET("/git/public-key", routes.GetGitSshPublicKey) // 获取 SSH 公钥
 		}
 
 	}

@@ -180,7 +180,9 @@ export default {
           this.$message.success(this.$t('Spider info has been saved successfully'))
         }
         await this.$store.dispatch('spider/getSpiderData', this.$route.params.id)
-        await this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
+        if (this.spiderForm.is_scrapy) {
+          await this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
+        }
       })
       this.$st.sendEv('爬虫详情', '概览', '保存')
     },
