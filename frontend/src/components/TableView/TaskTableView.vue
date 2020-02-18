@@ -4,7 +4,13 @@
       <h5 class="title">{{title}}</h5>
       <el-button type="success" plain class="small-btn" size="mini" icon="fa fa-refresh" @click="onRefresh"></el-button>
     </el-row>
-    <el-table border height="480px" :data="taskList" @row-click="onClickTask">
+    <el-table
+      :data="taskList"
+      border
+      :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
+      height="480px"
+      @row-click="onClickTask"
+    >
       <el-table-column property="node" :label="$t('Node')" width="120" align="left">
         <template slot-scope="scope">
           <a class="a-tag" @click="onClickNode(scope.row)">{{scope.row.node_name}}</a>

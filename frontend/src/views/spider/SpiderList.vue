@@ -15,34 +15,6 @@
     />
     <!--./tour-->
 
-    <!--import popup-->
-    <el-dialog
-      :title="$t('Import Spider')"
-      :visible.sync="dialogVisible"
-      width="60%"
-      :before-close="onDialogClose">
-      <el-form label-width="150px"
-               :model="importForm"
-               ref="importForm"
-               label-position="right">
-        <el-form-item :label="$t('Source URL')" prop="url" required>
-          <el-input v-model="importForm.url" :placeholder="$t('Source URL')"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('Source Type')" prop="type" required>
-          <el-select v-model="importForm.type" placeholder="Source Type">
-            <el-option value="github" label="Github"></el-option>
-            <el-option value="gitlab" label="Gitlab"></el-option>
-            <el-option value="svn" label="SVN" disabled></el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="onCancel">{{$t('Cancel')}}</el-button>
-        <el-button v-loading="importLoading" type="primary" @click="onImport">{{$t('Import')}}</el-button>
-      </span>
-    </el-dialog>
-    <!--./import popup-->
-
     <!--add dialog-->
     <el-dialog :title="$t('Add Spider')"
                width="40%"
@@ -91,6 +63,12 @@
                   {{$t('Upload')}}
                 </el-button>
               </el-upload>
+            </el-form-item>
+            <el-form-item :label="$t('Is Git')" prop="is_git">
+              <el-switch
+                v-model="spiderForm.is_git"
+                active-color="#13ce66"
+              />
             </el-form-item>
           </el-form>
           <el-alert
@@ -310,6 +288,23 @@
             </template>
           </el-table-column>
           <el-table-column
+            v-else-if="col.name === 'is_scrapy'"
+            :key="col.name"
+            :label="$t(col.label)"
+            align="left"
+            :width="col.width"
+            :sortable="col.sortable"
+          >
+            <template slot-scope="scope">
+              <el-switch
+                v-if="scope.row.type === 'customized'"
+                v-model="scope.row.is_scrapy"
+                active-color="#13ce66"
+                disabled
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
             v-else
             :key="col.name"
             :property="col.name"
@@ -397,6 +392,7 @@ export default {
       columns: [
         { name: 'display_name', label: 'Name', width: '160', align: 'left', sortable: true },
         { name: 'type', label: 'Spider Type', width: '120', sortable: true },
+        { name: 'is_scrapy', label: 'Is Scrapy', width: '80' },
         { name: 'last_status', label: 'Last Status', width: '120' },
         { name: 'last_run_ts', label: 'Last Run', width: '140' },
         { name: 'update_ts', label: 'Update Time', width: '140' },

@@ -37,8 +37,23 @@ type Spider struct {
 	// 自定义爬虫
 	Cmd string `json:"cmd" bson:"cmd"` // 执行命令
 
+	// Scrapy 爬虫（属于自定义爬虫）
+	IsScrapy    bool     `json:"is_scrapy" bson:"is_scrapy"`       // 是否为 Scrapy 爬虫
+	SpiderNames []string `json:"spider_names" bson:"spider_names"` // 爬虫名称列表
+
 	// 可配置爬虫
 	Template string `json:"template" bson:"template"` // Spiderfile模版
+
+	// Git 设置
+	IsGit            bool   `json:"is_git" bson:"is_git"`                         // 是否为 Git
+	GitUrl           string `json:"git_url" bson:"git_url"`                       // Git URL
+	GitBranch        string `json:"git_branch" bson:"git_branch"`                 // Git 分支
+	GitHasCredential bool   `json:"git_has_credential" bson:"git_has_credential"` // Git 是否加密
+	GitUsername      string `json:"git_username" bson:"git_username"`             // Git 用户名
+	GitPassword      string `json:"git_password" bson:"git_password"`             // Git 密码
+	GitAutoSync      bool   `json:"git_auto_sync" bson:"git_auto_sync"`           // Git 是否自动同步
+	GitSyncFrequency string `json:"git_sync_frequency" bson:"git_sync_frequency"` // Git 同步频率
+	GitSyncError     string `json:"git_sync_error" bson:"git_sync_error"`         // Git 同步错误
 
 	// 前端展示
 	LastRunTs  time.Time               `json:"last_run_ts"` // 最后一次执行时间
@@ -150,6 +165,15 @@ func GetSpiderList(filter interface{}, skip int, limit int, sortStr string) ([]S
 	count, _ := c.Find(filter).Count()
 
 	return spiders, count, nil
+}
+
+// 获取所有爬虫列表
+func GetSpiderAllList(filter interface{}) (spiders []Spider, err error) {
+	spiders, _, err = GetSpiderList(filter, 0, constants.Infinite, "_id")
+	if err != nil {
+		return spiders, err
+	}
+	return spiders, nil
 }
 
 // 获取爬虫(根据FileId)

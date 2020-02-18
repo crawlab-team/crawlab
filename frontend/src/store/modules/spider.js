@@ -10,6 +10,9 @@ const state = {
   // active spider data
   spiderForm: {},
 
+  // spider scrapy settings
+  spiderScrapySettings: [],
+
   // node to deploy/run
   activeNode: {},
 
@@ -92,6 +95,9 @@ const mutations = {
   },
   SET_FILE_TREE (state, value) {
     state.fileTree = value
+  },
+  SET_SPIDER_SCRAPY_SETTINGS (state, value) {
+    state.spiderScrapySettings = value
   }
 }
 
@@ -115,6 +121,38 @@ const actions = {
         let data = response.data.data
         commit('SET_SPIDER_FORM', data)
       })
+  },
+  async getSpiderScrapySpiders ({ state, commit }, id) {
+    const res = await request.get(`/spiders/${id}/scrapy/spiders`)
+    state.spiderForm.spider_names = res.data.data
+    commit('SET_SPIDER_FORM', state.spiderForm)
+  },
+  async getSpiderScrapySettings ({ state, commit }, id) {
+    const res = await request.get(`/spiders/${id}/scrapy/settings`)
+    commit('SET_SPIDER_SCRAPY_SETTINGS', res.data.data.map(d => {
+      const key = d.key
+      const value = d.value
+      let type = typeof value
+      if (type === 'object') {
+        if (Array.isArray(value)) {
+          type = 'array'
+        } else {
+          type = 'object'
+        }
+      }
+      return {
+        key,
+        value,
+        type
+      }
+    }))
+  },
+  async saveSpiderScrapySettings ({ state }, id) {
+    return request.post(`/spiders/${id}/scrapy/settings`, state.spiderScrapySettings)
+  },
+  addSpiderScrapySpider ({ state }, payload) {
+    const { id, form } = payload
+    return request.put(`/spiders/${id}/scrapy/spiders`, form)
   },
   crawlSpider ({ state, dispatch }, payload) {
     const { spiderId, runType, nodeIds, param } = payload

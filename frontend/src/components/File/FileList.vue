@@ -197,7 +197,8 @@ export default {
       ignoreFileRegexList: [
         '__pycache__',
         'md5.txt',
-        '.pyc'
+        '.pyc',
+        '.git'
       ],
       activeFileNode: {},
       dirDialogVisible: false,

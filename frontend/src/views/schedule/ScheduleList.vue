@@ -1,5 +1,12 @@
 <template>
-  <div class="app-container">
+  <div class="app-container schedule-list">
+    <parameters-dialog
+      :visible="isParametersVisible"
+      :param="scheduleForm.param"
+      @confirm="onParametersConfirm"
+      @close="isParametersVisible = false"
+    />
+
     <!--tour-->
     <v-tour
       name="schedule-list"
@@ -83,6 +90,26 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item v-if="spiderForm.is_scrapy" :label="$t('Scrapy Spider')" prop="scrapy_spider" required
+                      inline-message>
+          <el-select v-model="scheduleForm.scrapy_spider" :placeholder="$t('Scrapy Spider')" :disabled="isLoading">
+            <el-option
+              v-for="s in spiderForm.spider_names"
+              :key="s"
+              :label="s"
+              :value="s"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="spiderForm.is_scrapy" :label="$t('Scrapy Log Level')" prop="scrapy_spider" required
+                      inline-message>
+          <el-select v-model="scheduleForm.scrapy_log_level" :placeholder="$t('Scrapy Log Level')">
+            <el-option value="INFO" label="INFO"/>
+            <el-option value="DEBUG" label="DEBUG"/>
+            <el-option value="WARN" label="WARN"/>
+            <el-option value="ERROR" label="ERROR"/>
+          </el-select>
+        </el-form-item>
         <el-form-item :label="$t('Cron')" prop="cron" required>
           <el-popover v-model="isShowCron" trigger="focus">
             <template>
@@ -100,20 +127,22 @@
           </el-popover>
           <!--<el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('schedules.add_cron')}}</el-button>-->
         </el-form-item>
-        <el-form-item :label="$t('Execute Command')" prop="params">
+        <el-form-item :label="$t('Execute Command')" prop="cmd">
           <el-input
             id="cmd"
-            v-model="spider.cmd"
+            v-model="spiderForm.cmd"
             :placeholder="$t('Execute Command')"
             disabled
           />
         </el-form-item>
-        <el-form-item :label="$t('Parameters')" prop="param">
-          <el-input
-            id="param"
-            v-model="scheduleForm.param"
-            :placeholder="$t('Parameters')"
-          />
+        <el-form-item v-if="spiderForm.type === 'customized'" :label="$t('Parameters')" prop="param">
+          <template v-if="spiderForm.is_scrapy">
+            <el-input v-model="scheduleForm.param" :placeholder="$t('Parameters')" class="param-input"/>
+            <el-button type="primary" icon="el-icon-edit" class="param-btn" @click="onOpenParameters"/>
+          </template>
+          <template v-else>
+            <el-input v-model="scheduleForm.param" :placeholder="$t('Parameters')"></el-input>
+          </template>
         </el-form-item>
         <el-form-item :label="$t('Schedule Description')" prop="description">
           <el-input id="schedule-description" v-model="scheduleForm.description" type="textarea"
@@ -123,7 +152,7 @@
       <!--取消、保存-->
       <span slot="footer" class="dialog-footer">
         <el-button size="small" @click="onCancel">{{$t('Cancel')}}</el-button>
-        <el-button id="btn-submit" size="small" type="primary" @click="onAddSubmit">{{$t('Submit')}}</el-button>
+        <el-button id="btn-submit" size="small" type="primary" @click="onAddSubmit" :disabled="isLoading">{{$t('Submit')}}</el-button>
       </span>
     </el-dialog>
 
@@ -232,11 +261,13 @@ import VueCronLinux from '../../components/Cron'
 import {
   mapState
 } from 'vuex'
+import ParametersDialog from '../../components/Common/ParametersDialog'
 
 export default {
   name: 'ScheduleList',
   components: {
-    VueCronLinux
+    VueCronLinux,
+    ParametersDialog
   },
   data () {
     return {
@@ -246,6 +277,7 @@ export default {
         { name: 'run_type', label: 'Run Type', width: '120px' },
         { name: 'node_names', label: 'Node', width: '150px' },
         { name: 'spider_name', label: 'Spider', width: '150px' },
+        { name: 'scrapy_spider', label: 'Scrapy Spider', width: '150px' },
         { name: 'param', label: 'Parameters', width: '150px' },
         { name: 'description', label: 'Description', width: '200px' },
         { name: 'enable', label: 'Enable/Disable', width: '120px' }
@@ -259,6 +291,8 @@ export default {
       spiderList: [],
       nodeList: [],
       isShowCron: false,
+      isLoading: false,
+      isParametersVisible: false,
 
       // tutorial
       tourSteps: [
@@ -379,6 +413,9 @@ export default {
     }
   },
   computed: {
+    ...mapState('spider', [
+      'spiderForm'
+    ]),
     ...mapState('schedule', [
       'scheduleList',
       'scheduleForm'
@@ -456,11 +493,26 @@ export default {
     },
     isShowRun (row) {
     },
-    onEdit (row) {
+    async onEdit (row) {
       this.$store.commit('schedule/SET_SCHEDULE_FORM', row)
       this.dialogVisible = true
       this.isEdit = true
       this.$st.sendEv('定时任务', '修改定时任务')
+
+      this.isLoading = true
+      if (!this.scheduleForm.scrapy_log_level) {
+        this.$set(this.scheduleForm, 'scrapy_log_level', 'INFO')
+      }
+      await this.$store.dispatch('spider/getSpiderData', row.spider_id)
+      if (this.spiderForm.is_scrapy) {
+        await this.$store.dispatch('spider/getSpiderScrapySpiders', row.spider_id)
+        if (!this.scheduleForm.scrapy_spider) {
+          if (this.spiderForm.spider_names && this.spiderForm.spider_names.length > 0) {
+            this.$set(this.scheduleForm, 'scrapy_spider', this.spiderForm.spider_names[0])
+          }
+        }
+      }
+      this.isLoading = false
     },
     onRemove (row) {
       this.$confirm(this.$t('Are you sure to delete the schedule task?'), this.$t('Notification'), {
@@ -503,6 +555,13 @@ export default {
     onCronChange (value) {
       this.$set(this.scheduleForm, 'cron', value)
       this.$st.sendEv('定时任务', '配置Cron')
+    },
+    onOpenParameters () {
+      this.isParametersVisible = true
+    },
+    onParametersConfirm (value) {
+      this.scheduleForm.param = value
+      this.isParametersVisible = false
     }
   },
   created () {
@@ -550,5 +609,21 @@ export default {
 
   .status-tag {
     cursor: pointer;
+  }
+
+  .schedule-list >>> .param-input {
+    width: calc(100% - 56px);
+  }
+
+  .schedule-list >>> .param-input .el-input__inner {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+  }
+
+  .schedule-list >>> .param-btn {
+    width: 56px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
 </style>

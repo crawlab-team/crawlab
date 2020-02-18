@@ -154,25 +154,31 @@ func main() {
 			}
 			// 爬虫
 			{
-				authGroup.GET("/spiders", routes.GetSpiderList)                     // 爬虫列表
-				authGroup.GET("/spiders/:id", routes.GetSpider)                     // 爬虫详情
-				authGroup.PUT("/spiders", routes.PutSpider)                         // 添加爬虫
-				authGroup.POST("/spiders", routes.UploadSpider)                     // 上传爬虫
-				authGroup.POST("/spiders/:id", routes.PostSpider)                   // 修改爬虫
-				authGroup.POST("/spiders/:id/publish", routes.PublishSpider)        // 发布爬虫
-				authGroup.POST("/spiders/:id/upload", routes.UploadSpiderFromId)    // 上传爬虫（ID）
-				authGroup.DELETE("/spiders/:id", routes.DeleteSpider)               // 删除爬虫
-				authGroup.GET("/spiders/:id/tasks", routes.GetSpiderTasks)          // 爬虫任务列表
-				authGroup.GET("/spiders/:id/file/tree", routes.GetSpiderFileTree)   // 爬虫文件目录树读取
-				authGroup.GET("/spiders/:id/file", routes.GetSpiderFile)            // 爬虫文件读取
-				authGroup.POST("/spiders/:id/file", routes.PostSpiderFile)          // 爬虫文件更改
-				authGroup.PUT("/spiders/:id/file", routes.PutSpiderFile)            // 爬虫文件创建
-				authGroup.PUT("/spiders/:id/dir", routes.PutSpiderDir)              // 爬虫目录创建
-				authGroup.DELETE("/spiders/:id/file", routes.DeleteSpiderFile)      // 爬虫文件删除
-				authGroup.POST("/spiders/:id/file/rename", routes.RenameSpiderFile) // 爬虫文件重命名
-				authGroup.GET("/spiders/:id/dir", routes.GetSpiderDir)              // 爬虫目录
-				authGroup.GET("/spiders/:id/stats", routes.GetSpiderStats)          // 爬虫统计数据
-				authGroup.GET("/spiders/:id/schedules", routes.GetSpiderSchedules)  // 爬虫定时任务
+				authGroup.GET("/spiders", routes.GetSpiderList)                                 // 爬虫列表
+				authGroup.GET("/spiders/:id", routes.GetSpider)                                 // 爬虫详情
+				authGroup.PUT("/spiders", routes.PutSpider)                                     // 添加爬虫
+				authGroup.POST("/spiders", routes.UploadSpider)                                 // 上传爬虫
+				authGroup.POST("/spiders/:id", routes.PostSpider)                               // 修改爬虫
+				authGroup.POST("/spiders/:id/publish", routes.PublishSpider)                    // 发布爬虫
+				authGroup.POST("/spiders/:id/upload", routes.UploadSpiderFromId)                // 上传爬虫（ID）
+				authGroup.DELETE("/spiders/:id", routes.DeleteSpider)                           // 删除爬虫
+				authGroup.GET("/spiders/:id/tasks", routes.GetSpiderTasks)                      // 爬虫任务列表
+				authGroup.GET("/spiders/:id/file/tree", routes.GetSpiderFileTree)               // 爬虫文件目录树读取
+				authGroup.GET("/spiders/:id/file", routes.GetSpiderFile)                        // 爬虫文件读取
+				authGroup.POST("/spiders/:id/file", routes.PostSpiderFile)                      // 爬虫文件更改
+				authGroup.PUT("/spiders/:id/file", routes.PutSpiderFile)                        // 爬虫文件创建
+				authGroup.PUT("/spiders/:id/dir", routes.PutSpiderDir)                          // 爬虫目录创建
+				authGroup.DELETE("/spiders/:id/file", routes.DeleteSpiderFile)                  // 爬虫文件删除
+				authGroup.POST("/spiders/:id/file/rename", routes.RenameSpiderFile)             // 爬虫文件重命名
+				authGroup.GET("/spiders/:id/dir", routes.GetSpiderDir)                          // 爬虫目录
+				authGroup.GET("/spiders/:id/stats", routes.GetSpiderStats)                      // 爬虫统计数据
+				authGroup.GET("/spiders/:id/schedules", routes.GetSpiderSchedules)              // 爬虫定时任务
+				authGroup.GET("/spiders/:id/scrapy/spiders", routes.GetSpiderScrapySpiders)     // Scrapy 爬虫名称列表
+				authGroup.PUT("/spiders/:id/scrapy/spiders", routes.PutSpiderScrapySpiders)     // Scrapy 爬虫创建爬虫
+				authGroup.GET("/spiders/:id/scrapy/settings", routes.GetSpiderScrapySettings)   // Scrapy 爬虫设置
+				authGroup.POST("/spiders/:id/scrapy/settings", routes.PostSpiderScrapySettings) // Scrapy 爬虫修改设置
+				authGroup.POST("/spiders/:id/git/sync", routes.PostSpiderSyncGit)               // 爬虫 Git 同步
+				authGroup.POST("/spiders/:id/git/reset", routes.PostSpiderResetGit)             // 爬虫 Git 重置
 			}
 			// 可配置爬虫
 			{
@@ -240,6 +246,9 @@ func main() {
 			authGroup.GET("/stats/home", routes.GetHomeStats) // 首页统计数据
 			// 文件
 			authGroup.GET("/file", routes.GetFile) // 获取文件
+			// Git
+			authGroup.GET("/git/branches", routes.GetGitBranches)       // 获取 Git 分支
+			authGroup.GET("/git/public-key", routes.GetGitSshPublicKey) // 获取 SSH 公钥
 		}
 
 	}

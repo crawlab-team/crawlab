@@ -22,6 +22,12 @@
       <el-tab-pane :label="$t('Overview')" name="overview">
         <spider-overview/>
       </el-tab-pane>
+      <el-tab-pane v-if="isGit" :label="$t('Git Settings')" name="git-settings">
+        <git-settings/>
+      </el-tab-pane>
+      <el-tab-pane v-if="isScrapy" :label="$t('Scrapy Settings')" name="scrapy-settings">
+        <spider-scrapy/>
+      </el-tab-pane>
       <el-tab-pane v-if="isConfigurable" :label="$t('Config')" name="config">
         <config-list ref="config"/>
       </el-tab-pane>
@@ -51,10 +57,14 @@ import EnvironmentList from '../../components/Environment/EnvironmentList'
 import SpiderStats from '../../components/Stats/SpiderStats'
 import ConfigList from '../../components/Config/ConfigList'
 import SpiderSchedules from './SpiderSchedules'
+import SpiderScrapy from '../../components/Scrapy/SpiderScrapy'
+import GitSettings from '../../components/Settings/GitSettings'
 
 export default {
   name: 'SpiderDetail',
   components: {
+    GitSettings,
+    SpiderScrapy,
     SpiderSchedules,
     ConfigList,
     SpiderStats,
@@ -64,9 +74,6 @@ export default {
   },
   watch: {
     activeTabName () {
-      // 初始化文件
-      this.$store.commit('file/SET_FILE_CONTENT', '')
-      this.$store.commit('file/SET_CURRENT_PATH', '')
     }
   },
   data () {
@@ -174,6 +181,12 @@ export default {
     },
     isConfigurable () {
       return this.spiderForm.type === 'configurable'
+    },
+    isScrapy () {
+      return this.isCustomized && this.spiderForm.is_scrapy
+    },
+    isGit () {
+      return this.spiderForm.is_git
     }
   },
   methods: {
@@ -192,6 +205,14 @@ export default {
             this.$tours['spider-detail-config'].start()
             this.$st.sendEv('教程', '开始', 'spider-detail-config')
           }, 100)
+        }
+      } else if (this.activeTabName === 'scrapy-settings') {
+        this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
+        this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id)
+      } else if (this.activeTabName === 'files') {
+        this.$store.dispatch('spider/getFileTree')
+        if (this.currentPath) {
+          this.$store.dispatch('file/getFileContent', { path: this.currentPath })
         }
       }
       this.$st.sendEv('爬虫详情', '切换标签', tab.name)
@@ -217,10 +238,11 @@ export default {
     // get spider list
     await this.$store.dispatch('spider/getSpiderList')
 
-    // if spider is configurable spider, set to config tab by default
-    // if (this.spiderForm.type === 'configurable') {
-    // this.activeTabName = 'config'
-    // }
+    // get scrapy spider names
+    if (this.spiderForm.is_scrapy) {
+      await this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
+      await this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id)
+    }
   },
   mounted () {
     if (!this.$utils.tour.isFinishedTour('spider-detail')) {

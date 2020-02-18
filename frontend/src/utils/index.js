@@ -2,10 +2,12 @@ import stats from './stats'
 import encrypt from './encrypt'
 import tour from './tour'
 import log from './log'
+import scrapy from './scrapy'
 
 export default {
   stats,
   encrypt,
   tour,
-  log
+  log,
+  scrapy
 }
