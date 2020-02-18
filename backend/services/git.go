@@ -140,8 +140,23 @@ func SyncSpiderGit(s model.Spider) (err error) {
 	var auth ssh.AuthMethod
 	if !strings.HasPrefix(s.GitUrl, "http") {
 		// 为 SSH
-		u, _ := url.Parse(s.GitUrl)
-		auth, _ = ssh.NewPublicKeysFromFile(u.User.String(), path.Join(os.Getenv("HOME"), ".ssh", "id_rsa"), "")
+		regex := regexp.MustCompile("^(?:ssh://?)?([0-9a-zA-Z_]+)@")
+		res := regex.FindStringSubmatch(s.GitUrl)
+		username := s.GitUsername
+		if username == "" {
+			if len(res) > 1 {
+				username = res[1]
+			} else {
+				username = "git"
+			}
+		}
+		auth, err = ssh.NewPublicKeysFromFile(username, path.Join(os.Getenv("HOME"), ".ssh", "id_rsa"), "")
+		if err != nil {
+			log.Error(err.Error())
+			debug.PrintStack()
+			SaveSpiderGitSyncError(s, err.Error())
+			return err
+		}
 	}
 
 	// 获取 repo
@@ -166,6 +181,9 @@ func SyncSpiderGit(s model.Spider) (err error) {
 		Auth:       auth,
 	}); err != nil {
 		if err.Error() == "already up-to-date" {
+			// 检查是否为 Scrapy
+			sync := spider_handler.SpiderSync{Spider: s}
+			sync.CheckIsScrapy()
 			// 如果没有错误，则保存空字符串
 			SaveSpiderGitSyncError(s, "")
 			return nil
