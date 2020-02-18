@@ -33,4 +33,4 @@ fi
 ssh-keygen -q -t rsa -N "" -f ${HOME}/.ssh/id_rsa
 
 # start backend
-crawlab
+crawlab-server
