@@ -32,5 +32,12 @@ fi
 # generate ssh
 ssh-keygen -q -t rsa -N "" -f ${HOME}/.ssh/id_rsa
 
+# ssh config
+touch ${HOME}/.ssh/config && chmod 600 ${HOME}/.ssh/config
+cat > ${HOME}/.ssh/config <<EOF
+Host *
+  StrictHostKeyChecking no
+EOF
+
 # start backend
 crawlab-server
