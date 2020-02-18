@@ -15,34 +15,6 @@
     />
     <!--./tour-->
 
-    <!--import popup-->
-    <el-dialog
-      :title="$t('Import Spider')"
-      :visible.sync="dialogVisible"
-      width="60%"
-      :before-close="onDialogClose">
-      <el-form label-width="150px"
-               :model="importForm"
-               ref="importForm"
-               label-position="right">
-        <el-form-item :label="$t('Source URL')" prop="url" required>
-          <el-input v-model="importForm.url" :placeholder="$t('Source URL')"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('Source Type')" prop="type" required>
-          <el-select v-model="importForm.type" placeholder="Source Type">
-            <el-option value="github" label="Github"></el-option>
-            <el-option value="gitlab" label="Gitlab"></el-option>
-            <el-option value="svn" label="SVN" disabled></el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="onCancel">{{$t('Cancel')}}</el-button>
-        <el-button v-loading="importLoading" type="primary" @click="onImport">{{$t('Import')}}</el-button>
-      </span>
-    </el-dialog>
-    <!--./import popup-->
-
     <!--add dialog-->
     <el-dialog :title="$t('Add Spider')"
                width="40%"
