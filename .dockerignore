@@ -3,3 +3,4 @@ logs
 *.log
 dist/
 **/node_modules/
+**/tmp/

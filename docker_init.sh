@@ -29,5 +29,8 @@ then
 	/bin/sh /app/backend/scripts/install-nodejs.sh
 fi
 
+# generate ssh
+ssh-keygen -q -t rsa -N "" -f ${HOME}/.ssh/id_rsa
+
 # start backend
 crawlab

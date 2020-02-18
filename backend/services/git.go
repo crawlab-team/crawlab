@@ -312,12 +312,9 @@ func GetGitSshPublicKey() string {
 	if !utils.Exists(path.Join(os.Getenv("HOME"), ".ssh")) ||
 		!utils.Exists(path.Join(os.Getenv("HOME"), ".ssh", "id_rsa")) ||
 		!utils.Exists(path.Join(os.Getenv("HOME"), ".ssh", "id_rsa.pub")) {
-		cmd := exec.Command(fmt.Sprintf("ssh-keygen -q -t rsa -N \"\" -f %s/.ssh/id_rsa", os.Getenv("HOME")))
-		if err := cmd.Start(); err != nil {
-			log.Errorf(err.Error())
-			debug.PrintStack()
-			return ""
-		}
+		log.Errorf("no ssh public key")
+		debug.PrintStack()
+		return ""
 	}
 	content, err := ioutil.ReadFile(path.Join(os.Getenv("HOME"), ".ssh", "id_rsa.pub"))
 	if err != nil {
