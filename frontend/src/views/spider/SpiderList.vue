@@ -64,6 +64,12 @@
                 </el-button>
               </el-upload>
             </el-form-item>
+            <el-form-item :label="$t('Is Git')" prop="is_git">
+              <el-switch
+                v-model="spiderForm.is_git"
+                active-color="#13ce66"
+              />
+            </el-form-item>
           </el-form>
           <el-alert
             type="warning"
