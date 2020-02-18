@@ -30,6 +30,7 @@ type GitCronScheduler struct {
 }
 
 func SaveSpiderGitSyncError(s model.Spider, errMsg string) {
+	s, _ = model.GetSpider(s.Id)
 	s.GitSyncError = errMsg
 	if err := s.Save(); err != nil {
 		log.Errorf(err.Error())
@@ -311,7 +312,7 @@ func GetGitSshPublicKey() string {
 	if !utils.Exists(path.Join(os.Getenv("HOME"), ".ssh")) ||
 		!utils.Exists(path.Join(os.Getenv("HOME"), ".ssh", "id_rsa")) ||
 		!utils.Exists(path.Join(os.Getenv("HOME"), ".ssh", "id_rsa.pub")) {
-		cmd := exec.Command("ssh-keygen -q -t rsa -N \"\" -f $HOME/.ssh/id_rsa")
+		cmd := exec.Command(fmt.Sprintf("ssh-keygen -q -t rsa -N \"\" -f %s/.ssh/id_rsa", os.Getenv("HOME")))
 		if err := cmd.Start(); err != nil {
 			log.Errorf(err.Error())
 			debug.PrintStack()
