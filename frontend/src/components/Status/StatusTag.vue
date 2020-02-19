@@ -51,8 +51,9 @@ export default {
         return 'el-icon-video-pause'
       } else if (this.status === 'abnormal') {
         return 'el-icon-question'
+      } else {
+        return 'el-icon-question'
       }
-      return ''
     }
   }
 }

@@ -78,6 +78,8 @@ export default {
   'Sync Frequency': '同步频率',
   'Reset': '重置',
   'Copy': '复制',
+  'Upgrade': '版本升级',
+  'Ok': '确定',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -210,6 +212,9 @@ export default {
   'Git Password': 'Git 密码',
   'Has Credential': '需要验证',
   'SSH Public Key': 'SSH 公钥',
+  'Is Long Task': '是否为长任务',
+  'Long Task': '长任务',
+  'Running Tasks': '运行任务数',
 
   // 爬虫列表
   'Name': '名称',
@@ -390,6 +395,9 @@ export default {
   'New directory name': '新目录名称',
   'Enter new file name': '输入新文件名称',
   'New file name': '新文件名称',
+  'Release Note': '发布记录',
+  'How to Upgrade': '升级方式',
+  'Release': '发布',
 
   // 登录
   'Sign in': '登录',

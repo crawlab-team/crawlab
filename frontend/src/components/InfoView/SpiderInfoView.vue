@@ -76,6 +76,14 @@
               />
             </el-form-item>
           </el-col>
+          <el-col :span="6">
+            <el-form-item v-if="!isView" :label="$t('Is Long Task')" prop="is_long_task">
+              <el-switch
+                v-model="spiderForm.is_long_task"
+                active-color="#13ce66"
+              />
+            </el-form-item>
+          </el-col>
         </el-row>
       </el-form>
     </el-row>

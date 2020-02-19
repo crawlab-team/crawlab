@@ -68,7 +68,7 @@
             <span style="margin-left: 5px">我已阅读并同意 <a href="javascript:"
                                                       @click="onClickDisclaimer">《免责声明》</a> 所有内容</span>
           </div>
-          <div>
+          <div v-if="spiderForm.is_long_task">
             <el-checkbox v-model="isRedirect"/>
             <span style="margin-left: 5px">跳转到任务详情页</span>
           </div>
@@ -149,10 +149,15 @@ export default {
       this.$refs['form'].validate(async valid => {
         if (!valid) return
 
+        let param = this.form.param
+        if (this.spiderForm.type === 'customized' && this.spiderForm.is_scrapy) {
+          param = `${this.form.spider} --loglevel=${this.form.scrapy_log_level} ${this.form.param}`
+        }
+
         const res = await this.$store.dispatch('spider/crawlSpider', {
           spiderId: this.spiderId,
           nodeIds: this.form.nodeIds,
-          param: `${this.form.spider} --loglevel=${this.form.scrapy_log_level} ${this.form.param}`,
+          param,
           runType: this.form.runType
         })
 
@@ -163,7 +168,7 @@ export default {
         this.$emit('close')
         this.$st.sendEv('爬虫确认', '确认运行', this.form.runType)
 
-        if (this.isRedirect) {
+        if (this.isRedirect && !this.spiderForm.is_long_task) {
           this.$router.push('/tasks/' + id)
           this.$st.sendEv('爬虫确认', '跳转到任务详情')
         }

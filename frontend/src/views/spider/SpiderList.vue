@@ -20,7 +20,7 @@
                width="40%"
                :visible.sync="addDialogVisible"
                :before-close="onAddDialogClose">
-      <el-tabs :active-name="spiderType">
+      <el-tabs :active-name="activeTabName">
         <!-- customized -->
         <el-tab-pane name="customized" :label="$t('Customized')">
           <el-form :model="spiderForm" ref="addCustomizedForm" inline-message label-width="120px">
@@ -81,6 +81,16 @@
             <p style="font-weight: bolder">
               <i class="fa fa-exclamation-triangle"></i> {{$t('NOTE: When uploading a zip file, please zip your' +
               ' spider files from the ROOT DIRECTORY.')}}
+            </p>
+            <p>
+              <template v-if="lang === 'en'">
+                You can also upload spiders using <a href="https://docs.crawlab.cn/SDK/CLI.html" target="_blank"
+                                                     style="color: #409eff;font-weight: bolder">CLI Tool</a>.
+              </template>
+              <template v-else-if="lang === 'zh'">
+                您也可以利用 <a href="https://docs.crawlab.cn/SDK/CLI.html" target="_blank"
+                          style="color: #409eff;font-weight: bolder">CLI 工具</a> 上传爬虫。
+              </template>
             </p>
           </el-alert>
           <div class="actions">
@@ -211,7 +221,8 @@
       <el-tabs v-model="filter.type" @tab-click="onClickTab" class="tabs">
         <el-tab-pane :label="$t('All')" name="all" class="all"></el-tab-pane>
         <el-tab-pane :label="$t('Customized')" name="customized" class="customized"></el-tab-pane>
-        <el-tab-pane :label="$t('Configurable')" name="configurable" class="configuable"></el-tab-pane>
+        <el-tab-pane :label="$t('Configurable')" name="configurable" class="configurable"></el-tab-pane>
+        <el-tab-pane :label="$t('Long Task')" name="long-task" class="long-task"></el-tab-pane>
       </el-tabs>
       <!--./tabs-->
 
@@ -288,7 +299,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-else-if="col.name === 'is_scrapy'"
+            v-else-if="['is_scrapy', 'is_long_task'].includes(col.name)"
             :key="col.name"
             :label="$t(col.label)"
             align="left"
@@ -298,10 +309,22 @@
             <template slot-scope="scope">
               <el-switch
                 v-if="scope.row.type === 'customized'"
-                v-model="scope.row.is_scrapy"
+                v-model="scope.row[col.name]"
                 active-color="#13ce66"
                 disabled
               />
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-else-if="col.name === 'running_tasks'"
+            :key="col.name"
+            :label="$t(col.label)"
+            :width="col.width"
+          >
+            <template slot-scope="scope">
+              <el-tag :type="getRunningTasksStatusType(scope.row)" size="small">
+                {{scope.row[col.name] ? scope.row[col.name].length : '0'}} / {{activeNodeList.length}}
+              </el-tag>
             </template>
           </el-table-column>
           <el-table-column
@@ -389,21 +412,11 @@ export default {
         sortDirection: null
       },
       types: [],
-      columns: [
-        { name: 'display_name', label: 'Name', width: '160', align: 'left', sortable: true },
-        { name: 'type', label: 'Spider Type', width: '120', sortable: true },
-        { name: 'is_scrapy', label: 'Is Scrapy', width: '80' },
-        { name: 'last_status', label: 'Last Status', width: '120' },
-        { name: 'last_run_ts', label: 'Last Run', width: '140' },
-        { name: 'update_ts', label: 'Update Time', width: '140' },
-        { name: 'create_ts', label: 'Create Time', width: '140' },
-        { name: 'remark', label: 'Remark', width: '140' }
-      ],
       spiderFormRules: {
         name: [{ required: true, message: 'Required Field', trigger: 'change' }]
       },
       fileList: [],
-      spiderType: 'customized',
+      activeTabName: 'customized',
       tourSteps: [
         {
           target: '#tab-customized',
@@ -515,17 +528,18 @@ export default {
         },
         onPreviousStep: (currentStep) => {
           if (currentStep === 7) {
-            this.spiderType = 'customized'
+            this.activeTabName = 'customized'
           }
           this.$utils.tour.prevStep('spider-list-add', currentStep)
         },
         onNextStep: (currentStep) => {
           if (currentStep === 6) {
-            this.spiderType = 'configurable'
+            this.activeTabName = 'configurable'
           }
           this.$utils.tour.nextStep('spider-list-add', currentStep)
         }
-      }
+      },
+      handle: undefined
     }
   },
   computed: {
@@ -539,8 +553,14 @@ export default {
     ...mapGetters('user', [
       'token'
     ]),
+    ...mapState('lang', [
+      'lang'
+    ]),
     ...mapState('project', [
       'projectList'
+    ]),
+    ...mapState('node', [
+      'nodeList'
     ]),
     uploadForm () {
       return {
@@ -549,6 +569,25 @@ export default {
         col: this.spiderForm.col,
         cmd: this.spiderForm.cmd
       }
+    },
+    columns () {
+      const columns = []
+      columns.push({ name: 'display_name', label: 'Name', width: '160', align: 'left', sortable: true })
+      columns.push({ name: 'type', label: 'Spider Type', width: '120', sortable: true })
+      columns.push({ name: 'is_long_task', label: 'Is Long Task', width: '80' })
+      columns.push({ name: 'is_scrapy', label: 'Is Scrapy', width: '80' })
+      columns.push({ name: 'last_status', label: 'Last Status', width: '120' })
+      columns.push({ name: 'last_run_ts', label: 'Last Run', width: '140' })
+      columns.push({ name: 'update_ts', label: 'Update Time', width: '140' })
+      columns.push({ name: 'create_ts', label: 'Create Time', width: '140' })
+      columns.push({ name: 'running_tasks', label: 'Running Tasks', width: '120' })
+      columns.push({ name: 'remark', label: 'Remark', width: '140' })
+      return columns
+    },
+    activeNodeList () {
+      return this.nodeList.filter(d => {
+        return d.status === 'online'
+      })
     }
   },
   methods: {
@@ -797,6 +836,15 @@ export default {
         project_id: this.filter.project_id
       }
       await this.$store.dispatch('spider/getSpiderList', params)
+    },
+    getRunningTasksStatusType (row) {
+      if (!row.running_tasks || row.running_tasks.length === 0) {
+        return 'info'
+      } else if (this.activeNodeList && row.running_tasks.length === this.activeNodeList.length) {
+        return 'warning'
+      } else {
+        return 'warning'
+      }
     }
   },
   async created () {
@@ -813,6 +861,11 @@ export default {
 
     // fetch template list
     await this.$store.dispatch('spider/getTemplateList')
+
+    // periodically fetch spider list
+    this.handle = setInterval(() => {
+      this.getList()
+    }, 15000)
   },
   mounted () {
     const vm = this
@@ -824,6 +877,9 @@ export default {
       this.$tours['spider-list'].start()
       this.$st.sendEv('教程', '开始', 'spider-list')
     }
+  },
+  destroyed () {
+    clearInterval(this.handle)
   }
 }
 </script>
