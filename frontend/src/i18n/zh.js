@@ -78,6 +78,8 @@ export default {
   'Sync Frequency': '同步频率',
   'Reset': '重置',
   'Copy': '复制',
+  'Upgrade': '版本升级',
+  'Ok': '确定',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -390,6 +392,9 @@ export default {
   'New directory name': '新目录名称',
   'Enter new file name': '输入新文件名称',
   'New file name': '新文件名称',
+  'Release Note': '发布记录',
+  'How to Upgrade': '升级方式',
+  'Release': '发布',
 
   // 登录
   'Sign in': '登录',
