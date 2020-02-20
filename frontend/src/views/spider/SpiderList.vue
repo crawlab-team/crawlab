@@ -70,6 +70,12 @@
                 active-color="#13ce66"
               />
             </el-form-item>
+            <el-form-item :label="$t('Is Long Task')" prop="is_long_task">
+              <el-switch
+                v-model="spiderForm.is_long_task"
+                active-color="#13ce66"
+              />
+            </el-form-item>
           </el-form>
           <el-alert
             type="warning"
