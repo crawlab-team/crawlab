@@ -47,6 +47,10 @@ export default {
 
     // get latest version
     await this.$store.dispatch('version/getLatestRelease')
+
+    // remove loading-placeholder
+    const elLoading = document.querySelector('#loading-placeholder')
+    elLoading.remove()
   }
 }
 </script>

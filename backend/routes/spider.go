@@ -35,13 +35,23 @@ func GetSpiderList(c *gin.Context) {
 	sortKey, _ := c.GetQuery("sort_key")
 	sortDirection, _ := c.GetQuery("sort_direction")
 
-	// 筛选
+	// 筛选-名称
 	filter := bson.M{
 		"name": bson.M{"$regex": bson.RegEx{Pattern: keyword, Options: "im"}},
 	}
+
+	// 筛选-类型
 	if t != "" && t != "all" {
 		filter["type"] = t
 	}
+
+	// 筛选-是否为长任务
+	if t == "long-task" {
+		delete(filter, "type")
+		filter["is_long_task"] = true
+	}
+
+	// 筛选-项目
 	if pid == "" {
 		// do nothing
 	} else if pid == constants.ObjectIdNull {

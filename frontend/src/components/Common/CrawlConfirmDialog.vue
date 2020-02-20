@@ -68,7 +68,7 @@
             <span style="margin-left: 5px">我已阅读并同意 <a href="javascript:"
                                                       @click="onClickDisclaimer">《免责声明》</a> 所有内容</span>
           </div>
-          <div v-if="spiderForm.is_long_task">
+          <div v-if="!spiderForm.is_long_task">
             <el-checkbox v-model="isRedirect"/>
             <span style="margin-left: 5px">跳转到任务详情页</span>
           </div>
@@ -172,6 +172,8 @@ export default {
           this.$router.push('/tasks/' + id)
           this.$st.sendEv('爬虫确认', '跳转到任务详情')
         }
+
+        this.$emit('confirm')
       })
     },
     onClickDisclaimer () {

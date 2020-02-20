@@ -39,6 +39,7 @@ export default {
   Error: '错误',
   NA: '未知',
   Cancelled: '已取消',
+  Abnormal: '异常',
 
   // 操作
   Add: '添加',
@@ -214,7 +215,8 @@ export default {
   'SSH Public Key': 'SSH 公钥',
   'Is Long Task': '是否为长任务',
   'Long Task': '长任务',
-  'Running Tasks': '运行任务数',
+  'Running Task Count': '运行中的任务数',
+  'Running Tasks': '运行中的任务',
 
   // 爬虫列表
   'Name': '名称',

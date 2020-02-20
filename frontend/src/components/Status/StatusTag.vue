@@ -21,7 +21,8 @@ export default {
         running: { label: 'Running', type: 'warning' },
         finished: { label: 'Finished', type: 'success' },
         error: { label: 'Error', type: 'danger' },
-        cancelled: { label: 'Cancelled', type: 'info' }
+        cancelled: { label: 'Cancelled', type: 'info' },
+        abnormal: { label: 'Abnormal', type: 'danger' }
       }
     }
   },
@@ -43,6 +44,8 @@ export default {
     icon () {
       if (this.status === 'finished') {
         return 'el-icon-check'
+      } else if (this.status === 'pending') {
+        return 'el-icon-loading'
       } else if (this.status === 'running') {
         return 'el-icon-loading'
       } else if (this.status === 'error') {
@@ -50,7 +53,7 @@ export default {
       } else if (this.status === 'cancelled') {
         return 'el-icon-video-pause'
       } else if (this.status === 'abnormal') {
-        return 'el-icon-question'
+        return 'el-icon-warning'
       } else {
         return 'el-icon-question'
       }
