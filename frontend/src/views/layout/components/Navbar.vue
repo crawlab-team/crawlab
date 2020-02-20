@@ -180,7 +180,6 @@ docker-compose up -d
     },
     howToUpgradeHtml () {
       if (this.lang === 'zh') {
-        console.log(this.howToUpgradeHtmlZh)
         return this.converter.makeHtml(this.howToUpgradeHtmlZh)
       } else if (this.lang === 'en') {
         return this.converter.makeHtml(this.howToUpgradeHtmlEn)

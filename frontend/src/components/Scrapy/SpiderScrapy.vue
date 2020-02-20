@@ -1,5 +1,6 @@
 <template>
   <div class="spider-scrapy">
+    <!--parameter edit-->
     <el-dialog
       :title="$t('Parameter Edit')"
       :visible="dialogVisible"
@@ -69,7 +70,9 @@
         </el-button>
       </template>
     </el-dialog>
+    <!--./parameter edit-->
 
+    <!--add scrapy spider-->
     <el-dialog
       :title="$t('Add Scrapy Spider')"
       :visible.sync="isAddSpiderVisible"
@@ -87,6 +90,14 @@
         <el-form-item :label="$t('Domain')" prop="domain" required>
           <el-input v-model="addSpiderForm.domain" :placeholder="$t('Domain')"/>
         </el-form-item>
+        <el-form-item :label="$t('Template')" prop="template" required>
+          <el-select v-model="addSpiderForm.template" :placeholder="$t('Template')">
+            <el-option value="basic" label="basic"/>
+            <el-option value="crawl" label="crawl"/>
+            <el-option value="csvfeed" label="csvfeed"/>
+            <el-option value="xmlfeed" label="xmlfeed"/>
+          </el-select>
+        </el-form-item>
       </el-form>
       <template slot="footer">
         <el-button type="plain" size="small" @click="isAddSpiderVisible = false">{{$t('Cancel')}}</el-button>
@@ -101,7 +112,9 @@
         </el-button>
       </template>
     </el-dialog>
+    <!--./add scrapy spider-->
 
+    <!--spiders-->
     <div class="spiders">
       <h3 class="title">{{$t('Scrapy Spiders')}}</h3>
       <div class="action-wrapper">
@@ -125,6 +138,9 @@
         </li>
       </ul>
     </div>
+    <!--./spiders-->
+
+    <!--settings-->
     <div class="settings">
       <h3 class="title">{{$t('Settings')}}</h3>
       <div class="top-action-wrapper">
@@ -234,6 +250,7 @@
         </el-table-column>
       </el-table>
     </div>
+    <!--./settings-->
   </div>
 </template>
 
@@ -273,7 +290,8 @@ export default {
       isAddSpiderVisible: false,
       addSpiderForm: {
         name: '',
-        domain: ''
+        domain: '',
+        template: 'basic'
       },
       isAddSpiderLoading: false
     }
@@ -392,7 +410,8 @@ export default {
     onAddSpider () {
       this.addSpiderForm = {
         name: '',
-        domain: ''
+        domain: '',
+        template: 'basic'
       }
       this.isAddSpiderVisible = true
       this.$st('爬虫详情', 'Scrapy 设置', '添加爬虫')
