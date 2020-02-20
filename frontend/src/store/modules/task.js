@@ -174,10 +174,13 @@ const actions = {
     link.remove()
   },
   cancelTask ({ state, dispatch }, id) {
-    return request.post(`/tasks/${id}/cancel`)
-      .then(() => {
-        dispatch('getTaskData', id)
-      })
+    return new Promise(resolve => {
+      request.post(`/tasks/${id}/cancel`)
+        .then(res => {
+          dispatch('getTaskData', id)
+          resolve(res)
+        })
+    })
   }
 }
 

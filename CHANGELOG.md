@@ -1,3 +1,13 @@
+# 0.4.7 (unknown)
+### Features / Enhancement
+- **Better Support for Scrapy**. Spiders identification, `settings.py` configuration, log level selection, spider selection. [#435](https://github.com/crawlab-team/crawlab/issues/435)
+- **Git Sync**. Allow users to sync git projects to Crawlab.
+- **Long Task Support**. Users can add long-task spiders which is supposed to run without finishing. [#425](https://github.com/crawlab-team/crawlab/issues/425)
+- **Spider List Optimization**. Tasks count by status, tasks detail popup, legend. [#425](https://github.com/crawlab-team/crawlab/issues/425)
+- **Upgrade Check**. Check latest version and notifiy users to upgrade.
+
+### Bug Fixes
+
 # 0.4.6 (2020-02-13)
 ### Features / Enhancement
 - **SDK for Node.js**. Users can apply SDK in their Node.js spiders.

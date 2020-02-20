@@ -55,10 +55,14 @@ type Spider struct {
 	GitSyncFrequency string `json:"git_sync_frequency" bson:"git_sync_frequency"` // Git 同步频率
 	GitSyncError     string `json:"git_sync_error" bson:"git_sync_error"`         // Git 同步错误
 
+	// 长任务
+	IsLongTask bool `json:"is_long_task" bson:"is_long_task"` // 是否为长任务
+
 	// 前端展示
-	LastRunTs  time.Time               `json:"last_run_ts"` // 最后一次执行时间
-	LastStatus string                  `json:"last_status"` // 最后执行状态
-	Config     entity.ConfigSpiderData `json:"config"`      // 可配置爬虫配置
+	LastRunTs   time.Time               `json:"last_run_ts"`  // 最后一次执行时间
+	LastStatus  string                  `json:"last_status"`  // 最后执行状态
+	Config      entity.ConfigSpiderData `json:"config"`       // 可配置爬虫配置
+	LatestTasks []Task                  `json:"latest_tasks"` // 最近任务列表
 
 	// 时间
 	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
@@ -124,6 +128,18 @@ func (spider *Spider) GetLastTask() (Task, error) {
 	return tasks[0], nil
 }
 
+// 爬虫正在运行的任务
+func (spider *Spider) GetLatestTasks(latestN int) (tasks []Task, err error) {
+	tasks, err = GetTaskList(bson.M{"spider_id": spider.Id}, 0, latestN, "-create_ts")
+	if err != nil {
+		return tasks, err
+	}
+	if tasks == nil {
+		return tasks, err
+	}
+	return tasks, nil
+}
+
 // 删除爬虫
 func (spider *Spider) Delete() error {
 	s, c := database.GetCol("spiders")
@@ -157,9 +173,18 @@ func GetSpiderList(filter interface{}, skip int, limit int, sortStr string) ([]S
 			continue
 		}
 
+		// 获取正在运行的爬虫
+		latestTasks, err := spider.GetLatestTasks(50) // TODO: latestN 暂时写死，后面加入数据库
+		if err != nil {
+			log.Errorf(err.Error())
+			debug.PrintStack()
+			continue
+		}
+
 		// 赋值
 		spiders[i].LastRunTs = task.CreateTs
 		spiders[i].LastStatus = task.Status
+		spiders[i].LatestTasks = latestTasks
 	}
 
 	count, _ := c.Find(filter).Count()

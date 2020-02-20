@@ -350,10 +350,9 @@ func SaveTaskResultCount(id string) func() {
 func ExecuteTask(id int) {
 	if flag, ok := LockList.Load(id); ok {
 		if flag.(bool) {
-			log.Debugf(GetWorkerPrefix(id) + "正在执行任务...")
+			log.Debugf(GetWorkerPrefix(id) + "running tasks...")
 			return
 		}
-
 	}
 
 	// 上锁
@@ -378,6 +377,7 @@ func ExecuteTask(id int) {
 
 	// 节点队列
 	queueCur := "tasks:node:" + node.Id.Hex()
+
 	// 节点队列任务
 	var msg string
 	if msg, err = database.RedisClient.LPop(queueCur); err != nil {
@@ -387,6 +387,7 @@ func ExecuteTask(id int) {
 		}
 	}
 
+	// 如果没有获取到任务，返回
 	if msg == "" {
 		return
 	}
@@ -504,6 +505,8 @@ func ExecuteTask(id int) {
 		log.Errorf(GetWorkerPrefix(id) + err.Error())
 		return
 	}
+
+	// 统计数据
 	t.Status = constants.StatusFinished                     // 任务状态: 已完成
 	t.FinishTs = time.Now()                                 // 结束时间
 	t.RuntimeDuration = t.FinishTs.Sub(t.StartTs).Seconds() // 运行时长
@@ -846,6 +849,14 @@ func SendNotifications(u model.User, t model.Task, s model.Spider) {
 		go func() {
 			SendTaskWechat(u, t, s)
 		}()
+	}
+}
+
+func UnlockLongTask(s model.Spider, n model.Node) {
+	if s.IsLongTask {
+		colName := "long-tasks"
+		key := fmt.Sprintf("%s:%s", s.Id.Hex(), n.Id.Hex())
+		_ = database.RedisClient.HDel(colName, key)
 	}
 }
 

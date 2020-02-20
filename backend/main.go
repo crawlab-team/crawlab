@@ -133,7 +133,8 @@ func main() {
 			anonymousGroup.PUT("/users", routes.PutUser)      // 添加用户
 			anonymousGroup.GET("/setting", routes.GetSetting) // 获取配置信息
 			// release版本
-			anonymousGroup.GET("/version", routes.GetVersion) // 获取发布的版本
+			anonymousGroup.GET("/version", routes.GetVersion)               // 获取发布的版本
+			anonymousGroup.GET("/releases/latest", routes.GetLatestRelease) // 获取最近发布的版本
 		}
 		authGroup := app.Group("/", middlewares.AuthorizationMiddleware())
 		{
