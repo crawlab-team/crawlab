@@ -145,6 +145,27 @@ func CreateScrapySpider(s model.Spider, name string, domain string) (err error) 
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
 		log.Errorf(err.Error())
+		log.Errorf("stdout: " + stdout.String())
+		log.Errorf("stderr: " + stderr.String())
+		debug.PrintStack()
+		return err
+	}
+
+	return
+}
+
+func CreateScrapyProject(s model.Spider) (err error) {
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	cmd := exec.Command("scrapy", "startproject", s.Name, s.Src)
+	cmd.Dir = s.Src
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		log.Errorf(err.Error())
+		log.Errorf("stdout: " + stdout.String())
+		log.Errorf("stderr: " + stderr.String())
 		debug.PrintStack()
 		return err
 	}

@@ -187,19 +187,33 @@ func PutSpider(c *gin.Context) {
 	// 将FileId置空
 	spider.FileId = bson.ObjectIdHex(constants.ObjectIdNull)
 
-	// 创建爬虫目录
+	// 爬虫目录
 	spiderDir := filepath.Join(viper.GetString("spider.path"), spider.Name)
+
+	// 赋值到爬虫实例
+	spider.Src = spiderDir
+
+	// 移除已有爬虫目录
 	if utils.Exists(spiderDir) {
 		if err := os.RemoveAll(spiderDir); err != nil {
 			HandleError(http.StatusInternalServerError, c, err)
 			return
 		}
 	}
+
+	// 生成爬虫目录
 	if err := os.MkdirAll(spiderDir, 0777); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
-	spider.Src = spiderDir
+
+	// 如果为 Scrapy 项目，生成 Scrapy 项目
+	if spider.IsScrapy {
+		if err := services.CreateScrapyProject(spider); err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+	}
 
 	// 添加爬虫到数据库
 	if err := spider.Add(); err != nil {
