@@ -170,7 +170,6 @@
             <el-table
               :data="getTasksByNode(scope.row)"
               class="table"
-              :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
               border
               style="margin: 5px 10px"
               max-height="240px"
@@ -339,32 +338,7 @@
       <!--./tabs-->
 
       <!--legend-->
-      <div class="legend">
-        <el-tag type="primary" size="small">
-          <i class="el-icon-loading"></i>
-          {{$t('Pending')}}
-        </el-tag>
-        <el-tag type="warning" size="small">
-          <i class="el-icon-loading"></i>
-          {{$t('Running')}}
-        </el-tag>
-        <el-tag type="success" size="small">
-          <i class="el-icon-check"></i>
-          {{$t('Finished')}}
-        </el-tag>
-        <el-tag type="danger" size="small">
-          <i class="el-icon-error"></i>
-          {{$t('Error')}}
-        </el-tag>
-        <el-tag type="info" size="small">
-          <i class="el-icon-video-pause"></i>
-          {{$t('Cancelled')}}
-        </el-tag>
-        <el-tag type="danger" size="small">
-          <i class="el-icon-warning"></i>
-          {{$t('Abnormal')}}
-        </el-tag>
-      </div>
+      <status-legend/>
       <!--./legend-->
 
       <!--table list-->
@@ -578,10 +552,12 @@ import {
 import dayjs from 'dayjs'
 import CrawlConfirmDialog from '../../components/Common/CrawlConfirmDialog'
 import StatusTag from '../../components/Status/StatusTag'
+import StatusLegend from '../../components/Status/StatusLegend'
 
 export default {
   name: 'SpiderList',
   components: {
+    StatusLegend,
     CrawlConfirmDialog,
     StatusTag
   },
@@ -1200,9 +1176,5 @@ export default {
 
   .el-table >>> .latest-tasks .el-tag {
     margin: 3px 3px 0 0;
-  }
-
-  .legend .el-tag {
-    margin-right: 5px;
   }
 </style>

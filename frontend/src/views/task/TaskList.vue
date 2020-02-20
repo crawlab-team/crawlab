@@ -45,6 +45,10 @@
       </div>
       <!--./filter-->
 
+      <!--legend-->
+      <status-legend/>
+      <!--./legend-->
+
       <!--table list-->
       <el-table :data="filteredTableData"
                 ref="table"
@@ -169,10 +173,11 @@ import {
 } from 'vuex'
 import dayjs from 'dayjs'
 import StatusTag from '../../components/Status/StatusTag'
+import StatusLegend from '../../components/Status/StatusLegend'
 
 export default {
   name: 'TaskList',
-  components: { StatusTag },
+  components: { StatusLegend, StatusTag },
   data () {
     return {
       // setInterval handle
