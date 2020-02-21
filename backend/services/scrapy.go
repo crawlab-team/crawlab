@@ -135,11 +135,77 @@ func SaveScrapySettings(s model.Spider, settingsData []entity.ScrapySettingParam
 	return
 }
 
-func CreateScrapySpider(s model.Spider, name string, domain string) (err error) {
+func GetScrapyItems(s model.Spider) (res []map[string]interface{}, err error) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 
-	cmd := exec.Command("scrapy", "genspider", name, domain)
+	cmd := exec.Command("crawlab", "items")
+	cmd.Dir = s.Src
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		log.Errorf(err.Error())
+		log.Errorf(stderr.String())
+		debug.PrintStack()
+		return res, err
+	}
+
+	if err := json.Unmarshal([]byte(stdout.String()), &res); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return res, err
+	}
+
+	return res, nil
+}
+
+func SaveScrapyItems(s model.Spider, itemsData []entity.ScrapyItem) (err error) {
+	// 读取 scrapy.cfg
+	cfg, err := goconfig.LoadConfigFile(path.Join(s.Src, "scrapy.cfg"))
+	if err != nil {
+		return
+	}
+	modName, err := cfg.GetValue("settings", "default")
+	if err != nil {
+		return
+	}
+
+	// 定位到 settings.py 文件
+	arr := strings.Split(modName, ".")
+	dirName := arr[0]
+	fileName := "items"
+	filePath := fmt.Sprintf("%s/%s/%s.py", s.Src, dirName, fileName)
+
+	// 生成文件内容
+	content := ""
+	content += "import scrapy\n"
+	content += "\n\n"
+	for _, item := range itemsData {
+		content += fmt.Sprintf("class %s(scrapy.Item):\n", item.Name)
+		for _, field := range item.Fields {
+			content += fmt.Sprintf("    %s = scrapy.Field()\n", field)
+		}
+		content += "\n\n"
+	}
+
+	// 写到 settings.py
+	if err := ioutil.WriteFile(filePath, []byte(content), os.ModePerm); err != nil {
+		return err
+	}
+
+	// 同步到GridFS
+	if err := UploadSpiderToGridFsFromMaster(s); err != nil {
+		return err
+	}
+
+	return
+}
+
+func CreateScrapySpider(s model.Spider, name string, domain string, template string) (err error) {
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	cmd := exec.Command("scrapy", "genspider", name, domain, "-t", template)
 	cmd.Dir = s.Src
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr

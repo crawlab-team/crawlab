@@ -974,8 +974,9 @@ func GetSpiderScrapySpiders(c *gin.Context) {
 
 func PutSpiderScrapySpiders(c *gin.Context) {
 	type ReqBody struct {
-		Name   string `json:"name"`
-		Domain string `json:"domain"`
+		Name     string `json:"name"`
+		Domain   string `json:"domain"`
+		Template string `json:"template"`
 	}
 
 	id := c.Param("id")
@@ -997,7 +998,7 @@ func PutSpiderScrapySpiders(c *gin.Context) {
 		return
 	}
 
-	if err := services.CreateScrapySpider(spider, reqBody.Name, reqBody.Domain); err != nil {
+	if err := services.CreateScrapySpider(spider, reqBody.Name, reqBody.Domain, reqBody.Template); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
@@ -1056,6 +1057,64 @@ func PostSpiderScrapySettings(c *gin.Context) {
 	}
 
 	if err := services.SaveScrapySettings(spider, reqData); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
+func GetSpiderScrapyItems(c *gin.Context) {
+	id := c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "spider_id is invalid")
+		return
+	}
+
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	data, err := services.GetScrapyItems(spider)
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    data,
+	})
+}
+
+func PostSpiderScrapyItems(c *gin.Context) {
+	id := c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "spider_id is invalid")
+		return
+	}
+
+	var reqData []entity.ScrapyItem
+	if err := c.ShouldBindJSON(&reqData); err != nil {
+		HandleErrorF(http.StatusBadRequest, c, "invalid request")
+		return
+	}
+
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	if err := services.SaveScrapyItems(spider, reqData); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}

@@ -190,7 +190,7 @@ export default {
     }
   },
   methods: {
-    onTabClick (tab) {
+    async onTabClick (tab) {
       if (this.activeTabName === 'analytics') {
         setTimeout(() => {
           this.$refs['spider-stats'].update()
@@ -207,12 +207,11 @@ export default {
           }, 100)
         }
       } else if (this.activeTabName === 'scrapy-settings') {
-        this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
-        this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id)
+        await this.getScrapyData()
       } else if (this.activeTabName === 'files') {
-        this.$store.dispatch('spider/getFileTree')
+        await this.$store.dispatch('spider/getFileTree')
         if (this.currentPath) {
-          this.$store.dispatch('file/getFileContent', { path: this.currentPath })
+          await this.$store.dispatch('file/getFileContent', { path: this.currentPath })
         }
       }
       this.$st.sendEv('爬虫详情', '切换标签', tab.name)
@@ -220,6 +219,11 @@ export default {
     onSpiderChange (id) {
       this.$router.push(`/spiders/${id}`)
       this.$st.sendEv('爬虫详情', '切换爬虫')
+    },
+    async getScrapyData () {
+      await this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
+      await this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id)
+      await this.$store.dispatch('spider/getSpiderScrapyItems', this.$route.params.id)
     }
   },
   async created () {
@@ -237,12 +241,6 @@ export default {
 
     // get spider list
     await this.$store.dispatch('spider/getSpiderList')
-
-    // get scrapy spider names
-    if (this.spiderForm.is_scrapy) {
-      await this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
-      await this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id)
-    }
   },
   mounted () {
     if (!this.$utils.tour.isFinishedTour('spider-detail')) {

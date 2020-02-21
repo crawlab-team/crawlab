@@ -13,6 +13,9 @@ const state = {
   // spider scrapy settings
   spiderScrapySettings: [],
 
+  // spider scrapy items
+  spiderScrapyItems: [],
+
   // node to deploy/run
   activeNode: {},
 
@@ -98,6 +101,9 @@ const mutations = {
   },
   SET_SPIDER_SCRAPY_SETTINGS (state, value) {
     state.spiderScrapySettings = value
+  },
+  SET_SPIDER_SCRAPY_ITEMS (state, value) {
+    state.spiderScrapyItems = value
   }
 }
 
@@ -149,6 +155,13 @@ const actions = {
   },
   async saveSpiderScrapySettings ({ state }, id) {
     return request.post(`/spiders/${id}/scrapy/settings`, state.spiderScrapySettings)
+  },
+  async getSpiderScrapyItems ({ state, commit }, id) {
+    const res = await request.get(`/spiders/${id}/scrapy/items`)
+    commit('SET_SPIDER_SCRAPY_ITEMS', res.data.data)
+  },
+  async saveSpiderScrapyItems ({ state }, id) {
+    return request.post(`/spiders/${id}/scrapy/items`, state.spiderScrapyItems)
   },
   addSpiderScrapySpider ({ state }, payload) {
     const { id, form } = payload
