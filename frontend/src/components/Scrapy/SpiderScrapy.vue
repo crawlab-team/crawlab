@@ -252,6 +252,7 @@
             >
               <i class="el-icon-star-on"></i>
               {{s}}
+              <i v-if="loadingDict[s]" class="el-icon-loading"></i>
             </li>
           </ul>
         </div>
@@ -405,7 +406,8 @@ export default {
         template: 'basic'
       },
       isAddSpiderLoading: false,
-      activeTabName: 'settings'
+      activeTabName: 'settings',
+      loadingDict: {}
     }
   },
   methods: {
@@ -637,11 +639,17 @@ export default {
       this.$st.sendEv('爬虫详情', 'Scrapy 设置', '保存Items')
     },
     async onClickSpider (spiderName) {
-      const res = await this.$store.dispatch('spider/getSpiderScrapySpiderFilepath', {
-        id: this.$route.params.id,
-        spiderName
-      })
-      this.$emit('click-spider', res.data.data)
+      if (this.loadingDict[spiderName]) return
+      this.$set(this.loadingDict, spiderName, true)
+      try {
+        const res = await this.$store.dispatch('spider/getSpiderScrapySpiderFilepath', {
+          id: this.$route.params.id,
+          spiderName
+        })
+        this.$emit('click-spider', res.data.data)
+      } finally {
+        this.$set(this.loadingDict, spiderName, false)
+      }
       this.$st.sendEv('爬虫详情', 'Scrapy 设置', '点击爬虫')
     }
   }
