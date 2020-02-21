@@ -274,22 +274,23 @@
             </el-button>
           </div>
           <el-tree
-            :data="spiderScrapyItemsConverted"
+            :data="spiderScrapyItems"
             default-expand-all
           >
-          <span class="custom-tree-node" slot-scope="{ node, data }">
+          <span class="custom-tree-node" :class="`level-${data.level}`" slot-scope="{ node, data }">
             <template v-if="data.level === 1">
               <span v-if="!node.isEdit" class="label" @click="onItemLabelEdit(node, data, $event)">
-                {{ node.label }}
+                {{ data.label }}
                 <i class="el-icon-edit"></i>
               </span>
               <el-input
                 v-else
                 :ref="`el-input-${data.id}`"
                 :placeholder="$t('Item Name')"
-                v-model="data.label"
+                v-model="data.name"
                 size="mini"
-                @blur="node.isEdit = false"
+                @change="onItemChange(node, data, $event)"
+                @blur="$set(node, 'isEdit', false)"
               />
               <span>
                 <el-button
@@ -317,8 +318,9 @@
                 v-else
                 :ref="`el-input-${data.id}`"
                 :placeholder="$t('Field Name')"
-                v-model="data.label"
+                v-model="data.name"
                 size="mini"
+                @change="onItemFieldChange(node, data, $event)"
                 @blur="node.isEdit = false"
               />
               <span>
@@ -373,24 +375,6 @@ export default {
         })
       }
       return []
-    },
-    spiderScrapyItemsConverted () {
-      let id = 0
-      return this.spiderScrapyItems.map(d => {
-        d.id = id++
-        d.label = d.name
-        d.level = 1
-        d.isEdit = false
-        d.children = d.fields.map(f => {
-          return {
-            id: id++,
-            label: f,
-            level: 2,
-            isEdit: false
-          }
-        })
-        return d
-      })
     }
   },
   data () {
@@ -427,20 +411,20 @@ export default {
       }
       this.$set(this.spiderScrapySettings, this.activeParamIndex, JSON.parse(JSON.stringify(this.activeParam)))
       this.dialogVisible = false
-      this.$st('爬虫详情', 'Scrapy 设置', '确认编辑参数')
+      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '确认编辑参数')
     },
     onSettingsEditParam (row, index) {
       this.activeParam = JSON.parse(JSON.stringify(row))
       this.activeParamIndex = index
       this.onOpenDialog()
-      this.$st('爬虫详情', 'Scrapy 设置', '点击编辑参数')
+      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '点击编辑参数')
     },
     async onSettingsSave () {
       const res = await this.$store.dispatch('spider/saveSpiderScrapySettings', this.$route.params.id)
       if (!res.data.error) {
         this.$message.success(this.$t('Saved successfully'))
       }
-      this.$st('爬虫详情', 'Scrapy 设置', '保存设置')
+      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '保存设置')
     },
     onSettingsAdd () {
       const data = JSON.parse(JSON.stringify(this.spiderScrapySettings))
@@ -450,13 +434,13 @@ export default {
         type: 'string'
       })
       this.$store.commit('spider/SET_SPIDER_SCRAPY_SETTINGS', data)
-      this.$st('爬虫详情', 'Scrapy 设置', '添加参数')
+      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '添加参数')
     },
     onSettingsRemove (index) {
       const data = JSON.parse(JSON.stringify(this.spiderScrapySettings))
       data.splice(index, 1)
       this.$store.commit('spider/SET_SPIDER_SCRAPY_SETTINGS', data)
-      this.$st('爬虫详情', 'Scrapy 设置', '删除参数')
+      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '删除参数')
     },
     onSettingsActiveParamAdd () {
       if (this.activeParam.type === 'array') {
@@ -467,7 +451,7 @@ export default {
         }
         this.$set(this.activeParam.value, '', 999)
       }
-      this.$st('爬虫详情', 'Scrapy 设置', '添加参数中参数')
+      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '添加参数中参数')
     },
     onSettingsActiveParamRemove (index) {
       if (this.activeParam.type === 'array') {
@@ -478,7 +462,7 @@ export default {
         delete value[key]
         this.$set(this.activeParam, 'value', value)
       }
-      this.$st('爬虫详情', 'Scrapy 设置', '删除参数中参数')
+      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '删除参数中参数')
     },
     settingsKeysFetchSuggestions (queryString, cb) {
       const data = this.$utils.scrapy.settingParamNames
@@ -517,7 +501,7 @@ export default {
         this.isAddSpiderLoading = false
         await this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
       })
-      this.$st('爬虫详情', 'Scrapy 设置', '确认添加爬虫')
+      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '确认添加爬虫')
     },
     onAddSpider () {
       this.addSpiderForm = {
@@ -526,68 +510,115 @@ export default {
         template: 'basic'
       }
       this.isAddSpiderVisible = true
-      this.$st('爬虫详情', 'Scrapy 设置', '添加爬虫')
+      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '添加爬虫')
+    },
+    getMaxItemNodeId () {
+      let max = 0
+      this.spiderScrapyItems.forEach(d => {
+        if (max < d.id) max = d.id
+        d.children.forEach(f => {
+          if (max < f.id) max = f.id
+        })
+      })
+      return max
     },
     onAddItem () {
+      const maxId = this.getMaxItemNodeId()
       this.spiderScrapyItems.push({
-        name: `Item_${+new Date()}`,
-        fields: [
-          `field_${+new Date()}`
+        id: maxId + 1,
+        label: `Item_${+new Date()}`,
+        level: 1,
+        children: [
+          {
+            id: maxId + 2,
+            level: 2,
+            label: `field_${+new Date()}`
+          }
         ]
       })
-      this.$st('爬虫详情', 'Scrapy 设置', '添加Item')
+      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '添加Item')
     },
     removeItem (data, ev) {
       ev.stopPropagation()
       for (let i = 0; i < this.spiderScrapyItems.length; i++) {
         const item = this.spiderScrapyItems[i]
-        if (item.name === data.label) {
+        if (item.id === data.id) {
           this.spiderScrapyItems.splice(i, 1)
           break
         }
       }
-      this.$st('爬虫详情', 'Scrapy 设置', '删除Item')
+      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '删除Item')
     },
     onAddItemField (data, ev) {
       ev.stopPropagation()
       for (let i = 0; i < this.spiderScrapyItems.length; i++) {
         const item = this.spiderScrapyItems[i]
-        if (item.name === data.label) {
-          item.fields.push(`field_${+new Date()}`)
+        if (item.id === data.id) {
+          item.children.push({
+            id: this.getMaxItemNodeId() + 1,
+            level: 2,
+            label: `field_${+new Date()}`
+          })
           break
         }
       }
-      this.$st('爬虫详情', 'Scrapy 设置', '添加Items字段')
+      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '添加Items字段')
     },
     onRemoveItemField (node, data, ev) {
       ev.stopPropagation()
       for (let i = 0; i < this.spiderScrapyItems.length; i++) {
         const item = this.spiderScrapyItems[i]
-        if (item.name === node.parent.label) {
-          for (let j = 0; j < item.fields.length; j++) {
-            const field = item.fields[j]
-            if (field === data.label) {
-              item.fields.splice(j, 1)
+        if (item.id === node.parent.data.id) {
+          for (let j = 0; j < item.children.length; j++) {
+            const field = item.children[j]
+            if (field.id === data.id) {
+              item.children.splice(j, 1)
               break
             }
           }
+          break
         }
       }
-      this.$st('爬虫详情', 'Scrapy 设置', '删除Items字段')
+      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '删除Items字段')
     },
     onItemLabelEdit (node, data, ev) {
       ev.stopPropagation()
       this.$set(node, 'isEdit', true)
+      this.$set(data, 'name', node.label)
       setTimeout(() => {
         this.$refs[`el-input-${data.id}`].focus()
       }, 0)
+    },
+    onItemChange (node, data, value) {
+      for (let i = 0; i < this.spiderScrapyItems.length; i++) {
+        const item = this.spiderScrapyItems[i]
+        if (item.id === data.id) {
+          item.label = value
+          break
+        }
+      }
+    },
+    onItemFieldChange (node, data, value) {
+      for (let i = 0; i < this.spiderScrapyItems.length; i++) {
+        const item = this.spiderScrapyItems[i]
+        if (item.id === node.parent.data.id) {
+          for (let j = 0; j < item.children.length; j++) {
+            const field = item.children[j]
+            if (field.id === data.id) {
+              item.children[j].label = value
+              break
+            }
+          }
+          break
+        }
+      }
     },
     async onItemsSave () {
       const res = await this.$store.dispatch('spider/saveSpiderScrapyItems', this.$route.params.id)
       if (!res.data.error) {
         this.$message.success(this.$t('Saved successfully'))
       }
-      this.$st('爬虫详情', 'Scrapy 设置', '保存Items')
+      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '保存Items')
     }
   }
 }
@@ -599,39 +630,16 @@ export default {
     color: #606266;
   }
 
-  .spiders {
-    width: 100%;
-    height: 100%;
+  .spider-scrapy >>> .el-tabs__content {
+    overflow: auto;
   }
 
-  .spiders .title {
-    border-bottom: 1px solid #DCDFE6;
-    padding-bottom: 15px;
-  }
-
-  .spiders .action-wrapper {
-    margin-bottom: 10px;
-    text-align: right;
-  }
-
-  .spiders .spider-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .spiders .spider-list .spider-item {
-    padding: 10px;
-    cursor: pointer;
-  }
-
-  .spiders .spider-list .spider-item:hover {
-    background: #F5F7FA;
+  .spider-scrapy >>> .el-tab-pane {
+    height: calc(100vh - 239px);
   }
 
   .settings {
     width: 100%;
-    height: 100%;
   }
 
   .settings .title {
@@ -668,9 +676,37 @@ export default {
     margin-left: 10px;
   }
 
+  .spiders {
+    width: 100%;
+    height: auto;
+    overflow: auto;
+  }
+
+  .spiders .action-wrapper {
+    text-align: right;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #DCDFE6;
+  }
+
+  .spiders .spider-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .spiders .spider-list .spider-item {
+    padding: 10px;
+    cursor: pointer;
+  }
+
+  .spiders .spider-list .spider-item:hover {
+    background: #F5F7FA;
+  }
+
   .items {
     width: 100%;
-    height: 100%;
+    height: auto;
+    overflow: auto;
   }
 
   .items >>> .action-wrapper {
@@ -687,6 +723,10 @@ export default {
     font-size: 14px;
     padding-right: 8px;
     min-height: 36px;
+  }
+
+  .items >>> .el-tree > .el-tree-node {
+    border-bottom: 1px solid #e6e9f0;
   }
 
   .items >>> .el-tree-node__content {

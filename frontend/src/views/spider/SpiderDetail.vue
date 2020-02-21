@@ -221,15 +221,14 @@ export default {
       this.$st.sendEv('爬虫详情', '切换爬虫')
     },
     async getScrapyData () {
-      await this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
-      await this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id)
-      await this.$store.dispatch('spider/getSpiderScrapyItems', this.$route.params.id)
+      await Promise.all([
+        this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id),
+        this.$store.dispatch('spider/getSpiderScrapyItems', this.$route.params.id),
+        this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id)
+      ])
     }
   },
   async created () {
-    // get the list of the spiders
-    // this.$store.dispatch('spider/getSpiderList')
-
     // get spider basic info
     await this.$store.dispatch('spider/getSpiderData', this.$route.params.id)
 

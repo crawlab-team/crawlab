@@ -158,10 +158,29 @@ const actions = {
   },
   async getSpiderScrapyItems ({ state, commit }, id) {
     const res = await request.get(`/spiders/${id}/scrapy/items`)
-    commit('SET_SPIDER_SCRAPY_ITEMS', res.data.data)
+    let nodeId = 0
+    commit('SET_SPIDER_SCRAPY_ITEMS', res.data.data.map(d => {
+      d.id = nodeId++
+      d.label = d.name
+      d.level = 1
+      d.isEdit = false
+      d.children = d.fields.map(f => {
+        return {
+          id: nodeId++,
+          label: f,
+          level: 2,
+          isEdit: false
+        }
+      })
+      return d
+    }))
   },
   async saveSpiderScrapyItems ({ state }, id) {
-    return request.post(`/spiders/${id}/scrapy/items`, state.spiderScrapyItems)
+    return request.post(`/spiders/${id}/scrapy/items`, state.spiderScrapyItems.map(d => {
+      d.name = d.label
+      d.fields = d.children.map(f => f.label)
+      return d
+    }))
   },
   addSpiderScrapySpider ({ state }, payload) {
     const { id, form } = payload
