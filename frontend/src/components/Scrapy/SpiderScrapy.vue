@@ -127,7 +127,7 @@
               icon="el-icon-plus"
               @click="onSettingsAdd"
             >
-              {{$t('Add')}}
+              {{$t('Add Variable')}}
             </el-button>
             <el-button size="small" type="success" @click="onSettingsSave" icon="el-icon-check">
               {{$t('Save')}}
