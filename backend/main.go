@@ -180,6 +180,7 @@ func main() {
 				authGroup.POST("/spiders/:id/scrapy/settings", routes.PostSpiderScrapySettings) // Scrapy 爬虫修改设置
 				authGroup.GET("/spiders/:id/scrapy/items", routes.GetSpiderScrapyItems)         // Scrapy 爬虫 items
 				authGroup.POST("/spiders/:id/scrapy/items", routes.PostSpiderScrapyItems)       // Scrapy 爬虫修改 items
+				authGroup.GET("/spiders/:id/scrapy/pipelines", routes.GetSpiderScrapyPipelines)         // Scrapy 爬虫 pipelines
 				authGroup.POST("/spiders/:id/git/sync", routes.PostSpiderSyncGit)               // 爬虫 Git 同步
 				authGroup.POST("/spiders/:id/git/reset", routes.PostSpiderResetGit)             // 爬虫 Git 重置
 			}

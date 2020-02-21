@@ -201,6 +201,30 @@ func SaveScrapyItems(s model.Spider, itemsData []entity.ScrapyItem) (err error) 
 	return
 }
 
+func GetScrapyPipelines(s model.Spider) (res []string, err error) {
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	cmd := exec.Command("crawlab", "pipelines")
+	cmd.Dir = s.Src
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		log.Errorf(err.Error())
+		log.Errorf(stderr.String())
+		debug.PrintStack()
+		return res, err
+	}
+
+	if err := json.Unmarshal([]byte(stdout.String()), &res); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return res, err
+	}
+
+	return res, nil
+}
+
 func CreateScrapySpider(s model.Spider, name string, domain string, template string) (err error) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer

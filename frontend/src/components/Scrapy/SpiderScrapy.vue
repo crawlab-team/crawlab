@@ -243,13 +243,13 @@
               {{$t('Add Spider')}}
             </el-button>
           </div>
-          <ul class="spider-list">
+          <ul class="list">
             <li
               v-for="s in spiderForm.spider_names"
               :key="s"
-              class="spider-item"
+              class="item"
             >
-              <i class="el-icon-caret-right"></i>
+              <i class="el-icon-star-on"></i>
               {{s}}
             </li>
           </ul>
@@ -280,6 +280,7 @@
           <span class="custom-tree-node" :class="`level-${data.level}`" slot-scope="{ node, data }">
             <template v-if="data.level === 1">
               <span v-if="!node.isEdit" class="label" @click="onItemLabelEdit(node, data, $event)">
+                <i class="el-icon-star-on"></i>
                 {{ data.label }}
                 <i class="el-icon-edit"></i>
               </span>
@@ -311,6 +312,7 @@
             </template>
             <template v-if="data.level === 2">
               <span v-if="!node.isEdit" class="label" @click="onItemLabelEdit(node, data, $event)">
+                <i class="el-icon-arrow-right"></i>
                 {{ node.label }}
                 <i class="el-icon-edit"></i>
               </span>
@@ -341,7 +343,18 @@
 
       <!--pipelines-->
       <el-tab-pane label="Pipelines" name="pipelines">
-
+        <div class="pipelines">
+          <ul class="list">
+            <li
+              v-for="s in spiderScrapyPipelines"
+              :key="s"
+              class="item"
+            >
+              <i class="el-icon-star-on"></i>
+              {{s}}
+            </li>
+          </ul>
+        </div>
       </el-tab-pane>
       <!--./pipelines-->
     </el-tabs>
@@ -359,7 +372,8 @@ export default {
     ...mapState('spider', [
       'spiderForm',
       'spiderScrapySettings',
-      'spiderScrapyItems'
+      'spiderScrapyItems',
+      'spiderScrapyPipelines'
     ]),
     activeParamData () {
       if (this.activeParam.type === 'array') {
@@ -688,18 +702,22 @@ export default {
     border-bottom: 1px solid #DCDFE6;
   }
 
-  .spiders .spider-list {
+  .pipelines .list,
+  .spiders .list {
     list-style: none;
     padding: 0;
     margin: 0;
   }
 
-  .spiders .spider-list .spider-item {
+  .pipelines .list .item,
+  .spiders .list .item {
+    font-size: 14px;
     padding: 10px;
     cursor: pointer;
   }
 
-  .spiders .spider-list .spider-item:hover {
+  .pipelines .list .item:hover,
+  .spiders .list .item:hover {
     background: #F5F7FA;
   }
 

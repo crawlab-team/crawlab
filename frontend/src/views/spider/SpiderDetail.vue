@@ -224,7 +224,8 @@ export default {
       await Promise.all([
         this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id),
         this.$store.dispatch('spider/getSpiderScrapyItems', this.$route.params.id),
-        this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id)
+        this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id),
+        this.$store.dispatch('spider/getSpiderScrapyPipelines', this.$route.params.id)
       ])
     }
   },
