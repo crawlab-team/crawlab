@@ -349,6 +349,7 @@
               v-for="s in spiderScrapyPipelines"
               :key="s"
               class="item"
+              @click="$emit('click-pipeline')"
             >
               <i class="el-icon-star-on"></i>
               {{s}}

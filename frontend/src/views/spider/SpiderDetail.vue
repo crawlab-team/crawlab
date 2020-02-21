@@ -26,13 +26,18 @@
         <git-settings/>
       </el-tab-pane>
       <el-tab-pane v-if="isScrapy" :label="$t('Scrapy Settings')" name="scrapy-settings">
-        <spider-scrapy/>
+        <spider-scrapy
+          @click-spider="onClickScrapySpider"
+          @click-pipeline="onClickScrapyPipeline"
+        />
       </el-tab-pane>
       <el-tab-pane v-if="isConfigurable" :label="$t('Config')" name="config">
         <config-list ref="config"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Files')" name="files">
-        <file-list/>
+        <file-list
+          ref="file-list"
+        />
       </el-tab-pane>
       <el-tab-pane :label="$t('Environment')" name="environment">
         <environment-list/>
@@ -162,7 +167,8 @@ export default {
           }
           this.$utils.tour.nextStep('spider-detail', currentStep)
         }
-      }
+      },
+      redirectType: ''
     }
   },
   computed: {
@@ -227,6 +233,20 @@ export default {
         this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id),
         this.$store.dispatch('spider/getSpiderScrapyPipelines', this.$route.params.id)
       ])
+    },
+    async onClickScrapySpider () {
+      this.redirectType = 'spider'
+      this.activeTabName = 'files'
+      await this.$store.dispatch('spider/getFileTree')
+      if (this.currentPath) {
+        await this.$store.dispatch('file/getFileContent', { path: this.currentPath })
+      }
+    },
+    async onClickScrapyPipeline () {
+      this.redirectType = 'pipeline'
+      this.activeTabName = 'files'
+      await this.$store.dispatch('spider/getFileTree')
+      this.$refs['file-list'].clickPipeline()
     }
   },
   async created () {

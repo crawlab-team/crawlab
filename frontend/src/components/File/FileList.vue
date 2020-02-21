@@ -409,6 +409,23 @@ export default {
       this.isShowDelete = false
       this.showFile = false
       this.$st.sendEv('爬虫详情', '文件', '删除')
+    },
+    clickPipeline () {
+      const filename = 'pipelines.py'
+      for (let i = 0; i < this.computedFileTree.length; i++) {
+        const dataLv1 = this.computedFileTree[i]
+        const nodeLv1 = this.$refs['tree'].getNode(dataLv1.path)
+        if (dataLv1.is_dir) {
+          for (let j = 0; j < dataLv1.children.length; j++) {
+            const nodeLv2 = dataLv1.children[j]
+            if (nodeLv2.path.match(filename)) {
+              this.onFileClick(nodeLv2)
+              nodeLv1.expanded = true
+              return
+            }
+          }
+        }
+      }
     }
   },
   async created () {
