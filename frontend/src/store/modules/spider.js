@@ -195,6 +195,10 @@ const actions = {
   async saveSpiderScrapyPipelines ({ state }, id) {
     return request.post(`/spiders/${id}/scrapy/pipelines`, state.spiderScrapyPipelines)
   },
+  async getSpiderScrapySpiderFilepath ({ state, commit }, payload) {
+    const { id, spiderName } = payload
+    return request.get(`/spiders/${id}/scrapy/spider/filepath`, { spider_name: spiderName })
+  },
   addSpiderScrapySpider ({ state }, payload) {
     const { id, form } = payload
     return request.put(`/spiders/${id}/scrapy/spiders`, form)

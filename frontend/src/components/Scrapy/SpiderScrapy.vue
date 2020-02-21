@@ -248,6 +248,7 @@
               v-for="s in spiderForm.spider_names"
               :key="s"
               class="item"
+              @click="onClickSpider(s)"
             >
               <i class="el-icon-star-on"></i>
               {{s}}
@@ -634,6 +635,14 @@ export default {
         this.$message.success(this.$t('Saved successfully'))
       }
       this.$st.sendEv('爬虫详情', 'Scrapy 设置', '保存Items')
+    },
+    async onClickSpider (spiderName) {
+      const res = await this.$store.dispatch('spider/getSpiderScrapySpiderFilepath', {
+        id: this.$route.params.id,
+        spiderName
+      })
+      this.$emit('click-spider', res.data.data)
+      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '点击爬虫')
     }
   }
 }

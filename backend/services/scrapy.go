@@ -225,6 +225,26 @@ func GetScrapyPipelines(s model.Spider) (res []string, err error) {
 	return res, nil
 }
 
+func GetScrapySpiderFilepath(s model.Spider, spiderName string) (res string, err error) {
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	cmd := exec.Command("crawlab", "find_spider_filepath", "-n", spiderName)
+	cmd.Dir = s.Src
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		log.Errorf(err.Error())
+		log.Errorf(stderr.String())
+		debug.PrintStack()
+		return res, err
+	}
+
+	res = strings.Replace(stdout.String(), "\n", "", 1)
+
+	return res, nil
+}
+
 func CreateScrapySpider(s model.Spider, name string, domain string, template string) (err error) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer

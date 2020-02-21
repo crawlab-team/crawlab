@@ -410,6 +410,13 @@ export default {
       this.showFile = false
       this.$st.sendEv('爬虫详情', '文件', '删除')
     },
+    clickSpider (filepath) {
+      const node = this.$refs['tree'].getNode(filepath)
+      const data = node.data
+      this.onFileClick(data)
+      node.parent.expanded = true
+      node.parent.parent.expanded = true
+    },
     clickPipeline () {
       const filename = 'pipelines.py'
       for (let i = 0; i < this.computedFileTree.length; i++) {
@@ -417,9 +424,9 @@ export default {
         const nodeLv1 = this.$refs['tree'].getNode(dataLv1.path)
         if (dataLv1.is_dir) {
           for (let j = 0; j < dataLv1.children.length; j++) {
-            const nodeLv2 = dataLv1.children[j]
-            if (nodeLv2.path.match(filename)) {
-              this.onFileClick(nodeLv2)
+            const dataLv2 = dataLv1.children[j]
+            if (dataLv2.path.match(filename)) {
+              this.onFileClick(dataLv2)
               nodeLv1.expanded = true
               return
             }

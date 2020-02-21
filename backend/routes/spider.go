@@ -1152,6 +1152,39 @@ func GetSpiderScrapyPipelines(c *gin.Context) {
 	})
 }
 
+func GetSpiderScrapySpiderFilepath(c *gin.Context) {
+	id := c.Param("id")
+
+	spiderName := c.Query("spider_name")
+	if spiderName == "" {
+		HandleErrorF(http.StatusBadRequest, c, "spider_name is empty")
+		return
+	}
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "spider_id is invalid")
+		return
+	}
+
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	data, err := services.GetScrapySpiderFilepath(spider, spiderName)
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    data,
+	})
+}
+
 func PostSpiderSyncGit(c *gin.Context) {
 	id := c.Param("id")
 

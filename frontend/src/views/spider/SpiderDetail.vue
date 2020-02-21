@@ -234,16 +234,12 @@ export default {
         this.$store.dispatch('spider/getSpiderScrapyPipelines', this.$route.params.id)
       ])
     },
-    async onClickScrapySpider () {
-      this.redirectType = 'spider'
+    async onClickScrapySpider (filepath) {
       this.activeTabName = 'files'
       await this.$store.dispatch('spider/getFileTree')
-      if (this.currentPath) {
-        await this.$store.dispatch('file/getFileContent', { path: this.currentPath })
-      }
+      this.$refs['file-list'].clickSpider(filepath)
     },
     async onClickScrapyPipeline () {
-      this.redirectType = 'pipeline'
       this.activeTabName = 'files'
       await this.$store.dispatch('spider/getFileTree')
       this.$refs['file-list'].clickPipeline()
