@@ -1163,7 +1163,6 @@ export default {
           })
           if (!res.data.error) {
             this.$message.success('Sent signals to cancel selected tasks')
-            this.$refs['table'].clearSelection()
             await this.getList()
           }
         } finally {
