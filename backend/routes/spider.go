@@ -536,6 +536,95 @@ func CancelSelectedSpider(c *gin.Context) {
 	})
 }
 
+func RunSelectedSpider(c *gin.Context) {
+	type TaskParam struct {
+		SpiderId bson.ObjectId `json:"spider_id"`
+		Param    string        `json:"param"`
+	}
+	type ReqBody struct {
+		RunType    string          `json:"run_type"`
+		NodeIds    []bson.ObjectId `json:"node_ids"`
+		TaskParams []TaskParam     `json:"task_params"`
+	}
+
+	var reqBody ReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleErrorF(http.StatusBadRequest, c, "invalid request")
+		return
+	}
+
+	// 任务ID
+	var taskIds []string
+
+	// 遍历爬虫
+	// TODO: 优化此部分代码，与 routes.PutTask 有重合部分
+	for _, taskParam := range reqBody.TaskParams {
+		if reqBody.RunType == constants.RunTypeAllNodes {
+			// 所有节点
+			nodes, err := model.GetNodeList(nil)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+			for _, node := range nodes {
+				t := model.Task{
+					SpiderId: taskParam.SpiderId,
+					NodeId:   node.Id,
+					Param:    taskParam.Param,
+					UserId:   services.GetCurrentUser(c).Id,
+				}
+
+				id, err := services.AddTask(t)
+				if err != nil {
+					HandleError(http.StatusInternalServerError, c, err)
+					return
+				}
+
+				taskIds = append(taskIds, id)
+			}
+		} else if reqBody.RunType == constants.RunTypeRandom {
+			// 随机
+			t := model.Task{
+				SpiderId: taskParam.SpiderId,
+				Param:    taskParam.Param,
+				UserId:   services.GetCurrentUser(c).Id,
+			}
+			id, err := services.AddTask(t)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+			taskIds = append(taskIds, id)
+		} else if reqBody.RunType == constants.RunTypeSelectedNodes {
+			// 指定节点
+			for _, nodeId := range reqBody.NodeIds {
+				t := model.Task{
+					SpiderId: taskParam.SpiderId,
+					NodeId:   nodeId,
+					Param:    taskParam.Param,
+					UserId:   services.GetCurrentUser(c).Id,
+				}
+
+				id, err := services.AddTask(t)
+				if err != nil {
+					HandleError(http.StatusInternalServerError, c, err)
+					return
+				}
+				taskIds = append(taskIds, id)
+			}
+		} else {
+			HandleErrorF(http.StatusInternalServerError, c, "invalid run_type")
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    taskIds,
+	})
+}
+
 func GetSpiderTasks(c *gin.Context) {
 	id := c.Param("id")
 

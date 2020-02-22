@@ -283,7 +283,9 @@
     <crawl-confirm-dialog
       :visible="crawlConfirmDialogVisible"
       :spider-id="activeSpiderId"
-      @close="crawlConfirmDialogVisible = false"
+      :spiders="selectedSpiders"
+      :multiple="isMultiple"
+      @close="onCrawlConfirmDialogClose"
       @confirm="onCrawlConfirm"
     />
     <!--./crawl confirm dialog-->
@@ -342,7 +344,7 @@
             type="danger"
             icon="el-icon-video-play"
             class="btn add"
-            @click="onRunSelectedSpiders"
+            @click="onCrawlSelectedSpiders"
             style="font-weight: bolder"
           >
             {{$t('Run')}}
@@ -781,7 +783,8 @@ export default {
       activeSpiderTaskStatus: 'running',
       selectedSpiders: [],
       isStopLoading: false,
-      isRemoveLoading: false
+      isRemoveLoading: false,
+      isMultiple: false
     }
   },
   computed: {
@@ -830,6 +833,9 @@ export default {
       return this.nodeList.filter(d => {
         return d.status === 'online'
       })
+    },
+    activeSpiderIds () {
+      return this.selectedSpiders.map(d => d._id)
     }
   },
   methods: {
@@ -1165,6 +1171,14 @@ export default {
         }
         this.$st.sendEv('爬虫列表', '批量删除爬虫')
       })
+    },
+    onCrawlSelectedSpiders () {
+      this.crawlConfirmDialogVisible = true
+      this.isMultiple = true
+    },
+    onCrawlConfirmDialogClose () {
+      this.crawlConfirmDialogVisible = false
+      this.isMultiple = false
     }
   },
   async created () {

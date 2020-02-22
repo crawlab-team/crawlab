@@ -44,8 +44,13 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="spiderForm.is_scrapy" :label="$t('Scrapy Log Level')" prop="scrapy_log_level" required
-                      inline-message>
+        <el-form-item
+          v-if="spiderForm.is_scrapy || (multiple && scrapySpiders.length > 0)"
+          :label="$t('Scrapy Log Level')"
+          prop="scrapy_log_level"
+          required
+          inline-message
+        >
           <el-select v-model="form.scrapy_log_level" :placeholder="$t('Scrapy Log Level')">
             <el-option value="INFO" label="INFO"/>
             <el-option value="DEBUG" label="DEBUG"/>
@@ -68,7 +73,7 @@
             <span style="margin-left: 5px">我已阅读并同意 <a href="javascript:"
                                                       @click="onClickDisclaimer">《免责声明》</a> 所有内容</span>
           </div>
-          <div v-if="!spiderForm.is_long_task">
+          <div v-if="!spiderForm.is_long_task && !multiple">
             <el-checkbox v-model="isRedirect"/>
             <span style="margin-left: 5px">跳转到任务详情页</span>
           </div>
@@ -100,7 +105,17 @@ export default {
       type: String,
       default: ''
     },
+    spiders: {
+      type: Array,
+      default () {
+        return []
+      }
+    },
     visible: {
+      type: Boolean,
+      default: false
+    },
+    multiple: {
       type: Boolean,
       default: false
     }
@@ -118,7 +133,8 @@ export default {
       isAllowDisclaimer: true,
       isRedirect: true,
       isLoading: false,
-      isParametersVisible: false
+      isParametersVisible: false,
+      scrapySpidersNamesDict: {}
     }
   },
   computed: {
@@ -129,6 +145,9 @@ export default {
       if (this.isLoading) return true
       if (!this.isAllowDisclaimer) return true
       return false
+    },
+    scrapySpiders () {
+      return this.spiders.filter(d => d.type === 'customized' && d.is_scrapy)
     }
   },
   watch: {
@@ -145,30 +164,77 @@ export default {
     beforeParameterClose () {
       this.isParametersVisible = false
     },
+    async fetchScrapySpiderName (id) {
+      const res = await this.$request.get(`/spiders/${id}/scrapy/spiders`)
+      this.scrapySpidersNamesDict[id] = res.data.data
+    },
     onConfirm () {
       this.$refs['form'].validate(async valid => {
         if (!valid) return
 
-        let param = this.form.param
-        if (this.spiderForm.type === 'customized' && this.spiderForm.is_scrapy) {
-          param = `${this.form.spider} --loglevel=${this.form.scrapy_log_level} ${this.form.param}`
+        // 请求响应
+        let res
+
+        if (!this.multiple) {
+          // 运行单个爬虫
+
+          // 参数
+          let param = this.form.param
+
+          // Scrapy爬虫特殊处理
+          if (this.spiderForm.type === 'customized' && this.spiderForm.is_scrapy) {
+            param = `${this.form.spider} --loglevel=${this.form.scrapy_log_level} ${this.form.param}`
+          }
+
+          // 发起请求
+          res = await this.$store.dispatch('spider/crawlSpider', {
+            spiderId: this.spiderId,
+            nodeIds: this.form.nodeIds,
+            param,
+            runType: this.form.runType
+          })
+        } else {
+          // 运行多个爬虫
+
+          // 发起请求
+          res = await this.$store.dispatch('spider/crawlSelectedSpiders', {
+            nodeIds: this.form.nodeIds,
+            runType: this.form.runType,
+            taskParams: this.spiders.map(d => {
+              // 参数
+              let param = this.form.param
+
+              // Scrapy爬虫特殊处理
+              if (d.type === 'customized' && d.is_scrapy) {
+                param = `${this.scrapySpidersNamesDict[d._id] ? this.scrapySpidersNamesDict[d._id][0] : ''} --loglevel=${this.form.scrapy_log_level} ${this.form.param}`
+              }
+
+              return {
+                spider_id: d._id,
+                param
+              }
+            })
+          })
         }
 
-        const res = await this.$store.dispatch('spider/crawlSpider', {
-          spiderId: this.spiderId,
-          nodeIds: this.form.nodeIds,
-          param,
-          runType: this.form.runType
-        })
-
-        const id = res.data.data[0]
-
+        // 消息提示
         this.$message.success(this.$t('A task has been scheduled successfully'))
 
         this.$emit('close')
-        this.$st.sendEv('爬虫确认', '确认运行', this.form.runType)
+        if (this.multiple) {
+          this.$st.sendEv('爬虫确认', '确认批量运行', this.form.runType)
+        } else {
+          this.$st.sendEv('爬虫确认', '确认运行', this.form.runType)
+        }
 
-        if (this.isRedirect && !this.spiderForm.is_long_task) {
+        // 是否重定向
+        if (
+          this.isRedirect &&
+          !this.spiderForm.is_long_task &&
+          !this.multiple
+        ) {
+          // 返回任务id
+          const id = res.data.data[0]
           this.$router.push('/tasks/' + id)
           this.$st.sendEv('爬虫确认', '跳转到任务详情')
         }
@@ -194,15 +260,32 @@ export default {
       })
 
       // 爬虫列表
-      this.isLoading = true
-      await this.$store.dispatch('spider/getSpiderData', this.spiderId)
-      if (this.spiderForm.is_scrapy) {
-        await this.$store.dispatch('spider/getSpiderScrapySpiders', this.spiderId)
-        if (this.spiderForm.spider_names && this.spiderForm.spider_names.length > 0) {
-          this.$set(this.form, 'spider', this.spiderForm.spider_names[0])
+      if (!this.multiple) {
+        // 单个爬虫
+        this.isLoading = true
+        try {
+          await this.$store.dispatch('spider/getSpiderData', this.spiderId)
+          if (this.spiderForm.is_scrapy) {
+            await this.$store.dispatch('spider/getSpiderScrapySpiders', this.spiderId)
+            if (this.spiderForm.spider_names && this.spiderForm.spider_names.length > 0) {
+              this.$set(this.form, 'spider', this.spiderForm.spider_names[0])
+            }
+          }
+        } finally {
+          this.isLoading = false
+        }
+      } else {
+        // 多个爬虫
+        this.isLoading = true
+        try {
+          // 遍历 Scrapy 爬虫列表
+          await Promise.all(this.scrapySpiders.map(async d => {
+            return this.fetchScrapySpiderName(d._id)
+          }))
+        } finally {
+          this.isLoading = false
         }
       }
-      this.isLoading = false
     },
     onOpenParameters () {
       this.isParametersVisible = true

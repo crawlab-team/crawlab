@@ -186,6 +186,7 @@ func main() {
 				authGroup.POST("/spiders/:id/git/sync", routes.PostSpiderSyncGit)                          // 爬虫 Git 同步
 				authGroup.POST("/spiders/:id/git/reset", routes.PostSpiderResetGit)                        // 爬虫 Git 重置
 				authGroup.POST("/spiders-cancel", routes.CancelSelectedSpider)                             // 停止所选爬虫任务
+				authGroup.POST("/spiders-run", routes.RunSelectedSpider)                                   // 运行所选爬虫
 			}
 			// 可配置爬虫
 			{
