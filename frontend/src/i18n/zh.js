@@ -217,6 +217,9 @@ export default {
   'Long Task': '长任务',
   'Running Task Count': '运行中的任务数',
   'Running Tasks': '运行中的任务',
+  'Item Name': 'Item 名称',
+  'Add Item': '添加 Item',
+  'Add Variable': '添加变量',
 
   // 爬虫列表
   'Name': '名称',

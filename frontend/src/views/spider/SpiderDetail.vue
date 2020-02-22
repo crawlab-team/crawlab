@@ -26,13 +26,18 @@
         <git-settings/>
       </el-tab-pane>
       <el-tab-pane v-if="isScrapy" :label="$t('Scrapy Settings')" name="scrapy-settings">
-        <spider-scrapy/>
+        <spider-scrapy
+          @click-spider="onClickScrapySpider"
+          @click-pipeline="onClickScrapyPipeline"
+        />
       </el-tab-pane>
       <el-tab-pane v-if="isConfigurable" :label="$t('Config')" name="config">
         <config-list ref="config"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Files')" name="files">
-        <file-list/>
+        <file-list
+          ref="file-list"
+        />
       </el-tab-pane>
       <el-tab-pane :label="$t('Environment')" name="environment">
         <environment-list/>
@@ -162,7 +167,8 @@ export default {
           }
           this.$utils.tour.nextStep('spider-detail', currentStep)
         }
-      }
+      },
+      redirectType: ''
     }
   },
   computed: {
@@ -190,7 +196,7 @@ export default {
     }
   },
   methods: {
-    onTabClick (tab) {
+    async onTabClick (tab) {
       if (this.activeTabName === 'analytics') {
         setTimeout(() => {
           this.$refs['spider-stats'].update()
@@ -207,12 +213,11 @@ export default {
           }, 100)
         }
       } else if (this.activeTabName === 'scrapy-settings') {
-        this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
-        this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id)
+        await this.getScrapyData()
       } else if (this.activeTabName === 'files') {
-        this.$store.dispatch('spider/getFileTree')
+        await this.$store.dispatch('spider/getFileTree')
         if (this.currentPath) {
-          this.$store.dispatch('file/getFileContent', { path: this.currentPath })
+          await this.$store.dispatch('file/getFileContent', { path: this.currentPath })
         }
       }
       this.$st.sendEv('爬虫详情', '切换标签', tab.name)
@@ -220,12 +225,27 @@ export default {
     onSpiderChange (id) {
       this.$router.push(`/spiders/${id}`)
       this.$st.sendEv('爬虫详情', '切换爬虫')
+    },
+    async getScrapyData () {
+      await Promise.all([
+        this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id),
+        this.$store.dispatch('spider/getSpiderScrapyItems', this.$route.params.id),
+        this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id),
+        this.$store.dispatch('spider/getSpiderScrapyPipelines', this.$route.params.id)
+      ])
+    },
+    async onClickScrapySpider (filepath) {
+      this.activeTabName = 'files'
+      await this.$store.dispatch('spider/getFileTree')
+      this.$refs['file-list'].clickSpider(filepath)
+    },
+    async onClickScrapyPipeline () {
+      this.activeTabName = 'files'
+      await this.$store.dispatch('spider/getFileTree')
+      this.$refs['file-list'].clickPipeline()
     }
   },
   async created () {
-    // get the list of the spiders
-    // this.$store.dispatch('spider/getSpiderList')
-
     // get spider basic info
     await this.$store.dispatch('spider/getSpiderData', this.$route.params.id)
 
@@ -237,12 +257,6 @@ export default {
 
     // get spider list
     await this.$store.dispatch('spider/getSpiderList')
-
-    // get scrapy spider names
-    if (this.spiderForm.is_scrapy) {
-      await this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
-      await this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id)
-    }
   },
   mounted () {
     if (!this.$utils.tour.isFinishedTour('spider-detail')) {

@@ -187,19 +187,33 @@ func PutSpider(c *gin.Context) {
 	// 将FileId置空
 	spider.FileId = bson.ObjectIdHex(constants.ObjectIdNull)
 
-	// 创建爬虫目录
+	// 爬虫目录
 	spiderDir := filepath.Join(viper.GetString("spider.path"), spider.Name)
+
+	// 赋值到爬虫实例
+	spider.Src = spiderDir
+
+	// 移除已有爬虫目录
 	if utils.Exists(spiderDir) {
 		if err := os.RemoveAll(spiderDir); err != nil {
 			HandleError(http.StatusInternalServerError, c, err)
 			return
 		}
 	}
+
+	// 生成爬虫目录
 	if err := os.MkdirAll(spiderDir, 0777); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
-	spider.Src = spiderDir
+
+	// 如果为 Scrapy 项目，生成 Scrapy 项目
+	if spider.IsScrapy {
+		if err := services.CreateScrapyProject(spider); err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+	}
 
 	// 添加爬虫到数据库
 	if err := spider.Add(); err != nil {
@@ -960,8 +974,9 @@ func GetSpiderScrapySpiders(c *gin.Context) {
 
 func PutSpiderScrapySpiders(c *gin.Context) {
 	type ReqBody struct {
-		Name   string `json:"name"`
-		Domain string `json:"domain"`
+		Name     string `json:"name"`
+		Domain   string `json:"domain"`
+		Template string `json:"template"`
 	}
 
 	id := c.Param("id")
@@ -983,7 +998,7 @@ func PutSpiderScrapySpiders(c *gin.Context) {
 		return
 	}
 
-	if err := services.CreateScrapySpider(spider, reqBody.Name, reqBody.Domain); err != nil {
+	if err := services.CreateScrapySpider(spider, reqBody.Name, reqBody.Domain, reqBody.Template); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
@@ -1049,6 +1064,124 @@ func PostSpiderScrapySettings(c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
+	})
+}
+
+func GetSpiderScrapyItems(c *gin.Context) {
+	id := c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "spider_id is invalid")
+		return
+	}
+
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	data, err := services.GetScrapyItems(spider)
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    data,
+	})
+}
+
+func PostSpiderScrapyItems(c *gin.Context) {
+	id := c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "spider_id is invalid")
+		return
+	}
+
+	var reqData []entity.ScrapyItem
+	if err := c.ShouldBindJSON(&reqData); err != nil {
+		HandleErrorF(http.StatusBadRequest, c, "invalid request")
+		return
+	}
+
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	if err := services.SaveScrapyItems(spider, reqData); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
+func GetSpiderScrapyPipelines(c *gin.Context) {
+	id := c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "spider_id is invalid")
+		return
+	}
+
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	data, err := services.GetScrapyPipelines(spider)
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    data,
+	})
+}
+
+func GetSpiderScrapySpiderFilepath(c *gin.Context) {
+	id := c.Param("id")
+
+	spiderName := c.Query("spider_name")
+	if spiderName == "" {
+		HandleErrorF(http.StatusBadRequest, c, "spider_name is empty")
+		return
+	}
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "spider_id is invalid")
+		return
+	}
+
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	data, err := services.GetScrapySpiderFilepath(spider, spiderName)
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    data,
 	})
 }
 

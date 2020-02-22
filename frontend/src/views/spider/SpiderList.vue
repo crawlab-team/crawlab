@@ -45,7 +45,12 @@
               </el-select>
             </el-form-item>
             <el-form-item :label="$t('Execute Command')" prop="cmd" required>
-              <el-input id="cmd" v-model="spiderForm.cmd" :placeholder="$t('Execute Command')"/>
+              <el-input
+                id="cmd"
+                v-model="spiderForm.cmd"
+                :placeholder="$t('Execute Command')"
+                :disabled="spiderForm.is_scrapy"
+              />
             </el-form-item>
             <el-form-item :label="$t('Results')" prop="col" required>
               <el-input id="col" v-model="spiderForm.col" :placeholder="$t('Results')"/>
@@ -64,18 +69,33 @@
                 </el-button>
               </el-upload>
             </el-form-item>
-            <el-form-item :label="$t('Is Git')" prop="is_git">
-              <el-switch
-                v-model="spiderForm.is_git"
-                active-color="#13ce66"
-              />
-            </el-form-item>
-            <el-form-item :label="$t('Is Long Task')" prop="is_long_task">
-              <el-switch
-                v-model="spiderForm.is_long_task"
-                active-color="#13ce66"
-              />
-            </el-form-item>
+            <el-row>
+              <el-col :span="8">
+                <el-form-item :label="$t('Is Scrapy')" prop="is_scrapy">
+                  <el-switch
+                    v-model="spiderForm.is_scrapy"
+                    active-color="#13ce66"
+                    @change="onIsScrapy"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item :label="$t('Is Git')" prop="is_git">
+                  <el-switch
+                    v-model="spiderForm.is_git"
+                    active-color="#13ce66"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item :label="$t('Is Long Task')" prop="is_long_task">
+                  <el-switch
+                    v-model="spiderForm.is_long_task"
+                    active-color="#13ce66"
+                  />
+                </el-form-item>
+              </el-col>
+            </el-row>
           </el-form>
           <el-alert
             type="warning"
@@ -1051,6 +1071,11 @@ export default {
       if (!res.data.error) {
         this.$message.success(`Task "${row._id}" has been sent signal to stop`)
         this.getList()
+      }
+    },
+    onIsScrapy (value) {
+      if (value) {
+        this.spiderForm.cmd = 'scrapy crawl'
       }
     }
   },
