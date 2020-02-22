@@ -261,6 +261,38 @@ func RemoveSpider(id string) error {
 	return nil
 }
 
+func CancelSpider(id string) error {
+	// 获取该爬虫
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		return err
+	}
+
+	// 获取该爬虫待定或运行中的任务列表
+	query := bson.M{
+		"spider_id": spider.Id,
+		"status": bson.M{
+			"$in": []string{
+				constants.StatusPending,
+				constants.StatusRunning,
+			},
+		},
+	}
+	tasks, err := model.GetTaskList(query, 0, constants.Infinite, "-create_ts")
+	if err != nil {
+		return err
+	}
+
+	// 遍历任务列表，依次停止
+	for _, task := range tasks {
+		if err := CancelTask(task.Id); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // 启动爬虫服务
 func InitSpiderService() error {
 	// 构造定时任务执行器

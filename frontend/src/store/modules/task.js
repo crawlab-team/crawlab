@@ -136,7 +136,7 @@ const actions = {
       })
   },
   deleteTaskMultiple ({ state }, ids) {
-    return request.delete(`/tasks_multiple`, {
+    return request.delete(`/tasks`, {
       ids: ids
     })
   },

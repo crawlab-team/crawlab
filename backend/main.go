@@ -162,6 +162,7 @@ func main() {
 				authGroup.POST("/spiders/:id", routes.PostSpider)                                          // 修改爬虫
 				authGroup.POST("/spiders/:id/publish", routes.PublishSpider)                               // 发布爬虫
 				authGroup.POST("/spiders/:id/upload", routes.UploadSpiderFromId)                           // 上传爬虫（ID）
+				authGroup.DELETE("/spiders", routes.DeleteSelectedSpider)                                  // 删除选择的爬虫
 				authGroup.DELETE("/spiders/:id", routes.DeleteSpider)                                      // 删除爬虫
 				authGroup.GET("/spiders/:id/tasks", routes.GetSpiderTasks)                                 // 爬虫任务列表
 				authGroup.GET("/spiders/:id/file/tree", routes.GetSpiderFileTree)                          // 爬虫文件目录树读取
@@ -184,6 +185,8 @@ func main() {
 				authGroup.GET("/spiders/:id/scrapy/spider/filepath", routes.GetSpiderScrapySpiderFilepath) // Scrapy 爬虫 pipelines
 				authGroup.POST("/spiders/:id/git/sync", routes.PostSpiderSyncGit)                          // 爬虫 Git 同步
 				authGroup.POST("/spiders/:id/git/reset", routes.PostSpiderResetGit)                        // 爬虫 Git 重置
+				authGroup.POST("/spiders-cancel", routes.CancelSelectedSpider)                             // 停止所选爬虫任务
+				authGroup.POST("/spiders-run", routes.RunSelectedSpider)                                   // 运行所选爬虫
 			}
 			// 可配置爬虫
 			{
@@ -201,8 +204,8 @@ func main() {
 				authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情
 				authGroup.PUT("/tasks", routes.PutTask)                                     // 派发任务
 				authGroup.DELETE("/tasks/:id", routes.DeleteTask)                           // 删除任务
-				authGroup.DELETE("/tasks_multiple", routes.DeleteMultipleTask)              // 删除多个任务
-				authGroup.DELETE("/tasks_by_status", routes.DeleteTaskByStatus)             //删除指定状态的任务
+				authGroup.DELETE("/tasks", routes.DeleteSelectedTask)                       // 删除多个任务
+				authGroup.DELETE("/tasks_by_status", routes.DeleteTaskByStatus)             // 删除指定状态的任务
 				authGroup.POST("/tasks/:id/cancel", routes.CancelTask)                      // 取消任务
 				authGroup.GET("/tasks/:id/log", routes.GetTaskLog)                          // 任务日志
 				authGroup.GET("/tasks/:id/results", routes.GetTaskResults)                  // 任务结果

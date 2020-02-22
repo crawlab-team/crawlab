@@ -59,7 +59,7 @@
                 @row-click="onRowClick"
                 @selection-change="onSelectionChange">
       >
-        <el-table-column type="selection" width="55" reserve-selection/>
+        <el-table-column type="selection" width="45" align="center" reserve-selection/>
         <template v-for="col in columns">
           <el-table-column v-if="col.name === 'spider_name'"
                            :key="col.name"

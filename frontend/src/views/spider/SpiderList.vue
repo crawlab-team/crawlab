@@ -52,7 +52,7 @@
                 :disabled="spiderForm.is_scrapy"
               />
             </el-form-item>
-            <el-form-item :label="$t('Results')" prop="col" required>
+            <el-form-item :label="$t('Results')" prop="col">
               <el-input id="col" v-model="spiderForm.col" :placeholder="$t('Results')"/>
             </el-form-item>
             <el-form-item :label="$t('Upload Zip File')" label-width="120px" name="site">
@@ -283,7 +283,9 @@
     <crawl-confirm-dialog
       :visible="crawlConfirmDialogVisible"
       :spider-id="activeSpiderId"
-      @close="crawlConfirmDialogVisible = false"
+      :spiders="selectedSpiders"
+      :multiple="isMultiple"
+      @close="onCrawlConfirmDialogClose"
       @confirm="onCrawlConfirm"
     />
     <!--./crawl confirm dialog-->
@@ -336,8 +338,38 @@
           </el-form>
         </div>
         <div class="right">
-          <el-button size="small" v-if="false" type="primary" icon="fa fa-download" @click="openImportDialog">
-            {{$t('Import Spiders')}}
+          <el-button
+            v-if="this.selectedSpiders.length"
+            size="small"
+            type="danger"
+            icon="el-icon-video-play"
+            class="btn add"
+            @click="onCrawlSelectedSpiders"
+            style="font-weight: bolder"
+          >
+            {{$t('Run')}}
+          </el-button>
+          <el-button
+            v-if="this.selectedSpiders.length"
+            size="small"
+            type="info"
+            :icon="isStopLoading ? 'el-icon-loading' : 'el-icon-video-pause'"
+            class="btn add"
+            @click="onStopSelectedSpiders"
+            style="font-weight: bolder"
+          >
+            {{$t('Stop')}}
+          </el-button>
+          <el-button
+            v-if="this.selectedSpiders.length"
+            size="small"
+            type="danger"
+            :icon="isRemoveLoading ? 'el-icon-loading' : 'el-icon-delete'"
+            class="btn add"
+            @click="onRemoveSelectedSpiders"
+            style="font-weight: bolder"
+          >
+            {{$t('Remove')}}
           </el-button>
           <el-button
             size="small"
@@ -349,7 +381,6 @@
           >
             {{$t('Add Spider')}}
           </el-button>
-
         </div>
       </div>
       <!--./filter-->
@@ -371,11 +402,20 @@
       <el-table
         :data="spiderList"
         class="table"
+        ref="table"
         :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
         border
+        row-key="_id"
         @row-click="onRowClick"
         @sort-change="onSortChange"
+        @selection-change="onSpiderSelect"
       >
+        <el-table-column
+          type="selection"
+          width="45"
+          align="center"
+          reserve-selection
+        />
         <template v-for="col in columns">
           <el-table-column
             v-if="col.name === 'type'"
@@ -740,7 +780,11 @@ export default {
         }
       },
       handle: undefined,
-      activeSpiderTaskStatus: 'running'
+      activeSpiderTaskStatus: 'running',
+      selectedSpiders: [],
+      isStopLoading: false,
+      isRemoveLoading: false,
+      isMultiple: false
     }
   },
   computed: {
@@ -789,6 +833,9 @@ export default {
       return this.nodeList.filter(d => {
         return d.status === 'online'
       })
+    },
+    activeSpiderIds () {
+      return this.selectedSpiders.map(d => d._id)
     }
   },
   methods: {
@@ -1077,6 +1124,61 @@ export default {
       if (value) {
         this.spiderForm.cmd = 'scrapy crawl'
       }
+    },
+    onSpiderSelect (spiders) {
+      this.selectedSpiders = spiders
+    },
+    async onRemoveSelectedSpiders () {
+      this.$confirm(this.$t('Are you sure to delete selected items?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
+        type: 'warning'
+      }).then(async () => {
+        this.isRemoveLoading = true
+        try {
+          const res = await this.$request.delete('/spiders', {
+            spider_ids: this.selectedSpiders.map(d => d._id)
+          })
+          if (!res.data.error) {
+            this.$message.success('Delete successfully')
+            this.$refs['table'].clearSelection()
+            await this.getList()
+          }
+        } finally {
+          this.isRemoveLoading = false
+        }
+        this.$st.sendEv('爬虫列表', '批量删除爬虫')
+      })
+    },
+    async onStopSelectedSpiders () {
+      this.$confirm(this.$t('Are you sure to stop selected items?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
+        type: 'warning'
+      }).then(async () => {
+        this.isStopLoading = true
+        try {
+          const res = await this.$request.post('/spiders-cancel', {
+            spider_ids: this.selectedSpiders.map(d => d._id)
+          })
+          if (!res.data.error) {
+            this.$message.success('Sent signals to cancel selected tasks')
+            this.$refs['table'].clearSelection()
+            await this.getList()
+          }
+        } finally {
+          this.isStopLoading = false
+        }
+        this.$st.sendEv('爬虫列表', '批量删除爬虫')
+      })
+    },
+    onCrawlSelectedSpiders () {
+      this.crawlConfirmDialogVisible = true
+      this.isMultiple = true
+    },
+    onCrawlConfirmDialogClose () {
+      this.crawlConfirmDialogVisible = false
+      this.isMultiple = false
     }
   },
   async created () {

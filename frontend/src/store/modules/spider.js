@@ -212,6 +212,14 @@ const actions = {
       param: param
     })
   },
+  crawlSelectedSpiders ({ state, dispatch }, payload) {
+    const { taskParams, runType, nodeIds } = payload
+    return request.post(`/spiders-run`, {
+      task_params: taskParams,
+      run_type: runType,
+      node_ids: nodeIds
+    })
+  },
   getTaskList ({ state, commit }, id) {
     return request.get(`/spiders/${id}/tasks`)
       .then(response => {
