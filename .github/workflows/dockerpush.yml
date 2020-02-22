@@ -28,14 +28,14 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build image
-        run: docker build . --file Dockerfile --tag tikazyq/crawlab
+        run: docker build . --file Dockerfile --tag image
 
       - name: Log into registry
         run: echo ${{ secrets.DOCKER_PASSWORD}} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
       - name: Push image
         run: |
-          IMAGE_ID=tikazyq/$IMAGE_NAME
+          IMAGE_ID=$IMAGE_NAME
 
           # Strip git ref prefix from version
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
