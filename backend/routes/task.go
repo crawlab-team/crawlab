@@ -183,7 +183,7 @@ func DeleteTaskByStatus(c *gin.Context) {
 }
 
 // 删除多个任务
-func DeleteMultipleTask(c *gin.Context) {
+func DeleteSelectedTask(c *gin.Context) {
 	ids := make(map[string][]string)
 	if err := c.ShouldBindJSON(&ids); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)

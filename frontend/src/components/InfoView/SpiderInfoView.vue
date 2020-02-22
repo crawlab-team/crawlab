@@ -45,7 +45,7 @@
             />
           </el-form-item>
         </template>
-        <el-form-item :label="$t('Results Collection')" prop="col" required :inline-message="true">
+        <el-form-item :label="$t('Results Collection')" prop="col">
           <el-input v-model="spiderForm.col" :placeholder="$t('Results Collection')"
                     :disabled="isView"></el-input>
         </el-form-item>

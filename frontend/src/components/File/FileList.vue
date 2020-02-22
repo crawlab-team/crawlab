@@ -25,8 +25,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="fileDialogVisible = false">{{$t('Cancel')}}</el-button>
-        <el-button type="primary" @click="onAddFile">{{$t('Confirm')}}</el-button>
+        <el-button size="small" @click="fileDialogVisible = false">{{$t('Cancel')}}</el-button>
+        <el-button size="small" type="primary" @click="onAddFile">{{$t('Confirm')}}</el-button>
       </span>
     </el-dialog>
 

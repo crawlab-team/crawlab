@@ -512,6 +512,30 @@ func DeleteSelectedSpider(c *gin.Context) {
 	})
 }
 
+func CancelSelectedSpider(c *gin.Context) {
+	type ReqBody struct {
+		SpiderIds []string `json:"spider_ids"`
+	}
+
+	var reqBody ReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleErrorF(http.StatusBadRequest, c, "invalid request")
+		return
+	}
+
+	for _, spiderId := range reqBody.SpiderIds {
+		if err := services.CancelSpider(spiderId); err != nil {
+			log.Errorf(err.Error())
+			debug.PrintStack()
+		}
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
 func GetSpiderTasks(c *gin.Context) {
 	id := c.Param("id")
 

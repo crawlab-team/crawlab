@@ -279,6 +279,8 @@ func RemoveSpider(id bson.ObjectId) error {
 
 	var result Spider
 	if err := c.FindId(id).One(&result); err != nil {
+		log.Errorf("find spider error: %s, id:%s", err.Error(), id.Hex())
+		debug.PrintStack()
 		return err
 	}
 
@@ -291,12 +293,10 @@ func RemoveSpider(id bson.ObjectId) error {
 	// gf上的文件
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
-
 	if result.FileId.Hex() != constants.ObjectIdNull {
 		if err := gf.RemoveId(result.FileId); err != nil {
 			log.Error("remove file error, id:" + result.FileId.Hex())
 			debug.PrintStack()
-			return err
 		}
 	}
 

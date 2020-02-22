@@ -560,6 +560,8 @@ docker run -d --restart always --name crawlab_worker \\
   'SSH Public Key is copied to the clipboard': 'SSH 公钥已粘贴到剪切板',
   'Removed successfully': '已成功删除',
   'Are you sure to delete selected items?': '您是否确认删除所选项？',
+  'Are you sure to stop selected items?': '您是否确认停止所选项？',
+  'Sent signals to cancel selected tasks': '已经向所选任务发送取消任务信号',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

@@ -52,7 +52,7 @@
                 :disabled="spiderForm.is_scrapy"
               />
             </el-form-item>
-            <el-form-item :label="$t('Results')" prop="col" required>
+            <el-form-item :label="$t('Results')" prop="col">
               <el-input id="col" v-model="spiderForm.col" :placeholder="$t('Results')"/>
             </el-form-item>
             <el-form-item :label="$t('Upload Zip File')" label-width="120px" name="site">
@@ -1140,6 +1140,28 @@ export default {
           }
         } finally {
           this.isRemoveLoading = false
+        }
+        this.$st.sendEv('爬虫列表', '批量删除爬虫')
+      })
+    },
+    async onStopSelectedSpiders () {
+      this.$confirm(this.$t('Are you sure to stop selected items?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
+        type: 'warning'
+      }).then(async () => {
+        this.isStopLoading = true
+        try {
+          const res = await this.$request.post('/spiders-cancel', {
+            spider_ids: this.selectedSpiders.map(d => d._id)
+          })
+          if (!res.data.error) {
+            this.$message.success('Sent signals to cancel selected tasks')
+            this.$refs['table'].clearSelection()
+            await this.getList()
+          }
+        } finally {
+          this.isStopLoading = false
         }
         this.$st.sendEv('爬虫列表', '批量删除爬虫')
       })

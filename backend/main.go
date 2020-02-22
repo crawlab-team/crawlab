@@ -185,6 +185,7 @@ func main() {
 				authGroup.GET("/spiders/:id/scrapy/spider/filepath", routes.GetSpiderScrapySpiderFilepath) // Scrapy 爬虫 pipelines
 				authGroup.POST("/spiders/:id/git/sync", routes.PostSpiderSyncGit)                          // 爬虫 Git 同步
 				authGroup.POST("/spiders/:id/git/reset", routes.PostSpiderResetGit)                        // 爬虫 Git 重置
+				authGroup.POST("/spiders-cancel", routes.CancelSelectedSpider)                             // 停止所选爬虫任务
 			}
 			// 可配置爬虫
 			{
@@ -202,8 +203,8 @@ func main() {
 				authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情
 				authGroup.PUT("/tasks", routes.PutTask)                                     // 派发任务
 				authGroup.DELETE("/tasks/:id", routes.DeleteTask)                           // 删除任务
-				authGroup.DELETE("/tasks_multiple", routes.DeleteMultipleTask)              // 删除多个任务
-				authGroup.DELETE("/tasks_by_status", routes.DeleteTaskByStatus)             //删除指定状态的任务
+				authGroup.DELETE("/tasks", routes.DeleteSelectedTask)                       // 删除多个任务
+				authGroup.DELETE("/tasks_by_status", routes.DeleteTaskByStatus)             // 删除指定状态的任务
 				authGroup.POST("/tasks/:id/cancel", routes.CancelTask)                      // 取消任务
 				authGroup.GET("/tasks/:id/log", routes.GetTaskLog)                          // 任务日志
 				authGroup.GET("/tasks/:id/results", routes.GetTaskResults)                  // 任务结果
