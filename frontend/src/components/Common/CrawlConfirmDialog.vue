@@ -34,7 +34,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="spiderForm.is_scrapy" :label="$t('Scrapy Spider')" prop="spider" required inline-message>
+        <el-form-item v-if="spiderForm.is_scrapy && !multiple" :label="$t('Scrapy Spider')" prop="spider" required inline-message>
           <el-select v-model="form.spider" :placeholder="$t('Scrapy Spider')" :disabled="isLoading">
             <el-option
               v-for="s in spiderForm.spider_names"
@@ -59,7 +59,7 @@
           </el-select>
         </el-form-item>
         <el-form-item v-if="spiderForm.type === 'customized'" :label="$t('Parameters')" prop="param" inline-message>
-          <template v-if="spiderForm.is_scrapy">
+          <template v-if="spiderForm.is_scrapy && !multiple">
             <el-input v-model="form.param" :placeholder="$t('Parameters')" class="param-input"/>
             <el-button type="primary" icon="el-icon-edit" class="param-btn" @click="onOpenParameters"/>
           </template>
