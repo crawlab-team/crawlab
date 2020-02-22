@@ -46,11 +46,12 @@ func (s *SpiderSync) CheckIsScrapy() {
 		return
 	}
 	s.Spider.IsScrapy = utils.Exists(path.Join(s.Spider.Src, "scrapy.cfg"))
-	if err := s.Spider.Save(); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
-	}
+	// TODO: 暂时停用自动检测Scrapy项目功能
+	//if err := s.Spider.Save(); err != nil {
+	//	log.Errorf(err.Error())
+	//	debug.PrintStack()
+	//	return
+	//}
 }
 
 func (s *SpiderSync) AfterRemoveDownCreate() {
