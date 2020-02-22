@@ -162,6 +162,7 @@ func main() {
 				authGroup.POST("/spiders/:id", routes.PostSpider)                                          // 修改爬虫
 				authGroup.POST("/spiders/:id/publish", routes.PublishSpider)                               // 发布爬虫
 				authGroup.POST("/spiders/:id/upload", routes.UploadSpiderFromId)                           // 上传爬虫（ID）
+				authGroup.DELETE("/spiders", routes.DeleteSelectedSpider)                                  // 删除选择的爬虫
 				authGroup.DELETE("/spiders/:id", routes.DeleteSpider)                                      // 删除爬虫
 				authGroup.GET("/spiders/:id/tasks", routes.GetSpiderTasks)                                 // 爬虫任务列表
 				authGroup.GET("/spiders/:id/file/tree", routes.GetSpiderFileTree)                          // 爬虫文件目录树读取

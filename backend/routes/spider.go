@@ -482,6 +482,36 @@ func DeleteSpider(c *gin.Context) {
 	})
 }
 
+func DeleteSelectedSpider(c *gin.Context) {
+	type ReqBody struct {
+		SpiderIds []string `json:"spider_ids"`
+	}
+
+	var reqBody ReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleErrorF(http.StatusBadRequest, c, "invalid request")
+		return
+	}
+
+	for _, spiderId := range reqBody.SpiderIds {
+		if err := services.RemoveSpider(spiderId); err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+	}
+
+	// 更新 GitCron
+	if err := services.GitCron.Update(); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
 func GetSpiderTasks(c *gin.Context) {
 	id := c.Param("id")
 
