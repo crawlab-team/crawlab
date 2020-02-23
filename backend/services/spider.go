@@ -293,6 +293,9 @@ func CancelSpider(id string) error {
 	return nil
 }
 
+func CopySpider(spider model.Spider, newName string) error {
+}
+
 // 启动爬虫服务
 func InitSpiderService() error {
 	// 构造定时任务执行器

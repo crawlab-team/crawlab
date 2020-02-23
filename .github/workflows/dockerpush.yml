@@ -54,6 +54,9 @@ jobs:
 
       - name: Deploy
         run: |
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          
           if [ $VERSION == "release"]; then
             apt-get install -y curl
             curl ${{ secrets.JENKINS_RELEASE_URL }}
