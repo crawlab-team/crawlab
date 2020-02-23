@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -28,7 +27,6 @@ func (cm *ChanMap) ChanBlocked(key string) chan string {
 	if ch, ok := cm.m.Load(key); ok {
 		return ch.(interface{}).(chan string)
 	}
-	fmt.Println("@@####@@@@#@####$@@#")
 	ch := make(chan string)
 	cm.m.Store(key, ch)
 	return ch
