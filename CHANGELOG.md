@@ -5,6 +5,7 @@
 - **Long Task Support**. Users can add long-task spiders which is supposed to run without finishing. [#425](https://github.com/crawlab-team/crawlab/issues/425)
 - **Spider List Optimization**. Tasks count by status, tasks detail popup, legend. [#425](https://github.com/crawlab-team/crawlab/issues/425)
 - **Upgrade Check**. Check latest version and notifiy users to upgrade.
+- **Spiders Batch Operation**. Allow users to run/stop spider tasks and delete spiders in batches.
 
 ### Bug Fixes
 
