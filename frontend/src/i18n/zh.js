@@ -252,6 +252,8 @@ export default {
   'Error Count': '错误数',
   'Log with errors': '日志错误',
   'Empty results': '空结果',
+  'Navigate to Spider': '导航到爬虫',
+  'Navigate to Node': '导航到节点',
 
   // 任务列表
   'Node': '节点',

@@ -51,3 +51,10 @@ jobs:
 
           docker tag image $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+
+      - name: Deploy
+        run: |
+          if [ $VERSION == "release"]; then
+            apt-get install -y curl
+            curl ${{ secrets.JENKINS_RELEASE_URL }}
+          fi
