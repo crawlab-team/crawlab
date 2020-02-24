@@ -289,6 +289,8 @@ export default {
   '[minute] [hour] [day] [month] [day of week]': '[分] [时] [天] [月] [星期几]',
   'Enable/Disable': '启用/禁用',
   'Cron': 'Cron',
+  'Cron Expression': 'Cron 表达式',
+  'Cron expression is invalid': 'Cron 表达式不正确',
 
   // 网站
   'Site': '网站',
@@ -407,6 +409,7 @@ export default {
   'Release Note': '发布记录',
   'How to Upgrade': '升级方式',
   'Release': '发布',
+  'Add Wechat to join discussion group': '添加微信 tikazyq1 加入交流群',
 
   // 登录
   'Sign in': '登录',

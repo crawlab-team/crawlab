@@ -27,13 +27,16 @@
       :title="$t(dialogTitle)"
       :visible.sync="dialogVisible"
       width="640px"
-      :before-close="onDialogClose">
-      <el-form label-width="180px"
-               class="add-form"
-               :model="scheduleForm"
-               :inline-message="true"
-               ref="scheduleForm"
-               label-position="right">
+      :before-close="onDialogClose"
+    >
+      <el-form
+        label-width="180px"
+        class="add-form"
+        :model="scheduleForm"
+        :inline-message="true"
+        ref="scheduleForm"
+        label-position="right"
+      >
         <el-form-item :label="$t('Schedule Name')" prop="name" required>
           <el-input id="schedule-name" v-model="scheduleForm.name" :placeholder="$t('Schedule Name')"></el-input>
         </el-form-item>
@@ -62,6 +65,7 @@
             :placeholder="$t('Spider')"
             filterable
             :disabled="isDisabledSpiderSchedule"
+            @change="onSpiderChange"
           >
             <el-option
               v-for="op in spiderList"
@@ -111,21 +115,23 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('Cron')" prop="cron" required>
-          <el-popover v-model="isShowCron" trigger="focus">
-            <template>
-              <vue-cron-linux :data="scheduleForm.cron" :i18n="lang" @change="onCronChange"/>
-            </template>
-            <template slot="reference">
-              <el-input
-                id="cron"
-                ref="cron"
-                v-model="scheduleForm.cron"
-                :placeholder="`${$t('[minute] [hour] [day] [month] [day of week]')}`"
-              >
-              </el-input>
-            </template>
-          </el-popover>
-          <!--<el-button size="small" style="width:100px" type="primary" @click="onShowCronDialog">{{$t('schedules.add_cron')}}</el-button>-->
+          <el-input
+            class="cron"
+            ref="cron"
+            v-model="scheduleForm.cron"
+            :placeholder="`${$t('[minute] [hour] [day] [month] [day of week]')}`"
+            style="width: calc(100% - 100px)"
+          >
+          </el-input>
+          <el-button
+            class="cron-edit"
+            type="primary"
+            icon="el-icon-edit"
+            style="width: 100px"
+            @click="onShowCronDialog"
+          >
+            {{$t('Edit')}}
+          </el-button>
         </el-form-item>
         <el-form-item :label="$t('Execute Command')" prop="cmd">
           <el-input
@@ -157,9 +163,14 @@
     </el-dialog>
 
     <!--cron generation popup-->
-    <!--<el-dialog title="生成 Cron" :visible.sync="showCron">-->
-    <!--<vcrontab @hide="showCron=false" @fill="onCrontabFill" :expression="expression"></vcrontab>-->
-    <!--</el-dialog>-->
+    <el-dialog title="生成 Cron" :visible.sync="cronDialogVisible">
+      <vue-cron-linux ref="vue-cron-linux" :data="scheduleForm.cron" :i18n="lang" @submit="onCronChange"/>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="small" @click="cronDialogVisible = false">{{$t('Cancel')}}</el-button>
+        <el-button size="small" type="primary" @click="onCronDialogSubmit">{{$t('Confirm')}}</el-button>
+      </span>
+    </el-dialog>
+    <!--./cron generation popup-->
 
     <el-card style="border-radius: 0" class="schedule-list">
       <!--filter-->
@@ -286,7 +297,7 @@ export default {
       isEdit: false,
       dialogTitle: '',
       dialogVisible: false,
-      showCron: false,
+      cronDialogVisible: false,
       expression: '',
       spiderList: [],
       nodeList: [],
@@ -556,12 +567,29 @@ export default {
       this.$set(this.scheduleForm, 'cron', value)
       this.$st.sendEv('定时任务', '配置Cron')
     },
+    onCronDialogSubmit () {
+      const valid = this.$refs['vue-cron-linux'].submit()
+      if (valid) {
+        this.cronDialogVisible = false
+      }
+    },
     onOpenParameters () {
       this.isParametersVisible = true
     },
     onParametersConfirm (value) {
       this.scheduleForm.param = value
       this.isParametersVisible = false
+    },
+    async onSpiderChange (spiderId) {
+      await this.$store.dispatch('spider/getSpiderData', spiderId)
+      if (this.spiderForm.type === 'customized' && this.spiderForm.is_scrapy) {
+        this.$set(this.scheduleForm, 'scrapy_spider', this.spiderForm.spider_names[0])
+        this.$set(this.scheduleForm, 'scrapy_log_level', 'INFO')
+      }
+    },
+    onShowCronDialog () {
+      this.cronDialogVisible = true
+      this.$st.sendEv('定时任务', '点击编辑Cron')
     }
   },
   created () {
@@ -623,6 +651,22 @@ export default {
 
   .schedule-list >>> .param-btn {
     width: 56px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .cron {
+    width: calc(100% - 100px);
+  }
+
+  .cron >>> .el-input__inner {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+  }
+
+  .cron-edit {
+    width: 100px;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
