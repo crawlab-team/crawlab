@@ -219,6 +219,7 @@ export default {
         this.isGitSyncLoading = false
         await this.$store.dispatch('spider/getSpiderData', this.$route.params.id)
       }
+      this.$st.sendEv('爬虫详情', 'Git 设置', '同步')
     },
     onReset () {
       this.$confirm(
@@ -235,11 +236,13 @@ export default {
             const res = await this.$request.post(`/spiders/${this.spiderForm._id}/git/reset`)
             if (!res.data.error) {
               this.$message.success(this.$t('Git has been reset successfully'))
+              this.$st.sendEv('爬虫详情', 'Git 设置', '确认重置')
             }
           } finally {
             this.isGitResetLoading = false
           }
         })
+      this.$st.sendEv('爬虫详情', 'Git 设置', '点击重置')
     },
     async getSshPublicKey () {
       const res = await this.$request.get('/git/public-key')
@@ -251,6 +254,7 @@ export default {
       el.setSelectionRange(0, this.sshPublicKey.length)
       document.execCommand('copy')
       this.$message.success(this.$t('SSH Public Key is copied to the clipboard'))
+      this.$st.sendEv('爬虫详情', 'Git 设置', '拷贝 SSH 公钥')
     }
   },
   async created () {
