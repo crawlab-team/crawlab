@@ -1,4 +1,4 @@
-# 0.4.7 (unknown)
+# 0.4.7 (2020-02-24)
 ### 功能 / 优化
 - **更好的支持 Scrapy**. 爬虫识别，`settings.py` 配置，日志级别选择，爬虫选择. [#435](https://github.com/crawlab-team/crawlab/issues/435)
 - **Git 同步**. 允许用户将 Git 项目同步到 Crawlab.

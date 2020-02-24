@@ -1,4 +1,4 @@
-# 0.4.7 (unknown)
+# 0.4.7 (2020-02-24)
 ### Features / Enhancement
 - **Better Support for Scrapy**. Spiders identification, `settings.py` configuration, log level selection, spider selection. [#435](https://github.com/crawlab-team/crawlab/issues/435)
 - **Git Sync**. Allow users to sync git projects to Crawlab.
