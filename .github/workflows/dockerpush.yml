@@ -58,6 +58,5 @@ jobs:
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
           if [ "$VERSION" == "release" ]; then
-            apt-get install -y curl
             curl ${{ secrets.JENKINS_RELEASE_URL }}
           fi
