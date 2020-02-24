@@ -71,11 +71,11 @@ export default {
   methods: {
     onNavigateToSpider () {
       this.$router.push(`/spiders/${this.spiderForm._id}`)
-      this.$st.sendEv('任务详情', '概览', '点击节点详情')
+      this.$st.sendEv('任务详情', '概览', '点击爬虫详情')
     },
     onNavigateToNode () {
       this.$router.push(`/nodes/${this.nodeForm._id}`)
-      this.$st.sendEv('任务详情', '概览', '点击爬虫详情')
+      this.$st.sendEv('任务详情', '概览', '点击节点详情')
     }
   },
   created () {
