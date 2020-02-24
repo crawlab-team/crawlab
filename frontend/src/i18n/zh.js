@@ -289,6 +289,8 @@ export default {
   '[minute] [hour] [day] [month] [day of week]': '[分] [时] [天] [月] [星期几]',
   'Enable/Disable': '启用/禁用',
   'Cron': 'Cron',
+  'Cron Expression': 'Cron 表达式',
+  'Cron expression is invalid': 'Cron 表达式不正确',
 
   // 网站
   'Site': '网站',
