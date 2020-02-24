@@ -9,6 +9,7 @@
 - **Copy Spiders**. Allow users to copy an existing spider to create a new one.
 
 ### Bug Fixes
+- **Schedule Spider Selection Issue**. Fields not responding to spider change.
 
 # 0.4.6 (2020-02-13)
 ### Features / Enhancement
