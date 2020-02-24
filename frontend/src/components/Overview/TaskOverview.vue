@@ -1,28 +1,48 @@
 <template>
-  <el-row>
-    <el-col :span="12" style="padding-right: 20px;">
-      <el-row class="task-info-overview-wrapper wrapper">
-        <h4 class="title">{{$t('Task Info')}}</h4>
-        <task-info-view @click-log="() => $emit('click-log')"/>
-      </el-row>
-      <el-row style="border-bottom:1px solid #e4e7ed;margin:0 0 20px 0;padding-bottom:20px;"/>
-    </el-col>
+  <div class="task-overview">
+    <el-row class="action-wrapper">
+      <el-button
+        type="primary"
+        size="small"
+        icon="el-icon-position"
+        @click="onNavigateToSpider"
+      >
+        {{$t('Navigate to Spider')}}
+      </el-button>
+      <el-button
+        type="warning"
+        size="small"
+        icon="el-icon-position"
+        @click="onNavigateToNode"
+      >
+        {{$t('Navigate to Node')}}
+      </el-button>
+    </el-row>
+    <el-row class="content">
+      <el-col :span="12" style="padding-right: 20px;">
+        <el-row class="task-info-overview-wrapper wrapper">
+          <h4 class="title">{{$t('Task Info')}}</h4>
+          <task-info-view @click-log="() => $emit('click-log')"/>
+        </el-row>
+        <el-row style="border-bottom:1px solid #e4e7ed;margin:0 0 20px 0;padding-bottom:20px;"/>
+      </el-col>
 
-    <el-col :span="12">
-      <el-row class="task-info-spider-wrapper wrapper">
-        <h4 class="title spider-title" @click="onClickSpiderTitle">
-          <i class="fa fa-search" style="margin-right: 5px"></i>
-          {{$t('Spider Info')}}</h4>
-        <spider-info-view :is-view="true"/>
-      </el-row>
-      <el-row class="task-info-node-wrapper wrapper">
-        <h4 class="title node-title" @click="onClickNodeTitle">
-          <i class="fa fa-search" style="margin-right: 5px"></i>
-          {{$t('Node Info')}}</h4>
-        <node-info-view :is-view="true"/>
-      </el-row>
-    </el-col>
-  </el-row>
+      <el-col :span="12">
+        <el-row class="task-info-spider-wrapper wrapper">
+          <h4 class="title spider-title" @click="onNavigateToSpider">
+            <i class="fa fa-search" style="margin-right: 5px"></i>
+            {{$t('Spider Info')}}</h4>
+          <spider-info-view :is-view="true"/>
+        </el-row>
+        <el-row class="task-info-node-wrapper wrapper">
+          <h4 class="title node-title" @click="onNavigateToNode">
+            <i class="fa fa-search" style="margin-right: 5px"></i>
+            {{$t('Node Info')}}</h4>
+          <node-info-view :is-view="true"/>
+        </el-row>
+      </el-col>
+    </el-row>
+  </div>
 </template>
 
 <script>
@@ -40,11 +60,6 @@ export default {
     SpiderInfoView,
     TaskInfoView
   },
-  data () {
-    return {
-      // spiderForm: {}
-    }
-  },
   computed: {
     ...mapState('node', [
       'nodeForm'
@@ -54,13 +69,13 @@ export default {
     ])
   },
   methods: {
-    onClickNodeTitle () {
-      this.$router.push(`/nodes/${this.nodeForm._id}`)
-      this.$st.sendEv('任务详情', '概览', '点击节点详情')
-    },
-    onClickSpiderTitle () {
+    onNavigateToSpider () {
       this.$router.push(`/spiders/${this.spiderForm._id}`)
       this.$st.sendEv('任务详情', '概览', '点击爬虫详情')
+    },
+    onNavigateToNode () {
+      this.$router.push(`/nodes/${this.nodeForm._id}`)
+      this.$st.sendEv('任务详情', '概览', '点击节点详情')
     }
   },
   created () {
@@ -101,5 +116,15 @@ export default {
 
   .title > i {
     color: grey;
+  }
+
+  .content {
+    margin-top: 10px;
+  }
+
+  .action-wrapper {
+    text-align: right;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #DCDFE6;
   }
 </style>

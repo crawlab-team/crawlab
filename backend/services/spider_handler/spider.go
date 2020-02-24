@@ -1,6 +1,7 @@
 package spider_handler
 
 import (
+	"crawlab/constants"
 	"crawlab/database"
 	"crawlab/model"
 	"crawlab/utils"
@@ -12,6 +13,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"runtime/debug"
 )
@@ -39,10 +41,30 @@ func (s *SpiderSync) CreateMd5File(md5 string) {
 	}
 }
 
+func (s *SpiderSync) CheckIsScrapy() {
+	if s.Spider.Type == constants.Configurable {
+		return
+	}
+	s.Spider.IsScrapy = utils.Exists(path.Join(s.Spider.Src, "scrapy.cfg"))
+	// TODO: 暂时停用自动检测Scrapy项目功能
+	//if err := s.Spider.Save(); err != nil {
+	//	log.Errorf(err.Error())
+	//	debug.PrintStack()
+	//	return
+	//}
+}
+
+func (s *SpiderSync) AfterRemoveDownCreate() {
+	if model.IsMaster() {
+		s.CheckIsScrapy()
+	}
+}
+
 func (s *SpiderSync) RemoveDownCreate(md5 string) {
 	s.RemoveSpiderFile()
 	s.Download()
 	s.CreateMd5File(md5)
+	s.AfterRemoveDownCreate()
 }
 
 // 获得下载锁的key

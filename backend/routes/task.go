@@ -118,7 +118,7 @@ func PutTask(c *gin.Context) {
 				UserId:   services.GetCurrentUser(c).Id,
 			}
 
-			id, err := services.AddTask(t);
+			id, err := services.AddTask(t)
 			if err != nil {
 				HandleError(http.StatusInternalServerError, c, err)
 				return
@@ -133,7 +133,7 @@ func PutTask(c *gin.Context) {
 			Param:    reqBody.Param,
 			UserId:   services.GetCurrentUser(c).Id,
 		}
-		id, err := services.AddTask(t);
+		id, err := services.AddTask(t)
 		if err != nil {
 			HandleError(http.StatusInternalServerError, c, err)
 			return
@@ -149,7 +149,7 @@ func PutTask(c *gin.Context) {
 				UserId:   services.GetCurrentUser(c).Id,
 			}
 
-			id, err := services.AddTask(t);
+			id, err := services.AddTask(t)
 			if err != nil {
 				HandleError(http.StatusInternalServerError, c, err)
 				return
@@ -183,7 +183,7 @@ func DeleteTaskByStatus(c *gin.Context) {
 }
 
 // 删除多个任务
-func DeleteMultipleTask(c *gin.Context) {
+func DeleteSelectedTask(c *gin.Context) {
 	ids := make(map[string][]string)
 	if err := c.ShouldBindJSON(&ids); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)

@@ -22,11 +22,22 @@
       <el-tab-pane :label="$t('Overview')" name="overview">
         <spider-overview/>
       </el-tab-pane>
+      <el-tab-pane v-if="isGit" :label="$t('Git Settings')" name="git-settings">
+        <git-settings/>
+      </el-tab-pane>
+      <el-tab-pane v-if="isScrapy" :label="$t('Scrapy Settings')" name="scrapy-settings">
+        <spider-scrapy
+          @click-spider="onClickScrapySpider"
+          @click-pipeline="onClickScrapyPipeline"
+        />
+      </el-tab-pane>
       <el-tab-pane v-if="isConfigurable" :label="$t('Config')" name="config">
         <config-list ref="config"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Files')" name="files">
-        <file-list/>
+        <file-list
+          ref="file-list"
+        />
       </el-tab-pane>
       <el-tab-pane :label="$t('Environment')" name="environment">
         <environment-list/>
@@ -51,10 +62,14 @@ import EnvironmentList from '../../components/Environment/EnvironmentList'
 import SpiderStats from '../../components/Stats/SpiderStats'
 import ConfigList from '../../components/Config/ConfigList'
 import SpiderSchedules from './SpiderSchedules'
+import SpiderScrapy from '../../components/Scrapy/SpiderScrapy'
+import GitSettings from '../../components/Settings/GitSettings'
 
 export default {
   name: 'SpiderDetail',
   components: {
+    GitSettings,
+    SpiderScrapy,
     SpiderSchedules,
     ConfigList,
     SpiderStats,
@@ -64,9 +79,6 @@ export default {
   },
   watch: {
     activeTabName () {
-      // 初始化文件
-      this.$store.commit('file/SET_FILE_CONTENT', '')
-      this.$store.commit('file/SET_CURRENT_PATH', '')
     }
   },
   data () {
@@ -155,7 +167,8 @@ export default {
           }
           this.$utils.tour.nextStep('spider-detail', currentStep)
         }
-      }
+      },
+      redirectType: ''
     }
   },
   computed: {
@@ -174,10 +187,16 @@ export default {
     },
     isConfigurable () {
       return this.spiderForm.type === 'configurable'
+    },
+    isScrapy () {
+      return this.isCustomized && this.spiderForm.is_scrapy
+    },
+    isGit () {
+      return this.spiderForm.is_git
     }
   },
   methods: {
-    onTabClick (tab) {
+    async onTabClick (tab) {
       if (this.activeTabName === 'analytics') {
         setTimeout(() => {
           this.$refs['spider-stats'].update()
@@ -193,18 +212,40 @@ export default {
             this.$st.sendEv('教程', '开始', 'spider-detail-config')
           }, 100)
         }
+      } else if (this.activeTabName === 'scrapy-settings') {
+        await this.getScrapyData()
+      } else if (this.activeTabName === 'files') {
+        await this.$store.dispatch('spider/getFileTree')
+        if (this.currentPath) {
+          await this.$store.dispatch('file/getFileContent', { path: this.currentPath })
+        }
       }
       this.$st.sendEv('爬虫详情', '切换标签', tab.name)
     },
     onSpiderChange (id) {
       this.$router.push(`/spiders/${id}`)
       this.$st.sendEv('爬虫详情', '切换爬虫')
+    },
+    async getScrapyData () {
+      await Promise.all([
+        this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id),
+        this.$store.dispatch('spider/getSpiderScrapyItems', this.$route.params.id),
+        this.$store.dispatch('spider/getSpiderScrapySettings', this.$route.params.id),
+        this.$store.dispatch('spider/getSpiderScrapyPipelines', this.$route.params.id)
+      ])
+    },
+    async onClickScrapySpider (filepath) {
+      this.activeTabName = 'files'
+      await this.$store.dispatch('spider/getFileTree')
+      this.$refs['file-list'].clickSpider(filepath)
+    },
+    async onClickScrapyPipeline () {
+      this.activeTabName = 'files'
+      await this.$store.dispatch('spider/getFileTree')
+      this.$refs['file-list'].clickPipeline()
     }
   },
   async created () {
-    // get the list of the spiders
-    // this.$store.dispatch('spider/getSpiderList')
-
     // get spider basic info
     await this.$store.dispatch('spider/getSpiderData', this.$route.params.id)
 
@@ -216,11 +257,6 @@ export default {
 
     // get spider list
     await this.$store.dispatch('spider/getSpiderList')
-
-    // if spider is configurable spider, set to config tab by default
-    // if (this.spiderForm.type === 'configurable') {
-    // this.activeTabName = 'config'
-    // }
   },
   mounted () {
     if (!this.$utils.tour.isFinishedTour('spider-detail')) {

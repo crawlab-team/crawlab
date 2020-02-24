@@ -37,13 +37,32 @@ type Spider struct {
 	// 自定义爬虫
 	Cmd string `json:"cmd" bson:"cmd"` // 执行命令
 
+	// Scrapy 爬虫（属于自定义爬虫）
+	IsScrapy    bool     `json:"is_scrapy" bson:"is_scrapy"`       // 是否为 Scrapy 爬虫
+	SpiderNames []string `json:"spider_names" bson:"spider_names"` // 爬虫名称列表
+
 	// 可配置爬虫
 	Template string `json:"template" bson:"template"` // Spiderfile模版
 
+	// Git 设置
+	IsGit            bool   `json:"is_git" bson:"is_git"`                         // 是否为 Git
+	GitUrl           string `json:"git_url" bson:"git_url"`                       // Git URL
+	GitBranch        string `json:"git_branch" bson:"git_branch"`                 // Git 分支
+	GitHasCredential bool   `json:"git_has_credential" bson:"git_has_credential"` // Git 是否加密
+	GitUsername      string `json:"git_username" bson:"git_username"`             // Git 用户名
+	GitPassword      string `json:"git_password" bson:"git_password"`             // Git 密码
+	GitAutoSync      bool   `json:"git_auto_sync" bson:"git_auto_sync"`           // Git 是否自动同步
+	GitSyncFrequency string `json:"git_sync_frequency" bson:"git_sync_frequency"` // Git 同步频率
+	GitSyncError     string `json:"git_sync_error" bson:"git_sync_error"`         // Git 同步错误
+
+	// 长任务
+	IsLongTask bool `json:"is_long_task" bson:"is_long_task"` // 是否为长任务
+
 	// 前端展示
-	LastRunTs  time.Time               `json:"last_run_ts"` // 最后一次执行时间
-	LastStatus string                  `json:"last_status"` // 最后执行状态
-	Config     entity.ConfigSpiderData `json:"config"`      // 可配置爬虫配置
+	LastRunTs   time.Time               `json:"last_run_ts"`  // 最后一次执行时间
+	LastStatus  string                  `json:"last_status"`  // 最后执行状态
+	Config      entity.ConfigSpiderData `json:"config"`       // 可配置爬虫配置
+	LatestTasks []Task                  `json:"latest_tasks"` // 最近任务列表
 
 	// 时间
 	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
@@ -109,6 +128,18 @@ func (spider *Spider) GetLastTask() (Task, error) {
 	return tasks[0], nil
 }
 
+// 爬虫正在运行的任务
+func (spider *Spider) GetLatestTasks(latestN int) (tasks []Task, err error) {
+	tasks, err = GetTaskList(bson.M{"spider_id": spider.Id}, 0, latestN, "-create_ts")
+	if err != nil {
+		return tasks, err
+	}
+	if tasks == nil {
+		return tasks, err
+	}
+	return tasks, nil
+}
+
 // 删除爬虫
 func (spider *Spider) Delete() error {
 	s, c := database.GetCol("spiders")
@@ -142,14 +173,32 @@ func GetSpiderList(filter interface{}, skip int, limit int, sortStr string) ([]S
 			continue
 		}
 
+		// 获取正在运行的爬虫
+		latestTasks, err := spider.GetLatestTasks(50) // TODO: latestN 暂时写死，后面加入数据库
+		if err != nil {
+			log.Errorf(err.Error())
+			debug.PrintStack()
+			continue
+		}
+
 		// 赋值
 		spiders[i].LastRunTs = task.CreateTs
 		spiders[i].LastStatus = task.Status
+		spiders[i].LatestTasks = latestTasks
 	}
 
 	count, _ := c.Find(filter).Count()
 
 	return spiders, count, nil
+}
+
+// 获取所有爬虫列表
+func GetSpiderAllList(filter interface{}) (spiders []Spider, err error) {
+	spiders, _, err = GetSpiderList(filter, 0, constants.Infinite, "_id")
+	if err != nil {
+		return spiders, err
+	}
+	return spiders, nil
 }
 
 // 获取爬虫(根据FileId)
@@ -230,6 +279,8 @@ func RemoveSpider(id bson.ObjectId) error {
 
 	var result Spider
 	if err := c.FindId(id).One(&result); err != nil {
+		log.Errorf("find spider error: %s, id:%s", err.Error(), id.Hex())
+		debug.PrintStack()
 		return err
 	}
 
@@ -242,12 +293,10 @@ func RemoveSpider(id bson.ObjectId) error {
 	// gf上的文件
 	s, gf := database.GetGridFs("files")
 	defer s.Close()
-
 	if result.FileId.Hex() != constants.ObjectIdNull {
 		if err := gf.RemoveId(result.FileId); err != nil {
 			log.Error("remove file error, id:" + result.FileId.Hex())
 			debug.PrintStack()
-			return err
 		}
 	}
 

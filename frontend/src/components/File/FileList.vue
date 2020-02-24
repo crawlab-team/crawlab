@@ -25,8 +25,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="fileDialogVisible = false">{{$t('Cancel')}}</el-button>
-        <el-button type="primary" @click="onAddFile">{{$t('Confirm')}}</el-button>
+        <el-button size="small" @click="fileDialogVisible = false">{{$t('Cancel')}}</el-button>
+        <el-button size="small" type="primary" @click="onAddFile">{{$t('Confirm')}}</el-button>
       </span>
     </el-dialog>
 
@@ -197,7 +197,8 @@ export default {
       ignoreFileRegexList: [
         '__pycache__',
         'md5.txt',
-        '.pyc'
+        '.pyc',
+        '.git'
       ],
       activeFileNode: {},
       dirDialogVisible: false,
@@ -408,6 +409,33 @@ export default {
       this.isShowDelete = false
       this.showFile = false
       this.$st.sendEv('爬虫详情', '文件', '删除')
+    },
+    clickSpider (filepath) {
+      const node = this.$refs['tree'].getNode(filepath)
+      const data = node.data
+      this.onFileClick(data)
+      node.parent.expanded = true
+      this.$set(this.nodeExpandedDict, node.parent.data.path, true)
+      node.parent.parent.expanded = true
+      this.$set(this.nodeExpandedDict, node.parent.parent.data.path, true)
+    },
+    clickPipeline () {
+      const filename = 'pipelines.py'
+      for (let i = 0; i < this.computedFileTree.length; i++) {
+        const dataLv1 = this.computedFileTree[i]
+        const nodeLv1 = this.$refs['tree'].getNode(dataLv1.path)
+        if (dataLv1.is_dir) {
+          for (let j = 0; j < dataLv1.children.length; j++) {
+            const dataLv2 = dataLv1.children[j]
+            if (dataLv2.path.match(filename)) {
+              this.onFileClick(dataLv2)
+              nodeLv1.expanded = true
+              this.$set(this.nodeExpandedDict, dataLv1.path, true)
+              return
+            }
+          }
+        }
+      }
     }
   },
   async created () {

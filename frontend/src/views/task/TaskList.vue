@@ -29,10 +29,12 @@
             <el-form-item prop="status" :label="$t('Status')">
               <el-select v-model="filter.status" size="small" :placeholder="$t('Status')" @change="onFilterChange">
                 <el-option value="" :label="$t('All')"></el-option>
-                <el-option value="finished" :label="$t('Finished')"></el-option>
+                <el-option value="pending" :label="$t('Pending')"></el-option>
                 <el-option value="running" :label="$t('Running')"></el-option>
+                <el-option value="finished" :label="$t('Finished')"></el-option>
                 <el-option value="error" :label="$t('Error')"></el-option>
                 <el-option value="cancelled" :label="$t('Cancelled')"></el-option>
+                <el-option value="abnormal" :label="$t('Abnormal')"></el-option>
               </el-select>
             </el-form-item>
           </el-form>
@@ -45,17 +47,22 @@
       </div>
       <!--./filter-->
 
+      <!--legend-->
+      <status-legend/>
+      <!--./legend-->
+
       <!--table list-->
-      <el-table :data="filteredTableData"
-                ref="table"
-                class="table"
-                :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
-                border
-                row-key="_id"
-                @row-click="onRowClick"
-                @selection-change="onSelectionChange">
+      <el-table
+        :data="filteredTableData"
+        ref="table"
+        class="table"
+        :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
+        border
+        row-key="_id"
+        @row-click="onRowClick"
+        @selection-change="onSelectionChange"
       >
-        <el-table-column type="selection" width="55" reserve-selection/>
+        <el-table-column type="selection" width="45" align="center" reserve-selection/>
         <template v-for="col in columns">
           <el-table-column v-if="col.name === 'spider_name'"
                            :key="col.name"
@@ -142,7 +149,8 @@
               <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
             </el-tooltip>
             <el-tooltip :content="$t('Remove')" placement="top">
-              <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row, $event)"></el-button>
+              <el-button type="danger" icon="el-icon-delete" size="mini"
+                         @click="onRemove(scope.row, $event)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -169,10 +177,11 @@ import {
 } from 'vuex'
 import dayjs from 'dayjs'
 import StatusTag from '../../components/Status/StatusTag'
+import StatusLegend from '../../components/Status/StatusLegend'
 
 export default {
   name: 'TaskList',
-  components: { StatusTag },
+  components: { StatusLegend, StatusTag },
   data () {
     return {
       // setInterval handle
@@ -326,7 +335,8 @@ export default {
             message: resp.data.error
           })
         })
-      }).catch(() => {})
+      }).catch(() => {
+      })
     },
     onRemove (row, ev) {
       ev.stopPropagation()

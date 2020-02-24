@@ -39,6 +39,7 @@ export default {
   Error: '错误',
   NA: '未知',
   Cancelled: '已取消',
+  Abnormal: '异常',
 
   // 操作
   Add: '添加',
@@ -73,6 +74,13 @@ export default {
   'Create File': '新建文件',
   'Add Node': '添加节点',
   'Add Project': '添加项目',
+  'Sync': '同步',
+  'Auto Sync': '自动同步',
+  'Sync Frequency': '同步频率',
+  'Reset': '重置',
+  'Copy': '复制',
+  'Upgrade': '版本升级',
+  'Ok': '确定',
 
   // 主页
   'Total Tasks': '总任务数',
@@ -182,6 +190,38 @@ export default {
   'Settings': '设置',
   'Display Name': '显示名称',
   'Template': '模版',
+  'Is Scrapy': '是否为 Scrapy',
+  'Scrapy Spider': 'Scrapy 爬虫',
+  'Scrapy Spiders': 'Scrapy 爬虫',
+  'Scrapy Log Level': 'Scrapy 日志等级',
+  'Parameter Name': '参数名',
+  'Parameter Value': '参数值',
+  'Parameter Type': '参数类别',
+  'Other': '其他',
+  'Scrapy Config': 'Scrapy 配置',
+  'Scrapy Settings': 'Scrapy 设置',
+  'Variable Name': '变量名',
+  'Variable Type': '变量类型',
+  'Variable Value': '变量值',
+  'Parameter Edit': '参数编辑',
+  'Add Scrapy Spider': '添加 Scrapy 爬虫',
+  'Is Git': '是否为 Git',
+  'Git Settings': 'Git 设置',
+  'Git URL': 'Git URL',
+  'Git Branch': 'Git 分支',
+  'Git Username': 'Git 用户名',
+  'Git Password': 'Git 密码',
+  'Has Credential': '需要验证',
+  'SSH Public Key': 'SSH 公钥',
+  'Is Long Task': '是否为长任务',
+  'Long Task': '长任务',
+  'Running Task Count': '运行中的任务数',
+  'Running Tasks': '运行中的任务',
+  'Item Name': 'Item 名称',
+  'Add Item': '添加 Item',
+  'Add Variable': '添加变量',
+  'Copy Spider': '复制爬虫',
+  'New Spider Name': '新爬虫名称',
 
   // 爬虫列表
   'Name': '名称',
@@ -214,6 +254,8 @@ export default {
   'Error Count': '错误数',
   'Log with errors': '日志错误',
   'Empty results': '空结果',
+  'Navigate to Spider': '导航到爬虫',
+  'Navigate to Node': '导航到节点',
 
   // 任务列表
   'Node': '节点',
@@ -247,6 +289,8 @@ export default {
   '[minute] [hour] [day] [month] [day of week]': '[分] [时] [天] [月] [星期几]',
   'Enable/Disable': '启用/禁用',
   'Cron': 'Cron',
+  'Cron Expression': 'Cron 表达式',
+  'Cron expression is invalid': 'Cron 表达式不正确',
 
   // 网站
   'Site': '网站',
@@ -283,6 +327,13 @@ export default {
   User: '用户',
   Logout: '退出登录',
   Documentation: '文档',
+
+  // 变量类型
+  'String': '字符串',
+  'Number': '数字',
+  'Boolean': '布尔值',
+  'Array/List': '数组/列表',
+  'Object/Dict': '对象/字典',
 
   // 选择
   'Yes': '是',
@@ -355,6 +406,10 @@ export default {
   'New directory name': '新目录名称',
   'Enter new file name': '输入新文件名称',
   'New file name': '新文件名称',
+  'Release Note': '发布记录',
+  'How to Upgrade': '升级方式',
+  'Release': '发布',
+  'Add Wechat to join discussion group': '添加微信 tikazyq1 加入交流群',
 
   // 登录
   'Sign in': '登录',
@@ -506,6 +561,15 @@ docker run -d --restart always --name crawlab_worker \\
   'In this tab you can configure your notification settings.': '在这个标签中，您可以<br>配置您的消息通知配置',
   'Here you can add/edit/delete global environment variables which will be passed into your spider programs.': '这里您可以添加/修改/删除全局环境变量，它们会被传入爬虫程序中',
   'You are running on a mobile device, which is not optimized yet. Please try with a laptop or desktop.': '您正在没有优化过的移动端上浏览，我们建议您用电脑来访问',
+  'Git has been synchronized successfully': 'Git 已经成功同步',
+  'Git has been reset successfully': 'Git 已经成功重置',
+  'This would delete all files of the spider. Are you sure to continue?': '重置将删除该爬虫所有文件，您希望继续吗？',
+  'SSH Public Key is copied to the clipboard': 'SSH 公钥已粘贴到剪切板',
+  'Removed successfully': '已成功删除',
+  'Are you sure to delete selected items?': '您是否确认删除所选项？',
+  'Are you sure to stop selected items?': '您是否确认停止所选项？',
+  'Sent signals to cancel selected tasks': '已经向所选任务发送取消任务信号',
+  'Copied successfully': '已成功复制',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

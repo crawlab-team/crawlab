@@ -10,6 +10,15 @@ const state = {
   // active spider data
   spiderForm: {},
 
+  // spider scrapy settings
+  spiderScrapySettings: [],
+
+  // spider scrapy items
+  spiderScrapyItems: [],
+
+  // spider scrapy pipelines
+  spiderScrapyPipelines: [],
+
   // node to deploy/run
   activeNode: {},
 
@@ -92,6 +101,15 @@ const mutations = {
   },
   SET_FILE_TREE (state, value) {
     state.fileTree = value
+  },
+  SET_SPIDER_SCRAPY_SETTINGS (state, value) {
+    state.spiderScrapySettings = value
+  },
+  SET_SPIDER_SCRAPY_ITEMS (state, value) {
+    state.spiderScrapyItems = value
+  },
+  SET_SPIDER_SCRAPY_PIPELINES (state, value) {
+    state.spiderScrapyPipelines = value
   }
 }
 
@@ -116,6 +134,75 @@ const actions = {
         commit('SET_SPIDER_FORM', data)
       })
   },
+  async getSpiderScrapySpiders ({ state, commit }, id) {
+    const res = await request.get(`/spiders/${id}/scrapy/spiders`)
+    state.spiderForm.spider_names = res.data.data
+    commit('SET_SPIDER_FORM', state.spiderForm)
+  },
+  async getSpiderScrapySettings ({ state, commit }, id) {
+    const res = await request.get(`/spiders/${id}/scrapy/settings`)
+    commit('SET_SPIDER_SCRAPY_SETTINGS', res.data.data.map(d => {
+      const key = d.key
+      const value = d.value
+      let type = typeof value
+      if (type === 'object') {
+        if (Array.isArray(value)) {
+          type = 'array'
+        } else {
+          type = 'object'
+        }
+      }
+      return {
+        key,
+        value,
+        type
+      }
+    }))
+  },
+  async saveSpiderScrapySettings ({ state }, id) {
+    return request.post(`/spiders/${id}/scrapy/settings`, state.spiderScrapySettings)
+  },
+  async getSpiderScrapyItems ({ state, commit }, id) {
+    const res = await request.get(`/spiders/${id}/scrapy/items`)
+    let nodeId = 0
+    commit('SET_SPIDER_SCRAPY_ITEMS', res.data.data.map(d => {
+      d.id = nodeId++
+      d.label = d.name
+      d.level = 1
+      d.isEdit = false
+      d.children = d.fields.map(f => {
+        return {
+          id: nodeId++,
+          label: f,
+          level: 2,
+          isEdit: false
+        }
+      })
+      return d
+    }))
+  },
+  async saveSpiderScrapyItems ({ state }, id) {
+    return request.post(`/spiders/${id}/scrapy/items`, state.spiderScrapyItems.map(d => {
+      d.name = d.label
+      d.fields = d.children.map(f => f.label)
+      return d
+    }))
+  },
+  async getSpiderScrapyPipelines ({ state, commit }, id) {
+    const res = await request.get(`/spiders/${id}/scrapy/pipelines`)
+    commit('SET_SPIDER_SCRAPY_PIPELINES', res.data.data)
+  },
+  async saveSpiderScrapyPipelines ({ state }, id) {
+    return request.post(`/spiders/${id}/scrapy/pipelines`, state.spiderScrapyPipelines)
+  },
+  async getSpiderScrapySpiderFilepath ({ state, commit }, payload) {
+    const { id, spiderName } = payload
+    return request.get(`/spiders/${id}/scrapy/spider/filepath`, { spider_name: spiderName })
+  },
+  addSpiderScrapySpider ({ state }, payload) {
+    const { id, form } = payload
+    return request.put(`/spiders/${id}/scrapy/spiders`, form)
+  },
   crawlSpider ({ state, dispatch }, payload) {
     const { spiderId, runType, nodeIds, param } = payload
     return request.put(`/tasks`, {
@@ -123,6 +210,14 @@ const actions = {
       run_type: runType,
       node_ids: nodeIds,
       param: param
+    })
+  },
+  crawlSelectedSpiders ({ state, dispatch }, payload) {
+    const { taskParams, runType, nodeIds } = payload
+    return request.post(`/spiders-run`, {
+      task_params: taskParams,
+      run_type: runType,
+      node_ids: nodeIds
     })
   },
   getTaskList ({ state, commit }, id) {
