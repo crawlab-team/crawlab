@@ -409,6 +409,7 @@ export default {
   'Release Note': '发布记录',
   'How to Upgrade': '升级方式',
   'Release': '发布',
+  'Add Wechat to join discussion group': '添加微信 tikazyq1 加入交流群',
 
   // 登录
   'Sign in': '登录',

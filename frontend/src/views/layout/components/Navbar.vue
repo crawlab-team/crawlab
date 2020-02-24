@@ -61,6 +61,20 @@
         <span style="margin-left: 5px;">{{$t('Upgrade')}}</span>
       </el-badge>
     </div>
+    <el-popover
+      class="wechat right"
+      trigger="click"
+    >
+      <div style="margin-bottom: 5px">
+        <label>{{$t('Add Wechat to join discussion group')}}</label>
+      </div>
+      <div>
+        <img class="wechat-img" src="http://static-docs.crawlab.cn/wechat.jpg">
+      </div>
+      <div slot="reference">
+        <i class="fa fa-wechat"></i>
+      </div>
+    </el-popover>
     <div class="github right">
       <!-- Place this tag where you want the button to render. -->
       <github-button
@@ -277,6 +291,12 @@ docker-compose up -d
       }
     }
 
+    .wechat {
+      color: #606266;
+      margin-right: 35px;
+      cursor: pointer;
+    }
+
     .right {
       float: right
     }
@@ -285,5 +305,10 @@ docker-compose up -d
 <style scoped>
   .navbar >>> .el-dialog__body {
     padding-top: 0;
+  }
+</style>
+<style>
+  .wechat-img {
+    width: 240px;
   }
 </style>
