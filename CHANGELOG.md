@@ -1,4 +1,4 @@
-# 0.4.7 (unknown)
+# 0.4.7 (2020-02-24)
 ### Features / Enhancement
 - **Better Support for Scrapy**. Spiders identification, `settings.py` configuration, log level selection, spider selection. [#435](https://github.com/crawlab-team/crawlab/issues/435)
 - **Git Sync**. Allow users to sync git projects to Crawlab.
@@ -13,6 +13,7 @@
 - **Schedule Spider Selection Issue**. Fields not responding to spider change.
 - **Cron Jobs Conflict**. Possible bug when two spiders set to the same time of their cron jobs. [#515](https://github.com/crawlab-team/crawlab/issues/515) [#565](https://github.com/crawlab-team/crawlab/issues/565)
 - **Task Log Issue**. Different tasks write to the same log file if triggered at the same time. [#577](https://github.com/crawlab-team/crawlab/issues/577)
+- **Task List Filter Options Incomplete**.
 
 # 0.4.6 (2020-02-13)
 ### Features / Enhancement

@@ -1,4 +1,4 @@
-# 0.4.7 (unknown)
+# 0.4.7 (2020-02-24)
 ### 功能 / 优化
 - **更好的支持 Scrapy**. 爬虫识别，`settings.py` 配置，日志级别选择，爬虫选择. [#435](https://github.com/crawlab-team/crawlab/issues/435)
 - **Git 同步**. 允许用户将 Git 项目同步到 Crawlab.
@@ -13,6 +13,7 @@
 - **定时任务爬虫选择问题**. 字段不会随着爬虫变化而响应.
 - **定时任务冲突问题**. 两个不同的爬虫设置定时任务，时间设置成相同的话，可能会有bug. [#515](https://github.com/crawlab-team/crawlab/issues/515) [#565](https://github.com/crawlab-team/crawlab/issues/565)
 - **任务日志问题**. 在同一时间触发的不同任务可能会写入同一个日志文件. [#577](https://github.com/crawlab-team/crawlab/issues/577)
+- **任务列表筛选选项不全**.
 
 # 0.4.6 (2020-02-13)
 ### 功能 / 优化
