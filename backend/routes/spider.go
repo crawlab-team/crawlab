@@ -26,6 +26,8 @@ import (
 	"time"
 )
 
+// ======== 爬虫管理 ========
+
 func GetSpiderList(c *gin.Context) {
 	pageNum, _ := c.GetQuery("page_num")
 	pageSize, _ := c.GetQuery("page_size")
@@ -237,6 +239,50 @@ func PutSpider(c *gin.Context) {
 		Status:  "ok",
 		Message: "success",
 		Data:    spider,
+	})
+}
+
+func CopySpider(c *gin.Context) {
+	type ReqBody struct {
+		Name string `json:"name"`
+	}
+
+	id := c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+	}
+
+	var reqBody ReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+
+	// 检查新爬虫名称是否存在
+	// 如果存在，则返回错误
+	s := model.GetSpiderByName(reqBody.Name)
+	if s.Name != "" {
+		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("spider name '%s' already exists", reqBody.Name))
+		return
+	}
+
+	// 被复制爬虫
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 复制爬虫
+	if err := services.CopySpider(spider, reqBody.Name); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
 	})
 }
 
@@ -647,7 +693,151 @@ func GetSpiderTasks(c *gin.Context) {
 	})
 }
 
-// 爬虫文件管理
+func GetSpiderStats(c *gin.Context) {
+	type Overview struct {
+		TaskCount            int     `json:"task_count" bson:"task_count"`
+		ResultCount          int     `json:"result_count" bson:"result_count"`
+		SuccessCount         int     `json:"success_count" bson:"success_count"`
+		SuccessRate          float64 `json:"success_rate"`
+		TotalWaitDuration    float64 `json:"wait_duration" bson:"wait_duration"`
+		TotalRuntimeDuration float64 `json:"runtime_duration" bson:"runtime_duration"`
+		AvgWaitDuration      float64 `json:"avg_wait_duration"`
+		AvgRuntimeDuration   float64 `json:"avg_runtime_duration"`
+	}
+
+	type Data struct {
+		Overview Overview              `json:"overview"`
+		Daily    []model.TaskDailyItem `json:"daily"`
+	}
+
+	id := c.Param("id")
+
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		log.Errorf(err.Error())
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	s, col := database.GetCol("tasks")
+	defer s.Close()
+
+	// 起始日期
+	startDate := time.Now().Add(-time.Hour * 24 * 30)
+	endDate := time.Now()
+
+	// match
+	op1 := bson.M{
+		"$match": bson.M{
+			"spider_id": spider.Id,
+			"create_ts": bson.M{
+				"$gte": startDate,
+				"$lt":  endDate,
+			},
+		},
+	}
+
+	// project
+	op2 := bson.M{
+		"$project": bson.M{
+			"success_count": bson.M{
+				"$cond": []interface{}{
+					bson.M{
+						"$eq": []string{
+							"$status",
+							constants.StatusFinished,
+						},
+					},
+					1,
+					0,
+				},
+			},
+			"result_count":     "$result_count",
+			"wait_duration":    "$wait_duration",
+			"runtime_duration": "$runtime_duration",
+		},
+	}
+
+	// group
+	op3 := bson.M{
+		"$group": bson.M{
+			"_id":              nil,
+			"task_count":       bson.M{"$sum": 1},
+			"success_count":    bson.M{"$sum": "$success_count"},
+			"result_count":     bson.M{"$sum": "$result_count"},
+			"wait_duration":    bson.M{"$sum": "$wait_duration"},
+			"runtime_duration": bson.M{"$sum": "$runtime_duration"},
+		},
+	}
+
+	// run aggregation pipeline
+	var overview Overview
+	if err := col.Pipe([]bson.M{op1, op2, op3}).One(&overview); err != nil {
+		if err == mgo.ErrNotFound {
+			c.JSON(http.StatusOK, Response{
+				Status:  "ok",
+				Message: "success",
+				Data: Data{
+					Overview: overview,
+					Daily:    []model.TaskDailyItem{},
+				},
+			})
+			return
+		}
+		log.Errorf(err.Error())
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 后续处理
+	successCount, _ := strconv.ParseFloat(strconv.Itoa(overview.SuccessCount), 64)
+	taskCount, _ := strconv.ParseFloat(strconv.Itoa(overview.TaskCount), 64)
+	overview.SuccessRate = successCount / taskCount
+	overview.AvgWaitDuration = overview.TotalWaitDuration / taskCount
+	overview.AvgRuntimeDuration = overview.TotalRuntimeDuration / taskCount
+
+	items, err := model.GetDailyTaskStats(bson.M{"spider_id": spider.Id})
+	if err != nil {
+		log.Errorf(err.Error())
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data: Data{
+			Overview: overview,
+			Daily:    items,
+		},
+	})
+}
+
+func GetSpiderSchedules(c *gin.Context) {
+	id := c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "spider_id is invalid")
+		return
+	}
+
+	// 获取定时任务
+	list, err := model.GetScheduleList(bson.M{"spider_id": bson.ObjectIdHex(id)})
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    list,
+	})
+}
+
+// ======== ./爬虫管理 ========
+
+// ======== 爬虫文件管理 ========
 
 func GetSpiderDir(c *gin.Context) {
 	// 爬虫ID
@@ -946,147 +1136,9 @@ func RenameSpiderFile(c *gin.Context) {
 	})
 }
 
-func GetSpiderStats(c *gin.Context) {
-	type Overview struct {
-		TaskCount            int     `json:"task_count" bson:"task_count"`
-		ResultCount          int     `json:"result_count" bson:"result_count"`
-		SuccessCount         int     `json:"success_count" bson:"success_count"`
-		SuccessRate          float64 `json:"success_rate"`
-		TotalWaitDuration    float64 `json:"wait_duration" bson:"wait_duration"`
-		TotalRuntimeDuration float64 `json:"runtime_duration" bson:"runtime_duration"`
-		AvgWaitDuration      float64 `json:"avg_wait_duration"`
-		AvgRuntimeDuration   float64 `json:"avg_runtime_duration"`
-	}
+// ======== 爬虫文件管理 ========
 
-	type Data struct {
-		Overview Overview              `json:"overview"`
-		Daily    []model.TaskDailyItem `json:"daily"`
-	}
-
-	id := c.Param("id")
-
-	spider, err := model.GetSpider(bson.ObjectIdHex(id))
-	if err != nil {
-		log.Errorf(err.Error())
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	s, col := database.GetCol("tasks")
-	defer s.Close()
-
-	// 起始日期
-	startDate := time.Now().Add(-time.Hour * 24 * 30)
-	endDate := time.Now()
-
-	// match
-	op1 := bson.M{
-		"$match": bson.M{
-			"spider_id": spider.Id,
-			"create_ts": bson.M{
-				"$gte": startDate,
-				"$lt":  endDate,
-			},
-		},
-	}
-
-	// project
-	op2 := bson.M{
-		"$project": bson.M{
-			"success_count": bson.M{
-				"$cond": []interface{}{
-					bson.M{
-						"$eq": []string{
-							"$status",
-							constants.StatusFinished,
-						},
-					},
-					1,
-					0,
-				},
-			},
-			"result_count":     "$result_count",
-			"wait_duration":    "$wait_duration",
-			"runtime_duration": "$runtime_duration",
-		},
-	}
-
-	// group
-	op3 := bson.M{
-		"$group": bson.M{
-			"_id":              nil,
-			"task_count":       bson.M{"$sum": 1},
-			"success_count":    bson.M{"$sum": "$success_count"},
-			"result_count":     bson.M{"$sum": "$result_count"},
-			"wait_duration":    bson.M{"$sum": "$wait_duration"},
-			"runtime_duration": bson.M{"$sum": "$runtime_duration"},
-		},
-	}
-
-	// run aggregation pipeline
-	var overview Overview
-	if err := col.Pipe([]bson.M{op1, op2, op3}).One(&overview); err != nil {
-		if err == mgo.ErrNotFound {
-			c.JSON(http.StatusOK, Response{
-				Status:  "ok",
-				Message: "success",
-				Data: Data{
-					Overview: overview,
-					Daily:    []model.TaskDailyItem{},
-				},
-			})
-			return
-		}
-		log.Errorf(err.Error())
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	// 后续处理
-	successCount, _ := strconv.ParseFloat(strconv.Itoa(overview.SuccessCount), 64)
-	taskCount, _ := strconv.ParseFloat(strconv.Itoa(overview.TaskCount), 64)
-	overview.SuccessRate = successCount / taskCount
-	overview.AvgWaitDuration = overview.TotalWaitDuration / taskCount
-	overview.AvgRuntimeDuration = overview.TotalRuntimeDuration / taskCount
-
-	items, err := model.GetDailyTaskStats(bson.M{"spider_id": spider.Id})
-	if err != nil {
-		log.Errorf(err.Error())
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-		Data: Data{
-			Overview: overview,
-			Daily:    items,
-		},
-	})
-}
-
-func GetSpiderSchedules(c *gin.Context) {
-	id := c.Param("id")
-
-	if !bson.IsObjectIdHex(id) {
-		HandleErrorF(http.StatusBadRequest, c, "spider_id is invalid")
-		return
-	}
-
-	// 获取定时任务
-	list, err := model.GetScheduleList(bson.M{"spider_id": bson.ObjectIdHex(id)})
-	if err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, Response{
-		Status:  "ok",
-		Message: "success",
-		Data:    list,
-	})
-}
+// ======== Scrapy 部分 ========
 
 func GetSpiderScrapySpiders(c *gin.Context) {
 	id := c.Param("id")
@@ -1328,6 +1380,10 @@ func GetSpiderScrapySpiderFilepath(c *gin.Context) {
 	})
 }
 
+// ======== ./Scrapy 部分 ========
+
+// ======== Git 部分 ========
+
 func PostSpiderSyncGit(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1377,3 +1433,5 @@ func PostSpiderResetGit(c *gin.Context) {
 		Message: "success",
 	})
 }
+
+// ======== ./Git 部分 ========

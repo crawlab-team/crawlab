@@ -78,8 +78,6 @@
             <span style="margin-left: 5px">跳转到任务详情页</span>
           </div>
         </el-form-item>
-        <el-form-item>
-        </el-form-item>
       </el-form>
       <template slot="footer">
         <el-button type="plain" size="small" @click="$emit('close')">{{$t('Cancel')}}</el-button>

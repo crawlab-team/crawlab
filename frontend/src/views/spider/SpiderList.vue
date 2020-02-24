@@ -290,6 +290,15 @@
     />
     <!--./crawl confirm dialog-->
 
+    <!--copy dialog-->
+    <copy-spider-dialog
+      :visible="copyDialogVisible"
+      :spider-id="activeSpiderId"
+      @close="copyDialogVisible = false"
+      @confirm="onCopyConfirm"
+    />
+    <!--./copy dialog-->
+
     <el-card style="border-radius: 0">
       <!--filter-->
       <div class="filter">
@@ -566,7 +575,7 @@
           >
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" fixed="right" min-width="170px">
+        <el-table-column :label="$t('Action')" align="left" fixed="right" min-width="220px">
           <template slot-scope="scope">
             <el-tooltip :content="$t('View')" placement="top">
               <el-button type="primary" icon="el-icon-search" size="mini"
@@ -575,6 +584,14 @@
             <el-tooltip :content="$t('Remove')" placement="top">
               <el-button type="danger" icon="el-icon-delete" size="mini"
                          @click="onRemove(scope.row, $event)"></el-button>
+            </el-tooltip>
+            <el-tooltip :content="$t('Copy')" placement="top">
+              <el-button
+                type="info"
+                icon="el-icon-copy-document"
+                size="mini"
+                @click="onCopy(scope.row, $event)"
+              />
             </el-tooltip>
             <el-tooltip v-if="!isShowRun(scope.row)" :content="$t('No command line')" placement="top">
               <el-button disabled type="success" icon="fa fa-bug" size="mini"
@@ -619,10 +636,12 @@ import dayjs from 'dayjs'
 import CrawlConfirmDialog from '../../components/Common/CrawlConfirmDialog'
 import StatusTag from '../../components/Status/StatusTag'
 import StatusLegend from '../../components/Status/StatusLegend'
+import CopySpiderDialog from '../../components/Spider/CopySpiderDialog'
 
 export default {
   name: 'SpiderList',
   components: {
+    CopySpiderDialog,
     StatusLegend,
     CrawlConfirmDialog,
     StatusTag
@@ -784,7 +803,8 @@ export default {
       selectedSpiders: [],
       isStopLoading: false,
       isRemoveLoading: false,
-      isMultiple: false
+      isMultiple: false,
+      copyDialogVisible: false
     }
   },
   computed: {
@@ -962,6 +982,17 @@ export default {
       this.$st.sendEv('爬虫列表', '点击运行')
     },
     onCrawlConfirm () {
+      setTimeout(() => {
+        this.getList()
+      }, 1000)
+    },
+    onCopy (row, ev) {
+      ev.stopPropagation()
+      this.copyDialogVisible = true
+      this.activeSpiderId = row._id
+      this.$st.sendEv('爬虫列表', '点击复制')
+    },
+    onCopyConfirm () {
       setTimeout(() => {
         this.getList()
       }, 1000)

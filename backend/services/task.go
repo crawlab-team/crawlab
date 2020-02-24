@@ -536,7 +536,7 @@ func SpiderFileCheck(t model.Task, spider model.Spider) error {
 	// 判断爬虫文件是否存在
 	gfFile := model.GetGridFs(spider.FileId)
 	if gfFile == nil {
-		t.Error = "找不到爬虫文件，请重新上传"
+		t.Error = "cannot find spider files, please re-upload"
 		t.Status = constants.StatusError
 		t.FinishTs = time.Now()                                 // 结束时间
 		t.RuntimeDuration = t.FinishTs.Sub(t.StartTs).Seconds() // 运行时长
