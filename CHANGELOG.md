@@ -7,6 +7,7 @@
 - **Upgrade Check**. Check latest version and notifiy users to upgrade.
 - **Spiders Batch Operation**. Allow users to run/stop spider tasks and delete spiders in batches.
 - **Copy Spiders**. Allow users to copy an existing spider to create a new one.
+- **Cron Jobs Conflict**. Possible bug when two spiders set to the same time of their cron jobs. [#515](https://github.com/crawlab-team/crawlab/issues/515) [#565](https://github.com/crawlab-team/crawlab/issues/565)
 
 ### Bug Fixes
 - **Schedule Spider Selection Issue**. Fields not responding to spider change.

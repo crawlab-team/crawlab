@@ -10,6 +10,7 @@
 
 ### Bug 修复
 - **定时任务爬虫选择问题**. 字段不会随着爬虫变化而响应.
+- **定时任务冲突问题**. 两个不同的爬虫设置定时任务，时间设置成相同的话，可能会有bug. [#515](https://github.com/crawlab-team/crawlab/issues/515) [#565](https://github.com/crawlab-team/crawlab/issues/565)
 
 # 0.4.6 (2020-02-13)
 ### 功能 / 优化
