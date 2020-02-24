@@ -259,14 +259,25 @@ func CopySpider(c *gin.Context) {
 		return
 	}
 
+	// 检查新爬虫名称是否存在
+	// 如果存在，则返回错误
+	s := model.GetSpiderByName(reqBody.Name)
+	if s.Name != "" {
+		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("spider name '%s' already exists", reqBody.Name))
+		return
+	}
+
+	// 被复制爬虫
 	spider, err := model.GetSpider(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
+	// 复制爬虫
 	if err := services.CopySpider(spider, reqBody.Name); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
+		return
 	}
 
 	c.JSON(http.StatusOK, Response{

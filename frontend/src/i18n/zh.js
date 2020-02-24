@@ -220,6 +220,8 @@ export default {
   'Item Name': 'Item 名称',
   'Add Item': '添加 Item',
   'Add Variable': '添加变量',
+  'Copy Spider': '复制爬虫',
+  'New Spider Name': '新爬虫名称',
 
   // 爬虫列表
   'Name': '名称',
@@ -564,6 +566,7 @@ docker run -d --restart always --name crawlab_worker \\
   'Are you sure to delete selected items?': '您是否确认删除所选项？',
   'Are you sure to stop selected items?': '您是否确认停止所选项？',
   'Sent signals to cancel selected tasks': '已经向所选任务发送取消任务信号',
+  'Copied successfully': '已成功复制',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

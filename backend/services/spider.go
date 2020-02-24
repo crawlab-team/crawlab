@@ -15,11 +15,13 @@ import (
 	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
+	"io"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"runtime/debug"
+	"time"
 )
 
 type SpiderFileData struct {
@@ -293,7 +295,121 @@ func CancelSpider(id string) error {
 	return nil
 }
 
+func cloneGridFsFile(spider model.Spider, newName string) (err error) {
+	// 构造新爬虫
+	newSpider := spider
+	newSpider.Id = bson.NewObjectId()
+	newSpider.Name = newName
+	newSpider.DisplayName = newName
+	newSpider.Src = path.Join(path.Dir(spider.Src), newName)
+	newSpider.CreateTs = time.Now()
+	newSpider.UpdateTs = time.Now()
+
+	// GridFS连接实例
+	s, gf := database.GetGridFs("files")
+	defer s.Close()
+
+	// 被克隆爬虫的GridFS文件
+	f, err := gf.OpenId(spider.FileId)
+	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	// 新爬虫的GridFS文件
+	fNew, err := gf.Create(newSpider.Name + ".zip")
+	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	// 生成唯一ID
+	randomId := uuid.NewV4()
+	tmpPath := viper.GetString("other.tmppath")
+	if !utils.Exists(tmpPath) {
+		if err := os.MkdirAll(tmpPath, 0777); err != nil {
+			log.Errorf("mkdir other.tmppath error: %v", err.Error())
+			return err
+		}
+	}
+
+	// 创建临时文件
+	tmpFilePath := filepath.Join(tmpPath, randomId.String()+".zip")
+	tmpFile := utils.OpenFile(tmpFilePath)
+
+	// 拷贝到临时文件
+	if _, err := io.Copy(tmpFile, f); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	// 关闭临时文件
+	if err := tmpFile.Close(); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	// 读取内容
+	fContent, err := ioutil.ReadFile(tmpFilePath)
+	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	// 写入GridFS文件
+	if _, err := fNew.Write(fContent); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	// 关闭被克隆爬虫GridFS文件
+	if err = f.Close(); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	// 将新爬虫文件复制
+	newSpider.FileId = fNew.Id().(bson.ObjectId)
+
+	// 保存新爬虫
+	if err := newSpider.Add(); err != nil {
+		return err
+	}
+
+	// 关闭新爬虫GridFS文件
+	if err := fNew.Close(); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	// 删除临时文件
+	if err := os.RemoveAll(tmpFilePath); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	// 同步爬虫
+	PublishSpider(newSpider)
+
+	return nil
+}
+
 func CopySpider(spider model.Spider, newName string) error {
+	// 克隆GridFS文件
+	if err := cloneGridFsFile(spider, newName); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // 启动爬虫服务
