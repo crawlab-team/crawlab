@@ -27,13 +27,16 @@
       :title="$t(dialogTitle)"
       :visible.sync="dialogVisible"
       width="640px"
-      :before-close="onDialogClose">
-      <el-form label-width="180px"
-               class="add-form"
-               :model="scheduleForm"
-               :inline-message="true"
-               ref="scheduleForm"
-               label-position="right">
+      :before-close="onDialogClose"
+    >
+      <el-form
+        label-width="180px"
+        class="add-form"
+        :model="scheduleForm"
+        :inline-message="true"
+        ref="scheduleForm"
+        label-position="right"
+      >
         <el-form-item :label="$t('Schedule Name')" prop="name" required>
           <el-input id="schedule-name" v-model="scheduleForm.name" :placeholder="$t('Schedule Name')"></el-input>
         </el-form-item>
@@ -62,6 +65,7 @@
             :placeholder="$t('Spider')"
             filterable
             :disabled="isDisabledSpiderSchedule"
+            @change="onSpiderChange"
           >
             <el-option
               v-for="op in spiderList"
@@ -562,6 +566,13 @@ export default {
     onParametersConfirm (value) {
       this.scheduleForm.param = value
       this.isParametersVisible = false
+    },
+    async onSpiderChange (spiderId) {
+      await this.$store.dispatch('spider/getSpiderData', spiderId)
+      if (this.spiderForm.type === 'customized' && this.spiderForm.is_scrapy) {
+        this.$set(this.scheduleForm, 'scrapy_spider', this.spiderForm.spider_names[0])
+        this.$set(this.scheduleForm, 'scrapy_log_level', 'INFO')
+      }
     }
   },
   created () {
