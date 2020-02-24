@@ -313,13 +313,13 @@ func MakeLogDir(t model.Task) (fileDir string, err error) {
 }
 
 // 获取日志文件路径
-func GetLogFilePaths(fileDir string) (filePath string) {
+func GetLogFilePaths(fileDir string, t model.Task) (filePath string) {
 	// 时间戳
 	ts := time.Now()
 	tsStr := ts.Format("20060102150405")
 
 	// stdout日志文件
-	filePath = filepath.Join(fileDir, tsStr+".log")
+	filePath = filepath.Join(fileDir, t.Id+"_"+tsStr+".log")
 
 	return filePath
 }
@@ -419,7 +419,7 @@ func ExecuteTask(id int) {
 		return
 	}
 	// 获取日志文件路径
-	t.LogPath = GetLogFilePaths(fileDir)
+	t.LogPath = GetLogFilePaths(fileDir, t)
 
 	// 工作目录
 	cwd := filepath.Join(
@@ -571,7 +571,7 @@ func GetTaskLog(id string) (logStr string, err error) {
 				log.Errorf(err.Error())
 			}
 
-			fileP := GetLogFilePaths(fileDir)
+			fileP := GetLogFilePaths(fileDir, task)
 
 			// 获取日志文件路径
 			fLog, err := os.Create(fileP)
