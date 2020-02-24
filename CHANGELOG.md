@@ -6,6 +6,7 @@
 - **Spider List Optimization**. Tasks count by status, tasks detail popup, legend. [#425](https://github.com/crawlab-team/crawlab/issues/425)
 - **Upgrade Check**. Check latest version and notifiy users to upgrade.
 - **Spiders Batch Operation**. Allow users to run/stop spider tasks and delete spiders in batches.
+- **Copy Spiders**. Allow users to copy an existing spider to create a new one.
 
 ### Bug Fixes
 
