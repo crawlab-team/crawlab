@@ -47,7 +47,7 @@ services:
     depends_on:
       - mongo
       - redis
-    environment:
+    # environment:
     #   MONGO_INITDB_ROOT_USERNAME: username
     #   MONGO_INITDB_ROOT_PASSWORD: password
     # volumes:
