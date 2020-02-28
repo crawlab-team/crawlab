@@ -47,6 +47,9 @@ services:
     depends_on:
       - mongo
       - redis
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: username
+    #   MONGO_INITDB_ROOT_PASSWORD: password
     # volumes:
     #   - "/var/crawlab/log:/var/logs/crawlab" # log persistent 日志持久化
   mongo:
