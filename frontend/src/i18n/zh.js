@@ -448,6 +448,7 @@ export default {
   'Key': '设置',
   'Allow Sending Statistics': '允许发送统计信息',
   'General': '通用',
+  'Enable Tutorial': '启用教程',
 
   // 其他
   tagsView: {

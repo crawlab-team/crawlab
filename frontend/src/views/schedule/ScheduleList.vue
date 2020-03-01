@@ -467,7 +467,7 @@ export default {
 
       if (!this.$utils.tour.isFinishedTour('schedule-list-add')) {
         setTimeout(() => {
-          this.$tours['schedule-list-add'].start()
+          this.$utils.tour.startTour(this, 'schedule-list-add')
           this.$st.sendEv('教程', '开始', 'schedule-list-add')
         }, 500)
       }
@@ -617,7 +617,7 @@ export default {
   mounted () {
     if (!this.isDisabledSpiderSchedule) {
       if (!this.$utils.tour.isFinishedTour('schedule-list')) {
-        this.$tours['schedule-list'].start()
+        this.$utils.tour.startTour(this, 'schedule-list')
         this.$st.sendEv('教程', '开始', 'schedule-list')
       }
     }
