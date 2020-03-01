@@ -19,8 +19,8 @@ const actions = {
 
     // set default enable_tutorial
     const enableTutorial = res.data.data.enable_tutorial
-    if (localStorage.getItem('enableTutorial') === undefined) {
-      localStorage.setItem('enableTutorial', enableTutorial ? '1' : '0')
+    if (!localStorage.getItem('enableTutorial')) {
+      localStorage.setItem('enableTutorial', enableTutorial === 'Y' ? '1' : '0')
     }
   }
 }
