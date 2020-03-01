@@ -450,6 +450,10 @@ export default {
   'General': '通用',
   'Enable Tutorial': '启用教程',
 
+  // 全局
+  'Related Documentation': '相关文档',
+  'Click to view related Documentation': '点击查看相关文档',
+
   // 其他
   tagsView: {
     closeOthers: '关闭其他',
