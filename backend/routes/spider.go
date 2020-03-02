@@ -399,8 +399,8 @@ func UploadSpider(c *gin.Context) {
 		}
 		// 更新file_id
 		spider.FileId = fid
-		if err := spider.Add(); err != nil {
-			log.Error("add spider error: " + err.Error())
+		if err := spider.Save(); err != nil {
+			log.Error("update spider error: " + err.Error())
 			debug.PrintStack()
 			HandleError(http.StatusInternalServerError, c, err)
 			return
