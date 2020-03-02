@@ -18,6 +18,10 @@ export default {
     }
     return !!data[tourName]
   },
+  startTour: (vm, tourName) => {
+    if (localStorage.getItem('enableTutorial') === '0') return
+    vm.$tours[tourName].start()
+  },
   finishTour: (tourName) => {
     let data
     try {

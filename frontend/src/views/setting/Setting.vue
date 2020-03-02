@@ -9,7 +9,7 @@
     />
     <!--./tour-->
 
-    <!-- 新增全局变量 -->
+    <!--新增全局变量-->
     <el-dialog :title="$t('Add Global Variable')"
                :visible.sync="addDialogVisible">
       <el-form label-width="80px" ref="globalVariableForm">
@@ -30,6 +30,7 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+    <!--./新增全局变量-->
 
     <el-tabs v-model="activeName" @tab-click="tabActiveHandle" type="border-card">
       <el-tab-pane :label="$t('General')" name="general">
@@ -45,6 +46,14 @@
             <el-switch
               v-model="isAllowSendingStatistics"
               @change="onAllowSendingStatisticsChange"
+              active-color="#67C23A"
+              inactive-color="#909399"
+            />
+          </el-form-item>
+          <el-form-item :label="$t('Enable Tutorial')">
+            <el-switch
+              v-model="isEnableTutorial"
+              @change="onEnableTutorialChange"
               active-color="#67C23A"
               inactive-color="#909399"
             />
@@ -213,7 +222,8 @@ export default {
           this.$utils.tour.nextStep('setting', currentStep)
         }
       },
-      isAllowSendingStatistics: localStorage.getItem('useStats') === '1'
+      isAllowSendingStatistics: localStorage.getItem('useStats') === '1',
+      isEnableTutorial: localStorage.getItem('enableTutorial') === '1'
     }
   },
   computed: {
@@ -291,6 +301,10 @@ export default {
       }
       this.$message.success(this.$t('Saved successfully'))
       localStorage.setItem('useStats', value ? '1' : '0')
+    },
+    onEnableTutorialChange (value) {
+      this.$message.success(this.$t('Saved successfully'))
+      localStorage.setItem('enableTutorial', value ? '1' : '0')
     }
   },
   async created () {
@@ -300,7 +314,7 @@ export default {
   },
   mounted () {
     if (!this.$utils.tour.isFinishedTour('setting')) {
-      this.$tours['setting'].start()
+      this.$utils.tour.startTour(this, 'setting')
       this.$st.sendEv('教程', '开始', 'setting')
     }
   }

@@ -16,6 +16,12 @@ const actions = {
   async getSetting ({ commit }) {
     const res = await request.get('/setting')
     commit('SET_SETTING', res.data.data)
+
+    // set default enable_tutorial
+    const enableTutorial = res.data.data.enable_tutorial
+    if (!localStorage.getItem('enableTutorial')) {
+      localStorage.setItem('enableTutorial', enableTutorial === 'Y' ? '1' : '0')
+    }
   }
 }
 

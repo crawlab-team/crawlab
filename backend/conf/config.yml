@@ -38,6 +38,7 @@ other:
 version: 0.4.7
 setting:
   allowRegister: "N"
+  enableTutorial: "N"
 notification:
   mail:
     server: ''

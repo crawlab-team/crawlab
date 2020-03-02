@@ -412,7 +412,7 @@ export default {
     }, 5000)
 
     if (!this.$utils.tour.isFinishedTour('task-list')) {
-      this.$tours['task-list'].start()
+      this.$utils.tour.startTour(this, 'task-list')
       this.$st.sendEv('教程', '开始', 'task-list')
     }
   },
