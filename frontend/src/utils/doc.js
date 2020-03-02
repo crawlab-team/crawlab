@@ -6,15 +6,23 @@ export default {
     },
     {
       path: '/spiders',
-      pattern: '^Spider'
+      pattern: '^Spider|^SDK|^Integration|^CI/Git'
     },
     {
       path: '/tasks',
-      pattern: '^Task'
+      pattern: '^Task|^Architecture/Task'
     },
     {
       path: '/schedules',
       pattern: '^Schedule'
+    },
+    {
+      path: '/nodes',
+      pattern: '^Node|^Architecture/Node'
+    },
+    {
+      path: '/setting',
+      pattern: '^Notification'
     }
   ]
 }

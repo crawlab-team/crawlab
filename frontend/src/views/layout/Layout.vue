@@ -25,7 +25,7 @@
         :title="$t('Related Documentation')"
         :visible.sync="isShowDocumentation"
         :before-close="onCloseDocumentation"
-        size="360px"
+        size="300px"
       >
         <documentation/>
       </el-drawer>
@@ -81,11 +81,11 @@ export default {
     },
     onClickDocumentation () {
       this.isShowDocumentation = true
-
-      this.$st.sendEv('全局', '点击页面文档')
+      this.$st.sendEv('全局', '打开右侧文档')
     },
     onCloseDocumentation () {
       this.isShowDocumentation = false
+      this.$st.sendEv('全局', '关闭右侧文档')
     }
   },
   async created () {
@@ -125,15 +125,15 @@ export default {
     position: fixed;
     right: 25px;
     bottom: 20px;
-    font-size: 24px;
+    font-size: 32px;
     cursor: pointer;
     color: #909399;
   }
 </style>
 
 <style scoped>
-  .documentation .el-tree {
-    margin-left: 20px;
+  .documentation >>> .el-drawer__body {
+    overflow: auto;
   }
 
   .documentation >>> span[role="heading"]:focus {

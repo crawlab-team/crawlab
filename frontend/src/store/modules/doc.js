@@ -38,12 +38,12 @@ const actions = {
     commit('SET_DOC_DATA', Object.values(cache).map(d => {
       d.level = 1
       d.label = d.title
-      d.url = process.env.VUE_APP_DOC_URL + '/' + d.url
+      d.fullUrl = process.env.VUE_APP_DOC_URL + '/' + d.url
       if (d.children) {
         d.children = d.children.map(c => {
           c.level = 2
           c.label = c.title
-          c.url = process.env.VUE_APP_DOC_URL + '/' + c.url
+          c.fullUrl = process.env.VUE_APP_DOC_URL + '/' + c.url
           return c
         })
       }
