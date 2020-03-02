@@ -135,6 +135,8 @@ func main() {
 			// release版本
 			anonymousGroup.GET("/version", routes.GetVersion)               // 获取发布的版本
 			anonymousGroup.GET("/releases/latest", routes.GetLatestRelease) // 获取最近发布的版本
+			// 文档
+			anonymousGroup.GET("/docs", routes.GetDocs) // 获取文档数据
 		}
 		authGroup := app.Group("/", middlewares.AuthorizationMiddleware())
 		{
@@ -259,7 +261,6 @@ func main() {
 			authGroup.GET("/git/branches", routes.GetGitBranches)       // 获取 Git 分支
 			authGroup.GET("/git/public-key", routes.GetGitSshPublicKey) // 获取 SSH 公钥
 		}
-
 	}
 
 	// 路由ping

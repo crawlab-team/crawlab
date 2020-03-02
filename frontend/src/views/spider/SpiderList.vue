@@ -887,7 +887,7 @@ export default {
 
       setTimeout(() => {
         if (!this.$utils.tour.isFinishedTour('spider-list-add')) {
-          this.$tours['spider-list-add'].start()
+          this.$utils.tour.startTour(this, 'spider-list-add')
           this.$st.sendEv('教程', '开始', 'spider-list-add')
         }
       }, 300)
@@ -1241,7 +1241,7 @@ export default {
     })
 
     if (!this.$utils.tour.isFinishedTour('spider-list')) {
-      this.$tours['spider-list'].start()
+      this.$utils.tour.startTour(this, 'spider-list')
       this.$st.sendEv('教程', '开始', 'spider-list')
     }
   },
