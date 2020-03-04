@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crawlab-worker
+  namespace: crawlab-release
+spec:
+  replicas: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: crawlab-worker
+  template:
+    metadata:
+      labels:
+        app: crawlab-worker
+    spec:
+      containers:
+      - image: tikazyq/crawlab:release
+        name: crawlab
+        env:
+        - name: CRAWLAB_SERVER_MASTER
+          value: "N"
+        - name: CRAWLAB_MONGO_HOST
+          value: "mongo"
+        - name: CRAWLAB_REDIS_ADDRESS
+          value: "redis"
