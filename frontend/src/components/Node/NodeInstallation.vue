@@ -152,6 +152,7 @@ export default {
   methods: {
     async getDepList () {
       this.loading = true
+      this.depList = []
       const res = await this.$request.get(`/nodes/${this.nodeForm._id}/deps`, {
         lang: this.activeLang.executable_name,
         dep_name: this.depName
@@ -175,6 +176,7 @@ export default {
     },
     async getInstalledDepList () {
       this.loading = true
+      this.installedDepList = []
       const res = await this.$request.get(`/nodes/${this.nodeForm._id}/deps/installed`, {
         lang: this.activeLang.executable_name
       })
