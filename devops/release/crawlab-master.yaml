@@ -40,6 +40,10 @@ spec:
           value: "redis"
         - name: CRAWLAB_SETTING_ALLOWREGISTER
           value: "Y"
+        - name: CRAWLAB_SERVER_LANG_NODE
+          value: "Y"
+        - name: CRAWLAB_SERVER_LANG_JAVA
+          value: "Y"
         ports:
         - containerPort: 8080
           name: crawlab

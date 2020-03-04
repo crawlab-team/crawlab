@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: crawlab-worker
-  namespace: crawlab
+  namespace: crawlab-develop
 spec:
-  replicas: 4
+  replicas: 2
   strategy:
     type: Recreate
   selector:
@@ -16,7 +16,7 @@ spec:
         app: crawlab-worker
     spec:
       containers:
-      - image: tikazyq/crawlab:latest
+      - image: tikazyq/crawlab:develop
         name: crawlab
         env:
         - name: CRAWLAB_SERVER_MASTER
@@ -25,7 +25,8 @@ spec:
           value: "mongo"
         - name: CRAWLAB_REDIS_ADDRESS
           value: "redis"
-        # - name: CRAWLAB_SERVER_LANG_NODE
-        #   value: "Y"
-        # - name: CRAWLAB_SERVER_LANG_JAVA
-        #   value: "Y"
+        - name: CRAWLAB_SERVER_LANG_NODE
+          value: "Y"
+        - name: CRAWLAB_SERVER_LANG_JAVA
+          value: "Y"
+          
