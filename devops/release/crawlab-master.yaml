@@ -30,6 +30,7 @@ spec:
     spec:
       containers:
       - image: tikazyq/crawlab:release
+        imagePullPolicy: Always
         name: crawlab
         env:
         - name: CRAWLAB_SERVER_MASTER
