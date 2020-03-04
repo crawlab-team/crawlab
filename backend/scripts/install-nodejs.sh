@@ -1,5 +1,8 @@
 #!/bin/env bash
 
+# lock
+touch /tmp/install-nodejs.lock
+
 # install nvm
 BASE_DIR=`dirname $0`
 /bin/bash ${BASE_DIR}/install-nvm.sh
@@ -33,3 +36,6 @@ apt-get update && apt-get install -y --no-install-recommends gconf-service libas
 PUPPETEER_DOWNLOAD_HOST=https://npm.taobao.org/mirrors
 npm config set puppeteer_download_host=https://npm.taobao.org/mirrors
 npm install puppeteer-chromium-resolver crawlab-sdk -g --unsafe-perm=true --registry=https://registry.npm.taobao.org
+
+# unlock
+rm /tmp/install-nodejs.lock

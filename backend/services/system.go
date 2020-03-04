@@ -65,9 +65,9 @@ func GetSystemInfo(nodeId string) (sysInfo entity.SystemInfo, err error) {
 // 获取语言列表
 func GetLangList(nodeId string) []entity.Lang {
 	list := []entity.Lang{
-		{Name: "Python", ExecutableName: "python", ExecutablePath: "/usr/local/bin/python", DepExecutablePath: "/usr/local/bin/pip"},
-		{Name: "Node.js", ExecutableName: "node", ExecutablePath: "/usr/local/bin/node", DepExecutablePath: "/usr/local/bin/npm"},
-		//{Name: "Java", ExecutableName: "java", ExecutablePath: "/usr/local/bin/java"},
+		{Name: "Python", ExecutableName: "python", ExecutablePaths: []string{"/usr/bin/python", "/usr/local/bin/python"}, DepExecutablePath: "/usr/local/bin/pip"},
+		{Name: "Node.js", ExecutableName: "node", ExecutablePaths: []string{"/usr/bin/node", "/usr/local/bin/node"}, DepExecutablePath: "/usr/local/bin/npm"},
+		{Name: "Java", ExecutableName: "java", ExecutablePaths: []string{"/usr/bin/java", "/usr/local/bin/java"}},
 	}
 	for i, lang := range list {
 		list[i].Installed = IsInstalledLang(nodeId, lang)
@@ -93,8 +93,10 @@ func IsInstalledLang(nodeId string, lang entity.Lang) bool {
 		return false
 	}
 	for _, exec := range sysInfo.Executables {
-		if exec.Path == lang.ExecutablePath {
-			return true
+		for _, path := range lang.ExecutablePaths {
+			if exec.Path == path {
+				return true
+			}
 		}
 	}
 	return false
