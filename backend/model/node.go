@@ -20,6 +20,7 @@ type Node struct {
 	Ip          string        `json:"ip" bson:"ip"`
 	Port        string        `json:"port" bson:"port"`
 	Mac         string        `json:"mac" bson:"mac"`
+	Hostname    string        `json:"hostname" bson:"hostname"`
 	Description string        `json:"description" bson:"description"`
 	// 用于唯一标识节点，可能是mac地址，可能是ip地址
 	Key string `json:"key" bson:"key"`

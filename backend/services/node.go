@@ -161,6 +161,14 @@ func UpdateNodeData() {
 		log.Errorf(err.Error())
 		return
 	}
+
+	// 获取Hostname
+	hostname, err := register.GetRegister().GetHostname()
+	if err != nil {
+		log.Errorf(err.Error())
+		return
+	}
+
 	// 获取redis的key
 	key, err := register.GetRegister().GetKey()
 	if err != nil {

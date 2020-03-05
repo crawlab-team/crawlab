@@ -1,6 +1,7 @@
 package register
 
 import (
+	"crawlab/constants"
 	"github.com/apex/log"
 	"github.com/spf13/viper"
 	"net"
@@ -108,9 +109,9 @@ func GetRegister() Register {
 		}
 
 		registerType := viper.GetString("server.register.type")
-		if registerType == "mac" {
+		if registerType == constants.RegisterTypeMac {
 			register = &MacRegister{}
-		} else {
+		} else if registerType == constants.RegisterTypeIp {
 			ip := viper.GetString("server.register.ip")
 			if ip == "" {
 				log.Error("server.register.ip is empty")
@@ -120,6 +121,7 @@ func GetRegister() Register {
 			register = &IpRegister{
 				Ip: ip,
 			}
+		} else if registerType == constants.RegisterTypeHostname {
 		}
 		log.Info("register type is :" + reflect.TypeOf(register).String())
 
