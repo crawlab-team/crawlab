@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/bin/bash
 
 # lock
 touch /tmp/install-nodejs.lock
