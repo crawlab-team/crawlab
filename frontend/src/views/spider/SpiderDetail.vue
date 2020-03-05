@@ -209,7 +209,6 @@ export default {
         if (!this.$utils.tour.isFinishedTour('spider-detail-config')) {
           setTimeout(() => {
             this.$utils.tour.startTour(this, 'spider-detail-config')
-            this.$st.sendEv('教程', '开始', 'spider-detail-config')
           }, 100)
         }
       } else if (this.activeTabName === 'scrapy-settings') {
@@ -261,7 +260,6 @@ export default {
   mounted () {
     if (!this.$utils.tour.isFinishedTour('spider-detail')) {
       this.$utils.tour.startTour(this, 'spider-detail')
-      this.$st.sendEv('教程', '开始', 'spider-detail')
     }
   }
 }
