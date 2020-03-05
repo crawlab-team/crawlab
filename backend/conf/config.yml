@@ -23,7 +23,7 @@ server:
   master: "Y"
   secret: "crawlab"
   register:
-    # mac地址 或者 ip地址，如果是ip，则需要手动指定IP
+    # mac地址/ip地址/hostname, 如果是ip，则需要手动指定IP
     type: "mac"
     ip: ""
   lang: # 安装语言环境, Y 为安装，N 为不安装，只对 Docker 有效

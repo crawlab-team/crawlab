@@ -23,6 +23,7 @@ type Data struct {
 	Key          string    `json:"key"`
 	Mac          string    `json:"mac"`
 	Ip           string    `json:"ip"`
+	Hostname     string    `json:"hostname"`
 	Master       bool      `json:"master"`
 	UpdateTs     time.Time `json:"update_ts"`
 	UpdateTsUnix int64     `json:"update_ts_unix"`
@@ -182,6 +183,7 @@ func UpdateNodeData() {
 		Key:          key,
 		Mac:          mac,
 		Ip:           ip,
+		Hostname:     hostname,
 		Master:       model.IsMaster(),
 		UpdateTs:     time.Now(),
 		UpdateTsUnix: time.Now().Unix(),
@@ -199,7 +201,6 @@ func UpdateNodeData() {
 		log.Errorf(err.Error())
 		return
 	}
-  
 }
 
 func MasterNodeCallback(message redis.Message) (err error) {
