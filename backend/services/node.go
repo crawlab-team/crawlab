@@ -23,6 +23,7 @@ type Data struct {
 	Key          string    `json:"key"`
 	Mac          string    `json:"mac"`
 	Ip           string    `json:"ip"`
+	Hostname     string    `json:"hostname"`
 	Master       bool      `json:"master"`
 	UpdateTs     time.Time `json:"update_ts"`
 	UpdateTsUnix int64     `json:"update_ts_unix"`
@@ -161,6 +162,14 @@ func UpdateNodeData() {
 		log.Errorf(err.Error())
 		return
 	}
+
+	// 获取Hostname
+	hostname, err := register.GetRegister().GetHostname()
+	if err != nil {
+		log.Errorf(err.Error())
+		return
+	}
+
 	// 获取redis的key
 	key, err := register.GetRegister().GetKey()
 	if err != nil {
@@ -174,6 +183,7 @@ func UpdateNodeData() {
 		Key:          key,
 		Mac:          mac,
 		Ip:           ip,
+		Hostname:     hostname,
 		Master:       model.IsMaster(),
 		UpdateTs:     time.Now(),
 		UpdateTsUnix: time.Now().Unix(),
@@ -191,7 +201,6 @@ func UpdateNodeData() {
 		log.Errorf(err.Error())
 		return
 	}
-  
 }
 
 func MasterNodeCallback(message redis.Message) (err error) {

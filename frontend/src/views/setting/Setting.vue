@@ -315,7 +315,6 @@ export default {
   mounted () {
     if (!this.$utils.tour.isFinishedTour('setting')) {
       this.$utils.tour.startTour(this, 'setting')
-      this.$st.sendEv('教程', '开始', 'setting')
     }
   }
 }

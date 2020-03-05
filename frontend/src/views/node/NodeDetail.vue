@@ -125,7 +125,6 @@ export default {
   mounted () {
     if (!this.$utils.tour.isFinishedTour('node-detail')) {
       this.$utils.tour.startTour(this, 'node-detail')
-      this.$st.sendEv('教程', '开始', 'node-detail')
     }
   }
 }

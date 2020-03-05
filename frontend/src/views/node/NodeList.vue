@@ -142,6 +142,9 @@
       <el-tab-pane :label="$t('Network')">
         <node-network :active-tab="activeTab"/>
       </el-tab-pane>
+      <el-tab-pane :label="$t('Installation')">
+        <node-installation-matrix :active-tab="activeTab"/>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -153,10 +156,11 @@ import {
 } from 'vuex'
 import 'github-markdown-css/github-markdown.css'
 import NodeNetwork from '../../components/Node/NodeNetwork'
+import NodeInstallationMatrix from '../../components/Node/NodeInstallationMatrix'
 
 export default {
   name: 'NodeList',
-  components: { NodeNetwork },
+  components: { NodeInstallationMatrix, NodeNetwork },
   data () {
     return {
       pagination: {
