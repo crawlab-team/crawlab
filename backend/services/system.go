@@ -67,7 +67,7 @@ func GetLangList(nodeId string) []entity.Lang {
 	list := []entity.Lang{
 		{Name: "Python", ExecutableName: "python", ExecutablePaths: []string{"/usr/bin/python", "/usr/local/bin/python"}, DepExecutablePath: "/usr/local/bin/pip"},
 		{Name: "Node.js", ExecutableName: "node", ExecutablePaths: []string{"/usr/bin/node", "/usr/local/bin/node"}, DepExecutablePath: "/usr/local/bin/npm"},
-		{Name: "Java", ExecutableName: "java", ExecutablePaths: []string{"/usr/bin/java", "/usr/local/bin/java"}},
+		//{Name: "Java", ExecutableName: "java", ExecutablePaths: []string{"/usr/bin/java", "/usr/local/bin/java"}},
 	}
 	for i, lang := range list {
 		list[i].Installed = IsInstalledLang(nodeId, lang)
