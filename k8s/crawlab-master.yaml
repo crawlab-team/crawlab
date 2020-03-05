@@ -30,6 +30,7 @@ spec:
     spec:
       containers:
       - image: tikazyq/crawlab:latest
+        imagePullPolicy: Always
         name: crawlab
         env:
         - name: CRAWLAB_SERVER_MASTER
@@ -38,6 +39,10 @@ spec:
           value: "mongo"
         - name: CRAWLAB_REDIS_ADDRESS
           value: "redis"
+        # - name: CRAWLAB_SERVER_LANG_NODE
+        #   value: "Y"
+        # - name: CRAWLAB_SERVER_LANG_JAVA
+        #   value: "Y"
         ports:
         - containerPort: 8080
           name: crawlab

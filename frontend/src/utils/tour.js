@@ -21,6 +21,7 @@ export default {
   startTour: (vm, tourName) => {
     if (localStorage.getItem('enableTutorial') === '0') return
     vm.$tours[tourName].start()
+    vm.$st.sendEv('教程', '开始', tourName)
   },
   finishTour: (tourName) => {
     let data

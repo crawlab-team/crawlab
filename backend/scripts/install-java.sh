@@ -4,7 +4,7 @@
 touch /tmp/install-java.lock
 
 # install java
-apt-get install -y default-jdk
+apt-get update && apt-get install -y default-jdk --fix-missing
 ln -s /usr/bin/java /usr/local/bin/java
 
 # unlock

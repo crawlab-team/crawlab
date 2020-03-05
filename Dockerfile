@@ -51,7 +51,9 @@ RUN cp /opt/bin/crawlab /usr/local/bin/crawlab-server
 
 # copy frontend files
 COPY --from=frontend-build /app/dist /app/dist
-COPY --from=frontend-build /app/conf/crawlab.conf /etc/nginx/conf.d
+
+# copy nginx config files
+COPY ./nginx/crawlab.conf /etc/nginx/conf.d
 
 # working directory
 WORKDIR /app/backend

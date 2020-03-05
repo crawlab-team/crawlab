@@ -6,6 +6,7 @@ on:
     branches:
       - master
       - release
+      - develop
 
     # Publish `v1.2.3` tags as releases.
     tags:
@@ -59,4 +60,7 @@ jobs:
 
           if [ "$VERSION" == "release" ]; then
             curl ${{ secrets.JENKINS_RELEASE_URL }}
+          fi
+          if [ "$VERSION" == "develop" ]; then
+            curl ${{ secrets.JENKINS_DEVELOP_URL }}
           fi

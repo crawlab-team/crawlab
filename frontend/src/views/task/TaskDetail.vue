@@ -203,7 +203,6 @@ export default {
   mounted () {
     if (!this.$utils.tour.isFinishedTour('task-detail')) {
       this.$utils.tour.startTour(this, 'task-detail')
-      this.$st.sendEv('教程', '开始', 'task-detail')
     }
   },
   destroyed () {

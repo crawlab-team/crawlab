@@ -26,14 +26,14 @@ service nginx start
 if [ "${CRAWLAB_SERVER_LANG_NODE}" = "Y" ];
 then
 	echo "installing node.js"
-	/bin/sh /app/backend/scripts/install-nodejs.sh &
+	/bin/sh /app/backend/scripts/install-nodejs.sh >> /var/log/install-nodejs.sh.log 2>&1 &
 fi
 
 # install languages: Java
 if [ "${CRAWLAB_SERVER_LANG_JAVA}" = "Y" ];
 then
 	echo "installing java"
-	/bin/sh /app/backend/scripts/install-java.sh &
+	/bin/sh /app/backend/scripts/install-java.sh >> /var/log/install-java.sh.log 2>&1 &
 fi
 
 # generate ssh

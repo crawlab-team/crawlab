@@ -20,6 +20,7 @@ type Node struct {
 	Ip          string        `json:"ip" bson:"ip"`
 	Port        string        `json:"port" bson:"port"`
 	Mac         string        `json:"mac" bson:"mac"`
+	Hostname    string        `json:"hostname" bson:"hostname"`
 	Description string        `json:"description" bson:"description"`
 	// 用于唯一标识节点，可能是mac地址，可能是ip地址
 	Key string `json:"key" bson:"key"`
@@ -42,6 +43,7 @@ func IsMaster() bool {
 }
 
 // 获取本机节点
+// TODO: 这里职责不单一，需要重构
 func GetCurrentNode() (Node, error) {
 	// 获得注册的key值
 	key, err := register.GetRegister().GetKey()
@@ -67,7 +69,7 @@ func GetCurrentNode() (Node, error) {
 			//只在master节点运行的时候才检测master节点的信息是否存在
 			if IsMaster() && err == mgo.ErrNotFound {
 				// 获取本机信息
-				ip, mac, key, err := GetNodeBaseInfo()
+				ip, mac, hostname, key, err := GetNodeBaseInfo()
 				if err != nil {
 					debug.PrintStack()
 					return node, err
@@ -80,6 +82,7 @@ func GetCurrentNode() (Node, error) {
 					Ip:       ip,
 					Name:     ip,
 					Mac:      mac,
+					Hostname: hostname,
 					IsMaster: true,
 				}
 				if err := node.Add(); err != nil {
@@ -239,25 +242,31 @@ func GetNodeCount(query interface{}) (int, error) {
 }
 
 // 节点基本信息
-func GetNodeBaseInfo() (ip string, mac string, key string, error error) {
+func GetNodeBaseInfo() (ip string, mac string, hostname string, key string, error error) {
 	ip, err := register.GetRegister().GetIp()
 	if err != nil {
 		debug.PrintStack()
-		return "", "", "", err
+		return "", "", "", "", err
 	}
 
 	mac, err = register.GetRegister().GetMac()
 	if err != nil {
 		debug.PrintStack()
-		return "", "", "", err
+		return "", "", "", "", err
+	}
+
+	hostname, err = register.GetRegister().GetHostname()
+	if err != nil {
+		debug.PrintStack()
+		return "", "", "", "", err
 	}
 
 	key, err = register.GetRegister().GetKey()
 	if err != nil {
 		debug.PrintStack()
-		return "", "", "", err
+		return "", "", "", "", err
 	}
-	return ip, mac, key, nil
+	return ip, mac, key, hostname, nil
 }
 
 // 根据redis的key值，重置node节点为offline
