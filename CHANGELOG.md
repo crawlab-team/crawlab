@@ -1,3 +1,10 @@
+# 0.4.8 (TBC)
+### Features / Enhancement
+- **Disabled Tutorial by Default**.
+- **Added Related Documentation Sidebar**.
+
+### Bug Fixes
+
 # 0.4.7 (2020-02-24)
 ### Features / Enhancement
 - **Better Support for Scrapy**. Spiders identification, `settings.py` configuration, log level selection, spider selection. [#435](https://github.com/crawlab-team/crawlab/issues/435)
