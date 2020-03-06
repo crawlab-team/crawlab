@@ -42,7 +42,7 @@ spec:
         - name: CRAWLAB_SETTING_ALLOWREGISTER
           value: "Y"
         - name: CRAWLAB_SERVER_LANG_NODE
-          value: "Y"
+          value: "N"
         - name: CRAWLAB_SERVER_LANG_JAVA
           value: "Y"
         ports:

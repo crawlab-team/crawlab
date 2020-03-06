@@ -27,7 +27,7 @@ spec:
         - name: CRAWLAB_REDIS_ADDRESS
           value: "redis"
         - name: CRAWLAB_SERVER_LANG_NODE
-          value: "Y"
+          value: "N"
         - name: CRAWLAB_SERVER_LANG_JAVA
           value: "Y"
           
