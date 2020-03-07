@@ -66,7 +66,7 @@
                   <i class="el-icon-error"></i>
                   {{$t('Not Installed')}}
                 </el-tag>
-                <el-button type="primary" size="mini" @click="onInstall(scope.row._id, scope.column.name)">
+                <el-button type="primary" size="mini" @click="onInstall(scope.row._id, scope.column.label)">
                   {{$t('Install')}}
                 </el-button>
               </div>
@@ -117,7 +117,7 @@ export default {
         const res = await this.$request.get(`/nodes/${n._id}/langs`)
         res.data.data.forEach(l => {
           const key = n._id + '|' + l.executable_name
-          this.dataDict[key] = l
+          this.$set(this.dataDict, key, l)
         })
       }))
     },
@@ -130,10 +130,21 @@ export default {
       if (!lang || !lang.install_status) return 'na'
       return lang.install_status
     },
-    async onInstall (nodeId, langName) {
+    getLangFromLabel (label) {
+      for (let i = 0; i < this.langs.length; i++) {
+        const lang = this.langs[i]
+        if (lang.label === label) {
+          return lang
+        }
+      }
+    },
+    async onInstall (nodeId, langLabel) {
+      const lang = this.getLangFromLabel(langLabel)
       this.$request.post(`/nodes/${nodeId}/langs/install`, {
-        lang: langName
+        lang: lang.name
       })
+      const key = nodeId + '|' + lang.name
+      this.$set(this.dataDict[key], 'install_status', 'installing')
       setTimeout(() => {
         this.getData()
       }, 1000)
@@ -152,7 +163,7 @@ export default {
 
     this.handle = setInterval(() => {
       this.getData()
-    }, 15000)
+    }, 10000)
   },
   destroyed () {
     clearInterval(this.handle)
