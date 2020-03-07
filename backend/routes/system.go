@@ -302,6 +302,20 @@ func InstallLang(c *gin.Context) {
 				return
 			}
 		}
+	} else if reqBody.Lang == constants.Java {
+		if services.IsMasterNode(nodeId) {
+			_, err := services.InstallJavaLocalLang()
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+		} else {
+			_, err := services.InstallJavaRemoteLang(nodeId)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+		}
 	} else {
 		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("%s is not implemented", reqBody.Lang))
 		return

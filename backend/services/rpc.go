@@ -54,6 +54,8 @@ func RpcClientInstallLang(nodeId string, lang string) (output string, err error)
 func RpcServerGetLang(msg RpcMessage) RpcMessage {
 	langName := GetRpcParam("lang", msg.Params)
 	lang := GetLangFromLangNamePlain(langName)
+	l := GetLangLocal(lang)
+	lang.InstallStatus = l.InstallStatus
 
 	// 序列化
 	resultStr, _ := json.Marshal(lang)

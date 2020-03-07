@@ -139,7 +139,7 @@ func GetLangInstallStatus(nodeId string, lang entity.Lang) (string, error) {
 	}
 }
 
-func GetLangLocal(lang entity.Lang) entity.Lang{
+func GetLangLocal(lang entity.Lang) entity.Lang {
 	// 检查是否存在执行路径
 	for _, p := range lang.ExecutablePaths {
 		if utils.Exists(p) {
@@ -198,6 +198,8 @@ func IsInstalledDep(installedDepList []entity.Dependency, dep entity.Dependency)
 	return false
 }
 
+// ========Python========
+
 // 初始化函数
 func InitDepsFetcher() error {
 	c := cron.New(cron.WithSeconds())
@@ -211,10 +213,6 @@ func InitDepsFetcher() error {
 	}()
 	return nil
 }
-
-// =========
-// Python
-// =========
 
 type PythonDepJsonData struct {
 	Info PythonDepJsonDataInfo `json:"info"`
@@ -523,10 +521,11 @@ func UninstallPythonRemoteDep(nodeId string, depName string) (string, error) {
 	return output, nil
 }
 
-// ==============
-// Node.js
-// ==============
+// ========./Python========
 
+// ========Node.js========
+
+// 本地安装Node.js
 func InstallNodejsLocalLang() (string, error) {
 	cmd := exec.Command("/bin/sh", path.Join("scripts", "install-nodejs.sh"))
 	output, err := cmd.Output()
@@ -541,7 +540,7 @@ func InstallNodejsLocalLang() (string, error) {
 	return string(output), nil
 }
 
-// 获取Node.js远端依赖列表
+// 远端安装Node.js
 func InstallNodejsRemoteLang(nodeId string) (string, error) {
 	output, err := RpcClientInstallLang(nodeId, constants.Nodejs)
 	if err != nil {
@@ -671,3 +670,33 @@ func GetNodejsDepList(nodeId string, searchDepName string) (depList []entity.Dep
 
 	return depList, nil
 }
+
+// ========./Node.js========
+
+// ========Java========
+
+// 本地安装Java
+func InstallJavaLocalLang() (string, error) {
+	cmd := exec.Command("/bin/sh", path.Join("scripts", "install-java.sh"))
+	output, err := cmd.Output()
+	if err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return string(output), err
+	}
+
+	// TODO: check if Java is installed successfully
+
+	return string(output), nil
+}
+
+// 远端安装Java
+func InstallJavaRemoteLang(nodeId string) (string, error) {
+	output, err := RpcClientInstallLang(nodeId, constants.Java)
+	if err != nil {
+		return output, err
+	}
+	return output, nil
+}
+
+// ========./Java========

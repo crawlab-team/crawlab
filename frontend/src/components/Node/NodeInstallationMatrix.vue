@@ -150,9 +150,11 @@ export default {
       }, 1000)
     },
     async onInstallAll (langName) {
-      this.nodeList.map(async n => {
-        return this.onInstall(n._id, langName)
-      })
+      this.nodeList
+        .filter(n => n.status === 'online')
+        .forEach(n => {
+          this.onInstall(n._id, langName)
+        })
       setTimeout(() => {
         this.getData()
       }, 1000)
