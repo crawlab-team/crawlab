@@ -347,6 +347,7 @@ export default {
   'Latest Version': '最新版本',
   'Version': '版本',
   'Installed': '已安装',
+  'Not Installed': '未安装',
   'Installing': '正在安装',
   'Other language installing': '其他语言正在安装',
   'This language is not installed yet.': '语言还未安装',
