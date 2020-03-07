@@ -63,7 +63,7 @@
             >
               <div class="cell-with-action">
                 <el-tag type="danger">
-                  <i class="el-icon-close"></i>
+                  <i class="el-icon-error"></i>
                   {{$t('Not Installed')}}
                 </el-tag>
                 <el-button type="primary" size="mini" @click="onInstall(scope.row._id, scope.column.name)">
