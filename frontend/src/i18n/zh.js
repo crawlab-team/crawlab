@@ -349,6 +349,7 @@ export default {
   'Installed': '已安装',
   'Not Installed': '未安装',
   'Installing': '正在安装',
+  'Install All': '安装全部',
   'Other language installing': '其他语言正在安装',
   'This language is not installed yet.': '语言还未安装',
 

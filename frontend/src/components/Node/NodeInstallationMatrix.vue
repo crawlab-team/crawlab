@@ -4,7 +4,7 @@
       <el-table
         class="table"
         :data="nodeList"
-        :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
+        :header-cell-style="{background:'rgb(48, 65, 86)',color:'white',height:'50px'}"
         border
       >
         <el-table-column
@@ -35,8 +35,16 @@
           v-for="l in langs"
           :key="l.name"
           :label="l.label"
-          width="180px"
+          width="220px"
         >
+          <template slot="header" slot-scope="scope">
+            <div class="header-with-action">
+              <span>{{scope.column.label}}</span>
+              <el-button type="primary" size="mini" @click="onInstallAll(scope.column.name)">
+                {{$t('Install')}}
+              </el-button>
+            </div>
+          </template>
           <template slot-scope="scope">
             <template v-if="getLangInstallStatus(scope.row._id, l.name) === 'installed'">
               <el-tag type="success">
@@ -53,10 +61,15 @@
             <template
               v-else-if="['installing-other', 'not-installed'].includes(getLangInstallStatus(scope.row._id, l.name))"
             >
-              <el-tag type="danger">
-                <i class="el-icon-close"></i>
-                {{$t('Not Installed')}}
-              </el-tag>
+              <div class="cell-with-action">
+                <el-tag type="danger">
+                  <i class="el-icon-close"></i>
+                  {{$t('Not Installed')}}
+                </el-tag>
+                <el-button type="primary" size="mini" @click="onInstall(scope.row._id, scope.column.name)">
+                  {{$t('Install')}}
+                </el-button>
+              </div>
             </template>
             <template v-else-if="getLangInstallStatus(scope.row._id, l.name) === 'na'">
               <el-tag type="info">
@@ -97,8 +110,6 @@ export default {
     ...mapState('node', [
       'nodeList'
     ])
-    // computedData () {
-    // }
   },
   methods: {
     async getData () {
@@ -118,6 +129,22 @@ export default {
       const lang = this.getLang(nodeId, langName)
       if (!lang || !lang.install_status) return 'na'
       return lang.install_status
+    },
+    async onInstall (nodeId, langName) {
+      this.$request.post(`/nodes/${nodeId}/langs/install`, {
+        lang: langName
+      })
+      setTimeout(() => {
+        this.getData()
+      }, 1000)
+    },
+    async onInstallAll (langName) {
+      this.nodeList.map(async n => {
+        return this.onInstall(n._id, langName)
+      })
+      setTimeout(() => {
+        this.getData()
+      }, 1000)
     }
   },
   async created () {
@@ -140,5 +167,16 @@ export default {
   }
 
   .lang-table {
+  }
+
+  .lang-table >>> .el-table tr {
+    cursor: initial;
+  }
+
+  .lang-table >>> .el-table .header-with-action,
+  .lang-table >>> .el-table .cell-with-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 </style>
