@@ -165,7 +165,7 @@ func GetLangLocal(lang entity.Lang) entity.Lang {
 }
 
 func GetLangRemote(nodeId string, lang entity.Lang) (entity.Lang, error) {
-	l, err := RpcClientGetLang(nodeId, lang.Name)
+	l, err := RpcClientGetLang(nodeId, lang.ExecutableName)
 	if err != nil {
 		return l, err
 	}
