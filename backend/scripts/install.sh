@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 # install node.js
 if [ "${CRAWLAB_SERVER_LANG_NODE}" = "Y" ];

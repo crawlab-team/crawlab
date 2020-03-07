@@ -62,16 +62,45 @@ func GetSystemInfo(nodeId string) (sysInfo entity.SystemInfo, err error) {
 	return
 }
 
+func getLangList() []entity.Lang {
+	list := []entity.Lang{
+		{
+			Name:              "Python",
+			ExecutableName:    "python",
+			ExecutablePaths:   []string{"/usr/bin/python", "/usr/local/bin/python"},
+			DepExecutablePath: "/usr/local/bin/pip",
+			LockPath:          "/tmp/install-python.lock",
+		},
+		{
+			Name:              "Node.js",
+			ExecutableName:    "node",
+			ExecutablePaths:   []string{"/usr/bin/node", "/usr/local/bin/node"},
+			DepExecutablePath: "/usr/local/bin/npm",
+			LockPath:          "/tmp/install-nodejs.lock",
+		},
+		{
+			Name:            "Java",
+			ExecutableName:  "java",
+			ExecutablePaths: []string{"/usr/bin/java", "/usr/local/bin/java"},
+			LockPath:        "/tmp/install-java.lock",
+		},
+	}
+	return list
+}
+
 // 获取语言列表
 func GetLangList(nodeId string) []entity.Lang {
-	list := []entity.Lang{
-		{Name: "Python", ExecutableName: "python", ExecutablePaths: []string{"/usr/bin/python", "/usr/local/bin/python"}, DepExecutablePath: "/usr/local/bin/pip"},
-		{Name: "Node.js", ExecutableName: "node", ExecutablePaths: []string{"/usr/bin/node", "/usr/local/bin/node"}, DepExecutablePath: "/usr/local/bin/npm"},
-		//{Name: "Java", ExecutableName: "java", ExecutablePaths: []string{"/usr/bin/java", "/usr/local/bin/java"}},
-	}
+	list := getLangList()
 	for i, lang := range list {
-		list[i].Installed = IsInstalledLang(nodeId, lang)
+		status, _ := GetLangInstallStatus(nodeId, lang)
+		list[i].InstallStatus = status
 	}
+	return list
+}
+
+// 获取语言列表
+func GetLangListPlain() []entity.Lang {
+	list := getLangList()
 	return list
 }
 
@@ -84,6 +113,63 @@ func GetLangFromLangName(nodeId string, name string) entity.Lang {
 		}
 	}
 	return entity.Lang{}
+}
+
+// 根据语言名获取语言实例，不包含状态
+func GetLangFromLangNamePlain(name string) entity.Lang {
+	langList := GetLangListPlain()
+	for _, lang := range langList {
+		if lang.ExecutableName == name {
+			return lang
+		}
+	}
+	return entity.Lang{}
+}
+
+func GetLangInstallStatus(nodeId string, lang entity.Lang) (string, error) {
+	if IsMasterNode(nodeId) {
+		lang := GetLangLocal(lang)
+		return lang.InstallStatus, nil
+	} else {
+		lang, err := GetLangRemote(nodeId, lang)
+		if err != nil {
+			return "", err
+		}
+		return lang.InstallStatus, nil
+	}
+}
+
+func GetLangLocal(lang entity.Lang) entity.Lang{
+	// 检查是否存在执行路径
+	for _, p := range lang.ExecutablePaths {
+		if utils.Exists(p) {
+			lang.InstallStatus = constants.InstallStatusInstalled
+			return lang
+		}
+	}
+
+	// 检查是否正在安装
+	if utils.Exists(lang.LockPath) {
+		lang.InstallStatus = constants.InstallStatusInstalling
+		return lang
+	}
+
+	// 检查其他语言是否在安装
+	if utils.Exists("/tmp/install.lock") {
+		lang.InstallStatus = constants.InstallStatusInstallingOther
+		return lang
+	}
+
+	lang.InstallStatus = constants.InstallStatusNotInstalled
+	return lang
+}
+
+func GetLangRemote(nodeId string, lang entity.Lang) (entity.Lang, error) {
+	l, err := RpcClientGetLang(nodeId, lang.Name)
+	if err != nil {
+		return l, err
+	}
+	return l, nil
 }
 
 // 是否已安装该依赖
