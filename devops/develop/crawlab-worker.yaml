@@ -31,4 +31,6 @@ spec:
           value: "N"
         - name: CRAWLAB_SERVER_LANG_JAVA
           value: "Y"
+        - name: CRAWLAB_SERVER_REGISTER_TYPE
+          value: "hostname"
           
