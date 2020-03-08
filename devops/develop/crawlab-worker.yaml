@@ -6,8 +6,6 @@ metadata:
 spec:
   serviceName: crawlab-worker
   replicas: 2
-  strategy:
-    type: Recreate
   selector:
     matchLabels:
       app: crawlab-worker

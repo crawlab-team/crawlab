@@ -19,8 +19,6 @@ metadata:
   namespace: crawlab-develop
 spec:
   serviceName: crawlab-master
-  strategy:
-    type: Recreate
   selector:
     matchLabels:
       app: crawlab-master
