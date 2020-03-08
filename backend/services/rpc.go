@@ -69,7 +69,7 @@ func RpcClientGetLang(nodeId string, langName string) (lang entity.Lang, err err
 	params := map[string]string{}
 	params["lang"] = langName
 
-	data, err := RpcClientFunc(nodeId, constants.RpcGetLang, params, 10)()
+	data, err := RpcClientFunc(nodeId, constants.RpcGetLang, params, 30)()
 	if err != nil {
 		return
 	}
@@ -101,7 +101,7 @@ func RpcClientInstallDep(nodeId string, lang string, depName string) (output str
 	params["lang"] = lang
 	params["dep_name"] = depName
 
-	data, err := RpcClientFunc(nodeId, constants.RpcInstallDep, params, 10)()
+	data, err := RpcClientFunc(nodeId, constants.RpcInstallDep, params, 60)()
 	if err != nil {
 		return
 	}
@@ -162,7 +162,7 @@ func RpcClientGetInstalledDepList(nodeId string, lang string) (list []entity.Dep
 	params := map[string]string{}
 	params["lang"] = lang
 
-	data, err := RpcClientFunc(nodeId, constants.RpcGetInstalledDepList, params, 10)()
+	data, err := RpcClientFunc(nodeId, constants.RpcGetInstalledDepList, params, 30)()
 	if err != nil {
 		return
 	}
