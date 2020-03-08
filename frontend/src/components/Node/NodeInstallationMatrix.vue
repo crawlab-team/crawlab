@@ -40,7 +40,7 @@
           <template slot="header" slot-scope="scope">
             <div class="header-with-action">
               <span>{{scope.column.label}}</span>
-              <el-button type="primary" size="mini" @click="onInstallAll(scope.column.name)">
+              <el-button type="primary" size="mini" @click="onInstallAll(scope.column.label)">
                 {{$t('Install')}}
               </el-button>
             </div>
@@ -113,13 +113,21 @@ export default {
   },
   methods: {
     async getData () {
-      await Promise.all(this.nodeList.map(async n => {
+      // await Promise.all(this.nodeList.map(async n => {
+      //   const res = await this.$request.get(`/nodes/${n._id}/langs`)
+      //   res.data.data.forEach(l => {
+      //     const key = n._id + '|' + l.executable_name
+      //     this.$set(this.dataDict, key, l)
+      //   })
+      // }))
+      for (let i = 0; i < this.nodeList.length; i++) {
+        const n = this.nodeList[i]
         const res = await this.$request.get(`/nodes/${n._id}/langs`)
         res.data.data.forEach(l => {
           const key = n._id + '|' + l.executable_name
           this.$set(this.dataDict, key, l)
         })
-      }))
+      }
     },
     getLang (nodeId, langName) {
       const key = nodeId + '|' + langName
@@ -149,11 +157,11 @@ export default {
         this.getData()
       }, 1000)
     },
-    async onInstallAll (langName) {
+    async onInstallAll (langLabel) {
       this.nodeList
         .filter(n => n.status === 'online')
         .forEach(n => {
-          this.onInstall(n._id, langName)
+          this.onInstall(n._id, langLabel)
         })
       setTimeout(() => {
         this.getData()

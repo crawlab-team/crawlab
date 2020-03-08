@@ -192,21 +192,27 @@ func RpcClientFunc(nodeId string, method string, params map[string]string, timeo
 		// 发送RPC消息
 		msgStr := ObjectToString(msg)
 		if err := database.RedisClient.LPush(fmt.Sprintf("rpc:%s", nodeId), msgStr); err != nil {
+			log.Errorf("RpcClientFunc error: " + err.Error())
+			debug.PrintStack()
 			return result, err
 		}
 
 		// 获取RPC回复消息
 		dataStr, err := database.RedisClient.BRPop(fmt.Sprintf("rpc:%s", nodeId), timeout)
 		if err != nil {
+			log.Errorf("RpcClientFunc error: " + err.Error())
+			debug.PrintStack()
 			return result, err
 		}
 
 		// 反序列化消息
 		if err := json.Unmarshal([]byte(dataStr), &msg); err != nil {
+			log.Errorf("RpcClientFunc error: " + err.Error())
+			debug.PrintStack()
 			return result, err
 		}
 
-		return msg.Result, err
+		return msg.Result, nil
 	}
 }
 
