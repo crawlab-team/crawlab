@@ -1,9 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: crawlab-worker
   namespace: crawlab-develop
 spec:
+  serviceName: crawlab-worker
   replicas: 2
   strategy:
     type: Recreate

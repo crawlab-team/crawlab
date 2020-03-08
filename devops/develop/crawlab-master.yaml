@@ -13,11 +13,12 @@ spec:
   type: NodePort
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: crawlab-master
   namespace: crawlab-develop
 spec:
+  serviceName: crawlab-master
   strategy:
     type: Recreate
   selector:
