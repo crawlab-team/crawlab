@@ -113,13 +113,6 @@ export default {
   },
   methods: {
     async getData () {
-      // await Promise.all(this.nodeList.map(async n => {
-      //   const res = await this.$request.get(`/nodes/${n._id}/langs`)
-      //   res.data.data.forEach(l => {
-      //     const key = n._id + '|' + l.executable_name
-      //     this.$set(this.dataDict, key, l)
-      //   })
-      // }))
       for (let i = 0; i < this.nodeList.length; i++) {
         const n = this.nodeList[i]
         const res = await this.$request.get(`/nodes/${n._id}/langs`)
@@ -169,7 +162,7 @@ export default {
     }
   },
   async created () {
-    await this.getData()
+    this.getData()
 
     this.handle = setInterval(() => {
       this.getData()

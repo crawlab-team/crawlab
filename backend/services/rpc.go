@@ -11,14 +11,16 @@ import (
 	"github.com/apex/log"
 	"github.com/gomodule/redigo/redis"
 	uuid "github.com/satori/go.uuid"
+	"github.com/spf13/viper"
 	"runtime/debug"
 )
 
 type RpcMessage struct {
-	Id     string            `json:"id"`
-	Method string            `json:"method"`
-	Params map[string]string `json:"params"`
-	Result string            `json:"result"`
+	Id      string            `json:"id"`
+	Method  string            `json:"method"`
+	Blocked bool              `json:"blocked"`
+	Params  map[string]string `json:"params"`
+	Result  string            `json:"result"`
 }
 
 // ========安装语言========
@@ -36,13 +38,13 @@ func RpcClientInstallLang(nodeId string, lang string) (output string, err error)
 	params := map[string]string{}
 	params["lang"] = lang
 
-	// 发起 RPC 请求并阻塞，获取服务端数据
-	data, err := RpcClientFunc(nodeId, constants.RpcInstallLang, params, 600)()
-	if err != nil {
-		return
-	}
-
-	output = data
+	// 发起 RPC 请求，获取服务端数据
+	go func() {
+		_, err := RpcClientFunc(nodeId, constants.RpcInstallLang, params, 600)()
+		if err != nil {
+			return
+		}
+	}()
 
 	return
 }
@@ -235,62 +237,64 @@ func StopRpcService() {
 
 // 初始化 RPC 服务
 func InitRpcService() error {
-	go func() {
-		for {
-			// 获取当前节点
-			node, err := model.GetCurrentNode()
-			if err != nil {
-				log.Errorf(err.Error())
-				debug.PrintStack()
-				continue
-			}
-
-			// 获取获取消息队列信息
-			dataStr, err := database.RedisClient.BRPop(fmt.Sprintf("rpc:%s", node.Id.Hex()), 0)
-			if err != nil {
-				if err != redis.ErrNil {
+	for i := 0; i < viper.GetInt("rpc.workers"); i++ {
+		go func() {
+			for {
+				// 获取当前节点
+				node, err := model.GetCurrentNode()
+				if err != nil {
 					log.Errorf(err.Error())
 					debug.PrintStack()
+					continue
 				}
-				continue
-			}
 
-			// 反序列化消息
-			var msg RpcMessage
-			if err := json.Unmarshal([]byte(dataStr), &msg); err != nil {
-				log.Errorf(err.Error())
-				debug.PrintStack()
-				continue
-			}
+				// 获取获取消息队列信息
+				dataStr, err := database.RedisClient.BRPop(fmt.Sprintf("rpc:%s", node.Id.Hex()), 0)
+				if err != nil {
+					if err != redis.ErrNil {
+						log.Errorf(err.Error())
+						debug.PrintStack()
+					}
+					continue
+				}
 
-			// 根据Method调用本地方法
-			var replyMsg RpcMessage
-			if msg.Method == constants.RpcInstallDep {
-				replyMsg = RpcServerInstallDep(msg)
-			} else if msg.Method == constants.RpcUninstallDep {
-				replyMsg = RpcServerUninstallDep(msg)
-			} else if msg.Method == constants.RpcInstallLang {
-				replyMsg = RpcServerInstallLang(msg)
-			} else if msg.Method == constants.RpcGetInstalledDepList {
-				replyMsg = RpcServerGetInstalledDepList(node.Id.Hex(), msg)
-			} else if msg.Method == constants.RpcGetLang {
-				replyMsg = RpcServerGetLang(msg)
-			} else {
-				continue
-			}
+				// 反序列化消息
+				var msg RpcMessage
+				if err := json.Unmarshal([]byte(dataStr), &msg); err != nil {
+					log.Errorf(err.Error())
+					debug.PrintStack()
+					continue
+				}
 
-			// 发送返回消息
-			if err := database.RedisClient.LPush(fmt.Sprintf("rpc:%s", node.Id.Hex()), ObjectToString(replyMsg)); err != nil {
-				log.Errorf(err.Error())
-				debug.PrintStack()
-				continue
-			}
+				// 根据Method调用本地方法
+				var replyMsg RpcMessage
+				if msg.Method == constants.RpcInstallDep {
+					replyMsg = RpcServerInstallDep(msg)
+				} else if msg.Method == constants.RpcUninstallDep {
+					replyMsg = RpcServerUninstallDep(msg)
+				} else if msg.Method == constants.RpcInstallLang {
+					replyMsg = RpcServerInstallLang(msg)
+				} else if msg.Method == constants.RpcGetInstalledDepList {
+					replyMsg = RpcServerGetInstalledDepList(node.Id.Hex(), msg)
+				} else if msg.Method == constants.RpcGetLang {
+					replyMsg = RpcServerGetLang(msg)
+				} else {
+					continue
+				}
 
-			// 如果停止RPC服务，则返回
-			if IsRpcStopped {
-				return
+				// 发送返回消息
+				if err := database.RedisClient.LPush(fmt.Sprintf("rpc:%s", node.Id.Hex()), ObjectToString(replyMsg)); err != nil {
+					log.Errorf(err.Error())
+					debug.PrintStack()
+					continue
+				}
+
+				// 如果停止RPC服务，则返回
+				if IsRpcStopped {
+					return
+				}
 			}
-		}
-	}()
+		}()
+	}
 	return nil
 }
