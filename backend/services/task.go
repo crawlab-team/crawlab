@@ -852,14 +852,6 @@ func SendNotifications(u model.User, t model.Task, s model.Spider) {
 	}
 }
 
-func UnlockLongTask(s model.Spider, n model.Node) {
-	if s.IsLongTask {
-		colName := "long-tasks"
-		key := fmt.Sprintf("%s:%s", s.Id.Hex(), n.Id.Hex())
-		_ = database.RedisClient.HDel(colName, key)
-	}
-}
-
 func InitTaskExecutor() error {
 	c := cron.New(cron.WithSeconds())
 	Exec = &Executor{
