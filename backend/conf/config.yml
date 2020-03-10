@@ -35,14 +35,13 @@ spider:
   path: "/app/spiders"
 task:
   workers: 4
-rpc:
-  workers: 16
 other:
   tmppath: "/tmp"
 version: 0.4.7
 setting:
   allowRegister: "N"
   enableTutorial: "N"
+  runOnMaster: "Y"
 notification:
   mail:
     server: ''

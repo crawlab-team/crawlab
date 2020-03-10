@@ -152,6 +152,10 @@ For Docker Deployment details, please refer to [relevant documentation](https://
 
 ![](http://static-docs.crawlab.cn/schedule-v0.4.4.png)
 
+#### Language Installation
+
+![](http://static-docs.crawlab.cn/node-install-langs.png)
+
 #### Dependency Installation
 
 ![](http://static-docs.crawlab.cn/node-install-dependencies.png)
