@@ -179,7 +179,9 @@ export default {
     }
   },
   async created () {
-    this.getData()
+    setTimeout(() => {
+      this.getData()
+    }, 1000)
 
     this.handle = setInterval(() => {
       this.getData()
