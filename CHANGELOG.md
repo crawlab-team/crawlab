@@ -6,6 +6,7 @@
 - **RPC Support**. Added RPC support to better manage node communication.
 - **Disabled Tutorial by Default**.
 - **Added Related Documentation Sidebar**.
+- **Loading Page Optimization**.
 
 ### Bug Fixes
 
