@@ -157,11 +157,6 @@ var once sync.Once
 
 func GetRegister() Register {
 	once.Do(func() {
-
-		if register != nil {
-			register = register
-		}
-
 		registerType := viper.GetString("server.register.type")
 		if registerType == constants.RegisterTypeMac {
 			register = &MacRegister{}
