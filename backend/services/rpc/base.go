@@ -58,10 +58,12 @@ func GetService(msg entity.RpcMessage) Service {
 	switch msg.Method {
 	case constants.RpcInstallLang:
 		return &InstallLangService{msg: msg}
+	case constants.RpcInstallDep:
+		return &InstallDepService{msg: msg}
+	case constants.RpcUninstallDep:
+		return &UninstallDepService{msg: msg}
 	case constants.RpcGetLang:
 		return &GetLangService{msg: msg}
-	case constants.RpcGetDepList:
-		return &GetDepsService{msg: msg}
 	case constants.RpcGetInstalledDepList:
 		return &GetInstalledDepsService{msg: msg}
 	}

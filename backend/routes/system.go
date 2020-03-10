@@ -135,40 +135,17 @@ func InstallDep(c *gin.Context) {
 		return
 	}
 
-	if reqBody.Lang == constants.Python {
-		if services.IsMasterNode(nodeId) {
-			_, err := services.InstallPythonLocalDep(reqBody.DepName)
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
-		} else {
-			_, err := services.InstallPythonRemoteDep(nodeId, reqBody.DepName)
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
-		}
-	} else if reqBody.Lang == constants.Nodejs {
-		if services.IsMasterNode(nodeId) {
-			_, err := services.InstallNodejsLocalDep(reqBody.DepName)
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
-		} else {
-			_, err := services.InstallNodejsRemoteDep(nodeId, reqBody.DepName)
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
+	if services.IsMasterNode(nodeId) {
+		if err := rpc.InstallDepLocal(reqBody.Lang, reqBody.DepName); err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
 		}
 	} else {
-		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("%s is not implemented", reqBody.Lang))
-		return
+		if err := rpc.InstallDepRemote(nodeId, reqBody.Lang, reqBody.DepName); err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
 	}
-
-	// TODO: check if install is successful
 
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
@@ -189,40 +166,17 @@ func UninstallDep(c *gin.Context) {
 		HandleError(http.StatusBadRequest, c, err)
 	}
 
-	if reqBody.Lang == constants.Python {
-		if services.IsMasterNode(nodeId) {
-			_, err := services.UninstallPythonLocalDep(reqBody.DepName)
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
-		} else {
-			_, err := services.UninstallPythonRemoteDep(nodeId, reqBody.DepName)
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
-		}
-	} else if reqBody.Lang == constants.Nodejs {
-		if services.IsMasterNode(nodeId) {
-			_, err := services.UninstallNodejsLocalDep(reqBody.DepName)
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
-		} else {
-			_, err := services.UninstallNodejsRemoteDep(nodeId, reqBody.DepName)
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
+	if services.IsMasterNode(nodeId) {
+		if err := rpc.UninstallDepLocal(reqBody.Lang, reqBody.DepName); err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
 		}
 	} else {
-		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("%s is not implemented", reqBody.Lang))
-		return
+		if err := rpc.UninstallDepRemote(nodeId, reqBody.Lang, reqBody.DepName); err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
 	}
-
-	// TODO: check if uninstall is successful
 
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
