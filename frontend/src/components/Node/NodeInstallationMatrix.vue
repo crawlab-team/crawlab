@@ -46,7 +46,7 @@
               <template slot="header" slot-scope="scope">
                 <div class="header-with-action">
                   <span>{{scope.column.label}}</span>
-                  <el-button type="primary" size="mini" @click="onInstallAll(scope.column.label)">
+                  <el-button type="primary" size="mini" @click="onInstallAll(scope.column.label, $event)">
                     {{$t('Install')}}
                   </el-button>
                 </div>
@@ -154,7 +154,9 @@ export default {
       }
     },
     async onInstall (nodeId, langLabel, ev) {
-      ev.stopPropagation()
+      if (ev) {
+        ev.stopPropagation()
+      }
       const lang = this.getLangFromLabel(langLabel)
       this.$request.post(`/nodes/${nodeId}/langs/install`, {
         lang: lang.name
@@ -165,11 +167,19 @@ export default {
         this.getData()
       }, 1000)
     },
-    async onInstallAll (langLabel) {
+    async onInstallAll (langLabel, ev) {
+      ev.stopPropagation()
       this.nodeList
-        .filter(n => n.status === 'online')
+        .filter(n => {
+          if (n.status !== 'online') return false
+          const lang = this.getLangFromLabel(langLabel)
+          const key = n._id + '|' + lang.name
+          if (!this.dataDict[key]) return false
+          if (['installing', 'installed'].includes(this.dataDict[key].install_status)) return false
+          return true
+        })
         .forEach(n => {
-          this.onInstall(n._id, langLabel)
+          this.onInstall(n._id, langLabel, ev)
         })
       setTimeout(() => {
         this.getData()
