@@ -91,8 +91,7 @@ func InstallLangRemote(nodeId string, lang string) (o string, err error) {
 		Params:  params,
 		Timeout: 60,
 	})
-	output, err := s.ClientHandle()
-	o = output.(string)
+	_, err = s.ClientHandle()
 	if err != nil {
 		return
 	}
