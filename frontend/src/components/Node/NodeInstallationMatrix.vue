@@ -128,6 +128,7 @@ export default {
     async getData () {
       for (let i = 0; i < this.nodeList.length; i++) {
         const n = this.nodeList[i]
+        if (n.status !== 'online') continue
         const res = await this.$request.get(`/nodes/${n._id}/langs`)
         res.data.data.forEach(l => {
           const key = n._id + '|' + l.executable_name
