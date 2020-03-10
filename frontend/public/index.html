@@ -6,12 +6,14 @@
     <meta name="renderer" content="webkit">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/font-awesome.min.css" type="text/css">
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <style>
         #loading-placeholder {
             position: fixed;
+            background: white;
             z-index: -1;
             top: 0;
             left: 0;
@@ -70,13 +72,31 @@
             animation-delay: calc(1s / 7 * 6 / 2);
         }
 
+        #loading-placeholder .sub-title-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            height: 28px;
+        }
+
+        #loading-placeholder .sub-title-wrapper .sub-title {
+            font-size: 18px;
+            font-weight: 300;
+            font-family: "Verdana", serif;
+            font-style: italic;
+            color: #67C23A;
+            /*color: #E6A23C;*/
+            /*color: #F56C6C;*/
+        }
+
         #loading-placeholder .loading-text {
             text-align: center;
             font-weight: bolder;
             font-family: "Verdana", serif;
             font-style: italic;
             color: #889aa4;
-            font-size: 18px;
+            font-size: 14px;
             animation: blink-loading 2s ease-in infinite;
         }
 
@@ -128,6 +148,9 @@
                 <span>A</span>
                 <span>B</span>
             </h3>
+        </div>
+        <div class="sub-title-wrapper">
+            <span class="sub-title"><i class="fa fa-check-square-o"></i> Easy crawling</span>
         </div>
         <div class="loading-text">
             Loading...
