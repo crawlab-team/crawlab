@@ -22,11 +22,13 @@ services:
       # CRAWLAB_SERVER_REGISTER_TYPE: "mac"  # node register type 节点注册方式. 默认为 mac 地址，也可设置为 ip（防止 mac 地址冲突）
       # CRAWLAB_SERVER_REGISTER_IP: "127.0.0.1"  # node register ip 节点注册IP. 节点唯一识别号，只有当 CRAWLAB_SERVER_REGISTER_TYPE 为 "ip" 时才生效
       # CRAWLAB_TASK_WORKERS: 8  # number of task executors 任务执行器个数（并行执行任务数）
-      # CRAWLAB_RPC_WORKERS: 16  # number of RPC workers RPC 工作协程个数
       # CRAWLAB_SERVER_LANG_NODE: "Y"  # whether to pre-install Node.js 预安装 Node.js 语言环境
       # CRAWLAB_SERVER_LANG_JAVA: "Y"  # whether to pre-install Java 预安装 Java 语言环境
+      # CRAWLAB_SERVER_LANG_DOTNET: "Y"  # whether to pre-install .Net core 预安装 .Net Core 语言环境
+      # CRAWLAB_SERVER_LANG_PHP: "Y"  # whether to pre-install PHP 预安装 PHP 语言环境
       # CRAWLAB_SETTING_ALLOWREGISTER: "N"  # whether to allow user registration 是否允许用户注册
       # CRAWLAB_SETTING_ENABLETUTORIAL: "N"  # whether to enable tutorial 是否启用教程
+      # CRAWLAB_SETTING_RUNONMASTER: "N"  # whether to run on master node 是否在主节点上运行任务
       # CRAWLAB_NOTIFICATION_MAIL_SERVER: smtp.exmaple.com  # STMP server address STMP 服务器地址
       # CRAWLAB_NOTIFICATION_MAIL_PORT: 465  # STMP server port STMP 服务器端口
       # CRAWLAB_NOTIFICATION_MAIL_SENDEREMAIL: admin@exmaple.com  # sender email 发送者邮箱

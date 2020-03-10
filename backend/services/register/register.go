@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"reflect"
 	"runtime/debug"
+	"strings"
 	"sync"
 )
 
@@ -145,7 +146,7 @@ func getHostname() (string, error) {
 		return "", err
 	}
 
-	return stdout.String(), nil
+	return strings.Replace(stdout.String(), "\n", "", -1), nil
 }
 
 // ===================== 获得注册简单工厂 =====================
