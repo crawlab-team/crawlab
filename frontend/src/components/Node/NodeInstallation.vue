@@ -79,7 +79,7 @@
             <template slot-scope="scope">
               <el-button
                 v-if="!scope.row.installed"
-                v-loading="getDepLoading(scope.row)"
+                :icon="getDepLoading(scope.row) ? 'el-icon-loading' : ''"
                 :disabled="getDepLoading(scope.row)"
                 size="mini"
                 type="primary"
@@ -89,7 +89,7 @@
               </el-button>
               <el-button
                 v-else
-                v-loading="getDepLoading(scope.row)"
+                :icon="getDepLoading(scope.row) ? 'el-icon-loading' : ''"
                 :disabled="getDepLoading(scope.row)"
                 size="mini"
                 type="danger"
