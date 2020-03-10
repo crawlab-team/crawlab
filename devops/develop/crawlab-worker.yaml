@@ -31,4 +31,3 @@ spec:
           value: "Y"
         - name: CRAWLAB_SERVER_REGISTER_TYPE
           value: "hostname"
-          

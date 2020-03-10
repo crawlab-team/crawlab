@@ -23,67 +23,6 @@ type RpcMessage struct {
 	Result  string            `json:"result"`
 }
 
-// ========安装语言========
-
-func RpcServerInstallLang(msg RpcMessage) RpcMessage {
-	lang := GetRpcParam("lang", msg.Params)
-	if lang == constants.Nodejs {
-		output, _ := InstallNodejsLocalLang()
-		msg.Result = output
-	}
-	return msg
-}
-
-func RpcClientInstallLang(nodeId string, lang string) (output string, err error) {
-	params := map[string]string{}
-	params["lang"] = lang
-
-	// 发起 RPC 请求，获取服务端数据
-	go func() {
-		_, err := RpcClientFunc(nodeId, constants.RpcInstallLang, params, 600)()
-		if err != nil {
-			return
-		}
-	}()
-
-	return
-}
-
-// ========./安装语言========
-
-// ========获取语言========
-
-func RpcServerGetLang(msg RpcMessage) RpcMessage {
-	langName := GetRpcParam("lang", msg.Params)
-	lang := GetLangFromLangNamePlain(langName)
-	l := GetLangLocal(lang)
-	lang.InstallStatus = l.InstallStatus
-
-	// 序列化
-	resultStr, _ := json.Marshal(lang)
-	msg.Result = string(resultStr)
-	return msg
-}
-
-func RpcClientGetLang(nodeId string, langName string) (lang entity.Lang, err error) {
-	params := map[string]string{}
-	params["lang"] = langName
-
-	data, err := RpcClientFunc(nodeId, constants.RpcGetLang, params, 30)()
-	if err != nil {
-		return
-	}
-
-	// 反序列化结果
-	if err := json.Unmarshal([]byte(data), &lang); err != nil {
-		return lang, err
-	}
-
-	return
-}
-
-// ========./获取语言========
-
 // ========安装依赖========
 
 func RpcServerInstallDep(msg RpcMessage) RpcMessage {
@@ -272,12 +211,6 @@ func InitRpcService() error {
 					replyMsg = RpcServerInstallDep(msg)
 				} else if msg.Method == constants.RpcUninstallDep {
 					replyMsg = RpcServerUninstallDep(msg)
-				} else if msg.Method == constants.RpcInstallLang {
-					replyMsg = RpcServerInstallLang(msg)
-				} else if msg.Method == constants.RpcGetInstalledDepList {
-					replyMsg = RpcServerGetInstalledDepList(node.Id.Hex(), msg)
-				} else if msg.Method == constants.RpcGetLang {
-					replyMsg = RpcServerGetLang(msg)
 				} else {
 					continue
 				}

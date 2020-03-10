@@ -11,7 +11,7 @@ type Handler interface {
 }
 
 func GetMsgHandler(msg entity.NodeMessage) Handler {
-	log.Infof("received msg , type is : %s", msg.Type)
+	log.Debugf("received msg , type is : %s", msg.Type)
 	if msg.Type == constants.MsgTypeGetLog || msg.Type == constants.MsgTypeRemoveLog {
 		// 日志相关
 		return &Log{

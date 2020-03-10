@@ -4,6 +4,7 @@ import (
 	"crawlab/constants"
 	"crawlab/entity"
 	"crawlab/services"
+	"crawlab/services/rpc"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -288,37 +289,18 @@ func InstallLang(c *gin.Context) {
 		return
 	}
 
-	if reqBody.Lang == constants.Nodejs {
-		if services.IsMasterNode(nodeId) {
-			_, err := services.InstallNodejsLocalLang()
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
-		} else {
-			_, err := services.InstallNodejsRemoteLang(nodeId)
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
-		}
-	} else if reqBody.Lang == constants.Java {
-		if services.IsMasterNode(nodeId) {
-			_, err := services.InstallJavaLocalLang()
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
-		} else {
-			_, err := services.InstallJavaRemoteLang(nodeId)
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
+	if services.IsMasterNode(nodeId) {
+		_, err := rpc.InstallLocalLang(reqBody.Lang)
+		if err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
 		}
 	} else {
-		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("%s is not implemented", reqBody.Lang))
-		return
+		_, err := rpc.InstallRemoteLang(nodeId, reqBody.Lang)
+		if err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
 	}
 
 	// TODO: check if install is successful

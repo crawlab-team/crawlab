@@ -9,6 +9,7 @@ import (
 	"crawlab/model"
 	"crawlab/routes"
 	"crawlab/services"
+	"crawlab/services/rpc"
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -116,7 +117,7 @@ func main() {
 	log.Info("initialized spider service successfully")
 
 	// 初始化RPC服务
-	if err := services.InitRpcService(); err != nil {
+	if err := rpc.InitRpcService(); err != nil {
 		log.Error("init rpc service error:" + err.Error())
 		debug.PrintStack()
 		panic(err)
