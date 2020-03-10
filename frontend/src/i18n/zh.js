@@ -352,6 +352,8 @@ export default {
   'Install All': '安装全部',
   'Other language installing': '其他语言正在安装',
   'This language is not installed yet.': '语言还未安装',
+  'Languages': '语言',
+  'Dependencies': '依赖',
 
   // 弹出框
   'Notification': '提示',
