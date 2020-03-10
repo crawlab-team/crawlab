@@ -191,10 +191,10 @@ func GetPythonDepList(nodeId string, searchDepName string) ([]entity.Dependency,
 	// 获取已安装依赖列表
 	var installedDepList []entity.Dependency
 	if IsMasterNode(nodeId) {
-		installedDepList, err = GetPythonLocalInstalledDepList(nodeId)
-		if err != nil {
-			return list, err
-		}
+		//installedDepList, err = GetPythonLocalInstalledDepList(nodeId)
+		//if err != nil {
+		//	return list, err
+		//}
 	} else {
 		installedDepList, err = GetPythonRemoteInstalledDepList(nodeId)
 		if err != nil {
@@ -357,37 +357,6 @@ func UpdatePythonDepList() {
 		debug.PrintStack()
 		return
 	}
-}
-
-// 获取Python本地已安装的依赖列表
-func GetPythonLocalInstalledDepList(nodeId string) ([]entity.Dependency, error) {
-	var list []entity.Dependency
-
-	lang := GetLangFromLangName(nodeId, constants.Python)
-	if !IsInstalledLang(nodeId, lang) {
-		return list, errors.New("python is not installed")
-	}
-	cmd := exec.Command("pip", "freeze")
-	outputBytes, err := cmd.Output()
-	if err != nil {
-		debug.PrintStack()
-		return list, err
-	}
-
-	for _, line := range strings.Split(string(outputBytes), "\n") {
-		arr := strings.Split(line, "==")
-		if len(arr) < 2 {
-			continue
-		}
-		dep := entity.Dependency{
-			Name:      strings.ToLower(arr[0]),
-			Version:   arr[1],
-			Installed: true,
-		}
-		list = append(list, dep)
-	}
-
-	return list, nil
 }
 
 // 获取Python远端依赖列表

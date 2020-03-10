@@ -36,7 +36,7 @@ spider:
 task:
   workers: 4
 rpc:
-  workers: 4
+  workers: 16
 other:
   tmppath: "/tmp"
 version: 0.4.7

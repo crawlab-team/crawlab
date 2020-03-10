@@ -56,41 +56,20 @@ func GetInstalledDepList(c *gin.Context) {
 	nodeId := c.Param("id")
 	lang := c.Query("lang")
 	var depList []entity.Dependency
-	if lang == constants.Python {
-		if services.IsMasterNode(nodeId) {
-			list, err := services.GetPythonLocalInstalledDepList(nodeId)
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
-			depList = list
-		} else {
-			list, err := services.GetPythonRemoteInstalledDepList(nodeId)
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
-			depList = list
+	if services.IsMasterNode(nodeId) {
+		list, err := rpc.GetInstalledDepsLocal(lang)
+		if err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
 		}
-	} else if lang == constants.Nodejs {
-		if services.IsMasterNode(nodeId) {
-			list, err := services.GetNodejsLocalInstalledDepList(nodeId)
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
-			depList = list
-		} else {
-			list, err := services.GetNodejsRemoteInstalledDepList(nodeId)
-			if err != nil {
-				HandleError(http.StatusInternalServerError, c, err)
-				return
-			}
-			depList = list
-		}
+		depList = list
 	} else {
-		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("%s is not implemented", lang))
-		return
+		list, err := rpc.GetInstalledDepsRemote(nodeId, lang)
+		if err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+		depList = list
 	}
 
 	c.JSON(http.StatusOK, Response{
@@ -290,13 +269,13 @@ func InstallLang(c *gin.Context) {
 	}
 
 	if services.IsMasterNode(nodeId) {
-		_, err := rpc.InstallLocalLang(reqBody.Lang)
+		_, err := rpc.InstallLangLocal(reqBody.Lang)
 		if err != nil {
 			HandleError(http.StatusInternalServerError, c, err)
 			return
 		}
 	} else {
-		_, err := rpc.InstallRemoteLang(nodeId, reqBody.Lang)
+		_, err := rpc.InstallLangRemote(nodeId, reqBody.Lang)
 		if err != nil {
 			HandleError(http.StatusInternalServerError, c, err)
 			return

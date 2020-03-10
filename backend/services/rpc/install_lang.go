@@ -18,7 +18,7 @@ type InstallLangService struct {
 
 func (s *InstallLangService) ServerHandle() (entity.RpcMessage, error) {
 	lang := utils.GetRpcParam("lang", s.msg.Params)
-	output, err := InstallLocalLang(lang)
+	output, err := InstallLangLocal(lang)
 	s.msg.Result = output
 	if err != nil {
 		s.msg.Error = err.Error()
@@ -70,7 +70,7 @@ func InstallJavaLocalLang() (string, error) {
 }
 
 // 本地安装语言
-func InstallLocalLang(lang string) (o string, err error) {
+func InstallLangLocal(lang string) (o string, err error) {
 	if lang == constants.Nodejs {
 		o, err = InstallNodejsLocalLang()
 	} else if lang == constants.Java {
@@ -82,7 +82,7 @@ func InstallLocalLang(lang string) (o string, err error) {
 }
 
 // 远端安装语言
-func InstallRemoteLang(nodeId string, lang string) (o string, err error) {
+func InstallLangRemote(nodeId string, lang string) (o string, err error) {
 	params := make(map[string]string)
 	params["lang"] = lang
 	s := GetService(entity.RpcMessage{
