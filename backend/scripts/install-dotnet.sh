@@ -4,13 +4,11 @@ touch /tmp/install.lock
 # lock
 touch /tmp/install-dotnet.lock
 
-apt-get install -y curl
-curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
-sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-artful-prod artful main" > /etc/apt/sources.list.d/dotnetdev.list'
+wget -q https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+dpkg -i packages-microsoft-prod.deb
 apt-get install -y apt-transport-https
-apt-get update -y
-apt-get install -y dotnet-sdk-2.1
+apt-get update
+apt-get install -y dotnet-sdk-2.1 dotnet-runtime-2.1 aspnetcore-runtime-2.1
 
 # unlock global
 rm /tmp/install.lock
