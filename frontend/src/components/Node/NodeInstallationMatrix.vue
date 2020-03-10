@@ -6,6 +6,7 @@
         :data="nodeList"
         :header-cell-style="{background:'rgb(48, 65, 86)',color:'white',height:'50px'}"
         border
+        @row-click="onLangTableRowClick"
       >
         <el-table-column
           :label="$t('Node')"
@@ -66,7 +67,7 @@
                   <i class="el-icon-error"></i>
                   {{$t('Not Installed')}}
                 </el-tag>
-                <el-button type="primary" size="mini" @click="onInstall(scope.row._id, scope.column.label)">
+                <el-button type="primary" size="mini" @click="onInstall(scope.row._id, scope.column.label, $event)">
                   {{$t('Install')}}
                 </el-button>
               </div>
@@ -139,7 +140,8 @@ export default {
         }
       }
     },
-    async onInstall (nodeId, langLabel) {
+    async onInstall (nodeId, langLabel, ev) {
+      ev.stopPropagation()
       const lang = this.getLangFromLabel(langLabel)
       this.$request.post(`/nodes/${nodeId}/langs/install`, {
         lang: lang.name
@@ -159,6 +161,9 @@ export default {
       setTimeout(() => {
         this.getData()
       }, 1000)
+    },
+    onLangTableRowClick (row) {
+      this.$router.push(`/nodes/${row._id}`)
     }
   },
   async created () {
@@ -184,7 +189,7 @@ export default {
   }
 
   .lang-table >>> .el-table tr {
-    cursor: initial;
+    cursor: pointer;
   }
 
   .lang-table >>> .el-table .header-with-action,
