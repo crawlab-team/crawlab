@@ -39,44 +39,18 @@ func (s *InstallLangService) ClientHandle() (o interface{}, err error) {
 	return
 }
 
-// 本地安装Node.js
-func InstallNodejsLocalLang() (string, error) {
-	cmd := exec.Command("/bin/sh", path.Join("scripts", "install-nodejs.sh"))
-	output, err := cmd.Output()
-	if err != nil {
-		log.Error(err.Error())
-		debug.PrintStack()
-		return string(output), err
-	}
-
-	// TODO: check if Node.js is installed successfully
-
-	return string(output), nil
-}
-
-// 本地安装Java
-func InstallJavaLocalLang() (string, error) {
-	cmd := exec.Command("/bin/sh", path.Join("scripts", "install-java.sh"))
-	output, err := cmd.Output()
-	if err != nil {
-		log.Error(err.Error())
-		debug.PrintStack()
-		return string(output), err
-	}
-
-	// TODO: check if Java is installed successfully
-
-	return string(output), nil
-}
-
 // 本地安装语言
 func InstallLangLocal(lang string) (o string, err error) {
-	if lang == constants.Nodejs {
-		o, err = InstallNodejsLocalLang()
-	} else if lang == constants.Java {
-		o, err = InstallNodejsLocalLang()
-	} else {
+	l := utils.GetLangFromLangNamePlain(lang)
+	if l.Name == "" || l.InstallScript == "" {
 		return "", errors.New(fmt.Sprintf("%s is not implemented", lang))
+	}
+	cmd := exec.Command("/bin/sh", path.Join("scripts", l.InstallScript))
+	output, err := cmd.Output()
+	if err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return string(output), err
 	}
 	return
 }

@@ -43,7 +43,9 @@ spec:
         - name: CRAWLAB_SERVER_LANG_NODE
           value: "N"
         - name: CRAWLAB_SERVER_LANG_JAVA
-          value: "Y"
+          value: "N"
+        - name: CRAWLAB_SERVER_LANG_DOTNET
+          value: "N"
         - name: CRAWLAB_SERVER_REGISTER_TYPE
           value: "hostname"
         ports:

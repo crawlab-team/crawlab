@@ -20,6 +20,7 @@ type Lang struct {
 	ExecutablePaths   []string `json:"executable_paths"`
 	DepExecutablePath string   `json:"dep_executable_path"`
 	LockPath          string   `json:"lock_path"`
+	InstallScript     string   `json:"install_script"`
 	InstallStatus     string   `json:"install_status"`
 }
 

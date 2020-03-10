@@ -15,3 +15,11 @@ then
 	/bin/sh /app/backend/scripts/install-java.sh
 	echo "installed java"
 fi
+
+# install dotnet
+if [ "${CRAWLAB_SERVER_LANG_DOTNET}" = "Y" ];
+then
+	echo "installing dotnet"
+	/bin/sh /app/backend/scripts/install-dotnet.sh
+	echo "installed dotnet"
+fi

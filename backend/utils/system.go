@@ -17,12 +17,28 @@ func GetLangList() []entity.Lang {
 			ExecutablePaths:   []string{"/usr/bin/node", "/usr/local/bin/node"},
 			DepExecutablePath: "/usr/local/bin/npm",
 			LockPath:          "/tmp/install-nodejs.lock",
+			InstallScript:     "install-nodejs.sh",
 		},
 		{
 			Name:            "Java",
 			ExecutableName:  "java",
 			ExecutablePaths: []string{"/usr/bin/java", "/usr/local/bin/java"},
 			LockPath:        "/tmp/install-java.lock",
+			InstallScript:   "install-java.sh",
+		},
+		{
+			Name:            ".Net Core",
+			ExecutableName:  "dotnet",
+			ExecutablePaths: []string{"/usr/bin/dotnet", "/usr/local/bin/dotnet"},
+			LockPath:        "/tmp/install-dotnet.lock",
+			InstallScript:   "install-dotnet.sh",
+		},
+		{
+			Name:            "PHP",
+			ExecutableName:  "php",
+			ExecutablePaths: []string{"/usr/bin/php", "/usr/local/bin/php"},
+			LockPath:        "/tmp/install-php.lock",
+			InstallScript:   "install-php.sh",
 		},
 	}
 	return list
