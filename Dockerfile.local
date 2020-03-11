@@ -25,6 +25,9 @@ FROM ubuntu:latest
 # set as non-interactive
 ENV DEBIAN_FRONTEND noninteractive
 
+# set CRAWLAB_IS_DOCKER
+ENV CRAWLAB_IS_DOCKER Y
+
 # install packages
 RUN chmod 777 /tmp \
 	&& apt-get update \

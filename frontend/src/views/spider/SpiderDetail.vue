@@ -22,7 +22,7 @@
       <el-tab-pane :label="$t('Overview')" name="overview">
         <spider-overview/>
       </el-tab-pane>
-      <el-tab-pane v-if="isGit" :label="$t('Git Settings')" name="git-settings">
+      <el-tab-pane v-if="isGit" :label="$t('Git')" name="git-settings">
         <git-settings/>
       </el-tab-pane>
       <el-tab-pane v-if="isScrapy" :label="$t('Scrapy Settings')" name="scrapy-settings">

@@ -29,7 +29,7 @@
               v-for="op in nodeList"
               :key="op._id"
               :value="op._id"
-              :disabled="op.status !== 'online'"
+              :disabled="isNodeDisabled(op)"
               :label="op.name"
             />
           </el-select>
@@ -138,6 +138,9 @@ export default {
   computed: {
     ...mapState('spider', [
       'spiderForm'
+    ]),
+    ...mapState('setting', [
+      'setting'
     ]),
     isConfirmDisabled () {
       if (this.isLoading) return true
@@ -291,6 +294,11 @@ export default {
     onParametersConfirm (value) {
       this.form.param = value
       this.isParametersVisible = false
+    },
+    isNodeDisabled (node) {
+      if (node.status !== 'online') return true
+      if (node.is_master && this.setting.run_on_master === 'N') return true
+      return false
     }
   }
 }

@@ -7,8 +7,10 @@ import (
 )
 
 type SettingBody struct {
-	AllowRegister  string `json:"allow_register"`
-	EnableTutorial string `json:"enable_tutorial"`
+	AllowRegister     string `json:"allow_register"`
+	EnableTutorial    string `json:"enable_tutorial"`
+	RunOnMaster       string `json:"run_on_master"`
+	EnableDemoSpiders string `json:"enable_demo_spiders"`
 }
 
 func GetVersion(c *gin.Context) {
@@ -23,8 +25,10 @@ func GetVersion(c *gin.Context) {
 
 func GetSetting(c *gin.Context) {
 	body := SettingBody{
-		AllowRegister:  viper.GetString("setting.allowRegister"),
-		EnableTutorial: viper.GetString("setting.enableTutorial"),
+		AllowRegister:     viper.GetString("setting.allowRegister"),
+		EnableTutorial:    viper.GetString("setting.enableTutorial"),
+		RunOnMaster:       viper.GetString("setting.runOnMaster"),
+		EnableDemoSpiders: viper.GetString("setting.enableDemoSpiders"),
 	}
 
 	c.JSON(http.StatusOK, Response{

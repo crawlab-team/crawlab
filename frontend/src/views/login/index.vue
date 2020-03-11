@@ -71,7 +71,11 @@
       </div>
       <div class="lang">
         <span @click="setLang('zh')" :class="lang==='zh'?'active':''">中文</span>
+        |
         <span @click="setLang('en')" :class="lang==='en'?'active':''">English</span>
+      </div>
+      <div class="documentation">
+        <a href="http://docs.crawlab.cn" target="_blank">{{$t('Documentation')}}</a>
       </div>
       <div v-if="isShowMobileWarning" class="mobile-warning">
         <el-alert type="error" :closable="false">
@@ -449,19 +453,32 @@ const initCanvas = () => {
     .lang {
       margin-top: 20px;
       text-align: center;
+      color: #666;
 
       span {
         cursor: pointer;
         margin: 10px;
-        color: #666;
         font-size: 14px;
       }
 
       span.active {
         font-weight: 600;
+        text-decoration: underline;
       }
 
       span:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .documentation {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #409eff;
+      font-weight: bolder;
+
+      &:hover {
         text-decoration: underline;
       }
     }

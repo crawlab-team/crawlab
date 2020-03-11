@@ -1,11 +1,19 @@
-#!/bin/env bash
+#!/bin/bash
+
+# lock global
+touch /tmp/install.lock
 
 # lock
 touch /tmp/install-java.lock
 
 # install java
-apt-get update && apt-get install -y default-jdk --fix-missing
+apt-get clean && \
+	apt-get update --fix-missing && \
+	apt-get install -y --fix-missing default-jdk
 ln -s /usr/bin/java /usr/local/bin/java
 
 # unlock
 rm /tmp/install-java.lock
+
+# unlock global
+rm /tmp/install.lock

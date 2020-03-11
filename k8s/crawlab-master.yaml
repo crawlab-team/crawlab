@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: crawlab
-  namespace: crawlab
+  namespace: crawlab-master
 spec:
   ports:
   - port: 8080
@@ -13,13 +13,12 @@ spec:
   type: NodePort
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: crawlab-master
-  namespace: crawlab
+  namespace: crawlab-master
 spec:
-  strategy:
-    type: Recreate
+  serviceName: crawlab-master
   selector:
     matchLabels:
       app: crawlab-master
@@ -39,10 +38,16 @@ spec:
           value: "mongo"
         - name: CRAWLAB_REDIS_ADDRESS
           value: "redis"
-        # - name: CRAWLAB_SERVER_LANG_NODE
-        #   value: "Y"
-        # - name: CRAWLAB_SERVER_LANG_JAVA
-        #   value: "Y"
+        - name: CRAWLAB_SETTING_ALLOWREGISTER
+          value: "Y"
+        - name: CRAWLAB_SERVER_LANG_NODE
+          value: "N"
+        - name: CRAWLAB_SERVER_LANG_JAVA
+          value: "N"
+        - name: CRAWLAB_SERVER_LANG_DOTNET
+          value: "N"
+        - name: CRAWLAB_SERVER_REGISTER_TYPE
+          value: "hostname"
         ports:
         - containerPort: 8080
           name: crawlab

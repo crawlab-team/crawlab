@@ -19,7 +19,9 @@ type Lang struct {
 	ExecutableName    string   `json:"executable_name"`
 	ExecutablePaths   []string `json:"executable_paths"`
 	DepExecutablePath string   `json:"dep_executable_path"`
-	Installed         bool     `json:"installed"`
+	LockPath          string   `json:"lock_path"`
+	InstallScript     string   `json:"install_script"`
+	InstallStatus     string   `json:"install_status"`
 }
 
 type Dependency struct {

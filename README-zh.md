@@ -154,6 +154,10 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-d
 
 ![](http://static-docs.crawlab.cn/schedule-v0.4.4.png)
 
+#### 语言安装
+
+![](http://static-docs.crawlab.cn/node-install-langs.png)
+
 #### 依赖安装
 
 ![](http://static-docs.crawlab.cn/node-install-dependencies.png)

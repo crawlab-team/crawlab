@@ -139,11 +139,11 @@
         </div>
         <!--./table list-->
       </el-tab-pane>
-      <el-tab-pane :label="$t('Network')">
-        <node-network :active-tab="activeTab"/>
-      </el-tab-pane>
       <el-tab-pane :label="$t('Installation')">
         <node-installation-matrix :active-tab="activeTab"/>
+      </el-tab-pane>
+      <el-tab-pane :label="$t('Network')">
+        <node-network :active-tab="activeTab"/>
       </el-tab-pane>
     </el-tabs>
   </div>

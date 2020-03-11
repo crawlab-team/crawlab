@@ -15,6 +15,7 @@ import (
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/gomodule/redigo/redis"
+	"github.com/spf13/viper"
 	"runtime/debug"
 	"time"
 )
@@ -104,6 +105,19 @@ func UpdateNodeStatus() {
 	model.ResetNodeStatusToOffline(list)
 }
 
+func getNodeName(data *Data) string {
+	registerType := viper.GetString("server.register.type")
+	if registerType == constants.RegisterTypeMac {
+		return data.Ip
+	} else if registerType == constants.RegisterTypeIp {
+		return data.Ip
+	} else if registerType == constants.RegisterTypeHostname {
+		return data.Hostname
+	} else {
+		return data.Ip
+	}
+}
+
 // 处理节点信息
 func handleNodeInfo(key string, data *Data) {
 	// 添加同步锁
@@ -122,7 +136,7 @@ func handleNodeInfo(key string, data *Data) {
 		// 数据库不存在该节点
 		node = model.Node{
 			Key:          key,
-			Name:         data.Ip,
+			Name:         getNodeName(data),
 			Ip:           data.Ip,
 			Port:         "8000",
 			Mac:          data.Mac,
