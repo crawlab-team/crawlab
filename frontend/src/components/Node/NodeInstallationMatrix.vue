@@ -362,13 +362,13 @@ export default {
       if (!data || data.error) {
         this.$notify.error({
           title: this.$t('Installing dependency failed'),
-          message: this.$t('The dependency installation is unsuccessful: ') + name
+          message: this.$t('The dependency installation is unsuccessful: ') + dep.name
         })
         this.$set(this.depsDataDict, key, 'uninstalled')
       } else {
         this.$notify.success({
           title: this.$t('Installing dependency successful'),
-          message: this.$t('You have successfully installed a dependency: ') + name
+          message: this.$t('You have successfully installed a dependency: ') + dep.name
         })
         this.$set(this.depsDataDict, key, 'installed')
       }
