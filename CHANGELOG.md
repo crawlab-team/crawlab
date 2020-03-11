@@ -1,4 +1,4 @@
-# 0.4.8 (TBC)
+# 0.4.8 (2020-03-11)
 ### Features / Enhancement
 - **Support Installations of More Programming Languages**. Now users can install or pre-install more programming languages including Java, .Net Core and PHP.
 - **More Git Support**. Allow users to view Git Commits record, and allow checkout to corresponding commit.
