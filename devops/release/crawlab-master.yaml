@@ -13,13 +13,12 @@ spec:
   type: NodePort
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: crawlab-master
   namespace: crawlab-release
 spec:
-  strategy:
-    type: Recreate
+  serviceName: crawlab-master
   selector:
     matchLabels:
       app: crawlab-master
@@ -42,9 +41,13 @@ spec:
         - name: CRAWLAB_SETTING_ALLOWREGISTER
           value: "Y"
         - name: CRAWLAB_SERVER_LANG_NODE
-          value: "Y"
+          value: "N"
         - name: CRAWLAB_SERVER_LANG_JAVA
-          value: "Y"
+          value: "N"
+        - name: CRAWLAB_SERVER_LANG_DOTNET
+          value: "N"
+        - name: CRAWLAB_SERVER_REGISTER_TYPE
+          value: "hostname"
         ports:
         - containerPort: 8080
           name: crawlab
