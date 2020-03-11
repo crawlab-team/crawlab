@@ -16,7 +16,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: crawlab-master
-  namespace: crawlab-master
+  namespace: crawlab
 spec:
   serviceName: crawlab-master
   selector:
