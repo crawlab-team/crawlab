@@ -2,6 +2,7 @@
   <el-tabs
     v-model="activeTabName"
     class="git-settings"
+    @change="onChangeTab"
   >
     <el-tab-pane :label="$t('Settings')" name="settings">
       <el-form
@@ -357,7 +358,7 @@ export default {
         this.isGitCheckoutLoading = false
         await this.getCommits()
       }
-      this.$st.sendEv('爬虫详情', 'Git', 'Checkout')
+      this.$st.sendEv('爬虫详情', 'Git Log', 'Checkout')
     },
     async updateGit () {
       this.getCommits()
@@ -377,6 +378,9 @@ export default {
       if (c.remote_branches && c.remote_branches.length) {
         return 'info'
       }
+    },
+    onChangeTab () {
+      this.$st.sendEv('爬虫详情', 'Git 切换标签', this.activeTabName)
     }
   },
   async created () {
