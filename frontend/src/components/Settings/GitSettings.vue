@@ -162,7 +162,7 @@
           v-for="c in commits"
           :key="c.hash"
           :timestamp="c.ts"
-          :type="c.is_head ? 'primary' : ''"
+          :type="getCommitType(c)"
         >
           <div class="commit">
             <div class="row">
@@ -187,6 +187,15 @@
                   v-for="b in c.branches"
                   :key="b.name"
                   :type="b.label === 'master' ? 'danger' : 'warning'"
+                  size="mini"
+                >
+                  <i class="fa fa-tag"></i>
+                  {{b.label}}
+                </el-tag>
+                <el-tag
+                  v-for="b in c.remote_branches"
+                  :key="b.name"
+                  type="info"
                   size="mini"
                 >
                   <i class="fa fa-tag"></i>
@@ -277,7 +286,7 @@ export default {
         }
       } finally {
         this.isGitSyncLoading = false
-        this.updateGit()
+        await this.updateGit()
         await this.$store.dispatch('spider/getSpiderData', this.$route.params.id)
       }
       this.$st.sendEv('爬虫详情', 'Git 设置', '同步')
@@ -301,7 +310,7 @@ export default {
             }
           } finally {
             this.isGitResetLoading = false
-            this.updateGit()
+            await this.updateGit()
           }
         })
       this.$st.sendEv('爬虫详情', 'Git 设置', '点击重置')
@@ -327,6 +336,22 @@ export default {
     },
     async updateGit () {
       this.getCommits()
+    },
+    getCommitType (c) {
+      if (c.is_head) return 'primary'
+      if (c.branches && c.branches.length) {
+        if (c.branches.map(d => d.name).includes('master')) {
+          return 'danger'
+        } else {
+          return 'warning'
+        }
+      }
+      if (c.tags && c.tags.length) {
+        return 'success'
+      }
+      if (c.remote_branches && c.remote_branches.length) {
+        return 'info'
+      }
     }
   },
   async created () {

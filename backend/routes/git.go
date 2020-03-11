@@ -10,7 +10,7 @@ import (
 
 func GetGitRemoteBranches(c *gin.Context) {
 	url := c.Query("url")
-	branches, err := services.GetGitRemoteBranches(url)
+	branches, err := services.GetGitRemoteBranchesPlain(url)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return

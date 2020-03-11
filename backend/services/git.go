@@ -44,15 +44,16 @@ type GitTag struct {
 }
 
 type GitCommit struct {
-	Hash     string      `json:"hash"`
-	TreeHash string      `json:"tree_hash"`
-	Author   string      `json:"author"`
-	Email    string      `json:"email"`
-	Message  string      `json:"message"`
-	IsHead   bool        `json:"is_head"`
-	Ts       time.Time   `json:"ts"`
-	Branches []GitBranch `json:"branches"`
-	Tags     []GitTag    `json:"tags"`
+	Hash           string      `json:"hash"`
+	TreeHash       string      `json:"tree_hash"`
+	Author         string      `json:"author"`
+	Email          string      `json:"email"`
+	Message        string      `json:"message"`
+	IsHead         bool        `json:"is_head"`
+	Ts             time.Time   `json:"ts"`
+	Branches       []GitBranch `json:"branches"`
+	RemoteBranches []GitBranch `json:"remote_branches"`
+	Tags           []GitTag    `json:"tags"`
 }
 
 func (g *GitCronScheduler) Start() error {
@@ -137,7 +138,7 @@ func SaveSpiderGitSyncError(s model.Spider, errMsg string) {
 }
 
 // 获得Git分支
-func GetGitRemoteBranches(url string) (branches []string, err error) {
+func GetGitRemoteBranchesPlain(url string) (branches []string, err error) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 
@@ -418,6 +419,40 @@ func GetHeadHash(repo *git.Repository) string {
 	return head.Hash().String()
 }
 
+func GetGitRemoteBranches(s model.Spider) (branches []GitBranch, err error) {
+	// 打开 repo
+	repo, err := git.PlainOpen(s.Src)
+	if err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return branches, err
+	}
+
+	iter, err := repo.References()
+	if err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return branches, err
+	}
+	if err := iter.ForEach(func(reference *plumbing.Reference) error {
+		if reference.Name().IsRemote() {
+			log.Infof(reference.Hash().String())
+			log.Infof(reference.Name().String())
+			branches = append(branches, GitBranch{
+				Hash:  reference.Hash().String(),
+				Name:  reference.Name().String(),
+				Label: reference.Name().Short(),
+			})
+		}
+		return nil
+	}); err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return branches, err
+	}
+	return branches, err
+}
+
 func GetGitCommits(s model.Spider) (commits []GitCommit, err error) {
 	// 打开 repo
 	repo, err := git.PlainOpen(s.Src)
@@ -429,14 +464,21 @@ func GetGitCommits(s model.Spider) (commits []GitCommit, err error) {
 
 	// 获取分支列表
 	branches, err := GetGitBranches(s)
-	branchesDict := make(map[string][]GitBranch)
+	branchesDict := map[string][]GitBranch{}
 	for _, b := range branches {
 		branchesDict[b.Hash] = append(branchesDict[b.Hash], b)
 	}
 
+	// 获取分支列表
+	remoteBranches, err := GetGitRemoteBranches(s)
+	remoteBranchesDict := map[string][]GitBranch{}
+	for _, b := range remoteBranches {
+		remoteBranchesDict[b.Hash] = append(remoteBranchesDict[b.Hash], b)
+	}
+
 	// 获取标签列表
 	tags, err := GetGitTags(s)
-	tagsDict := make(map[string][]GitTag)
+	tagsDict := map[string][]GitTag{}
 	for _, t := range tags {
 		tagsDict[t.Hash] = append(tagsDict[t.Hash], t)
 	}
@@ -454,15 +496,16 @@ func GetGitCommits(s model.Spider) (commits []GitCommit, err error) {
 	// 遍历日志
 	if err := iter.ForEach(func(commit *object.Commit) error {
 		gc := GitCommit{
-			Hash:     commit.Hash.String(),
-			TreeHash: commit.TreeHash.String(),
-			Message:  commit.Message,
-			Author:   commit.Author.Name,
-			Email:    commit.Author.Email,
-			Ts:       commit.Author.When,
-			IsHead:   commit.Hash.String() == GetHeadHash(repo),
-			Branches: branchesDict[commit.Hash.String()],
-			Tags:     tagsDict[commit.Hash.String()],
+			Hash:           commit.Hash.String(),
+			TreeHash:       commit.TreeHash.String(),
+			Message:        commit.Message,
+			Author:         commit.Author.Name,
+			Email:          commit.Author.Email,
+			Ts:             commit.Author.When,
+			IsHead:         commit.Hash.String() == GetHeadHash(repo),
+			Branches:       branchesDict[commit.Hash.String()],
+			RemoteBranches: remoteBranchesDict[commit.Hash.String()],
+			Tags:           tagsDict[commit.Hash.String()],
 		}
 		commits = append(commits, gc)
 		return nil
