@@ -852,19 +852,19 @@ func SendNotifications(u model.User, t model.Task, s model.Spider) {
 	}
 }
 
-func UnlockLongTask(s model.Spider, n model.Node) {
-	if s.IsLongTask {
-		colName := "long-tasks"
-		key := fmt.Sprintf("%s:%s", s.Id.Hex(), n.Id.Hex())
-		_ = database.RedisClient.HDel(colName, key)
-	}
-}
-
 func InitTaskExecutor() error {
+	// 构造任务执行器
 	c := cron.New(cron.WithSeconds())
 	Exec = &Executor{
 		Cron: c,
 	}
+
+	// 如果不允许主节点运行任务，则跳过
+	if model.IsMaster() && viper.GetString("setting.runOnMaster") == "N" {
+		return nil
+	}
+
+	// 运行定时任务
 	if err := Exec.Start(); err != nil {
 		return err
 	}

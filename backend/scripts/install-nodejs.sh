@@ -1,4 +1,7 @@
-#!/bin/env bash
+#!/bin/bash
+
+# lock global
+touch /tmp/install.lock
 
 # lock
 touch /tmp/install-nodejs.lock
@@ -39,3 +42,6 @@ npm install puppeteer-chromium-resolver crawlab-sdk -g --unsafe-perm=true --regi
 
 # unlock
 rm /tmp/install-nodejs.lock
+
+# unlock global
+rm /tmp/install.lock

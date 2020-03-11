@@ -64,3 +64,6 @@ jobs:
           if [ "$VERSION" == "develop" ]; then
             curl ${{ secrets.JENKINS_DEVELOP_URL }}
           fi
+          if [ "$VERSION" == "master" ]; then
+            curl ${{ secrets.JENKINS_DEMO_URL }}
+          fi

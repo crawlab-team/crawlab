@@ -1,12 +1,11 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: crawlab-worker
   namespace: crawlab-release
 spec:
+  serviceName: crawlab-worker
   replicas: 2
-  strategy:
-    type: Recreate
   selector:
     matchLabels:
       app: crawlab-worker
@@ -27,6 +26,10 @@ spec:
         - name: CRAWLAB_REDIS_ADDRESS
           value: "redis"
         - name: CRAWLAB_SERVER_LANG_NODE
-          value: "Y"
+          value: "N"
         - name: CRAWLAB_SERVER_LANG_JAVA
-          value: "Y"
+          value: "N"
+        - name: CRAWLAB_SERVER_LANG_DOTNET
+          value: "N"
+        - name: CRAWLAB_SERVER_REGISTER_TYPE
+          value: "hostname"

@@ -9,6 +9,7 @@ import (
 	"crawlab/model"
 	"crawlab/routes"
 	"crawlab/services"
+	"crawlab/services/rpc"
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -116,7 +117,7 @@ func main() {
 	log.Info("initialized spider service successfully")
 
 	// 初始化RPC服务
-	if err := services.InitRpcService(); err != nil {
+	if err := rpc.InitRpcService(); err != nil {
 		log.Error("init rpc service error:" + err.Error())
 		debug.PrintStack()
 		panic(err)
@@ -242,24 +243,26 @@ func main() {
 			{
 				authGroup.GET("/variables", routes.GetVariableList)      // 列表
 				authGroup.PUT("/variable", routes.PutVariable)           // 新增
-				authGroup.POST("/variable/:id", routes.PostVariable)     //修改
-				authGroup.DELETE("/variable/:id", routes.DeleteVariable) //删除
+				authGroup.POST("/variable/:id", routes.PostVariable)     // 修改
+				authGroup.DELETE("/variable/:id", routes.DeleteVariable) // 删除
 			}
 			// 项目
 			{
 				authGroup.GET("/projects", routes.GetProjectList)       // 列表
 				authGroup.GET("/projects/tags", routes.GetProjectTags)  // 项目标签
-				authGroup.PUT("/projects", routes.PutProject)           //修改
+				authGroup.PUT("/projects", routes.PutProject)           // 修改
 				authGroup.POST("/projects/:id", routes.PostProject)     // 新增
-				authGroup.DELETE("/projects/:id", routes.DeleteProject) //删除
+				authGroup.DELETE("/projects/:id", routes.DeleteProject) // 删除
 			}
 			// 统计数据
 			authGroup.GET("/stats/home", routes.GetHomeStats) // 首页统计数据
 			// 文件
 			authGroup.GET("/file", routes.GetFile) // 获取文件
 			// Git
-			authGroup.GET("/git/branches", routes.GetGitBranches)       // 获取 Git 分支
+			authGroup.GET("/git/branches", routes.GetGitRemoteBranches) // 获取 Git 分支
 			authGroup.GET("/git/public-key", routes.GetGitSshPublicKey) // 获取 SSH 公钥
+			authGroup.GET("/git/commits", routes.GetGitCommits)         // 获取 Git Commits
+			authGroup.POST("/git/checkout", routes.PostGitCheckout)         // 获取 Git Commits
 		}
 	}
 

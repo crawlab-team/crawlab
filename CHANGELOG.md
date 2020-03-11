@@ -1,3 +1,21 @@
+# 0.4.8 (2020-03-11)
+### Features / Enhancement
+- **Support Installations of More Programming Languages**. Now users can install or pre-install more programming languages including Java, .Net Core and PHP.
+- **Installation UI Optimization**. Users can better view and manage installations on Node List page.
+- **More Git Support**. Allow users to view Git Commits record, and allow checkout to corresponding commit.
+- **Support Hostname Node Registration Type**. Users can set hostname as the node key as the unique identifier.
+- **RPC Support**. Added RPC support to better manage node communication.
+- **Run On Master Switch**. Users can determine whether to run tasks on master. If not, all tasks will be run only on worker nodes.
+- **Disabled Tutorial by Default**.
+- **Added Related Documentation Sidebar**.
+- **Loading Page Optimization**.
+
+### Bug Fixes
+- **Duplicated Nodes**. [#391](https://github.com/crawlab-team/crawlab/issues/391)
+- **Duplicated Spider Upload**. [#603](https://github.com/crawlab-team/crawlab/issues/603)
+- **Failure in dependencies installation results in unusable dependency installation functionalities.**. [#609](https://github.com/crawlab-team/crawlab/issues/609)
+- **Create Tasks for Offline Nodes**. [#622](https://github.com/crawlab-team/crawlab/issues/622)
+
 # 0.4.7 (2020-02-24)
 ### Features / Enhancement
 - **Better Support for Scrapy**. Spiders identification, `settings.py` configuration, log level selection, spider selection. [#435](https://github.com/crawlab-team/crawlab/issues/435)
