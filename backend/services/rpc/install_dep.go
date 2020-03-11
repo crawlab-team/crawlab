@@ -19,7 +19,8 @@ func (s *InstallDepService) ServerHandle() (entity.RpcMessage, error) {
 	lang := utils.GetRpcParam("lang", s.msg.Params)
 	depName := utils.GetRpcParam("dep_name", s.msg.Params)
 	if err := InstallDepLocal(lang, depName); err != nil {
-		return entity.RpcMessage{}, err
+		s.msg.Error = err.Error()
+		return s.msg, err
 	}
 	s.msg.Result = "success"
 	return s.msg, nil

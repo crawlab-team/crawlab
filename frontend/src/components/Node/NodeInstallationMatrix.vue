@@ -89,6 +89,118 @@
         </div>
       </el-tab-pane>
       <el-tab-pane :label="$t('Dependencies')" name="dep">
+        <el-form class="search-form" inline>
+          <el-form-item>
+            <el-input
+              v-model="depName"
+              style="width: 240px"
+              :placeholder="$t('Search Dependencies')"
+            />
+          </el-form-item>
+          <el-form-item>
+            <el-button size="small"
+                       icon="el-icon-search"
+                       type="success"
+                       @click="onSearch"
+            >
+              {{$t('Search')}}
+            </el-button>
+          </el-form-item>
+          <el-form-item>
+            <el-checkbox v-model="isShowInstalled" :label="$t('Show installed')" @change="onIsShowInstalledChange"/>
+          </el-form-item>
+        </el-form>
+        <el-tabs v-model="activeLang">
+          <el-tab-pane
+            v-for="l in langsWithDeps"
+            :key="l.name"
+            :name="l.name"
+            :label="l.label"
+          />
+        </el-tabs>
+        <el-table
+          v-loading="isDepsLoading"
+          class="table"
+          height="calc(100vh - 320px)"
+          :data="computedDepsSet"
+          :header-cell-style="{background:'rgb(48, 65, 86)',color:'white',height:'50px'}"
+          border
+        >
+          <el-table-column
+            :label="$t('Dependency')"
+            prop="name"
+            width="180px"
+            fixed
+          />
+          <el-table-column
+            v-if="false"
+            :label="$t('Install on All Nodes')"
+            width="120px"
+            align="center"
+            fixed
+          >
+            <template>
+              <el-button
+                size="mini"
+                type="primary"
+              >
+                {{$t('Install')}}
+              </el-button>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-for="n in activeNodes"
+            :key="n._id"
+            :label="n.name"
+            width="220px"
+            align="center"
+          >
+            <template slot="header" slot-scope="scope">
+              {{scope.column.label}}
+            </template>
+            <template slot-scope="scope">
+              <div
+                v-if="getDepStatus(n, scope.row) === 'installed'"
+                class="cell-with-action"
+              >
+                <el-tag type="success">
+                  {{$t('Installed')}}
+                </el-tag>
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="uninstallDep(n, scope.row)"
+                >
+                  {{$t('Uninstall')}}
+                </el-button>
+              </div>
+              <div
+                v-else-if="getDepStatus(n, scope.row) === 'installing'"
+                class="cell-with-action"
+              >
+                <el-tag type="warning">
+                  <i class="el-icon-loading"></i>
+                  {{$t('Installing')}}
+                </el-tag>
+              </div>
+              <div
+                v-else-if="getDepStatus(n, scope.row) === 'uninstalled'"
+                class="cell-with-action"
+              >
+                <el-tag type="danger">
+                  {{$t('Not Installed')}}
+                </el-tag>
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="installDep(n, scope.row)"
+                >
+                  {{$t('Install')}}
+                </el-button>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -108,37 +220,78 @@ export default {
   data () {
     return {
       langs: [
-        { label: 'Python', name: 'python' },
-        { label: 'Node.js', name: 'node' },
-        { label: 'Java', name: 'java' },
-        { label: '.Net Core', name: 'dotnet' },
-        { label: 'PHP', name: 'php' }
+        { label: 'Python', name: 'python', hasDeps: true },
+        { label: 'Node.js', name: 'node', hasDeps: true },
+        { label: 'Java', name: 'java', hasDeps: false },
+        { label: '.Net Core', name: 'dotnet', hasDeps: false },
+        { label: 'PHP', name: 'php', hasDeps: false }
       ],
-      dataDict: {},
+      langsDataDict: {},
       handle: undefined,
-      activeTabName: 'lang'
+      activeTabName: 'lang',
+      depsDataDict: {},
+      depsSet: new Set(),
+      activeLang: 'python',
+      isDepsLoading: false,
+      depName: '',
+      isShowInstalled: true,
+      depList: []
     }
   },
   computed: {
     ...mapState('node', [
       'nodeList'
-    ])
+    ]),
+    activeNodes () {
+      return this.nodeList.filter(d => d.status === 'online')
+    },
+    computedDepsSet () {
+      return Array.from(this.depsSet).map(d => {
+        return {
+          name: d
+        }
+      })
+    },
+    langsWithDeps () {
+      return this.langs.filter(l => l.hasDeps)
+    }
+  },
+  watch: {
+    activeLang () {
+      this.getDepsData()
+    }
   },
   methods: {
-    async getData () {
-      for (let i = 0; i < this.nodeList.length; i++) {
-        const n = this.nodeList[i]
-        if (n.status !== 'online') continue
+    async getLangsData () {
+      await Promise.all(this.nodeList.map(async n => {
+        if (n.status !== 'online') return
         const res = await this.$request.get(`/nodes/${n._id}/langs`)
         res.data.data.forEach(l => {
           const key = n._id + '|' + l.executable_name
-          this.$set(this.dataDict, key, l)
+          this.$set(this.langsDataDict, key, l)
         })
-      }
+      }))
+    },
+    async getDepsData () {
+      this.isDepsLoading = true
+      this.depsDataDict = {}
+      this.depsSet = new Set()
+      const depsSet = new Set()
+      await Promise.all(this.nodeList.map(async n => {
+        if (n.status !== 'online') return
+        const res = await this.$request.get(`/nodes/${n._id}/deps/installed`, { lang: this.activeLang })
+        res.data.data.forEach(d => {
+          depsSet.add(d.name)
+          const key = n._id + '|' + d.name
+          this.$set(this.depsDataDict, key, 'installed')
+        })
+      }))
+      this.depsSet = depsSet
+      this.isDepsLoading = false
     },
     getLang (nodeId, langName) {
       const key = nodeId + '|' + langName
-      return this.dataDict[key]
+      return this.langsDataDict[key]
     },
     getLangInstallStatus (nodeId, langName) {
       const lang = this.getLang(nodeId, langName)
@@ -162,9 +315,9 @@ export default {
         lang: lang.name
       })
       const key = nodeId + '|' + lang.name
-      this.$set(this.dataDict[key], 'install_status', 'installing')
+      this.$set(this.langsDataDict[key], 'install_status', 'installing')
       setTimeout(() => {
-        this.getData()
+        this.getLangsData()
       }, 1000)
     },
     async onInstallAll (langLabel, ev) {
@@ -174,28 +327,105 @@ export default {
           if (n.status !== 'online') return false
           const lang = this.getLangFromLabel(langLabel)
           const key = n._id + '|' + lang.name
-          if (!this.dataDict[key]) return false
-          if (['installing', 'installed'].includes(this.dataDict[key].install_status)) return false
+          if (!this.langsDataDict[key]) return false
+          if (['installing', 'installed'].includes(this.langsDataDict[key].install_status)) return false
           return true
         })
         .forEach(n => {
           this.onInstall(n._id, langLabel, ev)
         })
       setTimeout(() => {
-        this.getData()
+        this.getLangsData()
       }, 1000)
     },
     onLangTableRowClick (row) {
       this.$router.push(`/nodes/${row._id}`)
+    },
+    getDepStatus (node, dep) {
+      const key = node._id + '|' + dep.name
+      if (!this.depsDataDict[key]) {
+        return 'uninstalled'
+      } else {
+        return this.depsDataDict[key]
+      }
+    },
+    async installDep (node, dep) {
+      const key = node._id + '|' + dep.name
+      this.$set(this.depsDataDict, key, 'installing')
+      const data = await this.$request.post(`/nodes/${node._id}/deps/install`, {
+        lang: this.activeLang,
+        dep_name: dep.name
+      })
+      if (!data || data.error) {
+        this.$notify.error({
+          title: this.$t('Installing dependency failed'),
+          message: this.$t('The dependency installation is unsuccessful: ') + name
+        })
+        this.$set(this.depsDataDict, key, 'uninstalled')
+      } else {
+        this.$notify.success({
+          title: this.$t('Installing dependency successful'),
+          message: this.$t('You have successfully installed a dependency: ') + name
+        })
+        this.$set(this.depsDataDict, key, 'installed')
+      }
+      this.$st.sendEv('节点列表', '安装', '安装依赖')
+    },
+    async uninstallDep (node, dep) {
+      const key = node._id + '|' + dep.name
+      this.$set(this.depsDataDict, key, 'installing')
+      const data = await this.$request.post(`/nodes/${node._id}/deps/uninstall`, {
+        lang: this.activeLang,
+        dep_name: dep.name
+      })
+      if (!data || data.error) {
+        this.$notify.error({
+          title: this.$t('Uninstalling dependency failed'),
+          message: this.$t('The dependency uninstallation is unsuccessful: ') + dep.name
+        })
+        this.$set(this.depsDataDict, key, 'installed')
+      } else {
+        this.$notify.success({
+          title: this.$t('Uninstalling dependency successful'),
+          message: this.$t('You have successfully uninstalled a dependency: ') + dep.name
+        })
+        this.$set(this.depsDataDict, key, 'uninstalled')
+      }
+      this.$st.sendEv('节点列表', '安装', '卸载依赖')
+    },
+    onSearch () {
+      this.isShowInstalled = false
+      this.getDepList()
+      this.$st.sendEv('节点列表', '安装', '搜索依赖')
+    },
+    async getDepList () {
+      const masterNode = this.nodeList.filter(n => n.is_master)[0]
+      this.depsSet = []
+      this.isDepsLoading = true
+      const res = await this.$request.get(`/nodes/${masterNode._id}/deps`, {
+        lang: this.activeLang,
+        dep_name: this.depName
+      })
+      this.isDepsLoading = false
+      this.depsSet = new Set(res.data.data.map(d => d.name))
+    },
+    onIsShowInstalledChange (val) {
+      if (val) {
+        this.getDepsData()
+      } else {
+        this.depsSet = []
+      }
+      this.$st.sendEv('节点列表', '安装', '点击查看已安装')
     }
   },
   async created () {
     setTimeout(() => {
-      this.getData()
+      this.getLangsData()
+      this.getDepsData()
     }, 1000)
 
     this.handle = setInterval(() => {
-      this.getData()
+      this.getLangsData()
     }, 10000)
   },
   destroyed () {
@@ -210,15 +440,12 @@ export default {
     border-radius: 5px;
   }
 
-  .lang-table {
-  }
-
-  .lang-table >>> .el-table tr {
+  .el-table tr {
     cursor: pointer;
   }
 
-  .lang-table >>> .el-table .header-with-action,
-  .lang-table >>> .el-table .cell-with-action {
+  .el-table .header-with-action,
+  .el-table .cell-with-action {
     display: flex;
     justify-content: space-between;
     align-items: center;

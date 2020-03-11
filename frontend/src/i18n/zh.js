@@ -354,6 +354,7 @@ export default {
   'This language is not installed yet.': '语言还未安装',
   'Languages': '语言',
   'Dependencies': '依赖',
+  'Install on All Nodes': '安装在所有节点',
 
   // 弹出框
   'Notification': '提示',

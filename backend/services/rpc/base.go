@@ -7,6 +7,7 @@ import (
 	"crawlab/model"
 	"crawlab/utils"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/apex/log"
 	"github.com/gomodule/redigo/redis"
@@ -47,6 +48,11 @@ func ClientFunc(msg entity.RpcMessage) func() (entity.RpcMessage, error) {
 			log.Errorf("RpcClientFunc error: " + err.Error())
 			debug.PrintStack()
 			return replyMsg, err
+		}
+
+		// 如果返回消息有错误，返回错误
+		if replyMsg.Error != "" {
+			return replyMsg, errors.New(replyMsg.Error)
 		}
 
 		return

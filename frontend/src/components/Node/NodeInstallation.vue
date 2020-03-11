@@ -39,7 +39,7 @@
       <el-tab-pane v-for="lang in langList" :key="lang.name" :label="lang.name" :name="lang.executable_name"/>
     </el-tabs>
     <template v-if="activeLang.install_status === 'installed'">
-      <template v-if="activeLang.executable_name === 'java'">
+      <template v-if="!['python', 'node'].includes(activeLang.executable_name)">
         <div class="install-wrapper">
           <el-button
             icon="el-icon-check"
@@ -209,7 +209,7 @@ export default {
     },
     async getInstalledDepList () {
       if (this.activeLang.install_status !== 'installed') return
-      if (this.activeLang.name === 'Java') return
+      if (!['Python', 'Node.js'].includes(this.activeLang.name)) return
 
       this.loading = true
       this.installedDepList = []
