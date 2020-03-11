@@ -173,7 +173,7 @@
                 {{c.author}} ({{c.email}})
               </div>
             </div>
-            <div class="row" style="margin-top: 5px">
+            <div class="row" style="margin-top: 10px">
               <div class="tags">
                 <el-tag
                   v-if="c.is_head"
@@ -211,6 +211,17 @@
                   {{t.label}}
                 </el-tag>
               </div>
+              <div class="actions">
+                <el-button
+                  v-if="!c.is_head"
+                  type="danger"
+                  :icon="isGitCheckoutLoading ? 'el-icon-loading' : 'el-icon-position'"
+                  size="mini"
+                  @click="checkout(c)"
+                >
+                  Checkout
+                </el-button>
+              </div>
             </div>
           </div>
         </el-timeline-item>
@@ -233,6 +244,7 @@ export default {
       isGitBranchesLoading: false,
       isGitSyncLoading: false,
       isGitResetLoading: false,
+      isGitCheckoutLoading: false,
       syncFrequencies: [
         { label: '1m', value: '0 * * * * *' },
         { label: '5m', value: '0 0/5 * * * *' },
@@ -334,13 +346,26 @@ export default {
         return d
       })
     },
+    async checkout (c) {
+      this.isGitCheckoutLoading = true
+      try {
+        const res = await this.$request.post('/git/checkout', { spider_id: this.spiderForm._id, hash: c.hash })
+        if (!res.data.error) {
+          this.$message.success(this.$t('Checkout success'))
+        }
+      } finally {
+        this.isGitCheckoutLoading = false
+        await this.getCommits()
+      }
+      this.$st.sendEv('爬虫详情', 'Git', 'Checkout')
+    },
     async updateGit () {
       this.getCommits()
     },
     getCommitType (c) {
       if (c.is_head) return 'primary'
       if (c.branches && c.branches.length) {
-        if (c.branches.map(d => d.name).includes('master')) {
+        if (c.branches.map(d => d.label).includes('master')) {
           return 'danger'
         } else {
           return 'warning'
@@ -438,5 +463,11 @@ export default {
 
   .git-settings .log .commit .row .tags .el-tag {
     margin-right: 5px;
+  }
+
+  .git-settings .log .commit .row .actions {
+    right: 0;
+    bottom: 5px;
+    position: absolute;
   }
 </style>

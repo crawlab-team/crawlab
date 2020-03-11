@@ -53,3 +53,30 @@ func GetGitCommits(c *gin.Context) {
 		Data:    commits,
 	})
 }
+
+func PostGitCheckout(c *gin.Context) {
+	type ReqBody struct {
+		SpiderId string `json:"spider_id"`
+		Hash     string `json:"hash"`
+	}
+	var reqBody ReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+	}
+	if reqBody.SpiderId == "" || !bson.IsObjectIdHex(reqBody.SpiderId) {
+		HandleErrorF(http.StatusInternalServerError, c, "invalid request")
+		return
+	}
+	spider, err := model.GetSpider(bson.ObjectIdHex(reqBody.SpiderId))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	if err := services.GitCheckout(spider, reqBody.Hash); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}

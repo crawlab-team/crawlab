@@ -360,6 +360,7 @@ func GetGitSshPublicKey() string {
 	return string(content)
 }
 
+// 获取Git分支
 func GetGitBranches(s model.Spider) (branches []GitBranch, err error) {
 	// 打开 repo
 	repo, err := git.PlainOpen(s.Src)
@@ -387,6 +388,7 @@ func GetGitBranches(s model.Spider) (branches []GitBranch, err error) {
 	return branches, nil
 }
 
+// 获取Git Tags
 func GetGitTags(s model.Spider) (tags []GitTag, err error) {
 	// 打开 repo
 	repo, err := git.PlainOpen(s.Src)
@@ -414,11 +416,13 @@ func GetGitTags(s model.Spider) (tags []GitTag, err error) {
 	return tags, nil
 }
 
-func GetHeadHash(repo *git.Repository) string {
+// 获取Git Head Hash
+func GetGitHeadHash(repo *git.Repository) string {
 	head, _ := repo.Head()
 	return head.Hash().String()
 }
 
+// 获取Git远端分支
 func GetGitRemoteBranches(s model.Spider) (branches []GitBranch, err error) {
 	// 打开 repo
 	repo, err := git.PlainOpen(s.Src)
@@ -453,6 +457,7 @@ func GetGitRemoteBranches(s model.Spider) (branches []GitBranch, err error) {
 	return branches, err
 }
 
+// 获取Git Commits
 func GetGitCommits(s model.Spider) (commits []GitCommit, err error) {
 	// 打开 repo
 	repo, err := git.PlainOpen(s.Src)
@@ -502,7 +507,7 @@ func GetGitCommits(s model.Spider) (commits []GitCommit, err error) {
 			Author:         commit.Author.Name,
 			Email:          commit.Author.Email,
 			Ts:             commit.Author.When,
-			IsHead:         commit.Hash.String() == GetHeadHash(repo),
+			IsHead:         commit.Hash.String() == GetGitHeadHash(repo),
 			Branches:       branchesDict[commit.Hash.String()],
 			RemoteBranches: remoteBranchesDict[commit.Hash.String()],
 			Tags:           tagsDict[commit.Hash.String()],
@@ -516,4 +521,36 @@ func GetGitCommits(s model.Spider) (commits []GitCommit, err error) {
 	}
 
 	return commits, nil
+}
+
+func GitCheckout(s model.Spider, hash string) (err error) {
+	// 打开 repo
+	repo, err := git.PlainOpen(s.Src)
+	if err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	// 获取worktree
+	wt, err := repo.Worktree()
+	if err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	// Checkout
+	if err := wt.Checkout(&git.CheckoutOptions{
+		Hash:   plumbing.NewHash(hash),
+		Create: false,
+		Force:  true,
+		Keep:   false,
+	}); err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	return nil
 }
