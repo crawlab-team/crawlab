@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: crawlab-worker
-  namespace: crawlab-master
+  namespace: crawlab
 spec:
   serviceName: crawlab-worker
   replicas: 2
