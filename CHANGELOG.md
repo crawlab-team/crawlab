@@ -1,8 +1,8 @@
 # 0.4.8 (2020-03-11)
 ### Features / Enhancement
 - **Support Installations of More Programming Languages**. Now users can install or pre-install more programming languages including Java, .Net Core and PHP.
-- **More Git Support**. Allow users to view Git Commits record, and allow checkout to corresponding commit.
 - **Installation UI Optimization**. Users can better view and manage installations on Node List page.
+- **More Git Support**. Allow users to view Git Commits record, and allow checkout to corresponding commit.
 - **Support Hostname Node Registration Type**. Users can set hostname as the node key as the unique identifier.
 - **RPC Support**. Added RPC support to better manage node communication.
 - **Run On Master Switch**. Users can determine whether to run tasks on master. If not, all tasks will be run only on worker nodes.
