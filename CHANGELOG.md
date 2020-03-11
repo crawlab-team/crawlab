@@ -11,6 +11,10 @@
 - **Loading Page Optimization**.
 
 ### Bug Fixes
+- **Duplicated Nodes**. [#391](https://github.com/crawlab-team/crawlab/issues/391)
+- **Duplicated Spider Upload**. [#603](https://github.com/crawlab-team/crawlab/issues/603)
+- **Failure in dependencies installation results in unusable dependency installation functionalities.**. [#609](https://github.com/crawlab-team/crawlab/issues/609)
+- **Create Tasks for Offline Nodes**. [#622](https://github.com/crawlab-team/crawlab/issues/622)
 
 # 0.4.7 (2020-02-24)
 ### Features / Enhancement
