@@ -4,6 +4,7 @@
 - **Installation UI Optimization**. Users can better view and manage installations on Node List page.
 - **Support Hostname Node Registration Type**. Users can set hostname as the node key as the unique identifier.
 - **RPC Support**. Added RPC support to better manage node communication.
+- **Run On Master Switch**. Users can determine whether to run tasks on master. If not, all tasks will be run only on worker nodes.
 - **Disabled Tutorial by Default**.
 - **Added Related Documentation Sidebar**.
 - **Loading Page Optimization**.
