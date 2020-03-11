@@ -29,6 +29,7 @@ services:
       # CRAWLAB_SETTING_ALLOWREGISTER: "N"  # whether to allow user registration 是否允许用户注册
       # CRAWLAB_SETTING_ENABLETUTORIAL: "N"  # whether to enable tutorial 是否启用教程
       # CRAWLAB_SETTING_RUNONMASTER: "N"  # whether to run on master node 是否在主节点上运行任务
+      # CRAWLAB_SETTING_DEMOSPIDERS: "Y"  # whether to init demo spiders 是否使用Demo爬虫
       # CRAWLAB_NOTIFICATION_MAIL_SERVER: smtp.exmaple.com  # STMP server address STMP 服务器地址
       # CRAWLAB_NOTIFICATION_MAIL_PORT: 465  # STMP server port STMP 服务器端口
       # CRAWLAB_NOTIFICATION_MAIL_SENDEREMAIL: admin@exmaple.com  # sender email 发送者邮箱

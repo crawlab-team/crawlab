@@ -43,6 +43,7 @@ setting:
   allowRegister: "N"
   enableTutorial: "N"
   runOnMaster: "Y"
+  demoSpiders: "N"
 notification:
   mail:
     server: ''
