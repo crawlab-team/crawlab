@@ -46,7 +46,7 @@
               <template slot="header" slot-scope="scope">
                 <div class="header-with-action">
                   <span>{{scope.column.label}}</span>
-                  <el-button type="primary" size="mini" @click="onInstallAll(scope.column.label, $event)">
+                  <el-button type="primary" size="mini" @click="onInstallLangAll(scope.column.label, $event)">
                     {{$t('Install')}}
                   </el-button>
                 </div>
@@ -72,7 +72,7 @@
                       <i class="el-icon-error"></i>
                       {{$t('Not Installed')}}
                     </el-tag>
-                    <el-button type="primary" size="mini" @click="onInstall(scope.row._id, scope.column.label, $event)">
+                    <el-button type="primary" size="mini" @click="onInstallLang(scope.row._id, scope.column.label, $event)">
                       {{$t('Install')}}
                     </el-button>
                   </div>
@@ -306,7 +306,7 @@ export default {
         }
       }
     },
-    async onInstall (nodeId, langLabel, ev) {
+    async onInstallLang (nodeId, langLabel, ev) {
       if (ev) {
         ev.stopPropagation()
       }
@@ -319,8 +319,9 @@ export default {
       setTimeout(() => {
         this.getLangsData()
       }, 1000)
+      this.$st.sendEv('节点列表', '安装', '安装语言')
     },
-    async onInstallAll (langLabel, ev) {
+    async onInstallLangAll (langLabel, ev) {
       ev.stopPropagation()
       this.nodeList
         .filter(n => {
@@ -332,14 +333,16 @@ export default {
           return true
         })
         .forEach(n => {
-          this.onInstall(n._id, langLabel, ev)
+          this.onInstallLang(n._id, langLabel, ev)
         })
       setTimeout(() => {
         this.getLangsData()
       }, 1000)
+      this.$st.sendEv('节点列表', '安装', '安装语言-所有节点')
     },
     onLangTableRowClick (row) {
       this.$router.push(`/nodes/${row._id}`)
+      this.$st.sendEv('节点列表', '安装', '查看节点详情')
     },
     getDepStatus (node, dep) {
       const key = node._id + '|' + dep.name
