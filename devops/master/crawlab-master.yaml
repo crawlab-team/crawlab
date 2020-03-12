@@ -38,8 +38,6 @@ spec:
           value: "mongo"
         - name: CRAWLAB_REDIS_ADDRESS
           value: "redis"
-        - name: CRAWLAB_SETTING_ALLOWREGISTER
-          value: "Y"
         - name: CRAWLAB_SERVER_LANG_NODE
           value: "N"
         - name: CRAWLAB_SERVER_LANG_JAVA
@@ -48,9 +46,11 @@ spec:
           value: "N"
         - name: CRAWLAB_SERVER_REGISTER_TYPE
           value: "hostname"
-        - name: CRAWLAB_SERVER_DEMOSPIDERS
+        - name: CRAWLAB_SETTING_ALLOWREGISTER
           value: "Y"
-        - name: CRAWLAB_SERVER_ENABLETUTORIAL
+        - name: CRAWLAB_SETTING_ENABLETUTORIAL
+          value: "Y"
+        - name: CRAWLAB_SETTING_DEMOSPIDERS
           value: "Y"
         ports:
         - containerPort: 8080
