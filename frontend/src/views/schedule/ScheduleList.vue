@@ -582,6 +582,9 @@ export default {
     async onSpiderChange (spiderId) {
       await this.$store.dispatch('spider/getSpiderData', spiderId)
       if (this.spiderForm.type === 'customized' && this.spiderForm.is_scrapy) {
+        this.isLoading = true
+        await this.$store.dispatch('spider/getSpiderScrapySpiders', spiderId)
+        this.isLoading = false
         this.$set(this.scheduleForm, 'scrapy_spider', this.spiderForm.spider_names[0])
         this.$set(this.scheduleForm, 'scrapy_log_level', 'INFO')
       }
