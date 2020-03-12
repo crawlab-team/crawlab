@@ -44,6 +44,7 @@ setting:
   enableTutorial: "N"
   runOnMaster: "Y"
   demoSpiders: "N"
+  checkScrapy: "Y"
 notification:
   mail:
     server: ''
