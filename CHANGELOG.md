@@ -1,3 +1,9 @@
+# 0.4.9 (TBC)
+### Features / Enhancement
+
+### Bug Fixes
+- **CLI unable to use on Windows**. [#580](https://github.com/crawlab-team/crawlab/issues/580)
+
 # 0.4.8 (2020-03-11)
 ### Features / Enhancement
 - **Support Installations of More Programming Languages**. Now users can install or pre-install more programming languages including Java, .Net Core and PHP.

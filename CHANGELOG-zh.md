@@ -1,3 +1,9 @@
+# 0.4.9 (TBC)
+### 功能 / 优化
+
+### Bug 修复
+- **CLI 无法在 Windows 上使用**. [#580](https://github.com/crawlab-team/crawlab/issues/580)
+
 # 0.4.8 (2020-03-11)
 ### 功能 / 优化
 - **支持更多编程语言安装**. 现在用户可以安装或预装更多的编程语言，包括 Java、.Net Core、PHP.

@@ -1,0 +1,28 @@
+[
+  {
+    "name": "login_7d",
+    "title_cn": "连续登录 7 天",
+    "title_en": "Logged-in for 7 days",
+    "description_cn": "连续 7 天登录 Crawlab，即可完成挑战！",
+    "description_en": "Logged-in for consecutive 7 days to complete the challenge",
+    "difficulty": 1
+  },
+  {
+    "name": "create_customized_spider",
+    "title_cn": "创建一个自定义爬虫",
+    "title_en": "Create a customized spider",
+    "description_cn": "在爬虫列表中，点击 '添加爬虫'，选择 '自定义爬虫'，输入相应的参数，点击添加，即可完成挑战！",
+    "description_en": "In Spider List page, click 'Add Spider', select 'Customized Spider', enter params, click 'Add' to finish the challenge.",
+    "difficulty": 1,
+    "path": "/spiders"
+  },
+  {
+    "name": "run_random",
+    "title_cn": "用随机模式运行一个爬虫",
+    "title_en": "Run a spider in random mode",
+    "description_cn": "在您创建好的爬虫中，导航到其对应的详情页（爬虫列表中点击爬虫），运行一个爬虫，选择随机模式。",
+    "description_en": "In your created spiders, navigate to corresponding detail page (click spider in Spider List page), run a spider in random mode.",
+    "difficulty": 2,
+    "path": "/spiders"
+  }
+]

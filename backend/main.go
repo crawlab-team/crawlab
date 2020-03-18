@@ -9,6 +9,7 @@ import (
 	"crawlab/model"
 	"crawlab/routes"
 	"crawlab/services"
+	"crawlab/services/challenge"
 	"crawlab/services/rpc"
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
@@ -91,6 +92,14 @@ func main() {
 			panic(err)
 		}
 		log.Info("initialized dependency fetcher successfully")
+
+		// 初始化挑战服务
+		if err := challenge.InitChallengeService(); err != nil {
+			log.Error("init challenge service error:" + err.Error())
+			debug.PrintStack()
+			panic(err)
+		}
+		log.Info("initialized challenge service successfully")
 	}
 
 	// 初始化任务执行器
@@ -254,6 +263,17 @@ func main() {
 				authGroup.POST("/projects/:id", routes.PostProject)     // 新增
 				authGroup.DELETE("/projects/:id", routes.DeleteProject) // 删除
 			}
+			// 挑战
+			{
+				authGroup.GET("/challenges", routes.GetChallengeList) // 挑战列表
+			}
+			// 操作
+			{
+				//authGroup.GET("/actions", routes.GetActionList)   // 操作列表
+				//authGroup.GET("/actions/:id", routes.GetAction)   // 操作
+				authGroup.PUT("/actions", routes.PutAction) // 新增操作
+				//authGroup.POST("/actions/:id", routes.PostAction) // 修改操作
+			}
 			// 统计数据
 			authGroup.GET("/stats/home", routes.GetHomeStats) // 首页统计数据
 			// 文件
@@ -262,7 +282,7 @@ func main() {
 			authGroup.GET("/git/branches", routes.GetGitRemoteBranches) // 获取 Git 分支
 			authGroup.GET("/git/public-key", routes.GetGitSshPublicKey) // 获取 SSH 公钥
 			authGroup.GET("/git/commits", routes.GetGitCommits)         // 获取 Git Commits
-			authGroup.POST("/git/checkout", routes.PostGitCheckout)         // 获取 Git Commits
+			authGroup.POST("/git/checkout", routes.PostGitCheckout)     // 获取 Git Commits
 		}
 	}
 

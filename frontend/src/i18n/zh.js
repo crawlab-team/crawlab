@@ -459,6 +459,14 @@ export default {
   'General': '通用',
   'Enable Tutorial': '启用教程',
 
+  // 挑战
+  'Challenge': '挑战',
+  'Challenges': '挑战',
+  'Difficulty': '难度',
+  'Achieved': '已达成',
+  'Not Achieved': '未达成',
+  'Start Challenge': '开始挑战',
+
   // 全局
   'Related Documentation': '相关文档',
   'Click to view related Documentation': '点击查看相关文档',
