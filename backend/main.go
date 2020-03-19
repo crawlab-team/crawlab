@@ -240,6 +240,7 @@ func main() {
 				authGroup.GET("/users/:id", routes.GetUser)       // 用户详情
 				authGroup.POST("/users/:id", routes.PostUser)     // 更改用户
 				authGroup.DELETE("/users/:id", routes.DeleteUser) // 删除用户
+				authGroup.PUT("/users-add", routes.PutUser)       // 添加用户
 				authGroup.GET("/me", routes.GetMe)                // 获取自己账户
 				authGroup.POST("/me", routes.PostMe)              // 修改自己账户
 			}

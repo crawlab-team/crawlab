@@ -152,7 +152,7 @@ const user = {
 
     // 添加用户
     addUser ({ dispatch, commit, state }) {
-      return request.put('/users', state.userForm)
+      return request.put('/users-add', state.userForm)
     },
     // 新增全局变量
     addGlobalVariable ({ commit, state }) {

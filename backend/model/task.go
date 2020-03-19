@@ -26,7 +26,7 @@ type Task struct {
 	TotalDuration   float64       `json:"total_duration" bson:"total_duration"`
 	Pid             int           `json:"pid" bson:"pid"`
 	RunType         string        `json:"run_type" bson:"run_type"`
-	ScheduleId      bson.ObjectId `json:"schedule_id" bson:"schedule_id"`
+	//ScheduleId      bson.ObjectId `json:"schedule_id" bson:"schedule_id"`
 
 	// 前端数据
 	SpiderName string `json:"spider_name"`

@@ -32,7 +32,7 @@ func (ch *Challenge) Save() error {
 
 	ch.UpdateTs = time.Now()
 
-	if err := c.UpdateId(ch.Id, c); err != nil {
+	if err := c.UpdateId(ch.Id, ch); err != nil {
 		debug.PrintStack()
 		return err
 	}

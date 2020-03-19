@@ -49,6 +49,7 @@
               size="mini"
               type="primary"
               icon="el-icon-s-flag"
+              @click="onStartChallenge(c)"
             >
               {{$t('Start Challenge')}}
             </el-button>
@@ -80,6 +81,13 @@ export default {
       await this.$request.post('/challenges-check')
       const res = await this.$request.get('/challenges')
       this.challenges = res.data.data || []
+    },
+    onStartChallenge (c) {
+      if (c.path) {
+        this.$router.push(c.path)
+      } else {
+        this.$message.success(this.$t('You have started the challenge.'))
+      }
     }
   },
   async created () {
@@ -96,8 +104,8 @@ export default {
   }
 
   .challenge-list .challenge-item {
-    flex-basis: 240px;
-    width: 240px;
+    flex-basis: 280px;
+    width: 280px;
     margin: 10px;
   }
 

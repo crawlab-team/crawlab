@@ -592,6 +592,7 @@ docker run -d --restart always --name crawlab_worker \\
   'Are you sure to stop selected items?': '您是否确认停止所选项？',
   'Sent signals to cancel selected tasks': '已经向所选任务发送取消任务信号',
   'Copied successfully': '已成功复制',
+  'You have started the challenge.': '您已开始挑战',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'
