@@ -65,8 +65,9 @@ type Spider struct {
 	LatestTasks []Task                  `json:"latest_tasks"` // 最近任务列表
 
 	// 时间
-	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
-	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
+	UserId   bson.ObjectId `json:"user_id" bson:"user_id"`
+	CreateTs time.Time     `json:"create_ts" bson:"create_ts"`
+	UpdateTs time.Time     `json:"update_ts" bson:"update_ts"`
 }
 
 // 更新爬虫

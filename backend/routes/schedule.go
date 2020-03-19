@@ -77,7 +77,7 @@ func PutSchedule(c *gin.Context) {
 	}
 
 	// 加入用户ID
-	item.UserId = services.GetCurrentUser(c).Id
+	item.UserId = services.GetCurrentUserId(c)
 
 	// 更新数据库
 	if err := model.AddSchedule(item); err != nil {

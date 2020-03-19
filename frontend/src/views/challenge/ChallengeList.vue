@@ -77,6 +77,7 @@ export default {
   },
   methods: {
     async getData () {
+      await this.$request.post('/challenges-check')
       const res = await this.$request.get('/challenges')
       this.challenges = res.data.data || []
     }

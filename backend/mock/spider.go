@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"crawlab/constants"
 	"crawlab/model"
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,7 @@ var SpiderList = []model.Spider{
 		LastRunTs:   time.Now(),
 		CreateTs:    time.Now(),
 		UpdateTs:    time.Now(),
+		UserId:      constants.ObjectIdNull,
 	},
 }
 

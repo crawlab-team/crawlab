@@ -471,6 +471,7 @@ func InitDemoSpiders () {
 				ProjectId:   bson.ObjectIdHex(constants.ObjectIdNull),
 				FileId:      bson.ObjectIdHex(constants.ObjectIdNull),
 				Cmd:         configData.Cmd,
+				UserId:      bson.ObjectIdHex(constants.ObjectIdNull),
 			}
 			if err := spider.Add(); err != nil {
 				log.Errorf("add spider error: " + err.Error())
@@ -497,6 +498,7 @@ func InitDemoSpiders () {
 				ProjectId:   bson.ObjectIdHex(constants.ObjectIdNull),
 				FileId:      bson.ObjectIdHex(constants.ObjectIdNull),
 				Config:      configData,
+				UserId:      bson.ObjectIdHex(constants.ObjectIdNull),
 			}
 			if err := spider.Add(); err != nil {
 				log.Errorf("add spider error: " + err.Error())

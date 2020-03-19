@@ -115,7 +115,8 @@ func PutTask(c *gin.Context) {
 				SpiderId: reqBody.SpiderId,
 				NodeId:   node.Id,
 				Param:    reqBody.Param,
-				UserId:   services.GetCurrentUser(c).Id,
+				UserId:   services.GetCurrentUserId(c),
+				RunType:  constants.RunTypeAllNodes,
 			}
 
 			id, err := services.AddTask(t)
@@ -131,7 +132,8 @@ func PutTask(c *gin.Context) {
 		t := model.Task{
 			SpiderId: reqBody.SpiderId,
 			Param:    reqBody.Param,
-			UserId:   services.GetCurrentUser(c).Id,
+			UserId:   services.GetCurrentUserId(c),
+			RunType:  constants.RunTypeRandom,
 		}
 		id, err := services.AddTask(t)
 		if err != nil {
@@ -146,7 +148,8 @@ func PutTask(c *gin.Context) {
 				SpiderId: reqBody.SpiderId,
 				NodeId:   nodeId,
 				Param:    reqBody.Param,
-				UserId:   services.GetCurrentUser(c).Id,
+				UserId:   services.GetCurrentUserId(c),
+				RunType:  constants.RunTypeSelectedNodes,
 			}
 
 			id, err := services.AddTask(t)

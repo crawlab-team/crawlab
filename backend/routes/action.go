@@ -56,7 +56,7 @@ func PutAction(c *gin.Context) {
 		return
 	}
 
-	action.UserId = services.GetCurrentUser(c).Id
+	action.UserId = services.GetCurrentUserId(c)
 
 	if err := action.Add(); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)

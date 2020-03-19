@@ -15,11 +15,12 @@ type Project struct {
 	Description string        `json:"description" bson:"description"`
 	Tags        []string      `json:"tags" bson:"tags"`
 
-	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
-	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
-
 	// 前端展示
 	Spiders []Spider `json:"spiders" bson:"spiders"`
+
+	UserId   bson.ObjectId `json:"user_id" bson:"user_id"`
+	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
+	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
 }
 
 func (p *Project) Save() error {

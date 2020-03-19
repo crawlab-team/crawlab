@@ -1,6 +1,7 @@
 package model
 
 import (
+	"crawlab/constants"
 	"crawlab/database"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
@@ -80,6 +81,52 @@ func GetActionListTotal(filter interface{}) (int, error) {
 		return result, err
 	}
 	return result, nil
+}
+
+func GetVisitDays(uid bson.ObjectId) (int, error) {
+	type ResData struct {
+		Days int `json:"days" bson:"days"`
+	}
+	s, c := database.GetCol("actions")
+	defer s.Close()
+
+	pipeline := []bson.M{
+		{
+			"$match": bson.M{
+				"user_id": uid,
+				"type": constants.ActionTypeVisit,
+			},
+		},
+		{
+			"$addFields": bson.M{
+				"date": bson.M{
+					"$dateToString": bson.M{
+						"format": "%Y%m%d",
+						"date": "$create_ts",
+						"timezone": "Asia/Shanghai",
+					},
+				},
+			},
+		},
+		{
+			"$group": bson.M{
+				"_id": "$date",
+			},
+		},
+		{
+			"_id": nil,
+			"days": bson.M{"$sum": 1},
+		},
+	}
+
+	var resData []ResData
+	if err := c.Pipe(pipeline).All(&resData); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return 0, err
+	}
+
+	return resData[0].Days, nil
 }
 
 func UpdateAction(id bson.ObjectId, item Action) error {

@@ -97,8 +97,28 @@ func GetChallengeList(filter interface{}, skip int, limit int, sortKey string) (
 		return challenges, err
 	}
 
-	//for _, ch := range challenges {
-	//}
+	return challenges, nil
+}
+
+func GetChallengeListWithAchieved(filter interface{}, skip int, limit int, sortKey string, uid bson.ObjectId) ([]Challenge, error) {
+	challenges, err := GetChallengeList(filter, skip, limit, sortKey)
+	if err != nil {
+		return challenges, err
+	}
+
+	for i, ch := range challenges {
+		query := bson.M{
+			"user_id":      uid,
+			"challenge_id": ch.Id,
+		}
+
+		list, err := GetChallengeAchievementList(query, 0, 1, "-_id")
+		if err != nil {
+			continue
+		}
+
+		challenges[i].Achieved = len(list) > 0
+	}
 
 	return challenges, nil
 }
@@ -151,4 +171,17 @@ func (ca *ChallengeAchievement) Add() error {
 	}
 
 	return nil
+}
+
+func GetChallengeAchievementList(filter interface{}, skip int, limit int, sortKey string) ([]ChallengeAchievement, error) {
+	s, c := database.GetCol("challenges_achievements")
+	defer s.Close()
+
+	var challengeAchievements []ChallengeAchievement
+	if err := c.Find(filter).Skip(skip).Limit(limit).Sort(sortKey).All(&challengeAchievements); err != nil {
+		debug.PrintStack()
+		return challengeAchievements, err
+	}
+
+	return challengeAchievements, nil
 }

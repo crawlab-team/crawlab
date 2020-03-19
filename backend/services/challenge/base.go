@@ -15,14 +15,14 @@ type Service interface {
 	Check() (bool, error)
 }
 
-func GetService(name string) Service {
+func GetService(name string, uid bson.ObjectId) Service {
 	switch name {
 	case constants.ChallengeLogin7d:
-		return &Login7dService{}
+		return &Login7dService{UserId: uid}
 	case constants.ChallengeCreateCustomizedSpider:
-		return &CreateCustomizedSpiderService{}
+		return &CreateCustomizedSpiderService{UserId: uid}
 	case constants.ChallengeRunRandom:
-		return &RunRandomService{}
+		return &RunRandomService{UserId: uid}
 	}
 	return nil
 }
@@ -42,14 +42,14 @@ func AddChallengeAchievement(name string, uid bson.ObjectId) error {
 	return nil
 }
 
-func CheckChallengeAndUpdate(name string, uid bson.ObjectId) error {
-	svc := GetService(name)
+func CheckChallengeAndUpdate(ch model.Challenge, uid bson.ObjectId) error {
+	svc := GetService(ch.Name, uid)
 	achieved, err := svc.Check()
 	if err != nil {
 		return err
 	}
-	if achieved {
-		if err := AddChallengeAchievement(name, uid); err != nil {
+	if achieved && !ch.Achieved {
+		if err := AddChallengeAchievement(ch.Name, uid); err != nil {
 			return err
 		}
 	}
@@ -57,6 +57,15 @@ func CheckChallengeAndUpdate(name string, uid bson.ObjectId) error {
 }
 
 func CheckChallengeAndUpdateAll(uid bson.ObjectId) error {
+	challenges, err := model.GetChallengeListWithAchieved(nil, 0, constants.Infinite, "-_id", uid)
+	if err != nil {
+		return err
+	}
+	for _, ch := range challenges {
+		if err := CheckChallengeAndUpdate(ch, uid); err != nil {
+			continue
+		}
+	}
 	return nil
 }
 

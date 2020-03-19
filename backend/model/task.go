@@ -25,14 +25,16 @@ type Task struct {
 	RuntimeDuration float64       `json:"runtime_duration" bson:"runtime_duration"`
 	TotalDuration   float64       `json:"total_duration" bson:"total_duration"`
 	Pid             int           `json:"pid" bson:"pid"`
-	UserId          bson.ObjectId `json:"user_id" bson:"user_id"`
+	RunType         string        `json:"run_type" bson:"run_type"`
+	ScheduleId      bson.ObjectId `json:"schedule_id" bson:"schedule_id"`
 
 	// 前端数据
 	SpiderName string `json:"spider_name"`
 	NodeName   string `json:"node_name"`
 
-	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
-	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
+	UserId   bson.ObjectId `json:"user_id" bson:"user_id"`
+	CreateTs time.Time     `json:"create_ts" bson:"create_ts"`
+	UpdateTs time.Time     `json:"update_ts" bson:"update_ts"`
 }
 
 type TaskDailyItem struct {

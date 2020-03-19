@@ -189,6 +189,9 @@ func PutSpider(c *gin.Context) {
 	// 将FileId置空
 	spider.FileId = bson.ObjectIdHex(constants.ObjectIdNull)
 
+	// UserId
+	spider.UserId = services.GetCurrentUserId(c)
+
 	// 爬虫目录
 	spiderDir := filepath.Join(viper.GetString("spider.path"), spider.Name)
 
@@ -273,6 +276,9 @@ func CopySpider(c *gin.Context) {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
+
+	// UserId
+	spider.UserId = services.GetCurrentUserId(c)
 
 	// 复制爬虫
 	if err := services.CopySpider(spider, reqBody.Name); err != nil {
@@ -365,6 +371,8 @@ func UploadSpider(c *gin.Context) {
 			Type:        constants.Customized,
 			Src:         filepath.Join(srcPath, spiderName),
 			FileId:      fid,
+			ProjectId:   bson.ObjectIdHex(constants.ObjectIdNull),
+			UserId:      services.GetCurrentUserId(c),
 		}
 		if name != "" {
 			spider.Name = name
@@ -617,7 +625,8 @@ func RunSelectedSpider(c *gin.Context) {
 					SpiderId: taskParam.SpiderId,
 					NodeId:   node.Id,
 					Param:    taskParam.Param,
-					UserId:   services.GetCurrentUser(c).Id,
+					UserId:   services.GetCurrentUserId(c),
+					RunType:  constants.RunTypeAllNodes,
 				}
 
 				id, err := services.AddTask(t)
@@ -633,7 +642,8 @@ func RunSelectedSpider(c *gin.Context) {
 			t := model.Task{
 				SpiderId: taskParam.SpiderId,
 				Param:    taskParam.Param,
-				UserId:   services.GetCurrentUser(c).Id,
+				UserId:   services.GetCurrentUserId(c),
+				RunType:  constants.RunTypeRandom,
 			}
 			id, err := services.AddTask(t)
 			if err != nil {
@@ -648,7 +658,8 @@ func RunSelectedSpider(c *gin.Context) {
 					SpiderId: taskParam.SpiderId,
 					NodeId:   nodeId,
 					Param:    taskParam.Param,
-					UserId:   services.GetCurrentUser(c).Id,
+					UserId:   services.GetCurrentUserId(c),
+					RunType:  constants.RunTypeSelectedNodes,
 				}
 
 				id, err := services.AddTask(t)

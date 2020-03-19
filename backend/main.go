@@ -265,7 +265,8 @@ func main() {
 			}
 			// 挑战
 			{
-				authGroup.GET("/challenges", routes.GetChallengeList) // 挑战列表
+				authGroup.GET("/challenges", routes.GetChallengeList)          // 挑战列表
+				authGroup.POST("/challenges-check", routes.CheckChallengeList) // 检查挑战列表
 			}
 			// 操作
 			{

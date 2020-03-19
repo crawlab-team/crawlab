@@ -115,3 +115,8 @@ func GetCurrentUser(c *gin.Context) *model.User {
 	data, _ := c.Get("currentUser")
 	return data.(*model.User)
 }
+
+func GetCurrentUserId(c *gin.Context) bson.ObjectId {
+	return GetCurrentUser(c).Id
+}
+
