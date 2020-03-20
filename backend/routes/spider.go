@@ -126,6 +126,11 @@ func PostSpider(c *gin.Context) {
 		return
 	}
 
+	// UserId
+	if !item.UserId.Valid() {
+		item.UserId = bson.ObjectIdHex(constants.ObjectIdNull)
+	}
+
 	if err := model.UpdateSpider(bson.ObjectIdHex(id), item); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return

@@ -51,6 +51,9 @@ func PutConfigSpider(c *gin.Context) {
 	// 将FileId置空
 	spider.FileId = bson.ObjectIdHex(constants.ObjectIdNull)
 
+	// UserId
+	spider.UserId = services.GetCurrentUserId(c)
+
 	// 创建爬虫目录
 	spiderDir := filepath.Join(viper.GetString("spider.path"), spider.Name)
 	if utils.Exists(spiderDir) {
@@ -109,7 +112,11 @@ func UploadConfigSpider(c *gin.Context) {
 	spider, err := model.GetSpider(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("cannot find spider (id: %s)", id))
+		return
 	}
+
+	// UserId
+	spider.UserId = services.GetCurrentUserId(c)
 
 	// 获取上传文件
 	file, header, err := c.Request.FormFile("file")
@@ -205,6 +212,11 @@ func PostConfigSpiderSpiderfile(c *gin.Context) {
 		return
 	}
 
+	// UserId
+	if !spider.UserId.Valid() {
+		spider.UserId = bson.ObjectIdHex(constants.ObjectIdNull)
+	}
+
 	// 反序列化
 	var configData entity.ConfigSpiderData
 	if err := yaml.Unmarshal([]byte(content), &configData); err != nil {
@@ -245,6 +257,11 @@ func PostConfigSpiderConfig(c *gin.Context) {
 	if err != nil {
 		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("cannot find spider (id: %s)", id))
 		return
+	}
+
+	// UserId
+	if !spider.UserId.Valid() {
+		spider.UserId = bson.ObjectIdHex(constants.ObjectIdNull)
 	}
 
 	// 反序列化配置数据
