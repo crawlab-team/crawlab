@@ -627,11 +627,12 @@ func RunSelectedSpider(c *gin.Context) {
 			}
 			for _, node := range nodes {
 				t := model.Task{
-					SpiderId: taskParam.SpiderId,
-					NodeId:   node.Id,
-					Param:    taskParam.Param,
-					UserId:   services.GetCurrentUserId(c),
-					RunType:  constants.RunTypeAllNodes,
+					SpiderId:   taskParam.SpiderId,
+					NodeId:     node.Id,
+					Param:      taskParam.Param,
+					UserId:     services.GetCurrentUserId(c),
+					RunType:    constants.RunTypeAllNodes,
+					ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
 				}
 
 				id, err := services.AddTask(t)
@@ -645,10 +646,11 @@ func RunSelectedSpider(c *gin.Context) {
 		} else if reqBody.RunType == constants.RunTypeRandom {
 			// 随机
 			t := model.Task{
-				SpiderId: taskParam.SpiderId,
-				Param:    taskParam.Param,
-				UserId:   services.GetCurrentUserId(c),
-				RunType:  constants.RunTypeRandom,
+				SpiderId:   taskParam.SpiderId,
+				Param:      taskParam.Param,
+				UserId:     services.GetCurrentUserId(c),
+				RunType:    constants.RunTypeRandom,
+				ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
 			}
 			id, err := services.AddTask(t)
 			if err != nil {
@@ -660,11 +662,12 @@ func RunSelectedSpider(c *gin.Context) {
 			// 指定节点
 			for _, nodeId := range reqBody.NodeIds {
 				t := model.Task{
-					SpiderId: taskParam.SpiderId,
-					NodeId:   nodeId,
-					Param:    taskParam.Param,
-					UserId:   services.GetCurrentUserId(c),
-					RunType:  constants.RunTypeSelectedNodes,
+					SpiderId:   taskParam.SpiderId,
+					NodeId:     nodeId,
+					Param:      taskParam.Param,
+					UserId:     services.GetCurrentUserId(c),
+					RunType:    constants.RunTypeSelectedNodes,
+					ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
 				}
 
 				id, err := services.AddTask(t)
