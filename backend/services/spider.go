@@ -545,6 +545,9 @@ func InitSpiderService() error {
 		if err := GitCron.Start(); err != nil {
 			return err
 		}
+
+		// 清理UserId
+		InitSpiderCleanUserIds()
 	}
 
 	return nil

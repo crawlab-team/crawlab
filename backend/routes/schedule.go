@@ -9,7 +9,12 @@ import (
 )
 
 func GetScheduleList(c *gin.Context) {
-	results, err := model.GetScheduleList(nil)
+	query := bson.M{}
+
+	// 获取校验
+	query = services.GetAuthQuery(query, c)
+
+	results, err := model.GetScheduleList(query)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return

@@ -291,7 +291,8 @@ export default {
         { name: 'scrapy_spider', label: 'Scrapy Spider', width: '150px' },
         { name: 'param', label: 'Parameters', width: '150px' },
         { name: 'description', label: 'Description', width: '200px' },
-        { name: 'enable', label: 'Enable/Disable', width: '120px' }
+        { name: 'enable', label: 'Enable/Disable', width: '120px' },
+        { name: 'username', label: 'Owner', width: '100px' }
         // { name: 'status', label: 'Status', width: '100px' }
       ],
       isEdit: false,
@@ -611,7 +612,7 @@ export default {
     })
 
     // 爬虫列表
-    request.get('/spiders', {})
+    request.get('/spiders', { owner_type: 'all' })
       .then(response => {
         this.spiderList = response.data.data.list || []
       })

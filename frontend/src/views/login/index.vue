@@ -157,9 +157,11 @@ export default {
             this.loading = false
             this.$router.push({ path: this.redirect || '/' })
             this.$store.dispatch('user/getInfo')
+            this.$st.sendEv('全局', '登录', '成功')
           }).catch(() => {
             this.$message.error(this.$t('Error when logging in (Please read documentation Q&A)'))
             this.loading = false
+            this.$st.sendEv('全局', '登录', '失败')
           })
         }
       })
@@ -171,9 +173,11 @@ export default {
           this.$store.dispatch('user/register', this.loginForm).then(() => {
             this.handleLogin()
             this.loading = false
+            this.$st.sendEv('全局', '注册', '成功')
           }).catch(err => {
             this.$message.error(this.$t(err))
             this.loading = false
+            this.$st.sendEv('全局', '注册', '失败')
           })
         }
       })

@@ -208,7 +208,9 @@ docker-compose up -d
     },
     logout () {
       this.$store.dispatch('user/logout')
+      this.$store.dispatch('delAllViews')
       this.$router.push('/login')
+      this.$st.sendEv('全局', '登出')
     },
     setLang (lang) {
       window.localStorage.setItem('lang', lang)

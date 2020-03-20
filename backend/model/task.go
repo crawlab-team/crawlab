@@ -31,6 +31,7 @@ type Task struct {
 	// 前端数据
 	SpiderName string `json:"spider_name"`
 	NodeName   string `json:"node_name"`
+	Username   string `json:"username"`
 
 	UserId   bson.ObjectId `json:"user_id" bson:"user_id"`
 	CreateTs time.Time     `json:"create_ts" bson:"create_ts"`
@@ -128,6 +129,10 @@ func GetTaskList(filter interface{}, skip int, limit int, sortKey string) ([]Tas
 		if node, err := task.GetNode(); err == nil {
 			tasks[i].NodeName = node.Name
 		}
+
+		// 获取用户名称
+		user, _ := GetUser(task.UserId)
+		task.Username = user.Username
 	}
 	return tasks, nil
 }
@@ -156,6 +161,11 @@ func GetTask(id string) (Task, error) {
 		debug.PrintStack()
 		return task, err
 	}
+
+	// 获取用户名称
+	user, _ := GetUser(task.UserId)
+	task.Username = user.Username
+
 	return task, nil
 }
 

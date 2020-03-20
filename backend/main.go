@@ -100,6 +100,14 @@ func main() {
 			panic(err)
 		}
 		log.Info("initialized challenge service successfully")
+
+		// 初始化清理服务
+		if err := services.InitCleanService(); err != nil {
+			log.Error("init clean service error:" + err.Error())
+			debug.PrintStack()
+			panic(err)
+		}
+		log.Info("initialized clean service successfully")
 	}
 
 	// 初始化任务执行器

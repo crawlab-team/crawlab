@@ -47,10 +47,13 @@ func GetTaskList(c *gin.Context) {
 	if data.SpiderId != "" {
 		query["spider_id"] = bson.ObjectIdHex(data.SpiderId)
 	}
-	//新增根据任务状态获取task列表
+	// 根据任务状态获取task列表
 	if data.Status != "" {
 		query["status"] = data.Status
 	}
+
+	// 获取校验
+	query = services.GetAuthQuery(query, c)
 
 	// 获取任务列表
 	tasks, err := model.GetTaskList(query, (data.PageNum-1)*data.PageSize, data.PageSize, "-create_ts")

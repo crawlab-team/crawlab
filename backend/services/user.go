@@ -120,3 +120,11 @@ func GetCurrentUser(c *gin.Context) *model.User {
 func GetCurrentUserId(c *gin.Context) bson.ObjectId {
 	return GetCurrentUser(c).Id
 }
+
+func GetAdminUser() (user *model.User, err error) {
+	u, err := model.GetUserByUsername("admin")
+	if err != nil {
+		return user, err
+	}
+	return &u, nil
+}

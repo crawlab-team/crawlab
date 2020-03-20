@@ -16,11 +16,12 @@ type Project struct {
 	Tags        []string      `json:"tags" bson:"tags"`
 
 	// 前端展示
-	Spiders []Spider `json:"spiders" bson:"spiders"`
+	Spiders  []Spider `json:"spiders" bson:"spiders"`
+	Username string   `json:"username" bson:"username"`
 
 	UserId   bson.ObjectId `json:"user_id" bson:"user_id"`
-	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
-	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
+	CreateTs time.Time     `json:"create_ts" bson:"create_ts"`
+	UpdateTs time.Time     `json:"update_ts" bson:"update_ts"`
 }
 
 func (p *Project) Save() error {
@@ -90,14 +91,20 @@ func GetProject(id bson.ObjectId) (Project, error) {
 	return p, nil
 }
 
-func GetProjectList(filter interface{}, skip int, sortKey string) ([]Project, error) {
+func GetProjectList(filter interface{}, sortKey string) ([]Project, error) {
 	s, c := database.GetCol("projects")
 	defer s.Close()
 
 	var projects []Project
-	if err := c.Find(filter).Skip(skip).Limit(constants.Infinite).Sort(sortKey).All(&projects); err != nil {
+	if err := c.Find(filter).Sort(sortKey).All(&projects); err != nil {
 		debug.PrintStack()
 		return projects, err
+	}
+
+	for i, p := range projects {
+		// 获取用户名称
+		user, _ := GetUser(p.UserId)
+		projects[i].Username = user.Username
 	}
 	return projects, nil
 }

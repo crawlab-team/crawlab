@@ -205,7 +205,8 @@ export default {
         { name: 'wait_duration', label: 'Wait Duration (sec)', align: 'right' },
         { name: 'runtime_duration', label: 'Runtime Duration (sec)', align: 'right' },
         { name: 'total_duration', label: 'Total Duration (sec)', width: '80', align: 'right' },
-        { name: 'result_count', label: 'Results Count', width: '80' }
+        { name: 'result_count', label: 'Results Count', width: '80' },
+        { name: 'username', label: 'Owner', width: '100' }
         // { name: 'avg_num_results', label: 'Average Results Count per Second', width: '80' }
       ],
 

@@ -29,13 +29,14 @@ import (
 // ======== 爬虫管理 ========
 
 func GetSpiderList(c *gin.Context) {
-	pageNum, _ := c.GetQuery("page_num")
-	pageSize, _ := c.GetQuery("page_size")
-	keyword, _ := c.GetQuery("keyword")
-	pid, _ := c.GetQuery("project_id")
-	t, _ := c.GetQuery("type")
-	sortKey, _ := c.GetQuery("sort_key")
-	sortDirection, _ := c.GetQuery("sort_direction")
+	pageNum := c.Query("page_num")
+	pageSize := c.Query("page_size")
+	keyword := c.Query("keyword")
+	pid := c.Query("project_id")
+	t := c.Query("type")
+	sortKey := c.Query("sort_key")
+	sortDirection := c.Query("sort_direction")
+	ownerType := c.Query("owner_type")
 
 	// 筛选-名称
 	filter := bson.M{
@@ -63,6 +64,21 @@ func GetSpiderList(c *gin.Context) {
 		}
 	} else {
 		filter["project_id"] = bson.ObjectIdHex(pid)
+	}
+
+	// 筛选-用户
+	if ownerType == constants.OwnerTypeAll {
+		user := services.GetCurrentUser(c)
+		if user.Role == constants.RoleNormal {
+			filter["$or"] = []bson.M{
+				{"user_id": services.GetCurrentUserId(c)},
+				{"is_public": true},
+			}
+		}
+	} else if ownerType == constants.OwnerTypeMe {
+		filter["user_id"] = services.GetCurrentUserId(c)
+	} else if ownerType == constants.OwnerTypePublic {
+		filter["is_public"] = true
 	}
 
 	// 排序
@@ -815,7 +831,7 @@ func GetSpiderStats(c *gin.Context) {
 	overview.AvgWaitDuration = overview.TotalWaitDuration / taskCount
 	overview.AvgRuntimeDuration = overview.TotalRuntimeDuration / taskCount
 
-	items, err := model.GetDailyTaskStats(bson.M{"spider_id": spider.Id})
+	items, err := model.GetDailyTaskStats(bson.M{"spider_id": spider.Id, "user_id": bson.M{"user_id": services.GetCurrentUserId(c)}})
 	if err != nil {
 		log.Errorf(err.Error())
 		HandleError(http.StatusInternalServerError, c, err)

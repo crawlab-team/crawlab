@@ -222,6 +222,11 @@ export default {
   'Add Variable': '添加变量',
   'Copy Spider': '复制爬虫',
   'New Spider Name': '新爬虫名称',
+  'All Spiders': '所有爬虫',
+  'My Spiders': '我的爬虫',
+  'Public Spiders': '公共爬虫',
+  'Is Public': '是否公共',
+  'Owner': '所有者',
 
   // 爬虫列表
   'Name': '名称',

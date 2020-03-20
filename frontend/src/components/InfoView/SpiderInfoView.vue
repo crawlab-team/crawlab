@@ -16,14 +16,14 @@
           <el-input v-model="spiderForm._id" :placeholder="$t('Spider ID')" disabled></el-input>
         </el-form-item>
         <el-form-item :label="$t('Spider Name')">
-          <el-input v-model="spiderForm.display_name" :placeholder="$t('Spider Name')" :disabled="isView"></el-input>
+          <el-input v-model="spiderForm.display_name" :placeholder="$t('Spider Name')" :disabled="isView || isPublic"/>
         </el-form-item>
         <el-form-item :label="$t('Project')" prop="project_id" required>
           <el-select
             v-model="spiderForm.project_id"
             :placeholder="$t('Project')"
             filterable
-            :disabled="isView"
+            :disabled="isView || isPublic"
           >
             <el-option
               v-for="p in projectList"
@@ -41,13 +41,16 @@
             <el-input
               v-model="spiderForm.cmd"
               :placeholder="$t('Execute Command')"
-              :disabled="isView || spiderForm.is_scrapy"
+              :disabled="isView || spiderForm.is_scrapy || isPublic"
             />
           </el-form-item>
         </template>
         <el-form-item :label="$t('Results Collection')" prop="col">
-          <el-input v-model="spiderForm.col" :placeholder="$t('Results Collection')"
-                    :disabled="isView"></el-input>
+          <el-input
+            v-model="spiderForm.col"
+            :placeholder="$t('Results Collection')"
+            :disabled="isView || isPublic"
+          />
         </el-form-item>
         <el-form-item :label="$t('Spider Type')">
           <el-select v-model="spiderForm.type" :placeholder="$t('Spider Type')" :disabled="true" clearable>
@@ -56,7 +59,12 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('Remark')">
-          <el-input type="textarea" v-model="spiderForm.remark" :placeholder="$t('Remark')" :disabled="isView"/>
+          <el-input
+            type="textarea"
+            v-model="spiderForm.remark"
+            :placeholder="$t('Remark')"
+            :disabled="isView || isPublic"
+          />
         </el-form-item>
         <el-row>
           <el-col :span="6">
@@ -64,6 +72,7 @@
               <el-switch
                 v-model="spiderForm.is_scrapy"
                 active-color="#13ce66"
+                :disabled="isView || isPublic"
                 @change="onIsScrapyChange"
               />
             </el-form-item>
@@ -73,6 +82,7 @@
               <el-switch
                 v-model="spiderForm.is_git"
                 active-color="#13ce66"
+                :disabled="isView || isPublic"
               />
             </el-form-item>
           </el-col>
@@ -81,6 +91,18 @@
               <el-switch
                 v-model="spiderForm.is_long_task"
                 active-color="#13ce66"
+                :disabled="isView || isPublic"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="6">
+            <el-form-item v-if="!isView" :label="$t('Is Public')" prop="is_public">
+              <el-switch
+                v-model="spiderForm.is_public"
+                active-color="#13ce66"
+                :disabled="isView || isPublic"
               />
             </el-form-item>
           </el-col>
@@ -88,7 +110,7 @@
       </el-form>
     </el-row>
     <el-row class="button-container" v-if="!isView">
-      <el-button size="small" v-if="isShowRun" type="danger" @click="onCrawl"
+      <el-button size="small" v-if="isShowRun && !isPublic" type="danger" @click="onCrawl"
                  icon="el-icon-video-play" style="margin-right: 10px">
         {{$t('Run')}}
       </el-button>
@@ -102,11 +124,11 @@
         :file-list="fileList"
         style="display:inline-block;margin-right:10px"
       >
-        <el-button size="small" type="primary" icon="el-icon-upload" v-loading="uploadLoading">
+        <el-button v-if="!isPublic" size="small" type="primary" icon="el-icon-upload" v-loading="uploadLoading">
           {{$t('Upload')}}
         </el-button>
       </el-upload>
-      <el-button size="small" type="success" @click="onSave" icon="el-icon-check">
+      <el-button v-if="!isPublic" size="small" type="success" @click="onSave" icon="el-icon-check">
         {{$t('Save')}}
       </el-button>
     </el-row>
@@ -162,6 +184,7 @@ export default {
       'spiderForm'
     ]),
     ...mapGetters('user', [
+      'userInfo',
       'token'
     ]),
     ...mapState('project', [
@@ -173,6 +196,9 @@ export default {
       } else {
         return true
       }
+    },
+    isPublic () {
+      return this.spiderForm.is_public && this.spiderForm.username !== this.userInfo.username
     }
   },
   methods: {
