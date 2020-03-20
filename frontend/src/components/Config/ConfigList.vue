@@ -131,14 +131,21 @@
 
           <div class="button-group-container">
             <div class="button-group">
-              <el-button id="btn-run" size="small" type="danger" @click="onCrawl">
+              <el-button id="btn-run" size="small" type="danger" :disabled="isDisabled" @click="onCrawl">
                 {{$t('Run')}}
               </el-button>
               <!--              <el-button type="primary" @click="onExtractFields" v-loading="extractFieldsLoading">-->
               <!--                {{$t('ExtractFields')}}-->
               <!--              </el-button>-->
               <!--              <el-button type="warning" @click="onPreview" v-loading="previewLoading">{{$t('Preview')}}</el-button>-->
-              <el-button id="btn-save" size="small" type="success" @click="onSave" v-loading="saveLoading">
+              <el-button
+                id="btn-save"
+                size="small"
+                type="success"
+                :disabled="saveLoading || isDisabled"
+                @click="onSave"
+                :icon="saveLoading ? 'el-icon-loading' : ''"
+              >
                 {{$t('Save')}}
               </el-button>
             </div>
@@ -303,7 +310,7 @@
       <!--Setting-->
       <el-tab-pane name="settings" :label="$t('Settings')">
         <div class="actions" style="text-align: right;margin-bottom: 10px">
-          <el-button type="success" size="small" @click="onSave">
+          <el-button type="success" size="small" :disabled="isDisabled" @click="onSave">
             {{$t('Save')}}
           </el-button>
         </div>
@@ -316,7 +323,13 @@
       <!--Spiderfile-->
       <el-tab-pane name="spiderfile" label="Spiderfile">
         <div class="spiderfile-actions">
-          <el-button type="primary" size="small" style="margin-right: 10px;" @click="onSpiderfileSave">
+          <el-button
+            type="primary"
+            size="small"
+            style="margin-right: 10px;"
+            :disabled="isDisabled"
+            @click="onSpiderfileSave"
+          >
             <font-awesome-icon :icon="['fa', 'save']"/>
             {{$t('Save')}}
           </el-button>
@@ -330,7 +343,10 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import {
+  mapState,
+  mapGetters
+} from 'vuex'
 import echarts from 'echarts'
 import FieldsTableView from '../TableView/FieldsTableView'
 import CrawlConfirmDialog from '../Common/CrawlConfirmDialog'
@@ -501,6 +517,12 @@ export default {
       'spiderForm',
       'previewCrawlData'
     ]),
+    ...mapGetters('user', [
+      'userInfo'
+    ]),
+    isDisabled () {
+      return this.spiderForm.is_public && this.spiderForm.username !== this.userInfo.username && this.userInfo.role !== 'admin'
+    },
     fields () {
       if (this.spiderForm.crawl_type === 'list') {
         return this.spiderForm.fields

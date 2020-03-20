@@ -1246,7 +1246,7 @@ export default {
       this.isMultiple = false
     },
     isDisabled (row) {
-      return row.is_public && row.username !== this.userInfo.username
+      return row.is_public && row.username !== this.userInfo.username && this.userInfo.role !== 'admin'
     }
   },
   async created () {

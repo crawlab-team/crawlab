@@ -198,7 +198,7 @@ export default {
       }
     },
     isPublic () {
-      return this.spiderForm.is_public && this.spiderForm.username !== this.userInfo.username
+      return this.spiderForm.is_public && this.spiderForm.username !== this.userInfo.username && this.userInfo.role !== 'admin'
     }
   },
   methods: {
