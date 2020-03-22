@@ -15,6 +15,7 @@ func GetHomeStats(c *gin.Context) {
 		SpiderCount     int `json:"spider_count"`
 		ActiveNodeCount int `json:"active_node_count"`
 		ScheduleCount   int `json:"schedule_count"`
+		ProjectCount    int `json:"project_count"`
 	}
 
 	type Data struct {
@@ -50,6 +51,13 @@ func GetHomeStats(c *gin.Context) {
 		return
 	}
 
+	// 项目数
+	projectCount, err := model.GetProjectCount(bson.M{"user_id": services.GetCurrentUserId(c)})
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
 	// 每日任务数
 	items, err := model.GetDailyTaskStats(bson.M{"user_id": services.GetCurrentUserId(c)})
 	if err != nil {
@@ -66,6 +74,7 @@ func GetHomeStats(c *gin.Context) {
 				TaskCount:       taskCount,
 				SpiderCount:     spiderCount,
 				ScheduleCount:   scheduleCount,
+				ProjectCount:    projectCount,
 			},
 			Daily: items,
 		},

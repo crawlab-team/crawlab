@@ -274,6 +274,7 @@ export default {
 
   // 项目
   'All Tags': '全部标签',
+  'Projects': '项目',
   'Project Name': '项目名称',
   'Project Description': '项目描述',
   'Tags': '标签',

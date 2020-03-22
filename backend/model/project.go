@@ -152,3 +152,16 @@ func RemoveProject(id bson.ObjectId) error {
 
 	return nil
 }
+
+func GetProjectCount(filter interface{}) (int, error) {
+	s, c := database.GetCol("projects")
+	defer s.Close()
+
+	count, err := c.Find(filter).Count()
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
