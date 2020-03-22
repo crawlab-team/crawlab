@@ -4,6 +4,22 @@
       <el-card
         class="form"
       >
+        <el-alert
+          type="info"
+          class="notice"
+          :closable="false"
+        >
+          <template v-if="lang === 'zh'">
+            <strong>您的反馈意见对我们优化产品非常重要！</strong><br>
+            您可以在这里畅所欲言，提供您的建议和我们需要完善提升的地方。<br>
+            您可以留下您的联系方式，方便我们进一步了解您的使用情况。
+          </template>
+          <template v-else>
+            <strong>Your feedback is very important for us to improve the product!</strong><br>
+            You can comment anything here and provide any suggestions and what we should enhance about.<br>
+            You can leave your contact info here for us to get better understanding about how you are using our product.
+          </template>
+        </el-alert>
         <el-form
           ref="form"
           v-model="form"
@@ -40,6 +56,16 @@
               :placeholder="$t('Please enter your feedback content')"
             />
           </el-form-item>
+          <el-form-item
+            class="rating"
+            :label="$t('Rating')"
+            prop="rating"
+            required
+          >
+            <el-rate
+              v-model="form.rating"
+            />
+          </el-form-item>
           <el-form-item>
             <div class="actions">
               <el-button
@@ -61,6 +87,9 @@
 
 <script>
 import axios from 'axios'
+import {
+  mapState
+} from 'vuex'
 
 export default {
   name: 'Feedback',
@@ -69,10 +98,16 @@ export default {
       form: {
         email: '',
         wechat: '',
-        content: ''
+        content: '',
+        rating: 0
       },
       isLoading: false
     }
+  },
+  computed: {
+    ...mapState('lang', [
+      'lang'
+    ])
   },
   methods: {
     submit () {
@@ -86,6 +121,7 @@ export default {
             email: this.form.email,
             wechat: this.form.wechat,
             content: this.form.content,
+            rating: this.form.rating,
             v: sessionStorage.getItem('v')
           })
           if (res && res.data.error) {
@@ -95,7 +131,8 @@ export default {
           this.form = {
             email: '',
             wechat: '',
-            content: ''
+            content: '',
+            rating: 0
           }
           this.$message.success(this.$t('Submitted successfully'))
         } catch (e) {
@@ -117,5 +154,20 @@ export default {
 
   .actions {
     text-align: right;
+  }
+
+  .rating >>> .el-form-item__content {
+    display: flex;
+    align-items: center;
+    height: 40px;
+  }
+
+  .notice {
+    margin-bottom: 20px;
+  }
+
+  .notice >>> .el-alert__description {
+    line-height: 24px;
+    font-size: 16px;
   }
 </style>

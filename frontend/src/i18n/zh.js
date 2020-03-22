@@ -317,6 +317,7 @@ export default {
   'Feedbacks': '反馈',
   'Wechat': '微信',
   'Content': '内容',
+  'Rating': '评分',
 
   // 用户
   'Super Admin': '超级管理员',
