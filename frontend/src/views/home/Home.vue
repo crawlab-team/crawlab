@@ -130,6 +130,8 @@ export default {
       display: flex;
       color: white;
       cursor: pointer;
+      transform: scale(1);
+      transition: transform 0.5s ease;
 
       .metric-icon {
         display: inline-flex;
