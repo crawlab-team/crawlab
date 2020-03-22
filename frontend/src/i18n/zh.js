@@ -312,6 +312,12 @@ export default {
   'Home Page Response Time (sec)': '首页响应时间(秒)',
   'Home Page Response Status Code': '首页响应状态码',
 
+  // 反馈
+  'Feedback': '反馈',
+  'Feedbacks': '反馈',
+  'Wechat': '微信',
+  'Content': '内容',
+
   // 用户
   'Super Admin': '超级管理员',
 
@@ -425,6 +431,7 @@ export default {
   'How to Upgrade': '升级方式',
   'Release': '发布',
   'Add Wechat to join discussion group': '添加微信 tikazyq1 加入交流群',
+  'Submitted successfully': '提交成功',
 
   // 登录
   'Sign in': '登录',
@@ -599,6 +606,9 @@ docker run -d --restart always --name crawlab_worker \\
   'Sent signals to cancel selected tasks': '已经向所选任务发送取消任务信号',
   'Copied successfully': '已成功复制',
   'You have started the challenge.': '您已开始挑战',
+  'Please enter your email': '请输入您的邮箱',
+  'Please enter your Wechat account': '请输入您的微信账号',
+  'Please enter your feedback content': '请输入您的反馈内容',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

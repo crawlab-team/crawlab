@@ -193,29 +193,10 @@ export const constantRouterMap = [
     ]
   },
   {
-    path: '/users',
-    component: Layout,
-    meta: {
-      title: 'User',
-      icon: 'fa fa-users'
-    },
-    children: [
-      {
-        path: '',
-        name: 'UserList',
-        component: () => import('../views/user/UserList'),
-        meta: {
-          title: 'Users',
-          icon: 'fa fa-users'
-        }
-      }
-    ]
-  },
-  {
     path: '/challenges',
     component: Layout,
     meta: {
-      title: 'User',
+      title: 'ChallengeList',
       icon: 'fa fa-flash'
     },
     children: [
@@ -226,6 +207,45 @@ export const constantRouterMap = [
         meta: {
           title: 'Challenges',
           icon: 'fa fa-flash'
+        }
+      }
+    ]
+  },
+  {
+    path: '/feedback',
+    component: Layout,
+    meta: {
+      title: 'Feedback',
+      icon: 'fa fa-commenting-o'
+    },
+    children: [
+      {
+        path: '',
+        name: 'Feedback',
+        component: () => import('../views/feedback/Feedback'),
+        meta: {
+          title: 'Feedback',
+          icon: 'fa fa-commenting'
+        }
+      }
+    ]
+  },
+  {
+    path: '/users',
+    component: Layout,
+    meta: {
+      title: 'User',
+      icon: 'fa fa-users',
+      isNew: true
+    },
+    children: [
+      {
+        path: '',
+        name: 'UserList',
+        component: () => import('../views/user/UserList'),
+        meta: {
+          title: 'Users',
+          icon: 'fa fa-users'
         }
       }
     ]
