@@ -12,7 +12,7 @@
           <template v-if="lang === 'zh'">
             <strong>您的反馈意见对我们优化产品非常重要！</strong><br>
             您可以在这里畅所欲言，提供您的建议和我们需要完善提升的地方。<br>
-            您可以留下您的联系方式，方便我们进一步了解您的使用情况。
+            您可以选择留下您的联系方式，方便我们进一步了解您的使用情况。
           </template>
           <template v-else>
             <strong>Your feedback is very important for us to improve the product!</strong><br>
