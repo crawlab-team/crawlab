@@ -6,6 +6,7 @@
       >
         <el-alert
           type="info"
+          effect="light"
           class="notice"
           :closable="false"
         >
@@ -140,6 +141,7 @@ export default {
         } finally {
           this.isLoading = false
         }
+        this.$st.sendEv('反馈', '提交反馈')
       })
     }
   }
