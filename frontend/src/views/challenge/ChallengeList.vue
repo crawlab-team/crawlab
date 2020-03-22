@@ -88,6 +88,7 @@ export default {
       } else {
         this.$message.success(this.$t('You have started the challenge.'))
       }
+      this.$st.sendEv('挑战', '开始挑战')
     }
   },
   async created () {
