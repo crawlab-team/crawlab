@@ -71,20 +71,16 @@ const user = {
 
   actions: {
     // 登录
-    login ({ commit }, userInfo) {
+    async login ({ commit }, userInfo) {
       const username = userInfo.username.trim()
-      return new Promise((resolve, reject) => {
-        request.post('/login', { username, password: userInfo.password })
-          .then(response => {
-            const token = response.data.data
-            commit('SET_TOKEN', token)
-            window.localStorage.setItem('token', token)
-            resolve()
-          })
-          .catch(error => {
-            reject(error)
-          })
-      })
+      let res
+      res = await request.post('/login', { username, password: userInfo.password })
+      if (res.status === 200) {
+        const token = res.data.data
+        commit('SET_TOKEN', token)
+        window.localStorage.setItem('token', token)
+      }
+      return res
     },
 
     // 获取用户信息
