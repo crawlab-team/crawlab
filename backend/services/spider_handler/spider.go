@@ -49,6 +49,7 @@ func (s *SpiderSync) CheckIsScrapy() {
 		return
 	}
 	s.Spider.IsScrapy = utils.Exists(path.Join(s.Spider.Src, "scrapy.cfg"))
+	s.Spider.Cmd = "scrapy crawl"
 	if err := s.Spider.Save(); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
