@@ -363,7 +363,12 @@ func UploadSpider(c *gin.Context) {
 	var gfFile model.GridFs
 	if err := gf.Find(bson.M{"filename": uploadFile.Filename}).One(&gfFile); err == nil {
 		// 已经存在文件，则删除
-		_ = gf.RemoveId(gfFile.Id)
+		if err := gf.RemoveId(gfFile.Id); err != nil {
+			log.Errorf("remove grid fs error: %s", err.Error())
+			debug.PrintStack()
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
 	}
 
 	// 上传到GridFs
@@ -506,22 +511,32 @@ func UploadSpiderFromId(c *gin.Context) {
 
 	// 判断文件是否已经存在
 	var gfFile model.GridFs
-	if err := gf.Find(bson.M{"filename": uploadFile.Filename}).One(&gfFile); err == nil {
+	if err := gf.Find(bson.M{"filename": spider.Name}).One(&gfFile); err == nil {
 		// 已经存在文件，则删除
-		_ = gf.RemoveId(gfFile.Id)
+		if err := gf.RemoveId(gfFile.Id); err != nil {
+			log.Errorf("remove grid fs error: " + err.Error())
+			debug.PrintStack()
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
 	}
 
 	// 上传到GridFs
-	fid, err := services.UploadToGridFs(uploadFile.Filename, tmpFilePath)
+	fid, err := services.UploadToGridFs(spider.Name, tmpFilePath)
 	if err != nil {
 		log.Errorf("upload to grid fs error: %s", err.Error())
 		debug.PrintStack()
+		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
 	// 更新file_id
 	spider.FileId = fid
-	_ = spider.Save()
+	if err := spider.Save(); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return
+	}
 
 	// 发起同步
 	services.PublishSpider(spider)

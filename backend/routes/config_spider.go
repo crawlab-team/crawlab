@@ -181,6 +181,7 @@ func UploadConfigSpider(c *gin.Context) {
 	// 根据序列化后的数据处理爬虫文件
 	if err := services.ProcessSpiderFilesFromConfigData(spider, configData); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
+		return
 	}
 
 	c.JSON(http.StatusOK, Response{

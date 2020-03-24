@@ -60,7 +60,12 @@ func UploadSpiderToGridFsFromMaster(spider model.Spider) error {
 	var gfFile model.GridFs
 	if err := gf.Find(bson.M{"filename": spiderZipFileName}).One(&gfFile); err == nil {
 		// 已经存在文件，则删除
-		_ = gf.RemoveId(gfFile.Id)
+		log.Errorf(gfFile.Id.Hex() + " already exists. removing...")
+		if err := gf.RemoveId(gfFile.Id); err != nil {
+			log.Errorf(err.Error())
+			debug.PrintStack()
+			return err
+		}
 	}
 
 	// 上传到GridFs
@@ -72,7 +77,9 @@ func UploadSpiderToGridFsFromMaster(spider model.Spider) error {
 
 	// 保存爬虫 FileId
 	spider.FileId = fid
-	_ = spider.Save()
+	if err := spider.Save(); err != nil {
+		return err
+	}
 
 	// 获取爬虫同步实例
 	spiderSync := spider_handler.SpiderSync{
@@ -102,27 +109,33 @@ func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, err er
 	// 创建一个新GridFS文件
 	f, err := gf.Create(fileName)
 	if err != nil {
+		log.Errorf("create file error: " + err.Error())
 		debug.PrintStack()
 		return
 	}
 
-	//分片读取爬虫zip文件
+	// 分片读取爬虫zip文件
 	err = ReadFileByStep(filePath, WriteToGridFS, f)
 	if err != nil {
+		log.Errorf("read file by step error: " + err.Error())
 		debug.PrintStack()
 		return "", err
 	}
 
 	// 删除zip文件
 	if err = os.Remove(filePath); err != nil {
+		log.Errorf("remove file error: " + err.Error())
 		debug.PrintStack()
 		return
 	}
+
 	// 关闭文件，提交写入
 	if err = f.Close(); err != nil {
+		log.Errorf("close file error: " + err.Error())
 		debug.PrintStack()
 		return "", err
 	}
+
 	// 文件ID
 	fid = f.Id().(bson.ObjectId)
 
@@ -183,8 +196,14 @@ func PublishSpider(spider model.Spider) {
 		// 查询gf file，不存在则标记为爬虫文件不存在
 		gfFile = model.GetGridFs(spider.FileId)
 		if gfFile == nil {
-			spider.FileId = constants.ObjectIdNull
-			_ = spider.Save()
+			log.Errorf("get grid fs file error: cannot find grid fs file")
+			log.Errorf("grid fs file_id: " + spider.FileId.Hex())
+			log.Errorf("spider_name: " + spider.Name)
+			debug.PrintStack()
+			//spider.FileId = constants.ObjectIdNull
+			//if err := spider.Save(); err != nil {
+			//	return
+			//}
 			return
 		}
 	}
@@ -208,6 +227,7 @@ func PublishSpider(spider model.Spider) {
 		spiderSync.CheckIsScrapy()
 		return
 	}
+
 	// md5文件不存在，则下载
 	md5 := filepath.Join(path, spider_handler.Md5File)
 	if !utils.Exists(md5) {
@@ -215,6 +235,7 @@ func PublishSpider(spider model.Spider) {
 		spiderSync.RemoveDownCreate(gfFile.Md5)
 		return
 	}
+
 	// md5值不一样，则下载
 	md5Str := utils.GetSpiderMd5Str(md5)
 	if gfFile.Md5 != md5Str {
@@ -412,7 +433,7 @@ func CopySpider(spider model.Spider, newName string) error {
 	return nil
 }
 
-func InitDemoSpiders () {
+func InitDemoSpiders() {
 	// 添加Demo爬虫
 	templateSpidersDir := "./template/spiders"
 	for _, info := range utils.ListDir(templateSpidersDir) {

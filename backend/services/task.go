@@ -455,7 +455,7 @@ func ExecuteTask(id int) {
 	}
 
 	// 开始执行任务
-	log.Infof(GetWorkerPrefix(id) + "开始执行任务(ID:" + t.Id + ")")
+	log.Infof(GetWorkerPrefix(id) + "start task (id:" + t.Id + ")")
 
 	// 储存任务
 	_ = t.Save()
@@ -529,7 +529,7 @@ func ExecuteTask(id int) {
 	// 统计时长
 	duration := toc.Sub(tic).Seconds()
 	durationStr := strconv.FormatFloat(duration, 'f', 6, 64)
-	log.Infof(GetWorkerPrefix(id) + "任务(ID:" + t.Id + ")" + "执行完毕. 消耗时间:" + durationStr + "秒")
+	log.Infof(GetWorkerPrefix(id) + "task (id:" + t.Id + ")" + " finished. elapsed:" + durationStr + " sec")
 }
 
 func SpiderFileCheck(t model.Task, spider model.Spider) error {
