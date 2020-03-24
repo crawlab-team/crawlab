@@ -323,6 +323,13 @@ func SyncSpiderGit(s model.Spider) (err error) {
 		return err
 	}
 
+	// 获取更新后的爬虫
+	s, err = model.GetSpider(s.Id)
+	if err != nil {
+		SaveSpiderGitSyncError(s, err.Error())
+		return err
+	}
+
 	// 检查是否为 Scrapy
 	sync := spider_handler.SpiderSync{Spider: s}
 	sync.CheckIsScrapy()
