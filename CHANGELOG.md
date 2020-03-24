@@ -7,7 +7,7 @@
 
 ### Bug Fixes
 - **CLI unable to use on Windows**. [#580](https://github.com/crawlab-team/crawlab/issues/580)
-- **Re-upload error**. [#643](https://github.com/crawlab-team/crawlab/issues/643)
+- **Re-upload error**. [#643](https://github.com/crawlab-team/crawlab/issues/643) [#640](https://github.com/crawlab-team/crawlab/issues/640)
 
 # 0.4.8 (2020-03-11)
 ### Features / Enhancement
