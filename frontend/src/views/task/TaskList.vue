@@ -21,7 +21,7 @@
               </el-select>
             </el-form-item>
             <el-form-item prop="spider_id" :label="$t('Spider')">
-              <el-select v-model="filter.spider_id" size="small" :placeholder="$t('Spider')" @change="onFilterChange">
+              <el-select v-model="filter.spider_id" size="small" :placeholder="$t('Spider')" @change="onFilterChange" :disabled="isFilterSpiderDisabled">
                 <el-option value="" :label="$t('All')"/>
                 <el-option v-for="spider in spiderList" :key="spider._id" :value="spider._id" :label="spider.name"/>
               </el-select>
@@ -241,6 +241,7 @@ export default {
           }
         }
       ],
+
       tourCallbacks: {
         onStop: () => {
           this.$utils.tour.finishTour('task-list')
@@ -251,7 +252,9 @@ export default {
         onNextStep: (currentStep) => {
           this.$utils.tour.nextStep('task-list', currentStep)
         }
-      }
+      },
+
+      isFilterSpiderDisabled: false
     }
   },
   computed: {

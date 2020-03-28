@@ -161,6 +161,18 @@
         <el-button id="btn-submit" size="small" type="primary" @click="onAddSubmit" :disabled="isLoading">{{$t('Submit')}}</el-button>
       </span>
     </el-dialog>
+    <!--./add popup-->
+
+    <!--view tasks popup-->
+    <el-dialog
+      :title="$t('Tasks')"
+      :visible.sync="isViewTasksDialogVisible"
+      width="calc(100% - 240px)"
+      :before-close="() => this.isViewTasksDialogVisible = false"
+    >
+      <schedule-task-list/>
+    </el-dialog>
+    <!--./view tasks popup-->
 
     <!--cron generation popup-->
     <el-dialog title="生成 Cron" :visible.sync="cronDialogVisible">
@@ -245,19 +257,25 @@
             </template>
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" width="130" fixed="right">
+        <el-table-column :label="$t('Action')" class="actions" align="left" width="130" fixed="right">
           <template slot-scope="scope">
-            <!-- 编辑 -->
+            <!--编辑-->
             <el-tooltip :content="$t('Edit')" placement="top">
               <el-button type="warning" icon="el-icon-edit" size="mini" @click="onEdit(scope.row)"></el-button>
             </el-tooltip>
-            <!-- 删除 -->
+            <!--./编辑-->
+
+            <!--删除-->
             <el-tooltip :content="$t('Remove')" placement="top">
               <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
             </el-tooltip>
-            <!--<el-tooltip :content="$t(getStatusTooltip(scope.row))" placement="top">-->
-            <!--<el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row)"></el-button>-->
-            <!--</el-tooltip>-->
+            <!--./删除-->
+
+            <!--查看任务-->
+            <el-tooltip :content="$t('View Tasks')" placement="top">
+              <el-button type="primary" icon="el-icon-search" size="mini" @click="onViewTasks(scope.row)"></el-button>
+            </el-tooltip>
+            <!--./查看任务-->
           </template>
         </el-table-column>
       </el-table>
@@ -273,10 +291,12 @@ import {
   mapState
 } from 'vuex'
 import ParametersDialog from '../../components/Common/ParametersDialog'
+import ScheduleTaskList from '../../components/Schedule/ScheduleTaskList'
 
 export default {
   name: 'ScheduleList',
   components: {
+    ScheduleTaskList,
     VueCronLinux,
     ParametersDialog
   },
@@ -305,6 +325,7 @@ export default {
       isShowCron: false,
       isLoading: false,
       isParametersVisible: false,
+      isViewTasksDialogVisible: false,
 
       // tutorial
       tourSteps: [
@@ -593,6 +614,11 @@ export default {
     onShowCronDialog () {
       this.cronDialogVisible = true
       this.$st.sendEv('定时任务', '点击编辑Cron')
+    },
+    async onViewTasks (row) {
+      this.isViewTasksDialogVisible = true
+      this.$store.commit('schedule/SET_SCHEDULE_FORM', row)
+      this.$st.sendEv('定时任务', '查看任务列表')
     }
   },
   created () {
@@ -635,6 +661,12 @@ export default {
   .table {
     min-height: 360px;
     margin-top: 10px;
+  }
+
+  .table .el-button {
+    width: 28px;
+    height: 28px;
+    padding: 0;
   }
 
   .status-tag {
