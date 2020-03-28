@@ -131,8 +131,25 @@
 
           <div class="button-group-container">
             <div class="button-group">
-              <el-button id="btn-run" size="small" type="danger" :disabled="isDisabled" @click="onCrawl">
+              <el-button
+                id="btn-run"
+                size="small"
+                type="danger"
+                :disabled="isDisabled"
+                icon="el-icon-video-play"
+                @click="onCrawl"
+              >
                 {{$t('Run')}}
+              </el-button>
+              <el-button
+                id="btn-convert"
+                size="small"
+                type="warning"
+                :disabled="isDisabled"
+                icon="el-icon-refresh-right"
+                @click="onConvert"
+              >
+                {{$t('Convert to Customized')}}
               </el-button>
               <!--              <el-button type="primary" @click="onExtractFields" v-loading="extractFieldsLoading">-->
               <!--                {{$t('ExtractFields')}}-->
@@ -144,7 +161,7 @@
                 type="success"
                 :disabled="saveLoading || isDisabled"
                 @click="onSave"
-                :icon="saveLoading ? 'el-icon-loading' : ''"
+                :icon="saveLoading ? 'el-icon-loading' : 'el-icon-check'"
               >
                 {{$t('Save')}}
               </el-button>
@@ -1009,10 +1026,33 @@ ${f.css || f.xpath} ${f.attr ? ('(' + f.attr + ')') : ''} ${f.next_stage ? (' --
       const nextStageField = this.getNextStageField(stage)
       if (!nextStageField) return
       return this.spiderForm.config.stages[nextStageField.next_stage]
+    },
+    onConvert () {
+      this.$confirm(this.$t('Are you sure to convert this spider to customized spider?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
+        type: 'warning'
+      }).then(async () => {
+        this.spiderForm.type = 'customized'
+        this.$store.dispatch('spider/editSpider')
+          .then(res => {
+            if (!res.data.error) {
+              this.$store.commit('spider/SET_CONFIG_LIST_TS', +new Date())
+              this.$message({
+                type: 'success',
+                message: 'Converted successfully'
+              })
+            } else {
+              this.$message({
+                type: 'error',
+                message: 'Converted unsuccessfully'
+              })
+            }
+            this.$store.dispatch('spider/getSpiderData', this.spiderForm._id)
+            this.$st.sendEv('爬虫详情', '配置', '转化为自定义爬虫')
+          })
+      })
     }
-  },
-  mounted () {
-    this.activeNames = this.spiderForm.config.stages.map(stage => stage.name)
   }
 }
 </script>

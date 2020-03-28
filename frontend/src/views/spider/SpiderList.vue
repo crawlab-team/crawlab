@@ -1003,7 +1003,7 @@ export default {
         await this.$store.dispatch('spider/deleteSpider', row._id)
         this.$message({
           type: 'success',
-          message: 'Deleted successfully'
+          message: this.$t('Deleted successfully')
         })
         await this.getList()
         this.$st.sendEv('爬虫列表', '删除爬虫')
