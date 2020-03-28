@@ -441,11 +441,11 @@ func UploadSpider(c *gin.Context) {
 		}
 	}
 
-	// 发起同步
-	services.PublishAllSpiders()
-
 	// 获取爬虫
 	spider = model.GetSpiderByName(spiderName)
+
+	// 发起同步
+	services.PublishSpider(spider)
 
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
