@@ -9,6 +9,7 @@
 - **CLI 无法在 Windows 上使用**. [#580](https://github.com/crawlab-team/crawlab/issues/580)
 - **重新上传错误**. [#643](https://github.com/crawlab-team/crawlab/issues/643) [#640](https://github.com/crawlab-team/crawlab/issues/640)
 - **上传丢失文件目录**. [#646](https://github.com/crawlab-team/crawlab/issues/646)
+- **无法在爬虫定时任务标签中添加定时任务**.
 
 # 0.4.8 (2020-03-11)
 ### 功能 / 优化

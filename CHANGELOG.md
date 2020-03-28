@@ -9,6 +9,7 @@
 - **CLI unable to use on Windows**. [#580](https://github.com/crawlab-team/crawlab/issues/580)
 - **Re-upload error**. [#643](https://github.com/crawlab-team/crawlab/issues/643) [#640](https://github.com/crawlab-team/crawlab/issues/640)
 - **Upload missing folders**. [#646](https://github.com/crawlab-team/crawlab/issues/646)
+- **Unable to add schedules in Spider Page**.
 
 # 0.4.8 (2020-03-11)
 ### Features / Enhancement
