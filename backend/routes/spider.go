@@ -158,6 +158,19 @@ func PostSpider(c *gin.Context) {
 		return
 	}
 
+	// 获取爬虫
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 去重处理
+	if err := services.UpdateSpiderDedup(spider); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",

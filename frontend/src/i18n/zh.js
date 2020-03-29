@@ -228,6 +228,10 @@ export default {
   'Is Public': '是否公共',
   'Owner': '所有者',
   'Convert to Customized': '转化为自定义',
+  'Is De-Duplicated': '是否去重',
+  'Please enter de-duplicated field': '请输入去重字段',
+  'Overwrite': '覆盖',
+  'Ignore': '忽略',
 
   // 爬虫列表
   'Name': '名称',

@@ -45,7 +45,7 @@
             />
           </el-form-item>
         </template>
-        <el-form-item :label="$t('Results Collection')" prop="col">
+        <el-form-item :label="$t('Results Collection')" prop="col" required>
           <el-input
             v-model="spiderForm.col"
             :placeholder="$t('Results Collection')"
@@ -96,6 +96,32 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-form-item v-if="!isView" :label="$t('Is De-Duplicated')" prop="dedup_field" :rules="dedupRules">
+          <div style="display: flex; align-items: center; height: 40px">
+            <el-switch
+              v-model="spiderForm.is_dedup"
+              active-color="#13ce66"
+              :disabled="isView || isPublic"
+              @change="onIsDedupChange"
+            />
+            <el-select
+              v-if="spiderForm.is_dedup"
+              v-model="spiderForm.dedup_method"
+              active-color="#13ce66"
+              :disabled="isView || isPublic"
+              style="margin-left: 20px; width: 180px"
+            >
+              <el-option value="overwrite" :label="$t('Overwrite')"/>
+              <el-option value="ignore" :label="$t('Ignore')"/>
+            </el-select>
+            <el-input
+              v-if="spiderForm.is_dedup"
+              v-model="spiderForm.dedup_field"
+              :placeholder="$t('Please enter de-duplicated field')"
+              style="margin-left: 20px"
+            />
+          </div>
+        </el-form-item>
         <el-row>
           <el-col :span="6">
             <el-form-item v-if="!isView" :label="$t('Is Public')" prop="is_public">
@@ -167,6 +193,17 @@ export default {
       }
       callback()
     }
+    const dedupValidator = (rule, value, callback) => {
+      if (!this.spiderForm.is_dedup) {
+        return callback()
+      } else {
+        if (value) {
+          return callback()
+        } else {
+          return callback(new Error('dedup field cannot be empty'))
+        }
+      }
+    }
     return {
       uploadLoading: false,
       fileList: [],
@@ -176,6 +213,9 @@ export default {
       ],
       cronRules: [
         { validator: cronValidator, trigger: 'blur' }
+      ],
+      dedupRules: [
+        { validator: dedupValidator, trigger: 'blur' }
       ]
     }
   },
@@ -249,6 +289,11 @@ export default {
     onIsScrapyChange (value) {
       if (value) {
         this.spiderForm.cmd = 'scrapy crawl'
+      }
+    },
+    onIsDedupChange (value) {
+      if (value && !this.spiderForm.dedup_method) {
+        this.spiderForm.dedup_method = 'overwrite'
       }
     }
   },

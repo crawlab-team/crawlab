@@ -107,7 +107,7 @@ func AssignTask(task model.Task) error {
 }
 
 // 设置环境变量
-func SetEnv(cmd *exec.Cmd, envs []model.Env, taskId string, dataCol string) *exec.Cmd {
+func SetEnv(cmd *exec.Cmd, envs []model.Env, task model.Task, spider model.Spider) *exec.Cmd {
 	// 默认把Node.js的全局node_modules加入环境变量
 	envPath := os.Getenv("PATH")
 	homePath := os.Getenv("HOME")
@@ -117,8 +117,8 @@ func SetEnv(cmd *exec.Cmd, envs []model.Env, taskId string, dataCol string) *exe
 	_ = os.Setenv("NODE_PATH", nodePath)
 
 	// 默认环境变量
-	cmd.Env = append(os.Environ(), "CRAWLAB_TASK_ID="+taskId)
-	cmd.Env = append(cmd.Env, "CRAWLAB_COLLECTION="+dataCol)
+	cmd.Env = append(os.Environ(), "CRAWLAB_TASK_ID="+task.Id)
+	cmd.Env = append(cmd.Env, "CRAWLAB_COLLECTION="+spider.Col)
 	cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_HOST="+viper.GetString("mongo.host"))
 	cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_PORT="+viper.GetString("mongo.port"))
 	if viper.GetString("mongo.db") != "" {
@@ -136,6 +136,13 @@ func SetEnv(cmd *exec.Cmd, envs []model.Env, taskId string, dataCol string) *exe
 	cmd.Env = append(cmd.Env, "PYTHONUNBUFFERED=0")
 	cmd.Env = append(cmd.Env, "PYTHONIOENCODING=utf-8")
 	cmd.Env = append(cmd.Env, "TZ=Asia/Shanghai")
+	cmd.Env = append(cmd.Env, "CRAWLAB_DEDUP_FIELD="+spider.DedupField)
+	cmd.Env = append(cmd.Env, "CRAWLAB_DEDUP_METHOD="+spider.DedupMethod)
+	if spider.IsDedup {
+		cmd.Env = append(cmd.Env, "CRAWLAB_IS_DEDUP=1")
+	} else {
+		cmd.Env = append(cmd.Env, "CRAWLAB_IS_DEDUP=0")
+	}
 
 	//任务环境变量
 	for _, env := range envs {
@@ -270,7 +277,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 			envs = append(envs, model.Env{Name: "CRAWLAB_SETTING_" + envName, Value: envValue})
 		}
 	}
-	cmd = SetEnv(cmd, envs, t.Id, s.Col)
+	cmd = SetEnv(cmd, envs, t, s)
 
 	// 起一个goroutine来监控进程
 	ch := utils.TaskExecChanMap.ChanBlocked(t.Id)

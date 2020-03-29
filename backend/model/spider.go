@@ -59,12 +59,17 @@ type Spider struct {
 	// 长任务
 	IsLongTask bool `json:"is_long_task" bson:"is_long_task"` // 是否为长任务
 
+	// 去重
+	IsDedup     bool   `json:"is_dedup" bson:"is_dedup"`         // 是否去重
+	DedupField  string `json:"dedup_field" bson:"dedup_field"`   // 去重字段
+	DedupMethod string `json:"dedup_method" bson:"dedup_method"` // 去重方式
+
 	// 前端展示
 	LastRunTs   time.Time               `json:"last_run_ts"`  // 最后一次执行时间
 	LastStatus  string                  `json:"last_status"`  // 最后执行状态
 	Config      entity.ConfigSpiderData `json:"config"`       // 可配置爬虫配置
 	LatestTasks []Task                  `json:"latest_tasks"` // 最近任务列表
-	Username    string                  `json:"username""`
+	Username    string                  `json:"username"`     // 用户名称
 
 	// 时间
 	UserId   bson.ObjectId `json:"user_id" bson:"user_id"`
