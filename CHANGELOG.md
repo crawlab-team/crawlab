@@ -7,6 +7,7 @@
 - **Configurable Spiders Converted to Customized Spiders**. Allow users to convert their configurable spiders into customized spiders which are also Scrapy spiders.
 - **View Tasks Triggered by Schedule**. Allow users to view tasks triggered by a schedule. [#648](https://github.com/crawlab-team/crawlab/issues/648)
 - **Support Results De-Duplication**. Allow users to configure de-duplication of results. [#579](https://github.com/crawlab-team/crawlab/issues/579)
+- **Support Task Restart**. Allow users to re-run historical tasks.
 
 ### Bug Fixes
 - **CLI unable to use on Windows**. [#580](https://github.com/crawlab-team/crawlab/issues/580)
