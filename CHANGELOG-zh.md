@@ -5,6 +5,7 @@
 - **反馈**. 允许用户发送反馈和评分给 Crawlab 开发组.
 - **更好的主页指标**. 优化主页上的指标展示.
 - **可配置爬虫转化为自定义爬虫**. 用户可以将自己的可配置爬虫转化为 Scrapy 自定义爬虫.
+- **查看定时任务触发的任务**. 允许用户查看定时任务触发的任务. [#648](https://github.com/crawlab-team/crawlab/issues/648)
 
 ### Bug 修复
 - **CLI 无法在 Windows 上使用**. [#580](https://github.com/crawlab-team/crawlab/issues/580)

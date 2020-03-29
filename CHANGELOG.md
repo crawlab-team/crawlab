@@ -5,6 +5,7 @@
 - **Feedback**. Allow users to send feedbacks and ratings to Crawlab team.
 - **Better Home Page Metrics**. Optimized metrics display on home page.
 - **Configurable Spiders Converted to Customized Spiders**. Allow users to convert their configurable spiders into customized spiders which are also Scrapy spiders.
+- **View Tasks Triggered by Schedule**. Allow users to view tasks triggered by a schedule. [#648](https://github.com/crawlab-team/crawlab/issues/648)
 
 ### Bug Fixes
 - **CLI unable to use on Windows**. [#580](https://github.com/crawlab-team/crawlab/issues/580)

@@ -353,7 +353,7 @@ export default {
           .then(() => {
             this.$message({
               type: 'success',
-              message: 'Deleted successfully'
+              message: this.$t('Deleted successfully')
             })
           })
         this.$st.sendEv('任务列表', '删除任务')

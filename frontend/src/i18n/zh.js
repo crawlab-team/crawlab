@@ -377,6 +377,7 @@ export default {
   'Are you sure to run this spider?': '你确定要运行该爬虫?',
   'Are you sure to delete this file/directory?': '你确定要删除该文件/文件夹?',
   'Are you sure to convert this spider to customized spider?': '你确定要转化该爬虫为自定义爬虫?',
+  'Are you sure to delete this task?': '您确定要删除该任务?',
   'Added spider successfully': '成功添加爬虫',
   'Converted successfully': '成功转化',
   'Converted unsuccessfully': '未成功转化',

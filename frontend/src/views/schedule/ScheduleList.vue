@@ -170,7 +170,7 @@
       width="calc(100% - 240px)"
       :before-close="() => this.isViewTasksDialogVisible = false"
     >
-      <schedule-task-list/>
+      <schedule-task-list ref="schedule-task-list"/>
     </el-dialog>
     <!--./view tasks popup-->
 
@@ -618,6 +618,9 @@ export default {
     async onViewTasks (row) {
       this.isViewTasksDialogVisible = true
       this.$store.commit('schedule/SET_SCHEDULE_FORM', row)
+      setTimeout(() => {
+        this.$refs['schedule-task-list'].update()
+      }, 100)
       this.$st.sendEv('定时任务', '查看任务列表')
     }
   },

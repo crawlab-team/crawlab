@@ -13,11 +13,12 @@ import (
 )
 
 type TaskListRequestData struct {
-	PageNum  int    `form:"page_num"`
-	PageSize int    `form:"page_size"`
-	NodeId   string `form:"node_id"`
-	SpiderId string `form:"spider_id"`
-	Status   string `form:"status"`
+	PageNum    int    `form:"page_num"`
+	PageSize   int    `form:"page_size"`
+	NodeId     string `form:"node_id"`
+	SpiderId   string `form:"spider_id"`
+	ScheduleId string `form:"schedule_id"`
+	Status     string `form:"status"`
 }
 
 type TaskResultsRequestData struct {
@@ -50,6 +51,9 @@ func GetTaskList(c *gin.Context) {
 	// 根据任务状态获取task列表
 	if data.Status != "" {
 		query["status"] = data.Status
+	}
+	if data.ScheduleId != "" {
+		query["schedule_id"] = bson.ObjectIdHex(data.ScheduleId)
 	}
 
 	// 获取校验

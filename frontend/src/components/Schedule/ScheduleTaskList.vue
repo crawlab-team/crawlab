@@ -15,10 +15,16 @@ export default {
       'scheduleForm'
     ])
   },
+  methods: {
+    update () {
+      this.isFilterSpiderDisabled = true
+      this.$set(this.filter, 'spider_id', this.scheduleForm.spider_id)
+      this.filter.schedule_id = this.scheduleForm._id
+      this.$store.dispatch('task/getTaskList')
+    }
+  },
   async created () {
-    this.isFilterSpiderDisabled = true
-    this.filter.spider_id = this.scheduleForm.spider_id
-    await this.$store.dispatch('task/getTaskList')
+    this.update()
   }
 }
 </script>
