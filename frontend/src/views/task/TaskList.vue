@@ -143,10 +143,14 @@
                            :width="col.width">
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" fixed="right" width="120px">
+        <el-table-column :label="$t('Action')" align="left" fixed="right" width="150px">
           <template slot-scope="scope">
             <el-tooltip :content="$t('View')" placement="top">
               <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
+            </el-tooltip>
+            <el-tooltip :content="$t('Restart')" placement="top">
+              <el-button type="warning" icon="el-icon-refresh" size="mini"
+                         @click="onRestart(scope.row, $event)"></el-button>
             </el-tooltip>
             <el-tooltip :content="$t('Remove')" placement="top">
               <el-button type="danger" icon="el-icon-delete" size="mini"
@@ -357,6 +361,23 @@ export default {
             })
           })
         this.$st.sendEv('任务列表', '删除任务')
+      })
+    },
+    onRestart (row, ev) {
+      ev.stopPropagation()
+      this.$confirm(this.$t('Are you sure to restart this task?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
+        type: 'warning'
+      }).then(() => {
+        this.$store.dispatch('task/restartTask', row._id)
+          .then(() => {
+            this.$message({
+              type: 'success',
+              message: this.$t('Restarted successfully')
+            })
+          })
+        this.$st.sendEv('任务列表', '重新开始任务')
       })
     },
     onView (row) {

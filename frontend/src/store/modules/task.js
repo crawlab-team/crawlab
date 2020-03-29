@@ -142,6 +142,12 @@ const actions = {
       ids: ids
     })
   },
+  restartTask ({ state, dispatch }, id) {
+    return request.post(`/tasks/${id}/restart`)
+      .then(() => {
+        dispatch('getTaskList')
+      })
+  },
   getTaskLog ({ state, commit }, id) {
     return request.get(`/tasks/${id}/log`)
       .then(response => {

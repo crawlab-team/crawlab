@@ -34,7 +34,8 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="spiderForm.is_scrapy && !multiple" :label="$t('Scrapy Spider')" prop="spider" required inline-message>
+        <el-form-item v-if="spiderForm.is_scrapy && !multiple" :label="$t('Scrapy Spider')" prop="spider" required
+                      inline-message>
           <el-select v-model="form.spider" :placeholder="$t('Scrapy Spider')" :disabled="isLoading">
             <el-option
               v-for="s in spiderForm.spider_names"
@@ -67,15 +68,30 @@
             <el-input v-model="form.param" :placeholder="$t('Parameters')"></el-input>
           </template>
         </el-form-item>
-        <el-form-item class="disclaimer-wrapper">
+        <el-form-item class="checkbox-wrapper">
           <div>
             <el-checkbox v-model="isAllowDisclaimer"/>
-            <span style="margin-left: 5px">我已阅读并同意 <a href="javascript:"
-                                                      @click="onClickDisclaimer">《免责声明》</a> 所有内容</span>
+            <span v-if="lang === 'zh'" style="margin-left: 5px">
+              我已阅读并同意
+              <a href="javascript:" @click="onClickDisclaimer">
+                《免责声明》
+              </a>
+              所有内容
+            </span>
+            <span v-else style="margin-left: 5px">
+              I have read and agree all content in
+              <a href="javascript:" @click="onClickDisclaimer">
+                Disclaimer
+              </a>
+            </span>
           </div>
           <div v-if="!spiderForm.is_long_task && !multiple">
             <el-checkbox v-model="isRedirect"/>
-            <span style="margin-left: 5px">跳转到任务详情页</span>
+            <span style="margin-left: 5px">{{$t('Redirect to task detail')}}</span>
+          </div>
+          <div v-if="false">
+            <el-checkbox v-model="isRetry"/>
+            <span style="margin-left: 5px">{{$t('Retry (Maximum 5 Times)')}}</span>
           </div>
         </el-form-item>
       </el-form>
@@ -129,6 +145,7 @@ export default {
         nodeList: []
       },
       isAllowDisclaimer: true,
+      isRetry: false,
       isRedirect: true,
       isLoading: false,
       isParametersVisible: false,
@@ -141,6 +158,9 @@ export default {
     ]),
     ...mapState('setting', [
       'setting'
+    ]),
+    ...mapState('lang', [
+      'lang'
     ]),
     isConfirmDisabled () {
       if (this.isLoading) return true
@@ -309,7 +329,7 @@ export default {
     margin-bottom: 20px;
   }
 
-  .crawl-confirm-dialog >>> .disclaimer-wrapper a {
+  .crawl-confirm-dialog >>> .checkbox-wrapper a {
     color: #409eff;
   }
 

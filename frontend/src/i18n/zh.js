@@ -266,6 +266,9 @@ export default {
   'Empty results': '空结果',
   'Navigate to Spider': '导航到爬虫',
   'Navigate to Node': '导航到节点',
+  'Restart': '重新运行',
+  'Redirect to task detail': '跳转到任务详情页',
+  'Retry (Maximum 5 Times)': '是否重试（最多 5 次）',
 
   // 任务列表
   'Node': '节点',

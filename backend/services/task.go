@@ -675,6 +675,35 @@ func CancelTask(id string) (err error) {
 	return nil
 }
 
+func RestartTask(id string, uid bson.ObjectId) (err error) {
+	// 获取任务
+	oldTask, err := model.GetTask(id)
+	if err != nil {
+		log.Errorf("task not found, task id : %s, error: %s", id, err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	newTask := model.Task{
+		SpiderId:   oldTask.SpiderId,
+		NodeId:     oldTask.NodeId,
+		Param:      oldTask.Param,
+		UserId:     uid,
+		RunType:    oldTask.RunType,
+		ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
+	}
+
+	// 加入任务队列
+	_, err = AddTask(newTask)
+	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	return nil
+}
+
 func AddTask(t model.Task) (string, error) {
 	// 生成任务ID
 	id := uuid.NewV4()

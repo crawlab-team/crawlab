@@ -353,3 +353,15 @@ func CancelTask(c *gin.Context) {
 	}
 	HandleSuccess(c)
 }
+
+func RestartTask(c *gin.Context) {
+	id := c.Param("id")
+
+	uid := services.GetCurrentUserId(c)
+
+	if err := services.RestartTask(id, uid); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	HandleSuccess(c)
+}
