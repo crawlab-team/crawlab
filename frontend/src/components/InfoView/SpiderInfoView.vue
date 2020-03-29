@@ -96,7 +96,8 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item v-if="!isView" :label="$t('Is De-Duplicated')" prop="dedup_field" :rules="dedupRules">
+        <el-form-item v-if="!isView && !isConfigurable" :label="$t('Is De-Duplicated')" prop="dedup_field"
+                      :rules="dedupRules">
           <div style="display: flex; align-items: center; height: 40px">
             <el-switch
               v-model="spiderForm.is_dedup"
@@ -230,6 +231,9 @@ export default {
     ...mapState('project', [
       'projectList'
     ]),
+    isConfigurable () {
+      return this.spiderForm.type === 'configurable'
+    },
     isShowRun () {
       if (this.spiderForm.type === 'customized') {
         return !!this.spiderForm.cmd
