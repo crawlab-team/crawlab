@@ -438,9 +438,10 @@ func UpdateSpiderDedup(spider model.Spider) error {
 	defer s.Close()
 
 	if !spider.IsDedup {
-		if err := c.DropIndex(spider.DedupField); err != nil {
-			return err
-		}
+		_ = c.DropIndex(spider.DedupField)
+		//if err := c.DropIndex(spider.DedupField); err != nil {
+		//	return err
+		//}
 		return nil
 	}
 
