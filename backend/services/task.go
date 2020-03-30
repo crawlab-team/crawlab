@@ -23,6 +23,7 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -113,7 +114,9 @@ func SetEnv(cmd *exec.Cmd, envs []model.Env, task model.Task, spider model.Spide
 	homePath := os.Getenv("HOME")
 	nodeVersion := "v8.12.0"
 	nodePath := path.Join(homePath, ".nvm/versions/node", nodeVersion, "lib/node_modules")
-	_ = os.Setenv("PATH", nodePath+":"+envPath)
+	if !strings.Contains(envPath, nodePath) {
+		_ = os.Setenv("PATH", nodePath+":"+envPath)
+	}
 	_ = os.Setenv("NODE_PATH", nodePath)
 
 	// 默认环境变量
