@@ -1,4 +1,4 @@
-# 0.4.9 (TBC)
+# 0.4.9 (2020-03-31)
 ### Features / Enhancement
 - **Challenges**. Users can achieve different challenges based on their actions.
 - **More Advanced Access Control**. More granular access control, e.g. normal users can only view/manage their own spiders/projects and admin users can view/manage all spiders/projects.
