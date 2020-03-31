@@ -19,8 +19,9 @@ type User struct {
 	Email    string        `json:"email" bson:"email"`
 	Setting  UserSetting   `json:"setting" bson:"setting"`
 
-	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
-	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
+	UserId   bson.ObjectId `json:"user_id" bson:"user_id"`
+	CreateTs time.Time     `json:"create_ts" bson:"create_ts"`
+	UpdateTs time.Time     `json:"update_ts" bson:"update_ts"`
 }
 
 type UserSetting struct {

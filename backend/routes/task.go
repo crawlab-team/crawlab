@@ -13,11 +13,12 @@ import (
 )
 
 type TaskListRequestData struct {
-	PageNum  int    `form:"page_num"`
-	PageSize int    `form:"page_size"`
-	NodeId   string `form:"node_id"`
-	SpiderId string `form:"spider_id"`
-	Status   string `form:"status"`
+	PageNum    int    `form:"page_num"`
+	PageSize   int    `form:"page_size"`
+	NodeId     string `form:"node_id"`
+	SpiderId   string `form:"spider_id"`
+	ScheduleId string `form:"schedule_id"`
+	Status     string `form:"status"`
 }
 
 type TaskResultsRequestData struct {
@@ -47,10 +48,16 @@ func GetTaskList(c *gin.Context) {
 	if data.SpiderId != "" {
 		query["spider_id"] = bson.ObjectIdHex(data.SpiderId)
 	}
-	//新增根据任务状态获取task列表
+	// 根据任务状态获取task列表
 	if data.Status != "" {
 		query["status"] = data.Status
 	}
+	if data.ScheduleId != "" {
+		query["schedule_id"] = bson.ObjectIdHex(data.ScheduleId)
+	}
+
+	// 获取校验
+	query = services.GetAuthQuery(query, c)
 
 	// 获取任务列表
 	tasks, err := model.GetTaskList(query, (data.PageNum-1)*data.PageSize, data.PageSize, "-create_ts")
@@ -112,10 +119,12 @@ func PutTask(c *gin.Context) {
 		}
 		for _, node := range nodes {
 			t := model.Task{
-				SpiderId: reqBody.SpiderId,
-				NodeId:   node.Id,
-				Param:    reqBody.Param,
-				UserId:   services.GetCurrentUser(c).Id,
+				SpiderId:   reqBody.SpiderId,
+				NodeId:     node.Id,
+				Param:      reqBody.Param,
+				UserId:     services.GetCurrentUserId(c),
+				RunType:    constants.RunTypeAllNodes,
+				ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
 			}
 
 			id, err := services.AddTask(t)
@@ -129,9 +138,11 @@ func PutTask(c *gin.Context) {
 	} else if reqBody.RunType == constants.RunTypeRandom {
 		// 随机
 		t := model.Task{
-			SpiderId: reqBody.SpiderId,
-			Param:    reqBody.Param,
-			UserId:   services.GetCurrentUser(c).Id,
+			SpiderId:   reqBody.SpiderId,
+			Param:      reqBody.Param,
+			UserId:     services.GetCurrentUserId(c),
+			RunType:    constants.RunTypeRandom,
+			ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
 		}
 		id, err := services.AddTask(t)
 		if err != nil {
@@ -143,10 +154,12 @@ func PutTask(c *gin.Context) {
 		// 指定节点
 		for _, nodeId := range reqBody.NodeIds {
 			t := model.Task{
-				SpiderId: reqBody.SpiderId,
-				NodeId:   nodeId,
-				Param:    reqBody.Param,
-				UserId:   services.GetCurrentUser(c).Id,
+				SpiderId:   reqBody.SpiderId,
+				NodeId:     nodeId,
+				Param:      reqBody.Param,
+				UserId:     services.GetCurrentUserId(c),
+				RunType:    constants.RunTypeSelectedNodes,
+				ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
 			}
 
 			id, err := services.AddTask(t)
@@ -335,6 +348,18 @@ func CancelTask(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := services.CancelTask(id); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	HandleSuccess(c)
+}
+
+func RestartTask(c *gin.Context) {
+	id := c.Param("id")
+
+	uid := services.GetCurrentUserId(c)
+
+	if err := services.RestartTask(id, uid); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}

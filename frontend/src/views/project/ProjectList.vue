@@ -91,8 +91,13 @@
               <h4 v-else class="title">{{ $t('No Project') }}</h4>
             </el-row>
             <el-row>
-              <div class="spider-count">
+              <div style="display: flex; justify-content: space-between">
+                <span class="spider-count">
                 {{$t('Spider Count')}}: {{ item.spiders.length }}
+                </span>
+                <span class="owner">
+                  {{item.username}}
+                </span>
               </div>
             </el-row>
             <el-row class="description-wrapper">
@@ -270,7 +275,8 @@ export default {
     margin: 10px 0 0 0;
   }
 
-  .list .item .item-card .spider-count {
+  .list .item .item-card .spider-count,
+  .list .item .item-card .owner {
     font-size: 12px;
     color: grey;
     font-weight: bolder;
@@ -284,6 +290,7 @@ export default {
 
   .list .item .item-card .description {
     font-size: 12px;
+    line-height: 16px;
     color: grey;
   }
 

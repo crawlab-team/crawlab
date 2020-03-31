@@ -33,6 +33,7 @@ type Spider struct {
 	Remark      string        `json:"remark" bson:"remark"`             // 备注
 	Src         string        `json:"src" bson:"src"`                   // 源码位置
 	ProjectId   bson.ObjectId `json:"project_id" bson:"project_id"`     // 项目ID
+	IsPublic    bool          `json:"is_public" bson:"is_public"`       // 是否公开
 
 	// 自定义爬虫
 	Cmd string `json:"cmd" bson:"cmd"` // 执行命令
@@ -58,15 +59,22 @@ type Spider struct {
 	// 长任务
 	IsLongTask bool `json:"is_long_task" bson:"is_long_task"` // 是否为长任务
 
+	// 去重
+	IsDedup     bool   `json:"is_dedup" bson:"is_dedup"`         // 是否去重
+	DedupField  string `json:"dedup_field" bson:"dedup_field"`   // 去重字段
+	DedupMethod string `json:"dedup_method" bson:"dedup_method"` // 去重方式
+
 	// 前端展示
 	LastRunTs   time.Time               `json:"last_run_ts"`  // 最后一次执行时间
 	LastStatus  string                  `json:"last_status"`  // 最后执行状态
 	Config      entity.ConfigSpiderData `json:"config"`       // 可配置爬虫配置
 	LatestTasks []Task                  `json:"latest_tasks"` // 最近任务列表
+	Username    string                  `json:"username"`     // 用户名称
 
 	// 时间
-	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
-	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
+	UserId   bson.ObjectId `json:"user_id" bson:"user_id"`
+	CreateTs time.Time     `json:"create_ts" bson:"create_ts"`
+	UpdateTs time.Time     `json:"update_ts" bson:"update_ts"`
 }
 
 // 更新爬虫
@@ -82,6 +90,7 @@ func (spider *Spider) Save() error {
 	}
 
 	if err := c.UpdateId(spider.Id, spider); err != nil {
+		log.Errorf(err.Error())
 		debug.PrintStack()
 		return err
 	}
@@ -181,10 +190,22 @@ func GetSpiderList(filter interface{}, skip int, limit int, sortStr string) ([]S
 			continue
 		}
 
+		// 获取用户
+		var user User
+		if spider.UserId.Valid() {
+			user, err = GetUser(spider.UserId)
+			if err != nil {
+				log.Errorf(err.Error())
+				debug.PrintStack()
+				continue
+			}
+		}
+
 		// 赋值
 		spiders[i].LastRunTs = task.CreateTs
 		spiders[i].LastStatus = task.Status
 		spiders[i].LatestTasks = latestTasks
+		spiders[i].Username = user.Username
 	}
 
 	count, _ := c.Find(filter).Count()
@@ -220,13 +241,21 @@ func GetSpiderByName(name string) Spider {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 
-	var result Spider
-	if err := c.Find(bson.M{"name": name}).One(&result); err != nil && err != mgo.ErrNotFound {
+	var spider Spider
+	if err := c.Find(bson.M{"name": name}).One(&spider); err != nil && err != mgo.ErrNotFound {
 		log.Errorf("get spider error: %s, spider_name: %s", err.Error(), name)
 		//debug.PrintStack()
-		return result
+		return spider
 	}
-	return result
+
+	// 获取用户
+	var user User
+	if spider.UserId.Valid() {
+		user, _ = GetUser(spider.UserId)
+	}
+	spider.Username = user.Username
+
+	return spider
 }
 
 // 获取爬虫(根据ID)
@@ -252,6 +281,14 @@ func GetSpider(id bson.ObjectId) (Spider, error) {
 		}
 		spider.Config = config
 	}
+
+	// 获取用户名称
+	var user User
+	if spider.UserId.Valid() {
+		user, _ = GetUser(spider.UserId)
+	}
+	spider.Username = user.Username
+
 	return spider, nil
 }
 
@@ -323,11 +360,11 @@ func RemoveAllSpider() error {
 }
 
 // 获取爬虫总数
-func GetSpiderCount() (int, error) {
+func GetSpiderCount(filter interface{}) (int, error) {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 
-	count, err := c.Count()
+	count, err := c.Find(filter).Count()
 	if err != nil {
 		return 0, err
 	}

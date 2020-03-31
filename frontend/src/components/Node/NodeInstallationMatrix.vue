@@ -266,6 +266,7 @@ export default {
       await Promise.all(this.nodeList.map(async n => {
         if (n.status !== 'online') return
         const res = await this.$request.get(`/nodes/${n._id}/langs`)
+        if (!res.data.data) return
         res.data.data.forEach(l => {
           const key = n._id + '|' + l.executable_name
           this.$set(this.langsDataDict, key, l)
@@ -280,6 +281,7 @@ export default {
       await Promise.all(this.nodeList.map(async n => {
         if (n.status !== 'online') return
         const res = await this.$request.get(`/nodes/${n._id}/deps/installed`, { lang: this.activeLang })
+        if (!res.data.data) return
         res.data.data.forEach(d => {
           depsSet.add(d.name)
           const key = n._id + '|' + d.name
@@ -319,6 +321,9 @@ export default {
       setTimeout(() => {
         this.getLangsData()
       }, 1000)
+      this.$request.put('/actions', {
+        type: 'install_lang'
+      })
       this.$st.sendEv('节点列表', '安装', '安装语言')
     },
     async onInstallLangAll (langLabel, ev) {
@@ -372,6 +377,9 @@ export default {
         })
         this.$set(this.depsDataDict, key, 'installed')
       }
+      this.$request.put('/actions', {
+        type: 'install_dep'
+      })
       this.$st.sendEv('节点列表', '安装', '安装依赖')
     },
     async uninstallDep (node, dep) {

@@ -50,7 +50,10 @@ const state = {
   templateList: [],
 
   // spider file tree
-  fileTree: {}
+  fileTree: {},
+
+  // config list ts
+  configListTs: undefined
 }
 
 const getters = {}
@@ -110,6 +113,9 @@ const mutations = {
   },
   SET_SPIDER_SCRAPY_PIPELINES (state, value) {
     state.spiderScrapyPipelines = value
+  },
+  SET_CONFIG_LIST_TS (state, value) {
+    state.configListTs = value
   }
 }
 

@@ -323,7 +323,7 @@ export default {
             }
           } finally {
             this.isGitResetLoading = false
-            await this.updateGit()
+            // await this.updateGit()
           }
         })
       this.$st.sendEv('爬虫详情', 'Git 设置', '点击重置')

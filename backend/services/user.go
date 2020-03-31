@@ -14,7 +14,7 @@ import (
 )
 
 func InitUserService() error {
-	_ = CreateNewUser("admin", "admin", constants.RoleAdmin, "")
+	_ = CreateNewUser("admin", "admin", constants.RoleAdmin, "", bson.ObjectIdHex(constants.ObjectIdNull))
 	return nil
 }
 
@@ -90,12 +90,13 @@ func CheckToken(tokenStr string) (user model.User, err error) {
 	return
 }
 
-func CreateNewUser(username string, password string, role string, email string) error {
+func CreateNewUser(username string, password string, role string, email string, uid bson.ObjectId) error {
 	user := model.User{
 		Username: strings.ToLower(username),
 		Password: utils.EncryptPassword(password),
 		Role:     role,
 		Email:    email,
+		UserId:   uid,
 		Setting: model.UserSetting{
 			NotificationTrigger: constants.NotificationTriggerNever,
 			EnabledNotifications: []string{
@@ -112,6 +113,18 @@ func CreateNewUser(username string, password string, role string, email string) 
 }
 
 func GetCurrentUser(c *gin.Context) *model.User {
-	data, _ := c.Get("currentUser")
+	data, _ := c.Get(constants.ContextUser)
 	return data.(*model.User)
+}
+
+func GetCurrentUserId(c *gin.Context) bson.ObjectId {
+	return GetCurrentUser(c).Id
+}
+
+func GetAdminUser() (user *model.User, err error) {
+	u, err := model.GetUserByUsername("admin")
+	if err != nil {
+		return user, err
+	}
+	return &u, nil
 }

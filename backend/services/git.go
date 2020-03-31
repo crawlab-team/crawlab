@@ -289,8 +289,16 @@ func SyncSpiderGit(s model.Spider) (err error) {
 			// 检查是否为 Scrapy
 			sync := spider_handler.SpiderSync{Spider: s}
 			sync.CheckIsScrapy()
+
+			// 同步到GridFS
+			if err := UploadSpiderToGridFsFromMaster(s); err != nil {
+				SaveSpiderGitSyncError(s, err.Error())
+				return err
+			}
+
 			// 如果没有错误，则保存空字符串
 			SaveSpiderGitSyncError(s, "")
+
 			return nil
 		}
 		log.Error(err.Error())
@@ -311,6 +319,13 @@ func SyncSpiderGit(s model.Spider) (err error) {
 
 	// 同步到GridFS
 	if err := UploadSpiderToGridFsFromMaster(s); err != nil {
+		SaveSpiderGitSyncError(s, err.Error())
+		return err
+	}
+
+	// 获取更新后的爬虫
+	s, err = model.GetSpider(s.Id)
+	if err != nil {
 		SaveSpiderGitSyncError(s, err.Error())
 		return err
 	}

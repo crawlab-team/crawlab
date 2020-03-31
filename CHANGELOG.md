@@ -1,3 +1,20 @@
+# 0.4.9 (2020-03-31)
+### Features / Enhancement
+- **Challenges**. Users can achieve different challenges based on their actions.
+- **More Advanced Access Control**. More granular access control, e.g. normal users can only view/manage their own spiders/projects and admin users can view/manage all spiders/projects.
+- **Feedback**. Allow users to send feedbacks and ratings to Crawlab team.
+- **Better Home Page Metrics**. Optimized metrics display on home page.
+- **Configurable Spiders Converted to Customized Spiders**. Allow users to convert their configurable spiders into customized spiders which are also Scrapy spiders.
+- **View Tasks Triggered by Schedule**. Allow users to view tasks triggered by a schedule. [#648](https://github.com/crawlab-team/crawlab/issues/648)
+- **Support Results De-Duplication**. Allow users to configure de-duplication of results. [#579](https://github.com/crawlab-team/crawlab/issues/579)
+- **Support Task Restart**. Allow users to re-run historical tasks.
+
+### Bug Fixes
+- **CLI unable to use on Windows**. [#580](https://github.com/crawlab-team/crawlab/issues/580)
+- **Re-upload error**. [#643](https://github.com/crawlab-team/crawlab/issues/643) [#640](https://github.com/crawlab-team/crawlab/issues/640)
+- **Upload missing folders**. [#646](https://github.com/crawlab-team/crawlab/issues/646)
+- **Unable to add schedules in Spider Page**.
+
 # 0.4.8 (2020-03-11)
 ### Features / Enhancement
 - **Support Installations of More Programming Languages**. Now users can install or pre-install more programming languages including Java, .Net Core and PHP.

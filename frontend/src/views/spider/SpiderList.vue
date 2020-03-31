@@ -52,7 +52,7 @@
                 :disabled="spiderForm.is_scrapy"
               />
             </el-form-item>
-            <el-form-item :label="$t('Results')" prop="col">
+            <el-form-item :label="$t('Results')" prop="col" required>
               <el-input id="col" v-model="spiderForm.col" :placeholder="$t('Results')"/>
             </el-form-item>
             <el-form-item :label="$t('Upload Zip File')" label-width="120px" name="site">
@@ -327,6 +327,18 @@
               </el-select>
             </el-form-item>
             <el-form-item>
+              <el-select
+                v-model="filter.owner_type"
+                size="small"
+                :placeholder="$t('Owner Type')"
+                @change="getList"
+              >
+                <el-option value="me" :label="$t('My Spiders')"/>
+                <el-option value="all" :label="$t('All Spiders')"/>
+                <el-option value="public" :label="$t('Public Spiders')"/>
+              </el-select>
+            </el-form-item>
+            <el-form-item>
               <el-input
                 v-model="filter.keyword"
                 size="small"
@@ -578,12 +590,22 @@
         <el-table-column :label="$t('Action')" align="left" fixed="right" min-width="220px">
           <template slot-scope="scope">
             <el-tooltip :content="$t('View')" placement="top">
-              <el-button type="primary" icon="el-icon-search" size="mini"
-                         @click="onView(scope.row, $event)"></el-button>
+              <el-button
+                type="primary"
+                icon="el-icon-search"
+                size="mini"
+                :disabled="isDisabled(scope.row)"
+                @click="onView(scope.row, $event)"
+              />
             </el-tooltip>
             <el-tooltip :content="$t('Remove')" placement="top">
-              <el-button type="danger" icon="el-icon-delete" size="mini"
-                         @click="onRemove(scope.row, $event)"></el-button>
+              <el-button
+                type="danger"
+                icon="el-icon-delete"
+                size="mini"
+                :disabled="isDisabled(scope.row)"
+                @click="onRemove(scope.row, $event)"
+              />
             </el-tooltip>
             <el-tooltip :content="$t('Copy')" placement="top">
               <el-button
@@ -594,17 +616,27 @@
               />
             </el-tooltip>
             <el-tooltip v-if="!isShowRun(scope.row)" :content="$t('No command line')" placement="top">
-              <el-button disabled type="success" icon="fa fa-bug" size="mini"
-                         @click="onCrawl(scope.row, $event)"></el-button>
+              <el-button
+                disabled
+                type="success" icon="fa fa-bug" size="mini"
+                @click="onCrawl(scope.row, $event)"
+              />
             </el-tooltip>
             <el-tooltip v-else :content="$t('Run')" placement="top">
-              <el-button type="success" icon="fa fa-bug" size="mini" @click="onCrawl(scope.row, $event)"></el-button>
+              <el-button
+                type="success"
+                icon="fa fa-bug"
+                size="mini"
+                :disabled="isDisabled(scope.row)"
+                @click="onCrawl(scope.row, $event)"
+              />
             </el-tooltip>
             <el-tooltip :content="$t('Latest Tasks')" placement="top">
               <el-button
                 type="warning"
                 icon="fa fa-tasks"
                 size="mini"
+                :disabled="isDisabled(scope.row)"
                 @click="onViewRunningTasks(scope.row, $event)"
               />
             </el-tooltip>
@@ -664,7 +696,8 @@ export default {
       filter: {
         project_id: '',
         keyword: '',
-        type: 'all'
+        type: 'all',
+        owner_type: 'me'
       },
       sort: {
         sortKey: '',
@@ -816,6 +849,7 @@ export default {
       'templateList'
     ]),
     ...mapGetters('user', [
+      'userInfo',
       'token'
     ]),
     ...mapState('lang', [
@@ -846,6 +880,7 @@ export default {
       columns.push({ name: 'last_run_ts', label: 'Last Run', width: '140' })
       columns.push({ name: 'update_ts', label: 'Update Time', width: '140' })
       columns.push({ name: 'create_ts', label: 'Create Time', width: '140' })
+      columns.push({ name: 'username', label: 'Owner', width: '100' })
       columns.push({ name: 'remark', label: 'Remark', width: '140' })
       return columns
     },
@@ -903,7 +938,7 @@ export default {
           return
         }
         this.$router.push(`/spiders/${res2.data.data._id}`)
-        await this.$store.dispatch('spider/getSpiderList')
+        this.getList()
         this.$st.sendEv('爬虫列表', '添加爬虫', '可配置爬虫')
       })
     },
@@ -918,7 +953,7 @@ export default {
           return
         }
         this.$router.push(`/spiders/${res2.data.data._id}`)
-        await this.$store.dispatch('spider/getSpiderList')
+        this.getList()
         this.$st.sendEv('爬虫列表', '添加爬虫', '自定义爬虫')
       })
     },
@@ -968,7 +1003,7 @@ export default {
         await this.$store.dispatch('spider/deleteSpider', row._id)
         this.$message({
           type: 'success',
-          message: 'Deleted successfully'
+          message: this.$t('Deleted successfully')
         })
         await this.getList()
         this.$st.sendEv('爬虫列表', '删除爬虫')
@@ -1095,7 +1130,8 @@ export default {
         sort_direction: this.sort.sortDirection,
         keyword: this.filter.keyword,
         type: this.filter.type,
-        project_id: this.filter.project_id
+        project_id: this.filter.project_id,
+        owner_type: this.filter.owner_type
       }
       await this.$store.dispatch('spider/getSpiderList', params)
 
@@ -1208,6 +1244,9 @@ export default {
     onCrawlConfirmDialogClose () {
       this.crawlConfirmDialogVisible = false
       this.isMultiple = false
+    },
+    isDisabled (row) {
+      return row.is_public && row.username !== this.userInfo.username && this.userInfo.role !== 'admin'
     }
   },
   async created () {

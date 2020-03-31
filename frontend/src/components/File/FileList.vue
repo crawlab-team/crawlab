@@ -109,6 +109,7 @@
             type="primary"
             icon="el-icon-plus"
             slot="reference"
+            :disabled="isDisabled"
             @click="onEmptyClick"
           >
             {{$t('Add')}}
@@ -133,7 +134,7 @@
                 {{$t('Confirm')}}
               </el-button>
               <template slot="reference">
-                <el-button type="danger" size="small" style="margin-right: 10px;">
+                <el-button type="danger" size="small" style="margin-right: 10px;" :disabled="isDisabled">
                   <font-awesome-icon :icon="['fa', 'trash']"/>
                   {{$t('Remove')}}
                 </el-button>
@@ -148,14 +149,14 @@
               </div>
               <template slot="reference">
                 <div>
-                  <el-button type="warning" size="small" style="margin-right: 10px;" @click="onOpenRename">
+                  <el-button type="warning" size="small" style="margin-right: 10px;" :disabled="isDisabled" @click="onOpenRename">
                     <font-awesome-icon :icon="['fa', 'redo']"/>
                     {{$t('Rename')}}
                   </el-button>
                 </div>
               </template>
             </el-popover>
-            <el-button type="success" size="small" style="margin-right: 10px;" @click="onFileSave">
+            <el-button type="success" size="small" style="margin-right: 10px;" :disabled="isDisabled" @click="onFileSave">
               <font-awesome-icon :icon="['fa', 'save']"/>
               {{$t('Save')}}
             </el-button>
@@ -176,7 +177,8 @@
 
 <script>
 import {
-  mapState
+  mapState,
+  mapGetters
 } from 'vuex'
 import FileDetail from './FileDetail'
 
@@ -185,7 +187,6 @@ export default {
   components: { FileDetail },
   data () {
     return {
-      code: 'var hello = \'world\'',
       isEdit: false,
       showFile: false,
       name: '',
@@ -209,10 +210,14 @@ export default {
   },
   computed: {
     ...mapState('spider', [
-      'fileTree'
+      'fileTree',
+      'spiderForm'
     ]),
     ...mapState('file', [
       'fileList'
+    ]),
+    ...mapGetters('user', [
+      'userInfo'
     ]),
     currentPath: {
       set (value) {
@@ -238,6 +243,9 @@ export default {
         })
         .filter(d => d.expanded)
         .map(d => d.path)
+    },
+    isDisabled () {
+      return this.spiderForm.is_public && this.spiderForm.username !== this.userInfo.username && this.userInfo.role !== 'admin'
     }
   },
   methods: {
