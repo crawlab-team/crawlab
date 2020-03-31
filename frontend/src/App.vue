@@ -51,6 +51,11 @@ export default {
     // remove loading-placeholder
     const elLoading = document.querySelector('#loading-placeholder')
     elLoading.remove()
+
+    // send visit event
+    await this.$request.put('/actions', {
+      type: 'visit'
+    })
   }
 }
 </script>

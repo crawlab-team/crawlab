@@ -60,6 +60,11 @@ This Disclaimer and privacy protection statement (hereinafter referred to as "di
 8. 传播:任何公司或个人在网络上发布，传播我们软件的行为都是允许的，但因公司或个人传播软件可能造成的任何法律和刑事事件 Crawlab 开发组不负任何责任。
       `
     }
+  },
+  mounted () {
+    this.$request.put('/actions', {
+      type: 'view_disclaimer'
+    })
   }
 }
 </script>

@@ -95,8 +95,11 @@ func PutUser(c *gin.Context) {
 		reqData.Role = constants.RoleNormal
 	}
 
+	// UserId
+	uid := services.GetCurrentUserId(c)
+
 	// 添加用户
-	if err := services.CreateNewUser(reqData.Username, reqData.Password, reqData.Role, reqData.Email); err != nil {
+	if err := services.CreateNewUser(reqData.Username, reqData.Password, reqData.Role, reqData.Email, uid); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
@@ -118,6 +121,10 @@ func PostUser(c *gin.Context) {
 	if err := c.ShouldBindJSON(&item); err != nil {
 		HandleError(http.StatusBadRequest, c, err)
 		return
+	}
+
+	if item.UserId.Hex() == "" {
+		item.UserId = bson.ObjectIdHex(constants.ObjectIdNull)
 	}
 
 	if err := model.UpdateUser(bson.ObjectIdHex(id), item); err != nil {
@@ -230,6 +237,11 @@ func PostMe(c *gin.Context) {
 		user.Setting.WechatRobotWebhook = reqBody.Setting.WechatRobotWebhook
 	}
 	user.Setting.EnabledNotifications = reqBody.Setting.EnabledNotifications
+
+	if user.UserId.Hex() == "" {
+		user.UserId = bson.ObjectIdHex(constants.ObjectIdNull)
+	}
+
 	if err := user.Save(); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return

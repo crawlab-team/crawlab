@@ -45,13 +45,18 @@ func (s *SpiderSync) CheckIsScrapy() {
 	if s.Spider.Type == constants.Configurable {
 		return
 	}
+	if viper.GetString("setting.checkScrapy") != "Y" {
+		return
+	}
 	s.Spider.IsScrapy = utils.Exists(path.Join(s.Spider.Src, "scrapy.cfg"))
-	// TODO: 暂时停用自动检测Scrapy项目功能
-	//if err := s.Spider.Save(); err != nil {
-	//	log.Errorf(err.Error())
-	//	debug.PrintStack()
-	//	return
-	//}
+	if s.Spider.IsScrapy {
+		s.Spider.Cmd = "scrapy crawl"
+	}
+	if err := s.Spider.Save(); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return
+	}
 }
 
 func (s *SpiderSync) AfterRemoveDownCreate() {

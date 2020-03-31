@@ -266,7 +266,7 @@ func GetNodeBaseInfo() (ip string, mac string, hostname string, key string, erro
 		debug.PrintStack()
 		return "", "", "", "", err
 	}
-	return ip, mac, key, hostname, nil
+	return ip, mac, hostname, key, nil
 }
 
 // 根据redis的key值，重置node节点为offline

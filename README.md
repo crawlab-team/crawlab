@@ -272,6 +272,9 @@ Crawlab is easy to use, general enough to adapt spiders in any language and any 
 <a href="https://github.com/duanbin0414">
   <img src="https://avatars3.githubusercontent.com/u/50389867?s=460&v=4" height="80">
 </a>
+<a href="https://github.com/zkqiang">
+  <img src="https://avatars3.githubusercontent.com/u/32983588?s=460&u=83082ddc0a3020279374b94cce70f1aebb220b3d&v=4" height="80">
+</a>
 
 ## Community & Sponsorship
 

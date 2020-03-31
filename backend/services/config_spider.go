@@ -17,6 +17,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 )
 
@@ -214,7 +215,11 @@ func ProcessSpiderFilesFromConfigData(spider model.Spider, configData entity.Con
 	var gfFile model.GridFs
 	if err := gf.Find(bson.M{"filename": spiderZipFileName}).One(&gfFile); err == nil {
 		// 已经存在文件，则删除
-		_ = gf.RemoveId(gfFile.Id)
+		if err := gf.RemoveId(gfFile.Id); err != nil {
+			log.Errorf("remove grid fs error: %s", err.Error())
+			debug.PrintStack()
+			return err
+		}
 	}
 
 	// 上传到GridFs

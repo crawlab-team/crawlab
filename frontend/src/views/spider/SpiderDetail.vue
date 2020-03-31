@@ -32,7 +32,7 @@
         />
       </el-tab-pane>
       <el-tab-pane v-if="isConfigurable" :label="$t('Config')" name="config">
-        <config-list ref="config"/>
+        <config-list ref="config" @convert="onConvert"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Files')" name="files">
         <file-list
@@ -78,7 +78,8 @@ export default {
     SpiderOverview
   },
   watch: {
-    activeTabName () {
+    configListTs () {
+      this.onConvert()
     }
   },
   data () {
@@ -174,7 +175,8 @@ export default {
   computed: {
     ...mapState('spider', [
       'spiderList',
-      'spiderForm'
+      'spiderForm',
+      'configListTs'
     ]),
     ...mapState('file', [
       'currentPath'
@@ -242,6 +244,9 @@ export default {
       this.activeTabName = 'files'
       await this.$store.dispatch('spider/getFileTree')
       this.$refs['file-list'].clickPipeline()
+    },
+    onConvert () {
+      this.activeTabName = 'overview'
     }
   },
   async created () {
@@ -255,7 +260,7 @@ export default {
     await this.$store.dispatch('spider/getTaskList', this.$route.params.id)
 
     // get spider list
-    await this.$store.dispatch('spider/getSpiderList')
+    await this.$store.dispatch('spider/getSpiderList', { owner_type: 'all' })
   },
   mounted () {
     if (!this.$utils.tour.isFinishedTour('spider-detail')) {

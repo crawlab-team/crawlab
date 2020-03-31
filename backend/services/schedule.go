@@ -51,11 +51,13 @@ func AddScheduleTask(s model.Schedule) func() {
 			}
 			for _, node := range nodes {
 				t := model.Task{
-					Id:       id.String(),
-					SpiderId: s.SpiderId,
-					NodeId:   node.Id,
-					Param:    param,
-					UserId:   s.UserId,
+					Id:         id.String(),
+					SpiderId:   s.SpiderId,
+					NodeId:     node.Id,
+					Param:      param,
+					UserId:     s.UserId,
+					RunType:    constants.RunTypeAllNodes,
+					ScheduleId: s.Id,
 				}
 
 				if _, err := AddTask(t); err != nil {
@@ -65,10 +67,12 @@ func AddScheduleTask(s model.Schedule) func() {
 		} else if s.RunType == constants.RunTypeRandom {
 			// 随机
 			t := model.Task{
-				Id:       id.String(),
-				SpiderId: s.SpiderId,
-				Param:    param,
-				UserId:   s.UserId,
+				Id:         id.String(),
+				SpiderId:   s.SpiderId,
+				Param:      param,
+				UserId:     s.UserId,
+				RunType:    constants.RunTypeRandom,
+				ScheduleId: s.Id,
 			}
 			if _, err := AddTask(t); err != nil {
 				log.Errorf(err.Error())
@@ -79,11 +83,13 @@ func AddScheduleTask(s model.Schedule) func() {
 			// 指定节点
 			for _, nodeId := range s.NodeIds {
 				t := model.Task{
-					Id:       id.String(),
-					SpiderId: s.SpiderId,
-					NodeId:   nodeId,
-					Param:    param,
-					UserId:   s.UserId,
+					Id:         id.String(),
+					SpiderId:   s.SpiderId,
+					NodeId:     nodeId,
+					Param:      param,
+					UserId:     s.UserId,
+					RunType:    constants.RunTypeSelectedNodes,
+					ScheduleId: s.Id,
 				}
 
 				if _, err := AddTask(t); err != nil {

@@ -1,3 +1,20 @@
+# 0.4.9 (2020-03-31)
+### 功能 / 优化
+- **挑战**. 用户可以完成不同的趣味挑战..
+- **更高级的权限控制**. 更细化的权限管理，例如普通用户只能查看或管理自己的爬虫或项目，而管理用户可以查看或管理所有爬虫或项目.
+- **反馈**. 允许用户发送反馈和评分给 Crawlab 开发组.
+- **更好的主页指标**. 优化主页上的指标展示.
+- **可配置爬虫转化为自定义爬虫**. 用户可以将自己的可配置爬虫转化为 Scrapy 自定义爬虫.
+- **查看定时任务触发的任务**. 允许用户查看定时任务触发的任务. [#648](https://github.com/crawlab-team/crawlab/issues/648)
+- **支持结果去重**. 允许用户配置结果去重. [#579](https://github.com/crawlab-team/crawlab/issues/579)
+- **支持任务重试**. 允许任务重新触发历史任务.
+
+### Bug 修复
+- **CLI 无法在 Windows 上使用**. [#580](https://github.com/crawlab-team/crawlab/issues/580)
+- **重新上传错误**. [#643](https://github.com/crawlab-team/crawlab/issues/643) [#640](https://github.com/crawlab-team/crawlab/issues/640)
+- **上传丢失文件目录**. [#646](https://github.com/crawlab-team/crawlab/issues/646)
+- **无法在爬虫定时任务标签中添加定时任务**.
+
 # 0.4.8 (2020-03-11)
 ### 功能 / 优化
 - **支持更多编程语言安装**. 现在用户可以安装或预装更多的编程语言，包括 Java、.Net Core、PHP.
