@@ -109,6 +109,19 @@ func (t *Task) GetResults(pageNum int, pageSize int) (results []interface{}, tot
 	return
 }
 
+func (t *Task) GetLogItems() (logItems []LogItem, err error) {
+	query := bson.M{
+		"task_id": t.Id,
+	}
+
+	logItems, err = GetLogItemList(query, 0, constants.Infinite, "+_id")
+	if err != nil {
+		return logItems, err
+	}
+
+	return logItems, nil
+}
+
 func GetTaskList(filter interface{}, skip int, limit int, sortKey string) ([]Task, error) {
 	s, c := database.GetCol("tasks")
 	defer s.Close()

@@ -20,6 +20,12 @@ export default {
       type: Number,
       default: 1
     },
+    logItem: {
+      type: Object,
+      default () {
+        return {}
+      }
+    },
     data: {
       type: String,
       default: ''

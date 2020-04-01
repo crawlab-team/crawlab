@@ -9,6 +9,7 @@ import (
 	"crawlab/utils"
 	"encoding/json"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/spf13/viper"
 	"io/ioutil"
@@ -162,5 +163,42 @@ func InitDeleteLogPeriodically() error {
 
 	c.Start()
 	return nil
+}
 
+func InitLogIndexes() error {
+	s, c := database.GetCol("logs")
+	defer s.Close()
+
+	_ = c.EnsureIndexKey("task_id")
+	_ = c.EnsureIndex(mgo.Index{
+		Key: []string{"$text:msg"},
+	})
+
+	return nil
+}
+
+func InitLogService() error {
+	logLevel := viper.GetString("log.level")
+	if logLevel != "" {
+		log.SetLevelFromString(logLevel)
+	}
+	log.Info("initialized log config successfully")
+	if viper.GetString("log.isDeletePeriodically") == "Y" {
+		if err := InitDeleteLogPeriodically(); err != nil {
+			log.Error("init DeletePeriodically failed")
+			return err
+		}
+		log.Info("initialized periodically cleaning log successfully")
+	} else {
+		log.Info("periodically cleaning log is switched off")
+	}
+
+	if model.IsMaster() {
+		if err := InitLogIndexes(); err != nil {
+			log.Errorf(err.Error())
+			return err
+		}
+	}
+
+	return nil
 }
