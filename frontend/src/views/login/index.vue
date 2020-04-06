@@ -150,18 +150,41 @@ export default {
   },
   methods: {
     handleLogin () {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
-            this.loading = false
-            this.$router.push({ path: this.redirect || '/' })
-            this.$store.dispatch('user/getInfo')
-          }).catch(() => {
-            this.$message.error(this.$t('Error when logging in (Please read documentation Q&A)'))
-            this.loading = false
+      this.$refs.loginForm.validate(async valid => {
+        if (!valid) return
+        this.loading = true
+        const res = await this.$store.dispatch('user/login', this.loginForm)
+        if (res.status === 200) {
+          // success
+          this.$router.push({ path: this.redirect || '/' })
+          this.$st.sendEv('全局', '登录', '成功')
+          await this.$store.dispatch('user/getInfo')
+        } else if (res.message === 'Network Error' || !res.response) {
+          // no response
+          this.$message({
+            type: 'error',
+            message: this.$t('No response from the server. Please make sure your server is running correctly. You can also refer to the documentation to solve this issue.'),
+            customClass: 'message-error',
+            duration: 5000
           })
+          this.$st.sendEv('全局', '登录', '服务器无响应')
+        } else if (res.response.status === 401) {
+          // incorrect username or password
+          this.$message({
+            type: 'error',
+            message: '[401] ' + this.$t('Incorrect username or password')
+          })
+          this.$st.sendEv('全局', '登录', '用户名密码错误')
+        } else {
+          // other error
+          this.$message({
+            type: 'error',
+            message: `[${res.response.status}] ${res.response.data.error}`,
+            customClass: 'message-error'
+          })
+          this.$st.sendEv('全局', '登录', '其他错误')
         }
+        this.loading = false
       })
     },
     handleSignup () {
@@ -171,9 +194,11 @@ export default {
           this.$store.dispatch('user/register', this.loginForm).then(() => {
             this.handleLogin()
             this.loading = false
+            this.$st.sendEv('全局', '注册', '成功')
           }).catch(err => {
             this.$message.error(this.$t(err))
             this.loading = false
+            this.$st.sendEv('全局', '注册', '失败')
           })
         }
       })
@@ -362,6 +387,11 @@ const initCanvas = () => {
       top: 0;
       left: 0;
     }
+  }
+
+  .message-error .el-message__content {
+    width: 360px;
+    line-height: 18px;
   }
 </style>
 

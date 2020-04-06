@@ -9,7 +9,12 @@ import (
 )
 
 func GetScheduleList(c *gin.Context) {
-	results, err := model.GetScheduleList(nil)
+	query := bson.M{}
+
+	// 获取校验
+	query = services.GetAuthQuery(query, c)
+
+	results, err := model.GetScheduleList(query)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
@@ -77,7 +82,7 @@ func PutSchedule(c *gin.Context) {
 	}
 
 	// 加入用户ID
-	item.UserId = services.GetCurrentUser(c).Id
+	item.UserId = services.GetCurrentUserId(c)
 
 	// 更新数据库
 	if err := model.AddSchedule(item); err != nil {

@@ -33,16 +33,19 @@ const request = (method, path, params, data, others = {}) => {
     return Promise.reject(response)
   }).catch((e) => {
     let response = e.response
+    if (!response) {
+      return e
+    }
     if (response.status === 400) {
       Message.error(response.data.error)
     }
     if (response.status === 401 && router.currentRoute.path !== '/login') {
-      console.log('login')
       router.push('/login')
     }
     if (response.status === 500) {
       Message.error(response.data.error)
     }
+    return e
   })
 }
 

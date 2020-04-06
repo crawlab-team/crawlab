@@ -29,6 +29,7 @@ type Schedule struct {
 
 	// 前端展示
 	SpiderName string `json:"spider_name" bson:"spider_name"`
+	Username   string `json:"user_name" bson:"user_name"`
 	Nodes      []Node `json:"nodes" bson:"nodes"`
 	Message    string `json:"message" bson:"message"`
 
@@ -83,6 +84,10 @@ func GetScheduleList(filter interface{}) ([]Schedule, error) {
 			schedule.SpiderName = spider.Name
 		}
 
+		// 获取用户名称
+		user, _ := GetUser(schedule.UserId)
+		schedule.Username = user.Username
+
 		schs = append(schs, schedule)
 	}
 	return schs, nil
@@ -92,11 +97,16 @@ func GetSchedule(id bson.ObjectId) (Schedule, error) {
 	s, c := database.GetCol("schedules")
 	defer s.Close()
 
-	var result Schedule
-	if err := c.FindId(id).One(&result); err != nil {
-		return result, err
+	var schedule Schedule
+	if err := c.FindId(id).One(&schedule); err != nil {
+		return schedule, err
 	}
-	return result, nil
+
+	// 获取用户名称
+	user, _ := GetUser(schedule.UserId)
+	schedule.Username = user.Username
+
+	return schedule, nil
 }
 
 func UpdateSchedule(id bson.ObjectId, item Schedule) error {
@@ -147,11 +157,11 @@ func RemoveSchedule(id bson.ObjectId) error {
 	return nil
 }
 
-func GetScheduleCount() (int, error) {
+func GetScheduleCount(filter interface{}) (int, error) {
 	s, c := database.GetCol("schedules")
 	defer s.Close()
 
-	count, err := c.Count()
+	count, err := c.Find(filter).Count()
 	if err != nil {
 		return 0, err
 	}

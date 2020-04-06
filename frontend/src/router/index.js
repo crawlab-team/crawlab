@@ -193,11 +193,50 @@ export const constantRouterMap = [
     ]
   },
   {
+    path: '/challenges',
+    component: Layout,
+    meta: {
+      title: 'ChallengeList',
+      icon: 'fa fa-flash'
+    },
+    children: [
+      {
+        path: '',
+        name: 'ChallengeList',
+        component: () => import('../views/challenge/ChallengeList'),
+        meta: {
+          title: 'Challenges',
+          icon: 'fa fa-flash'
+        }
+      }
+    ]
+  },
+  {
+    path: '/feedback',
+    component: Layout,
+    meta: {
+      title: 'Feedback',
+      icon: 'fa fa-commenting-o'
+    },
+    children: [
+      {
+        path: '',
+        name: 'Feedback',
+        component: () => import('../views/feedback/Feedback'),
+        meta: {
+          title: 'Feedback',
+          icon: 'fa fa-commenting'
+        }
+      }
+    ]
+  },
+  {
     path: '/users',
     component: Layout,
     meta: {
       title: 'User',
-      icon: 'fa fa-user'
+      icon: 'fa fa-users',
+      isNew: true
     },
     children: [
       {
@@ -206,7 +245,7 @@ export const constantRouterMap = [
         component: () => import('../views/user/UserList'),
         meta: {
           title: 'Users',
-          icon: 'fa fa-user'
+          icon: 'fa fa-users'
         }
       }
     ]

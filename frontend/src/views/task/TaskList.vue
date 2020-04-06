@@ -21,7 +21,7 @@
               </el-select>
             </el-form-item>
             <el-form-item prop="spider_id" :label="$t('Spider')">
-              <el-select v-model="filter.spider_id" size="small" :placeholder="$t('Spider')" @change="onFilterChange">
+              <el-select v-model="filter.spider_id" size="small" :placeholder="$t('Spider')" @change="onFilterChange" :disabled="isFilterSpiderDisabled">
                 <el-option value="" :label="$t('All')"/>
                 <el-option v-for="spider in spiderList" :key="spider._id" :value="spider._id" :label="spider.name"/>
               </el-select>
@@ -143,10 +143,14 @@
                            :width="col.width">
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" fixed="right" width="120px">
+        <el-table-column :label="$t('Action')" align="left" fixed="right" width="150px">
           <template slot-scope="scope">
             <el-tooltip :content="$t('View')" placement="top">
               <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
+            </el-tooltip>
+            <el-tooltip :content="$t('Restart')" placement="top">
+              <el-button type="warning" icon="el-icon-refresh" size="mini"
+                         @click="onRestart(scope.row, $event)"></el-button>
             </el-tooltip>
             <el-tooltip :content="$t('Remove')" placement="top">
               <el-button type="danger" icon="el-icon-delete" size="mini"
@@ -205,7 +209,8 @@ export default {
         { name: 'wait_duration', label: 'Wait Duration (sec)', align: 'right' },
         { name: 'runtime_duration', label: 'Runtime Duration (sec)', align: 'right' },
         { name: 'total_duration', label: 'Total Duration (sec)', width: '80', align: 'right' },
-        { name: 'result_count', label: 'Results Count', width: '80' }
+        { name: 'result_count', label: 'Results Count', width: '80' },
+        { name: 'username', label: 'Owner', width: '100' }
         // { name: 'avg_num_results', label: 'Average Results Count per Second', width: '80' }
       ],
 
@@ -240,6 +245,7 @@ export default {
           }
         }
       ],
+
       tourCallbacks: {
         onStop: () => {
           this.$utils.tour.finishTour('task-list')
@@ -250,7 +256,9 @@ export default {
         onNextStep: (currentStep) => {
           this.$utils.tour.nextStep('task-list', currentStep)
         }
-      }
+      },
+
+      isFilterSpiderDisabled: false
     }
   },
   computed: {
@@ -349,10 +357,27 @@ export default {
           .then(() => {
             this.$message({
               type: 'success',
-              message: 'Deleted successfully'
+              message: this.$t('Deleted successfully')
             })
           })
         this.$st.sendEv('任务列表', '删除任务')
+      })
+    },
+    onRestart (row, ev) {
+      ev.stopPropagation()
+      this.$confirm(this.$t('Are you sure to restart this task?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
+        type: 'warning'
+      }).then(() => {
+        this.$store.dispatch('task/restartTask', row._id)
+          .then(() => {
+            this.$message({
+              type: 'success',
+              message: this.$t('Restarted successfully')
+            })
+          })
+        this.$st.sendEv('任务列表', '重新开始任务')
       })
     },
     onView (row) {

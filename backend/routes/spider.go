@@ -29,13 +29,14 @@ import (
 // ======== 爬虫管理 ========
 
 func GetSpiderList(c *gin.Context) {
-	pageNum, _ := c.GetQuery("page_num")
-	pageSize, _ := c.GetQuery("page_size")
-	keyword, _ := c.GetQuery("keyword")
-	pid, _ := c.GetQuery("project_id")
-	t, _ := c.GetQuery("type")
-	sortKey, _ := c.GetQuery("sort_key")
-	sortDirection, _ := c.GetQuery("sort_direction")
+	pageNum := c.Query("page_num")
+	pageSize := c.Query("page_size")
+	keyword := c.Query("keyword")
+	pid := c.Query("project_id")
+	t := c.Query("type")
+	sortKey := c.Query("sort_key")
+	sortDirection := c.Query("sort_direction")
+	ownerType := c.Query("owner_type")
 
 	// 筛选-名称
 	filter := bson.M{
@@ -63,6 +64,21 @@ func GetSpiderList(c *gin.Context) {
 		}
 	} else {
 		filter["project_id"] = bson.ObjectIdHex(pid)
+	}
+
+	// 筛选-用户
+	if ownerType == constants.OwnerTypeAll {
+		user := services.GetCurrentUser(c)
+		if user.Role == constants.RoleNormal {
+			filter["$or"] = []bson.M{
+				{"user_id": services.GetCurrentUserId(c)},
+				{"is_public": true},
+			}
+		}
+	} else if ownerType == constants.OwnerTypeMe {
+		filter["user_id"] = services.GetCurrentUserId(c)
+	} else if ownerType == constants.OwnerTypePublic {
+		filter["is_public"] = true
 	}
 
 	// 排序
@@ -126,6 +142,11 @@ func PostSpider(c *gin.Context) {
 		return
 	}
 
+	// UserId
+	if !item.UserId.Valid() {
+		item.UserId = bson.ObjectIdHex(constants.ObjectIdNull)
+	}
+
 	if err := model.UpdateSpider(bson.ObjectIdHex(id), item); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
@@ -133,6 +154,19 @@ func PostSpider(c *gin.Context) {
 
 	// 更新 GitCron
 	if err := services.GitCron.Update(); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 获取爬虫
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	// 去重处理
+	if err := services.UpdateSpiderDedup(spider); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
@@ -188,6 +222,9 @@ func PutSpider(c *gin.Context) {
 
 	// 将FileId置空
 	spider.FileId = bson.ObjectIdHex(constants.ObjectIdNull)
+
+	// UserId
+	spider.UserId = services.GetCurrentUserId(c)
 
 	// 爬虫目录
 	spiderDir := filepath.Join(viper.GetString("spider.path"), spider.Name)
@@ -274,6 +311,9 @@ func CopySpider(c *gin.Context) {
 		return
 	}
 
+	// UserId
+	spider.UserId = services.GetCurrentUserId(c)
+
 	// 复制爬虫
 	if err := services.CopySpider(spider, reqBody.Name); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
@@ -336,7 +376,12 @@ func UploadSpider(c *gin.Context) {
 	var gfFile model.GridFs
 	if err := gf.Find(bson.M{"filename": uploadFile.Filename}).One(&gfFile); err == nil {
 		// 已经存在文件，则删除
-		_ = gf.RemoveId(gfFile.Id)
+		if err := gf.RemoveId(gfFile.Id); err != nil {
+			log.Errorf("remove grid fs error: %s", err.Error())
+			debug.PrintStack()
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
 	}
 
 	// 上传到GridFs
@@ -365,6 +410,8 @@ func UploadSpider(c *gin.Context) {
 			Type:        constants.Customized,
 			Src:         filepath.Join(srcPath, spiderName),
 			FileId:      fid,
+			ProjectId:   bson.ObjectIdHex(constants.ObjectIdNull),
+			UserId:      services.GetCurrentUserId(c),
 		}
 		if name != "" {
 			spider.Name = name
@@ -407,11 +454,11 @@ func UploadSpider(c *gin.Context) {
 		}
 	}
 
-	// 发起同步
-	services.PublishAllSpiders()
-
 	// 获取爬虫
 	spider = model.GetSpiderByName(spiderName)
+
+	// 发起同步
+	services.PublishSpider(spider)
 
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
@@ -477,22 +524,32 @@ func UploadSpiderFromId(c *gin.Context) {
 
 	// 判断文件是否已经存在
 	var gfFile model.GridFs
-	if err := gf.Find(bson.M{"filename": uploadFile.Filename}).One(&gfFile); err == nil {
+	if err := gf.Find(bson.M{"filename": spider.Name}).One(&gfFile); err == nil {
 		// 已经存在文件，则删除
-		_ = gf.RemoveId(gfFile.Id)
+		if err := gf.RemoveId(gfFile.Id); err != nil {
+			log.Errorf("remove grid fs error: " + err.Error())
+			debug.PrintStack()
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
 	}
 
 	// 上传到GridFs
-	fid, err := services.UploadToGridFs(uploadFile.Filename, tmpFilePath)
+	fid, err := services.UploadToGridFs(spider.Name, tmpFilePath)
 	if err != nil {
 		log.Errorf("upload to grid fs error: %s", err.Error())
 		debug.PrintStack()
+		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
 
 	// 更新file_id
 	spider.FileId = fid
-	_ = spider.Save()
+	if err := spider.Save(); err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return
+	}
 
 	// 发起同步
 	services.PublishSpider(spider)
@@ -614,10 +671,12 @@ func RunSelectedSpider(c *gin.Context) {
 			}
 			for _, node := range nodes {
 				t := model.Task{
-					SpiderId: taskParam.SpiderId,
-					NodeId:   node.Id,
-					Param:    taskParam.Param,
-					UserId:   services.GetCurrentUser(c).Id,
+					SpiderId:   taskParam.SpiderId,
+					NodeId:     node.Id,
+					Param:      taskParam.Param,
+					UserId:     services.GetCurrentUserId(c),
+					RunType:    constants.RunTypeAllNodes,
+					ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
 				}
 
 				id, err := services.AddTask(t)
@@ -631,9 +690,11 @@ func RunSelectedSpider(c *gin.Context) {
 		} else if reqBody.RunType == constants.RunTypeRandom {
 			// 随机
 			t := model.Task{
-				SpiderId: taskParam.SpiderId,
-				Param:    taskParam.Param,
-				UserId:   services.GetCurrentUser(c).Id,
+				SpiderId:   taskParam.SpiderId,
+				Param:      taskParam.Param,
+				UserId:     services.GetCurrentUserId(c),
+				RunType:    constants.RunTypeRandom,
+				ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
 			}
 			id, err := services.AddTask(t)
 			if err != nil {
@@ -645,10 +706,12 @@ func RunSelectedSpider(c *gin.Context) {
 			// 指定节点
 			for _, nodeId := range reqBody.NodeIds {
 				t := model.Task{
-					SpiderId: taskParam.SpiderId,
-					NodeId:   nodeId,
-					Param:    taskParam.Param,
-					UserId:   services.GetCurrentUser(c).Id,
+					SpiderId:   taskParam.SpiderId,
+					NodeId:     nodeId,
+					Param:      taskParam.Param,
+					UserId:     services.GetCurrentUserId(c),
+					RunType:    constants.RunTypeSelectedNodes,
+					ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
 				}
 
 				id, err := services.AddTask(t)
@@ -796,7 +859,7 @@ func GetSpiderStats(c *gin.Context) {
 	overview.AvgWaitDuration = overview.TotalWaitDuration / taskCount
 	overview.AvgRuntimeDuration = overview.TotalRuntimeDuration / taskCount
 
-	items, err := model.GetDailyTaskStats(bson.M{"spider_id": spider.Id})
+	items, err := model.GetDailyTaskStats(bson.M{"spider_id": spider.Id, "user_id": bson.M{"user_id": services.GetCurrentUserId(c)}})
 	if err != nil {
 		log.Errorf(err.Error())
 		HandleError(http.StatusInternalServerError, c, err)

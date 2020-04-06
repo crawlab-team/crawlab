@@ -1,12 +1,18 @@
 <template>
-  <codemirror
-    class="file-content"
-    :options="options"
-    v-model="fileContent"
-  />
+  <div class="file-detail">
+    <codemirror
+      class="file-content"
+      :options="options"
+      v-model="fileContent"
+    />
+  </div>
 </template>
 
 <script>
+import {
+  mapState,
+  mapGetters
+} from 'vuex'
 import { codemirror } from 'vue-codemirror-lite'
 
 import 'codemirror/lib/codemirror.js'
@@ -29,6 +35,12 @@ export default {
     }
   },
   computed: {
+    ...mapState('spider', [
+      'spiderForm'
+    ]),
+    ...mapGetters('user', [
+      'userInfo'
+    ]),
     fileContent: {
       get () {
         return this.$store.state.file.fileContent
@@ -46,7 +58,8 @@ export default {
         indentUnit: 4,
         lineNumbers: true,
         line: true,
-        matchBrackets: true
+        matchBrackets: true,
+        readOnly: this.isDisabled ? 'nocursor' : false
       }
     },
     language () {
@@ -69,6 +82,9 @@ export default {
       } else {
         return 'text'
       }
+    },
+    isDisabled () {
+      return this.spiderForm.is_public && this.spiderForm.username !== this.userInfo.username && this.userInfo.role !== 'admin'
     }
   },
   created () {

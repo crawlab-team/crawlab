@@ -25,14 +25,17 @@ type Task struct {
 	RuntimeDuration float64       `json:"runtime_duration" bson:"runtime_duration"`
 	TotalDuration   float64       `json:"total_duration" bson:"total_duration"`
 	Pid             int           `json:"pid" bson:"pid"`
-	UserId          bson.ObjectId `json:"user_id" bson:"user_id"`
+	RunType         string        `json:"run_type" bson:"run_type"`
+	ScheduleId      bson.ObjectId `json:"schedule_id" bson:"schedule_id"`
 
 	// 前端数据
 	SpiderName string `json:"spider_name"`
 	NodeName   string `json:"node_name"`
+	Username   string `json:"username"`
 
-	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
-	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
+	UserId   bson.ObjectId `json:"user_id" bson:"user_id"`
+	CreateTs time.Time     `json:"create_ts" bson:"create_ts"`
+	UpdateTs time.Time     `json:"update_ts" bson:"update_ts"`
 }
 
 type TaskDailyItem struct {
@@ -126,6 +129,10 @@ func GetTaskList(filter interface{}, skip int, limit int, sortKey string) ([]Tas
 		if node, err := task.GetNode(); err == nil {
 			tasks[i].NodeName = node.Name
 		}
+
+		// 获取用户名称
+		user, _ := GetUser(task.UserId)
+		task.Username = user.Username
 	}
 	return tasks, nil
 }
@@ -154,6 +161,11 @@ func GetTask(id string) (Task, error) {
 		debug.PrintStack()
 		return task, err
 	}
+
+	// 获取用户名称
+	user, _ := GetUser(task.UserId)
+	task.Username = user.Username
+
 	return task, nil
 }
 

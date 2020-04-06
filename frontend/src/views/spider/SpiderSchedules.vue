@@ -37,6 +37,9 @@ export default {
       this.isEdit = false
       this.dialogVisible = true
       this.$store.commit('schedule/SET_SCHEDULE_FORM', { node_ids: [], spider_id: this.spiderId })
+      if (this.spiderForm.is_scrapy) {
+        this.onSpiderChange(this.spiderForm._id)
+      }
       this.$st.sendEv('定时任务', '添加定时任务')
     }
   },

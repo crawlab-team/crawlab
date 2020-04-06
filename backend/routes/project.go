@@ -4,6 +4,7 @@ import (
 	"crawlab/constants"
 	"crawlab/database"
 	"crawlab/model"
+	"crawlab/services"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
 	"net/http"
@@ -18,8 +19,11 @@ func GetProjectList(c *gin.Context) {
 		query["tags"] = tag
 	}
 
+	// 获取校验
+	query = services.GetAuthQuery(query, c)
+
 	// 获取列表
-	projects, err := model.GetProjectList(query, 0, "+_id")
+	projects, err := model.GetProjectList(query, "+_id")
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
@@ -73,6 +77,9 @@ func PutProject(c *gin.Context) {
 		HandleError(http.StatusBadRequest, c, err)
 		return
 	}
+
+	// UserId
+	p.UserId = services.GetCurrentUserId(c)
 
 	if err := p.Add(); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)

@@ -2,6 +2,7 @@ package mock
 
 import (
 	"bytes"
+	"crawlab/constants"
 	"crawlab/model"
 	"encoding/json"
 	"github.com/globalsign/mgo/bson"
@@ -61,6 +62,7 @@ func TestPostSpider(t *testing.T) {
 		LastRunTs:   time.Now(),
 		CreateTs:    time.Now(),
 		UpdateTs:    time.Now(),
+		UserId:      constants.ObjectIdNull,
 	}
 	var resp Response
 	var spiderId = "5d429e6c19f7abede924fee2"

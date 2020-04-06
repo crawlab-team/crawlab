@@ -262,6 +262,9 @@ export default {
         })
         dep.installed = true
       }
+      this.$request.put('/actions', {
+        type: 'install_dep'
+      })
       this.$set(this.depLoadingDict, name, false)
       this.$st.sendEv('节点详情', '安装', '安装依赖')
     },
@@ -312,6 +315,9 @@ export default {
           message: this.$t('You have successfully installed a language: ') + this.activeLang.name
         })
       }
+      this.$request.put('/actions', {
+        type: 'install_lang'
+      })
       this.isLoadingInstallLang = false
       this.$st.sendEv('节点详情', '安装', '安装语言')
     },
