@@ -50,6 +50,7 @@ export default {
   Cancel: '取消',
   Import: '导入',
   Submit: '提交',
+  'Delete Task': '删除任务',
   'Import Spiders': '导入爬虫',
   'Deploy All': '部署所有爬虫',
   'Refresh': '刷新',

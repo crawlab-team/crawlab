@@ -41,7 +41,7 @@
         </div>
         <div class="right">
           <el-button class="btn-delete" @click="onRemoveMultipleTask" size="small" type="danger">
-            删除任务
+            {{$t('Delete Task')}}
           </el-button>
         </div>
       </div>
