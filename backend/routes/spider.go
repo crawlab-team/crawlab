@@ -859,7 +859,7 @@ func GetSpiderStats(c *gin.Context) {
 	overview.AvgWaitDuration = overview.TotalWaitDuration / taskCount
 	overview.AvgRuntimeDuration = overview.TotalRuntimeDuration / taskCount
 
-	items, err := model.GetDailyTaskStats(bson.M{"spider_id": spider.Id, "user_id": bson.M{"user_id": services.GetCurrentUserId(c)}})
+	items, err := model.GetDailyTaskStats(bson.M{"spider_id": spider.Id, "user_id": services.GetCurrentUserId(c)})
 	if err != nil {
 		log.Errorf(err.Error())
 		HandleError(http.StatusInternalServerError, c, err)
