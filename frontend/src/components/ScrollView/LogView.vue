@@ -158,6 +158,7 @@ export default {
         // https://vuejs.org/v2/guide/render-function.html#createElement-Arguments
         props: {
           index: logItem.index,
+          logItem,
           data: isAnsi ? convert.toHtml(logItem.data) : logItem.data,
           searchString: this.searchString,
           active: logItem.active,

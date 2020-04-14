@@ -6,7 +6,7 @@ const state = {
   taskList: [],
   taskListTotalCount: 0,
   taskForm: {},
-  taskLog: '',
+  taskLog: [],
   currentLogIndex: 0,
   taskResultsData: [],
   taskResultsColumns: [],
@@ -41,12 +41,13 @@ const getters = {
     return keys
   },
   logData (state) {
-    const data = state.taskLog.split('\n')
+    const data = state.taskLog
       .map((d, i) => {
         return {
           index: i + 1,
-          data: d,
-          active: state.currentLogIndex === i + 1
+          active: state.currentLogIndex === i + 1,
+          data: d.msg,
+          ...d
         }
       })
     if (state.taskForm && state.taskForm.status === 'running') {
@@ -151,7 +152,7 @@ const actions = {
   getTaskLog ({ state, commit }, id) {
     return request.get(`/tasks/${id}/log`)
       .then(response => {
-        commit('SET_TASK_LOG', response.data.data)
+        commit('SET_TASK_LOG', response.data.data || [])
       })
   },
   getTaskResults ({ state, commit }, id) {
