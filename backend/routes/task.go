@@ -235,12 +235,12 @@ func DeleteTask(c *gin.Context) {
 
 func GetTaskLog(c *gin.Context) {
 	id := c.Param("id")
-	logStr, err := services.GetTaskLog(id)
+	logItems, err := services.GetTaskLog(id)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
-	HandleSuccessData(c, logStr)
+	HandleSuccessData(c, logItems)
 }
 
 func GetTaskResults(c *gin.Context) {
