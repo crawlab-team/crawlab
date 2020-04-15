@@ -109,17 +109,30 @@ func (t *Task) GetResults(pageNum int, pageSize int) (results []interface{}, tot
 	return
 }
 
-func (t *Task) GetLogItems() (logItems []LogItem, err error) {
+func (t *Task) GetLogItems(keyword string, page int, pageSize int) (logItems []LogItem, logTotal int, err error) {
 	query := bson.M{
 		"task_id": t.Id,
 	}
 
-	logItems, err = GetLogItemList(query, 0, constants.Infinite, "+_id")
-	if err != nil {
-		return logItems, err
+	if keyword != "" {
+		query["msg"] = bson.M{
+			"$regex": bson.RegEx{
+				Pattern: keyword,
+				Options: "i",
+			},
+		}
 	}
 
-	return logItems, nil
+	logItems, err = GetLogItemList(query, (page - 1) * pageSize, pageSize, "+_id")
+	if err != nil {
+		return logItems, logTotal, err
+	}
+	logTotal, err = GetLogItemTotal(query)
+	if err != nil {
+		return logItems, logTotal, err
+	}
+
+	return logItems, logTotal, nil
 }
 
 func GetTaskList(filter interface{}, skip int, limit int, sortKey string) ([]Task, error) {

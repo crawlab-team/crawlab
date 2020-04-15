@@ -77,3 +77,16 @@ func GetLogItemList(filter interface{}, skip int, limit int, sortStr string) ([]
 
 	return logItems, nil
 }
+
+func GetLogItemTotal(filter interface{}) (int, error) {
+	s, c := database.GetCol("logs")
+	defer s.Close()
+
+	total, err := c.Find(filter).Count()
+	if err != nil {
+		debug.PrintStack()
+		return total, err
+	}
+
+	return total, nil
+}

@@ -7,6 +7,9 @@ const state = {
   taskListTotalCount: 0,
   taskForm: {},
   taskLog: [],
+  taskLogTotal: 0,
+  taskLogPage: 1,
+  taskLogPageSize: 5000,
   currentLogIndex: 0,
   taskResultsData: [],
   taskResultsColumns: [],
@@ -21,6 +24,9 @@ const state = {
   // pagination
   pageNum: 1,
   pageSize: 10,
+  // log
+  logKeyword: '',
+  errorLogData: [],
   // results
   resultsPageNum: 1,
   resultsPageSize: 10
@@ -63,8 +69,11 @@ const getters = {
     return data
   },
   errorLogData (state, getters) {
-    return getters.logData.filter(d => {
-      return d.data.match(utils.log.errorRegex)
+    const idxList = getters.logData.map(d => d._id)
+    return state.errorLogData.map(d => {
+      const idx = idxList.indexOf(d._id)
+      d.index = getters.logData[idx].index
+      return d
     })
   }
 }
@@ -78,6 +87,9 @@ const mutations = {
   },
   SET_TASK_LOG (state, value) {
     state.taskLog = value
+  },
+  SET_TASK_LOG_TOTAL (state, value) {
+    state.taskLogTotal = value
   },
   SET_CURRENT_LOG_INDEX (state, value) {
     state.currentLogIndex = value
@@ -105,6 +117,18 @@ const mutations = {
   },
   SET_TASK_RESULTS_TOTAL_COUNT (state, value) {
     state.taskResultsTotalCount = value
+  },
+  SET_LOG_KEYWORD (state, value) {
+    state.logKeyword = value
+  },
+  SET_ERROR_LOG_DATA (state, value) {
+    state.errorLogData = value
+  },
+  SET_TASK_LOG_PAGE (state, value) {
+    state.taskLogPage = value
+  },
+  SET_TASK_LOG_PAGE_SIZE (state, value) {
+    state.taskLogPageSize = value
   }
 }
 
@@ -149,10 +173,21 @@ const actions = {
         dispatch('getTaskList')
       })
   },
-  getTaskLog ({ state, commit }, id) {
-    return request.get(`/tasks/${id}/log`)
+  getTaskLog ({ state, commit }, { id, keyword }) {
+    return request.get(`/tasks/${id}/log`, {
+      keyword,
+      page_num: state.taskLogPage,
+      page_size: state.taskLogPageSize
+    })
       .then(response => {
         commit('SET_TASK_LOG', response.data.data || [])
+        commit('SET_TASK_LOG_TOTAL', response.data.total || 0)
+      })
+  },
+  getTaskErrorLog ({ state, commit }, id) {
+    return request.get(`/tasks/${id}/log`, { keyword: utils.log.errorRegex.source })
+      .then(response => {
+        commit('SET_ERROR_LOG_DATA', response.data.data || [])
       })
   },
   getTaskResults ({ state, commit }, id) {

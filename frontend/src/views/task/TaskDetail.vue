@@ -15,7 +15,7 @@
         <task-overview @click-log="activeTabName = 'log'"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Log')" name="log">
-        <log-view/>
+        <log-view @search="getTaskLog"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Results')" name="results">
         <div class="button-group">
@@ -136,7 +136,8 @@ export default {
       'taskForm',
       'taskResultsData',
       'taskResultsTotalCount',
-      'taskLog'
+      'taskLog',
+      'logKeyword'
     ]),
     ...mapGetters('task', [
       'taskResultsColumns'
@@ -185,7 +186,8 @@ export default {
       this.$st.sendEv('任务详情', '结果', '下载CSV')
     },
     getTaskLog () {
-      this.$store.dispatch('task/getTaskLog', this.$route.params.id)
+      this.$store.dispatch('task/getTaskLog', { id: this.$route.params.id, keyword: this.logKeyword })
+      this.$store.dispatch('task/getTaskErrorLog', this.$route.params.id)
     }
   },
   created () {

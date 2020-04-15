@@ -622,60 +622,19 @@ func SpiderFileCheck(t model.Task, spider model.Spider) error {
 	return nil
 }
 
-func GetTaskLog(id string) (logItems []model.LogItem, err error) {
+func GetTaskLog(id string, keyword string, page int, pageSize int) (logItems []model.LogItem, logTotal int, err error) {
 	task, err := model.GetTask(id)
 	if err != nil {
 		return
 	}
 
-	logItems, err = task.GetLogItems()
+	// TODO: 日志分页
+	logItems, logTotal, err = task.GetLogItems(keyword, page, pageSize)
 	if err != nil {
-		return logItems, err
+		return logItems, logTotal, err
 	}
 
-	return logItems, nil
-
-	//if IsMasterNode(task.NodeId.Hex()) {
-	//	if !utils.Exists(task.LogPath) {
-	//		fileDir, err := MakeLogDir(task)
-	//
-	//		if err != nil {
-	//			log.Errorf(err.Error())
-	//		}
-	//
-	//		fileP := GetLogFilePaths(fileDir, task)
-	//
-	//		// 获取日志文件路径
-	//		fLog, err := os.Create(fileP)
-	//		defer fLog.Close()
-	//		if err != nil {
-	//			log.Errorf("create task log file error: %s", fileP)
-	//			debug.PrintStack()
-	//		}
-	//		task.LogPath = fileP
-	//		if err := task.Save(); err != nil {
-	//			log.Errorf(err.Error())
-	//			debug.PrintStack()
-	//		}
-	//
-	//	}
-	//	// 若为主节点，获取本机日志
-	//	logBytes, err := model.GetLocalLog(task.LogPath)
-	//	if err != nil {
-	//		log.Errorf(err.Error())
-	//		logStr = err.Error()
-	//	} else {
-	//		logStr = utils.BytesToString(logBytes)
-	//	}
-	//	return logStr, err
-	//}
-	//// 若不为主节点，获取远端日志
-	//logStr, err = GetRemoteLog(task)
-	//if err != nil {
-	//	log.Errorf(err.Error())
-	//
-	//}
-	//return logStr, err
+	return logItems, logTotal, nil
 }
 
 func CancelTask(id string) (err error) {

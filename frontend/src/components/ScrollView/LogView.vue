@@ -13,14 +13,31 @@
           {{$t('Auto-Scroll')}}
         </el-button>
         <el-input
-          v-model="searchString"
+          v-model="logKeyword"
           size="small"
           suffix-icon="el-icon-search"
           :placeholder="$t('Search Log')"
           style="width: 240px; margin-right: 10px"
         />
+        <el-button
+          size="small"
+          type="primary"
+          icon="el-icon-search"
+          @click="onSearchLog"
+        >
+          {{$t('Search Log')}}
+        </el-button>
       </div>
       <div class="right">
+        <el-pagination
+          size="small"
+          :total="taskLogTotal"
+          :current-page.sync="taskLogPage"
+          :page-sizes="[1000, 2000, 5000, 10000]"
+          :page-size.sync="taskLogPageSize"
+          :pager-count="3"
+          layout="sizes, prev, pager, next"
+        />
         <el-badge
           v-if="errorLogData.length > 0"
           :value="errorLogData.length"
@@ -68,11 +85,11 @@
             :class="currentLogIndex === item.index ? 'active' : ''"
             @click="onClickError(item)"
           >
-            <span class="line-no">
-              {{item.index}}
-            </span>
+<!--            <span class="line-no">-->
+<!--              {{item.index}}-->
+<!--            </span>-->
             <span class="line-content">
-              {{item.data}}
+              {{item.msg}}
             </span>
           </li>
         </ul>
@@ -119,7 +136,8 @@ export default {
   },
   computed: {
     ...mapState('task', [
-      'taskForm'
+      'taskForm',
+      'taskLogTotal'
     ]),
     ...mapGetters('task', [
       'logData',
@@ -131,6 +149,30 @@ export default {
       },
       set (value) {
         this.$store.commit('task/SET_CURRENT_LOG_INDEX', value)
+      }
+    },
+    logKeyword: {
+      get () {
+        return this.$store.state.task.logKeyword
+      },
+      set (value) {
+        this.$store.commit('task/SET_LOG_KEYWORD', value)
+      }
+    },
+    taskLogPage: {
+      get () {
+        return this.$store.state.task.taskLogPage
+      },
+      set (value) {
+        this.$store.commit('task/SET_TASK_LOG_PAGE', value)
+      }
+    },
+    taskLogPageSize: {
+      get () {
+        return this.$store.state.task.taskLogPageSize
+      },
+      set (value) {
+        this.$store.commit('task/SET_TASK_LOG_PAGE_SIZE', value)
       }
     },
     filteredLogData () {
@@ -145,8 +187,13 @@ export default {
     }
   },
   watch: {
-    searchString () {
-      this.$st.sendEv('任务详情', '日志', '搜索日志')
+    taskLogPage () {
+      this.$emit('search')
+      this.$st.sendEv('任务详情', '日志', '改变页数')
+    },
+    taskLogPageSize () {
+      this.$emit('search')
+      this.$st.sendEv('任务详情', '日志', '改变日志每页条数')
     }
   },
   methods: {
@@ -160,7 +207,7 @@ export default {
           index: logItem.index,
           logItem,
           data: isAnsi ? convert.toHtml(logItem.data) : logItem.data,
-          searchString: this.searchString,
+          searchString: this.logKeyword,
           active: logItem.active,
           isAnsi
         }
@@ -211,6 +258,10 @@ export default {
       setTimeout(() => {
         clearInterval(handle)
       }, 500)
+    },
+    onSearchLog () {
+      this.$emit('search')
+      this.$st.sendEv('任务详情', '日志', '搜索日志')
     }
   },
   mounted () {
@@ -318,5 +369,14 @@ export default {
     display: inline;
     width: calc(100% - 70px);
     padding-left: 10px;
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+  }
+
+  .right .el-pagination {
+    margin-right: 10px;
   }
 </style>

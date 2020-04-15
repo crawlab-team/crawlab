@@ -79,8 +79,7 @@
 
 <script>
 import {
-  mapState,
-  mapGetters
+  mapState
 } from 'vuex'
 import StatusTag from '../Status/StatusTag'
 import dayjs from 'dayjs'
@@ -91,9 +90,7 @@ export default {
   computed: {
     ...mapState('task', [
       'taskForm',
-      'taskLog'
-    ]),
-    ...mapGetters('task', [
+      'taskLog',
       'errorLogData'
     ]),
     isRunning () {
