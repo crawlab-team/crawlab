@@ -11,6 +11,7 @@ const state = {
   taskLogPage: 1,
   taskLogPageSize: 5000,
   currentLogIndex: 0,
+  isLogAutoScroll: false,
   taskResultsData: [],
   taskResultsColumns: [],
   taskResultsTotalCount: 0,
@@ -129,6 +130,9 @@ const mutations = {
   },
   SET_TASK_LOG_PAGE_SIZE (state, value) {
     state.taskLogPageSize = value
+  },
+  SET_IS_LOG_AUTO_SCROLL (state, value) {
+    state.isLogAutoScroll = value
   }
 }
 
@@ -173,7 +177,7 @@ const actions = {
         dispatch('getTaskList')
       })
   },
-  getTaskLog ({ state, commit }, { id, keyword }) {
+  getTaskLog ({ state, commit }, { id, keyword, isAutoScrolling }) {
     return request.get(`/tasks/${id}/log`, {
       keyword,
       page_num: state.taskLogPage,
@@ -182,6 +186,11 @@ const actions = {
       .then(response => {
         commit('SET_TASK_LOG', response.data.data || [])
         commit('SET_TASK_LOG_TOTAL', response.data.total || 0)
+
+        // auto switch to next page if not reaching the end
+        if (state.isLogAutoScroll && state.taskLogTotal > (state.taskLogPage * state.taskLogPageSize)) {
+          commit('SET_TASK_LOG_PAGE', Math.ceil(state.taskLogTotal / state.taskLogPageSize))
+        }
       })
   },
   getTaskErrorLog ({ state, commit }, id) {

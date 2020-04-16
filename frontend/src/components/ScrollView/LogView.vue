@@ -2,16 +2,12 @@
   <div class="log-view-container">
     <div class="filter-wrapper">
       <div class="left">
-        <el-button
-          size="small"
-          type="primary"
-          icon="el-icon-download"
+        <el-switch
+          v-model="isLogAutoScroll"
+          :inactive-text="$t('Auto-Scroll')"
           style="margin-right: 10px"
-          :disabled="isToBottom"
-          @click="onAutoScroll"
         >
-          {{$t('Auto-Scroll')}}
-        </el-button>
+        </el-switch>
         <el-input
           v-model="logKeyword"
           size="small"
@@ -85,9 +81,6 @@
             :class="currentLogIndex === item.index ? 'active' : ''"
             @click="onClickError(item)"
           >
-<!--            <span class="line-no">-->
-<!--              {{item.index}}-->
-<!--            </span>-->
             <span class="line-content">
               {{item.msg}}
             </span>
@@ -125,7 +118,6 @@ export default {
     return {
       item: LogItem,
       searchString: '',
-      isToBottom: false,
       isScrolling: false,
       isScrolling2nd: false,
       errorRegex: this.$utils.log.errorRegex,
@@ -137,7 +129,8 @@ export default {
   computed: {
     ...mapState('task', [
       'taskForm',
-      'taskLogTotal'
+      'taskLogTotal',
+      'logKeyword'
     ]),
     ...mapGetters('task', [
       'logData',
@@ -175,6 +168,14 @@ export default {
         this.$store.commit('task/SET_TASK_LOG_PAGE_SIZE', value)
       }
     },
+    isLogAutoScroll: {
+      get () {
+        return this.$store.state.task.isLogAutoScroll
+      },
+      set (value) {
+        this.$store.commit('task/SET_IS_LOG_AUTO_SCROLL', value)
+      }
+    },
     filteredLogData () {
       return this.logData.filter(d => {
         if (!this.searchString) return true
@@ -194,6 +195,19 @@ export default {
     taskLogPageSize () {
       this.$emit('search')
       this.$st.sendEv('任务详情', '日志', '改变日志每页条数')
+    },
+    isLogAutoScroll () {
+      if (this.isLogAutoScroll) {
+        this.$store.dispatch('task/getTaskLog', {
+          id: this.$route.params.id,
+          keyword: this.logKeyword
+        }).then(() => {
+          this.toBottom()
+        })
+        this.$st.sendEv('任务详情', '日志', '点击自动滚动')
+      } else {
+        this.$st.sendEv('任务详情', '日志', '取消自动滚动')
+      }
     }
   },
   methods: {
@@ -214,33 +228,14 @@ export default {
       }
     },
     onToBottom () {
-      if (this.isScrolling) return
-      this.isToBottom = true
     },
     onScroll () {
-      if (this.isScrolling2nd) {
-        this.isToBottom = false
-      }
-      this.isScrolling = true
-      setTimeout(() => {
-        this.isScrolling2nd = true
-        setTimeout(() => {
-          this.isScrolling2nd = false
-        }, 50)
-      }, 50)
-      setTimeout(() => {
-        this.isScrolling = false
-      }, 100)
     },
     toBottom () {
       this.$el.querySelector('.log-view').scrollTo({ top: 99999999 })
-      setTimeout(() => {
-        this.isToBottom = true
-      }, 50)
     },
     onAutoScroll () {
-      this.toBottom()
-      this.$st.sendEv('任务详情', '日志', '点击自动滚动')
+
     },
     toggleErrors () {
       this.isErrorsCollapsed = !this.isErrorsCollapsed
@@ -251,9 +246,9 @@ export default {
     },
     onClickError (item) {
       this.currentLogIndex = item.index
-      this.isToBottom = false
+      this.isLogAutoScroll = false
       const handle = setInterval(() => {
-        this.isToBottom = false
+        this.isLogAutoScroll = false
       }, 10)
       setTimeout(() => {
         clearInterval(handle)
@@ -267,7 +262,7 @@ export default {
   mounted () {
     this.currentLogIndex = 0
     this.handle = setInterval(() => {
-      if (this.isToBottom) {
+      if (this.isLogAutoScroll) {
         this.toBottom()
       }
     }, 200)
