@@ -115,15 +115,12 @@ func (t *Task) GetLogItems(keyword string, page int, pageSize int) (logItems []L
 	}
 
 	if keyword != "" {
-		query["msg"] = bson.M{
-			"$regex": bson.RegEx{
-				Pattern: keyword,
-				Options: "i",
-			},
+		query["$text"] = bson.M{
+			"$search": keyword,
 		}
 	}
 
-	logItems, err = GetLogItemList(query, (page - 1) * pageSize, pageSize, "+_id")
+	logItems, err = GetLogItemList(query, (page-1)*pageSize, pageSize, "+_id")
 	if err != nil {
 		return logItems, logTotal, err
 	}

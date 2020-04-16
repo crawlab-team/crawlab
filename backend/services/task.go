@@ -628,7 +628,6 @@ func GetTaskLog(id string, keyword string, page int, pageSize int) (logItems []m
 		return
 	}
 
-	// TODO: 日志分页
 	logItems, logTotal, err = task.GetLogItems(keyword, page, pageSize)
 	if err != nil {
 		return logItems, logTotal, err
