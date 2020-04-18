@@ -7,7 +7,6 @@ import (
 	"crawlab/lib/cron"
 	"crawlab/model"
 	"crawlab/utils"
-	"encoding/json"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
@@ -16,46 +15,10 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
-	"time"
 )
 
 // 任务日志频道映射
 var TaskLogChanMap = utils.NewChanMap()
-
-// 获取远端日志
-func GetRemoteLog(task model.Task) (logStr string, err error) {
-	// 序列化消息
-	msg := entity.NodeMessage{
-		Type:    constants.MsgTypeGetLog,
-		LogPath: task.LogPath,
-		TaskId:  task.Id,
-	}
-	msgBytes, err := json.Marshal(&msg)
-	if err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return "", err
-	}
-
-	// 发布获取日志消息
-	channel := "nodes:" + task.NodeId.Hex()
-	if _, err := database.RedisClient.Publish(channel, utils.BytesToString(msgBytes)); err != nil {
-		log.Errorf(err.Error())
-		return "", err
-	}
-
-	// 生成频道，等待获取log
-	ch := TaskLogChanMap.ChanBlocked(task.Id)
-
-	select {
-	case logStr = <-ch:
-		log.Infof("get remote log")
-	case <-time.After(30 * time.Second):
-		logStr = "get remote log timeout"
-	}
-
-	return logStr, nil
-}
 
 // 定时删除日志
 func DeleteLogPeriodically() {
@@ -169,9 +132,11 @@ func InitLogIndexes() error {
 	s, c := database.GetCol("logs")
 	defer s.Close()
 
-	_ = c.EnsureIndexKey("task_id")
 	_ = c.EnsureIndex(mgo.Index{
-		Key: []string{"$text:msg"},
+		Key: []string{"task_id", "seq"},
+	})
+	_ = c.EnsureIndex(mgo.Index{
+		Key: []string{"task_id", "msg"},
 	})
 
 	return nil

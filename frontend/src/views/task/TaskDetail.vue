@@ -15,7 +15,7 @@
         <task-overview @click-log="activeTabName = 'log'"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Log')" name="log">
-        <log-view @search="getTaskLog"/>
+        <log-view @search="getTaskLog(true)"/>
       </el-tab-pane>
       <el-tab-pane :label="$t('Results')" name="results">
         <div class="button-group">
@@ -137,7 +137,8 @@ export default {
       'taskResultsData',
       'taskResultsTotalCount',
       'taskLog',
-      'logKeyword'
+      'logKeyword',
+      'isLogAutoFetch'
     ]),
     ...mapGetters('task', [
       'taskResultsColumns'
@@ -164,6 +165,30 @@ export default {
         this.$store.commit('task/SET_RESULTS_PAGE_SIZE', value)
       }
     },
+    isLogAutoScroll: {
+      get () {
+        return this.$store.state.task.isLogAutoScroll
+      },
+      set (value) {
+        this.$store.commit('task/SET_IS_LOG_AUTO_SCROLL', value)
+      }
+    },
+    isLogAutoFetch: {
+      get () {
+        return this.$store.state.task.isLogAutoFetch
+      },
+      set (value) {
+        this.$store.commit('task/SET_IS_LOG_AUTO_FETCH', value)
+      }
+    },
+    isLogFetchLoading: {
+      get () {
+        return this.$store.state.task.isLogFetchLoading
+      },
+      set (value) {
+        this.$store.commit('task/SET_IS_LOG_FETCH_LOADING', value)
+      }
+    },
     isRunning () {
       return ['pending', 'running'].includes(this.taskForm.status)
     }
@@ -185,21 +210,30 @@ export default {
       this.$store.dispatch('task/getTaskResultExcel', this.$route.params.id)
       this.$st.sendEv('任务详情', '结果', '下载CSV')
     },
-    getTaskLog () {
-      this.$store.dispatch('task/getTaskLog', { id: this.$route.params.id, keyword: this.logKeyword })
-      this.$store.dispatch('task/getTaskErrorLog', this.$route.params.id)
+    async getTaskLog (showLoading) {
+      if (showLoading) {
+        this.isLogFetchLoading = true
+      }
+      await this.$store.dispatch('task/getTaskLog', { id: this.$route.params.id, keyword: this.logKeyword })
+      this.isLogFetchLoading = false
+      await this.$store.dispatch('task/getTaskErrorLog', this.$route.params.id)
     }
   },
-  created () {
-    this.$store.dispatch('task/getTaskData', this.$route.params.id)
-    this.$store.dispatch('task/getTaskResults', this.$route.params.id)
+  async created () {
+    await this.$store.dispatch('task/getTaskData', this.$route.params.id)
+
+    this.isLogAutoFetch = !!this.isRunning
+    this.isLogAutoScroll = !!this.isRunning
+
+    await this.$store.dispatch('task/getTaskResults', this.$route.params.id)
 
     this.getTaskLog()
     this.handle = setInterval(() => {
-      if (!this.isRunning) return
-      this.$store.dispatch('task/getTaskData', this.$route.params.id)
-      this.$store.dispatch('task/getTaskResults', this.$route.params.id)
-      this.getTaskLog()
+      if (this.isLogAutoFetch) {
+        this.$store.dispatch('task/getTaskData', this.$route.params.id)
+        this.$store.dispatch('task/getTaskResults', this.$route.params.id)
+        this.getTaskLog()
+      }
     }, 5000)
   },
   mounted () {

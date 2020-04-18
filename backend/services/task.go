@@ -189,6 +189,8 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task) error {
 		return err
 	}
 
+	var seq int64
+
 	// read stdout
 	go func() {
 		for {
@@ -197,8 +199,10 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task) error {
 				break
 			}
 			line = strings.Replace(line, "\n", "", -1)
+			seq++
 			_ = model.AddLogItem(model.LogItem{
 				Id:      bson.NewObjectId(),
+				Seq:     seq,
 				Message: line,
 				TaskId:  t.Id,
 				IsError: false,
@@ -211,12 +215,14 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task) error {
 	go func() {
 		for {
 			line, err := readerStderr.ReadString('\n')
-			line = strings.Replace(line, "\n", "", -1)
 			if err != nil {
 				break
 			}
+			line = strings.Replace(line, "\n", "", -1)
+			seq++
 			_ = model.AddLogItem(model.LogItem{
 				Id:      bson.NewObjectId(),
+				Seq:     seq,
 				Message: line,
 				TaskId:  t.Id,
 				IsError: true,

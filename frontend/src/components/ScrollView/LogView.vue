@@ -8,6 +8,12 @@
           style="margin-right: 10px"
         >
         </el-switch>
+        <el-switch
+          v-model="isLogAutoFetch"
+          :inactive-text="$t('Auto-Refresh')"
+          style="margin-right: 10px"
+        >
+        </el-switch>
         <el-input
           v-model="logKeyword"
           size="small"
@@ -51,6 +57,7 @@
     </div>
     <div class="content">
       <div
+        v-loading="isLogFetchLoading"
         class="log-view-wrapper"
         :class="isErrorsCollapsed ? 'errors-collapsed' : ''"
       >
@@ -130,7 +137,8 @@ export default {
     ...mapState('task', [
       'taskForm',
       'taskLogTotal',
-      'logKeyword'
+      'logKeyword',
+      'isLogFetchLoading'
     ]),
     ...mapGetters('task', [
       'logData',
@@ -174,6 +182,22 @@ export default {
       },
       set (value) {
         this.$store.commit('task/SET_IS_LOG_AUTO_SCROLL', value)
+      }
+    },
+    isLogAutoFetch: {
+      get () {
+        return this.$store.state.task.isLogAutoFetch
+      },
+      set (value) {
+        this.$store.commit('task/SET_IS_LOG_AUTO_FETCH', value)
+      }
+    },
+    isLogFetchLoading: {
+      get () {
+        return this.$store.state.task.isLogFetchLoading
+      },
+      set (value) {
+        this.$store.commit('task/SET_IS_LOG_FETCH_LOADING', value)
       }
     },
     filteredLogData () {

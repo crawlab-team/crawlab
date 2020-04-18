@@ -260,6 +260,7 @@ export default {
   'Selected Nodes': '指定节点',
   'Search Log': '搜索日志',
   'Auto-Scroll': '自动滚动',
+  'Auto-Refresh': '自动刷新',
   'Updating log...': '正在更新日志...',
   'Error Count': '错误数',
   'Log with errors': '日志错误',

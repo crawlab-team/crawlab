@@ -15,6 +15,7 @@ type LogItem struct {
 	Message string        `json:"msg" bson:"msg"`
 	TaskId  string        `json:"task_id" bson:"task_id"`
 	IsError bool          `json:"is_error" bson:"is_error"`
+	Seq     int64         `json:"seq" bson:"seq"`
 	Ts      time.Time     `json:"ts" bson:"ts"`
 }
 
@@ -65,22 +66,52 @@ func AddLogItem(l LogItem) error {
 	return nil
 }
 
-func GetLogItemList(filter interface{}, skip int, limit int, sortStr string) ([]LogItem, error) {
+func GetLogItemList(query bson.M, keyword string, skip int, limit int, sortStr string) ([]LogItem, error) {
 	s, c := database.GetCol("logs")
 	defer s.Close()
 
+	filter := query
+
 	var logItems []LogItem
-	if err := c.Find(filter).Skip(skip).Limit(limit).Sort(sortStr).All(&logItems); err != nil {
-		debug.PrintStack()
-		return logItems, err
+	if keyword == "" {
+		filter["seq"] = bson.M{
+			"$gte": skip,
+			"$lt":  skip + limit,
+		}
+		if err := c.Find(filter).Sort(sortStr).All(&logItems); err != nil {
+			debug.PrintStack()
+			return logItems, err
+		}
+	} else {
+		filter["msg"] = bson.M{
+			"$regex": bson.RegEx{
+				Pattern: keyword,
+				Options: "i",
+			},
+		}
+		if err := c.Find(filter).Sort(sortStr).Skip(skip).Limit(limit).All(&logItems); err != nil {
+			debug.PrintStack()
+			return logItems, err
+		}
 	}
 
 	return logItems, nil
 }
 
-func GetLogItemTotal(filter interface{}) (int, error) {
+func GetLogItemTotal(query bson.M, keyword string) (int, error) {
 	s, c := database.GetCol("logs")
 	defer s.Close()
+
+	filter := query
+
+	if keyword != "" {
+		filter["msg"] = bson.M{
+			"$regex": bson.RegEx{
+				Pattern: keyword,
+				Options: "i",
+			},
+		}
+	}
 
 	total, err := c.Find(filter).Count()
 	if err != nil {

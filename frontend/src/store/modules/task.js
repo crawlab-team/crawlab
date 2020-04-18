@@ -6,12 +6,6 @@ const state = {
   taskList: [],
   taskListTotalCount: 0,
   taskForm: {},
-  taskLog: [],
-  taskLogTotal: 0,
-  taskLogPage: 1,
-  taskLogPageSize: 5000,
-  currentLogIndex: 0,
-  isLogAutoScroll: false,
   taskResultsData: [],
   taskResultsColumns: [],
   taskResultsTotalCount: 0,
@@ -26,8 +20,16 @@ const state = {
   pageNum: 1,
   pageSize: 10,
   // log
+  currentLogIndex: 0,
   logKeyword: '',
   errorLogData: [],
+  isLogAutoScroll: false,
+  isLogAutoFetch: false,
+  isLogFetchLoading: false,
+  taskLog: [],
+  taskLogTotal: 0,
+  taskLogPage: 1,
+  taskLogPageSize: 5000,
   // results
   resultsPageNum: 1,
   resultsPageSize: 10
@@ -133,6 +135,12 @@ const mutations = {
   },
   SET_IS_LOG_AUTO_SCROLL (state, value) {
     state.isLogAutoScroll = value
+  },
+  SET_IS_LOG_AUTO_FETCH (state, value) {
+    state.isLogAutoFetch = value
+  },
+  SET_IS_LOG_FETCH_LOADING (state, value) {
+    state.isLogFetchLoading = value
   }
 }
 
