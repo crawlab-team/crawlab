@@ -13,6 +13,10 @@
 </template>
 
 <script>
+import {
+  mapGetters
+} from 'vuex'
+
 export default {
   name: 'LogItem',
   props: {
@@ -45,10 +49,19 @@ export default {
   },
   data () {
     return {
-      errorRegex: this.$utils.log.errorRegex
     }
   },
   computed: {
+    ...mapGetters('user', [
+      'userInfo'
+    ]),
+    errorRegex () {
+      if (!this.userInfo.setting.error_regex_pattern) {
+        return this.$utils.log.errorRegex
+      }
+      console.log(this.userInfo.setting.error_regex_pattern)
+      return new RegExp(this.userInfo.setting.error_regex_pattern, 'i')
+    },
     dataHtml () {
       let html = this.data.replace(this.errorRegex, ' <span style="font-weight: bolder; text-decoration: underline">$1</span> ')
       if (!this.searchString) return html

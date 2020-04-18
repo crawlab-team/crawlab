@@ -138,10 +138,13 @@ export default {
       'taskResultsTotalCount',
       'taskLog',
       'logKeyword',
-      'isLogAutoFetch'
+      'isLogAutoFetch',
+      'currentLogIndex',
+      'activeErrorLogItem'
     ]),
     ...mapGetters('task', [
-      'taskResultsColumns'
+      'taskResultsColumns',
+      'logData'
     ]),
     ...mapState('file', [
       'currentPath'
@@ -189,6 +192,21 @@ export default {
         this.$store.commit('task/SET_IS_LOG_FETCH_LOADING', value)
       }
     },
+    currentLogIndex: {
+      get () {
+        return this.$store.state.task.currentLogIndex
+      },
+      set (value) {
+        this.$store.commit('task/SET_CURRENT_LOG_INDEX', value)
+      }
+    },
+    logIndexMap () {
+      const map = new Map()
+      this.logData.forEach((d, index) => {
+        map.set(d._id, index)
+      })
+      return map
+    },
     isRunning () {
       return ['pending', 'running'].includes(this.taskForm.status)
     }
@@ -215,6 +233,7 @@ export default {
         this.isLogFetchLoading = true
       }
       await this.$store.dispatch('task/getTaskLog', { id: this.$route.params.id, keyword: this.logKeyword })
+      this.currentLogIndex = (this.logIndexMap.get(this.activeErrorLogItem.log_id) + 1) || 0
       this.isLogFetchLoading = false
       await this.$store.dispatch('task/getTaskErrorLog', this.$route.params.id)
     }

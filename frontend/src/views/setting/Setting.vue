@@ -33,8 +33,10 @@
     <!--./新增全局变量-->
 
     <el-tabs v-model="activeName" @tab-click="tabActiveHandle" type="border-card">
+      <!--通用-->
       <el-tab-pane :label="$t('General')" name="general">
-        <el-form :model="userInfo" class="setting-form" ref="setting-form" label-width="200px" :rules="rules"
+        <el-form :model="userInfo" class="setting-form" ref="setting-form" label-width="200px"
+                 :rules="rulesNotification"
                  inline-message>
           <el-form-item prop="username" :label="$t('Username')">
             <el-input v-model="userInfo.username" disabled></el-input>
@@ -67,8 +69,12 @@
           </el-form-item>
         </el-form>
       </el-tab-pane>
+      <!--./通用-->
+
+      <!--消息通知-->
       <el-tab-pane :label="$t('Notifications')" name="notify">
-        <el-form :model="userInfo" class="setting-form" ref="setting-form" label-width="200px" :rules="rules"
+        <el-form :model="userInfo" class="setting-form" ref="setting-form" label-width="200px"
+                 :rules="rulesNotification"
                  inline-message>
           <el-form-item :label="$t('Notification Trigger Timing')">
             <el-radio-group v-model="userInfo.setting.notification_trigger">
@@ -110,6 +116,31 @@
           </el-form-item>
         </el-form>
       </el-tab-pane>
+      <!--./消息通知-->
+
+      <!--日志-->
+      <el-tab-pane :label="$t('Log')" name="log">
+        <el-form :model="userInfo" class="setting-form" ref="log-form" label-width="200px" :rules="rulesLog"
+                 inline-message>
+          <el-form-item :label="$t('Error Regex Pattern')" prop="setting.error_regex_pattern">
+            <el-input
+              v-model="userInfo.setting.error_regex_pattern"
+              :placeholder="$t('By default: ') + $utils.log.errorRegex.source"
+              clearable
+            />
+          </el-form-item>
+          <el-form-item>
+            <div style="text-align: right">
+              <el-button type="success" size="small" @click="saveUserInfo">
+                {{$t('Save')}}
+              </el-button>
+            </div>
+          </el-form-item>
+        </el-form>
+      </el-tab-pane>
+      <!--./日志-->
+
+      <!--全局变量-->
       <el-tab-pane :label="$t('Global Variable')" name="global-variable">
         <div style="text-align: right;margin-bottom: 10px">
           <el-button size="small" @click="addGlobalVariableHandle(true)"
@@ -131,6 +162,7 @@
           </el-table-column>
         </el-table>
       </el-tab-pane>
+      <!--./全局变量-->
     </el-tabs>
   </div>
 </template>
@@ -175,12 +207,13 @@ export default {
     }
     return {
       userInfo: { setting: { enabled_notifications: [] } },
-      rules: {
+      rulesNotification: {
         password: [{ trigger: 'blur', validator: validatePass }],
         email: [{ trigger: 'blur', validator: validateEmail }],
         'setting.ding_talk_robot_webhook': [{ trigger: 'blur', validator: validateDingTalkRobotWebhook }],
         'setting.wechat_robot_webhook': [{ trigger: 'blur', validator: validateWechatRobotWebhook }]
       },
+      rulesLog: {},
       isShowDingTalkAppSecret: false,
       activeName: 'general',
       addDialogVisible: false,
@@ -233,8 +266,9 @@ export default {
     ])
   },
   watch: {
-    userInfoStr () {
-      this.saveUserInfo()
+    async userInfoStr () {
+      await this.saveUserInfo()
+      await this.$store.dispatch('user/getInfo')
     }
   },
   methods: {

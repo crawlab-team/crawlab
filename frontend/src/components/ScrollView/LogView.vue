@@ -8,18 +8,19 @@
           style="margin-right: 10px"
         >
         </el-switch>
-        <el-switch
-          v-model="isLogAutoFetch"
-          :inactive-text="$t('Auto-Refresh')"
-          style="margin-right: 10px"
-        >
-        </el-switch>
+        <!--        <el-switch-->
+        <!--          v-model="isLogAutoFetch"-->
+        <!--          :inactive-text="$t('Auto-Refresh')"-->
+        <!--          style="margin-right: 10px"-->
+        <!--        >-->
+        <!--        </el-switch>-->
         <el-input
           v-model="logKeyword"
           size="small"
           suffix-icon="el-icon-search"
           :placeholder="$t('Search Log')"
           style="width: 240px; margin-right: 10px"
+          clearable
         />
         <el-button
           size="small"
@@ -138,11 +139,11 @@ export default {
       'taskForm',
       'taskLogTotal',
       'logKeyword',
-      'isLogFetchLoading'
+      'isLogFetchLoading',
+      'errorLogData'
     ]),
     ...mapGetters('task', [
-      'logData',
-      'errorLogData'
+      'logData'
     ]),
     currentLogIndex: {
       get () {
@@ -258,9 +259,6 @@ export default {
     toBottom () {
       this.$el.querySelector('.log-view').scrollTo({ top: 99999999 })
     },
-    onAutoScroll () {
-
-    },
     toggleErrors () {
       this.isErrorsCollapsed = !this.isErrorsCollapsed
       this.isErrorCollapsing = true
@@ -268,15 +266,14 @@ export default {
         this.isErrorCollapsing = false
       }, 300)
     },
-    onClickError (item) {
-      this.currentLogIndex = item.index
-      this.isLogAutoScroll = false
-      const handle = setInterval(() => {
-        this.isLogAutoScroll = false
-      }, 10)
-      setTimeout(() => {
-        clearInterval(handle)
-      }, 500)
+    async onClickError (item) {
+      const page = Math.ceil(item.seq / this.taskLogPageSize)
+      this.$store.commit('task/SET_LOG_KEYWORD', '')
+      this.$store.commit('task/SET_TASK_LOG_PAGE', page)
+      this.$store.commit('task/SET_IS_LOG_AUTO_SCROLL', false)
+      this.$store.commit('task/SET_ACTIVE_ERROR_LOG_ITEM', item)
+      this.$emit('search')
+      this.$st.sendEv('任务详情', '日志', '点击错误日志')
     },
     onSearchLog () {
       this.$emit('search')

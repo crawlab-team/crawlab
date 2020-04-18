@@ -486,6 +486,8 @@ export default {
   'Allow Sending Statistics': '允许发送统计信息',
   'General': '通用',
   'Enable Tutorial': '启用教程',
+  'Error Regex Pattern': '异常正则表达式',
+  'By default: ': '默认: ',
 
   // 挑战
   'Challenge': '挑战',

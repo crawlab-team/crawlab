@@ -30,6 +30,7 @@ const state = {
   taskLogTotal: 0,
   taskLogPage: 1,
   taskLogPageSize: 5000,
+  activeErrorLogItem: {},
   // results
   resultsPageNum: 1,
   resultsPageSize: 10
@@ -141,6 +142,9 @@ const mutations = {
   },
   SET_IS_LOG_FETCH_LOADING (state, value) {
     state.isLogFetchLoading = value
+  },
+  SET_ACTIVE_ERROR_LOG_ITEM (state, value) {
+    state.activeErrorLogItem = value
   }
 }
 
@@ -185,7 +189,7 @@ const actions = {
         dispatch('getTaskList')
       })
   },
-  getTaskLog ({ state, commit }, { id, keyword, isAutoScrolling }) {
+  getTaskLog ({ state, commit }, { id, keyword }) {
     return request.get(`/tasks/${id}/log`, {
       keyword,
       page_num: state.taskLogPage,
@@ -202,7 +206,7 @@ const actions = {
       })
   },
   getTaskErrorLog ({ state, commit }, id) {
-    return request.get(`/tasks/${id}/log`, { keyword: utils.log.errorRegex.source })
+    return request.get(`/tasks/${id}/error-log`, {})
       .then(response => {
         commit('SET_ERROR_LOG_DATA', response.data.data || [])
       })
