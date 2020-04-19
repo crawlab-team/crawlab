@@ -183,3 +183,7 @@ func (s *SpiderSync) Download() {
 
 	_ = database.RedisClient.HDel("spider", key)
 }
+
+func (s *SpiderSync) InstallDeps() {
+	//s.Spider.Src
+}

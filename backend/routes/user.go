@@ -241,6 +241,7 @@ func PostMe(c *gin.Context) {
 	if reqBody.Setting.MaxErrorLog != 0 {
 		user.Setting.MaxErrorLog = reqBody.Setting.MaxErrorLog
 	}
+	user.Setting.LogExpireDuration = reqBody.Setting.LogExpireDuration
 
 	if user.UserId.Hex() == "" {
 		user.UserId = bson.ObjectIdHex(constants.ObjectIdNull)

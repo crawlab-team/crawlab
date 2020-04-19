@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"time"
 )
 
 // 任务日志频道映射
@@ -141,11 +142,21 @@ func InitLogIndexes() error {
 	_ = c.EnsureIndex(mgo.Index{
 		Key: []string{"task_id", "msg"},
 	})
+	_ = c.EnsureIndex(mgo.Index{
+		Key:         []string{"expire_ts"},
+		Sparse:      true,
+		ExpireAfter: 0 * time.Second,
+	})
 	_ = ce.EnsureIndex(mgo.Index{
 		Key: []string{"task_id"},
 	})
 	_ = ce.EnsureIndex(mgo.Index{
 		Key: []string{"log_id"},
+	})
+	_ = ce.EnsureIndex(mgo.Index{
+		Key:         []string{"expire_ts"},
+		Sparse:      true,
+		ExpireAfter: 0 * time.Second,
 	})
 
 	return nil

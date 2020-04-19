@@ -45,6 +45,7 @@ setting:
   runOnMaster: "Y"
   demoSpiders: "N"
   checkScrapy: "Y"
+  autoInstall: "Y"
 notification:
   mail:
     server: ''

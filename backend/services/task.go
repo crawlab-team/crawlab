@@ -161,16 +161,7 @@ func SetEnv(cmd *exec.Cmd, envs []model.Env, task model.Task, spider model.Spide
 	return cmd
 }
 
-func SetLogConfig(cmd *exec.Cmd, t model.Task) error {
-	//fLog, err := os.Create(path)
-	//if err != nil {
-	//	log.Errorf("create task log file error: %s", path)
-	//	debug.PrintStack()
-	//	return err
-	//}
-	//cmd.Stdout = fLog
-	//cmd.Stderr = fLog
-
+func SetLogConfig(cmd *exec.Cmd, t model.Task, u model.User) error {
 	// get stdout reader
 	stdout, err := cmd.StdoutPipe()
 	readerStdout := bufio.NewReader(stdout)
@@ -206,6 +197,13 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task) error {
 		}
 	}()
 
+	// expire duration (in seconds)
+	expireDuration := u.Setting.LogExpireDuration
+	if expireDuration == 0 {
+		// by default not expire
+		expireDuration = constants.Infinite
+	}
+
 	// read stdout
 	go func() {
 		for {
@@ -217,11 +215,12 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task) error {
 			line = strings.Replace(line, "\n", "", -1)
 			seq++
 			l := model.LogItem{
-				Id:      bson.NewObjectId(),
-				Seq:     seq,
-				Message: line,
-				TaskId:  t.Id,
-				Ts:      time.Now(),
+				Id:       bson.NewObjectId(),
+				Seq:      seq,
+				Message:  line,
+				TaskId:   t.Id,
+				Ts:       time.Now(),
+				ExpireTs: time.Now().Add(time.Duration(expireDuration) * time.Second),
 			}
 			logs = append(logs, l)
 		}
@@ -238,11 +237,12 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task) error {
 			line = strings.Replace(line, "\n", "", -1)
 			seq++
 			l := model.LogItem{
-				Id:      bson.NewObjectId(),
-				Seq:     seq,
-				Message: line,
-				TaskId:  t.Id,
-				Ts:      time.Now(),
+				Id:       bson.NewObjectId(),
+				Seq:      seq,
+				Message:  line,
+				TaskId:   t.Id,
+				Ts:       time.Now(),
+				ExpireTs: time.Now().Add(time.Duration(expireDuration) * time.Second),
 			}
 			logs = append(logs, l)
 		}
@@ -328,7 +328,7 @@ func WaitTaskProcess(cmd *exec.Cmd, t model.Task, s model.Spider) error {
 }
 
 // 执行shell命令
-func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (err error) {
+func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider, u model.User) (err error) {
 	log.Infof("cwd: %s", cwd)
 	log.Infof("cmd: %s", cmdStr)
 
@@ -344,7 +344,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	cmd.Dir = cwd
 
 	// 日志配置
-	if err := SetLogConfig(cmd, t); err != nil {
+	if err := SetLogConfig(cmd, t, u); err != nil {
 		return err
 	}
 
@@ -602,7 +602,7 @@ func ExecuteTask(id int) {
 	}
 
 	// 执行Shell命令
-	if err := ExecuteShellCmd(cmd, cwd, t, spider); err != nil {
+	if err := ExecuteShellCmd(cmd, cwd, t, spider, user); err != nil {
 		log.Errorf(GetWorkerPrefix(id) + err.Error())
 
 		// 如果发生错误，则发送通知

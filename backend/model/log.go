@@ -12,20 +12,22 @@ import (
 )
 
 type LogItem struct {
-	Id      bson.ObjectId `json:"_id" bson:"_id"`
-	Message string        `json:"msg" bson:"msg"`
-	TaskId  string        `json:"task_id" bson:"task_id"`
-	Seq     int64         `json:"seq" bson:"seq"`
-	Ts      time.Time     `json:"ts" bson:"ts"`
+	Id       bson.ObjectId `json:"_id" bson:"_id"`
+	Message  string        `json:"msg" bson:"msg"`
+	TaskId   string        `json:"task_id" bson:"task_id"`
+	Seq      int64         `json:"seq" bson:"seq"`
+	Ts       time.Time     `json:"ts" bson:"ts"`
+	ExpireTs time.Time     `json:"expire_ts" bson:"expire_ts"`
 }
 
 type ErrorLogItem struct {
-	Id      bson.ObjectId `json:"_id" bson:"_id"`
-	TaskId  string        `json:"task_id" bson:"task_id"`
-	Message string        `json:"msg" bson:"msg"`
-	LogId   bson.ObjectId `json:"log_id" bson:"log_id"`
-	Seq     int64         `json:"seq" bson:"seq"`
-	Ts      time.Time     `json:"ts" bson:"ts"`
+	Id       bson.ObjectId `json:"_id" bson:"_id"`
+	TaskId   string        `json:"task_id" bson:"task_id"`
+	Message  string        `json:"msg" bson:"msg"`
+	LogId    bson.ObjectId `json:"log_id" bson:"log_id"`
+	Seq      int64         `json:"seq" bson:"seq"`
+	Ts       time.Time     `json:"ts" bson:"ts"`
+	ExpireTs time.Time     `json:"expire_ts" bson:"expire_ts"`
 }
 
 // 获取本地日志

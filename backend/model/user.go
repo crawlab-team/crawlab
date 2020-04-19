@@ -31,6 +31,7 @@ type UserSetting struct {
 	EnabledNotifications []string `json:"enabled_notifications" bson:"enabled_notifications"`
 	ErrorRegexPattern    string   `json:"error_regex_pattern" bson:"error_regex_pattern"`
 	MaxErrorLog          int      `json:"max_error_log" bson:"max_error_log"`
+	LogExpireDuration    int64    `json:"log_expire_duration" bson:"log_expire_duration"`
 }
 
 func (user *User) Save() error {
