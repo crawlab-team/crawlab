@@ -75,6 +75,24 @@ func AddLogItem(l LogItem) error {
 	return nil
 }
 
+func AddLogItems(ls []LogItem) error {
+	if len(ls) == 0 {
+		return nil
+	}
+	s, c := database.GetCol("logs")
+	defer s.Close()
+	var docs []interface{}
+	for _, l := range ls {
+		docs = append(docs, l)
+	}
+	if err := c.Insert(docs...); err != nil {
+		log.Errorf("insert log error: " + err.Error())
+		debug.PrintStack()
+		return err
+	}
+	return nil
+}
+
 func AddErrorLogItem(e ErrorLogItem) error {
 	s, c := database.GetCol("error_logs")
 	defer s.Close()

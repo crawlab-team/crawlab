@@ -190,23 +190,40 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task) error {
 	}
 
 	var seq int64
+	var logs []model.LogItem
+	isStdoutFinished := false
+	isStderrFinished := false
+
+	// periodically (1 sec) insert log items
+	go func() {
+		for {
+			_ = model.AddLogItems(logs)
+			logs = []model.LogItem{}
+			if isStdoutFinished && isStderrFinished {
+				break
+			}
+			time.Sleep(1 * time.Second)
+		}
+	}()
 
 	// read stdout
 	go func() {
 		for {
 			line, err := readerStdout.ReadString('\n')
 			if err != nil {
+				isStdoutFinished = true
 				break
 			}
 			line = strings.Replace(line, "\n", "", -1)
 			seq++
-			_ = model.AddLogItem(model.LogItem{
+			l := model.LogItem{
 				Id:      bson.NewObjectId(),
 				Seq:     seq,
 				Message: line,
 				TaskId:  t.Id,
 				Ts:      time.Now(),
-			})
+			}
+			logs = append(logs, l)
 		}
 	}()
 
@@ -215,17 +232,19 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task) error {
 		for {
 			line, err := readerStderr.ReadString('\n')
 			if err != nil {
+				isStderrFinished = true
 				break
 			}
 			line = strings.Replace(line, "\n", "", -1)
 			seq++
-			_ = model.AddLogItem(model.LogItem{
+			l := model.LogItem{
 				Id:      bson.NewObjectId(),
 				Seq:     seq,
 				Message: line,
 				TaskId:  t.Id,
 				Ts:      time.Now(),
-			})
+			}
+			logs = append(logs, l)
 		}
 	}()
 
