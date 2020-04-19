@@ -202,7 +202,7 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task) error {
 			if isStdoutFinished && isStderrFinished {
 				break
 			}
-			time.Sleep(1 * time.Second)
+			time.Sleep(5 * time.Second)
 		}
 	}()
 
