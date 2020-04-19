@@ -210,6 +210,11 @@ func (s *SpiderSync) InstallDeps() {
 			continue
 		}
 
+		// no dep install executable found, skip
+		if !utils.Exists(l.DepExecutablePath) {
+			continue
+		}
+
 		// lock
 		installLockMap.Store(key, true)
 
