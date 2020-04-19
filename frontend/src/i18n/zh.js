@@ -490,6 +490,8 @@ export default {
   'By default: ': '默认: ',
   'Max Error Logs Display': '最大异常日志展示',
   'Log Errors': '日志错误',
+  'No Expire': '不过期',
+  'Log Expire Duration': '日志过期时间',
 
   // 挑战
   'Challenge': '挑战',
@@ -498,6 +500,22 @@ export default {
   'Achieved': '已达成',
   'Not Achieved': '未达成',
   'Start Challenge': '开始挑战',
+
+  // 时间
+  'Second': '秒',
+  'Seconds': '秒',
+  'Minute': '分',
+  'Minutes': '分',
+  'Hour': '小时',
+  'Hours': '小时',
+  'Day': '天',
+  'Days': '天',
+  'Week': '周',
+  'Weeks': '周',
+  'Month': '月',
+  'Months': '月',
+  'Year': '年',
+  'Years': '年',
 
   // 全局
   'Related Documentation': '相关文档',

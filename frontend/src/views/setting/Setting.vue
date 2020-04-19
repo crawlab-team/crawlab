@@ -141,6 +141,23 @@
               <el-option :value="10000" label="10000"/>
             </el-select>
           </el-form-item>
+          <el-form-item :label="$t('Log Expire Duration')" prop="setting.log_expire_duration">
+            <el-select
+              v-model="userInfo.setting.log_expire_duration"
+              clearable
+            >
+              <el-option :value="0" :label="$t('No Expire')"/>
+              <el-option :value="3600" :label="'1 ' + $t('Hour')"/>
+              <el-option :value="3600 * 6" :label="'6 ' + $t('Hours')"/>
+              <el-option :value="3600 * 12" :label="'12 ' + $t('Hours')"/>
+              <el-option :value="3600 * 24" :label="'1 ' + $t('Day')"/>
+              <el-option :value="3600 * 24 * 7" :label="'7 ' + $t('Days')"/>
+              <el-option :value="3600 * 24 * 14" :label="'14 ' + $t('Days')"/>
+              <el-option :value="3600 * 24 * 30" :label="'30 ' + $t('Days')"/>
+              <el-option :value="3600 * 24 * 30 * 3" :label="'90 ' + $t('Days')"/>
+              <el-option :value="3600 * 24 * 30 * 6" :label="'180 ' + $t('Days')"/>
+            </el-select>
+          </el-form-item>
           <el-form-item>
             <div style="text-align: right">
               <el-button type="success" size="small" @click="saveUserInfo">

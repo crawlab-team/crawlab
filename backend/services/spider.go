@@ -218,6 +218,9 @@ func PublishSpider(spider model.Spider) {
 		Spider: spider,
 	}
 
+	// 安装依赖
+	go spiderSync.InstallDeps()
+
 	//目录不存在，则直接下载
 	path := filepath.Join(viper.GetString("spider.path"), spider.Name)
 	if !utils.Exists(path) {

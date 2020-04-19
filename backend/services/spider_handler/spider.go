@@ -16,6 +16,8 @@ import (
 	"path"
 	"path/filepath"
 	"runtime/debug"
+	"strings"
+	"sync"
 )
 
 const (
@@ -184,6 +186,57 @@ func (s *SpiderSync) Download() {
 	_ = database.RedisClient.HDel("spider", key)
 }
 
+// locks for dependency installation
+var installLockMap sync.Map
+
+// install dependencies
 func (s *SpiderSync) InstallDeps() {
-	//s.Spider.Src
+	langs := utils.GetLangList()
+	for _, l := range langs {
+		// no dep file name is found, skip
+		if l.DepFileName == "" {
+			continue
+		}
+
+		// being locked, i.e. installation is running, skip
+		key := s.Spider.Name + "|" + l.Name
+		_, locked := installLockMap.Load(key)
+		if locked {
+			continue
+		}
+
+		// no dep file found, skip
+		if !utils.Exists(path.Join(s.Spider.Src, l.DepFileName)) {
+			continue
+		}
+
+		// lock
+		installLockMap.Store(key, true)
+
+		// command to install dependencies
+		cmd := exec.Command(l.DepExecutablePath, strings.Split(l.InstallDepArgs, " ")...)
+
+		// working directory
+		cmd.Dir = s.Spider.Src
+
+		// compatibility with node.js
+		if l.ExecutableName == constants.Nodejs {
+			deps, err := utils.GetPackageJsonDeps(path.Join(s.Spider.Src, l.DepFileName))
+			if err != nil {
+				continue
+			}
+			cmd = exec.Command(l.DepExecutablePath, strings.Split(l.InstallDepArgs+" "+strings.Join(deps, " "), " ")...)
+		}
+
+		// start executing command
+		output, err := cmd.Output()
+		if err != nil {
+			log.Errorf("install dep error: " + err.Error())
+			log.Errorf(string(output))
+			debug.PrintStack()
+		}
+
+		// unlock
+		installLockMap.Delete(key)
+	}
 }
