@@ -488,6 +488,7 @@ export default {
   'Enable Tutorial': '启用教程',
   'Error Regex Pattern': '异常正则表达式',
   'By default: ': '默认: ',
+  'Max Error Logs Display': '最大异常日志展示',
 
   // 挑战
   'Challenge': '挑战',
@@ -627,6 +628,7 @@ docker run -d --restart always --name crawlab_worker \\
   'Please enter your Wechat account': '请输入您的微信账号',
   'Please enter your feedback content': '请输入您的反馈内容',
   'No response from the server. Please make sure your server is running correctly. You can also refer to the documentation to solve this issue.': '服务器无响应，请保证您的服务器正常运行。您也可以参考文档来解决这个问题（文档链接在下方）',
+  'Are you sure to restart this task?': '确认重新运行该任务?',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

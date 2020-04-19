@@ -129,6 +129,18 @@
               clearable
             />
           </el-form-item>
+          <el-form-item :label="$t('Max Error Logs Display')" prop="setting.max_error_log">
+            <el-select
+              v-model="userInfo.setting.max_error_log"
+              clearable
+            >
+              <el-option :value="100" label="100"/>
+              <el-option :value="500" label="500"/>
+              <el-option :value="1000" label="1000"/>
+              <el-option :value="5000" label="5000"/>
+              <el-option :value="10000" label="10000"/>
+            </el-select>
+          </el-form-item>
           <el-form-item>
             <div style="text-align: right">
               <el-button type="success" size="small" @click="saveUserInfo">

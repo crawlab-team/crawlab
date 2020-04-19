@@ -87,6 +87,10 @@ const user = {
     getInfo ({ commit, state }) {
       return request.get('/me')
         .then(response => {
+          // ensure compatibility
+          if (!response.data.data.setting.max_error_log) {
+            response.data.data.setting.max_error_log = 1000
+          }
           commit('SET_USER_INFO', response.data.data)
           window.localStorage.setItem('user_info', JSON.stringify(response.data.data))
         })
