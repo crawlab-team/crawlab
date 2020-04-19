@@ -30,6 +30,7 @@ type UserSetting struct {
 	WechatRobotWebhook   string   `json:"wechat_robot_webhook" bson:"wechat_robot_webhook"`
 	EnabledNotifications []string `json:"enabled_notifications" bson:"enabled_notifications"`
 	ErrorRegexPattern    string   `json:"error_regex_pattern" bson:"error_regex_pattern"`
+	MaxErrorLog          int      `json:"max_error_log" bson:"max_error_log"`
 }
 
 func (user *User) Save() error {

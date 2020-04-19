@@ -260,7 +260,8 @@ func GetTaskLog(c *gin.Context) {
 
 func GetTaskErrorLog(c *gin.Context) {
 	id := c.Param("id")
-	errLogItems, err := services.GetTaskErrorLog(id)
+	u := services.GetCurrentUser(c)
+	errLogItems, err := services.GetTaskErrorLog(id, u.Setting.MaxErrorLog)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return

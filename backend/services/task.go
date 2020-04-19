@@ -431,6 +431,9 @@ func ScanErrorLogs(t model.Task) func() {
 		if err := model.UpdateTaskErrorLogs(t.Id, u.Setting.ErrorRegexPattern); err != nil {
 			return
 		}
+		if err := model.UpdateErrorLogCount(t.Id); err != nil {
+			return
+		}
 	}
 }
 
@@ -643,6 +646,10 @@ func FinishUpTask(s model.Spider, t model.Task) {
 	}()
 }
 
+func MonitorTask(s model.Spider, t model.Task) {
+
+}
+
 func SpiderFileCheck(t model.Task, spider model.Spider) error {
 	// 判断爬虫文件是否存在
 	gfFile := model.GetGridFs(spider.FileId)
@@ -681,12 +688,16 @@ func GetTaskLog(id string, keyword string, page int, pageSize int) (logItems []m
 	return logItems, logTotal, nil
 }
 
-func GetTaskErrorLog(id string) (errLogItems []model.ErrorLogItem, err error) {
+func GetTaskErrorLog(id string, n int) (errLogItems []model.ErrorLogItem, err error) {
+	if n == 0 {
+		n = 1000
+	}
+
 	task, err := model.GetTask(id)
 	if err != nil {
 		return
 	}
-	errLogItems, err = task.GetErrorLogItems()
+	errLogItems, err = task.GetErrorLogItems(n)
 	if err != nil {
 		return
 	}

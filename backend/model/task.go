@@ -21,6 +21,7 @@ type Task struct {
 	Param           string        `json:"param" bson:"param"`
 	Error           string        `json:"error" bson:"error"`
 	ResultCount     int           `json:"result_count" bson:"result_count"`
+	ErrorLogCount   int           `json:"error_log_count" bson:"error_log_count"`
 	WaitDuration    float64       `json:"wait_duration" bson:"wait_duration"`
 	RuntimeDuration float64       `json:"runtime_duration" bson:"runtime_duration"`
 	TotalDuration   float64       `json:"total_duration" bson:"total_duration"`
@@ -127,7 +128,7 @@ func (t *Task) GetLogItems(keyword string, page int, pageSize int) (logItems []L
 	return logItems, logTotal, nil
 }
 
-func (t *Task) GetErrorLogItems() (errLogItems []ErrorLogItem, err error) {
+func (t *Task) GetErrorLogItems(n int) (errLogItems []ErrorLogItem, err error) {
 	s, c := database.GetCol("error_logs")
 	defer s.Close()
 
@@ -135,7 +136,7 @@ func (t *Task) GetErrorLogItems() (errLogItems []ErrorLogItem, err error) {
 		"task_id": t.Id,
 	}
 
-	if err := c.Find(query).All(&errLogItems); err != nil {
+	if err := c.Find(query).Limit(n).All(&errLogItems); err != nil {
 		log.Errorf("find error logs error: " + err.Error())
 		debug.PrintStack()
 		return errLogItems, err
@@ -404,6 +405,40 @@ func UpdateTaskResultCount(id string) (err error) {
 		debug.PrintStack()
 		return err
 	}
+	return nil
+}
+
+// update error log count
+func UpdateErrorLogCount(id string) (err error) {
+	s, c := database.GetCol("error_logs")
+	defer s.Close()
+
+	query := bson.M{
+		"task_id": id,
+	}
+	count, err := c.Find(query).Count()
+	if err != nil {
+		log.Errorf("update error log count error: " + err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	st, ct := database.GetCol("tasks")
+	defer st.Close()
+
+	task, err := GetTask(id)
+	if err != nil {
+		log.Errorf(err.Error())
+		return err
+	}
+	task.ErrorLogCount = count
+
+	if err := ct.UpdateId(id, task); err != nil {
+		log.Errorf("update error log count error: " + err.Error())
+		debug.PrintStack()
+		return err
+	}
+
 	return nil
 }
 
