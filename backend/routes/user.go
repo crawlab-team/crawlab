@@ -237,6 +237,10 @@ func PostMe(c *gin.Context) {
 		user.Setting.WechatRobotWebhook = reqBody.Setting.WechatRobotWebhook
 	}
 	user.Setting.EnabledNotifications = reqBody.Setting.EnabledNotifications
+	if reqBody.Setting.ErrorRegexPattern != "" {
+		user.Setting.ErrorRegexPattern = reqBody.Setting.ErrorRegexPattern
+	}
+	user.Setting.ErrorRegexPattern = reqBody.Setting.ErrorRegexPattern
 
 	if user.UserId.Hex() == "" {
 		user.UserId = bson.ObjectIdHex(constants.ObjectIdNull)

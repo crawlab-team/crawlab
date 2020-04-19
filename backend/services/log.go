@@ -131,12 +131,21 @@ func InitDeleteLogPeriodically() error {
 func InitLogIndexes() error {
 	s, c := database.GetCol("logs")
 	defer s.Close()
+	se, ce := database.GetCol("error_logs")
+	defer s.Close()
+	defer se.Close()
 
 	_ = c.EnsureIndex(mgo.Index{
 		Key: []string{"task_id", "seq"},
 	})
 	_ = c.EnsureIndex(mgo.Index{
 		Key: []string{"task_id", "msg"},
+	})
+	_ = ce.EnsureIndex(mgo.Index{
+		Key: []string{"task_id"},
+	})
+	_ = ce.EnsureIndex(mgo.Index{
+		Key: []string{"log_id"},
 	})
 
 	return nil

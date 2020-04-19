@@ -4,6 +4,7 @@ import (
 	"crawlab/database"
 	"crawlab/utils"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"os"
 	"runtime/debug"
@@ -14,7 +15,15 @@ type LogItem struct {
 	Id      bson.ObjectId `json:"_id" bson:"_id"`
 	Message string        `json:"msg" bson:"msg"`
 	TaskId  string        `json:"task_id" bson:"task_id"`
-	IsError bool          `json:"is_error" bson:"is_error"`
+	Seq     int64         `json:"seq" bson:"seq"`
+	Ts      time.Time     `json:"ts" bson:"ts"`
+}
+
+type ErrorLogItem struct {
+	Id      bson.ObjectId `json:"_id" bson:"_id"`
+	TaskId  string        `json:"task_id" bson:"task_id"`
+	Message string        `json:"msg" bson:"msg"`
+	LogId   bson.ObjectId `json:"log_id" bson:"log_id"`
 	Seq     int64         `json:"seq" bson:"seq"`
 	Ts      time.Time     `json:"ts" bson:"ts"`
 }
@@ -62,6 +71,21 @@ func AddLogItem(l LogItem) error {
 		log.Errorf("insert log error: " + err.Error())
 		debug.PrintStack()
 		return err
+	}
+	return nil
+}
+
+func AddErrorLogItem(e ErrorLogItem) error {
+	s, c := database.GetCol("error_logs")
+	defer s.Close()
+	var l LogItem
+	err := c.FindId(bson.M{"log_id": e.LogId}).One(&l)
+	if err != nil && err == mgo.ErrNotFound {
+		if err := c.Insert(e); err != nil {
+			log.Errorf("insert log error: " + err.Error())
+			debug.PrintStack()
+			return err
+		}
 	}
 	return nil
 }

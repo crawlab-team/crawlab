@@ -258,6 +258,20 @@ func GetTaskLog(c *gin.Context) {
 	})
 }
 
+func GetTaskErrorLog(c *gin.Context) {
+	id := c.Param("id")
+	errLogItems, err := services.GetTaskErrorLog(id)
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    errLogItems,
+	})
+}
+
 func GetTaskResults(c *gin.Context) {
 	id := c.Param("id")
 

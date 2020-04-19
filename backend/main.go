@@ -218,6 +218,7 @@ func main() {
 				authGroup.DELETE("/tasks_by_status", routes.DeleteTaskByStatus)             // 删除指定状态的任务
 				authGroup.POST("/tasks/:id/cancel", routes.CancelTask)                      // 取消任务
 				authGroup.GET("/tasks/:id/log", routes.GetTaskLog)                          // 任务日志
+				authGroup.GET("/tasks/:id/error-log", routes.GetTaskErrorLog)               // 任务错误日志
 				authGroup.GET("/tasks/:id/results", routes.GetTaskResults)                  // 任务结果
 				authGroup.GET("/tasks/:id/results/download", routes.DownloadTaskResultsCsv) // 下载任务结果
 				authGroup.POST("/tasks/:id/restart", routes.RestartTask)                    // 重新开始任务
