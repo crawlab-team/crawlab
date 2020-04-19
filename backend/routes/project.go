@@ -47,20 +47,20 @@ func GetProjectList(c *gin.Context) {
 	}
 
 	// 获取未被分配的爬虫数量
-	if tag == "" {
-		noProject := model.Project{
-			Id:          bson.ObjectIdHex(constants.ObjectIdNull),
-			Name:        "No Project",
-			Description: "Not assigned to any project",
-		}
-		spiders, err := noProject.GetSpiders()
-		if err != nil {
-			HandleError(http.StatusInternalServerError, c, err)
-			return
-		}
-		noProject.Spiders = spiders
-		projects = append(projects, noProject)
-	}
+	//if tag == "" {
+	//	noProject := model.Project{
+	//		Id:          bson.ObjectIdHex(constants.ObjectIdNull),
+	//		Name:        "No Project",
+	//		Description: "Not assigned to any project",
+	//	}
+	//	spiders, err := noProject.GetSpiders()
+	//	if err != nil {
+	//		HandleError(http.StatusInternalServerError, c, err)
+	//		return
+	//	}
+	//	noProject.Spiders = spiders
+	//	projects = append(projects, noProject)
+	//}
 
 	c.JSON(http.StatusOK, ListResponse{
 		Status:  "ok",
