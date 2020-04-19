@@ -120,9 +120,12 @@ func SetEnv(cmd *exec.Cmd, envs []model.Env, task model.Task, spider model.Spide
 	}
 	_ = os.Setenv("NODE_PATH", nodePath)
 
+	// default results collection
+	col := utils.GetSpiderCol(spider.Col, spider.Name)
+
 	// 默认环境变量
 	cmd.Env = append(os.Environ(), "CRAWLAB_TASK_ID="+task.Id)
-	cmd.Env = append(cmd.Env, "CRAWLAB_COLLECTION="+spider.Col)
+	cmd.Env = append(cmd.Env, "CRAWLAB_COLLECTION="+col)
 	cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_HOST="+viper.GetString("mongo.host"))
 	cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_PORT="+viper.GetString("mongo.port"))
 	if viper.GetString("mongo.db") != "" {
@@ -571,17 +574,15 @@ func ExecuteTask(id int) {
 	_ = t.Save()
 
 	// 起一个cron执行器来统计任务结果数
-	if spider.Col != "" {
-		cronExec := cron.New(cron.WithSeconds())
-		_, err = cronExec.AddFunc("*/5 * * * * *", SaveTaskResultCount(t.Id))
-		if err != nil {
-			log.Errorf(GetWorkerPrefix(id) + err.Error())
-			debug.PrintStack()
-			return
-		}
-		cronExec.Start()
-		defer cronExec.Stop()
+	cronExec := cron.New(cron.WithSeconds())
+	_, err = cronExec.AddFunc("*/5 * * * * *", SaveTaskResultCount(t.Id))
+	if err != nil {
+		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		debug.PrintStack()
+		return
 	}
+	cronExec.Start()
+	defer cronExec.Stop()
 
 	// 起一个cron来更新错误日志
 	cronExecErrLog := cron.New(cron.WithSeconds())
@@ -652,10 +653,8 @@ func ExecuteTask(id int) {
 func FinishUpTask(s model.Spider, t model.Task) {
 	// 更新任务结果数
 	go func() {
-		if s.Col != "" {
-			if err := model.UpdateTaskResultCount(t.Id); err != nil {
-				return
-			}
+		if err := model.UpdateTaskResultCount(t.Id); err != nil {
+			return
 		}
 	}()
 

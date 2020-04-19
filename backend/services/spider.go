@@ -437,7 +437,9 @@ func CopySpider(spider model.Spider, newName string) error {
 }
 
 func UpdateSpiderDedup(spider model.Spider) error {
-	s, c := database.GetCol(spider.Col)
+	col := utils.GetSpiderCol(spider.Col, spider.Name)
+
+	s, c := database.GetCol(col)
 	defer s.Close()
 
 	if !spider.IsDedup {

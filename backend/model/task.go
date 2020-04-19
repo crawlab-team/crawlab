@@ -3,6 +3,7 @@ package model
 import (
 	"crawlab/constants"
 	"crawlab/database"
+	"crawlab/utils"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
 	"runtime/debug"
@@ -89,11 +90,9 @@ func (t *Task) GetResults(pageNum int, pageSize int) (results []interface{}, tot
 		return
 	}
 
-	if spider.Col == "" {
-		return
-	}
+	col := utils.GetSpiderCol(spider.Col, spider.Name)
 
-	s, c := database.GetCol(spider.Col)
+	s, c := database.GetCol(col)
 	defer s.Close()
 
 	query := bson.M{
@@ -388,8 +387,11 @@ func UpdateTaskResultCount(id string) (err error) {
 		return err
 	}
 
+	// default results collection
+	col := utils.GetSpiderCol(spider.Col, spider.Name)
+
 	// 获取结果数量
-	s, c := database.GetCol(spider.Col)
+	s, c := database.GetCol(col)
 	defer s.Close()
 	resultCount, err := c.Find(bson.M{"task_id": task.Id}).Count()
 	if err != nil {

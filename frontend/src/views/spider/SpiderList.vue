@@ -52,8 +52,12 @@
                 :disabled="spiderForm.is_scrapy"
               />
             </el-form-item>
-            <el-form-item :label="$t('Results')" prop="col" required>
-              <el-input id="col" v-model="spiderForm.col" :placeholder="$t('Results')"/>
+            <el-form-item :label="$t('Results')" prop="col">
+              <el-input
+                id="col"
+                v-model="spiderForm.col"
+                :placeholder="$t('By default: ') + 'results_<spider_name>'"
+              />
             </el-form-item>
             <el-form-item :label="$t('Upload Zip File')" label-width="120px" name="site">
               <el-upload

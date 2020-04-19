@@ -45,10 +45,10 @@
             />
           </el-form-item>
         </template>
-        <el-form-item :label="$t('Results Collection')" prop="col" required>
+        <el-form-item :label="$t('Results Collection')" prop="col">
           <el-input
             v-model="spiderForm.col"
-            :placeholder="$t('Results Collection')"
+            :placeholder="$t('By default: ') + 'results_<spider_name>'"
             :disabled="isView || isPublic"
           />
         </el-form-item>

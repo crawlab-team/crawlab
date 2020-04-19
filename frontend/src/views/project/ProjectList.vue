@@ -77,7 +77,7 @@
       <ul v-else class="list">
         <li
           class="item"
-          v-for="(item, index) in projectList"
+          v-for="item in projectList.filter(d => d._id !== '000000000000000000000000')"
           :key="item._id"
           @click="onView(item)"
         >
