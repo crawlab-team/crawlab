@@ -489,6 +489,7 @@ export default {
   'Error Regex Pattern': '异常正则表达式',
   'By default: ': '默认: ',
   'Max Error Logs Display': '最大异常日志展示',
+  'Log Errors': '日志错误',
 
   // 挑战
   'Challenge': '挑战',

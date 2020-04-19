@@ -21,7 +21,8 @@
               </el-select>
             </el-form-item>
             <el-form-item prop="spider_id" :label="$t('Spider')">
-              <el-select v-model="filter.spider_id" size="small" :placeholder="$t('Spider')" @change="onFilterChange" :disabled="isFilterSpiderDisabled">
+              <el-select v-model="filter.spider_id" size="small" :placeholder="$t('Spider')" @change="onFilterChange"
+                         :disabled="isFilterSpiderDisabled">
                 <el-option value="" :label="$t('All')"/>
                 <el-option v-for="spider in spiderList" :key="spider._id" :value="spider._id" :label="spider.name"/>
               </el-select>
@@ -132,6 +133,19 @@
                            :width="col.width">
             <template slot-scope="scope">
               <status-tag :status="scope.row[col.name]"/>
+              <template
+                v-if="scope.row.error_log_count > 0"
+              >
+                <el-tooltip :content="$t('Log Errors') + ': ' + scope.row.error_log_count" placement="top">
+                  <el-tag
+                    type="danger"
+                    style="margin-left: 10px"
+                  >
+                    <i class="el-icon-warning"></i>
+                    <i class="el-icon-tickets"></i>
+                  </el-tag>
+                </el-tooltip>
+              </template>
             </template>
           </el-table-column>
           <el-table-column v-else
@@ -201,7 +215,7 @@ export default {
       columns: [
         { name: 'node_name', label: 'Node', width: '120' },
         { name: 'spider_name', label: 'Spider', width: '120' },
-        { name: 'status', label: 'Status', width: '120' },
+        { name: 'status', label: 'Status', width: '180' },
         { name: 'param', label: 'Parameters', width: '120' },
         // { name: 'create_ts', label: 'Create Time', width: '100' },
         { name: 'start_ts', label: 'Start Time', width: '100' },
@@ -498,5 +512,9 @@ export default {
 <style scoped>
   .el-table >>> tr {
     cursor: pointer;
+  }
+
+  .el-table >>> .el-badge .el-badge__content {
+    font-size: 7px;
   }
 </style>
