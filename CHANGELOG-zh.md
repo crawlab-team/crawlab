@@ -1,3 +1,14 @@
+# 0.4.10 (TBC)
+### 功能 / 优化
+- **优化日志管理**. 集中化管理日志，储存在 MongoDB，减少对 PubSub 的依赖，允许日志异常检测.
+- **自动安装依赖**. 允许从 `requirements.txt` 和 `package.json` 自动安装依赖.
+- **自动生成结果集**. 如果没有设置，自动设置结果集为 `results_<spider_name>`.
+- **优化项目列表**. 项目列表中不展示 "No Project".
+
+### Bug 修复
+- **爬虫每日数据缺失**. [#684](https://github.com/crawlab-team/crawlab/issues/684)
+- **结果数量未即时更新**. [#689](https://github.com/crawlab-team/crawlab/issues/689)
+
 # 0.4.9 (2020-03-31)
 ### 功能 / 优化
 - **挑战**. 用户可以完成不同的趣味挑战..

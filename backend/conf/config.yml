@@ -38,7 +38,7 @@ task:
   workers: 4
 other:
   tmppath: "/tmp"
-version: 0.4.9
+version: 0.4.10
 setting:
   allowRegister: "N"
   enableTutorial: "N"

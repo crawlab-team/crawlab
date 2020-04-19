@@ -1,3 +1,14 @@
+# 0.4.10 (TBC)
+### Features / Enhancement
+- **Enhanced Log Management**. Centralizing log storage in MongoDB, reduced the dependency of PubSub, allowing log error detection.
+- **Auto Install Dependencies**. Allow installing dependencies automatically from `requirements.txt` or `package.json`.
+- **Auto Results Collection**. Set results collection to `results_<spider_name>` if it is not set.
+- **Optimized Project List**. Not display "No Project" item in the project list.
+
+### Bug Fixes
+- **Missing daily stats in spider**. [#684](https://github.com/crawlab-team/crawlab/issues/684)
+- **Results count not update in time**. [#689](https://github.com/crawlab-team/crawlab/issues/689)
+
 # 0.4.9 (2020-03-31)
 ### Features / Enhancement
 - **Challenges**. Users can achieve different challenges based on their actions.
