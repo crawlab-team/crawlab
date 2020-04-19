@@ -87,8 +87,7 @@
             <i v-if="!isNoProject(item)" class="btn-edit fa fa-edit" @click="onEdit(item)"></i>
             <i v-if="!isNoProject(item)" class="btn-close fa fa-trash-o" @click="onRemove(item)"></i>
             <el-row>
-              <h4 v-if="index !== projectList.length - 1" class="title">{{ item.name }}</h4>
-              <h4 v-else class="title">{{ $t('No Project') }}</h4>
+              <h4 class="title">{{ item.name }}</h4>
             </el-row>
             <el-row>
               <div style="display: flex; justify-content: space-between">

@@ -630,6 +630,8 @@ docker run -d --restart always --name crawlab_worker \\
   'Please enter your feedback content': '请输入您的反馈内容',
   'No response from the server. Please make sure your server is running correctly. You can also refer to the documentation to solve this issue.': '服务器无响应，请保证您的服务器正常运行。您也可以参考文档来解决这个问题（文档链接在下方）',
   'Are you sure to restart this task?': '确认重新运行该任务?',
+  'Are you sure to delete the project?': '确认删除该项目?',
+  'You have no projects created. You can create a project by clicking the "Add" button.': '您没有创建项目，请点击 "添加项目" 按钮来创建一个新项目',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'
