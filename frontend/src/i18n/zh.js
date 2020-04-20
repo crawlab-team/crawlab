@@ -650,6 +650,10 @@ docker run -d --restart always --name crawlab_worker \\
   'Are you sure to restart this task?': '确认重新运行该任务?',
   'Are you sure to delete the project?': '确认删除该项目?',
   'You have no projects created. You can create a project by clicking the "Add" button.': '您没有创建项目，请点击 "添加项目" 按钮来创建一个新项目',
+  'Added API token successfully': '成功添加 API Token',
+  'Deleted API token successfully': '成功删除 API Token',
+  'Are you sure to add an API token?': '确认创建 API Token?',
+  'Are you sure to delete this API token?': '确认删除该 API Token?',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'
