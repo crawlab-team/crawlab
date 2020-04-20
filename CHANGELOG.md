@@ -1,6 +1,8 @@
 # 0.4.10 (TBC)
 ### Features / Enhancement
 - **Enhanced Log Management**. Centralizing log storage in MongoDB, reduced the dependency of PubSub, allowing log error detection.
+- **API Token**. Allow users to generate API tokens and use them to integrate into their own systems.
+- **Web Hook**. Trigger a Web Hook http request to pre-defined URL when a task starts or finishes.
 - **Auto Install Dependencies**. Allow installing dependencies automatically from `requirements.txt` or `package.json`.
 - **Auto Results Collection**. Set results collection to `results_<spider_name>` if it is not set.
 - **Optimized Project List**. Not display "No Project" item in the project list.

@@ -2,6 +2,8 @@
 ### 功能 / 优化
 - **优化日志管理**. 集中化管理日志，储存在 MongoDB，减少对 PubSub 的依赖，允许日志异常检测.
 - **自动安装依赖**. 允许从 `requirements.txt` 和 `package.json` 自动安装依赖.
+- **API Token**. 允许用户生成 API Token，并利用它们来集成到自己的系统中.
+- **Web Hook**. 当任务开始或结束时，触发 Web Hook http 请求到预定义好的 URL.
 - **自动生成结果集**. 如果没有设置，自动设置结果集为 `results_<spider_name>`.
 - **优化项目列表**. 项目列表中不展示 "No Project".
 
