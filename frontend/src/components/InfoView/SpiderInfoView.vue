@@ -96,7 +96,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item v-if="!isView && !isConfigurable" :label="$t('Is De-Duplicated')" prop="dedup_field"
+        <el-form-item v-if="!isView" :label="$t('De-Duplication')" prop="dedup_field"
                       :rules="dedupRules">
           <div style="display: flex; align-items: center; height: 40px">
             <el-switch
@@ -119,6 +119,21 @@
               v-if="spiderForm.is_dedup"
               v-model="spiderForm.dedup_field"
               :placeholder="$t('Please enter de-duplicated field')"
+              style="margin-left: 20px"
+            />
+          </div>
+        </el-form-item>
+        <el-form-item v-if="!isView" label="Web Hook">
+          <div style="display: flex; align-items: center; height: 40px">
+            <el-switch
+              v-model="spiderForm.is_web_hook"
+              active-color="#13ce66"
+              :disabled="isView || isPublic"
+            />
+            <el-input
+              v-if="spiderForm.is_web_hook"
+              v-model="spiderForm.web_hook_url"
+              :placeholder="$t('Please enter Web Hook URL')"
               style="margin-left: 20px"
             />
           </div>

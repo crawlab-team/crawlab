@@ -15,8 +15,10 @@ import (
 	"fmt"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
+	"github.com/imroc/req"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
+	"net/http"
 	"os"
 	"os/exec"
 	"path"
@@ -555,11 +557,21 @@ func ExecuteTask(id int) {
 		cmd += " " + t.Param
 	}
 
+	// 获得触发任务用户
+	user, err := model.GetUser(t.UserId)
+	if err != nil {
+		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		return
+	}
+
 	// 任务赋值
 	t.NodeId = node.Id                                   // 任务节点信息
 	t.StartTs = time.Now()                               // 任务开始时间
 	t.Status = constants.StatusRunning                   // 任务状态
 	t.WaitDuration = t.StartTs.Sub(t.CreateTs).Seconds() // 等待时长
+
+	// 发送 Web Hook 请求 (任务开始)
+	go SendWebHookRequest(user, t, spider)
 
 	// 文件检查
 	if err := SpiderFileCheck(t, spider); err != nil {
@@ -595,13 +607,6 @@ func ExecuteTask(id int) {
 	cronExecErrLog.Start()
 	defer cronExecErrLog.Stop()
 
-	// 获得触发任务用户
-	user, err := model.GetUser(t.UserId)
-	if err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
-		return
-	}
-
 	// 执行Shell命令
 	if err := ExecuteShellCmd(cmd, cwd, t, spider, user); err != nil {
 		log.Errorf(GetWorkerPrefix(id) + err.Error())
@@ -611,6 +616,10 @@ func ExecuteTask(id int) {
 		if user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd || user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskError {
 			SendNotifications(user, t, spider)
 		}
+
+		// 发送 Web Hook 请求 (任务开始)
+		go SendWebHookRequest(user, t, spider)
+
 		return
 	}
 
@@ -629,6 +638,9 @@ func ExecuteTask(id int) {
 	t.FinishTs = time.Now()                                 // 结束时间
 	t.RuntimeDuration = t.FinishTs.Sub(t.StartTs).Seconds() // 运行时长
 	t.TotalDuration = t.FinishTs.Sub(t.CreateTs).Seconds()  // 总时长
+
+	// 发送 Web Hook 请求 (任务结束)
+	go SendWebHookRequest(user, t, spider)
 
 	// 如果是任务结束时发送通知，则发送通知
 	if user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd {
@@ -662,10 +674,6 @@ func FinishUpTask(s model.Spider, t model.Task) {
 	go func() {
 		ScanErrorLogs(t)()
 	}()
-}
-
-func MonitorTask(s model.Spider, t model.Task) {
-
 }
 
 func SpiderFileCheck(t model.Task, spider model.Spider) error {
@@ -994,6 +1002,44 @@ func SendNotifications(u model.User, t model.Task, s model.Spider) {
 		go func() {
 			SendTaskWechat(u, t, s)
 		}()
+	}
+}
+
+func SendWebHookRequest(u model.User, t model.Task, s model.Spider) {
+	type RequestBody struct {
+		Status   string       `json:"status"`
+		Task     model.Task   `json:"task"`
+		Spider   model.Spider `json:"spider"`
+		UserName string       `json:"user_name"`
+	}
+
+	if s.IsWebHook && s.WebHookUrl != "" {
+		// request header
+		header := req.Header{
+			"Content-Type": "application/json; charset=utf-8",
+		}
+
+		// request body
+		reqBody := RequestBody{
+			Status:   t.Status,
+			UserName: u.Username,
+			Task:     t,
+			Spider:   s,
+		}
+
+		// make POST http request
+		res, err := req.Post(s.WebHookUrl, header, req.BodyJSON(reqBody))
+		if err != nil {
+			log.Errorf("sent web hook request with error: " + err.Error())
+			debug.PrintStack()
+			return
+		}
+		if res.Response().StatusCode != http.StatusOK {
+			log.Errorf(fmt.Sprintf("sent web hook request with error http code: %d, task_id: %s, status: %s", res.Response().StatusCode, t.Id, t.Status))
+			debug.PrintStack()
+			return
+		}
+		log.Infof(fmt.Sprintf("sent web hook request, task_id: %s, status: %s)", t.Id, t.Status))
 	}
 }
 

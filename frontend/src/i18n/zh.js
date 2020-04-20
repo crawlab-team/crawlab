@@ -232,6 +232,7 @@ export default {
   'Please enter de-duplicated field': '请输入去重字段',
   'Overwrite': '覆盖',
   'Ignore': '忽略',
+  'De-Duplication': '去重',
 
   // 爬虫列表
   'Name': '名称',
@@ -654,6 +655,7 @@ docker run -d --restart always --name crawlab_worker \\
   'Deleted API token successfully': '成功删除 API Token',
   'Are you sure to add an API token?': '确认创建 API Token?',
   'Are you sure to delete this API token?': '确认删除该 API Token?',
+  'Please enter Web Hook URL': '请输入 Web Hook URL',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

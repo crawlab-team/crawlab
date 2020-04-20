@@ -93,6 +93,6 @@ export default {
   .sidebar-container .sidebar-logo .version {
     margin-left: 5px;
     font-weight: normal;
-    font-size: 12px;
+    font-size: 11px;
   }
 </style>
