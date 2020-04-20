@@ -545,21 +545,7 @@ export default {
 
 添加节点的方式非常简单，您只需要在目标机器上运行一个 Crawlab 服务就可以了。
 
-#### Docker 部署
-如果您是用 Docker 启动 Crawlab，可以在目标机器上运行一个新的 \`worker\` 容器，或者在 \`docker-compose.yml\` 中添加 \`worker\` 服务。
-
-\`\`\`bash
-docker run -d --restart always --name crawlab_worker \\
-  -e CRAWLAB_SERVER_MASTER=N \\
-  -e CRAWLAB_MONGO_HOST=xxx.xxx.xxx.xxx \\ # 保证连接的是同一个 MongoDB
-  -e CRAWLAB_REDIS_ADDRESS=xxx.xxx.xxx.xxx \\ # 保证连接的是同一个 Redis
-  tikazyq/crawlab:latest
-\`\`\`
-
-#### 直接部署
-如果您是用直接部署，只需要在目标机器上启动一个后端服务，请参考 [直接部署文档](https://docs.crawlab.cn/Installation/Direct.html)。
-
-更多信息，请参考 [官方文档](https://docs.crawlab.cn)。
+具体操作，请参照 [多节点部署文档](https://docs.crawlab.cn/Installation/MultiNode.html)。
 `,
 
   // 教程
