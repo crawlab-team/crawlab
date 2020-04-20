@@ -275,6 +275,12 @@ func main() {
 				authGroup.PUT("/actions", routes.PutAction) // 新增操作
 				//authGroup.POST("/actions/:id", routes.PostAction) // 修改操作
 			}
+			// API Token
+			{
+				authGroup.GET("/tokens", routes.GetTokens)          // 获取 Tokens
+				authGroup.PUT("/tokens", routes.PutToken)           // 添加 Token
+				authGroup.DELETE("/tokens/:id", routes.DeleteToken) // 删除 Token
+			}
 			// 统计数据
 			authGroup.GET("/stats/home", routes.GetHomeStats) // 首页统计数据
 			// 文件
