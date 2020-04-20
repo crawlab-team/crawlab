@@ -169,6 +169,65 @@
       </el-tab-pane>
       <!--./日志-->
 
+      <!--API Token-->
+      <el-tab-pane label="API Token" name="api-token">
+        <input id="clipboard">
+        <el-alert
+          type="primary"
+        >
+        </el-alert>
+        <div class="actions">
+          <el-button
+            size="small"
+            type="primary"
+            @click="onAddApiToken"
+          >
+            {{$t('Add')}}
+          </el-button>
+        </div>
+        <el-table
+          :data="apiTokens"
+          border
+        >
+          <el-table-column
+            label="Token"
+          >
+            <template slot-scope="scope">
+              {{scope.row.visible ? scope.row.token : getMaskValue(scope.row.token)}}
+            </template>
+          </el-table-column>
+          <el-table-column
+            :label="$t('Action')"
+            width="200px"
+          >
+            <template slot-scope="scope">
+              <el-button
+                type="warning"
+                size="mini"
+                icon="el-icon-view"
+                circle
+                @click="toggleTokenVisible(scope.row)"
+              />
+              <el-button
+                type="primary"
+                size="mini"
+                icon="el-icon-document-copy"
+                @click="copyToken(scope.row.token)"
+                circle
+              />
+              <el-button
+                type="danger"
+                size="mini"
+                icon="el-icon-delete"
+                @click="onDeleteToken(scope.row)"
+                circle
+              />
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
+      <!--./API Token-->
+
       <!--全局变量-->
       <el-tab-pane :label="$t('Global Variable')" name="global-variable">
         <div style="text-align: right;margin-bottom: 10px">
@@ -285,7 +344,8 @@ export default {
         }
       },
       isAllowSendingStatistics: localStorage.getItem('useStats') === '1',
-      isEnableTutorial: localStorage.getItem('enableTutorial') === '1'
+      isEnableTutorial: localStorage.getItem('enableTutorial') === '1',
+      apiTokens: []
     }
   },
   computed: {
@@ -368,12 +428,63 @@ export default {
     onEnableTutorialChange (value) {
       this.$message.success(this.$t('Saved successfully'))
       localStorage.setItem('enableTutorial', value ? '1' : '0')
+    },
+    onAddApiToken () {
+      this.$confirm(this.$t('Are you sure to add an API token?'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
+        type: 'warning'
+      }).then(async () => {
+        const res = await this.$request.put('/tokens')
+        if (!res.data.error) {
+          this.$message.success(this.$t('Added API token successfully'))
+          await this.getApiTokens()
+        }
+      })
+    },
+    onDeleteToken (row) {
+      this.$confirm(this.$t('Are you sure to delete this API token?'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
+        type: 'warning'
+      }).then(async () => {
+        const res = await this.$request.delete(`/tokens/${row._id}`)
+        if (!res.data.error) {
+          this.$message.success(this.$t('Deleted API token successfully'))
+          await this.getApiTokens()
+        }
+      })
+    },
+    async addApiToken () {
+      await this.$request.put('/tokens')
+    },
+    async getApiTokens () {
+      const res = await this.$request.get('/tokens')
+      this.apiTokens = res.data.data
+    },
+    toggleTokenVisible (row) {
+      this.$set(row, 'visible', !row.visible)
+    },
+    getMaskValue (str) {
+      let s = ''
+      for (let i = 0; i < str.length; i++) {
+        s += '*'
+      }
+      return s
+    },
+    copyToken (str) {
+      const input = document.getElementById('clipboard')
+      input.value = str
+      input.select()
+      document.execCommand('copy')
+      this.$message.success(this.$t('Token copied'))
     }
   },
   async created () {
     await this.$store.dispatch('user/getInfo')
     await this.$store.dispatch('user/getGlobalVariable')
     this.getUserInfo()
+    await this.getApiTokens()
   },
   mounted () {
     if (!this.$utils.tour.isFinishedTour('setting')) {
@@ -401,5 +512,17 @@ export default {
 
   .setting-form >>> .el-form-item__label {
     height: 40px;
+  }
+
+  .actions {
+    margin-bottom: 10px;
+    text-align: right;
+  }
+
+  #clipboard {
+    position: fixed;
+    z-index: -99999;
+    top: 9999px;
+    right: 9999px;
   }
 </style>
