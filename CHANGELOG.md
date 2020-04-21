@@ -1,4 +1,4 @@
-# 0.4.10 (TBC)
+# 0.4.10 (2020-04-21)
 ### Features / Enhancement
 - **Enhanced Log Management**. Centralizing log storage in MongoDB, reduced the dependency of PubSub, allowing log error detection.
 - **API Token**. Allow users to generate API tokens and use them to integrate into their own systems.
@@ -11,6 +11,7 @@
 
 ### Bug Fixes
 - **Cannot register**. [#670](https://github.com/crawlab-team/crawlab/issues/670)
+- **Spider schedule tab cron expression shows second**. [#678](https://github.com/crawlab-team/crawlab/issues/678)
 - **Missing daily stats in spider**. [#684](https://github.com/crawlab-team/crawlab/issues/684)
 - **Results count not update in time**. [#689](https://github.com/crawlab-team/crawlab/issues/689)
 
