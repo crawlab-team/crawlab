@@ -12,16 +12,16 @@ BASE_DIR=`dirname $0`
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
-# install Node.js v8.12
+# install Node.js v10.19
 export NVM_NODEJS_ORG_MIRROR=http://npm.taobao.org/mirrors/node
-nvm install 8.12
+nvm install 10.19
 
 # create soft links
-ln -s $HOME/.nvm/versions/node/v8.12.0/bin/npm /usr/local/bin/npm
-ln -s $HOME/.nvm/versions/node/v8.12.0/bin/node /usr/local/bin/node
+ln -s $HOME/.nvm/versions/node/v10.19.0/bin/npm /usr/local/bin/npm
+ln -s $HOME/.nvm/versions/node/v10.19.0/bin/node /usr/local/bin/node
 
 # environments manipulation
-export NODE_PATH=$HOME.nvm/versions/node/v8.12.0/lib/node_modules
+export NODE_PATH=$HOME.nvm/versions/node/v10.19.0/lib/node_modules
 export PATH=$NODE_PATH:$PATH
 
 # install chromium
