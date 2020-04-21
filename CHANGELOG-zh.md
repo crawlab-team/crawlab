@@ -1,3 +1,20 @@
+# 0.4.10 (2020-04-21)
+### 功能 / 优化
+- **优化日志管理**. 集中化管理日志，储存在 MongoDB，减少对 PubSub 的依赖，允许日志异常检测.
+- **自动安装依赖**. 允许从 `requirements.txt` 和 `package.json` 自动安装依赖.
+- **API Token**. 允许用户生成 API Token，并利用它们来集成到自己的系统中.
+- **Web Hook**. 当任务开始或结束时，触发 Web Hook http 请求到预定义好的 URL.
+- **自动生成结果集**. 如果没有设置，自动设置结果集为 `results_<spider_name>`.
+- **优化项目列表**. 项目列表中不展示 "No Project".
+- **升级 Node.js**. 将 Node.js 版本从 v8.12 升级到 v10.19.
+- **定时任务增加运行按钮**. 允许用户在定时任务界面手动运行爬虫任务.
+
+### Bug 修复
+- **无法注册**. [#670](https://github.com/crawlab-team/crawlab/issues/670)
+- **爬虫定时任务标签 Cron 表达式显示秒**. [#678](https://github.com/crawlab-team/crawlab/issues/678)
+- **爬虫每日数据缺失**. [#684](https://github.com/crawlab-team/crawlab/issues/684)
+- **结果数量未即时更新**. [#689](https://github.com/crawlab-team/crawlab/issues/689)
+
 # 0.4.9 (2020-03-31)
 ### 功能 / 优化
 - **挑战**. 用户可以完成不同的趣味挑战..
@@ -10,6 +27,7 @@
 - **支持任务重试**. 允许任务重新触发历史任务.
 
 ### Bug 修复
+- **无法注册**. [#670](https://github.com/crawlab-team/crawlab/issues/670)
 - **CLI 无法在 Windows 上使用**. [#580](https://github.com/crawlab-team/crawlab/issues/580)
 - **重新上传错误**. [#643](https://github.com/crawlab-team/crawlab/issues/643) [#640](https://github.com/crawlab-team/crawlab/issues/640)
 - **上传丢失文件目录**. [#646](https://github.com/crawlab-team/crawlab/issues/646)

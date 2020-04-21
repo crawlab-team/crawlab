@@ -114,6 +114,9 @@ func CreateNewUser(username string, password string, role string, email string, 
 
 func GetCurrentUser(c *gin.Context) *model.User {
 	data, _ := c.Get(constants.ContextUser)
+	if data == nil {
+		return &model.User{}
+	}
 	return data.(*model.User)
 }
 

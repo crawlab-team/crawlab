@@ -64,6 +64,10 @@ type Spider struct {
 	DedupField  string `json:"dedup_field" bson:"dedup_field"`   // 去重字段
 	DedupMethod string `json:"dedup_method" bson:"dedup_method"` // 去重方式
 
+	// Web Hook
+	IsWebHook  bool   `json:"is_web_hook" bson:"is_web_hook"`   // 是否开启 Web Hook
+	WebHookUrl string `json:"web_hook_url" bson:"web_hook_url"` // Web Hook URL
+
 	// 前端展示
 	LastRunTs   time.Time               `json:"last_run_ts"`  // 最后一次执行时间
 	LastStatus  string                  `json:"last_status"`  // 最后执行状态

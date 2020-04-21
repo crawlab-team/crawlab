@@ -48,6 +48,9 @@ export default {
     // get latest version
     await this.$store.dispatch('version/getLatestRelease')
 
+    // get user info
+    await this.$store.dispatch('user/getInfo')
+
     // remove loading-placeholder
     const elLoading = document.querySelector('#loading-placeholder')
     elLoading.remove()

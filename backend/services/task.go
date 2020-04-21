@@ -15,8 +15,10 @@ import (
 	"fmt"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
+	"github.com/imroc/req"
 	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
+	"net/http"
 	"os"
 	"os/exec"
 	"path"
@@ -113,16 +115,19 @@ func SetEnv(cmd *exec.Cmd, envs []model.Env, task model.Task, spider model.Spide
 	// 默认把Node.js的全局node_modules加入环境变量
 	envPath := os.Getenv("PATH")
 	homePath := os.Getenv("HOME")
-	nodeVersion := "v8.12.0"
+	nodeVersion := "v10.19.0"
 	nodePath := path.Join(homePath, ".nvm/versions/node", nodeVersion, "lib/node_modules")
 	if !strings.Contains(envPath, nodePath) {
 		_ = os.Setenv("PATH", nodePath+":"+envPath)
 	}
 	_ = os.Setenv("NODE_PATH", nodePath)
 
+	// default results collection
+	col := utils.GetSpiderCol(spider.Col, spider.Name)
+
 	// 默认环境变量
 	cmd.Env = append(os.Environ(), "CRAWLAB_TASK_ID="+task.Id)
-	cmd.Env = append(cmd.Env, "CRAWLAB_COLLECTION="+spider.Col)
+	cmd.Env = append(cmd.Env, "CRAWLAB_COLLECTION="+col)
 	cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_HOST="+viper.GetString("mongo.host"))
 	cmd.Env = append(cmd.Env, "CRAWLAB_MONGO_PORT="+viper.GetString("mongo.port"))
 	if viper.GetString("mongo.db") != "" {
@@ -161,16 +166,7 @@ func SetEnv(cmd *exec.Cmd, envs []model.Env, task model.Task, spider model.Spide
 	return cmd
 }
 
-func SetLogConfig(cmd *exec.Cmd, t model.Task) error {
-	//fLog, err := os.Create(path)
-	//if err != nil {
-	//	log.Errorf("create task log file error: %s", path)
-	//	debug.PrintStack()
-	//	return err
-	//}
-	//cmd.Stdout = fLog
-	//cmd.Stderr = fLog
-
+func SetLogConfig(cmd *exec.Cmd, t model.Task, u model.User) error {
 	// get stdout reader
 	stdout, err := cmd.StdoutPipe()
 	readerStdout := bufio.NewReader(stdout)
@@ -189,21 +185,49 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task) error {
 		return err
 	}
 
+	var seq int64
+	var logs []model.LogItem
+	isStdoutFinished := false
+	isStderrFinished := false
+
+	// periodically (1 sec) insert log items
+	go func() {
+		for {
+			_ = model.AddLogItems(logs)
+			logs = []model.LogItem{}
+			if isStdoutFinished && isStderrFinished {
+				break
+			}
+			time.Sleep(5 * time.Second)
+		}
+	}()
+
+	// expire duration (in seconds)
+	expireDuration := u.Setting.LogExpireDuration
+	if expireDuration == 0 {
+		// by default not expire
+		expireDuration = constants.Infinite
+	}
+
 	// read stdout
 	go func() {
 		for {
 			line, err := readerStdout.ReadString('\n')
 			if err != nil {
+				isStdoutFinished = true
 				break
 			}
 			line = strings.Replace(line, "\n", "", -1)
-			_ = model.AddLogItem(model.LogItem{
-				Id:      bson.NewObjectId(),
-				Message: line,
-				TaskId:  t.Id,
-				IsError: false,
-				Ts:      time.Now(),
-			})
+			seq++
+			l := model.LogItem{
+				Id:       bson.NewObjectId(),
+				Seq:      seq,
+				Message:  line,
+				TaskId:   t.Id,
+				Ts:       time.Now(),
+				ExpireTs: time.Now().Add(time.Duration(expireDuration) * time.Second),
+			}
+			logs = append(logs, l)
 		}
 	}()
 
@@ -211,24 +235,28 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task) error {
 	go func() {
 		for {
 			line, err := readerStderr.ReadString('\n')
-			line = strings.Replace(line, "\n", "", -1)
 			if err != nil {
+				isStderrFinished = true
 				break
 			}
-			_ = model.AddLogItem(model.LogItem{
-				Id:      bson.NewObjectId(),
-				Message: line,
-				TaskId:  t.Id,
-				IsError: true,
-				Ts:      time.Now(),
-			})
+			line = strings.Replace(line, "\n", "", -1)
+			seq++
+			l := model.LogItem{
+				Id:       bson.NewObjectId(),
+				Seq:      seq,
+				Message:  line,
+				TaskId:   t.Id,
+				Ts:       time.Now(),
+				ExpireTs: time.Now().Add(time.Duration(expireDuration) * time.Second),
+			}
+			logs = append(logs, l)
 		}
 	}()
 
 	return nil
 }
 
-func FinishOrCancelTask(ch chan string, cmd *exec.Cmd, t model.Task) {
+func FinishOrCancelTask(ch chan string, cmd *exec.Cmd, s model.Spider, t model.Task) {
 	// 传入信号，此处阻塞
 	signal := <-ch
 	log.Infof("process received signal: %s", signal)
@@ -259,6 +287,8 @@ func FinishOrCancelTask(ch chan string, cmd *exec.Cmd, t model.Task) {
 
 	t.FinishTs = time.Now()
 	_ = t.Save()
+
+	go FinishUpTask(s, t)
 }
 
 func StartTaskProcess(cmd *exec.Cmd, t model.Task) error {
@@ -275,7 +305,7 @@ func StartTaskProcess(cmd *exec.Cmd, t model.Task) error {
 	return nil
 }
 
-func WaitTaskProcess(cmd *exec.Cmd, t model.Task) error {
+func WaitTaskProcess(cmd *exec.Cmd, t model.Task, s model.Spider) error {
 	if err := cmd.Wait(); err != nil {
 		log.Errorf("wait process finish error: %s", err.Error())
 		debug.PrintStack()
@@ -291,16 +321,19 @@ func WaitTaskProcess(cmd *exec.Cmd, t model.Task) error {
 				t.FinishTs = time.Now()
 				t.Status = constants.StatusError
 				_ = t.Save()
+
+				FinishUpTask(s, t)
 			}
 		}
 
 		return err
 	}
+
 	return nil
 }
 
 // 执行shell命令
-func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (err error) {
+func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider, u model.User) (err error) {
 	log.Infof("cwd: %s", cwd)
 	log.Infof("cmd: %s", cmdStr)
 
@@ -316,7 +349,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	cmd.Dir = cwd
 
 	// 日志配置
-	if err := SetLogConfig(cmd, t); err != nil {
+	if err := SetLogConfig(cmd, t, u); err != nil {
 		return err
 	}
 
@@ -341,7 +374,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	// 起一个goroutine来监控进程
 	ch := utils.TaskExecChanMap.ChanBlocked(t.Id)
 
-	go FinishOrCancelTask(ch, cmd, t)
+	go FinishOrCancelTask(ch, cmd, s, t)
 
 	// kill的时候，可以kill所有的子进程
 	if runtime.GOOS != constants.Windows {
@@ -354,7 +387,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider) (e
 	}
 
 	// 同步等待进程完成
-	if err := WaitTaskProcess(cmd, t); err != nil {
+	if err := WaitTaskProcess(cmd, t, s); err != nil {
 		return err
 	}
 	ch <- constants.TaskFinish
@@ -407,6 +440,22 @@ func SaveTaskResultCount(id string) func() {
 		if err := model.UpdateTaskResultCount(id); err != nil {
 			log.Errorf(err.Error())
 			debug.PrintStack()
+			return
+		}
+	}
+}
+
+// Scan Error Logs
+func ScanErrorLogs(t model.Task) func() {
+	return func() {
+		u, err := model.GetUser(t.UserId)
+		if err != nil {
+			return
+		}
+		if err := model.UpdateTaskErrorLogs(t.Id, u.Setting.ErrorRegexPattern); err != nil {
+			return
+		}
+		if err := model.UpdateErrorLogCount(t.Id); err != nil {
 			return
 		}
 	}
@@ -508,11 +557,21 @@ func ExecuteTask(id int) {
 		cmd += " " + t.Param
 	}
 
+	// 获得触发任务用户
+	user, err := model.GetUser(t.UserId)
+	if err != nil {
+		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		return
+	}
+
 	// 任务赋值
 	t.NodeId = node.Id                                   // 任务节点信息
 	t.StartTs = time.Now()                               // 任务开始时间
 	t.Status = constants.StatusRunning                   // 任务状态
 	t.WaitDuration = t.StartTs.Sub(t.CreateTs).Seconds() // 等待时长
+
+	// 发送 Web Hook 请求 (任务开始)
+	go SendWebHookRequest(user, t, spider)
 
 	// 文件检查
 	if err := SpiderFileCheck(t, spider); err != nil {
@@ -527,26 +586,29 @@ func ExecuteTask(id int) {
 	_ = t.Save()
 
 	// 起一个cron执行器来统计任务结果数
-	if spider.Col != "" {
-		cronExec := cron.New(cron.WithSeconds())
-		_, err = cronExec.AddFunc("*/5 * * * * *", SaveTaskResultCount(t.Id))
-		if err != nil {
-			log.Errorf(GetWorkerPrefix(id) + err.Error())
-			return
-		}
-		cronExec.Start()
-		defer cronExec.Stop()
-	}
-
-	// 获得触发任务用户
-	user, err := model.GetUser(t.UserId)
+	cronExec := cron.New(cron.WithSeconds())
+	_, err = cronExec.AddFunc("*/5 * * * * *", SaveTaskResultCount(t.Id))
 	if err != nil {
 		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		debug.PrintStack()
 		return
 	}
+	cronExec.Start()
+	defer cronExec.Stop()
+
+	// 起一个cron来更新错误日志
+	cronExecErrLog := cron.New(cron.WithSeconds())
+	_, err = cronExecErrLog.AddFunc("*/30 * * * * *", ScanErrorLogs(t))
+	if err != nil {
+		log.Errorf(GetWorkerPrefix(id) + err.Error())
+		debug.PrintStack()
+		return
+	}
+	cronExecErrLog.Start()
+	defer cronExecErrLog.Stop()
 
 	// 执行Shell命令
-	if err := ExecuteShellCmd(cmd, cwd, t, spider); err != nil {
+	if err := ExecuteShellCmd(cmd, cwd, t, spider, user); err != nil {
 		log.Errorf(GetWorkerPrefix(id) + err.Error())
 
 		// 如果发生错误，则发送通知
@@ -554,16 +616,15 @@ func ExecuteTask(id int) {
 		if user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd || user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskError {
 			SendNotifications(user, t, spider)
 		}
+
+		// 发送 Web Hook 请求 (任务开始)
+		go SendWebHookRequest(user, t, spider)
+
 		return
 	}
 
-	// 更新任务结果数
-	if spider.Col != "" {
-		if err := model.UpdateTaskResultCount(t.Id); err != nil {
-			log.Errorf(GetWorkerPrefix(id) + err.Error())
-			return
-		}
-	}
+	// 完成任务收尾工作
+	go FinishUpTask(spider, t)
 
 	// 完成进程
 	t, err = model.GetTask(t.Id)
@@ -577,6 +638,9 @@ func ExecuteTask(id int) {
 	t.FinishTs = time.Now()                                 // 结束时间
 	t.RuntimeDuration = t.FinishTs.Sub(t.StartTs).Seconds() // 运行时长
 	t.TotalDuration = t.FinishTs.Sub(t.CreateTs).Seconds()  // 总时长
+
+	// 发送 Web Hook 请求 (任务结束)
+	go SendWebHookRequest(user, t, spider)
 
 	// 如果是任务结束时发送通知，则发送通知
 	if user.Setting.NotificationTrigger == constants.NotificationTriggerOnTaskEnd {
@@ -596,6 +660,20 @@ func ExecuteTask(id int) {
 	duration := toc.Sub(tic).Seconds()
 	durationStr := strconv.FormatFloat(duration, 'f', 6, 64)
 	log.Infof(GetWorkerPrefix(id) + "task (id:" + t.Id + ")" + " finished. elapsed:" + durationStr + " sec")
+}
+
+func FinishUpTask(s model.Spider, t model.Task) {
+	// 更新任务结果数
+	go func() {
+		if err := model.UpdateTaskResultCount(t.Id); err != nil {
+			return
+		}
+	}()
+
+	// 更新任务错误日志
+	go func() {
+		ScanErrorLogs(t)()
+	}()
 }
 
 func SpiderFileCheck(t model.Task, spider model.Spider) error {
@@ -622,60 +700,34 @@ func SpiderFileCheck(t model.Task, spider model.Spider) error {
 	return nil
 }
 
-func GetTaskLog(id string) (logItems []model.LogItem, err error) {
+func GetTaskLog(id string, keyword string, page int, pageSize int) (logItems []model.LogItem, logTotal int, err error) {
 	task, err := model.GetTask(id)
 	if err != nil {
 		return
 	}
 
-	logItems, err = task.GetLogItems()
+	logItems, logTotal, err = task.GetLogItems(keyword, page, pageSize)
 	if err != nil {
-		return logItems, err
+		return logItems, logTotal, err
 	}
 
-	return logItems, nil
+	return logItems, logTotal, nil
+}
 
-	//if IsMasterNode(task.NodeId.Hex()) {
-	//	if !utils.Exists(task.LogPath) {
-	//		fileDir, err := MakeLogDir(task)
-	//
-	//		if err != nil {
-	//			log.Errorf(err.Error())
-	//		}
-	//
-	//		fileP := GetLogFilePaths(fileDir, task)
-	//
-	//		// 获取日志文件路径
-	//		fLog, err := os.Create(fileP)
-	//		defer fLog.Close()
-	//		if err != nil {
-	//			log.Errorf("create task log file error: %s", fileP)
-	//			debug.PrintStack()
-	//		}
-	//		task.LogPath = fileP
-	//		if err := task.Save(); err != nil {
-	//			log.Errorf(err.Error())
-	//			debug.PrintStack()
-	//		}
-	//
-	//	}
-	//	// 若为主节点，获取本机日志
-	//	logBytes, err := model.GetLocalLog(task.LogPath)
-	//	if err != nil {
-	//		log.Errorf(err.Error())
-	//		logStr = err.Error()
-	//	} else {
-	//		logStr = utils.BytesToString(logBytes)
-	//	}
-	//	return logStr, err
-	//}
-	//// 若不为主节点，获取远端日志
-	//logStr, err = GetRemoteLog(task)
-	//if err != nil {
-	//	log.Errorf(err.Error())
-	//
-	//}
-	//return logStr, err
+func GetTaskErrorLog(id string, n int) (errLogItems []model.ErrorLogItem, err error) {
+	if n == 0 {
+		n = 1000
+	}
+
+	task, err := model.GetTask(id)
+	if err != nil {
+		return
+	}
+	errLogItems, err = task.GetErrorLogItems(n)
+	if err != nil {
+		return
+	}
+	return errLogItems, nil
 }
 
 func CancelTask(id string) (err error) {
@@ -950,6 +1002,44 @@ func SendNotifications(u model.User, t model.Task, s model.Spider) {
 		go func() {
 			SendTaskWechat(u, t, s)
 		}()
+	}
+}
+
+func SendWebHookRequest(u model.User, t model.Task, s model.Spider) {
+	type RequestBody struct {
+		Status   string       `json:"status"`
+		Task     model.Task   `json:"task"`
+		Spider   model.Spider `json:"spider"`
+		UserName string       `json:"user_name"`
+	}
+
+	if s.IsWebHook && s.WebHookUrl != "" {
+		// request header
+		header := req.Header{
+			"Content-Type": "application/json; charset=utf-8",
+		}
+
+		// request body
+		reqBody := RequestBody{
+			Status:   t.Status,
+			UserName: u.Username,
+			Task:     t,
+			Spider:   s,
+		}
+
+		// make POST http request
+		res, err := req.Post(s.WebHookUrl, header, req.BodyJSON(reqBody))
+		if err != nil {
+			log.Errorf("sent web hook request with error: " + err.Error())
+			debug.PrintStack()
+			return
+		}
+		if res.Response().StatusCode != http.StatusOK {
+			log.Errorf(fmt.Sprintf("sent web hook request with error http code: %d, task_id: %s, status: %s", res.Response().StatusCode, t.Id, t.Status))
+			debug.PrintStack()
+			return
+		}
+		log.Infof(fmt.Sprintf("sent web hook request, task_id: %s, status: %s)", t.Id, t.Status))
 	}
 }
 

@@ -1,3 +1,20 @@
+# 0.4.10 (2020-04-21)
+### Features / Enhancement
+- **Enhanced Log Management**. Centralizing log storage in MongoDB, reduced the dependency of PubSub, allowing log error detection.
+- **API Token**. Allow users to generate API tokens and use them to integrate into their own systems.
+- **Web Hook**. Trigger a Web Hook http request to pre-defined URL when a task starts or finishes.
+- **Auto Install Dependencies**. Allow installing dependencies automatically from `requirements.txt` or `package.json`.
+- **Auto Results Collection**. Set results collection to `results_<spider_name>` if it is not set.
+- **Optimized Project List**. Not display "No Project" item in the project list.
+- **Upgrade Node.js**. Upgrade Node.js version from v8.12 to v10.19.
+- **Add Run Button in Schedule Page**. Allow users to manually run task in Schedule Page.
+
+### Bug Fixes
+- **Cannot register**. [#670](https://github.com/crawlab-team/crawlab/issues/670)
+- **Spider schedule tab cron expression shows second**. [#678](https://github.com/crawlab-team/crawlab/issues/678)
+- **Missing daily stats in spider**. [#684](https://github.com/crawlab-team/crawlab/issues/684)
+- **Results count not update in time**. [#689](https://github.com/crawlab-team/crawlab/issues/689)
+
 # 0.4.9 (2020-03-31)
 ### Features / Enhancement
 - **Challenges**. Users can achieve different challenges based on their actions.

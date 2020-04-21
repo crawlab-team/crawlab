@@ -234,13 +234,43 @@ func DeleteTask(c *gin.Context) {
 }
 
 func GetTaskLog(c *gin.Context) {
+	type RequestData struct {
+		PageNum  int    `form:"page_num"`
+		PageSize int    `form:"page_size"`
+		Keyword  string `form:"keyword"`
+	}
 	id := c.Param("id")
-	logItems, err := services.GetTaskLog(id)
+	var reqData RequestData
+	if err := c.ShouldBindQuery(&reqData); err != nil {
+		HandleErrorF(http.StatusBadRequest, c, "invalid request")
+		return
+	}
+	logItems, logTotal, err := services.GetTaskLog(id, reqData.Keyword, reqData.PageNum, reqData.PageSize)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
-	HandleSuccessData(c, logItems)
+	c.JSON(http.StatusOK, ListResponse{
+		Status:  "ok",
+		Message: "success",
+		Data:    logItems,
+		Total:   logTotal,
+	})
+}
+
+func GetTaskErrorLog(c *gin.Context) {
+	id := c.Param("id")
+	u := services.GetCurrentUser(c)
+	errLogItems, err := services.GetTaskErrorLog(id, u.Setting.MaxErrorLog)
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    errLogItems,
+	})
 }
 
 func GetTaskResults(c *gin.Context) {

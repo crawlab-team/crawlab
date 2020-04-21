@@ -33,8 +33,10 @@
     <!--./新增全局变量-->
 
     <el-tabs v-model="activeName" @tab-click="tabActiveHandle" type="border-card">
+      <!--通用-->
       <el-tab-pane :label="$t('General')" name="general">
-        <el-form :model="userInfo" class="setting-form" ref="setting-form" label-width="200px" :rules="rules"
+        <el-form :model="userInfo" class="setting-form" ref="setting-form" label-width="200px"
+                 :rules="rulesNotification"
                  inline-message>
           <el-form-item prop="username" :label="$t('Username')">
             <el-input v-model="userInfo.username" disabled></el-input>
@@ -67,8 +69,12 @@
           </el-form-item>
         </el-form>
       </el-tab-pane>
+      <!--./通用-->
+
+      <!--消息通知-->
       <el-tab-pane :label="$t('Notifications')" name="notify">
-        <el-form :model="userInfo" class="setting-form" ref="setting-form" label-width="200px" :rules="rules"
+        <el-form :model="userInfo" class="setting-form" ref="setting-form" label-width="200px"
+                 :rules="rulesNotification"
                  inline-message>
           <el-form-item :label="$t('Notification Trigger Timing')">
             <el-radio-group v-model="userInfo.setting.notification_trigger">
@@ -110,6 +116,119 @@
           </el-form-item>
         </el-form>
       </el-tab-pane>
+      <!--./消息通知-->
+
+      <!--日志-->
+      <el-tab-pane :label="$t('Log')" name="log">
+        <el-form :model="userInfo" class="setting-form" ref="log-form" label-width="200px" :rules="rulesLog"
+                 inline-message>
+          <el-form-item :label="$t('Error Regex Pattern')" prop="setting.error_regex_pattern">
+            <el-input
+              v-model="userInfo.setting.error_regex_pattern"
+              :placeholder="$t('By default: ') + $utils.log.errorRegex.source"
+              clearable
+            />
+          </el-form-item>
+          <el-form-item :label="$t('Max Error Logs Display')" prop="setting.max_error_log">
+            <el-select
+              v-model="userInfo.setting.max_error_log"
+              clearable
+            >
+              <el-option :value="100" label="100"/>
+              <el-option :value="500" label="500"/>
+              <el-option :value="1000" label="1000"/>
+              <el-option :value="5000" label="5000"/>
+              <el-option :value="10000" label="10000"/>
+            </el-select>
+          </el-form-item>
+          <el-form-item :label="$t('Log Expire Duration')" prop="setting.log_expire_duration">
+            <el-select
+              v-model="userInfo.setting.log_expire_duration"
+              clearable
+            >
+              <el-option :value="0" :label="$t('No Expire')"/>
+              <el-option :value="3600" :label="'1 ' + $t('Hour')"/>
+              <el-option :value="3600 * 6" :label="'6 ' + $t('Hours')"/>
+              <el-option :value="3600 * 12" :label="'12 ' + $t('Hours')"/>
+              <el-option :value="3600 * 24" :label="'1 ' + $t('Day')"/>
+              <el-option :value="3600 * 24 * 7" :label="'7 ' + $t('Days')"/>
+              <el-option :value="3600 * 24 * 14" :label="'14 ' + $t('Days')"/>
+              <el-option :value="3600 * 24 * 30" :label="'30 ' + $t('Days')"/>
+              <el-option :value="3600 * 24 * 30 * 3" :label="'90 ' + $t('Days')"/>
+              <el-option :value="3600 * 24 * 30 * 6" :label="'180 ' + $t('Days')"/>
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <div style="text-align: right">
+              <el-button type="success" size="small" @click="saveUserInfo">
+                {{$t('Save')}}
+              </el-button>
+            </div>
+          </el-form-item>
+        </el-form>
+      </el-tab-pane>
+      <!--./日志-->
+
+      <!--API Token-->
+      <el-tab-pane label="API Token" name="api-token">
+        <input id="clipboard">
+        <el-alert
+          type="primary"
+        >
+        </el-alert>
+        <div class="actions">
+          <el-button
+            size="small"
+            type="primary"
+            @click="onAddApiToken"
+          >
+            {{$t('Add')}}
+          </el-button>
+        </div>
+        <el-table
+          :data="apiTokens"
+          border
+        >
+          <el-table-column
+            label="Token"
+          >
+            <template slot-scope="scope">
+              {{scope.row.visible ? scope.row.token : getMaskValue(scope.row.token)}}
+            </template>
+          </el-table-column>
+          <el-table-column
+            :label="$t('Action')"
+            width="200px"
+          >
+            <template slot-scope="scope">
+              <el-button
+                type="warning"
+                size="mini"
+                icon="el-icon-view"
+                circle
+                @click="toggleTokenVisible(scope.row)"
+              />
+              <el-button
+                type="primary"
+                size="mini"
+                icon="el-icon-document-copy"
+                @click="copyToken(scope.row.token)"
+                circle
+              />
+              <el-button
+                type="danger"
+                size="mini"
+                icon="el-icon-delete"
+                @click="onDeleteToken(scope.row)"
+                circle
+              />
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
+      <!--./API Token-->
+
+      <!--全局变量-->
       <el-tab-pane :label="$t('Global Variable')" name="global-variable">
         <div style="text-align: right;margin-bottom: 10px">
           <el-button size="small" @click="addGlobalVariableHandle(true)"
@@ -131,6 +250,7 @@
           </el-table-column>
         </el-table>
       </el-tab-pane>
+      <!--./全局变量-->
     </el-tabs>
   </div>
 </template>
@@ -175,12 +295,13 @@ export default {
     }
     return {
       userInfo: { setting: { enabled_notifications: [] } },
-      rules: {
+      rulesNotification: {
         password: [{ trigger: 'blur', validator: validatePass }],
         email: [{ trigger: 'blur', validator: validateEmail }],
         'setting.ding_talk_robot_webhook': [{ trigger: 'blur', validator: validateDingTalkRobotWebhook }],
         'setting.wechat_robot_webhook': [{ trigger: 'blur', validator: validateWechatRobotWebhook }]
       },
+      rulesLog: {},
       isShowDingTalkAppSecret: false,
       activeName: 'general',
       addDialogVisible: false,
@@ -223,7 +344,8 @@ export default {
         }
       },
       isAllowSendingStatistics: localStorage.getItem('useStats') === '1',
-      isEnableTutorial: localStorage.getItem('enableTutorial') === '1'
+      isEnableTutorial: localStorage.getItem('enableTutorial') === '1',
+      apiTokens: []
     }
   },
   computed: {
@@ -233,8 +355,9 @@ export default {
     ])
   },
   watch: {
-    userInfoStr () {
-      this.saveUserInfo()
+    async userInfoStr () {
+      await this.saveUserInfo()
+      await this.$store.dispatch('user/getInfo')
     }
   },
   methods: {
@@ -305,12 +428,63 @@ export default {
     onEnableTutorialChange (value) {
       this.$message.success(this.$t('Saved successfully'))
       localStorage.setItem('enableTutorial', value ? '1' : '0')
+    },
+    onAddApiToken () {
+      this.$confirm(this.$t('Are you sure to add an API token?'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
+        type: 'warning'
+      }).then(async () => {
+        const res = await this.$request.put('/tokens')
+        if (!res.data.error) {
+          this.$message.success(this.$t('Added API token successfully'))
+          await this.getApiTokens()
+        }
+      })
+    },
+    onDeleteToken (row) {
+      this.$confirm(this.$t('Are you sure to delete this API token?'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
+        type: 'warning'
+      }).then(async () => {
+        const res = await this.$request.delete(`/tokens/${row._id}`)
+        if (!res.data.error) {
+          this.$message.success(this.$t('Deleted API token successfully'))
+          await this.getApiTokens()
+        }
+      })
+    },
+    async addApiToken () {
+      await this.$request.put('/tokens')
+    },
+    async getApiTokens () {
+      const res = await this.$request.get('/tokens')
+      this.apiTokens = res.data.data
+    },
+    toggleTokenVisible (row) {
+      this.$set(row, 'visible', !row.visible)
+    },
+    getMaskValue (str) {
+      let s = ''
+      for (let i = 0; i < str.length; i++) {
+        s += '*'
+      }
+      return s
+    },
+    copyToken (str) {
+      const input = document.getElementById('clipboard')
+      input.value = str
+      input.select()
+      document.execCommand('copy')
+      this.$message.success(this.$t('Token copied'))
     }
   },
   async created () {
     await this.$store.dispatch('user/getInfo')
     await this.$store.dispatch('user/getGlobalVariable')
     this.getUserInfo()
+    await this.getApiTokens()
   },
   mounted () {
     if (!this.$utils.tour.isFinishedTour('setting')) {
@@ -338,5 +512,17 @@ export default {
 
   .setting-form >>> .el-form-item__label {
     height: 40px;
+  }
+
+  .actions {
+    margin-bottom: 10px;
+    text-align: right;
+  }
+
+  #clipboard {
+    position: fixed;
+    z-index: -99999;
+    top: 9999px;
+    right: 9999px;
   }
 </style>

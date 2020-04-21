@@ -3,6 +3,7 @@ package model
 import (
 	"crawlab/constants"
 	"crawlab/database"
+	"crawlab/utils"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
 	"runtime/debug"
@@ -21,6 +22,7 @@ type Task struct {
 	Param           string        `json:"param" bson:"param"`
 	Error           string        `json:"error" bson:"error"`
 	ResultCount     int           `json:"result_count" bson:"result_count"`
+	ErrorLogCount   int           `json:"error_log_count" bson:"error_log_count"`
 	WaitDuration    float64       `json:"wait_duration" bson:"wait_duration"`
 	RuntimeDuration float64       `json:"runtime_duration" bson:"runtime_duration"`
 	TotalDuration   float64       `json:"total_duration" bson:"total_duration"`
@@ -88,11 +90,9 @@ func (t *Task) GetResults(pageNum int, pageSize int) (results []interface{}, tot
 		return
 	}
 
-	if spider.Col == "" {
-		return
-	}
+	col := utils.GetSpiderCol(spider.Col, spider.Name)
 
-	s, c := database.GetCol(spider.Col)
+	s, c := database.GetCol(col)
 	defer s.Close()
 
 	query := bson.M{
@@ -109,17 +109,39 @@ func (t *Task) GetResults(pageNum int, pageSize int) (results []interface{}, tot
 	return
 }
 
-func (t *Task) GetLogItems() (logItems []LogItem, err error) {
+func (t *Task) GetLogItems(keyword string, page int, pageSize int) (logItems []LogItem, logTotal int, err error) {
 	query := bson.M{
 		"task_id": t.Id,
 	}
 
-	logItems, err = GetLogItemList(query, 0, constants.Infinite, "+_id")
+	logTotal, err = GetLogItemTotal(query, keyword)
 	if err != nil {
-		return logItems, err
+		return logItems, logTotal, err
 	}
 
-	return logItems, nil
+	logItems, err = GetLogItemList(query, keyword, (page-1)*pageSize, pageSize, "+_id")
+	if err != nil {
+		return logItems, logTotal, err
+	}
+
+	return logItems, logTotal, nil
+}
+
+func (t *Task) GetErrorLogItems(n int) (errLogItems []ErrorLogItem, err error) {
+	s, c := database.GetCol("error_logs")
+	defer s.Close()
+
+	query := bson.M{
+		"task_id": t.Id,
+	}
+
+	if err := c.Find(query).Limit(n).All(&errLogItems); err != nil {
+		log.Errorf("find error logs error: " + err.Error())
+		debug.PrintStack()
+		return errLogItems, err
+	}
+
+	return errLogItems, nil
 }
 
 func GetTaskList(filter interface{}, skip int, limit int, sortKey string) ([]Task, error) {
@@ -365,8 +387,11 @@ func UpdateTaskResultCount(id string) (err error) {
 		return err
 	}
 
+	// default results collection
+	col := utils.GetSpiderCol(spider.Col, spider.Name)
+
 	// 获取结果数量
-	s, c := database.GetCol(spider.Col)
+	s, c := database.GetCol(col)
 	defer s.Close()
 	resultCount, err := c.Find(bson.M{"task_id": task.Id}).Count()
 	if err != nil {
@@ -385,6 +410,41 @@ func UpdateTaskResultCount(id string) (err error) {
 	return nil
 }
 
+// update error log count
+func UpdateErrorLogCount(id string) (err error) {
+	s, c := database.GetCol("error_logs")
+	defer s.Close()
+
+	query := bson.M{
+		"task_id": id,
+	}
+	count, err := c.Find(query).Count()
+	if err != nil {
+		log.Errorf("update error log count error: " + err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	st, ct := database.GetCol("tasks")
+	defer st.Close()
+
+	task, err := GetTask(id)
+	if err != nil {
+		log.Errorf(err.Error())
+		return err
+	}
+	task.ErrorLogCount = count
+
+	if err := ct.UpdateId(id, task); err != nil {
+		log.Errorf("update error log count error: " + err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	return nil
+}
+
+// convert all running tasks to abnormal tasks
 func UpdateTaskToAbnormal(nodeId bson.ObjectId) error {
 	s, c := database.GetCol("tasks")
 	defer s.Close()
@@ -404,5 +464,47 @@ func UpdateTaskToAbnormal(nodeId bson.ObjectId) error {
 		debug.PrintStack()
 		return err
 	}
+	return nil
+}
+
+// update task error logs
+func UpdateTaskErrorLogs(taskId string, errorRegexPattern string) error {
+	s, c := database.GetCol("logs")
+	defer s.Close()
+
+	if errorRegexPattern == "" {
+		errorRegexPattern = constants.ErrorRegexPattern
+	}
+
+	query := bson.M{
+		"task_id": taskId,
+		"msg": bson.M{
+			"$regex": bson.RegEx{
+				Pattern: errorRegexPattern,
+				Options: "i",
+			},
+		},
+	}
+	var logs []LogItem
+	if err := c.Find(query).All(&logs); err != nil {
+		log.Errorf("find error logs error: " + err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	for _, l := range logs {
+		e := ErrorLogItem{
+			Id:      bson.NewObjectId(),
+			TaskId:  l.TaskId,
+			Message: l.Message,
+			LogId:   l.Id,
+			Seq:     l.Seq,
+			Ts:      time.Now(),
+		}
+		if err := AddErrorLogItem(e); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

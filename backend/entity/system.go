@@ -22,6 +22,8 @@ type Lang struct {
 	LockPath          string   `json:"lock_path"`
 	InstallScript     string   `json:"install_script"`
 	InstallStatus     string   `json:"install_status"`
+	DepFileName       string   `json:"dep_file_name"`
+	InstallDepArgs    string   `json:"install_dep_cmd"`
 }
 
 type Dependency struct {
@@ -29,4 +31,8 @@ type Dependency struct {
 	Version     string `json:"version"`
 	Description string `json:"description"`
 	Installed   bool   `json:"installed"`
+}
+
+type PackageJson struct {
+	Dependencies map[string]string `json:"dependencies"`
 }

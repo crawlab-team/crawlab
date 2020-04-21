@@ -232,6 +232,7 @@ export default {
   'Please enter de-duplicated field': '请输入去重字段',
   'Overwrite': '覆盖',
   'Ignore': '忽略',
+  'De-Duplication': '去重',
 
   // 爬虫列表
   'Name': '名称',
@@ -260,6 +261,7 @@ export default {
   'Selected Nodes': '指定节点',
   'Search Log': '搜索日志',
   'Auto-Scroll': '自动滚动',
+  'Auto-Refresh': '自动刷新',
   'Updating log...': '正在更新日志...',
   'Error Count': '错误数',
   'Log with errors': '日志错误',
@@ -485,6 +487,12 @@ export default {
   'Allow Sending Statistics': '允许发送统计信息',
   'General': '通用',
   'Enable Tutorial': '启用教程',
+  'Error Regex Pattern': '异常正则表达式',
+  'By default: ': '默认: ',
+  'Max Error Logs Display': '最大异常日志展示',
+  'Log Errors': '日志错误',
+  'No Expire': '不过期',
+  'Log Expire Duration': '日志过期时间',
 
   // 挑战
   'Challenge': '挑战',
@@ -493,6 +501,22 @@ export default {
   'Achieved': '已达成',
   'Not Achieved': '未达成',
   'Start Challenge': '开始挑战',
+
+  // 时间
+  'Second': '秒',
+  'Seconds': '秒',
+  'Minute': '分',
+  'Minutes': '分',
+  'Hour': '小时',
+  'Hours': '小时',
+  'Day': '天',
+  'Days': '天',
+  'Week': '周',
+  'Weeks': '周',
+  'Month': '月',
+  'Months': '月',
+  'Year': '年',
+  'Years': '年',
 
   // 全局
   'Related Documentation': '相关文档',
@@ -521,21 +545,7 @@ export default {
 
 添加节点的方式非常简单，您只需要在目标机器上运行一个 Crawlab 服务就可以了。
 
-#### Docker 部署
-如果您是用 Docker 启动 Crawlab，可以在目标机器上运行一个新的 \`worker\` 容器，或者在 \`docker-compose.yml\` 中添加 \`worker\` 服务。
-
-\`\`\`bash
-docker run -d --restart always --name crawlab_worker \\
-  -e CRAWLAB_SERVER_MASTER=N \\
-  -e CRAWLAB_MONGO_HOST=xxx.xxx.xxx.xxx \\ # 保证连接的是同一个 MongoDB
-  -e CRAWLAB_REDIS_ADDRESS=xxx.xxx.xxx.xxx \\ # 保证连接的是同一个 Redis
-  tikazyq/crawlab:latest
-\`\`\`
-
-#### 直接部署
-如果您是用直接部署，只需要在目标机器上启动一个后端服务，请参考 [直接部署文档](https://docs.crawlab.cn/Installation/Direct.html)。
-
-更多信息，请参考 [官方文档](https://docs.crawlab.cn)。
+具体操作，请参照 [多节点部署文档](https://docs.crawlab.cn/Installation/MultiNode.html)。
 `,
 
   // 教程
@@ -624,6 +634,14 @@ docker run -d --restart always --name crawlab_worker \\
   'Please enter your Wechat account': '请输入您的微信账号',
   'Please enter your feedback content': '请输入您的反馈内容',
   'No response from the server. Please make sure your server is running correctly. You can also refer to the documentation to solve this issue.': '服务器无响应，请保证您的服务器正常运行。您也可以参考文档来解决这个问题（文档链接在下方）',
+  'Are you sure to restart this task?': '确认重新运行该任务?',
+  'Are you sure to delete the project?': '确认删除该项目?',
+  'You have no projects created. You can create a project by clicking the "Add" button.': '您没有创建项目，请点击 "添加项目" 按钮来创建一个新项目',
+  'Added API token successfully': '成功添加 API Token',
+  'Deleted API token successfully': '成功删除 API Token',
+  'Are you sure to add an API token?': '确认创建 API Token?',
+  'Are you sure to delete this API token?': '确认删除该 API Token?',
+  'Please enter Web Hook URL': '请输入 Web Hook URL',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'
