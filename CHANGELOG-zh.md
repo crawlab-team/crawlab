@@ -25,6 +25,7 @@
 - **支持任务重试**. 允许任务重新触发历史任务.
 
 ### Bug 修复
+- **无法注册**. [#670](https://github.com/crawlab-team/crawlab/issues/670)
 - **CLI 无法在 Windows 上使用**. [#580](https://github.com/crawlab-team/crawlab/issues/580)
 - **重新上传错误**. [#643](https://github.com/crawlab-team/crawlab/issues/643) [#640](https://github.com/crawlab-team/crawlab/issues/640)
 - **上传丢失文件目录**. [#646](https://github.com/crawlab-team/crawlab/issues/646)

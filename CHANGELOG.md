@@ -10,6 +10,7 @@
 - **Add Run Button in Schedule Page**. Allow users to manually run task in Schedule Page.
 
 ### Bug Fixes
+- **Cannot register**. [#670](https://github.com/crawlab-team/crawlab/issues/670)
 - **Missing daily stats in spider**. [#684](https://github.com/crawlab-team/crawlab/issues/684)
 - **Results count not update in time**. [#689](https://github.com/crawlab-team/crawlab/issues/689)
 
