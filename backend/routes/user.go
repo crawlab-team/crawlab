@@ -98,6 +98,11 @@ func PutUser(c *gin.Context) {
 	// UserId
 	uid := services.GetCurrentUserId(c)
 
+	// 空 UserId 处理
+	if uid == "" {
+		uid = bson.ObjectIdHex(constants.ObjectIdNull)
+	}
+
 	// 添加用户
 	if err := services.CreateNewUser(reqData.Username, reqData.Password, reqData.Role, reqData.Email, uid); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
@@ -237,6 +242,11 @@ func PostMe(c *gin.Context) {
 		user.Setting.WechatRobotWebhook = reqBody.Setting.WechatRobotWebhook
 	}
 	user.Setting.EnabledNotifications = reqBody.Setting.EnabledNotifications
+	user.Setting.ErrorRegexPattern = reqBody.Setting.ErrorRegexPattern
+	if reqBody.Setting.MaxErrorLog != 0 {
+		user.Setting.MaxErrorLog = reqBody.Setting.MaxErrorLog
+	}
+	user.Setting.LogExpireDuration = reqBody.Setting.LogExpireDuration
 
 	if user.UserId.Hex() == "" {
 		user.UserId = bson.ObjectIdHex(constants.ObjectIdNull)

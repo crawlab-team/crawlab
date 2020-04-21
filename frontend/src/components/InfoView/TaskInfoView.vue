@@ -12,8 +12,8 @@
         <el-form-item :label="$t('Status')">
           <status-tag :status="taskForm.status"/>
           <el-badge
-            v-if="errorLogData.length > 0"
-            :value="errorLogData.length"
+            v-if="taskForm.error_log_count > 0"
+            :value="taskForm.error_log_count"
             style="margin-left:10px; cursor:pointer;"
           >
             <el-tag type="danger" @click="onClickLogWithErrors">
@@ -79,8 +79,7 @@
 
 <script>
 import {
-  mapState,
-  mapGetters
+  mapState
 } from 'vuex'
 import StatusTag from '../Status/StatusTag'
 import dayjs from 'dayjs'
@@ -91,9 +90,7 @@ export default {
   computed: {
     ...mapState('task', [
       'taskForm',
-      'taskLog'
-    ]),
-    ...mapGetters('task', [
+      'taskLog',
       'errorLogData'
     ]),
     isRunning () {

@@ -218,6 +218,9 @@ func PublishSpider(spider model.Spider) {
 		Spider: spider,
 	}
 
+	// 安装依赖
+	go spiderSync.InstallDeps()
+
 	//目录不存在，则直接下载
 	path := filepath.Join(viper.GetString("spider.path"), spider.Name)
 	if !utils.Exists(path) {
@@ -434,7 +437,9 @@ func CopySpider(spider model.Spider, newName string) error {
 }
 
 func UpdateSpiderDedup(spider model.Spider) error {
-	s, c := database.GetCol(spider.Col)
+	col := utils.GetSpiderCol(spider.Col, spider.Name)
+
+	s, c := database.GetCol(col)
 	defer s.Close()
 
 	if !spider.IsDedup {

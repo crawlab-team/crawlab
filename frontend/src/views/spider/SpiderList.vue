@@ -52,8 +52,12 @@
                 :disabled="spiderForm.is_scrapy"
               />
             </el-form-item>
-            <el-form-item :label="$t('Results')" prop="col" required>
-              <el-input id="col" v-model="spiderForm.col" :placeholder="$t('Results')"/>
+            <el-form-item :label="$t('Results')" prop="col">
+              <el-input
+                id="col"
+                v-model="spiderForm.col"
+                :placeholder="$t('By default: ') + 'results_<spider_name>'"
+              />
             </el-form-item>
             <el-form-item :label="$t('Upload Zip File')" label-width="120px" name="site">
               <el-upload
@@ -104,17 +108,17 @@
           >
             <p>{{$t('You can click "Add" to create an empty spider and upload files later.')}}</p>
             <p>{{$t('OR, you can also click "Upload" and upload a zip file containing your spider project.')}}</p>
-            <p style="font-weight: bolder">
+            <p>
               <i class="fa fa-exclamation-triangle"></i> {{$t('NOTE: When uploading a zip file, please zip your' +
               ' spider files from the ROOT DIRECTORY.')}}
             </p>
-            <p>
+            <p style="font-weight: bolder">
               <template v-if="lang === 'en'">
-                You can also upload spiders using <a href="https://docs.crawlab.cn/SDK/CLI.html" target="_blank"
+                Recommend uploading spiders using <a href="https://docs.crawlab.cn/SDK/CLI.html" target="_blank"
                                                      style="color: #409eff;font-weight: bolder">CLI Tool</a>.
               </template>
               <template v-else-if="lang === 'zh'">
-                您也可以利用 <a href="https://docs.crawlab.cn/SDK/CLI.html" target="_blank"
+                推荐使用 <a href="https://docs.crawlab.cn/SDK/CLI.html" target="_blank"
                           style="color: #409eff;font-weight: bolder">CLI 工具</a> 上传爬虫。
               </template>
             </p>
