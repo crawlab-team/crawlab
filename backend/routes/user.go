@@ -98,6 +98,11 @@ func PutUser(c *gin.Context) {
 	// UserId
 	uid := services.GetCurrentUserId(c)
 
+	// 空 UserId 处理
+	if uid == "" {
+		uid = bson.ObjectIdHex(constants.ObjectIdNull)
+	}
+
 	// 添加用户
 	if err := services.CreateNewUser(reqData.Username, reqData.Password, reqData.Role, reqData.Email, uid); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
