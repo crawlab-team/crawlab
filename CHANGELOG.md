@@ -6,6 +6,7 @@
 - **Auto Install Dependencies**. Allow installing dependencies automatically from `requirements.txt` or `package.json`.
 - **Auto Results Collection**. Set results collection to `results_<spider_name>` if it is not set.
 - **Optimized Project List**. Not display "No Project" item in the project list.
+- **Upgrade Node.js**. Upgrade Node.js version from v8.12 to v10.19.
 
 ### Bug Fixes
 - **Missing daily stats in spider**. [#684](https://github.com/crawlab-team/crawlab/issues/684)

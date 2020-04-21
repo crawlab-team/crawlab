@@ -6,6 +6,7 @@
 - **Web Hook**. 当任务开始或结束时，触发 Web Hook http 请求到预定义好的 URL.
 - **自动生成结果集**. 如果没有设置，自动设置结果集为 `results_<spider_name>`.
 - **优化项目列表**. 项目列表中不展示 "No Project".
+- **升级 Node.js**. 将 Node.js 版本从 v8.12 升级到 v10.19.
 
 ### Bug 修复
 - **爬虫每日数据缺失**. [#684](https://github.com/crawlab-team/crawlab/issues/684)
