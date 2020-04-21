@@ -7,6 +7,7 @@
 - **自动生成结果集**. 如果没有设置，自动设置结果集为 `results_<spider_name>`.
 - **优化项目列表**. 项目列表中不展示 "No Project".
 - **升级 Node.js**. 将 Node.js 版本从 v8.12 升级到 v10.19.
+- **定时任务增加运行按钮**. 允许用户在定时任务界面手动运行爬虫任务.
 
 ### Bug 修复
 - **爬虫每日数据缺失**. [#684](https://github.com/crawlab-team/crawlab/issues/684)
