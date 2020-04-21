@@ -10,6 +10,8 @@
 - **定时任务增加运行按钮**. 允许用户在定时任务界面手动运行爬虫任务.
 
 ### Bug 修复
+- **无法注册**. [#670](https://github.com/crawlab-team/crawlab/issues/670)
+- **爬虫定时任务标签 Cron 表达式显示秒**. [#678](https://github.com/crawlab-team/crawlab/issues/678)
 - **爬虫每日数据缺失**. [#684](https://github.com/crawlab-team/crawlab/issues/684)
 - **结果数量未即时更新**. [#689](https://github.com/crawlab-team/crawlab/issues/689)
 
