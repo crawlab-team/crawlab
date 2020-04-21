@@ -184,6 +184,15 @@
     </el-dialog>
     <!--./cron generation popup-->
 
+    <!--crawl confirm dialog-->
+    <crawl-confirm-dialog
+      :visible="crawlConfirmDialogVisible"
+      :spider-id="scheduleForm.spider_id"
+      @close="() => crawlConfirmDialogVisible = false"
+      @confirm="() => crawlConfirmDialogVisible = false"
+    />
+    <!--./crawl confirm dialog-->
+
     <el-card style="border-radius: 0" class="schedule-list">
       <!--filter-->
       <div class="filter">
@@ -257,25 +266,31 @@
             </template>
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" class="actions" align="left" width="130" fixed="right">
+        <el-table-column :label="$t('Action')" class="actions" align="left" width="170" fixed="right">
           <template slot-scope="scope">
-            <!--编辑-->
+            <!--edit-->
             <el-tooltip :content="$t('Edit')" placement="top">
               <el-button type="warning" icon="el-icon-edit" size="mini" @click="onEdit(scope.row)"></el-button>
             </el-tooltip>
-            <!--./编辑-->
+            <!--./edit-->
 
-            <!--删除-->
+            <!--delete-->
             <el-tooltip :content="$t('Remove')" placement="top">
               <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
             </el-tooltip>
-            <!--./删除-->
+            <!--./delete-->
 
-            <!--查看任务-->
+            <!--view tasks-->
             <el-tooltip :content="$t('View Tasks')" placement="top">
               <el-button type="primary" icon="el-icon-search" size="mini" @click="onViewTasks(scope.row)"></el-button>
             </el-tooltip>
-            <!--./查看任务-->
+            <!--./view tasks-->
+
+            <!--run-->
+            <el-tooltip :content="$t('Run')" placement="top">
+              <el-button type="success" icon="fa fa-bug" size="mini" @click="onRun(scope.row)"></el-button>
+            </el-tooltip>
+            <!--./run-->
           </template>
         </el-table-column>
       </el-table>
@@ -292,10 +307,12 @@ import {
 } from 'vuex'
 import ParametersDialog from '../../components/Common/ParametersDialog'
 import ScheduleTaskList from '../../components/Schedule/ScheduleTaskList'
+import CrawlConfirmDialog from '../../components/Common/CrawlConfirmDialog'
 
 export default {
   name: 'ScheduleList',
   components: {
+    CrawlConfirmDialog,
     ScheduleTaskList,
     VueCronLinux,
     ParametersDialog
@@ -326,6 +343,7 @@ export default {
       isLoading: false,
       isParametersVisible: false,
       isViewTasksDialogVisible: false,
+      crawlConfirmDialogVisible: false,
 
       // tutorial
       tourSteps: [
@@ -622,6 +640,11 @@ export default {
         this.$refs['schedule-task-list'].update()
       }, 100)
       this.$st.sendEv('定时任务', '查看任务列表')
+    },
+    async onRun (row) {
+      this.crawlConfirmDialogVisible = true
+      this.$store.commit('schedule/SET_SCHEDULE_FORM', row)
+      this.$st.sendEv('定时任务', '点击运行任务')
     }
   },
   created () {
