@@ -285,7 +285,16 @@ const actions = {
   async getScheduleList ({ state, commit }, payload) {
     const { id } = payload
     const res = await request.get(`/spiders/${id}/schedules`)
-    commit('schedule/SET_SCHEDULE_LIST', res.data.data, { root: true })
+    let data = res.data.data
+    if (data) {
+      data = data.map(d => {
+        const arr = d.cron.split(' ')
+        arr.splice(0, 1)
+        d.cron = arr.join(' ')
+        return d
+      })
+    }
+    commit('schedule/SET_SCHEDULE_LIST', data, { root: true })
   },
   async getFileTree ({ state, commit }, payload) {
     const id = payload ? payload.id : state.spiderForm._id
