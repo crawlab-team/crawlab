@@ -623,9 +623,6 @@ func ExecuteTask(id int) {
 		return
 	}
 
-	// 完成任务收尾工作
-	go FinishUpTask(spider, t)
-
 	// 完成进程
 	t, err = model.GetTask(t.Id)
 	if err != nil {
@@ -652,6 +649,9 @@ func ExecuteTask(id int) {
 		log.Errorf(GetWorkerPrefix(id) + err.Error())
 		return
 	}
+
+	// 完成任务收尾工作
+	go FinishUpTask(spider, t)
 
 	// 结束计时
 	toc := time.Now()
