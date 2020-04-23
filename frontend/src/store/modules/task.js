@@ -1,5 +1,4 @@
 import request from '../../api/request'
-import utils from '../../utils'
 
 const state = {
   // TaskList
