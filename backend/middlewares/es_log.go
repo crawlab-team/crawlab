@@ -17,8 +17,6 @@ func EsLog(ctx context.Context, esClient *elastic.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 开始时间
 		crawlabIndex := viper.GetString("setting.crawlabLogIndex")
-		sig := make(chan struct{}, 1)
-		sig <- struct{}{}
 		start := time.Now()
 		// 处理请求
 		c.Next()
@@ -37,14 +35,13 @@ func EsLog(ctx context.Context, esClient *elastic.Client) gin.HandlerFunc {
 		accessLog := "costTime:" + latency + "ms--" + "StatusCode:" + statusCode + "--" + "Method:" + method + "--" + "ClientIp:" + clientIP + "--" +
 			"RequestURI:" + path + "--" + "Host:" + c.Request.Host + "--" + "UserAgent--" + c.Request.UserAgent() + "--RequestBody:" +
 			string(b)
-		WriteMsg(ctx, crawlabIndex, esClient, time.Now(), accessLog, sig)
+		WriteMsg(ctx, crawlabIndex, esClient, time.Now(), accessLog)
 	}
 
 }
 
 // WriteMsg will write the msg and level into es
-func WriteMsg(ctx context.Context, crawlabIndex string, es *elastic.Client, when time.Time, msg string, sig chan struct{}) error {
-	<-sig
+func WriteMsg(ctx context.Context, crawlabIndex string, es *elastic.Client, when time.Time, msg string) error {
 	vals := make(map[string]interface{})
 	vals["@timestamp"] = when.Format(time.RFC3339)
 	vals["@msg"] = msg
