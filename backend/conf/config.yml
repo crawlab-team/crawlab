@@ -46,6 +46,8 @@ setting:
   demoSpiders: "N"
   checkScrapy: "Y"
   autoInstall: "Y"
+  esClient: "" # Your ES client, for example, http://192.168.1.1:9200 or http://your-domain.com, if not use es, set empty
+  spiderLogIndex: "spider-log" # Index pattern for kibana, need to config on kibana
 notification:
   mail:
     server: ''

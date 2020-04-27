@@ -508,3 +508,4 @@ func UpdateTaskErrorLogs(taskId string, errorRegexPattern string) error {
 
 	return nil
 }
+

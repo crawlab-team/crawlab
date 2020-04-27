@@ -1,0 +1,39 @@
+name: "baidu_config"
+display_name: "百度搜索（可配置）"
+remark: "百度搜索Crawlab，列表+分页"
+type: "configurable"
+col: "results_baidu_config"
+engine: scrapy
+start_url: http://www.baidu.com/s?wd=crawlab
+start_stage: list
+stages:
+- name: list
+  is_list: true
+  list_css: ".result.c-container"
+  list_xpath: ""
+  page_css: "a.n"
+  page_xpath: ""
+  page_attr: href
+  fields:
+  - name: title
+    css: ""
+    xpath: .//h3/a
+    attr: ""
+    next_stage: ""
+    remark: ""
+  - name: url
+    css: ""
+    xpath: .//h3/a
+    attr: href
+    next_stage: ""
+    remark: ""
+  - name: abstract
+    css: ""
+    xpath: .//*[@class="c-abstract"]
+    attr: ""
+    next_stage: ""
+    remark: ""
+settings:
+  ROBOTSTXT_OBEY: "false"
+  USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML,
+    like Gecko) Chrome/78.0.3904.108 Safari/537.36

@@ -1,0 +1,5 @@
+name: "xueqiu"
+display_name: "雪球网 (Scrapy)"
+type: "customized"
+col: "results_xueqiu"
+cmd: "scrapy crawl xueqiu_spider"
