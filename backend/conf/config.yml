@@ -40,6 +40,8 @@ other:
   tmppath: "/tmp"
 version: 0.4.10
 setting:
+  crawlabLogToES: "N" # Send crawlab runtime log to ES, open this option "Y", remember to set esClient
+  crawlabLogIndex: "crawlab-log"
   allowRegister: "N"
   enableTutorial: "N"
   runOnMaster: "Y"

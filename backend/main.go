@@ -14,6 +14,7 @@ import (
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/olivere/elastic/v7"
 	"github.com/spf13/viper"
 	"net"
 	"net/http"
@@ -133,6 +134,15 @@ func main() {
 	// 以下为主节点服务
 	if model.IsMaster() {
 		// 中间件
+		esClientStr := viper.GetString("setting.esClient")
+		if viper.GetString("setting.crawlabLogToES") == "Y" && esClientStr != "" {
+			ctx := context.Background()
+			esClient, err := elastic.NewClient(elastic.SetURL(esClientStr), elastic.SetSniff(false))
+			if err != nil {
+				log.Error("Init es client Error:" + err.Error())
+			}
+			app.Use(middlewares.EsLog(ctx, esClient))
+		}
 		app.Use(middlewares.CORSMiddleware())
 		anonymousGroup := app.Group("/")
 		{
