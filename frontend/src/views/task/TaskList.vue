@@ -1,49 +1,76 @@
 <template>
   <div class="app-container">
+    <!--tour-->
+    <v-tour
+      name="task-list"
+      :steps="tourSteps"
+      :callbacks="tourCallbacks"
+      :options="$utils.tour.getOptions(true)"
+    />
+    <!--./tour-->
+
     <el-card style="border-radius: 0">
       <!--filter-->
       <div class="filter">
         <div class="left">
-          <el-select class="filter-select"
-                     v-model="filter.node_id"
-                     :placeholder="$t('Node')"
-                     filterable
-                     clearable
-                     @change="onSelectNode">
-            <el-option v-for="op in nodeList" :key="op._id" :value="op._id" :label="op.name"></el-option>
-          </el-select>
-          <el-select class="filter-select"
-                     v-model="filter.spider_id"
-                     :placeholder="$t('Spider')"
-                     filterable
-                     clearable
-                     @change="onSelectSpider">
-            <el-option v-for="op in spiderList" :key="op._id" :value="op._id" :label="op.name"></el-option>
-          </el-select>
-          <el-button type="success"
-                     icon="el-icon-search"
-                     class="refresh"
-                     @click="onRefresh">
-            {{$t('Search')}}
+          <el-form class="filter-form" :model="filter" label-width="100px" label-position="right" inline>
+            <el-form-item prop="node_id" :label="$t('Node')">
+              <el-select v-model="filter.node_id" size="small" :placeholder="$t('Node')" @change="onFilterChange">
+                <el-option value="" :label="$t('All')"/>
+                <el-option v-for="node in nodeList" :key="node._id" :value="node._id" :label="node.name"/>
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="spider_id" :label="$t('Spider')">
+              <el-select v-model="filter.spider_id" size="small" :placeholder="$t('Spider')" @change="onFilterChange"
+                         :disabled="isFilterSpiderDisabled">
+                <el-option value="" :label="$t('All')"/>
+                <el-option v-for="spider in spiderList" :key="spider._id" :value="spider._id" :label="spider.name"/>
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="status" :label="$t('Status')">
+              <el-select v-model="filter.status" size="small" :placeholder="$t('Status')" @change="onFilterChange">
+                <el-option value="" :label="$t('All')"></el-option>
+                <el-option value="pending" :label="$t('Pending')"></el-option>
+                <el-option value="running" :label="$t('Running')"></el-option>
+                <el-option value="finished" :label="$t('Finished')"></el-option>
+                <el-option value="error" :label="$t('Error')"></el-option>
+                <el-option value="cancelled" :label="$t('Cancelled')"></el-option>
+                <el-option value="abnormal" :label="$t('Abnormal')"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-form>
+        </div>
+        <div class="right">
+          <el-button class="btn-delete" @click="onRemoveMultipleTask" size="small" type="danger">
+            删除任务
           </el-button>
         </div>
-        <!--<div class="right">-->
-        <!--</div>-->
       </div>
       <!--./filter-->
 
+      <!--legend-->
+      <status-legend/>
+      <!--./legend-->
+
       <!--table list-->
-      <el-table :data="filteredTableData"
-                class="table"
-                :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
-                border>
+      <el-table
+        :data="filteredTableData"
+        ref="table"
+        class="table"
+        :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
+        border
+        row-key="_id"
+        @row-click="onRowClick"
+        @selection-change="onSelectionChange"
+      >
+        <el-table-column type="selection" width="45" align="center" reserve-selection/>
         <template v-for="col in columns">
           <el-table-column v-if="col.name === 'spider_name'"
                            :key="col.name"
                            :label="$t(col.label)"
                            :sortable="col.sortable"
                            :align="col.align"
-                           :width="col.width">
+          >
             <template slot-scope="scope">
               <a href="javascript:" class="a-tag" @click="onClickSpider(scope.row)">{{scope.row[col.name]}}</a>
             </template>
@@ -106,6 +133,19 @@
                            :width="col.width">
             <template slot-scope="scope">
               <status-tag :status="scope.row[col.name]"/>
+              <template
+                v-if="scope.row.error_log_count > 0"
+              >
+                <el-tooltip :content="$t('Log Errors') + ': ' + scope.row.error_log_count" placement="top">
+                  <el-tag
+                    type="danger"
+                    style="margin-left: 10px"
+                  >
+                    <i class="el-icon-warning"></i>
+                    <i class="el-icon-tickets"></i>
+                  </el-tag>
+                </el-tooltip>
+              </template>
             </template>
           </el-table-column>
           <el-table-column v-else
@@ -117,13 +157,18 @@
                            :width="col.width">
           </el-table-column>
         </template>
-        <el-table-column :label="$t('Action')" align="left" width="150" fixed="right">
+        <el-table-column :label="$t('Action')" align="left" fixed="right" width="150px">
           <template slot-scope="scope">
             <el-tooltip :content="$t('View')" placement="top">
               <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)"></el-button>
             </el-tooltip>
+            <el-tooltip :content="$t('Restart')" placement="top">
+              <el-button type="warning" icon="el-icon-refresh" size="mini"
+                         @click="onRestart(scope.row, $event)"></el-button>
+            </el-tooltip>
             <el-tooltip :content="$t('Remove')" placement="top">
-              <el-button type="danger" icon="el-icon-delete" size="mini" @click="onRemove(scope.row)"></el-button>
+              <el-button type="danger" icon="el-icon-delete" size="mini"
+                         @click="onRemove(scope.row, $event)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -150,10 +195,11 @@ import {
 } from 'vuex'
 import dayjs from 'dayjs'
 import StatusTag from '../../components/Status/StatusTag'
+import StatusLegend from '../../components/Status/StatusLegend'
 
 export default {
   name: 'TaskList',
-  components: { StatusTag },
+  components: { StatusLegend, StatusTag },
   data () {
     return {
       // setInterval handle
@@ -169,16 +215,64 @@ export default {
       columns: [
         { name: 'node_name', label: 'Node', width: '120' },
         { name: 'spider_name', label: 'Spider', width: '120' },
-        { name: 'status', label: 'Status', width: '120' },
-        { name: 'create_ts', label: 'Create Time', width: '100' },
+        { name: 'status', label: 'Status', width: '180' },
+        { name: 'param', label: 'Parameters', width: '120' },
+        // { name: 'create_ts', label: 'Create Time', width: '100' },
         { name: 'start_ts', label: 'Start Time', width: '100' },
         { name: 'finish_ts', label: 'Finish Time', width: '100' },
-        { name: 'wait_duration', label: 'Wait Duration (sec)', width: '80', align: 'right' },
-        { name: 'runtime_duration', label: 'Runtime Duration (sec)', width: '80', align: 'right' },
+        { name: 'wait_duration', label: 'Wait Duration (sec)', align: 'right' },
+        { name: 'runtime_duration', label: 'Runtime Duration (sec)', align: 'right' },
         { name: 'total_duration', label: 'Total Duration (sec)', width: '80', align: 'right' },
-        { name: 'result_count', label: 'Results Count', width: '80' }
+        { name: 'result_count', label: 'Results Count', width: '80' },
+        { name: 'username', label: 'Owner', width: '100' }
         // { name: 'avg_num_results', label: 'Average Results Count per Second', width: '80' }
-      ]
+      ],
+
+      multipleSelection: [],
+
+      // tutorial
+      tourSteps: [
+        {
+          target: '.filter-form',
+          content: this.$t('You can filter tasks from this area.')
+        },
+        {
+          target: '.table',
+          content: this.$t('This is a list of spider tasks executed sorted in a time descending order.')
+        },
+        {
+          target: '.table .el-table__body-wrapper tr:nth-child(1)',
+          content: this.$t('Click the row to or the view button to view the task detail.')
+        },
+        {
+          target: '.table tr td:nth-child(1)',
+          content: this.$t('Tick and select the tasks you would like to delete in batches.'),
+          params: {
+            placement: 'right'
+          }
+        },
+        {
+          target: '.btn-delete',
+          content: this.$t('Click this button to delete selected tasks.'),
+          params: {
+            placement: 'left'
+          }
+        }
+      ],
+
+      tourCallbacks: {
+        onStop: () => {
+          this.$utils.tour.finishTour('task-list')
+        },
+        onPreviousStep: (currentStep) => {
+          this.$utils.tour.prevStep('task-list', currentStep)
+        },
+        onNextStep: (currentStep) => {
+          this.$utils.tour.nextStep('task-list', currentStep)
+        }
+      },
+
+      isFilterSpiderDisabled: false
     }
   },
   computed: {
@@ -225,29 +319,49 @@ export default {
           }
           return false
         })
-      // .filter((d, index) => {
-      //   // pagination
-      //   const pageNum = this.pageNum
-      //   const pageSize = this.pageSize
-      //   return (pageSize * (pageNum - 1) <= index) && (index < pageSize * pageNum)
-      // })
     }
   },
   methods: {
     onSearch (value) {
-      console.log(value)
     },
     onRefresh () {
       this.$store.dispatch('task/getTaskList')
-      this.$st.sendEv('任务', '搜索')
+      this.$st.sendEv('任务列表', '搜索')
     },
-    onSelectNode () {
-      this.$st.sendEv('任务', '选择节点')
+    onRemoveMultipleTask () {
+      if (this.multipleSelection.length === 0) {
+        this.$message({
+          type: 'error',
+          message: '请选择要删除的任务'
+        })
+        return
+      }
+      this.$confirm('确定删除任务', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        let ids = this.multipleSelection.map(item => item._id)
+        this.$store.dispatch('task/deleteTaskMultiple', ids).then((resp) => {
+          if (resp.data.status === 'ok') {
+            this.$message({
+              type: 'success',
+              message: '删除任务成功'
+            })
+            this.$store.dispatch('task/getTaskList')
+            this.$refs['table'].clearSelection()
+            return
+          }
+          this.$message({
+            type: 'error',
+            message: resp.data.error
+          })
+        })
+      }).catch(() => {
+      })
     },
-    onSelectSpider () {
-      this.$st.sendEv('任务', '选择爬虫')
-    },
-    onRemove (row) {
+    onRemove (row, ev) {
+      ev.stopPropagation()
       this.$confirm(this.$t('Are you sure to delete this task?'), this.$t('Notification'), {
         confirmButtonText: this.$t('Confirm'),
         cancelButtonText: this.$t('Cancel'),
@@ -257,23 +371,40 @@ export default {
           .then(() => {
             this.$message({
               type: 'success',
-              message: 'Deleted successfully'
+              message: this.$t('Deleted successfully')
             })
           })
-        this.$st.sendEv('任务', '删除', 'id', row._id)
+        this.$st.sendEv('任务列表', '删除任务')
+      })
+    },
+    onRestart (row, ev) {
+      ev.stopPropagation()
+      this.$confirm(this.$t('Are you sure to restart this task?'), this.$t('Notification'), {
+        confirmButtonText: this.$t('Confirm'),
+        cancelButtonText: this.$t('Cancel'),
+        type: 'warning'
+      }).then(() => {
+        this.$store.dispatch('task/restartTask', row._id)
+          .then(() => {
+            this.$message({
+              type: 'success',
+              message: this.$t('Restarted successfully')
+            })
+          })
+        this.$st.sendEv('任务列表', '重新开始任务')
       })
     },
     onView (row) {
       this.$router.push(`/tasks/${row._id}`)
-      this.$st.sendEv('任务', '搜索', 'id', row._id)
+      this.$st.sendEv('任务列表', '查看任务')
     },
     onClickSpider (row) {
       this.$router.push(`/spiders/${row.spider_id}`)
-      this.$st.sendEv('任务', '点击爬虫详情', 'id', row.spider_id)
+      this.$st.sendEv('任务列表', '点击爬虫详情')
     },
     onClickNode (row) {
       this.$router.push(`/nodes/${row.node_id}`)
-      this.$st.sendEv('任务', '点击节点详情', 'id', row.node_id)
+      this.$st.sendEv('任务列表', '点击节点详情')
     },
     onPageChange () {
       setTimeout(() => {
@@ -295,6 +426,18 @@ export default {
     getTotalDuration (row) {
       if (row.finish_ts.match('^0001')) return 'NA'
       return dayjs(row.finish_ts).diff(row.create_ts, 'second')
+    },
+    onRowClick (row, event, column) {
+      if (column.label !== this.$t('Action')) {
+        this.onView(row)
+      }
+    },
+    onSelectionChange (val) {
+      this.multipleSelection = val
+    },
+    onFilterChange () {
+      this.$store.dispatch('task/getTaskList')
+      this.$st.sendEv('任务列表', '筛选任务')
     }
   },
   created () {
@@ -303,10 +446,13 @@ export default {
     this.$store.dispatch('node/getNodeList')
   },
   mounted () {
-    // request task list every 5 seconds
     this.handle = setInterval(() => {
       this.$store.dispatch('task/getTaskList')
     }, 5000)
+
+    if (!this.$utils.tour.isFinishedTour('task-list')) {
+      this.$utils.tour.startTour(this, 'task-list')
+    }
   },
   destroyed () {
     clearInterval(this.handle)
@@ -341,7 +487,7 @@ export default {
   }
 
   .table {
-    margin-top: 20px;
+    margin-top: 8px;
     border-radius: 5px;
 
     .el-button {
@@ -360,5 +506,15 @@ export default {
   .pagination {
     margin-top: 10px;
     text-align: right;
+  }
+</style>
+
+<style scoped>
+  .el-table >>> tr {
+    cursor: pointer;
+  }
+
+  .el-table >>> .el-badge .el-badge__content {
+    font-size: 7px;
   }
 </style>

@@ -6,6 +6,9 @@
 </template>
 
 <script>
+import {
+  mapState
+} from 'vuex'
 import DialogView from './components/Common/DialogView'
 
 export default {
@@ -19,38 +22,43 @@ export default {
     DialogView
   },
   computed: {
+    ...mapState('setting', ['setting']),
     useStats () {
       return localStorage.getItem('useStats')
+    },
+    uid () {
+      return localStorage.getItem('uid')
+    },
+    sid () {
+      return sessionStorage.getItem('sid')
     }
   },
   methods: {},
-  mounted () {
-    window.setUseStats = (value) => {
-      localStorage.setItem('useStats', value)
-      document.querySelector('.el-message__closeBtn').click()
-      if (value === 1) {
-        this.$st.sendPv('/allow_stats')
-        this.$st.sendEv('全局', '允许/禁止统计', 'value', 'allow')
-      } else {
-        this.$st.sendPv('/disallow_stats')
-        this.$st.sendEv('全局', '允许/禁止统计', 'value', 'disallow')
-      }
+  async mounted () {
+    // set uid if first visit
+    if (this.uid === undefined || this.uid === null) {
+      localStorage.setItem('uid', this.$utils.encrypt.UUID())
     }
 
-    // first-time user
-    if (this.useStats === undefined || this.useStats === null) {
-      this.$message({
-        type: 'info',
-        dangerouslyUseHTMLString: true,
-        showClose: true,
-        duration: 0,
-        message: '<p>' + this.$t('Do you allow us to collect some statistics to improve Crawlab?') + '</p>' +
-          '<div style="text-align: center;margin-top: 10px;">' +
-          '<button class="message-btn" onclick="setUseStats(1)">' + this.$t('Yes') + '</button>' +
-          '<button class="message-btn" onclick="setUseStats(0)">' + this.$t('No') + '</button>' +
-          '</div>'
-      })
+    // set session id if starting a session
+    if (this.sid === undefined || this.sid === null) {
+      sessionStorage.setItem('sid', this.$utils.encrypt.UUID())
     }
+
+    // get latest version
+    await this.$store.dispatch('version/getLatestRelease')
+
+    // get user info
+    await this.$store.dispatch('user/getInfo')
+
+    // remove loading-placeholder
+    const elLoading = document.querySelector('#loading-placeholder')
+    elLoading.remove()
+
+    // send visit event
+    await this.$request.put('/actions', {
+      type: 'visit'
+    })
   }
 }
 </script>
@@ -118,5 +126,24 @@ export default {
     background: #f56c6c;
     border-color: #f56c6c;
     color: #fff;
+  }
+
+  .v-tour__target--highlighted {
+    box-shadow: none !important;
+    /*box-shadow: 0 0 0 4px #f56c6c !important;*/
+    border: 3px solid #f56c6c !important;
+  }
+
+  .v-step__button {
+    background: #67c23a !important;
+    border: none !important;
+    color: white !important;
+  }
+
+  .v-step__button:hover {
+    background: #67c23a !important;
+    border: none !important;
+    color: white !important;
+    opacity: 0.9 !important;
   }
 </style>

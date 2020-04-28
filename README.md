@@ -1,72 +1,87 @@
 # Crawlab
 
-![](http://114.67.75.98:8082/buildStatus/icon?job=crawlab%2Fdevelop)
-![](https://img.shields.io/badge/version-v0.3.0-blue.svg)
-<a href="https://github.com/tikazyq/crawlab/blob/master/LICENSE" target="_blank">
-    <img src="https://img.shields.io/badge/license-BSD-blue.svg">
-</a>
+<p>
+  <a href="https://hub.docker.com/r/tikazyq/crawlab/builds" target="_blank">
+    <img src="https://github.com/crawlab-team/crawlab/workflows/Docker/badge.svg">
+  </a>
+  <a href="https://hub.docker.com/r/tikazyq/crawlab" target="_blank">
+    <img src="https://img.shields.io/docker/pulls/tikazyq/crawlab?label=pulls&logo=docker">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/releases" target="_blank">
+    <img src="https://img.shields.io/github/release/crawlab-team/crawlab.svg?logo=github">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/commits/master" target="_blank">
+    <img src="https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/issues?q=is%3Aissue+is%3Aopen+label%3Abug" target="_blank">
+    <img src="https://img.shields.io/github/issues/crawlab-team/crawlab/bug.svg?label=bugs&color=red">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement" target="_blank">
+    <img src="https://img.shields.io/github/issues/crawlab-team/crawlab/enhancement.svg?label=enhancements&color=cyan">
+  </a>
+  <a href="https://github.com/crawlab-team/crawlab/blob/master/LICENSE" target="_blank">
+    <img src="https://img.shields.io/github/license/crawlab-team/crawlab.svg">
+  </a>
+</p>
 
-[中文](https://github.com/tikazyq/crawlab/blob/master/README-zh.md) | English
+[中文](https://github.com/crawlab-team/crawlab/blob/master/README-zh.md) | English
 
-[Installation](#installation) | [Run](#run) | [Screenshot](#screenshot) | [Architecture](#architecture) | [Integration](#integration-with-other-frameworks) | [Compare](#comparison-with-other-frameworks) | [Community & Sponsorship](#community--sponsorship)
+[Installation](#installation) | [Run](#run) | [Screenshot](#screenshot) | [Architecture](#architecture) | [Integration](#integration-with-other-frameworks) | [Compare](#comparison-with-other-frameworks) | [Community & Sponsorship](#community--sponsorship) | [CHANGELOG](https://github.com/crawlab-team/crawlab/blob/master/CHANGELOG.md) | [Disclaimer](https://github.com/crawlab-team/crawlab/blob/master/DISCLAIMER.md)
 
 Golang-based distributed web crawler management platform, supporting various languages including Python, NodeJS, Go, Java, PHP and various web crawler frameworks including Scrapy, Puppeteer, Selenium.
 
-[Demo](http://crawlab.cn:8080) | [Documentation](https://tikazyq.github.io/crawlab-docs)
+[Demo](http://crawlab.cn/demo) | [Documentation](http://docs.crawlab.cn)
 
 ## Installation
 
-Two methods:
-1. [Docker](https://tikazyq.github.io/crawlab/Installation/Docker.html) (Recommended)
-2. [Direct Deploy](https://tikazyq.github.io/crawlab/Installation/Direct.html) (Check Internal Kernel)
+Three methods:
+1. [Docker](http://docs.crawlab.cn/Installation/Docker.html) (Recommended)
+2. [Direct Deploy](http://docs.crawlab.cn/Installation/Direct.html) (Check Internal Kernel)
+3. [Kubernetes](http://docs.crawlab.cn/Installation/Kubernetes.html) (Multi-Node Deployment)
 
 ### Pre-requisite (Docker)
 - Docker 18.03+
-- Redis
+- Redis 5.x+
 - MongoDB 3.6+
+- Docker Compose 1.24+ (optional but recommended)
 
 ### Pre-requisite (Direct Deploy)
 - Go 1.12+
 - Node 8.12+
-- Redis
+- Redis 5.x+
 - MongoDB 3.6+
+
+## Quick Start
+
+Please open the command line prompt and execute the command below. Make sure you have installed `docker-compose` in advance.
+
+```bash
+git clone https://github.com/crawlab-team/crawlab
+cd crawlab
+docker-compose up -d
+```
+
+Next, you can look into the `docker-compose.yml` (with detailed config params) and the [Documentation (Chinese)](http://docs.crawlab.cn) for further information. 
 
 ## Run
 
 ### Docker
 
-Run Master Node for example. `192.168.99.1` is the host machine IP address in Docker Machine network. `192.168.99.100` is the Master Node's IP address. 
-
-```bash
-docker run -d --rm --name crawlab \
-        -e CRAWLAB_REDIS_ADDRESS=192.168.99.1 \
-        -e CRAWLAB_MONGO_HOST=192.168.99.1 \
-        -e CRAWLAB_SERVER_MASTER=Y \
-        -e CRAWLAB_API_ADDRESS=192.168.99.100:8000 \
-        -e CRAWLAB_SPIDER_PATH=/app/spiders \
-        -p 8080:8080 \
-        -p 8000:8000 \
-        -v /var/logs/crawlab:/var/logs/crawlab \
-        tikazyq/crawlab:0.3.0
-```
-
-Surely you can use `docker-compose` to one-click to start up. By doing so, you don't even have to configure MongoDB and Redis databases. Create a file named `docker-compose.yml` and input the code below.
+Please use `docker-compose` to one-click to start up. By doing so, you don't even have to configure MongoDB and Redis databases. Create a file named `docker-compose.yml` and input the code below.
 
 
-```bash
+```yaml
 version: '3.3'
 services:
   master: 
     image: tikazyq/crawlab:latest
     container_name: master
     environment:
-      CRAWLAB_API_ADDRESS: "localhost:8000"
       CRAWLAB_SERVER_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
       CRAWLAB_REDIS_ADDRESS: "redis"
     ports:    
-      - "8080:8080" # frontend
-      - "8000:8000" # backend
+      - "8080:8080"
     depends_on:
       - mongo
       - redis
@@ -88,56 +103,72 @@ Then execute the command below, and Crawlab Master Node + MongoDB + Redis will s
 docker-compose up
 ```
 
-For Docker Deployment details, please refer to [relevant documentation](https://tikazyq.github.io/crawlab/Installation/Docker.html).
+For Docker Deployment details, please refer to [relevant documentation](https://tikazyq.github.io/crawlab-docs/Installation/Docker.html).
 
 
 ## Screenshot
 
 #### Login
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/login.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/login.png)
 
 #### Home Page
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/home.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/home.png)
 
 #### Node List
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-list.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/node-list.png)
 
 #### Node Network
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/node-network.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/node-network.png)
 
 #### Spider List
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-list.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-list.png)
 
 #### Spider Overview
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-overview.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-overview.png)
 
 #### Spider Analytics
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-analytics.png?v0.3.0">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/spider-analytics.png)
 
-#### Spider Files
+#### Spider File Edit
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/spider-file.png?v0.3.0">
+![](http://static-docs.crawlab.cn/file-edit.png)
+
+#### Task Log
+
+![](http://static-docs.crawlab.cn/task-log2.png)
 
 #### Task Results
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/task-results.png?v0.3.0_1">
+![](https://raw.githubusercontent.com/tikazyq/crawlab-docs/master/images/task-results.png)
 
 #### Cron Job
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/schedule.png?v0.3.0">
+![](http://static-docs.crawlab.cn/schedule-v0.4.4.png)
+
+#### Language Installation
+
+![](http://static-docs.crawlab.cn/node-install-langs.png)
+
+#### Dependency Installation
+
+![](http://static-docs.crawlab.cn/node-install-dependencies.png)
+
+#### Notifications
+
+<img src="http://static-docs.crawlab.cn/notification-mobile.jpeg" height="480px">
 
 ## Architecture
 
 The architecture of Crawlab is consisted of the Master Node and multiple Worker Nodes, and Redis and MongoDB databases which are mainly for nodes communication and data storage.
 
-<img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/v0.3.0/architecture.png">
+![](http://static-docs.crawlab.cn/architecture.png)
 
 The frontend app makes requests to the Master Node, which assigns tasks and deploys spiders through MongoDB and Redis. When a Worker Node receives a task, it begins to execute the crawling task, and stores the results to MongoDB. The architecture is much more concise compared with versions before `v0.3.0`. It has removed unnecessary Flower module which offers node monitoring services. They are now done by Redis.
 
@@ -169,54 +200,81 @@ Redis is a very popular Key-Value database. It offers node communication service
 ### Frontend
 
 Frontend is a SPA based on 
-[Vue-Element-Admin](https://github.com/PanJiaChen/vue-element-admin). It has re-used many Element-UI components to support correspoinding display. 
+[Vue-Element-Admin](https://github.com/PanJiaChen/vue-element-admin). It has re-used many Element-UI components to support corresponding display. 
 
 ## Integration with Other Frameworks
 
-A crawling task is actually executed through a shell command. The Task ID will be passed to the crawling task process in the form of environment variable named `CRAWLAB_TASK_ID`. By doing so, the data can be related to a task. Also, another environment variable `CRAWLAB_COLLECTION` is passed by Crawlab as the name of the collection to store results data.
+[Crawlab SDK](https://github.com/crawlab-team/crawlab-sdk) provides some `helper` methods to make it easier for you to integrate your spiders into Crawlab, e.g. saving results.
+
+⚠️Note: make sure you have already installed `crawlab-sdk` using pip.
 
 ### Scrapy
 
-Below is an example to integrate Crawlab with Scrapy in pipelines. 
+In `settings.py` in your Scrapy project, find the variable named `ITEM_PIPELINES` (a `dict` variable). Add content below.
 
 ```python
-import os
-from pymongo import MongoClient
-
-MONGO_HOST = '192.168.99.100'
-MONGO_PORT = 27017
-MONGO_DB = 'crawlab_test'
-
-# scrapy example in the pipeline
-class JuejinPipeline(object):
-    mongo = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
-    db = mongo[MONGO_DB]
-    col_name = os.environ.get('CRAWLAB_COLLECTION')
-    if not col_name:
-        col_name = 'test'
-    col = db[col_name]
-
-    def process_item(self, item, spider):
-        item['task_id'] = os.environ.get('CRAWLAB_TASK_ID')
-        self.col.save(item)
-        return item
+ITEM_PIPELINES = {
+    'crawlab.pipelines.CrawlabMongoPipeline': 888,
+}
 ```
+
+Then, start the Scrapy spider. After it's done, you should be able to see scraped results in **Task Detail -> Result**
+
+### General Python Spider
+
+Please add below content to your spider files to save results.
+
+```python
+# import result saving method
+from crawlab import save_item
+
+# this is a result record, must be dict type
+result = {'name': 'crawlab'}
+
+# call result saving method
+save_item(result)
+```
+
+Then, start the spider. After it's done, you should be able to see scraped results in **Task Detail -> Result**
+
+### Other Frameworks / Languages
+
+A crawling task is actually executed through a shell command. The Task ID will be passed to the crawling task process in the form of environment variable named `CRAWLAB_TASK_ID`. By doing so, the data can be related to a task. Also, another environment variable `CRAWLAB_COLLECTION` is passed by Crawlab as the name of the collection to store results data.
 
 ## Comparison with Other Frameworks
 
 There are existing spider management frameworks. So why use Crawlab? 
 
-The reason is that most of the existing platforms are depending on Scrapyd, which limits the choice only within python and scrapy. Surely scrapy is a great web crawl frameowrk, but it cannot do everything. 
+The reason is that most of the existing platforms are depending on Scrapyd, which limits the choice only within python and scrapy. Surely scrapy is a great web crawl framework, but it cannot do everything. 
 
 Crawlab is easy to use, general enough to adapt spiders in any language and any framework. It has also a beautiful frontend interface for users to manage spiders much more easily. 
 
-|Framework | Type | Distributed | Frontend | Scrapyd-Dependent |
-|:---:|:---:|:---:|:---:|:---:|
-| [Crawlab](https://github.com/tikazyq/crawlab) | Admin Platform | Y | Y | N
-| [ScrapydWeb](https://github.com/my8100/scrapydweb) | Admin Platform | Y | Y | Y
-| [SpiderKeeper](https://github.com/DormyMo/SpiderKeeper) | Admin Platform | Y | Y | Y
-| [Gerapy](https://github.com/Gerapy/Gerapy) | Admin Platform | Y | Y | Y
-| [Scrapyd](https://github.com/scrapy/scrapyd) | Web Service | Y | N | N/A
+|Framework | Technology | Pros | Cons | Github Stats |
+|:---|:---|:---|-----| :---- |
+| [Crawlab](https://github.com/crawlab-team/crawlab) | Golang + Vue|Not limited to Scrapy, available for all programming languages and frameworks. Beautiful UI interface. Naturally support distributed spiders. Support spider management, task management, cron job, result export, analytics, notifications, configurable spiders, online code editor, etc.|Not yet support spider versioning| ![](https://img.shields.io/github/stars/crawlab-team/crawlab) ![](https://img.shields.io/github/forks/crawlab-team/crawlab) |
+| [ScrapydWeb](https://github.com/my8100/scrapydweb) | Python Flask + Vue|Beautiful UI interface, built-in Scrapy log parser, stats and graphs for task execution, support node management, cron job, mail notification, mobile. Full-feature spider management platform.|Not support spiders other than Scrapy. Limited performance because of Python Flask backend.| ![](https://img.shields.io/github/stars/my8100/scrapydweb) ![](https://img.shields.io/github/forks/my8100/scrapydweb) |
+| [Gerapy](https://github.com/Gerapy/Gerapy) | Python Django + Vue|Gerapy is built by web crawler guru [Germey Cui](https://github.com/Germey). Simple installation and deployment. Beautiful UI interface. Support node management, code edit, configurable crawl rules, etc.|Again not support spiders other than Scrapy. A lot of bugs based on user feedback in v1.0. Look forward to improvement in v2.0| ![](https://img.shields.io/github/stars/Gerapy/Gerapy) ![](https://img.shields.io/github/forks/Gerapy/Gerapy) |
+| [SpiderKeeper](https://github.com/DormyMo/SpiderKeeper) | Python Flask|Open-source Scrapyhub. Concise and simple UI interface. Support cron job.|Perhaps too simplified, not support pagination, not support node management, not support spiders other than Scrapy.| ![](https://img.shields.io/github/stars/DormyMo/SpiderKeeper) ![](https://img.shields.io/github/forks/DormyMo/SpiderKeeper) |
+
+## Contributors
+<a href="https://github.com/tikazyq">
+  <img src="https://avatars3.githubusercontent.com/u/3393101?s=460&v=4" height="80">
+</a>
+<a href="https://github.com/wo10378931">
+  <img src="https://avatars2.githubusercontent.com/u/8297691?s=460&v=4" height="80">
+</a>
+<a href="https://github.com/yaziming">
+  <img src="https://avatars2.githubusercontent.com/u/54052849?s=460&v=4" height="80">
+</a>
+<a href="https://github.com/hantmac">
+  <img src="https://avatars2.githubusercontent.com/u/7600925?s=460&v=4" height="80">
+</a>
+<a href="https://github.com/duanbin0414">
+  <img src="https://avatars3.githubusercontent.com/u/50389867?s=460&v=4" height="80">
+</a>
+<a href="https://github.com/zkqiang">
+  <img src="https://avatars3.githubusercontent.com/u/32983588?s=460&u=83082ddc0a3020279374b94cce70f1aebb220b3d&v=4" height="80">
+</a>
 
 ## Community & Sponsorship
 

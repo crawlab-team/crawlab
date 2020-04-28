@@ -1,0 +1,5 @@
+name: "jd_mask"
+display_name: "京东口罩 (Puppeteer)"
+col: "results_jd"
+type: "customized"
+cmd: "dumb-init -- node jd_mask_spider.js"

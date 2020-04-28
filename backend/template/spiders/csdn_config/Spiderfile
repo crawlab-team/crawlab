@@ -1,0 +1,60 @@
+name: "csdn_config"
+display_name: "CSDN（可配置）"
+remark: "CSDN Crawlab 文章，列表+详情+分页"
+type: "configurable"
+col: "results_csdn_config"
+engine: scrapy
+start_url: https://so.csdn.net/so/search/s.do?q=crawlab
+start_stage: list
+stages:
+- name: list
+  is_list: true
+  list_css: .search-list-con > .search-list
+  list_xpath: ""
+  page_css: a.btn-next
+  page_xpath: ""
+  page_attr: href
+  fields:
+  - name: url
+    css: ""
+    xpath: .//*[@class="limit_width"]/a
+    attr: href
+    next_stage: detail
+    remark: ""
+- name: detail
+  is_list: false
+  list_css: ""
+  list_xpath: ""
+  page_css: ""
+  page_xpath: ""
+  page_attr: ""
+  fields:
+  - name: content
+    css: ""
+    xpath: .//div[@id="content_views"]
+    attr: ""
+    next_stage: ""
+    remark: ""
+  - name: views
+    css: .read-count
+    xpath: ""
+    attr: ""
+    next_stage: ""
+    remark: ""
+  - name: title
+    css: .title-article
+    xpath: ""
+    attr: ""
+    next_stage: ""
+    remark: ""
+  - name: author
+    css: .follow-nickName
+    xpath: ""
+    attr: ""
+    next_stage: ""
+    remark: ""
+settings:
+  AUTOTHROTTLE_ENABLED: "false"
+  ROBOTSTXT_OBEY: "false"
+  USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML,
+    like Gecko) Chrome/79.0.3945.117 Safari/537.36

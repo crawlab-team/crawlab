@@ -1,12 +1,18 @@
 <template>
-  <codemirror
-    class="file-content"
-    :options="options"
-    v-model="fileContent"
-  />
+  <div class="file-detail">
+    <codemirror
+      class="file-content"
+      :options="options"
+      v-model="fileContent"
+    />
+  </div>
 </template>
 
 <script>
+import {
+  mapState,
+  mapGetters
+} from 'vuex'
 import { codemirror } from 'vue-codemirror-lite'
 
 import 'codemirror/lib/codemirror.js'
@@ -18,6 +24,7 @@ import 'codemirror/mode/go/go.js'
 import 'codemirror/mode/shell/shell.js'
 import 'codemirror/mode/markdown/markdown.js'
 import 'codemirror/mode/php/php.js'
+import 'codemirror/mode/yaml/yaml.js'
 
 export default {
   name: 'FileDetail',
@@ -28,6 +35,12 @@ export default {
     }
   },
   computed: {
+    ...mapState('spider', [
+      'spiderForm'
+    ]),
+    ...mapGetters('user', [
+      'userInfo'
+    ]),
     fileContent: {
       get () {
         return this.$store.state.file.fileContent
@@ -38,16 +51,20 @@ export default {
     },
     options () {
       return {
-        mode: this.lanaguage,
+        mode: this.language,
         theme: 'darcula',
         styleActiveLine: true,
+        smartIndent: true,
+        indentUnit: 4,
         lineNumbers: true,
         line: true,
-        matchBrackets: true
+        matchBrackets: true,
+        readOnly: this.isDisabled ? 'nocursor' : false
       }
     },
-    lanaguage () {
+    language () {
       const fileName = this.$store.state.file.currentPath
+      if (!fileName) return ''
       if (fileName.match(/\.js$/)) {
         return 'text/javascript'
       } else if (fileName.match(/\.py$/)) {
@@ -60,9 +77,14 @@ export default {
         return 'text/x-php'
       } else if (fileName.match(/\.md$/)) {
         return 'text/x-markdown'
+      } else if (fileName.match('Spiderfile')) {
+        return 'text/x-yaml'
       } else {
         return 'text'
       }
+    },
+    isDisabled () {
+      return this.spiderForm.is_public && this.spiderForm.username !== this.userInfo.username && this.userInfo.role !== 'admin'
     }
   },
   created () {
@@ -74,7 +96,7 @@ export default {
 <style scoped>
   .file-content {
     border: 1px solid #eaecef;
-    height: 480px;
+    height: calc(100vh - 256px);
   }
 
   .file-content >>> .CodeMirror {

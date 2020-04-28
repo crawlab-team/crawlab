@@ -16,9 +16,22 @@ type User struct {
 	Username string        `json:"username" bson:"username"`
 	Password string        `json:"password" bson:"password"`
 	Role     string        `json:"role" bson:"role"`
+	Email    string        `json:"email" bson:"email"`
+	Setting  UserSetting   `json:"setting" bson:"setting"`
 
-	CreateTs time.Time `json:"create_ts" bson:"create_ts"`
-	UpdateTs time.Time `json:"update_ts" bson:"update_ts"`
+	UserId   bson.ObjectId `json:"user_id" bson:"user_id"`
+	CreateTs time.Time     `json:"create_ts" bson:"create_ts"`
+	UpdateTs time.Time     `json:"update_ts" bson:"update_ts"`
+}
+
+type UserSetting struct {
+	NotificationTrigger  string   `json:"notification_trigger" bson:"notification_trigger"`
+	DingTalkRobotWebhook string   `json:"ding_talk_robot_webhook" bson:"ding_talk_robot_webhook"`
+	WechatRobotWebhook   string   `json:"wechat_robot_webhook" bson:"wechat_robot_webhook"`
+	EnabledNotifications []string `json:"enabled_notifications" bson:"enabled_notifications"`
+	ErrorRegexPattern    string   `json:"error_regex_pattern" bson:"error_regex_pattern"`
+	MaxErrorLog          int      `json:"max_error_log" bson:"max_error_log"`
+	LogExpireDuration    int64    `json:"log_expire_duration" bson:"log_expire_duration"`
 }
 
 func (user *User) Save() error {

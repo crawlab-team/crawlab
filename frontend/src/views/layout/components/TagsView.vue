@@ -9,6 +9,7 @@
         :key="tag.path"
         tag="span"
         class="tags-view-item"
+        @click.native="clickSelectedTag(tag)"
         @click.middle.native="closeSelectedTag(tag)"
         @contextmenu.prevent.native="openMenu(tag,$event)">
         {{ $t(generateTitle(tag.title)) }}
@@ -110,30 +111,36 @@ export default {
     },
     moveToCurrentTag () {
       const tags = this.$refs.tag
-      this.$nextTick(() => {
-        for (const tag of tags) {
-          if (tag.to.path === this.$route.path) {
-            this.$refs.scrollPane.moveToTarget(tag)
+      if (tags) {
+        this.$nextTick(() => {
+          for (const tag of tags) {
+            if (tag.to.path === this.$route.path) {
+              this.$refs.scrollPane.moveToTarget(tag)
 
-            // when query is different then update
-            if (tag.to.fullPath !== this.$route.fullPath) {
-              this.$store.dispatch('updateVisitedView', this.$route)
+              // when query is different then update
+              if (tag.to.fullPath !== this.$route.fullPath) {
+                this.$store.dispatch('updateVisitedView', this.$route)
+              }
+
+              break
             }
-
-            break
           }
-        }
-      })
+        })
+      }
     },
     refreshSelectedTag (view) {
       this.$store.dispatch('delCachedView', view).then(() => {
         const { fullPath } = view
+        console.log('fullPath', fullPath)
         this.$nextTick(() => {
           this.$router.replace({
-            path: '/redirect' + fullPath
+            path: fullPath
           })
         })
       })
+    },
+    clickSelectedTag (tag) {
+      this.$st.sendEv('全局', '点击标签', tag.name)
     },
     closeSelectedTag (view) {
       this.$store.dispatch('delView', view).then(({ visitedViews }) => {

@@ -22,7 +22,7 @@
       </el-form>
     </el-row>
     <el-row class="button-container" v-if="!isView">
-      <el-button type="success" @click="onSave">{{$t('Save')}}</el-button>
+      <el-button size="small" type="success" @click="onSave">{{$t('Save')}}</el-button>
     </el-row>
   </div>
 </template>
@@ -55,7 +55,7 @@ export default {
             })
         }
       })
-      this.$st.sendEv('节点详情', '保存')
+      this.$st.sendEv('节点详情', '概览', '保存')
     }
   }
 }

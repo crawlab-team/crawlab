@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: crawlab-worker
+  namespace: crawlab-release
+spec:
+  serviceName: crawlab-worker
+  replicas: 2
+  selector:
+    matchLabels:
+      app: crawlab-worker
+  template:
+    metadata:
+      labels:
+        app: crawlab-worker
+    spec:
+      containers:
+      - image: tikazyq/crawlab:release
+        imagePullPolicy: Always
+        name: crawlab
+        env:
+        - name: CRAWLAB_SERVER_MASTER
+          value: "N"
+        - name: CRAWLAB_MONGO_HOST
+          value: "mongo"
+        - name: CRAWLAB_REDIS_ADDRESS
+          value: "redis"
+        - name: CRAWLAB_SERVER_LANG_NODE
+          value: "N"
+        - name: CRAWLAB_SERVER_LANG_JAVA
+          value: "N"
+        - name: CRAWLAB_SERVER_LANG_DOTNET
+          value: "N"
+        - name: CRAWLAB_SERVER_REGISTER_TYPE
+          value: "hostname"

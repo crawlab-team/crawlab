@@ -4,7 +4,7 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on"
              label-position="left">
       <h3 class="title">
-        CRAWLAB
+        <span><img style="width:48px;margin-bottom:-5px;margin-right:2px" src="../../assets/logo.svg"></span>RAWLAB
       </h3>
       <el-form-item prop="username" style="margin-bottom: 28px;">
         <el-input
@@ -34,6 +34,14 @@
           @keyup.enter.native="onKeyEnter"
         />
       </el-form-item>
+      <el-form-item v-if="isSignUp" prop="email" style="margin-bottom: 28px;">
+        <el-input
+          v-model="loginForm.email"
+          name="email"
+          :placeholder="$t('Email')"
+          @keyup.enter.native="onKeyEnter"
+        />
+      </el-form-item>
       <el-form-item style="border: none">
         <el-button v-if="isSignUp" :loading="loading" type="primary" style="width:100%;"
                    @click.native.prevent="handleSignup">
@@ -48,7 +56,7 @@
         <div class="left">
           <span v-if="!isSignUp" class="forgot-password">{{$t('Forgot Password')}}</span>
         </div>
-        <div class="right">
+        <div class="right" v-if="setting.allow_register === 'Y'">
           <span v-if="isSignUp">{{$t('Has Account')}}, </span>
           <span v-if="isSignUp" class="sign-in" @click="$router.push('/login')">{{$t('Sign-in')}} ></span>
           <span v-if="!isSignUp">{{$t('New to Crawlab')}}, </span>
@@ -57,15 +65,31 @@
       </div>
       <div class="tips">
         <span>{{$t('Initial Username/Password')}}: admin/admin</span>
-        <a href="https://github.com/tikazyq/crawlab" target="_blank" style="float:right">
-          <img src="https://img.shields.io/badge/github-crawlab-blue">
+        <a href="https://github.com/crawlab-team/crawlab" target="_blank" style="float:right">
+          <img src="https://img.shields.io/github/stars/crawlab-team/crawlab?logo=github">
         </a>
+      </div>
+      <div class="lang">
+        <span @click="setLang('zh')" :class="lang==='zh'?'active':''">中文</span>
+        |
+        <span @click="setLang('en')" :class="lang==='en'?'active':''">English</span>
+      </div>
+      <div class="documentation">
+        <a href="http://docs.crawlab.cn" target="_blank">{{$t('Documentation')}}</a>
+      </div>
+      <div v-if="isShowMobileWarning" class="mobile-warning">
+        <el-alert type="error" :closable="false">
+          {{$t('You are running on a mobile device, which is not optimized yet. Please try with a laptop or desktop.')}}
+        </el-alert>
       </div>
     </el-form>
   </div>
 </template>
 
 <script>
+import {
+  mapState
+} from 'vuex'
 import { isValidUsername } from '../../utils/validate'
 
 export default {
@@ -97,7 +121,8 @@ export default {
       loginForm: {
         username: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        email: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -105,10 +130,17 @@ export default {
         confirmPassword: [{ required: true, trigger: 'blur', validator: validateConfirmPass }]
       },
       loading: false,
-      pwdType: 'password'
+      pwdType: 'password',
+      isShowMobileWarning: false
     }
   },
   computed: {
+    ...mapState('setting', [
+      'setting'
+    ]),
+    ...mapState('lang', [
+      'lang'
+    ]),
     isSignUp () {
       return this.$route.path === '/signup'
     },
@@ -118,18 +150,41 @@ export default {
   },
   methods: {
     handleLogin () {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
-            this.loading = false
-            this.$router.push({ path: this.redirect || '/' })
-            this.$store.dispatch('user/getInfo')
-          }).catch(() => {
-            this.$message.error(this.$t('Error when logging in (Please check username and password)'))
-            this.loading = false
+      this.$refs.loginForm.validate(async valid => {
+        if (!valid) return
+        this.loading = true
+        const res = await this.$store.dispatch('user/login', this.loginForm)
+        if (res.status === 200) {
+          // success
+          this.$router.push({ path: this.redirect || '/' })
+          this.$st.sendEv('全局', '登录', '成功')
+          await this.$store.dispatch('user/getInfo')
+        } else if (res.message === 'Network Error' || !res.response) {
+          // no response
+          this.$message({
+            type: 'error',
+            message: this.$t('No response from the server. Please make sure your server is running correctly. You can also refer to the documentation to solve this issue.'),
+            customClass: 'message-error',
+            duration: 5000
           })
+          this.$st.sendEv('全局', '登录', '服务器无响应')
+        } else if (res.response.status === 401) {
+          // incorrect username or password
+          this.$message({
+            type: 'error',
+            message: '[401] ' + this.$t('Incorrect username or password')
+          })
+          this.$st.sendEv('全局', '登录', '用户名密码错误')
+        } else {
+          // other error
+          this.$message({
+            type: 'error',
+            message: `[${res.response.status}] ${res.response.data.error}`,
+            customClass: 'message-error'
+          })
+          this.$st.sendEv('全局', '登录', '其他错误')
         }
+        this.loading = false
       })
     },
     handleSignup () {
@@ -139,9 +194,11 @@ export default {
           this.$store.dispatch('user/register', this.loginForm).then(() => {
             this.handleLogin()
             this.loading = false
+            this.$st.sendEv('全局', '注册', '成功')
           }).catch(err => {
             this.$message.error(this.$t(err))
             this.loading = false
+            this.$st.sendEv('全局', '注册', '失败')
           })
         }
       })
@@ -149,10 +206,19 @@ export default {
     onKeyEnter () {
       const func = this.isSignUp ? this.handleSignup : this.handleLogin
       func()
+    },
+    setLang (lang) {
+      window.localStorage.setItem('lang', lang)
+      this.$set(this.$i18n, 'locale', lang)
+      this.$store.commit('lang/SET_LANG', lang)
     }
   },
   mounted () {
-    initCanvas()
+    if (window.innerWidth >= 1024) {
+      initCanvas()
+    } else {
+      this.isShowMobileWarning = true
+    }
   }
 }
 
@@ -322,10 +388,15 @@ const initCanvas = () => {
       left: 0;
     }
   }
+
+  .message-error .el-message__content {
+    width: 360px;
+    line-height: 18px;
+  }
 </style>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  $bg: transparent;
+  $bg: white;
   $dark_gray: #889aa4;
   $light_gray: #aaa;
   .login-container {
@@ -374,6 +445,7 @@ const initCanvas = () => {
       color: #409EFF;
       margin: 0px auto 20px auto;
       text-align: center;
+      cursor: default;
     }
 
     .show-pwd {
@@ -407,5 +479,48 @@ const initCanvas = () => {
         font-weight: 600;
       }
     }
+
+    .lang {
+      margin-top: 20px;
+      text-align: center;
+      color: #666;
+
+      span {
+        cursor: pointer;
+        margin: 10px;
+        font-size: 14px;
+      }
+
+      span.active {
+        font-weight: 600;
+        text-decoration: underline;
+      }
+
+      span:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .documentation {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #409eff;
+      font-weight: bolder;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .mobile-warning {
+      margin-top: 20px;
+    }
+
+  }
+</style>
+<style scoped>
+  .mobile-warning >>> .el-alert .el-alert__description {
+    font-size: 1.2rem;
   }
 </style>

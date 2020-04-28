@@ -5,46 +5,50 @@ import (
 	"crawlab/model"
 	"crawlab/utils"
 	"errors"
-	"github.com/apex/log"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
 	"github.com/spf13/viper"
-	"runtime/debug"
+	"strings"
 	"time"
 )
 
 func InitUserService() error {
-	adminUser := model.User{
-		Username: "admin",
-		Password: utils.EncryptPassword("admin"),
-		Role:     constants.RoleAdmin,
-	}
-	if err := adminUser.Add(); err != nil {
-		// pass
-	}
+	_ = CreateNewUser("admin", "admin", constants.RoleAdmin, "", bson.ObjectIdHex(constants.ObjectIdNull))
 	return nil
 }
 
-func GetToken(username string) (tokenStr string, err error) {
-	user, err := model.GetUserByUsername(username)
-	if err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
-	}
-
+func MakeToken(user *model.User) (tokenStr string, err error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":       user.Id,
 		"username": user.Username,
 		"nbf":      time.Now().Unix(),
 	})
 
-	tokenStr, err = token.SignedString([]byte(viper.GetString("server.secret")))
-	if err != nil {
-		return
-	}
-	return
+	return token.SignedString([]byte(viper.GetString("server.secret")))
+
 }
+
+//func GetToken(username string) (tokenStr string, err error) {
+//	user, err := model.GetUserByUsername(username)
+//	if err != nil {
+//		log.Errorf(err.Error())
+//		debug.PrintStack()
+//		return
+//	}
+//
+//	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+//		"id":       user.Id,
+//		"username": user.Username,
+//		"nbf":      time.Now().Unix(),
+//	})
+//
+//	tokenStr, err = token.SignedString([]byte(viper.GetString("server.secret")))
+//	if err != nil {
+//		return
+//	}
+//	return
+//}
 
 func SecretFunc() jwt.Keyfunc {
 	return func(token *jwt.Token) (interface{}, error) {
@@ -84,4 +88,46 @@ func CheckToken(tokenStr string) (user model.User, err error) {
 	}
 
 	return
+}
+
+func CreateNewUser(username string, password string, role string, email string, uid bson.ObjectId) error {
+	user := model.User{
+		Username: strings.ToLower(username),
+		Password: utils.EncryptPassword(password),
+		Role:     role,
+		Email:    email,
+		UserId:   uid,
+		Setting: model.UserSetting{
+			NotificationTrigger: constants.NotificationTriggerNever,
+			EnabledNotifications: []string{
+				constants.NotificationTypeMail,
+				constants.NotificationTypeDingTalk,
+				constants.NotificationTypeWechat,
+			},
+		},
+	}
+	if err := user.Add(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetCurrentUser(c *gin.Context) *model.User {
+	data, _ := c.Get(constants.ContextUser)
+	if data == nil {
+		return &model.User{}
+	}
+	return data.(*model.User)
+}
+
+func GetCurrentUserId(c *gin.Context) bson.ObjectId {
+	return GetCurrentUser(c).Id
+}
+
+func GetAdminUser() (user *model.User, err error) {
+	u, err := model.GetUserByUsername("admin")
+	if err != nil {
+		return user, err
+	}
+	return &u, nil
 }

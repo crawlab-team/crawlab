@@ -2,9 +2,9 @@ package utils
 
 import (
 	"crawlab/constants"
+	"encoding/json"
 	"github.com/globalsign/mgo/bson"
-	"strconv"
-	"time"
+	"strings"
 )
 
 func IsObjectIdNull(id bson.ObjectId) bool {
@@ -12,15 +12,13 @@ func IsObjectIdNull(id bson.ObjectId) bool {
 }
 
 func InterfaceToString(value interface{}) string {
-	switch value.(type) {
-	case bson.ObjectId:
-		return value.(bson.ObjectId).Hex()
-	case string:
-		return value.(string)
-	case int:
-		return strconv.Itoa(value.(int))
-	case time.Time:
-		return value.(time.Time).String()
+	bytes, err := json.Marshal(value)
+	if err != nil {
+		return ""
 	}
-	return ""
+	str := string(bytes)
+	if strings.HasPrefix(str, "\"") && strings.HasSuffix(str, "\"") {
+		str = str[1 : len(str)-1]
+	}
+	return str
 }

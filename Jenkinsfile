@@ -11,12 +11,12 @@ pipeline {
                 echo "Running Setup..."
                 script {
                     if (env.GIT_BRANCH == 'develop') {
-                        env.MODE = 'develop'
+                        env.TAG = 'develop'
+                        env.DOCKERFILE = 'Dockerfile.local'
                     } else if (env.GIT_BRANCH == 'master') {
-                        env.MODE = 'production'
-                    } else {
-                        env.MODE = 'test'
-                    }
+                        env.TAG = 'master'
+                        env.DOCKERFILE = 'Dockerfile.local'
+                    } 
                 }
             }
         }
@@ -24,7 +24,7 @@ pipeline {
             steps {
                 echo "Building..."
                 sh """
-                docker build -t tikazyq/crawlab:latest -f Dockerfile.local .
+                docker build -t tikazyq/crawlab:${ENV:TAG} -f ${ENV:DOCKERFILE} .
                 """
             }
         }
@@ -37,9 +37,10 @@ pipeline {
             steps {
                 echo 'Deploying....'
                 sh """
-                cd ./jenkins
-                docker-compose stop | true
-                docker-compose up -d
+                # 重启docker compose
+                cd ./jenkins/${ENV:GIT_BRANCH}
+                docker-compose down | true
+                docker-compose up -d | true
                 """
             }
         }
@@ -47,8 +48,7 @@ pipeline {
             steps {
                 echo 'Cleanup...'
                 sh """
-                docker rmi `docker images | grep '<none>' | grep -v IMAGE | awk '{ print \$3 }' | xargs` | true
-                docker rm `docker ps -a | grep Exited | awk '{ print \$1 }' | xargs` | true
+                docker rmi -f `docker images | grep '<none>' | grep -v IMAGE | awk '{ print \$3 }' | xargs`
                 """
             }
         }

@@ -3,19 +3,19 @@
     <!--overall stats-->
     <el-row>
       <div class="metric-list">
-        <metric-card :label="$t('30-Day Tasks')"
+        <metric-card label="30-Day Tasks"
                      icon="fa fa-play"
                      :value="overviewStats.task_count"
                      type="danger"/>
-        <metric-card :label="$t('30-Day Results')"
+        <metric-card label="30-Day Results"
                      icon="fa fa-table"
                      :value="overviewStats.result_count"
                      type="primary"/>
-        <metric-card :label="$t('Success Rate')"
+        <metric-card label="Success Rate"
                      icon="fa fa-check"
                      :value="getPercentStr(overviewStats.success_rate)"
                      type="success"/>
-        <metric-card :label="$t('Avg Duration (sec)')"
+        <metric-card label="Avg Duration (sec)"
                      icon="fa fa-hourglass"
                      :value="getDecimal(overviewStats.avg_runtime_duration)"
                      type="warning"/>

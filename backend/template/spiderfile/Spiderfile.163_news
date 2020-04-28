@@ -1,0 +1,19 @@
+name: "toscrapy_books"
+start_url: "http://news.163.com/special/0001386F/rank_news.html"
+start_stage: "list"
+engine: "scrapy"
+stages:
+- name: list
+  is_list: true
+  list_css: "table tr:not(:first-child)"
+  fields:
+  - name: "title"
+    css: "td:nth-child(1) > a"
+  - name: "url"
+    css: "td:nth-child(1) > a"
+    attr: "href"
+  - name: "clicks"
+    css: "td.cBlue"
+settings:
+  ROBOTSTXT_OBEY: false
+  USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36

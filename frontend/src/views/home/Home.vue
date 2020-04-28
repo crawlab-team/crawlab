@@ -3,20 +3,33 @@
     <el-row>
       <ul class="metric-list">
         <li class="metric-item" v-for="m in metrics" @click="onClickMetric(m)" :key="m.name">
-          <el-card class="metric-card" shadow="hover">
-            <el-col :span="6" class="icon-col">
-              <font-awesome-icon :icon="m.icon" :color="m.color"/>
-              <!--<i :class="m.icon" :style="{color:m.color}"></i>-->
-            </el-col>
-            <el-col :span="18" class="text-col">
-              <el-row>
-                <label class="label">{{$t(m.label)}}</label>
-              </el-row>
-              <el-row>
-                <div class="value">{{overviewStats[m.name]}}</div>
-              </el-row>
-            </el-col>
-          </el-card>
+          <div class="metric-icon" :class="m.color">
+            <!--            <font-awesome-icon :icon="m.icon"/>-->
+            <i :class="m.icon"></i>
+          </div>
+          <div class="metric-content" :class="m.color">
+            <div class="metric-wrapper">
+              <div class="metric-number">
+                {{overviewStats[m.name]}}
+              </div>
+              <div class="metric-name">
+                {{$t(m.label)}}
+              </div>
+            </div>
+          </div>
+          <!--          <el-card class="metric-card" shadow="hover">-->
+          <!--            <el-col :span="6" class="icon-col">-->
+          <!--              <font-awesome-icon :icon="m.icon" :color="m.color"/>-->
+          <!--            </el-col>-->
+          <!--            <el-col :span="18" class="text-col">-->
+          <!--              <el-row>-->
+          <!--                <label class="label">{{$t(m.label)}}</label>-->
+          <!--              </el-row>-->
+          <!--              <el-row>-->
+          <!--                <div class="value">{{overviewStats[m.name]}}</div>-->
+          <!--              </el-row>-->
+          <!--            </el-col>-->
+          <!--          </el-card>-->
         </li>
       </ul>
     </el-row>
@@ -41,10 +54,11 @@ export default {
       overviewStats: {},
       dailyTasks: [],
       metrics: [
-        { name: 'task_count', label: 'Total Tasks', icon: ['fa', 'play'], color: '#f56c6c', path: 'tasks' },
-        { name: 'spider_count', label: 'Spiders', icon: ['fa', 'bug'], color: '#67c23a', path: 'spiders' },
-        { name: 'active_node_count', label: 'Active Nodes', icon: ['fa', 'server'], color: '#409EFF', path: 'nodes' },
-        { name: 'schedule_count', label: 'Schedules', icon: ['fa', 'clock'], color: '#409EFF', path: 'schedules' }
+        { name: 'task_count', label: 'Total Tasks', icon: 'fa fa-check', color: 'blue', path: 'tasks' },
+        { name: 'spider_count', label: 'Spiders', icon: 'fa fa-bug', color: 'green', path: 'spiders' },
+        { name: 'active_node_count', label: 'Active Nodes', icon: 'fa fa-server', color: 'red', path: 'nodes' },
+        { name: 'schedule_count', label: 'Schedules', icon: 'fa fa-clock-o', color: 'orange', path: 'schedules' },
+        { name: 'project_count', label: 'Projects', icon: 'fa fa-code-fork', color: 'grey', path: 'projects' }
       ]
     }
   },
@@ -105,45 +119,73 @@ export default {
       margin-right: 0;
     }
 
-    .metric-item {
-      flex-basis: 25%;
+    .metric-item:hover {
+      transform: scale(1.05);
+      transition: transform 0.5s ease;
+    }
 
-      .metric-card:hover {
+    .metric-item {
+      flex-basis: 20%;
+      height: 64px;
+      display: flex;
+      color: white;
+      cursor: pointer;
+      transform: scale(1);
+      transition: transform 0.5s ease;
+
+      .metric-icon {
+        display: inline-flex;
+        width: 64px;
+        align-items: center;
+        justify-content: center;
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+        font-size: 24px;
+
+        svg {
+          width: 24px;
+        }
       }
 
-      .metric-card {
-        margin-right: 30px;
-        cursor: pointer;
+      .metric-content {
+        display: flex;
+        width: calc(100% - 80px);
+        align-items: center;
+        opacity: 0.85;
+        font-size: 14px;
+        padding-left: 15px;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
 
-        .icon-col {
-          text-align: right;
-
-          i {
-            margin-bottom: 15px;
-            font-size: 56px;
-          }
+        .metric-number {
+          font-weight: bolder;
+          margin-bottom: 5px;
         }
+      }
 
-        .text-col {
-          padding-left: 20px;
-          height: 76px;
-          text-align: center;
+      .metric-icon.blue,
+      .metric-content.blue {
+        background: #409eff;
+      }
 
-          .label {
-            cursor: pointer;
-            font-size: 16px;
-            display: block;
-            height: 24px;
-            color: grey;
-            font-weight: 900;
-          }
+      .metric-icon.green,
+      .metric-content.green {
+        background: #67c23a;
+      }
 
-          .value {
-            font-size: 24px;
-            display: block;
-            height: 32px;
-          }
-        }
+      .metric-icon.red,
+      .metric-content.red {
+        background: #f56c6c;
+      }
+
+      .metric-icon.orange,
+      .metric-content.orange {
+        background: #E6A23C;
+      }
+
+      .metric-icon.grey,
+      .metric-content.grey {
+        background: #97a8be;
       }
     }
   }

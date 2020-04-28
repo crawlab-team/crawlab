@@ -6,6 +6,7 @@ mongo:
   db: crawlab_test
   username: ""
   password: ""
+  authSource: "admin"
 redis:
   address: localhost
   password: ""
@@ -14,14 +15,43 @@ redis:
 log:
   level: info
   path: "/var/logs/crawlab"
+  isDeletePeriodically: "N"
+  deleteFrequency: "@hourly"
 server:
   host: 0.0.0.0
   port: 8000
-  master: "N"
+  master: "Y"
   secret: "crawlab"
+  register:
+    # mac地址/ip地址/hostname, 如果是ip，则需要手动指定IP
+    type: "mac"
+    ip: ""
+  lang: # 安装语言环境, Y 为安装，N 为不安装
+    python: "Y"
+    node: "N"
+    java: "N"
+    dotnet: "N"
+    php: "N"
 spider:
   path: "/app/spiders"
 task:
   workers: 4
 other:
   tmppath: "/tmp"
+version: 0.4.10
+setting:
+  allowRegister: "N"
+  enableTutorial: "N"
+  runOnMaster: "Y"
+  demoSpiders: "N"
+  checkScrapy: "Y"
+  autoInstall: "Y"
+notification:
+  mail:
+    server: ''
+    port: ''
+    senderEmail: ''
+    senderIdentity: ''
+    smtp:
+      user: ''
+      password: ''
