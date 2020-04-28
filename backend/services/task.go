@@ -16,7 +16,7 @@ import (
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
 	"github.com/imroc/req"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"net/http"
 	"os"
@@ -166,7 +166,11 @@ func SetEnv(cmd *exec.Cmd, envs []model.Env, task model.Task, spider model.Spide
 	return cmd
 }
 
-func SetLogConfig(cmd *exec.Cmd, t model.Task, u model.User) error {
+func SetLogConfig(wg *sync.WaitGroup, cmd  *exec.Cmd, t model.Task, u model.User) error {
+
+	esChan := make(chan string, 1)
+	esClientStr := viper.GetString("setting.esClient")
+	spiderLogIndex := viper.GetString("setting.spiderLogIndex")
 	// get stdout reader
 	stdout, err := cmd.StdoutPipe()
 	readerStdout := bufio.NewReader(stdout)
@@ -191,7 +195,9 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task, u model.User) error {
 	isStderrFinished := false
 
 	// periodically (1 sec) insert log items
+	wg.Add(3)
 	go func() {
+		defer wg.Done()
 		for {
 			_ = model.AddLogItems(logs)
 			logs = []model.LogItem{}
@@ -211,6 +217,7 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task, u model.User) error {
 
 	// read stdout
 	go func() {
+		defer wg.Done()
 		for {
 			line, err := readerStdout.ReadString('\n')
 			if err != nil {
@@ -227,12 +234,18 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task, u model.User) error {
 				Ts:       time.Now(),
 				ExpireTs: time.Now().Add(time.Duration(expireDuration) * time.Second),
 			}
+			esChan <- l.Message
+			if esClientStr != "" {
+				go database.WriteMsgToES(time.Now(), esChan, spiderLogIndex)
+			}
+
 			logs = append(logs, l)
 		}
 	}()
 
 	// read stderr
 	go func() {
+		defer wg.Done()
 		for {
 			line, err := readerStderr.ReadString('\n')
 			if err != nil {
@@ -249,10 +262,15 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task, u model.User) error {
 				Ts:       time.Now(),
 				ExpireTs: time.Now().Add(time.Duration(expireDuration) * time.Second),
 			}
+			esChan <- l.Message
+			if esClientStr != "" {
+				go database.WriteMsgToES(time.Now(), esChan, spiderLogIndex)
+			}
 			logs = append(logs, l)
 		}
 	}()
 
+	wg.Wait()
 	return nil
 }
 
@@ -337,6 +355,8 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider, u 
 	log.Infof("cwd: %s", cwd)
 	log.Infof("cmd: %s", cmdStr)
 
+	wg := &sync.WaitGroup{}
+
 	// 生成执行命令
 	var cmd *exec.Cmd
 	if runtime.GOOS == constants.Windows {
@@ -349,9 +369,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider, u 
 	cmd.Dir = cwd
 
 	// 日志配置
-	if err := SetLogConfig(cmd, t, u); err != nil {
-		return err
-	}
+	go SetLogConfig(wg, cmd, t, u)
 
 	// 环境变量配置
 	envs := s.Envs
