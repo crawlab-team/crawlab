@@ -23,8 +23,9 @@ server:
   master: "Y"
   secret: "crawlab"
   register:
-    # mac地址/ip地址/hostname, 如果是ip，则需要手动指定IP
+    # type 填 mac/ip/customName, 如果是ip，则需要手动指定IP, 如果是 customName, 需填写你的 customNodeName
     type: "mac"
+    customNodeName: "" # 自定义节点名称, default node1,只有在type = customName 时生效
     ip: ""
   lang: # 安装语言环境, Y 为安装，N 为不安装
     python: "Y"

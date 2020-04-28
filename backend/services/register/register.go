@@ -25,6 +25,7 @@ type Register interface {
 	GetMac() (string, error)
 	// 注册节点的Hostname
 	GetHostname() (string, error)
+	GetCustomName() (string, error)
 }
 
 // ===================== mac 地址注册 =====================
@@ -50,11 +51,50 @@ func (mac *MacRegister) GetHostname() (string, error) {
 	return getHostname()
 }
 
+func (mac *MacRegister) GetCustomName() (string, error) {
+	return getMac()
+}
+
 // ===================== ip 地址注册 =====================
 type IpRegister struct {
 	Ip string
 }
 
+func (ip *IpRegister) GetCustomName() (string, error) {
+	return ip.Ip, nil
+}
+
+// ============= 自定义节点名称注册 ==============
+type CustomNameRegister struct {
+	CustomName string
+}
+
+func (c *CustomNameRegister) GetType() string {
+	return "customName"
+}
+
+func (c *CustomNameRegister) GetIp() (string, error) {
+	return getIp()
+}
+
+func (c *CustomNameRegister) GetMac() (string, error) {
+	return getMac()
+}
+
+func (c *CustomNameRegister) GetKey() (string, error) {
+	return c.CustomName, nil
+}
+
+func (c *CustomNameRegister) GetHostname() (string, error) {
+
+	return getHostname()
+}
+
+func (c *CustomNameRegister) GetCustomName() (string, error) {
+	return c.CustomName, nil
+}
+
+// ============================================================
 func (ip *IpRegister) GetType() string {
 	return "ip"
 }
@@ -95,6 +135,10 @@ func (h *HostnameRegister) GetIp() (string, error) {
 }
 
 func (h *HostnameRegister) GetHostname() (string, error) {
+	return getHostname()
+}
+
+func (h *HostnameRegister) GetCustomName() (string, error) {
 	return getHostname()
 }
 
@@ -158,9 +202,14 @@ var once sync.Once
 func GetRegister() Register {
 	once.Do(func() {
 		registerType := viper.GetString("server.register.type")
-		if registerType == constants.RegisterTypeMac {
+
+		switch registerType {
+		case constants.RegisterTypeMac:
+
 			register = &MacRegister{}
-		} else if registerType == constants.RegisterTypeIp {
+
+		case constants.RegisterTypeIp:
+
 			ip := viper.GetString("server.register.ip")
 			if ip == "" {
 				log.Error("server.register.ip is empty")
@@ -170,8 +219,22 @@ func GetRegister() Register {
 			register = &IpRegister{
 				Ip: ip,
 			}
-		} else if registerType == constants.RegisterTypeHostname {
+			
+		case constants.RegisterTypeHostname:
+
 			register = &HostnameRegister{}
+
+		case constants.RegisterTypeCustomName:
+
+			customNodeName := viper.GetString("server.register.customNodeName")
+			if customNodeName == "" {
+				log.Error("server.register.customNodeName is empty")
+				debug.PrintStack()
+				register = nil
+			}
+			register = &CustomNameRegister{
+				CustomName: customNodeName,
+			}
 		}
 		log.Info("register type is :" + reflect.TypeOf(register).String())
 
