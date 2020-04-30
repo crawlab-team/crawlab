@@ -80,7 +80,7 @@ func GetCurrentNode() (Node, error) {
 					Key:      key,
 					Id:       bson.NewObjectId(),
 					Ip:       ip,
-					Name:     ip,
+					Name:     key,
 					Mac:      mac,
 					Hostname: hostname,
 					IsMaster: true,

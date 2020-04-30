@@ -4,4 +4,5 @@ const (
 	RegisterTypeMac      = "mac"
 	RegisterTypeIp       = "ip"
 	RegisterTypeHostname = "hostname"
+	RegisterTypeCustomName = "customName"
 )
