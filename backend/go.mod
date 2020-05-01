@@ -6,6 +6,7 @@ require (
 	github.com/Masterminds/semver v1.4.2 // indirect
 	github.com/Masterminds/sprig v2.16.0+incompatible // indirect
 	github.com/Unknwon/goconfig v0.0.0-20191126170842-860a72fb44fd
+	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc
 	github.com/aokoli/goutils v1.0.1 // indirect
 	github.com/apex/log v1.1.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -30,6 +31,8 @@ require (
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337
 	github.com/spf13/viper v1.4.0
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
+	github.com/swaggo/gin-swagger v1.2.0
+	github.com/swaggo/swag v1.5.1
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/go-playground/validator.v9 v9.29.1
 	gopkg.in/gomail.v2 v2.0.0-20150902115704-41f357289737
