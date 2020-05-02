@@ -1,0 +1,1848 @@
+definitions:
+  entity.ConfigSpiderData:
+    properties:
+      cmd:
+        description: 自定义爬虫
+        type: string
+      col:
+        type: string
+      display_name:
+        type: string
+      engine:
+        description: 可配置爬虫
+        type: string
+      name:
+        description: 通用
+        type: string
+      remark:
+        type: string
+      settings:
+        type: object
+      stages:
+        items:
+          $ref: '#/definitions/entity.Stage'
+        type: array
+      start_stage:
+        type: string
+      start_url:
+        type: string
+      type:
+        type: string
+    type: object
+  entity.Field:
+    properties:
+      attr:
+        type: string
+      css:
+        type: string
+      name:
+        type: string
+      next_stage:
+        type: string
+      remark:
+        type: string
+      xpath:
+        type: string
+    type: object
+  entity.ScrapyItem:
+    properties:
+      fields:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+    type: object
+  entity.ScrapySettingParam:
+    properties:
+      key:
+        type: string
+      type:
+        type: string
+      value:
+        type: object
+    type: object
+  entity.Stage:
+    properties:
+      fields:
+        items:
+          $ref: '#/definitions/entity.Field'
+        type: array
+      is_list:
+        type: boolean
+      list_css:
+        type: string
+      list_xpath:
+        type: string
+      name:
+        type: string
+      page_attr:
+        type: string
+      page_css:
+        type: string
+      page_xpath:
+        type: string
+    type: object
+  model.Env:
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+    type: object
+  model.Node:
+    properties:
+      _id:
+        type: string
+      create_ts:
+        type: string
+      description:
+        type: string
+      hostname:
+        type: string
+      ip:
+        type: string
+      is_master:
+        description: 前端展示
+        type: boolean
+      key:
+        description: 用于唯一标识节点，可能是mac地址，可能是ip地址
+        type: string
+      mac:
+        type: string
+      name:
+        type: string
+      port:
+        type: string
+      status:
+        type: string
+      update_ts:
+        type: string
+      update_ts_unix:
+        type: integer
+    type: object
+  model.Project:
+    properties:
+      _id:
+        type: string
+      create_ts:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      spiders:
+        description: 前端展示
+        items:
+          $ref: '#/definitions/model.Spider'
+        type: array
+      tags:
+        items:
+          type: string
+        type: array
+      update_ts:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  model.Schedule:
+    properties:
+      _id:
+        type: string
+      create_ts:
+        type: string
+      cron:
+        type: string
+      description:
+        type: string
+      enabled:
+        type: boolean
+      entry_id:
+        type: integer
+      message:
+        type: string
+      name:
+        type: string
+      node_ids:
+        items:
+          type: string
+        type: array
+      nodes:
+        items:
+          $ref: '#/definitions/model.Node'
+        type: array
+      param:
+        type: string
+      run_type:
+        type: string
+      scrapy_log_level:
+        type: string
+      scrapy_spider:
+        type: string
+      spider_id:
+        type: string
+      spider_name:
+        description: 前端展示
+        type: string
+      status:
+        type: string
+      update_ts:
+        type: string
+      user_id:
+        type: string
+      user_name:
+        type: string
+    type: object
+  model.Spider:
+    properties:
+      _id:
+        description: 爬虫ID
+        type: string
+      cmd:
+        description: 自定义爬虫
+        type: string
+      col:
+        description: 结果储存位置
+        type: string
+      config:
+        $ref: '#/definitions/entity.ConfigSpiderData'
+        description: 可配置爬虫配置
+        type: object
+      create_ts:
+        type: string
+      dedup_field:
+        description: 去重字段
+        type: string
+      dedup_method:
+        description: 去重方式
+        type: string
+      display_name:
+        description: 爬虫显示名称
+        type: string
+      envs:
+        description: 环境变量
+        items:
+          $ref: '#/definitions/model.Env'
+        type: array
+      file_id:
+        description: GridFS文件ID
+        type: string
+      git_auto_sync:
+        description: Git 是否自动同步
+        type: boolean
+      git_branch:
+        description: Git 分支
+        type: string
+      git_has_credential:
+        description: Git 是否加密
+        type: boolean
+      git_password:
+        description: Git 密码
+        type: string
+      git_sync_error:
+        description: Git 同步错误
+        type: string
+      git_sync_frequency:
+        description: Git 同步频率
+        type: string
+      git_url:
+        description: Git URL
+        type: string
+      git_username:
+        description: Git 用户名
+        type: string
+      is_dedup:
+        description: 去重
+        type: boolean
+      is_git:
+        description: Git 设置
+        type: boolean
+      is_long_task:
+        description: 长任务
+        type: boolean
+      is_public:
+        description: 是否公开
+        type: boolean
+      is_scrapy:
+        description: Scrapy 爬虫（属于自定义爬虫）
+        type: boolean
+      is_web_hook:
+        description: Web Hook
+        type: boolean
+      last_run_ts:
+        description: 前端展示
+        type: string
+      last_status:
+        description: 最后执行状态
+        type: string
+      latest_tasks:
+        description: 最近任务列表
+        items:
+          $ref: '#/definitions/model.Task'
+        type: array
+      name:
+        description: 爬虫名称（唯一）
+        type: string
+      project_id:
+        description: 项目ID
+        type: string
+      remark:
+        description: 备注
+        type: string
+      site:
+        description: 爬虫网站
+        type: string
+      spider_names:
+        description: 爬虫名称列表
+        items:
+          type: string
+        type: array
+      src:
+        description: 源码位置
+        type: string
+      template:
+        description: 可配置爬虫
+        type: string
+      type:
+        description: 爬虫类别
+        type: string
+      update_ts:
+        type: string
+      user_id:
+        description: 时间
+        type: string
+      username:
+        description: 用户名称
+        type: string
+      web_hook_url:
+        description: Web Hook URL
+        type: string
+    type: object
+  model.Task:
+    properties:
+      _id:
+        type: string
+      cmd:
+        type: string
+      create_ts:
+        type: string
+      error:
+        type: string
+      error_log_count:
+        type: integer
+      finish_ts:
+        type: string
+      log_path:
+        type: string
+      node_id:
+        type: string
+      node_name:
+        type: string
+      param:
+        type: string
+      pid:
+        type: integer
+      result_count:
+        type: integer
+      run_type:
+        type: string
+      runtime_duration:
+        type: number
+      schedule_id:
+        type: string
+      spider_id:
+        type: string
+      spider_name:
+        description: 前端数据
+        type: string
+      start_ts:
+        type: string
+      status:
+        type: string
+      total_duration:
+        type: number
+      update_ts:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+      wait_duration:
+        type: number
+    type: object
+  routes.SpiderFileReqBody:
+    properties:
+      content:
+        type: string
+      new_path:
+        type: string
+      path:
+        type: string
+    type: object
+info:
+  contact: {}
+  license: {}
+paths:
+  /nodes:
+    get:
+      description: Get nodes
+      parameters:
+      - description: With the bearer started
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get nodes
+      tags:
+      - node
+  /nodes/{id}:
+    delete:
+      description: Delete node
+      parameters:
+      - description: With the bearer started
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: node id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Delete node
+      tags:
+      - node
+    get:
+      description: Get node
+      parameters:
+      - description: With the bearer started
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get node
+      tags:
+      - node
+    post:
+      consumes:
+      - application/json
+      description: Post node
+      parameters:
+      - description: With the bearer started
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: post node
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Post node
+      tags:
+      - node
+  /nodes/{id}/system:
+    get:
+      description: Get system info
+      parameters:
+      - description: With the bearer started
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: node id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get system info
+      tags:
+      - node
+  /nodes/{id}/tasks:
+    get:
+      description: Get tasks on node
+      parameters:
+      - description: With the bearer started
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: node id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get tasks on node
+      tags:
+      - node
+  /projects:
+    get:
+      description: Get projects
+      parameters:
+      - description: With the bearer started
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: projects
+        in: query
+        name: tag
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get projects
+      tags:
+      - project
+    put:
+      consumes:
+      - application/json
+      description: Put project
+      parameters:
+      - description: With the bearer started
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: post project
+        in: body
+        name: p
+        required: true
+        schema:
+          $ref: '#/definitions/model.Project'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Put project
+      tags:
+      - project
+  /projects/{id}:
+    delete:
+      description: Delete project
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: project id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Delete project
+      tags:
+      - project
+    post:
+      consumes:
+      - application/json
+      description: Post project
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: project id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: project item
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/model.Project'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Post project
+      tags:
+      - project
+  /projects/tags:
+    get:
+      description: Get projects tags
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get project tags
+      tags:
+      - project
+  /schedules:
+    get:
+      description: Get schedule list
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get schedule list
+      tags:
+      - schedule
+    put:
+      consumes:
+      - application/json
+      description: Put schedule
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: schedule item
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/model.Schedule'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Put schedule
+      tags:
+      - schedule
+  /schedules/{id}:
+    delete:
+      description: Delete schedule
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: schedule id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Delete schedule
+      tags:
+      - schedule
+    get:
+      description: Get schedule  by id
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: schedule id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get schedule by id
+      tags:
+      - schedule
+    post:
+      consumes:
+      - application/json
+      description: Post schedule
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: schedule id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: schedule item
+        in: body
+        name: newItem
+        required: true
+        schema:
+          $ref: '#/definitions/model.Schedule'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Post schedule
+      tags:
+      - schedule
+  /schedules/{id}/disable:
+    post:
+      consumes:
+      - application/json
+      description: disable schedule
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: schedule id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: disable schedule
+      tags:
+      - schedule
+  /schedules/{id}/enable:
+    post:
+      consumes:
+      - application/json
+      description: enable schedule
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: schedule id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: enable schedule
+      tags:
+      - schedule
+  /setting:
+    get:
+      description: Get setting
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get setting
+      tags:
+      - setting
+  /spiders:
+    post:
+      consumes:
+      - application/json
+      description: delete spider
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: delete spider
+      tags:
+      - spider
+    put:
+      consumes:
+      - application/json
+      description: Put spider
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider item
+        in: body
+        name: spider
+        required: true
+        schema:
+          $ref: '#/definitions/model.Spider'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Put spider
+      tags:
+      - spider
+  /spiders-cancel:
+    post:
+      consumes:
+      - application/json
+      description: cancel spider
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: cancel spider
+      tags:
+      - spider
+  /spiders-run:
+    post:
+      consumes:
+      - application/json
+      description: run spider
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: run spider
+      tags:
+      - spider
+  /spiders/{id}:
+    delete:
+      description: Delete spider by id
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Delete spider by id
+      tags:
+      - spider
+    get:
+      description: Get spider  by id
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: schedule id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get spider by id
+      tags:
+      - spider
+    post:
+      consumes:
+      - application/json
+      description: Post spider
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: schedule id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: spider item
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/model.Spider'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Post spider
+      tags:
+      - spider
+  /spiders/{id}/copy:
+    post:
+      consumes:
+      - application/json
+      description: Copy spider
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: schedule id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Copy spider
+      tags:
+      - spider
+  /spiders/{id}/dir:
+    get:
+      description: Get spider dir
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: path
+        in: query
+        name: path
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get spider dir
+      tags:
+      - spider
+  /spiders/{id}/file:
+    delete:
+      description: Delete spider file
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: path
+        in: body
+        name: reqBody
+        required: true
+        schema:
+          $ref: '#/definitions/routes.SpiderFileReqBody'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Delete spider file
+      tags:
+      - spider
+    get:
+      description: Get spider file
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: path
+        in: query
+        name: path
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get spider file
+      tags:
+      - spider
+    post:
+      description: Put spider file
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: path
+        in: body
+        name: reqBody
+        required: true
+        schema:
+          $ref: '#/definitions/routes.SpiderFileReqBody'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Put spider file
+      tags:
+      - spider
+    put:
+      description: Post spider dir
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: path
+        in: body
+        name: reqBody
+        required: true
+        schema:
+          $ref: '#/definitions/routes.SpiderFileReqBody'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Post spider dir
+      tags:
+      - spider
+  /spiders/{id}/file/rename:
+    post:
+      description: Rename spider file
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: path
+        in: body
+        name: reqBody
+        required: true
+        schema:
+          $ref: '#/definitions/routes.SpiderFileReqBody'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Rename spider file
+      tags:
+      - spider
+  /spiders/{id}/file/tree:
+    get:
+      description: Get spider dir
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get spider dir
+      tags:
+      - spider
+  /spiders/{id}/git/reset:
+    post:
+      description: Post  spider  reset git
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Post  spider  reset git
+      tags:
+      - spider
+  /spiders/{id}/git/sync:
+    post:
+      description: Post  spider  sync git
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Post  spider  sync git
+      tags:
+      - spider
+  /spiders/{id}/publish:
+    post:
+      consumes:
+      - application/json
+      description: Publish spider
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: schedule id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Publish spider
+      tags:
+      - spider
+  /spiders/{id}/schedules:
+    get:
+      description: Get schedules
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get schedules
+      tags:
+      - spider
+  /spiders/{id}/scrapy/items:
+    get:
+      description: Get scrapy spider items
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get scrapy spider items
+      tags:
+      - spider
+    post:
+      description: Post scrapy spider items
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: req data
+        in: body
+        name: reqData
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entity.ScrapyItem'
+          type: entity.ScrapyItem
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Post scrapy spider items
+      tags:
+      - spider
+  /spiders/{id}/scrapy/pipelines:
+    get:
+      description: Get scrapy spider pipelines
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get scrapy spider pipelines
+      tags:
+      - spider
+  /spiders/{id}/scrapy/settings:
+    get:
+      description: Get scrapy spider settings
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get scrapy spider settings
+      tags:
+      - spider
+    post:
+      description: Get scrapy spider file
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: req data
+        in: body
+        name: reqData
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entity.ScrapySettingParam'
+          type: entity.ScrapySettingParam
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get scrapy spider file
+      tags:
+      - spider
+  /spiders/{id}/scrapy/spider/filepath:
+    get:
+      description: Get scrapy spider file path
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get scrapy spider file path
+      tags:
+      - spider
+  /spiders/{id}/scrapy/spiders:
+    get:
+      description: Get scrapy spider file
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get scrapy spider file
+      tags:
+      - spider
+    put:
+      description: Put scrapy spider file
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Put scrapy spider file
+      tags:
+      - spider
+  /spiders/{id}/stats:
+    get:
+      description: Get spider stats
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get spider stats
+      tags:
+      - spider
+  /spiders/{id}/tasks:
+    get:
+      description: Get task list
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get task list
+      tags:
+      - spider
+  /spiders/{id}/upload:
+    post:
+      consumes:
+      - application/json
+      description: Upload spider by id
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider file to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Upload spider by id
+      tags:
+      - spider
+  /version:
+    get:
+      description: Get version
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get version
+      tags:
+      - setting
+swagger: "2.0"
