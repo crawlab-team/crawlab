@@ -381,6 +381,28 @@ definitions:
       path:
         type: string
     type: object
+  routes.TaskListRequestData:
+    properties:
+      nodeId:
+        type: string
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
+      scheduleId:
+        type: string
+      spiderId:
+        type: string
+      status:
+        type: string
+    type: object
+  routes.TaskResultsRequestData:
+    properties:
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
+    type: object
 info:
   contact: {}
   license: {}
@@ -1822,6 +1844,339 @@ paths:
       summary: Upload spider by id
       tags:
       - spider
+  /task/{id}:
+    delete:
+      description: Delete task
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: task id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Delete task
+      tags:
+      - task
+  /tasks:
+    delete:
+      description: Delete tasks
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Delete tasks
+      tags:
+      - task
+    get:
+      description: Get task list
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: req data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/routes.TaskListRequestData'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get task list
+      tags:
+      - task
+    put:
+      description: Put task
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Put task
+      tags:
+      - task
+  /tasks/{id}:
+    get:
+      description: Get task
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: task id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get task
+      tags:
+      - task
+  /tasks/{id}/cancel:
+    post:
+      description: Cancel task
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: task id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Cancel task
+      tags:
+      - task
+  /tasks/{id}/error-log:
+    delete:
+      description: Get task error log
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: task id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get task error log
+      tags:
+      - task
+  /tasks/{id}/log:
+    delete:
+      description: Get task log
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: task id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get task log
+      tags:
+      - task
+  /tasks/{id}/restart:
+    post:
+      description: Restart task
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: task id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Restart task
+      tags:
+      - task
+  /tasks/{id}/results:
+    get:
+      description: Get task list
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: req data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/routes.TaskResultsRequestData'
+          type: object
+      - description: task id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get task list
+      tags:
+      - task
+  /tasks/{id}/results/download:
+    get:
+      description: Get task results
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: task id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get task results
+      tags:
+      - task
+  /tasks_by_status:
+    delete:
+      description: Delete task
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: task status
+        in: query
+        name: status
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Delete task
+      tags:
+      - task
   /version:
     get:
       description: Get version
