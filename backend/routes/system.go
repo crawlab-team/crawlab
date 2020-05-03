@@ -11,6 +11,15 @@ import (
 	"strings"
 )
 
+// @Summary Get language list
+// @Description Get language list
+// @Tags system
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "node id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /nodes/{id}/langs [get]
 func GetLangList(c *gin.Context) {
 	nodeId := c.Param("id")
 	c.JSON(http.StatusOK, Response{
@@ -20,6 +29,17 @@ func GetLangList(c *gin.Context) {
 	})
 }
 
+// @Summary Get dep list
+// @Description Get dep list
+// @Tags system
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "node id"
+// @Param lang query string true "language"
+// @Param dep_name query string true "dep name"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /nodes/{id}/deps [get]
 func GetDepList(c *gin.Context) {
 	nodeId := c.Param("id")
 	lang := c.Query("lang")
@@ -52,6 +72,16 @@ func GetDepList(c *gin.Context) {
 	})
 }
 
+// @Summary Get installed dep list
+// @Description Get installed dep list
+// @Tags system
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "node id"
+// @Param lang query string true "language"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /nodes/{id}/deps/installed [get]
 func GetInstalledDepList(c *gin.Context) {
 	nodeId := c.Param("id")
 	lang := c.Query("lang")
@@ -79,6 +109,16 @@ func GetInstalledDepList(c *gin.Context) {
 	})
 }
 
+// @Summary Get all dep list
+// @Description Get all dep list
+// @Tags system
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param lang path string true "language"
+// @Param dep_nane query string true "dep name"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /system/deps/:lang [get]
 func GetAllDepList(c *gin.Context) {
 	lang := c.Param("lang")
 	depName := c.Query("dep_name")
@@ -121,6 +161,15 @@ func GetAllDepList(c *gin.Context) {
 	})
 }
 
+// @Summary Install  dep
+// @Description Install dep
+// @Tags system
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "node id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /nodes/{id}/deps/install [Post]
 func InstallDep(c *gin.Context) {
 	type ReqBody struct {
 		Lang    string `json:"lang"`
@@ -153,6 +202,15 @@ func InstallDep(c *gin.Context) {
 	})
 }
 
+// @Summary Uninstall  dep
+// @Description Uninstall dep
+// @Tags system
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "node id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /nodes/{id}/deps/uninstall [Post]
 func UninstallDep(c *gin.Context) {
 	type ReqBody struct {
 		Lang    string `json:"lang"`
@@ -184,6 +242,16 @@ func UninstallDep(c *gin.Context) {
 	})
 }
 
+// @Summary Get dep json
+// @Description Get dep json
+// @Tags system
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param lang path string true "language"
+// @Param dep_name path string true "dep name"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /system/deps/{lang}/{dep_name}/json [get]
 func GetDepJson(c *gin.Context) {
 	depName := c.Param("dep_name")
 	lang := c.Param("lang")
@@ -209,6 +277,15 @@ func GetDepJson(c *gin.Context) {
 	})
 }
 
+// @Summary Install language
+// @Description Install language
+// @Tags system
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "node id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /nodes/{id}/langs/install [Post]
 func InstallLang(c *gin.Context) {
 	type ReqBody struct {
 		Lang string `json:"lang"`
