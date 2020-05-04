@@ -372,6 +372,58 @@ definitions:
       wait_duration:
         type: number
     type: object
+  model.User:
+    properties:
+      _id:
+        type: string
+      create_ts:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      setting:
+        $ref: '#/definitions/model.UserSetting'
+        type: object
+      update_ts:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  model.UserSetting:
+    properties:
+      ding_talk_robot_webhook:
+        type: string
+      enabled_notifications:
+        items:
+          type: string
+        type: array
+      error_regex_pattern:
+        type: string
+      log_expire_duration:
+        type: integer
+      max_error_log:
+        type: integer
+      notification_trigger:
+        type: string
+      wechat_robot_webhook:
+        type: string
+    type: object
+  model.Variable:
+    properties:
+      _id:
+        type: string
+      key:
+        type: string
+      remark:
+        type: string
+      value:
+        type: string
+    type: object
   routes.SpiderFileReqBody:
     properties:
       content:
@@ -402,6 +454,24 @@ definitions:
         type: integer
       pageSize:
         type: integer
+    type: object
+  routes.UserListRequestData:
+    properties:
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
+    type: object
+  routes.UserRequestData:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
     type: object
 info:
   contact: {}
@@ -901,44 +971,12 @@ paths:
       - project
   /schedules:
     get:
-      description: Get spider list
+      description: Get schedule list
       parameters:
       - description: Authorization token
         in: header
         name: Authorization
         required: true
-        type: string
-      - description: page num
-        in: query
-        name: page_num
-        type: string
-      - description: page size
-        in: query
-        name: page_size
-        type: string
-      - description: keyword
-        in: query
-        name: keyword
-        type: string
-      - description: project_id
-        in: query
-        name: project_id
-        type: string
-      - description: type
-        in: query
-        name: type
-        type: string
-      - description: sort_key
-        in: query
-        name: sort_key
-        type: string
-      - description: sort_direction
-        in: query
-        name: sort_direction
-        type: string
-      - description: owner_type
-        in: query
-        name: owner_type
         type: string
       produces:
       - application/json
@@ -951,9 +989,9 @@ paths:
           description: Bad Request
           schema:
             type: json
-      summary: Get spider list
+      summary: Get schedule list
       tags:
-      - spider
+      - schedule
     put:
       consumes:
       - application/json
@@ -2458,6 +2496,342 @@ paths:
       summary: Delete task
       tags:
       - task
+  /tokens:
+    get:
+      description: token
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get token
+      tags:
+      - token
+    put:
+      description: token
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Put token
+      tags:
+      - token
+  /tokens/{id}:
+    delete:
+      description: Delete token
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: token id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Delete token
+      tags:
+      - token
+  /users:
+    get:
+      description: Get user list
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: data body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/routes.UserListRequestData'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get user list
+      tags:
+      - token
+    put:
+      description: Put user
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: reqData body
+        in: body
+        name: reqData
+        required: true
+        schema:
+          $ref: '#/definitions/routes.UserRequestData'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Put user
+      tags:
+      - user
+  /users/{id}:
+    delete:
+      description: Delete user
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Delete user
+      tags:
+      - user
+    get:
+      description: user
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get user
+      tags:
+      - user
+    post:
+      description: Post user
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user body
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+          type: object
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Post user
+      tags:
+      - user
+  /variable:
+    put:
+      description: Put variable
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: reqData body
+        in: body
+        name: variable
+        required: true
+        schema:
+          $ref: '#/definitions/model.Variable'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Put variable
+      tags:
+      - variable
+  /variable/{id}:
+    delete:
+      description: Delete variable
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: variable id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Delete variable
+      tags:
+      - variable
+    post:
+      description: Post variable
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: reqData body
+        in: body
+        name: variable
+        required: true
+        schema:
+          $ref: '#/definitions/model.Variable'
+          type: object
+      - description: variable id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Post variable
+      tags:
+      - variable
+  /variables:
+    get:
+      description: Get variable  list
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get variable  list
+      tags:
+      - variable
   /version:
     get:
       description: Get version
