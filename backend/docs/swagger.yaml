@@ -477,6 +477,247 @@ info:
   contact: {}
   license: {}
 paths:
+  /config_spiders:
+    put:
+      consumes:
+      - application/json
+      description: Put config spider
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider item
+        in: body
+        name: spider
+        required: true
+        schema:
+          $ref: '#/definitions/model.Spider'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Put config spider
+      tags:
+      - config spider
+  /config_spiders/{id}/config:
+    get:
+      consumes:
+      - application/json
+      description: Get config spider
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Get config spider
+      tags:
+      - config spider
+    post:
+      consumes:
+      - application/json
+      description: Post config spider config
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider item
+        in: body
+        name: spider
+        required: true
+        schema:
+          $ref: '#/definitions/model.Spider'
+          type: object
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Post config spider config
+      tags:
+      - config spider
+  /config_spiders/{id}/spiderfile:
+    post:
+      consumes:
+      - application/json
+      description: Post config spider
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Post config spider
+      tags:
+      - config spider
+  /config_spiders/{id}/upload:
+    post:
+      consumes:
+      - application/json
+      description: Upload config spider
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider item
+        in: body
+        name: spider
+        required: true
+        schema:
+          $ref: '#/definitions/model.Spider'
+          type: object
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Upload config spider
+      tags:
+      - config spider
+  /config_spiders_templates:
+    get:
+      consumes:
+      - application/json
+      description: Get config spider template list
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: spider id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "500":
+          description: Internal Server Error
+          schema:
+            type: json
+      summary: Get config spider template list
+      tags:
+      - config spider
+  /docs:
+    get:
+      description: Get docs
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get docs
+      tags:
+      - docs
+  /file:
+    get:
+      description: Get file
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get file
+      tags:
+      - file
   /nodes:
     get:
       description: Get nodes
@@ -969,9 +1210,9 @@ paths:
       summary: Get project tags
       tags:
       - project
-  /schedules:
+  /releases/latest:
     get:
-      description: Get schedule list
+      description: Get latest release
       parameters:
       - description: Authorization token
         in: header
@@ -989,9 +1230,64 @@ paths:
           description: Bad Request
           schema:
             type: json
-      summary: Get schedule list
+      summary: Get  latest release
       tags:
-      - schedule
+      - version
+  /schedules:
+    get:
+      description: Get spider list
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: page num
+        in: query
+        name: page_num
+        type: string
+      - description: page size
+        in: query
+        name: page_size
+        type: string
+      - description: keyword
+        in: query
+        name: keyword
+        type: string
+      - description: project_id
+        in: query
+        name: project_id
+        type: string
+      - description: type
+        in: query
+        name: type
+        type: string
+      - description: sort_key
+        in: query
+        name: sort_key
+        type: string
+      - description: sort_direction
+        in: query
+        name: sort_direction
+        type: string
+      - description: owner_type
+        in: query
+        name: owner_type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get spider list
+      tags:
+      - spider
     put:
       consumes:
       - application/json
@@ -2097,6 +2393,29 @@ paths:
       summary: Upload spider by id
       tags:
       - spider
+  /stats/home:
+    get:
+      description: Get home stats
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Get  home stats
+      tags:
+      - version
   /system/deps/:
     get:
       description: Get all dep list
