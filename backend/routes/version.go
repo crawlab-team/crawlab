@@ -8,6 +8,14 @@ import (
 	"runtime/debug"
 )
 
+// @Summary Get  latest release
+// @Description Get latest release
+// @Tags version
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /releases/latest [get]
 func GetLatestRelease(c *gin.Context) {
 	latestRelease, err := services.GetLatestRelease()
 	if err != nil {
