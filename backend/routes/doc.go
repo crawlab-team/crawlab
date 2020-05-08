@@ -8,6 +8,14 @@ import (
 	"runtime/debug"
 )
 
+// @Summary Get docs
+// @Description Get docs
+// @Tags docs
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /docs [get]
 func GetDocs(c *gin.Context) {
 	type ResData struct {
 		String string `json:"string"`

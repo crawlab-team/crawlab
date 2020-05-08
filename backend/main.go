@@ -4,6 +4,7 @@ import (
 	"context"
 	"crawlab/config"
 	"crawlab/database"
+	_ "crawlab/docs"
 	"crawlab/lib/validate_bridge"
 	"crawlab/middlewares"
 	"crawlab/model"
@@ -14,7 +15,10 @@ import (
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/olivere/elastic/v7"
 	"github.com/spf13/viper"
+	"github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
 	"net"
 	"net/http"
 	"os"
@@ -24,9 +28,17 @@ import (
 	"time"
 )
 
+var swagHandler gin.HandlerFunc
+
+func init() {
+	swagHandler = ginSwagger.WrapHandler(swaggerFiles.Handler)
+}
 func main() {
 	binding.Validator = new(validate_bridge.DefaultValidator)
 	app := gin.Default()
+	if swagHandler != nil {
+		app.GET("/swagger/*any", swagHandler)
+	}
 
 	// 初始化配置
 	if err := config.InitConfig(""); err != nil {
@@ -133,6 +145,15 @@ func main() {
 	// 以下为主节点服务
 	if model.IsMaster() {
 		// 中间件
+		esClientStr := viper.GetString("setting.esClient")
+		if viper.GetString("setting.crawlabLogToES") == "Y" && esClientStr != "" {
+			ctx := context.Background()
+			esClient, err := elastic.NewClient(elastic.SetURL(esClientStr), elastic.SetSniff(false))
+			if err != nil {
+				log.Error("Init es client Error:" + err.Error())
+			}
+			app.Use(middlewares.EsLog(ctx, esClient))
+		}
 		app.Use(middlewares.CORSMiddleware())
 		anonymousGroup := app.Group("/")
 		{

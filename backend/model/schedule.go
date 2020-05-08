@@ -76,10 +76,14 @@ func GetScheduleList(filter interface{}) ([]Schedule, error) {
 
 		// 获取爬虫名称
 		spider, err := GetSpider(schedule.SpiderId)
-		if err != nil && err == mgo.ErrNotFound {
+		if err != nil {
 			log.Errorf("get spider by id: %s, error: %s", schedule.SpiderId.Hex(), err.Error())
 			schedule.Status = constants.ScheduleStatusError
-			schedule.Message = constants.ScheduleStatusErrorNotFoundSpider
+			if err == mgo.ErrNotFound {
+				schedule.Message = constants.ScheduleStatusErrorNotFoundSpider
+			} else {
+				schedule.Message = err.Error()
+			}
 		} else {
 			schedule.SpiderName = spider.Name
 		}

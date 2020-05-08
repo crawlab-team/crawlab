@@ -26,6 +26,15 @@ type TaskResultsRequestData struct {
 	PageSize int `form:"page_size"`
 }
 
+// @Summary Get task list
+// @Description Get task list
+// @Tags task
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param data body routes.TaskListRequestData true "req data"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /tasks [get]
 func GetTaskList(c *gin.Context) {
 	// 绑定数据
 	data := TaskListRequestData{}
@@ -81,6 +90,15 @@ func GetTaskList(c *gin.Context) {
 	})
 }
 
+// @Summary Get task
+// @Description Get task
+// @Tags task
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "task id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /tasks/{id} [get]
 func GetTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -92,6 +110,14 @@ func GetTask(c *gin.Context) {
 	HandleSuccessData(c, result)
 }
 
+// @Summary Put task
+// @Description Put task
+// @Tags task
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /tasks [put]
 func PutTask(c *gin.Context) {
 	type TaskRequestBody struct {
 		SpiderId bson.ObjectId   `json:"spider_id"`
@@ -177,6 +203,15 @@ func PutTask(c *gin.Context) {
 	HandleSuccessData(c, taskIds)
 }
 
+// @Summary Delete task
+// @Description Delete task
+// @Tags task
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param status query string true "task status"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /tasks_by_status [delete]
 func DeleteTaskByStatus(c *gin.Context) {
 	status := c.Query("status")
 
@@ -196,6 +231,15 @@ func DeleteTaskByStatus(c *gin.Context) {
 }
 
 // 删除多个任务
+
+// @Summary Delete tasks
+// @Description Delete tasks
+// @Tags task
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /tasks [delete]
 func DeleteSelectedTask(c *gin.Context) {
 	ids := make(map[string][]string)
 	if err := c.ShouldBindJSON(&ids); err != nil {
@@ -217,6 +261,16 @@ func DeleteSelectedTask(c *gin.Context) {
 }
 
 // 删除单个任务
+
+// @Summary Delete task
+// @Description Delete task
+// @Tags task
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "task id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /task/{id} [delete]
 func DeleteTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -233,6 +287,15 @@ func DeleteTask(c *gin.Context) {
 	HandleSuccess(c)
 }
 
+// @Summary Get task log
+// @Description Get task log
+// @Tags task
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "task id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /tasks/{id}/log [delete]
 func GetTaskLog(c *gin.Context) {
 	type RequestData struct {
 		PageNum  int    `form:"page_num"`
@@ -258,6 +321,15 @@ func GetTaskLog(c *gin.Context) {
 	})
 }
 
+// @Summary Get task error log
+// @Description Get task error log
+// @Tags task
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "task id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /tasks/{id}/error-log [delete]
 func GetTaskErrorLog(c *gin.Context) {
 	id := c.Param("id")
 	u := services.GetCurrentUser(c)
@@ -273,6 +345,16 @@ func GetTaskErrorLog(c *gin.Context) {
 	})
 }
 
+// @Summary Get task list
+// @Description Get task list
+// @Tags task
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param data body routes.TaskResultsRequestData true "req data"
+// @Param id path string true "task id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /tasks/{id}/results [get]
 func GetTaskResults(c *gin.Context) {
 	id := c.Param("id")
 
@@ -305,6 +387,16 @@ func GetTaskResults(c *gin.Context) {
 	})
 }
 
+
+// @Summary Get task results
+// @Description Get task results
+// @Tags task
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "task id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /tasks/{id}/results/download [get]
 func DownloadTaskResultsCsv(c *gin.Context) {
 	id := c.Param("id")
 
@@ -374,6 +466,16 @@ func DownloadTaskResultsCsv(c *gin.Context) {
 	c.Data(http.StatusOK, "text/csv", bytesBuffer.Bytes())
 }
 
+
+// @Summary Cancel task
+// @Description Cancel task
+// @Tags task
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "task id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /tasks/{id}/cancel [post]
 func CancelTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -384,6 +486,15 @@ func CancelTask(c *gin.Context) {
 	HandleSuccess(c)
 }
 
+// @Summary Restart task
+// @Description Restart task
+// @Tags task
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "task id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /tasks/{id}/restart [post]
 func RestartTask(c *gin.Context) {
 	id := c.Param("id")
 

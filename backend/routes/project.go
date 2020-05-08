@@ -10,6 +10,15 @@ import (
 	"net/http"
 )
 
+// @Summary Get projects
+// @Description Get projects
+// @Tags project
+// @Produce json
+// @Param Authorization header string true "With the bearer started"
+// @Param tag query string true "projects"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /projects [get]
 func GetProjectList(c *gin.Context) {
 	tag := c.Query("tag")
 
@@ -70,6 +79,16 @@ func GetProjectList(c *gin.Context) {
 	})
 }
 
+// @Summary Put project
+// @Description Put project
+// @Tags project
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "With the bearer started"
+// @Param p body model.Project true "post project"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /projects [put]
 func PutProject(c *gin.Context) {
 	// 绑定请求数据
 	var p model.Project
@@ -92,6 +111,17 @@ func PutProject(c *gin.Context) {
 	})
 }
 
+// @Summary Post project
+// @Description Post project
+// @Tags project
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "project id"
+// @Param item body  model.Project true "project item"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /projects/{id} [post]
 func PostProject(c *gin.Context) {
 	id := c.Param("id")
 
@@ -116,6 +146,15 @@ func PostProject(c *gin.Context) {
 	})
 }
 
+// @Summary Delete project
+// @Description Delete project
+// @Tags project
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "project id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /projects/{id} [delete]
 func DeleteProject(c *gin.Context) {
 	id := c.Param("id")
 
@@ -154,6 +193,14 @@ func DeleteProject(c *gin.Context) {
 	})
 }
 
+// @Summary Get project tags
+// @Description Get projects tags
+// @Tags project
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /projects/tags [get]
 func GetProjectTags(c *gin.Context) {
 	type Result struct {
 		Tag string `json:"tag" bson:"tag"`

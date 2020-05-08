@@ -7,6 +7,14 @@ import (
 	"net/http"
 )
 
+// @Summary Get file
+// @Description Get file
+// @Tags file
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /file [get]
 func GetFile(c *gin.Context) {
 	path := c.Query("path")
 	fileBytes, err := ioutil.ReadFile(path)
