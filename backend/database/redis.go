@@ -107,7 +107,7 @@ func (r *Redis) HKeys(collection string) ([]string, error) {
 	c := r.pool.Get()
 	defer utils.Close(c)
 
-	value, err2 := redis.Strings(c.Do("HKeys", collection))
+	value, err2 := redis.Strings(c.Do("HKEYS", collection))
 	if err2 != nil {
 		log.Error(err2.Error())
 		debug.PrintStack()
@@ -208,7 +208,7 @@ func (r *Redis) Lock(lockKey string) (int64, error) {
 		debug.PrintStack()
 		return 0, err
 	}
-	if err == nil && ok == nil {
+	if ok == nil {
 		log.Errorf("the lockKey is locked: key=%s", lockKey)
 		return 0, errors.New("the lockKey is locked")
 	}
