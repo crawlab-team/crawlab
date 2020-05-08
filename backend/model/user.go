@@ -54,17 +54,13 @@ func (user *User) Add() error {
 	// 如果存在用户名相同的用户，抛错
 	user2, err := GetUserByUsername(user.Username)
 	if err != nil {
-		if err == mgo.ErrNotFound {
-			// pass
-		} else {
-			log.Errorf(err.Error())
-			debug.PrintStack()
-			return err
-		}
-	} else {
-		if user2.Username == user.Username {
-			return errors.New("username already exists")
-		}
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	if user2.Username == user.Username {
+		return errors.New("username already exists")
 	}
 
 	user.Id = bson.NewObjectId()
