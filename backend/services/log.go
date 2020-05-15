@@ -133,7 +133,6 @@ func InitLogIndexes() error {
 	s, c := database.GetCol("logs")
 	defer s.Close()
 	se, ce := database.GetCol("error_logs")
-	defer s.Close()
 	defer se.Close()
 
 	_ = c.EnsureIndex(mgo.Index{
