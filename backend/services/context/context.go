@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	errors2 "github.com/pkg/errors"
-	"gopkg.in/go-playground/validator.v9"
 	"net/http"
 	"runtime/debug"
 )
