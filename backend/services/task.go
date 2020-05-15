@@ -194,10 +194,10 @@ func SetLogConfig(wg *sync.WaitGroup, cmd *exec.Cmd, t model.Task, u model.User)
 	isStdoutFinished := false
 	isStderrFinished := false
 
-	// periodically (1 sec) insert log items
-	wg.Add(3)
+	// periodically (5 sec) insert log items
+	//wg.Add(3)
 	go func() {
-		defer wg.Done()
+		//defer wg.Done()
 		for {
 			_ = model.AddLogItems(logs)
 			logs = []model.LogItem{}
