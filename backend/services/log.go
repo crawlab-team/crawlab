@@ -145,7 +145,7 @@ func InitLogIndexes() error {
 	_ = c.EnsureIndex(mgo.Index{
 		Key:         []string{"expire_ts"},
 		Sparse:      true,
-		ExpireAfter: 0 * time.Second,
+		ExpireAfter: 1 * time.Second,
 	})
 	_ = ce.EnsureIndex(mgo.Index{
 		Key: []string{"task_id"},
@@ -156,7 +156,7 @@ func InitLogIndexes() error {
 	_ = ce.EnsureIndex(mgo.Index{
 		Key:         []string{"expire_ts"},
 		Sparse:      true,
-		ExpireAfter: 0 * time.Second,
+		ExpireAfter: 1 * time.Second,
 	})
 
 	return nil
