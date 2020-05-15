@@ -100,6 +100,7 @@ func bincdesc(vd, vs byte) string {
 }
 
 type bincEncDriver struct {
+	encDriverNoopContainerWriter
 	e *Encoder
 	h *BincHandle
 	w *encWriterSwitch
@@ -107,10 +108,10 @@ type bincEncDriver struct {
 	b [16]byte          // scratch, used for encoding numbers - bigendian style
 	s uint16            // symbols sequencer
 	// c containerState
-	encDriverTrackContainerWriter
+	// encDriverTrackContainerWriter
 	noBuiltInTypes
 	// encNoSeparator
-	_ [1]uint64 // padding
+	// _ [1]uint64 // padding
 }
 
 func (e *bincEncDriver) EncodeNil() {
@@ -236,12 +237,10 @@ func (e *bincEncDriver) encodeExtPreamble(xtag byte, length int) {
 
 func (e *bincEncDriver) WriteArrayStart(length int) {
 	e.encLen(bincVdArray<<4, uint64(length))
-	e.c = containerArrayStart
 }
 
 func (e *bincEncDriver) WriteMapStart(length int) {
 	e.encLen(bincVdMap<<4, uint64(length))
-	e.c = containerMapStart
 }
 
 func (e *bincEncDriver) EncodeSymbol(v string) {
@@ -308,20 +307,8 @@ func (e *bincEncDriver) EncodeSymbol(v string) {
 	}
 }
 
-func (e *bincEncDriver) EncodeString(c charEncoding, v string) {
-	if e.c == containerMapKey && c == cUTF8 && (e.h.AsSymbols == 0 || e.h.AsSymbols == 1) {
-		e.EncodeSymbol(v)
-		return
-	}
-	l := uint64(len(v))
-	e.encBytesLen(c, l)
-	if l > 0 {
-		e.w.writestr(v)
-	}
-}
-
 func (e *bincEncDriver) EncodeStringEnc(c charEncoding, v string) {
-	if e.c == containerMapKey && c == cUTF8 && (e.h.AsSymbols == 0 || e.h.AsSymbols == 1) {
+	if e.e.c == containerMapKey && c == cUTF8 && (e.h.AsSymbols == 0 || e.h.AsSymbols == 1) {
 		e.EncodeSymbol(v)
 		return
 	}
@@ -331,18 +318,6 @@ func (e *bincEncDriver) EncodeStringEnc(c charEncoding, v string) {
 		e.w.writestr(v)
 	}
 
-}
-
-func (e *bincEncDriver) EncodeStringBytes(c charEncoding, v []byte) {
-	if v == nil {
-		e.EncodeNil()
-		return
-	}
-	l := uint64(len(v))
-	e.encBytesLen(c, l)
-	if l > 0 {
-		e.w.writeb(v)
-	}
 }
 
 func (e *bincEncDriver) EncodeStringBytesRaw(v []byte) {
@@ -409,7 +384,7 @@ type bincDecDriver struct {
 	bd     byte
 	vd     byte
 	vs     byte
-	_      [3]byte // padding
+	// _      [3]byte // padding
 	// linear searching on this slice is ok,
 	// because we typically expect < 32 symbols in each stream.
 	s []bincDecSymbol
@@ -1007,7 +982,7 @@ type BincHandle struct {
 	// - n: none
 	// - a: all: same as m, s, ...
 
-	// _ [1]uint64 // padding
+	_ [1]uint64 // padding (cache-aligned)
 }
 
 // Name returns the name of the handle: binc
@@ -1015,26 +990,25 @@ func (h *BincHandle) Name() string { return "binc" }
 
 // SetBytesExt sets an extension
 func (h *BincHandle) SetBytesExt(rt reflect.Type, tag uint64, ext BytesExt) (err error) {
-	return h.SetExt(rt, tag, &extWrapper{ext, interfaceExtFailer{}})
+	return h.SetExt(rt, tag, &bytesExtWrapper{BytesExt: ext})
 }
 
 func (h *BincHandle) newEncDriver(e *Encoder) encDriver {
-	return &bincEncDriver{e: e, h: h, w: e.w}
+	return &bincEncDriver{e: e, h: h, w: e.w()}
 }
 
 func (h *BincHandle) newDecDriver(d *Decoder) decDriver {
-	return &bincDecDriver{d: d, h: h, r: d.r, br: d.bytes}
+	return &bincDecDriver{d: d, h: h, r: d.r(), br: d.bytes}
 }
 
 func (e *bincEncDriver) reset() {
-	e.w = e.e.w
+	e.w = e.e.w()
 	e.s = 0
-	e.c = 0
 	e.m = nil
 }
 
 func (d *bincDecDriver) reset() {
-	d.r, d.br = d.d.r, d.d.bytes
+	d.r, d.br = d.d.r(), d.d.bytes
 	d.s = nil
 	d.bd, d.bdRead, d.vd, d.vs = 0, false, 0, 0
 }
@@ -1173,7 +1147,7 @@ func bincDecodeTime(bs []byte) (tt time.Time, err error) {
 		return
 	}
 	// In stdlib time.Parse, when a date is parsed without a zone name, it uses "" as zone name.
-	// However, we need name here, so it can be shown when time is printed.
+	// However, we need name here, so it can be shown when time is printf.d.
 	// Zone name is in form: UTC-08:00.
 	// Note that Go Libs do not give access to dst flag, so we ignore dst bits
 

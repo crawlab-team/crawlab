@@ -235,22 +235,8 @@ func (e *cborEncDriver) WriteArrayEnd() {
 	}
 }
 
-func (e *cborEncDriver) EncodeString(c charEncoding, v string) {
-	e.encStringBytesS(cborBaseString, v)
-}
-
 func (e *cborEncDriver) EncodeStringEnc(c charEncoding, v string) {
 	e.encStringBytesS(cborBaseString, v)
-}
-
-func (e *cborEncDriver) EncodeStringBytes(c charEncoding, v []byte) {
-	if v == nil {
-		e.EncodeNil()
-	} else if c == cRAW {
-		e.encStringBytesS(cborBaseBytes, stringView(v))
-	} else {
-		e.encStringBytesS(cborBaseString, stringView(v))
-	}
 }
 
 func (e *cborEncDriver) EncodeStringBytesRaw(v []byte) {
@@ -735,7 +721,7 @@ type CborHandle struct {
 	// If unset, we encode time.Time using seconds past epoch.
 	TimeRFC3339 bool
 
-	// _ [1]uint64 // padding
+	_ [1]uint64 // padding (cache-aligned)
 }
 
 // Name returns the name of the handle: cbor
@@ -743,23 +729,23 @@ func (h *CborHandle) Name() string { return "cbor" }
 
 // SetInterfaceExt sets an extension
 func (h *CborHandle) SetInterfaceExt(rt reflect.Type, tag uint64, ext InterfaceExt) (err error) {
-	return h.SetExt(rt, tag, &extWrapper{bytesExtFailer{}, ext})
+	return h.SetExt(rt, tag, &interfaceExtWrapper{InterfaceExt: ext})
 }
 
 func (h *CborHandle) newEncDriver(e *Encoder) encDriver {
-	return &cborEncDriver{e: e, w: e.w, h: h}
+	return &cborEncDriver{e: e, w: e.w(), h: h}
 }
 
 func (h *CborHandle) newDecDriver(d *Decoder) decDriver {
-	return &cborDecDriver{d: d, h: h, r: d.r, br: d.bytes}
+	return &cborDecDriver{d: d, h: h, r: d.r(), br: d.bytes}
 }
 
 func (e *cborEncDriver) reset() {
-	e.w = e.e.w
+	e.w = e.e.w()
 }
 
 func (d *cborDecDriver) reset() {
-	d.r, d.br = d.d.r, d.d.bytes
+	d.r, d.br = d.d.r(), d.d.bytes
 	d.bd, d.bdRead = 0, false
 }
 

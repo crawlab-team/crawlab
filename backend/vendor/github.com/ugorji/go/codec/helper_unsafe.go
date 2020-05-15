@@ -186,7 +186,7 @@ func isEmptyValue(v reflect.Value, tinfos *TypeInfos, deref, checkStruct bool) b
 // ----------------------
 type atomicTypeInfoSlice struct {
 	v unsafe.Pointer // *[]rtid2ti
-	_ uintptr        // padding (atomicXXX expected to be 2 words)
+	_ uint64         // padding (atomicXXX expected to be 2 words)
 }
 
 func (x *atomicTypeInfoSlice) load() (s []rtid2ti) {
@@ -204,7 +204,7 @@ func (x *atomicTypeInfoSlice) store(p []rtid2ti) {
 // --------------------------
 type atomicRtidFnSlice struct {
 	v unsafe.Pointer // *[]codecRtidFn
-	_ uintptr        // padding (atomicXXX expected to be 2 words)
+	// _ uint64         // padding (atomicXXX expected to be 2 words) (make 1 word so JsonHandle fits)
 }
 
 func (x *atomicRtidFnSlice) load() (s []codecRtidFn) {
@@ -222,7 +222,7 @@ func (x *atomicRtidFnSlice) store(p []codecRtidFn) {
 // --------------------------
 type atomicClsErr struct {
 	v unsafe.Pointer // *clsErr
-	_ uintptr        // padding (atomicXXX expected to be 2 words)
+	_ uint64         // padding (atomicXXX expected to be 2 words)
 }
 
 func (x *atomicClsErr) load() (e clsErr) {
@@ -326,12 +326,8 @@ func (d *Decoder) kTime(f *codecFnInfo, rv reflect.Value) {
 }
 
 func (d *Decoder) kFloat32(f *codecFnInfo, rv reflect.Value) {
-	fv := d.d.DecodeFloat64()
-	if chkOvf.Float32(fv) {
-		d.errorf("float32 overflow: %v", fv)
-	}
 	urv := (*unsafeReflectValue)(unsafe.Pointer(&rv))
-	*(*float32)(urv.ptr) = float32(fv)
+	*(*float32)(urv.ptr) = float32(d.decodeFloat32())
 }
 
 func (d *Decoder) kFloat64(f *codecFnInfo, rv reflect.Value) {

@@ -9,7 +9,7 @@ package codec
 
 const genDecMapTmpl = `
 {{var "v"}} := *{{ .Varname }}
-{{var "l"}} := r.ReadMapStart()
+{{var "l"}} := z.DecReadMapStart()
 {{var "bh"}} := z.DecBasicHandle()
 if {{var "v"}} == nil {
 	{{var "rl"}} := z.DecInferLen({{var "l"}}, {{var "bh"}}.MaxInitLen, {{ .Size }})
@@ -27,21 +27,29 @@ if {{var "bh"}}.MapValueReset {
 if {{var "l"}} != 0 {
 {{var "hl"}} := {{var "l"}} > 0 
 	for {{var "j"}} := 0; ({{var "hl"}} && {{var "j"}} < {{var "l"}}) || !({{var "hl"}} || r.CheckBreak()); {{var "j"}}++ {
-	r.ReadMapElemKey() {{/* z.DecSendContainerState(codecSelfer_containerMapKey{{ .Sfx }}) */}}
-	{{ $x := printf "%vmk%v" .TempVar .Rand }}{{ decLineVarK $x }}
-{{ if eq .KTyp "interface{}" }}{{/* // special case if a byte array. */}}if {{var "bv"}}, {{var "bok"}} := {{var "mk"}}.([]byte); {{var "bok"}} {
+	z.DecReadMapElemKey() {{/* z.DecSendContainerState(codecSelfer_containerMapKey{{ .Sfx }}) */}}
+	{{ $x := printf "%vmk%v" .TempVar .Rand }}{{ decLineVarK $x -}}
+	{{ if eq .KTyp "interface{}" }}{{/* // special case if a byte array. */ -}}
+    if {{var "bv"}}, {{var "bok"}} := {{var "mk"}}.([]byte); {{var "bok"}} {
 		{{var "mk"}} = string({{var "bv"}})
-	}{{ end }}{{if decElemKindPtr}}
-	{{var "ms"}} = true{{end}}
+	}
+    {{ end -}}
+    {{if decElemKindPtr -}}
+	{{var "ms"}} = true
+    {{end -}}
 	if {{var "mg"}} {
-		{{if decElemKindPtr}}{{var "mv"}}, {{var "mok"}} = {{var "v"}}[{{var "mk"}}] 
+		{{if decElemKindPtr -}}
+        {{var "mv"}}, {{var "mok"}} = {{var "v"}}[{{var "mk"}}] 
 		if {{var "mok"}} {
 			{{var "ms"}} = false
-		} {{else}}{{var "mv"}} = {{var "v"}}[{{var "mk"}}] {{end}}
+		}
+        {{else -}}
+        {{var "mv"}} = {{var "v"}}[{{var "mk"}}]
+        {{end -}}
 	} {{if not decElemKindImmutable}}else { {{var "mv"}} = {{decElemZero}} }{{end}}
-	r.ReadMapElemValue() {{/* z.DecSendContainerState(codecSelfer_containerMapValue{{ .Sfx }}) */}}
+	z.DecReadMapElemValue() {{/* z.DecSendContainerState(codecSelfer_containerMapValue{{ .Sfx }}) */}}
 	{{var "mdn"}} = false
-	{{ $x := printf "%vmv%v" .TempVar .Rand }}{{ $y := printf "%vmdn%v" .TempVar .Rand }}{{ decLineVar $x $y }}
+	{{ $x := printf "%vmv%v" .TempVar .Rand }}{{ $y := printf "%vmdn%v" .TempVar .Rand }}{{ decLineVar $x $y -}}
 	if {{var "mdn"}} {
 		if {{ var "bh" }}.DeleteOnNilMapValue { delete({{var "v"}}, {{var "mk"}}) } else { {{var "v"}}[{{var "mk"}}] = {{decElemZero}} }
 	} else if {{if decElemKindPtr}} {{var "ms"}} && {{end}} {{var "v"}} != nil {
@@ -49,7 +57,7 @@ if {{var "l"}} != 0 {
 	}
 }
 } // else len==0: TODO: Should we clear map entries?
-r.ReadMapEnd() {{/* z.DecSendContainerState(codecSelfer_containerMapEnd{{ .Sfx }}) */}}
+z.DecReadMapEnd() {{/* z.DecSendContainerState(codecSelfer_containerMapEnd{{ .Sfx }}) */}}
 `
 
 const genDecListTmpl = `
@@ -67,7 +75,8 @@ if {{var "l"}} == 0 {
 	} {{else if isChan }}if {{var "v"}} == nil {
 		{{var "v"}} = make({{ .CTyp }}, 0)
 		{{var "c"}} = true
-	} {{end}}
+	}
+    {{end -}}
 } else {
 	{{var "hl"}} := {{var "l"}} > 0
 	var {{var "rl"}} int
@@ -85,9 +94,10 @@ if {{var "l"}} == 0 {
 		{{var "v"}} = {{var "v"}}[:{{var "l"}}]
 		{{var "c"}} = true
 	}
-	} {{end}}
+	}
+    {{end -}}
 	var {{var "j"}} int 
-    // var {{var "dn"}} bool 
+    {{/* // var {{var "dn"}} bool */ -}}
 	for {{var "j"}} = 0; ({{var "hl"}} && {{var "j"}} < {{var "l"}}) || !({{var "hl"}} || r.CheckBreak()); {{var "j"}}++ { // bounds-check-elimination
 		{{if not isArray}} if {{var "j"}} == 0 && {{var "v"}} == nil {
 			if {{var "hl"}} {
@@ -97,27 +107,28 @@ if {{var "l"}} == 0 {
 			}
 			{{var "v"}} = make({{if isSlice}}[]{{ .Typ }}{{else if isChan}}{{.CTyp}}{{end}}, {{var "rl"}})
 			{{var "c"}} = true 
-		}{{end}}
+		}
+        {{end -}}
 		{{var "h"}}.ElemContainerState({{var "j"}})
-        {{/* {{var "dn"}} = r.TryDecodeAsNil() */}}{{/* commented out, as decLineVar handles this already each time */}}
+        {{/* {{var "dn"}} = r.TryDecodeAsNil() */}}{{/* commented out, as decLineVar handles this already each time */ -}}
         {{if isChan}}{{ $x := printf "%[1]vvcx%[2]v" .TempVar .Rand }}var {{$x}} {{ .Typ }}
-		{{ decLineVar $x }}
+		{{ decLineVar $x -}}
 		{{var "v"}} <- {{ $x }}
         // println(">>>> sending ", {{ $x }}, " into ", {{var "v"}}) // TODO: remove this
-        {{else}}{{/* // if indefinite, etc, then expand the slice if necessary */}}
+        {{else}}{{/* // if indefinite, etc, then expand the slice if necessary */ -}}
 		var {{var "db"}} bool
 		if {{var "j"}} >= len({{var "v"}}) {
 			{{if isSlice }} {{var "v"}} = append({{var "v"}}, {{ zero }})
 			{{var "c"}} = true
 			{{else}} z.DecArrayCannotExpand(len(v), {{var "j"}}+1); {{var "db"}} = true
-			{{end}}
+			{{end -}}
 		}
 		if {{var "db"}} {
 			z.DecSwallow()
 		} else {
-			{{ $x := printf "%[1]vv%[2]v[%[1]vj%[2]v]" .TempVar .Rand }}{{ decLineVar $x }}
+			{{ $x := printf "%[1]vv%[2]v[%[1]vj%[2]v]" .TempVar .Rand }}{{ decLineVar $x -}}
 		}
-        {{end}}
+        {{end -}}
 	}
 	{{if isSlice}} if {{var "j"}} < len({{var "v"}}) {
 		{{var "v"}} = {{var "v"}}[:{{var "j"}}]
@@ -125,12 +136,14 @@ if {{var "l"}} == 0 {
 	} else if {{var "j"}} == 0 && {{var "v"}} == nil {
 		{{var "v"}} = make([]{{ .Typ }}, 0)
 		{{var "c"}} = true
-	} {{end}}
+	}
+    {{end -}}
 }
 {{var "h"}}.End()
 {{if not isArray }}if {{var "c"}} { 
 	*{{ .Varname }} = {{var "v"}}
-}{{end}}
+}
+{{end -}}
 `
 
 const genEncChanTmpl = `
