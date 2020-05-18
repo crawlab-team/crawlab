@@ -106,6 +106,7 @@ func GetSpiderList(c *gin.Context) {
 			sortStr = "+" + sortKey
 		} else {
 			HandleErrorF(http.StatusBadRequest, c, "invalid sort_direction")
+			return
 		}
 	}
 
@@ -139,6 +140,7 @@ func GetSpider(c *gin.Context) {
 
 	if !bson.IsObjectIdHex(id) {
 		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
 	}
 
 	spider, err := model.GetSpider(bson.ObjectIdHex(id))
@@ -170,6 +172,7 @@ func PostSpider(c *gin.Context) {
 
 	if !bson.IsObjectIdHex(id) {
 		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
 	}
 
 	var item model.Spider
@@ -228,6 +231,7 @@ func PublishSpider(c *gin.Context) {
 
 	if !bson.IsObjectIdHex(id) {
 		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
 	}
 
 	spider, err := model.GetSpider(bson.ObjectIdHex(id))
@@ -354,6 +358,7 @@ func CopySpider(c *gin.Context) {
 
 	if !bson.IsObjectIdHex(id) {
 		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
 	}
 
 	var reqBody ReqBody
@@ -1671,7 +1676,6 @@ func PostSpiderScrapyItems(c *gin.Context) {
 		Message: "success",
 	})
 }
-
 
 // @Summary Get scrapy spider pipelines
 // @Description Get scrapy spider pipelines
