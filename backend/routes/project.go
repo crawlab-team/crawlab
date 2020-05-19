@@ -127,6 +127,7 @@ func PostProject(c *gin.Context) {
 
 	if !bson.IsObjectIdHex(id) {
 		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
 	}
 
 	var item model.Project

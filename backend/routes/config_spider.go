@@ -167,11 +167,13 @@ func UploadConfigSpider(c *gin.Context) {
 		f, err = os.OpenFile(sfPath, os.O_WRONLY, 0777)
 		if err != nil {
 			HandleError(http.StatusInternalServerError, c, err)
+			return
 		}
 	} else {
 		f, err = os.Create(sfPath)
 		if err != nil {
 			HandleError(http.StatusInternalServerError, c, err)
+			return
 		}
 	}
 
@@ -356,6 +358,7 @@ func GetConfigSpiderConfig(c *gin.Context) {
 	// 校验ID
 	if !bson.IsObjectIdHex(id) {
 		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
 	}
 
 	// 获取爬虫
