@@ -5,6 +5,7 @@ import (
 	"crawlab/config"
 	"crawlab/database"
 	_ "crawlab/docs"
+	validate2 "crawlab/lib/validate"
 	"crawlab/middlewares"
 	"crawlab/model"
 	"crawlab/routes"
@@ -13,6 +14,8 @@ import (
 	"crawlab/services/rpc"
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 	"github.com/olivere/elastic/v7"
 	"github.com/spf13/viper"
 	"github.com/swaggo/gin-swagger"
@@ -34,6 +37,10 @@ func init() {
 func main() {
 	app := gin.New()
 	app.Use(gin.Logger(), gin.Recovery())
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		_ = v.RegisterValidation("bid", validate2.MongoID)
+	}
+
 	if swagHandler != nil {
 		app.GET("/swagger/*any", swagHandler)
 	}
