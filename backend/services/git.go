@@ -554,6 +554,17 @@ func GitCheckout(s model.Spider, hash string) (err error) {
 		debug.PrintStack()
 		return err
 	}
+	//判断远程origin路径是否和当前的GitUrl是同一个，如果不是删掉原来的路径，重新拉取远程代码
+	remote, err := repo.Remote("origin")
+	if err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return err
+	}
+	if remote.String() != s.GitUrl {
+		utils.RemoveFiles(s.Src)
+		return SyncSpiderGit(s)
+	}
 
 	// Checkout
 	if err := wt.Checkout(&git.CheckoutOptions{
