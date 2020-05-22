@@ -26,7 +26,7 @@ type Node struct {
 	Key string `json:"key" bson:"key"`
 
 	// 前端展示
-	IsMaster bool `json:"is_master"`
+	IsMaster bool `json:"is_master" bson:"is_master"`
 
 	UpdateTs     time.Time `json:"update_ts" bson:"update_ts"`
 	CreateTs     time.Time `json:"create_ts" bson:"create_ts"`

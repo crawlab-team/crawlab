@@ -102,7 +102,34 @@ func (r *Redis) HDel(collection string, key string) error {
 	}
 	return nil
 }
+func (r *Redis) HScan(collection string) (results []string, err error) {
+	c := r.pool.Get()
+	defer utils.Close(c)
+	var (
+		cursor int64
+		items  []string
+	)
 
+	for {
+		values, err := redis.Values(c.Do("HSCAN", collection, cursor))
+		if err != nil {
+			return results, err
+		}
+
+		values, err = redis.Scan(values, &cursor, &items)
+		if err != nil {
+			return results, err
+		}
+
+		results = append(results, items[1])
+
+		if cursor == 0 {
+			break
+		}
+	}
+	return results, err
+
+}
 func (r *Redis) HKeys(collection string) ([]string, error) {
 	c := r.pool.Get()
 	defer utils.Close(c)
