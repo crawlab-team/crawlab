@@ -93,7 +93,9 @@ func UpdateNodeStatus() {
 			},
 		}, bson.M{
 			"$set": bson.M{
-				"status": constants.StatusOffline,
+				"status":         constants.StatusOffline,
+				"update_ts":      time.Now(),
+				"update_ts_unix": time.Now().Unix(),
 			},
 		})
 		if err != nil {
