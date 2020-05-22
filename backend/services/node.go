@@ -51,6 +51,22 @@ func GetNodeData() (Data, error) {
 	}
 	return data, err
 }
+func GetRedisNode(key string) (*Data, error) {
+	// 获取节点数据
+	value, err := database.RedisClient.HGet("nodes", key)
+	if err != nil {
+		log.Errorf(err.Error())
+		return nil, err
+	}
+
+	// 解析节点列表数据
+	var data Data
+	if err := json.Unmarshal([]byte(value), &data); err != nil {
+		log.Errorf(err.Error())
+		return nil, err
+	}
+	return &data, nil
+}
 
 // 更新所有节点状态
 func UpdateNodeStatus() {
