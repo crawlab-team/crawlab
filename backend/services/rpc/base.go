@@ -5,11 +5,13 @@ import (
 	"crawlab/database"
 	"crawlab/entity"
 	"crawlab/model"
+	"crawlab/services/local_node"
 	"crawlab/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/apex/log"
+	"github.com/cenkalti/backoff/v4"
 	"github.com/gomodule/redigo/redis"
 	uuid "github.com/satori/go.uuid"
 	"runtime/debug"
@@ -77,7 +79,7 @@ func GetService(msg entity.RpcMessage) Service {
 }
 
 // 处理RPC消息
-func handleMsg(msgStr string, node model.Node) {
+func handleMsg(msgStr string, node *model.Node) {
 	// 反序列化消息
 	var msg entity.RpcMessage
 	if err := json.Unmarshal([]byte(msgStr), &msg); err != nil {
@@ -107,23 +109,29 @@ func InitRpcService() error {
 	go func() {
 		for {
 			// 获取当前节点
-			node, err := model.GetCurrentNode()
-			if err != nil {
-				log.Errorf(err.Error())
-				debug.PrintStack()
-				continue
-			}
+			node := local_node.CurrentNode()
+			//node, err := model.GetCurrentNode()
+			//if err != nil {
+			//	log.Errorf(err.Error())
+			//	debug.PrintStack()
+			//	continue
+			//}
+			b := backoff.NewExponentialBackOff()
+			bp := backoff.WithMaxRetries(b, 10)
+			var msgStr string
+			var err error
+			err = backoff.Retry(func() error {
+				msgStr, err = database.RedisClient.BRPop(fmt.Sprintf("rpc:%s", node.Id.Hex()), 0)
 
-			// 获取获取消息队列信息
-			msgStr, err := database.RedisClient.BRPop(fmt.Sprintf("rpc:%s", node.Id.Hex()), 0)
-			if err != nil {
-				if err != redis.ErrNil {
-					log.Errorf(err.Error())
-					debug.PrintStack()
+				if err != nil && err != redis.ErrNil {
+					log.WithError(err).Warnf("waiting for redis pool active connection. will after %f seconds try  again.", b.NextBackOff().Seconds())
+					return err
 				}
+				return err
+			}, bp)
+			if err != nil && err != redis.ErrNil {
 				continue
 			}
-
 			// 处理消息
 			go handleMsg(msgStr, node)
 		}

@@ -6,6 +6,7 @@ import (
 	"crawlab/entity"
 	"crawlab/lib/cron"
 	"crawlab/model"
+	"crawlab/services/local_node"
 	"crawlab/services/msg_handler"
 	"crawlab/services/register"
 	"crawlab/utils"
@@ -33,7 +34,8 @@ type Data struct {
 // 所有调用IsMasterNode的方法，都永远会在master节点执行，所以GetCurrentNode方法返回永远是master节点
 // 该ID的节点是否为主节点
 func IsMasterNode(id string) bool {
-	curNode, _ := model.GetCurrentNode()
+	curNode := local_node.CurrentNode()
+	//curNode, _ := model.GetCurrentNode()
 	node, _ := model.GetNode(bson.ObjectIdHex(id))
 	return curNode.Id == node.Id
 }
@@ -268,11 +270,13 @@ func InitNodeService() error {
 	UpdateNodeData()
 
 	// 获取当前节点
-	node, err := model.GetCurrentNode()
-	if err != nil {
-		log.Errorf(err.Error())
-		return err
-	}
+	//node, err := model.GetCurrentNode()
+	//
+	//if err != nil {
+	//	log.Errorf(err.Error())
+	//	return err
+	//}
+	node := local_node.CurrentNode()
 
 	if model.IsMaster() {
 		// 如果为主节点，订阅主节点通信频道
@@ -309,4 +313,13 @@ func InitNodeService() error {
 
 	c.Start()
 	return nil
+}
+func InitMasterNodeInfo() (err error) {
+	// 获取本机信息
+	ip, mac, hostname, key, err := model.GetNodeBaseInfo()
+	if err != nil {
+		debug.PrintStack()
+		return err
+	}
+	return model.UpdateMasterNodeInfo(key, ip, mac, hostname)
 }

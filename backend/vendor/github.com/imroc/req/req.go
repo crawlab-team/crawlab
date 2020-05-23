@@ -34,20 +34,6 @@ const (
 	LstdFlags = LreqHead | LreqBody | LrespHead | LrespBody
 )
 
-// Header represents http request header
-type Header map[string]string
-
-func (h Header) Clone() Header {
-	if h == nil {
-		return nil
-	}
-	hh := Header{}
-	for k, v := range h {
-		hh[k] = v
-	}
-	return hh
-}
-
 // Param represents  http request param
 type Param map[string]interface{}
 
@@ -121,15 +107,17 @@ func BodyXML(v interface{}) *bodyXml {
 
 // Req is a convenient client for initiating requests
 type Req struct {
-	client      *http.Client
-	jsonEncOpts *jsonEncOpts
-	xmlEncOpts  *xmlEncOpts
-	flag        int
+	client           *http.Client
+	jsonEncOpts      *jsonEncOpts
+	xmlEncOpts       *xmlEncOpts
+	flag             int
+	progressInterval time.Duration
 }
 
 // New create a new *Req
 func New() *Req {
-	return &Req{flag: LstdFlags}
+	// default progress reporting interval is 200 milliseconds
+	return &Req{flag: LstdFlags, progressInterval: 200 * time.Millisecond}
 }
 
 type param struct {
@@ -277,9 +265,10 @@ func (r *Req) Do(method, rawurl string, vs ...interface{}) (resp *Resp, err erro
 			up = UploadProgress(progress)
 		}
 		multipartHelper := &multipartHelper{
-			form:           formParam.Values,
-			uploads:        uploads,
-			uploadProgress: up,
+			form:             formParam.Values,
+			uploads:          uploads,
+			uploadProgress:   up,
+			progressInterval: resp.r.progressInterval,
 		}
 		multipartHelper.Upload(req)
 		resp.multipartHelper = multipartHelper
@@ -484,10 +473,11 @@ func (b *bodyWrapper) Read(p []byte) (n int, err error) {
 }
 
 type multipartHelper struct {
-	form           url.Values
-	uploads        []FileUpload
-	dump           []byte
-	uploadProgress UploadProgress
+	form             url.Values
+	uploads          []FileUpload
+	dump             []byte
+	uploadProgress   UploadProgress
+	progressInterval time.Duration
 }
 
 func (m *multipartHelper) Upload(req *http.Request) {
@@ -514,6 +504,11 @@ func (m *multipartHelper) Upload(req *http.Request) {
 			var current int64
 			buf := make([]byte, 1024)
 			var lastTime time.Time
+
+			defer func() {
+				m.uploadProgress(current, total)
+			}()
+
 			upload = func(w io.Writer, r io.Reader) error {
 				for {
 					n, err := r.Read(buf)
@@ -523,7 +518,7 @@ func (m *multipartHelper) Upload(req *http.Request) {
 							return _err
 						}
 						current += int64(n)
-						if now := time.Now(); now.Sub(lastTime) > 200*time.Millisecond {
+						if now := time.Now(); now.Sub(lastTime) > m.progressInterval {
 							lastTime = now
 							m.uploadProgress(current, total)
 						}

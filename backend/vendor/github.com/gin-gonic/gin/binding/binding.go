@@ -2,6 +2,8 @@
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
+// +build !nomsgpack
+
 package binding
 
 import "net/http"
@@ -78,12 +80,13 @@ var (
 	MsgPack       = msgpackBinding{}
 	YAML          = yamlBinding{}
 	Uri           = uriBinding{}
+	Header        = headerBinding{}
 )
 
 // Default returns the appropriate Binding instance based on the HTTP method
 // and the content type.
 func Default(method, contentType string) Binding {
-	if method == "GET" {
+	if method == http.MethodGet {
 		return Form
 	}
 
