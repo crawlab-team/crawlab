@@ -20,7 +20,7 @@ type SendCloser interface {
 	Close() error
 }
 
-// A SendFunc is a function that sends emails to the given adresses.
+// A SendFunc is a function that sends emails to the given addresses.
 //
 // The SendFunc type is an adapter to allow the use of ordinary functions as
 // email senders. If f is a function with the appropriate signature, SendFunc(f)
@@ -108,10 +108,9 @@ func addAddress(list []string, addr string) []string {
 }
 
 func parseAddress(field string) (string, error) {
-	a, err := mail.ParseAddress(field)
-	if a == nil {
-		return "", err
+	addr, err := mail.ParseAddress(field)
+	if err != nil {
+		return "", fmt.Errorf("gomail: invalid address %q: %v", field, err)
 	}
-
-	return a.Address, err
+	return addr.Address, nil
 }

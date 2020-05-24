@@ -1,20 +1,24 @@
+# github.com/KyleBanks/depth v1.2.1
+github.com/KyleBanks/depth
 # github.com/Masterminds/semver v1.4.2
 github.com/Masterminds/semver
 # github.com/Masterminds/sprig v2.16.0+incompatible
 github.com/Masterminds/sprig
-# github.com/PuerkitoBio/purell v1.1.0
+# github.com/PuerkitoBio/purell v1.1.1
 github.com/PuerkitoBio/purell
 # github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578
 github.com/PuerkitoBio/urlesc
 # github.com/Unknwon/goconfig v0.0.0-20191126170842-860a72fb44fd
 github.com/Unknwon/goconfig
-# github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc
+# github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 github.com/alecthomas/template
 github.com/alecthomas/template/parse
 # github.com/aokoli/goutils v1.0.1
 github.com/aokoli/goutils
-# github.com/apex/log v1.1.1
+# github.com/apex/log v1.1.4
 github.com/apex/log
+# github.com/cenkalti/backoff/v4 v4.0.2
+github.com/cenkalti/backoff/v4
 # github.com/dgrijalva/jwt-go v3.2.0+incompatible
 github.com/dgrijalva/jwt-go
 # github.com/emirpasic/gods v1.12.0
@@ -24,13 +28,14 @@ github.com/emirpasic/gods/lists/arraylist
 github.com/emirpasic/gods/trees
 github.com/emirpasic/gods/trees/binaryheap
 github.com/emirpasic/gods/utils
-# github.com/fsnotify/fsnotify v1.4.7
+# github.com/fsnotify/fsnotify v1.4.9
 github.com/fsnotify/fsnotify
 # github.com/gin-contrib/sse v0.1.0
 github.com/gin-contrib/sse
-# github.com/gin-gonic/gin v1.4.0
+# github.com/gin-gonic/gin v1.6.3
 github.com/gin-gonic/gin
 github.com/gin-gonic/gin/binding
+github.com/gin-gonic/gin/internal/bytesconv
 github.com/gin-gonic/gin/internal/json
 github.com/gin-gonic/gin/render
 # github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
@@ -39,20 +44,22 @@ github.com/globalsign/mgo/bson
 github.com/globalsign/mgo/internal/json
 github.com/globalsign/mgo/internal/sasl
 github.com/globalsign/mgo/internal/scram
-# github.com/go-openapi/jsonpointer v0.17.0
+# github.com/go-openapi/jsonpointer v0.19.3
 github.com/go-openapi/jsonpointer
-# github.com/go-openapi/jsonreference v0.19.0
+# github.com/go-openapi/jsonreference v0.19.3
 github.com/go-openapi/jsonreference
-# github.com/go-openapi/spec v0.19.0
+# github.com/go-openapi/spec v0.19.4
 github.com/go-openapi/spec
-# github.com/go-openapi/swag v0.17.0
+# github.com/go-openapi/swag v0.19.5
 github.com/go-openapi/swag
-# github.com/go-playground/locales v0.12.1
+# github.com/go-playground/locales v0.13.0
 github.com/go-playground/locales
 github.com/go-playground/locales/currency
-# github.com/go-playground/universal-translator v0.16.0
+# github.com/go-playground/universal-translator v0.17.0
 github.com/go-playground/universal-translator
-# github.com/golang/protobuf v1.3.1
+# github.com/go-playground/validator/v10 v10.3.0
+github.com/go-playground/validator/v10
+# github.com/golang/protobuf v1.3.3
 github.com/golang/protobuf/proto
 # github.com/gomodule/redigo v2.0.0+incompatible
 github.com/gomodule/redigo/internal
@@ -76,21 +83,21 @@ github.com/hashicorp/hcl/json/token
 github.com/huandu/xstrings
 # github.com/imdario/mergo v0.3.6
 github.com/imdario/mergo
-# github.com/imroc/req v0.2.4
+# github.com/imroc/req v0.3.0
 github.com/imroc/req
 # github.com/jaytaylor/html2text v0.0.0-20180606194806-57d518f124b0
 github.com/jaytaylor/html2text
 # github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99
 github.com/jbenet/go-context/io
-# github.com/json-iterator/go v1.1.6
+# github.com/json-iterator/go v1.1.9
 github.com/json-iterator/go
 # github.com/jtolds/gls v4.20.0+incompatible
 github.com/jtolds/gls
 # github.com/kevinburke/ssh_config v0.0.0-20190725054713-01f96b0aa0cd
 github.com/kevinburke/ssh_config
-# github.com/leodido/go-urn v1.1.0
+# github.com/leodido/go-urn v1.2.0
 github.com/leodido/go-urn
-# github.com/magiconair/properties v1.8.0
+# github.com/magiconair/properties v1.8.1
 github.com/magiconair/properties
 # github.com/mailru/easyjson v0.7.1
 github.com/mailru/easyjson
@@ -99,7 +106,7 @@ github.com/mailru/easyjson/jlexer
 github.com/mailru/easyjson/jwriter
 # github.com/matcornic/hermes v1.2.0
 github.com/matcornic/hermes
-# github.com/mattn/go-isatty v0.0.8
+# github.com/mattn/go-isatty v0.0.12
 github.com/mattn/go-isatty
 # github.com/mattn/go-runewidth v0.0.3
 github.com/mattn/go-runewidth
@@ -113,7 +120,7 @@ github.com/modern-go/concurrent
 github.com/modern-go/reflect2
 # github.com/olekukonko/tablewriter v0.0.1
 github.com/olekukonko/tablewriter
-# github.com/olivere/elastic/v7 v7.0.14
+# github.com/olivere/elastic/v7 v7.0.15
 github.com/olivere/elastic/v7
 github.com/olivere/elastic/v7/config
 github.com/olivere/elastic/v7/uritemplates
@@ -132,7 +139,7 @@ github.com/smartystreets/assertions
 github.com/smartystreets/assertions/internal/go-diff/diffmatchpatch
 github.com/smartystreets/assertions/internal/go-render/render
 github.com/smartystreets/assertions/internal/oglematchers
-# github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337
+# github.com/smartystreets/goconvey v1.6.4
 github.com/smartystreets/goconvey/convey
 github.com/smartystreets/goconvey/convey/gotest
 github.com/smartystreets/goconvey/convey/reporting
@@ -145,7 +152,7 @@ github.com/spf13/cast
 github.com/spf13/jwalterweatherman
 # github.com/spf13/pflag v1.0.3
 github.com/spf13/pflag
-# github.com/spf13/viper v1.4.0
+# github.com/spf13/viper v1.7.0
 github.com/spf13/viper
 # github.com/src-d/gcfg v1.4.0
 github.com/src-d/gcfg
@@ -154,15 +161,19 @@ github.com/src-d/gcfg/token
 github.com/src-d/gcfg/types
 # github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf
 github.com/ssor/bom
+# github.com/subosito/gotenv v1.2.0
+github.com/subosito/gotenv
 # github.com/swaggo/gin-swagger v1.2.0
 github.com/swaggo/gin-swagger
 github.com/swaggo/gin-swagger/swaggerFiles
-# github.com/swaggo/swag v1.5.1
+# github.com/swaggo/swag v1.6.6
 github.com/swaggo/swag
-# github.com/ugorji/go/codec v1.1.5-pre
+# github.com/ugorji/go/codec v1.1.7
 github.com/ugorji/go/codec
 # github.com/xanzy/ssh-agent v0.2.1
 github.com/xanzy/ssh-agent
+# go.uber.org/atomic v1.6.0
+go.uber.org/atomic
 # golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 golang.org/x/crypto/cast5
 golang.org/x/crypto/curve25519
@@ -191,7 +202,7 @@ golang.org/x/net/internal/socks
 golang.org/x/net/proxy
 golang.org/x/net/webdav
 golang.org/x/net/webdav/internal/xml
-# golang.org/x/sys v0.0.0-20190726091711-fc99dfbffb4e
+# golang.org/x/sys v0.0.0-20200420163511-1957bb5e6d1f
 golang.org/x/sys/cpu
 golang.org/x/sys/unix
 golang.org/x/sys/windows
@@ -201,19 +212,17 @@ golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
 golang.org/x/text/width
-# golang.org/x/tools v0.0.0-20190729092621-ff9f1409240a
+# golang.org/x/tools v0.0.0-20191112195655-aa38f8e97acc
 golang.org/x/tools/go/ast/astutil
 golang.org/x/tools/go/buildutil
 golang.org/x/tools/go/internal/cgo
 golang.org/x/tools/go/loader
 # gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc
 gopkg.in/alexcesaro/quotedprintable.v3
-# gopkg.in/go-playground/validator.v8 v8.18.2
-gopkg.in/go-playground/validator.v8
-# gopkg.in/go-playground/validator.v9 v9.29.1
-gopkg.in/go-playground/validator.v9
-# gopkg.in/gomail.v2 v2.0.0-20150902115704-41f357289737
+# gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 gopkg.in/gomail.v2
+# gopkg.in/ini.v1 v1.51.0
+gopkg.in/ini.v1
 # gopkg.in/russross/blackfriday.v2 v2.0.0
 gopkg.in/russross/blackfriday.v2
 # gopkg.in/src-d/go-billy.v4 v4.3.2
@@ -266,5 +275,5 @@ gopkg.in/src-d/go-git.v4/utils/merkletrie/internal/frame
 gopkg.in/src-d/go-git.v4/utils/merkletrie/noder
 # gopkg.in/warnings.v0 v0.1.2
 gopkg.in/warnings.v0
-# gopkg.in/yaml.v2 v2.2.2
+# gopkg.in/yaml.v2 v2.3.0
 gopkg.in/yaml.v2

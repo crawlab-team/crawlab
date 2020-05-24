@@ -67,7 +67,8 @@ Examples
 [Cookie](#Cookie)  
 [Set Timeout](#Set-Timeout)  
 [Set Proxy](#Set-Proxy)  
-[Customize Client](#Customize-Client)  
+[Customize Client](#Customize-Client)
+[Set context.Context](#Context)
 
 ## <a name="Basic">Basic</a>
 ``` go
@@ -103,6 +104,25 @@ header := make(http.Header)
 header.Set("Accept", "application/json")
 req.Get("https://www.baidu.com", header)
 ```
+
+You can also set header from struct, use `HeaderFromStruct` func to parse your struct
+``` go
+type HeaderStruct struct {
+	UserAgent     string `json:"User-Agent"`
+	Authorization string `json:"Authorization"`
+}
+
+func main(){
+	h := HeaderStruct{
+		"V1.0.0",
+		"roc",
+	}
+
+	authHeader := req.HeaderFromStruct(h) 
+	req.Get("https://www.baidu.com", authHeader, req.Header{"User-Agent": "V1.1"})
+}
+```
+> Note: Please add tag 'json' to your argument in struct to let you customize the key name of your header
 
 ## <a name="Set-Param">Set Param</a>
 Use `req.Param` (it is actually a `map[string]interface{}`)
@@ -163,7 +183,7 @@ Output in simple way (default format)
 ``` go
 r, _ := req.Get(url, param)
 log.Printf("%v\n", r) // GET http://foo.bar/api?name=roc&cmd=add {"code":"0","msg":"success"}
-log.Prinln(r)         // smae as above
+log.Prinln(r)         // same as above
 ```
 
 ### `%-v` or `%-s`
@@ -279,6 +299,12 @@ req.SetProxy(func(r *http.Request) (*url.URL, error) {
 Set a simple proxy (use fixed proxy url for every request)
 ``` go
 req.SetProxyUrl("http://my.proxy.com:23456")
+```
+
+## <a name="Context">Set context.Context</a>
+You can pass context.Context in simple way:
+```go
+r, _ := req.Get(url, context.Background())
 ```
 
 ## <a name="Customize-Client">Customize Client</a>

@@ -234,3 +234,15 @@ func (r *Req) SetXMLIndent(prefix, indent string) {
 func SetXMLIndent(prefix, indent string) {
 	std.SetXMLIndent(prefix, indent)
 }
+
+// SetProgressInterval sets the progress reporting interval of both
+// UploadProgress and DownloadProgress handler
+func (r *Req) SetProgressInterval(interval time.Duration) {
+	r.progressInterval = interval
+}
+
+// SetProgressInterval sets the progress reporting interval of both
+// UploadProgress and DownloadProgress handler for the default client
+func SetProgressInterval(interval time.Duration) {
+	std.SetProgressInterval(interval)
+}
