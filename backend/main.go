@@ -75,6 +75,12 @@ func main() {
 	log.Info("initialized log successfully")
 
 	if model.IsMaster() {
+		// 初始化Master节点信息
+		if err := services.InitMasterNodeInfo(); err != nil {
+			log.Error("init master node info error:" + err.Error())
+			debug.PrintStack()
+			panic(err)
+		}
 		// 初始化定时任务
 		if err := services.InitScheduler(); err != nil {
 			log.Error("init scheduler error:" + err.Error())

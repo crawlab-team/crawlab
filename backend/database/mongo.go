@@ -1,9 +1,14 @@
 package database
 
 import (
+	"crawlab/constants"
+	"github.com/apex/log"
+	"github.com/cenkalti/backoff/v4"
 	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
 	"github.com/spf13/viper"
 	"net"
+	"reflect"
 	"time"
 )
 
@@ -29,6 +34,28 @@ func GetGridFs(prefix string) (*mgo.Session, *mgo.GridFS) {
 	s, db := GetDb()
 	gf := db.GridFS(prefix)
 	return s, gf
+}
+
+func FillNullObjectId(doc interface{}) {
+	t := reflect.TypeOf(doc)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	if t.Kind() != reflect.Struct {
+		return
+	}
+	v := reflect.ValueOf(doc)
+	for i := 0; i < t.NumField(); i++ {
+		ft := t.Field(i)
+		fv := v.Elem().Field(i)
+		val := fv.Interface()
+		switch val.(type) {
+		case bson.ObjectId:
+			if !val.(bson.ObjectId).Valid() {
+				v.FieldByName(ft.Name).Set(reflect.ValueOf(bson.ObjectIdHex(constants.ObjectIdNull)))
+			}
+		}
+	}
 }
 
 func InitMongo() error {
@@ -61,37 +88,16 @@ func InitMongo() error {
 			dialInfo.Password = mongoPassword
 			dialInfo.Source = mongoAuth
 		}
+		bp := backoff.NewExponentialBackOff()
+		var err error
 
-		// mongo session
-		var sess *mgo.Session
-
-		// 错误次数
-		errNum := 0
-
-		// 重复尝试连接mongo
-		for {
-			var err error
-
-			// 连接mongo
-			sess, err = mgo.DialWithInfo(&dialInfo)
-
+		err = backoff.Retry(func() error {
+			Session, err = mgo.DialWithInfo(&dialInfo)
 			if err != nil {
-				// 如果连接错误，休息1秒，错误次数+1
-				time.Sleep(1 * time.Second)
-				errNum++
-
-				// 如果错误次数超过30，返回错误
-				if errNum >= 30 {
-					return err
-				}
-			} else {
-				// 如果没有错误，退出循环
-				break
+				log.WithError(err).Warnf("waiting for connect mongo database, after %f seconds try again.", bp.NextBackOff().Seconds())
 			}
-		}
-
-		// 赋值给全局mongo session
-		Session = sess
+			return err
+		}, bp)
 	}
 	//Add Unique index for 'key'
 	keyIndex := mgo.Index{

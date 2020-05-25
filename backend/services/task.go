@@ -7,6 +7,7 @@ import (
 	"crawlab/entity"
 	"crawlab/lib/cron"
 	"crawlab/model"
+	"crawlab/services/local_node"
 	"crawlab/services/notification"
 	"crawlab/services/spider_handler"
 	"crawlab/utils"
@@ -503,18 +504,20 @@ func ExecuteTask(id int) {
 	tic := time.Now()
 
 	// 获取当前节点
-	node, err := model.GetCurrentNode()
-	if err != nil {
-		log.Errorf("execute task get current node error: %s", err.Error())
-		debug.PrintStack()
-		return
-	}
+	//node, err := model.GetCurrentNode()
+	//if err != nil {
+	//	log.Errorf("execute task get current node error: %s", err.Error())
+	//	debug.PrintStack()
+	//	return
+	//}
+	node := local_node.CurrentNode()
 
 	// 节点队列
 	queueCur := "tasks:node:" + node.Id.Hex()
 
 	// 节点队列任务
 	var msg string
+	var err error
 	if msg, err = database.RedisClient.LPop(queueCur); err != nil {
 		// 节点队列没有任务，获取公共队列任务
 		queuePub := "tasks:public"
@@ -765,12 +768,13 @@ func CancelTask(id string) (err error) {
 	}
 
 	// 获取当前节点（默认当前节点为主节点）
-	node, err := model.GetCurrentNode()
-	if err != nil {
-		log.Errorf("get current node error: %s", err.Error())
-		debug.PrintStack()
-		return err
-	}
+	//node, err := model.GetCurrentNode()
+	//if err != nil {
+	//	log.Errorf("get current node error: %s", err.Error())
+	//	debug.PrintStack()
+	//	return err
+	//}
+	node := local_node.CurrentNode()
 
 	log.Infof("current node id is: %s", node.Id.Hex())
 	log.Infof("task node id is: %s", task.NodeId.Hex())

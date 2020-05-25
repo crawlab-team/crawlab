@@ -6,6 +6,7 @@ import (
 	"crawlab/utils"
 	"errors"
 	"github.com/apex/log"
+	"github.com/cenkalti/backoff/v4"
 	"github.com/gomodule/redigo/redis"
 	"github.com/spf13/viper"
 	"runtime/debug"
@@ -77,11 +78,15 @@ func (r *Redis) HSet(collection string, key string, value string) error {
 	}
 	return nil
 }
-
+func (r *Redis) Ping() error {
+	c := r.pool.Get()
+	defer utils.Close(c)
+	_, err2 := redis.String(c.Do("PING"))
+	return err2
+}
 func (r *Redis) HGet(collection string, key string) (string, error) {
 	c := r.pool.Get()
 	defer utils.Close(c)
-
 	value, err2 := redis.String(c.Do("HGET", collection, key))
 	if err2 != nil && err2 != redis.ErrNil {
 		log.Error(err2.Error())
@@ -102,7 +107,34 @@ func (r *Redis) HDel(collection string, key string) error {
 	}
 	return nil
 }
+func (r *Redis) HScan(collection string) (results []string, err error) {
+	c := r.pool.Get()
+	defer utils.Close(c)
+	var (
+		cursor int64
+		items  []string
+	)
 
+	for {
+		values, err := redis.Values(c.Do("HSCAN", collection, cursor))
+		if err != nil {
+			return results, err
+		}
+
+		values, err = redis.Scan(values, &cursor, &items)
+		if err != nil {
+			return results, err
+		}
+
+		results = append(results, items[1])
+
+		if cursor == 0 {
+			break
+		}
+	}
+	return results, err
+
+}
 func (r *Redis) HKeys(collection string) ([]string, error) {
 	c := r.pool.Get()
 	defer utils.Close(c)
@@ -167,7 +199,17 @@ func NewRedisPool() *redis.Pool {
 
 func InitRedis() error {
 	RedisClient = NewRedisClient()
-	return nil
+	b := backoff.NewExponentialBackOff()
+	b.MaxInterval = 20 * time.Second
+	err := backoff.Retry(func() error {
+		err := RedisClient.Ping()
+
+		if err != nil {
+			log.WithError(err).Warnf("waiting for redis pool active connection. will after %f seconds try  again.", b.NextBackOff().Seconds())
+		}
+		return err
+	}, b)
+	return err
 }
 
 func Pub(channel string, msg entity.NodeMessage) error {
