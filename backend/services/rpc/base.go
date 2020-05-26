@@ -85,6 +85,7 @@ func handleMsg(msgStr string, node *model.Node) {
 	if err := json.Unmarshal([]byte(msgStr), &msg); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
+		return
 	}
 
 	// 获取service
@@ -95,6 +96,7 @@ func handleMsg(msgStr string, node *model.Node) {
 	if err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
+		return
 	}
 
 	// 发送返回消息
@@ -107,9 +109,9 @@ func handleMsg(msgStr string, node *model.Node) {
 // 初始化服务端RPC服务
 func InitRpcService() error {
 	go func() {
+		node := local_node.CurrentNode()
 		for {
 			// 获取当前节点
-			node := local_node.CurrentNode()
 			//node, err := model.GetCurrentNode()
 			//if err != nil {
 			//	log.Errorf(err.Error())
@@ -129,7 +131,7 @@ func InitRpcService() error {
 				}
 				return err
 			}, bp)
-			if err != nil && err != redis.ErrNil {
+			if err != nil {
 				continue
 			}
 			// 处理消息

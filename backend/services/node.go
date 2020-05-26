@@ -8,7 +8,6 @@ import (
 	"crawlab/model"
 	"crawlab/services/local_node"
 	"crawlab/services/msg_handler"
-	"crawlab/services/register"
 	"crawlab/utils"
 	"encoding/json"
 	"fmt"
@@ -41,9 +40,10 @@ func IsMasterNode(id string) bool {
 
 // 获取节点数据
 func GetNodeData() (Data, error) {
-	key, err := register.GetRegister().GetKey()
+	localNode := local_node.GetLocalNode()
+	key := localNode.Identify
 	if key == "" {
-		return Data{}, err
+		return Data{}, nil
 	}
 
 	value, err := database.RedisClient.HGet("nodes", key)
@@ -162,41 +162,14 @@ func UpdateNodeInfo(data *Data) (err error) {
 
 // 更新节点数据
 func UpdateNodeData() {
-	// 获取MAC地址
-	mac, err := register.GetRegister().GetMac()
-	if err != nil {
-		log.Errorf(err.Error())
-		return
-	}
-
-	// 获取IP地址
-	ip, err := register.GetRegister().GetIp()
-	if err != nil {
-		log.Errorf(err.Error())
-		return
-	}
-
-	// 获取Hostname
-	hostname, err := register.GetRegister().GetHostname()
-	if err != nil {
-		log.Errorf(err.Error())
-		return
-	}
-
-	// 获取redis的key
-	key, err := register.GetRegister().GetKey()
-	if err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
-	}
-
+	localNode := local_node.GetLocalNode()
+	key := localNode.Identify
 	// 构造节点数据
 	data := Data{
 		Key:          key,
-		Mac:          mac,
-		Ip:           ip,
-		Hostname:     hostname,
+		Mac:          localNode.Mac,
+		Ip:           localNode.Ip,
+		Hostname:     localNode.Hostname,
 		Master:       model.IsMaster(),
 		UpdateTs:     time.Now(),
 		UpdateTsUnix: time.Now().Unix(),
@@ -312,11 +285,6 @@ func InitNodeService() error {
 	return nil
 }
 func InitMasterNodeInfo() (err error) {
-	// 获取本机信息
-	ip, mac, hostname, key, err := model.GetNodeBaseInfo()
-	if err != nil {
-		debug.PrintStack()
-		return err
-	}
-	return model.UpdateMasterNodeInfo(key, ip, mac, hostname)
+	localNode := local_node.GetLocalNode()
+	return model.UpdateMasterNodeInfo(localNode.Identify, localNode.Ip, localNode.Mac, localNode.Hostname)
 }
