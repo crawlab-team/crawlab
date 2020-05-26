@@ -11,6 +11,7 @@ import (
 	"crawlab/routes"
 	"crawlab/services"
 	"crawlab/services/challenge"
+	"crawlab/services/local_node"
 	"crawlab/services/rpc"
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
@@ -72,7 +73,12 @@ func main() {
 		log.Error("init log error:" + err.Error())
 		panic(err)
 	}
-	log.Info("initialized log successfully")
+	log.Info("initialized log successfully") // 初始化日志设置
+	if err := local_node.InitLocalNodeInfo(); err != nil {
+		log.Error("init local node error:" + err.Error())
+		panic(err)
+	}
+	log.Info("initialized local node successfully")
 
 	if model.IsMaster() {
 		// 初始化Master节点信息
