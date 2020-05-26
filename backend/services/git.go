@@ -1,7 +1,6 @@
 package services
 
 import (
-	"bytes"
 	"crawlab/lib/cron"
 	"crawlab/model"
 	"crawlab/services/spider_handler"
@@ -14,10 +13,10 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/ssh"
+	"gopkg.in/src-d/go-git.v4/storage/memory"
 	"io/ioutil"
 	"net/url"
 	"os"
-	"os/exec"
 	"path"
 	"regexp"
 	"runtime/debug"
@@ -139,21 +138,21 @@ func SaveSpiderGitSyncError(s model.Spider, errMsg string) {
 
 // 获得Git分支
 func GetGitRemoteBranchesPlain(url string) (branches []string, err error) {
-	var stdout bytes.Buffer
-	var stderr bytes.Buffer
-
-	cmd := exec.Command("git", "ls-remote", url)
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	if err := cmd.Run(); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return branches, err
+	storage := memory.NewStorage()
+	remote := git.NewRemote(storage, &config.RemoteConfig{
+		URLs: []string{
+			url,
+		}})
+	rfs, err := remote.List(&git.ListOptions{})
+	if err != nil {
+		return
 	}
-
-	for _, line := range strings.Split(stdout.String(), "\n") {
+	for _, rf := range rfs {
+		if rf.Type() == plumbing.SymbolicReference {
+			continue
+		}
 		regex := regexp.MustCompile("refs/heads/(.*)$")
-		res := regex.FindStringSubmatch(line)
+		res := regex.FindStringSubmatch(rf.String())
 		if len(res) > 1 {
 			branches = append(branches, res[1])
 		}
