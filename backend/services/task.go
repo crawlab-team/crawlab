@@ -15,6 +15,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/imroc/req"
 	"github.com/satori/go.uuid"
@@ -608,6 +609,12 @@ func ExecuteTask(id int) {
 	// 储存任务
 	_ = t.Save()
 
+	// 创建结果集索引
+	go func() {
+		col := utils.GetSpiderCol(spider.Col, spider.Name)
+		CreateResultsIndexes(col)
+	}()
+
 	// 起一个cron执行器来统计任务结果数
 	cronExec := cron.New(cron.WithSeconds())
 	_, err = cronExec.AddFunc("*/5 * * * * *", SaveTaskResultCount(t.Id))
@@ -969,6 +976,15 @@ func GetTaskMarkdownContent(t model.Task, s model.Spider) string {
 		t.ResultCount,
 		errLog,
 	)
+}
+
+func CreateResultsIndexes(col string) {
+	s, c := database.GetCol(col)
+	defer s.Close()
+
+	_ = c.EnsureIndex(mgo.Index{
+		Key: []string{"task_id"},
+	})
 }
 
 func SendTaskEmail(u model.User, t model.Task, s model.Spider) {
