@@ -21,5 +21,12 @@ func InitLocalNodeInfo() (err error) {
 	if err != nil {
 		return err
 	}
+	if model.IsMaster() {
+		err = model.UpdateMasterNodeInfo(localNode.Identify, localNode.Ip, localNode.Mac, localNode.Hostname)
+
+		if err != nil {
+			return err
+		}
+	}
 	return localNode.Ready()
 }

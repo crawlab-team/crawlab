@@ -284,7 +284,3 @@ func InitNodeService() error {
 	c.Start()
 	return nil
 }
-func InitMasterNodeInfo() (err error) {
-	localNode := local_node.GetLocalNode()
-	return model.UpdateMasterNodeInfo(localNode.Identify, localNode.Ip, localNode.Mac, localNode.Hostname)
-}
