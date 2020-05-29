@@ -7,6 +7,7 @@ import (
 	"crawlab/services/rpc"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/globalsign/mgo/bson"
 	"net/http"
 	"strings"
 )
@@ -22,6 +23,10 @@ import (
 // @Router /nodes/{id}/langs [get]
 func GetLangList(c *gin.Context) {
 	nodeId := c.Param("id")
+	if !bson.IsObjectIdHex(nodeId) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	c.JSON(http.StatusOK, Response{
 		Status:  "ok",
 		Message: "success",
@@ -44,7 +49,10 @@ func GetDepList(c *gin.Context) {
 	nodeId := c.Param("id")
 	lang := c.Query("lang")
 	depName := c.Query("dep_name")
-
+	if !bson.IsObjectIdHex(nodeId) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var depList []entity.Dependency
 	if lang == constants.Python {
 		list, err := services.GetPythonDepList(nodeId, depName)
@@ -85,6 +93,11 @@ func GetDepList(c *gin.Context) {
 func GetInstalledDepList(c *gin.Context) {
 	nodeId := c.Param("id")
 	lang := c.Query("lang")
+
+	if !bson.IsObjectIdHex(nodeId) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var depList []entity.Dependency
 	if services.IsMasterNode(nodeId) {
 		list, err := rpc.GetInstalledDepsLocal(lang)
@@ -177,7 +190,10 @@ func InstallDep(c *gin.Context) {
 	}
 
 	nodeId := c.Param("id")
-
+	if !bson.IsObjectIdHex(nodeId) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var reqBody ReqBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		HandleError(http.StatusBadRequest, c, err)
@@ -218,7 +234,10 @@ func UninstallDep(c *gin.Context) {
 	}
 
 	nodeId := c.Param("id")
-
+	if !bson.IsObjectIdHex(nodeId) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var reqBody ReqBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		HandleError(http.StatusBadRequest, c, err)
@@ -292,7 +311,10 @@ func InstallLang(c *gin.Context) {
 	}
 
 	nodeId := c.Param("id")
-
+	if !bson.IsObjectIdHex(nodeId) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var reqBody ReqBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		HandleError(http.StatusBadRequest, c, err)

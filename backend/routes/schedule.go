@@ -41,7 +41,10 @@ func GetScheduleList(c *gin.Context) {
 // @Router /schedules/{id} [get]
 func GetSchedule(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	result, err := model.GetSchedule(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
@@ -64,7 +67,10 @@ func GetSchedule(c *gin.Context) {
 // @Router /schedules/{id} [post]
 func PostSchedule(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	// 绑定数据模型
 	var newItem model.Schedule
 	if err := c.ShouldBindJSON(&newItem); err != nil {
@@ -148,7 +154,10 @@ func PutSchedule(c *gin.Context) {
 // @Router /schedules/{id} [delete]
 func DeleteSchedule(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	// 删除定时任务
 	if err := model.RemoveSchedule(bson.ObjectIdHex(id)); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
@@ -177,6 +186,10 @@ func DeleteSchedule(c *gin.Context) {
 // @Router /schedules/{id}/disable [post]
 func DisableSchedule(c *gin.Context) {
 	id := c.Param("id")
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	if err := services.Sched.Disable(bson.ObjectIdHex(id)); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
@@ -197,6 +210,10 @@ func DisableSchedule(c *gin.Context) {
 // @Router /schedules/{id}/enable [post]
 func EnableSchedule(c *gin.Context) {
 	id := c.Param("id")
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	if err := services.Sched.Enable(bson.ObjectIdHex(id)); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
