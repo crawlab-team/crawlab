@@ -39,8 +39,6 @@ func (r *Redis) subscribe(ctx context.Context, consume ConsumeFunc, channel ...s
 					continue
 				}
 			case redis.Subscription:
-				fmt.Println(msg)
-
 				if msg.Count == 0 {
 					// all channels are unsubscribed
 					return

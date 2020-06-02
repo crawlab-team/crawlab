@@ -12,21 +12,14 @@ func CurrentNode() *model.Node {
 	return GetLocalNode().Current()
 }
 
-func InitLocalNodeInfo() (err error) {
+func InitLocalNode() (node *LocalNode, err error) {
 	registerType := viper.GetString("server.register.type")
 	ip := viper.GetString("server.register.ip")
 	customNodeName := viper.GetString("server.register.customNodeName")
 
 	localNode, err = NewLocalNode(ip, customNodeName, registerType)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	if model.IsMaster() {
-		err = model.UpdateMasterNodeInfo(localNode.Identify, localNode.Ip, localNode.Mac, localNode.Hostname)
-
-		if err != nil {
-			return err
-		}
-	}
-	return localNode.Ready()
+	return localNode, err
 }
