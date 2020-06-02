@@ -226,6 +226,11 @@ func WorkerNodeCallback(message redis.Message) (err error) {
 
 // 初始化节点服务
 func InitNodeService() error {
+	node, err := local_node.InitLocalNode()
+	if err != nil {
+		return err
+	}
+
 	// 构造定时任务
 	c := cron.New(cron.WithSeconds())
 
@@ -239,23 +244,25 @@ func InitNodeService() error {
 	// 首次更新节点数据（注册到Redis）
 	UpdateNodeData()
 
-	// 获取当前节点
-	//node, err := model.GetCurrentNode()
-	//
-	//if err != nil {
-	//	log.Errorf(err.Error())
-	//	return err
-	//}
-	node := local_node.CurrentNode()
+	err = node.Ready()
+
+	if err != nil {
+		return err
+	}
 
 	if model.IsMaster() {
+		err = model.UpdateMasterNodeInfo(node.Identify, node.Ip, node.Mac, node.Hostname)
+
+		if err != nil {
+			return err
+		}
 		// 如果为主节点，订阅主节点通信频道
 		if err := database.Sub(constants.ChannelMasterNode, MasterNodeCallback); err != nil {
 			return err
 		}
 	} else {
 		// 若为工作节点，订阅单独指定通信频道
-		channel := constants.ChannelWorkerNode + node.Id.Hex()
+		channel := constants.ChannelWorkerNode + node.Current().Id.Hex()
 		if err := database.Sub(channel, WorkerNodeCallback); err != nil {
 			return err
 		}
@@ -276,7 +283,7 @@ func InitNodeService() error {
 	}
 
 	// 更新在当前节点执行中的任务状态为：abnormal
-	if err := model.UpdateTaskToAbnormal(node.Id); err != nil {
+	if err := model.UpdateTaskToAbnormal(node.Current().Id); err != nil {
 		debug.PrintStack()
 		return err
 	}
