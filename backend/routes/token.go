@@ -80,7 +80,10 @@ func PutToken(c *gin.Context) {
 // @Router /tokens/{id} [delete]
 func DeleteToken(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	if err := model.DeleteTokenById(bson.ObjectIdHex(id)); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
