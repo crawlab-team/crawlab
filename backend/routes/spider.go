@@ -567,7 +567,7 @@ func UploadSpiderFromId(c *gin.Context) {
 	// TODO: 与 UploadSpider 部分逻辑重复，需要优化代码
 	// 爬虫ID
 	spiderId := c.Param("id")
-	if !bson.IsObjectIdHex(id) {
+	if !bson.IsObjectIdHex(spiderId) {
 		HandleErrorF(http.StatusBadRequest, c, "invalid id")
 		return
 	}
