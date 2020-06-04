@@ -36,7 +36,10 @@ type UserRequestData struct {
 // @Router /users/{id} [get]
 func GetUser(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	user, err := model.GetUser(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)

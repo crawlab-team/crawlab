@@ -49,6 +49,7 @@ func GetSpider(c *gin.Context) {
 
 	if !bson.IsObjectIdHex(id) {
 		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
 	}
 
 	for _, spider := range SpiderList {
@@ -87,7 +88,10 @@ func PostSpider(c *gin.Context) {
 func GetSpiderDir(c *gin.Context) {
 	// 爬虫ID
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	// 目录相对路径
 	path := c.Query("path")
 	var spi model.Spider
@@ -127,7 +131,10 @@ func GetSpiderDir(c *gin.Context) {
 
 func GetSpiderTasks(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var spider model.Spider
 	for _, spi := range SpiderList {
 		if spi.Id == bson.ObjectId(id) {

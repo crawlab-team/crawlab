@@ -65,7 +65,10 @@ func GetTaskList(c *gin.Context) {
 
 func GetTask(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var result model.Task
 	for _, task := range TaskList {
 		if task.Id == id {
@@ -111,7 +114,10 @@ func PutTask(c *gin.Context) {
 
 func DeleteTask(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	for _, task := range TaskList {
 		if task.Id == id {
 			fmt.Println("delete the task")
@@ -126,7 +132,10 @@ func DeleteTask(c *gin.Context) {
 
 func GetTaskResults(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	// 绑定数据
 	data := TaskResultsRequestData{}
 	if err := c.ShouldBindQuery(&data); err != nil {
@@ -157,7 +166,10 @@ func GetTaskResults(c *gin.Context) {
 
 func DownloadTaskResultsCsv(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	// 获取任务
 	var task model.Task
 	for _, ta := range TaskList {

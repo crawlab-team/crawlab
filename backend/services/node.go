@@ -8,23 +8,24 @@ import (
 	"crawlab/model"
 	"crawlab/services/local_node"
 	"crawlab/services/msg_handler"
-	"crawlab/services/register"
 	"crawlab/utils"
 	"encoding/json"
 	"fmt"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
 	"github.com/gomodule/redigo/redis"
-	"github.com/spf13/viper"
 	"runtime/debug"
 	"time"
 )
 
 type Data struct {
-	Key          string    `json:"key"`
-	Mac          string    `json:"mac"`
-	Ip           string    `json:"ip"`
-	Hostname     string    `json:"hostname"`
+	Key      string `json:"key"`
+	Mac      string `json:"mac"`
+	Ip       string `json:"ip"`
+	Hostname string `json:"hostname"`
+	Name     string `json:"name"`
+	NameType string `json:"name_type"`
+
 	Master       bool      `json:"master"`
 	UpdateTs     time.Time `json:"update_ts"`
 	UpdateTsUnix int64     `json:"update_ts_unix"`
@@ -41,9 +42,10 @@ func IsMasterNode(id string) bool {
 
 // 获取节点数据
 func GetNodeData() (Data, error) {
-	key, err := register.GetRegister().GetKey()
+	localNode := local_node.GetLocalNode()
+	key := localNode.Identify
 	if key == "" {
-		return Data{}, err
+		return Data{}, nil
 	}
 
 	value, err := database.RedisClient.HGet("nodes", key)
@@ -122,19 +124,6 @@ func UpdateNodeStatus() {
 	}
 }
 
-func getNodeName(data *Data) string {
-	registerType := viper.GetString("server.register.type")
-	if registerType == constants.RegisterTypeMac {
-		return data.Ip
-	} else if registerType == constants.RegisterTypeIp {
-		return data.Ip
-	} else if registerType == constants.RegisterTypeHostname {
-		return data.Hostname
-	} else {
-		return data.Ip
-	}
-}
-
 // 处理节点信息
 func UpdateNodeInfo(data *Data) (err error) {
 	// 更新节点信息到数据库
@@ -144,17 +133,18 @@ func UpdateNodeInfo(data *Data) (err error) {
 	_, err = c.Upsert(bson.M{"key": data.Key}, bson.M{
 		"$set": bson.M{
 			"status":         constants.StatusOnline,
+			"key":            data.Key,
+			"name":           data.Name,
+			"name_type":      data.NameType,
+			"ip":             data.Ip,
+			"port":           "8000",
+			"mac":            data.Mac,
+			"is_master":      data.Master,
 			"update_ts":      time.Now(),
 			"update_ts_unix": time.Now().Unix(),
 		},
 		"$setOnInsert": bson.M{
-			"_id":       bson.NewObjectId(),
-			"key":       data.Key,
-			"name":      getNodeName(data),
-			"ip":        data.Ip,
-			"port":      "8000",
-			"mac":       data.Mac,
-			"is_master": data.Master,
+			"_id": bson.NewObjectId(),
 		},
 	})
 	return err
@@ -162,41 +152,16 @@ func UpdateNodeInfo(data *Data) (err error) {
 
 // 更新节点数据
 func UpdateNodeData() {
-	// 获取MAC地址
-	mac, err := register.GetRegister().GetMac()
-	if err != nil {
-		log.Errorf(err.Error())
-		return
-	}
-
-	// 获取IP地址
-	ip, err := register.GetRegister().GetIp()
-	if err != nil {
-		log.Errorf(err.Error())
-		return
-	}
-
-	// 获取Hostname
-	hostname, err := register.GetRegister().GetHostname()
-	if err != nil {
-		log.Errorf(err.Error())
-		return
-	}
-
-	// 获取redis的key
-	key, err := register.GetRegister().GetKey()
-	if err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return
-	}
-
+	localNode := local_node.GetLocalNode()
+	key := localNode.Identify
 	// 构造节点数据
 	data := Data{
 		Key:          key,
-		Mac:          mac,
-		Ip:           ip,
-		Hostname:     hostname,
+		Mac:          localNode.Mac,
+		Ip:           localNode.Ip,
+		Hostname:     localNode.Hostname,
+		Name:         localNode.Identify,
+		NameType:     string(localNode.IdentifyType),
 		Master:       model.IsMaster(),
 		UpdateTs:     time.Now(),
 		UpdateTsUnix: time.Now().Unix(),
@@ -253,6 +218,11 @@ func WorkerNodeCallback(message redis.Message) (err error) {
 
 // 初始化节点服务
 func InitNodeService() error {
+	node, err := local_node.InitLocalNode()
+	if err != nil {
+		return err
+	}
+
 	// 构造定时任务
 	c := cron.New(cron.WithSeconds())
 
@@ -265,15 +235,17 @@ func InitNodeService() error {
 
 	// 首次更新节点数据（注册到Redis）
 	UpdateNodeData()
+	if model.IsMaster() {
+		err = model.UpdateMasterNodeInfo(node.Identify, node.Ip, node.Mac, node.Hostname)
+		if err != nil {
+			return err
+		}
+	}
+	err = node.Ready()
 
-	// 获取当前节点
-	//node, err := model.GetCurrentNode()
-	//
-	//if err != nil {
-	//	log.Errorf(err.Error())
-	//	return err
-	//}
-	node := local_node.CurrentNode()
+	if err != nil {
+		return err
+	}
 
 	if model.IsMaster() {
 		// 如果为主节点，订阅主节点通信频道
@@ -282,7 +254,7 @@ func InitNodeService() error {
 		}
 	} else {
 		// 若为工作节点，订阅单独指定通信频道
-		channel := constants.ChannelWorkerNode + node.Id.Hex()
+		channel := constants.ChannelWorkerNode + node.Current().Id.Hex()
 		if err := database.Sub(channel, WorkerNodeCallback); err != nil {
 			return err
 		}
@@ -303,20 +275,11 @@ func InitNodeService() error {
 	}
 
 	// 更新在当前节点执行中的任务状态为：abnormal
-	if err := model.UpdateTaskToAbnormal(node.Id); err != nil {
+	if err := model.UpdateTaskToAbnormal(node.Current().Id); err != nil {
 		debug.PrintStack()
 		return err
 	}
 
 	c.Start()
 	return nil
-}
-func InitMasterNodeInfo() (err error) {
-	// 获取本机信息
-	ip, mac, hostname, key, err := model.GetNodeBaseInfo()
-	if err != nil {
-		debug.PrintStack()
-		return err
-	}
-	return model.UpdateMasterNodeInfo(key, ip, mac, hostname)
 }

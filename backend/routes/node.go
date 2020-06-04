@@ -45,7 +45,10 @@ func GetNodeList(c *gin.Context) {
 // @Router /nodes/{id} [get]
 func GetNode(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	result, err := model.GetNode(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
@@ -71,7 +74,6 @@ func Ping(c *gin.Context) {
 	})
 }
 
-
 // @Summary Post node
 // @Description Post node
 // @Tags node
@@ -84,7 +86,10 @@ func Ping(c *gin.Context) {
 // @Router /nodes/{id} [post]
 func PostNode(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	item, err := model.GetNode(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
@@ -120,7 +125,10 @@ func PostNode(c *gin.Context) {
 // @Router /nodes/{id}/tasks [get]
 func GetNodeTaskList(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	tasks, err := model.GetNodeTaskList(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
@@ -145,7 +153,10 @@ func GetNodeTaskList(c *gin.Context) {
 // @Router /nodes/{id}/system [get]
 func GetSystemInfo(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	sysInfo, _ := services.GetSystemInfo(id)
 
 	c.JSON(http.StatusOK, Response{
@@ -166,6 +177,10 @@ func GetSystemInfo(c *gin.Context) {
 // @Router /nodes/{id} [delete]
 func DeleteNode(c *gin.Context) {
 	id := c.Param("id")
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	node, err := model.GetNode(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)

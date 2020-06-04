@@ -3,7 +3,6 @@ package model
 import (
 	"crawlab/constants"
 	"crawlab/database"
-	"crawlab/services/register"
 	"errors"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
@@ -40,16 +39,6 @@ const (
 // 当前节点是否为主节点
 func IsMaster() bool {
 	return viper.GetString("server.master") == Yes
-}
-
-// 获取本机节点
-func GetCurrentNode() (Node, error) {
-	// 获得注册的key值
-	key, err := register.GetRegister().GetKey()
-	if err != nil {
-		return Node{}, err
-	}
-	return GetNodeByKey(key)
 }
 
 func (n *Node) Save() error {
@@ -188,34 +177,6 @@ func GetNodeCount(query interface{}) (int, error) {
 	}
 
 	return count, nil
-}
-
-// 节点基本信息
-func GetNodeBaseInfo() (ip string, mac string, hostname string, key string, error error) {
-	ip, err := register.GetRegister().GetIp()
-	if err != nil {
-		debug.PrintStack()
-		return "", "", "", "", err
-	}
-
-	mac, err = register.GetRegister().GetMac()
-	if err != nil {
-		debug.PrintStack()
-		return "", "", "", "", err
-	}
-
-	hostname, err = register.GetRegister().GetHostname()
-	if err != nil {
-		debug.PrintStack()
-		return "", "", "", "", err
-	}
-
-	key, err = register.GetRegister().GetKey()
-	if err != nil {
-		debug.PrintStack()
-		return "", "", "", "", err
-	}
-	return ip, mac, hostname, key, nil
 }
 
 // 根据redis的key值，重置node节点为offline

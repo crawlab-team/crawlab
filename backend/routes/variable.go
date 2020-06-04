@@ -45,6 +45,11 @@ func PutVariable(c *gin.Context) {
 // @Router /variable/{id} [post]
 func PostVariable(c *gin.Context) {
 	var id = c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var variable model.Variable
 	if err := c.ShouldBindJSON(&variable); err != nil {
 		HandleError(http.StatusBadRequest, c, err)
@@ -71,6 +76,10 @@ func PostVariable(c *gin.Context) {
 // @Router /variable/{id} [delete]
 func DeleteVariable(c *gin.Context) {
 	var idStr = c.Param("id")
+	if !bson.IsObjectIdHex(idStr) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var id = bson.ObjectIdHex(idStr)
 	variable, err := model.GetVariable(id)
 	if err != nil {

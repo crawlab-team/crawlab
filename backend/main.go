@@ -72,15 +72,17 @@ func main() {
 		log.Error("init log error:" + err.Error())
 		panic(err)
 	}
-	log.Info("initialized log successfully")
+	log.Info("initialized log successfully") // 初始化日志设置
+
+	// 初始化节点服务
+	if err := services.InitNodeService(); err != nil {
+		log.Error("init node service error:" + err.Error())
+		panic(err)
+	}
+	log.Info("initialized local node successfully")
 
 	if model.IsMaster() {
-		// 初始化Master节点信息
-		if err := services.InitMasterNodeInfo(); err != nil {
-			log.Error("init master node info error:" + err.Error())
-			debug.PrintStack()
-			panic(err)
-		}
+
 		// 初始化定时任务
 		if err := services.InitScheduler(); err != nil {
 			log.Error("init scheduler error:" + err.Error())
@@ -129,13 +131,6 @@ func main() {
 		panic(err)
 	}
 	log.Info("initialized task executor successfully")
-
-	// 初始化节点服务
-	if err := services.InitNodeService(); err != nil {
-		log.Error("init node service error:" + err.Error())
-		panic(err)
-	}
-	log.Info("initialized node service successfully")
 
 	// 初始化爬虫服务
 	if err := services.InitSpiderService(); err != nil {
