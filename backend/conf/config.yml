@@ -36,7 +36,7 @@ server:
 spider:
   path: "/app/spiders"
 task:
-  workers: 4
+  workers: 16
 other:
   tmppath: "/tmp"
 version: 0.4.10
