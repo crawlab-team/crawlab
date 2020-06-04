@@ -1,3 +1,10 @@
+# 0.5.0 (TBC)
+### Features / Enhancement
+
+### Bug Fixes
+- **Logs not expire**.
+- **`task_id` index not created.
+
 # 0.4.10 (2020-04-21)
 ### Features / Enhancement
 - **Enhanced Log Management**. Centralizing log storage in MongoDB, reduced the dependency of PubSub, allowing log error detection.
