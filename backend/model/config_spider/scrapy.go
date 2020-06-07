@@ -178,6 +178,10 @@ func (g ScrapyGenerator) GetListParserString(stageName string, stage entity.Stag
 
 	// next stage 字段
 	if f, err := g.GetNextStageField(stage); err == nil {
+		// 如果 url 为空，则不进入下一个 stage
+		str += g.PadCode(fmt.Sprintf(`if not item['%s']:`, f.Name), 3)
+		str += g.PadCode(`continue`, 4)
+
 		// 如果找到 next stage 字段，进行下一个回调
 		str += g.PadCode(fmt.Sprintf(`yield scrapy.Request(url=get_real_url(response, item['%s']), callback=self.parse_%s, meta={'item': item})`, f.Name, f.NextStage), 3)
 	} else {
