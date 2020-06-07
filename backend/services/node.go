@@ -134,7 +134,6 @@ func UpdateNodeInfo(data *Data) (err error) {
 		"$set": bson.M{
 			"status":         constants.StatusOnline,
 			"key":            data.Key,
-			"name":           data.Name,
 			"name_type":      data.NameType,
 			"ip":             data.Ip,
 			"port":           "8000",
@@ -144,7 +143,8 @@ func UpdateNodeInfo(data *Data) (err error) {
 			"update_ts_unix": time.Now().Unix(),
 		},
 		"$setOnInsert": bson.M{
-			"_id": bson.NewObjectId(),
+			"name": data.Name,
+			"_id":  bson.NewObjectId(),
 		},
 	})
 	return err
