@@ -213,8 +213,8 @@ func SetLogConfig(wg *sync.WaitGroup, cmd *exec.Cmd, t model.Task, u model.User)
 	// expire duration (in seconds)
 	expireDuration := u.Setting.LogExpireDuration
 	if expireDuration == 0 {
-		// by default not expire
-		expireDuration = constants.Infinite
+		// by default 1 day
+		expireDuration = 3600 * 24
 	}
 
 	// read stdout

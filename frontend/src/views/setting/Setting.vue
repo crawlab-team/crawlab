@@ -146,7 +146,7 @@
               v-model="userInfo.setting.log_expire_duration"
               clearable
             >
-              <el-option :value="0" :label="$t('No Expire')"/>
+              <el-option :value="99999999" :label="$t('No Expire')"/>
               <el-option :value="3600" :label="'1 ' + $t('Hour')"/>
               <el-option :value="3600 * 6" :label="'6 ' + $t('Hours')"/>
               <el-option :value="3600 * 12" :label="'12 ' + $t('Hours')"/>
