@@ -131,6 +131,10 @@ func PutTask(c *gin.Context) {
 
 	// 绑定数据
 	var reqBody TaskRequestBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
 
 	// 任务ID
 	var taskIds []string
