@@ -45,7 +45,7 @@ const request = (method, path, params, data, others = {}) => {
     if (response.status === 500) {
       Message.error(response.data.error)
     }
-    return e
+    return response
   })
 }
 

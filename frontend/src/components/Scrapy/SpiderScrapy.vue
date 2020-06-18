@@ -119,7 +119,16 @@
     >
       <!--settings-->
       <el-tab-pane :label="$t('Settings')" name="settings">
-        <div class="settings">
+        <div v-if="!spiderScrapySettings || !spiderScrapySettings.length" class="settings">
+          <span class="empty-text">
+            {{$t('No data available')}}
+          </span>
+          <template v-if="spiderScrapyErrors.settings">
+            <label class="errors-label">{{$t('Errors')}}:</label>
+            <el-alert type="error" v-html="getScrapyErrors('settings')"/>
+          </template>
+        </div>
+        <div v-else class="settings">
           <div class="top-action-wrapper">
             <el-button
               type="primary"
@@ -232,7 +241,16 @@
 
       <!--spiders-->
       <el-tab-pane :label="$t('Spiders')" name="spiders">
-        <div class="spiders">
+        <div v-if="!spiderForm.spider_names || !spiderForm.spider_names.length" class="spiders">
+          <span class="empty-text error">
+            {{$t('No data available. Please check whether your spiders are missing dependencies or no spiders created.')}}
+          </span>
+          <template v-if="spiderScrapyErrors.spiders">
+            <label class="errors-label">{{$t('Errors')}}:</label>
+            <el-alert type="error" v-html="getScrapyErrors('spiders')"/>
+          </template>
+        </div>
+        <div v-else class="spiders">
           <div class="action-wrapper">
             <el-button
               type="primary"
@@ -261,7 +279,16 @@
 
       <!--items-->
       <el-tab-pane label="Items" name="items">
-        <div class="items">
+        <div v-if="!spiderScrapyItems || !spiderScrapyItems.length" class="items">
+          <span class="empty-text">
+            {{$t('No data available')}}
+          </span>
+          <template v-if="spiderScrapyErrors.items">
+            <label class="errors-label">{{$t('Errors')}}:</label>
+            <el-alert type="error" v-html="getScrapyErrors('items')"/>
+          </template>
+        </div>
+        <div v-else class="items">
           <div class="action-wrapper">
             <el-button
               type="primary"
@@ -345,6 +372,15 @@
 
       <!--pipelines-->
       <el-tab-pane label="Pipelines" name="pipelines">
+        <div v-if="!spiderScrapyPipelines || !spiderScrapyPipelines.length" class="pipelines">
+          <span class="empty-text">
+            {{$t('No data available')}}
+          </span>
+          <template v-if="spiderScrapyErrors.pipelines">
+            <label class="errors-label">{{$t('Errors')}}:</label>
+            <el-alert type="error" v-html="getScrapyErrors('pipelines')"/>
+          </template>
+        </div>
         <div class="pipelines">
           <ul class="list">
             <li
@@ -376,7 +412,8 @@ export default {
       'spiderForm',
       'spiderScrapySettings',
       'spiderScrapyItems',
-      'spiderScrapyPipelines'
+      'spiderScrapyPipelines',
+      'spiderScrapyErrors'
     ]),
     activeParamData () {
       if (this.activeParam.type === 'array') {
@@ -651,6 +688,10 @@ export default {
         this.$set(this.loadingDict, spiderName, false)
       }
       this.$st.sendEv('爬虫详情', 'Scrapy 设置', '点击爬虫')
+    },
+    getScrapyErrors (type) {
+      if (!this.spiderScrapyErrors || !this.spiderScrapyErrors[type] || (typeof this.spiderScrapyErrors[type] !== 'string')) return ''
+      return this.$utils.html.htmlEscape(this.spiderScrapyErrors[type]).split('\n').join('<br/>')
     }
   }
 }
@@ -779,5 +820,20 @@ export default {
 
   .items >>> .custom-tree-node .el-input {
     width: 240px;
+  }
+
+  .empty-text {
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .empty-text.error {
+    color: #f56c6c;
+  }
+
+  .errors-label {
+    color: #f56c6c;
+    display: block;
+    margin-bottom: 10px;
   }
 </style>

@@ -19,6 +19,9 @@ const state = {
   // spider scrapy pipelines
   spiderScrapyPipelines: [],
 
+  // scrapy errors
+  spiderScrapyErrors: {},
+
   // node to deploy/run
   activeNode: {},
 
@@ -116,6 +119,13 @@ const mutations = {
   },
   SET_CONFIG_LIST_TS (state, value) {
     state.configListTs = value
+  },
+  SET_SPIDER_SCRAPY_ERRORS (state, value) {
+    for (let key in value) {
+      if (value.hasOwnProperty(key)) {
+        Vue.set(state.spiderScrapyErrors, key, value[key])
+      }
+    }
   }
 }
 
@@ -142,11 +152,20 @@ const actions = {
   },
   async getSpiderScrapySpiders ({ state, commit }, id) {
     const res = await request.get(`/spiders/${id}/scrapy/spiders`)
+    if (res.data.error) {
+      commit('SET_SPIDER_SCRAPY_ERRORS', { spiders: res.data.error })
+      return
+    }
     state.spiderForm.spider_names = res.data.data
     commit('SET_SPIDER_FORM', state.spiderForm)
+    commit('SET_SPIDER_SCRAPY_ERRORS', { spiders: '' })
   },
   async getSpiderScrapySettings ({ state, commit }, id) {
     const res = await request.get(`/spiders/${id}/scrapy/settings`)
+    if (res.data.error) {
+      commit('SET_SPIDER_SCRAPY_ERRORS', { settings: res.data.error })
+      return
+    }
     commit('SET_SPIDER_SCRAPY_SETTINGS', res.data.data.map(d => {
       const key = d.key
       const value = d.value
@@ -164,12 +183,17 @@ const actions = {
         type
       }
     }))
+    commit('SET_SPIDER_SCRAPY_ERRORS', { settings: '' })
   },
   async saveSpiderScrapySettings ({ state }, id) {
     return request.post(`/spiders/${id}/scrapy/settings`, state.spiderScrapySettings)
   },
   async getSpiderScrapyItems ({ state, commit }, id) {
     const res = await request.get(`/spiders/${id}/scrapy/items`)
+    if (res.data.error) {
+      commit('SET_SPIDER_SCRAPY_ERRORS', { items: res.data.error })
+      return
+    }
     let nodeId = 0
     commit('SET_SPIDER_SCRAPY_ITEMS', res.data.data.map(d => {
       d.id = nodeId++
@@ -186,6 +210,7 @@ const actions = {
       })
       return d
     }))
+    commit('SET_SPIDER_SCRAPY_ERRORS', { items: '' })
   },
   async saveSpiderScrapyItems ({ state }, id) {
     return request.post(`/spiders/${id}/scrapy/items`, state.spiderScrapyItems.map(d => {
@@ -196,7 +221,12 @@ const actions = {
   },
   async getSpiderScrapyPipelines ({ state, commit }, id) {
     const res = await request.get(`/spiders/${id}/scrapy/pipelines`)
+    if (res.data.error) {
+      commit('SET_SPIDER_SCRAPY_ERRORS', { pipelines: res.data.error })
+      return
+    }
     commit('SET_SPIDER_SCRAPY_PIPELINES', res.data.data)
+    commit('SET_SPIDER_SCRAPY_ERRORS', { pipelines: '' })
   },
   async saveSpiderScrapyPipelines ({ state }, id) {
     return request.post(`/spiders/${id}/scrapy/pipelines`, state.spiderScrapyPipelines)
