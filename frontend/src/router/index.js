@@ -180,6 +180,7 @@ export const constantRouterMap = [
       title: 'Disclaimer',
       icon: 'fa fa-exclamation-triangle'
     },
+    hidden: true,
     children: [
       {
         path: '',
@@ -199,6 +200,7 @@ export const constantRouterMap = [
       title: 'ChallengeList',
       icon: 'fa fa-flash'
     },
+    hidden: true,
     children: [
       {
         path: '',
@@ -218,6 +220,7 @@ export const constantRouterMap = [
       title: 'Feedback',
       icon: 'fa fa-commenting-o'
     },
+    hidden: true,
     children: [
       {
         path: '',
