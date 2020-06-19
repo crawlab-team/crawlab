@@ -27,8 +27,16 @@ Vue.use(Router)
   }
  **/
 export const constantRouterMap = [
-  { path: '/login', component: () => import('../views/login/index'), hidden: true },
-  { path: '/signup', component: () => import('../views/login/index'), hidden: true },
+  {
+    path: '/login',
+    component: () => import('../views/login/index'),
+    hidden: true
+  },
+  {
+    path: '/signup',
+    component: () => import('../views/login/index'),
+    hidden: true
+  },
   { path: '/404', component: () => import('../views/404'), hidden: true },
   { path: '/', redirect: '/home' },
 
@@ -180,7 +188,6 @@ export const constantRouterMap = [
       title: 'Disclaimer',
       icon: 'fa fa-exclamation-triangle'
     },
-    hidden: true,
     children: [
       {
         path: '',
@@ -200,7 +207,6 @@ export const constantRouterMap = [
       title: 'ChallengeList',
       icon: 'fa fa-flash'
     },
-    hidden: true,
     children: [
       {
         path: '',
@@ -220,7 +226,6 @@ export const constantRouterMap = [
       title: 'Feedback',
       icon: 'fa fa-commenting-o'
     },
-    hidden: true,
     children: [
       {
         path: '',
@@ -300,7 +305,7 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-router.afterEach(async (to, from, next) => {
+router.afterEach(async(to, from, next) => {
   if (to.path) {
     await store.dispatch('setting/getSetting')
     const res = await request.get('/version')

@@ -1,6 +1,6 @@
 const state = {}
 const getters = {
-  useStats () {
+  useStats() {
     return localStorage.getItem('useStats')
   }
 }

@@ -1,55 +1,56 @@
 <template>
   <el-card class="metric-card">
     <el-col :span="6" class="icon-col">
-      <i :class="icon" :style="{color:color}"></i>
+      <i :class="icon" :style="{color:color}" />
     </el-col>
     <el-col :span="18" class="text-col">
       <el-row>
-        <label class="label">{{$t(label)}}</label>
+        <label class="label">{{ $t(label) }}</label>
       </el-row>
       <el-row>
-        <div class="value">{{value}}</div>
+        <div class="value">{{ value }}</div>
       </el-row>
     </el-col>
   </el-card>
 </template>
 
 <script>
-export default {
-  name: 'MetricCard',
-  props: {
-    icon: {
-      type: String,
-      default: ''
+  export default {
+    name: 'MetricCard',
+    props: {
+      icon: {
+        type: String,
+        default: ''
+      },
+      label: {
+        type: String,
+        default: ''
+      },
+      value: {
+        type: String,
+        default: ''
+      },
+      type: {
+        type: String,
+        default: 'default'
+      }
     },
-    label: {
-      type: String,
-      default: ''
-    },
-    value: {
-      default: ''
-    },
-    type: {
-      type: String,
-      default: 'default'
-    }
-  },
-  computed: {
-    color () {
-      if (this.type === 'primary') {
-        return '#409EFF'
-      } else if (this.type === 'warning') {
-        return '#e6a23c'
-      } else if (this.type === 'success') {
-        return '#67c23a'
-      } else if (this.type === 'danger') {
-        return '#f56c6c'
-      } else {
-        return 'grey'
+    computed: {
+      color() {
+        if (this.type === 'primary') {
+          return '#409EFF'
+        } else if (this.type === 'warning') {
+          return '#e6a23c'
+        } else if (this.type === 'success') {
+          return '#67c23a'
+        } else if (this.type === 'danger') {
+          return '#f56c6c'
+        } else {
+          return 'grey'
+        }
       }
     }
   }
-}
 </script>
 
 <style scoped>

@@ -1,8 +1,10 @@
 version: '3.3'
 services:
   master:
-    image: tikazyq/crawlab:latest
-    container_name: master
+    build:
+      context: ./
+      dockerfile: Dockerfile.local
+    container_name: local_master
     environment:
       # CRAWLAB_API_ADDRESS: "https://<your_api_ip>:<your_api_port>"  # backend API address 后端 API 地址. 适用于 https 或者源码部署
       CRAWLAB_SERVER_MASTER: "Y"  # whether to be master node 是否为主节点，主节点为 Y，工作节点为 N
@@ -45,8 +47,10 @@ services:
     # volumes:
     #   - "/var/crawlab/log:/var/logs/crawlab" # log persistent 日志持久化
   worker:
-    image: tikazyq/crawlab:latest
-    container_name: worker
+    build:
+      context: ./
+      dockerfile: Dockerfile.local
+    container_name: local_master
     environment:
       CRAWLAB_SERVER_MASTER: "N"
       CRAWLAB_MONGO_HOST: "mongo"
@@ -54,14 +58,14 @@ services:
     depends_on:
       - mongo
       - redis
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: username
+    #   MONGO_INITDB_ROOT_PASSWORD: password
     # volumes:
     #   - "/var/crawlab/log:/var/logs/crawlab" # log persistent 日志持久化
   mongo:
     image: mongo:latest
     restart: always
-    # environment:
-    #   MONGO_INITDB_ROOT_USERNAME: username
-    #   MONGO_INITDB_ROOT_PASSWORD: password
     # volumes:
     #   - "/opt/crawlab/mongo/data/db:/data/db"  # make data persistent 持久化
     # ports:

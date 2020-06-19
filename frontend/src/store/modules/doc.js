@@ -7,13 +7,13 @@ const state = {
 const getters = {}
 
 const mutations = {
-  SET_DOC_DATA (state, value) {
+  SET_DOC_DATA(state, value) {
     state.docData = value
   }
 }
 
 const actions = {
-  async getDocData ({ commit }) {
+  async getDocData({ commit }) {
     const res = await request.get('/docs')
 
     const data = JSON.parse(res.data.data.string)
@@ -22,8 +22,8 @@ const actions = {
     const cache = {}
 
     // iterate paths
-    for (let path in data) {
-      if (data.hasOwnProperty(path)) {
+    for (const path in data) {
+      if (Object.prototype.hasOwnProperty.call(data, path)) {
         const d = data[path]
         if (path.match(/\/$/)) {
           cache[path] = d

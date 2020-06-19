@@ -1,57 +1,60 @@
 <template>
   <div class="deploy-table-view">
     <el-row class="title-wrapper">
-      <h5 class="title">{{title}}</h5>
-      <el-button type="success" plain class="small-btn" size="mini" icon="fa fa-refresh" @click="onRefresh"></el-button>
+      <h5 class="title">{{ title }}</h5>
+      <el-button type="success" plain class="small-btn" size="mini" icon="fa fa-refresh" @click="onRefresh" />
     </el-row>
     <el-table border height="240px" :data="deployList">
-      <el-table-column property="version" label="Ver" width="40" align="center"></el-table-column>
+      <el-table-column property="version" label="Ver" width="40" align="center" />
       <el-table-column property="node" label="Node" width="220" align="center">
         <template slot-scope="scope">
-          <a class="a-tag" @click="onClickNode(scope.row)">{{scope.row.node_id}}</a>
+          <a class="a-tag" @click="onClickNode(scope.row)">{{ scope.row.node_id }}</a>
         </template>
       </el-table-column>
       <el-table-column property="spider_name" label="Spider" width="80" align="center">
         <template slot-scope="scope">
-          <a class="a-tag" @click="onClickSpider(scope.row)">{{scope.row.spider_name}}</a>
+          <a class="a-tag" @click="onClickSpider(scope.row)">{{ scope.row.spider_name }}</a>
         </template>
       </el-table-column>
-      <el-table-column property="finish_ts" label="Finish Time" width="auto" align="center"></el-table-column>
+      <el-table-column property="finish_ts" label="Finish Time" width="auto" align="center" />
     </el-table>
   </div>
 
 </template>
 
 <script>
-import {
-  mapState
-} from 'vuex'
+  import {
+    mapState
+  } from 'vuex'
 
-export default {
-  name: 'DeployTableView',
-  props: {
-    title: String
-  },
-  computed: {
-    ...mapState('spider', [
-      'spiderForm'
-    ]),
-    ...mapState('deploy', [
-      'deployList'
-    ])
-  },
-  methods: {
-    onClickSpider (row) {
-      this.$router.push(`/spiders/${row.spider_id}`)
+  export default {
+    name: 'DeployTableView',
+    props: {
+      title: {
+        type: String,
+        default: ''
+      }
     },
-    onClickNode (row) {
-      this.$router.push(`/nodes/${row.node_id}`)
+    computed: {
+      ...mapState('spider', [
+        'spiderForm'
+      ]),
+      ...mapState('deploy', [
+        'deployList'
+      ])
     },
-    onRefresh () {
-      this.$store.dispatch('deploy/getDeployList', this.spiderForm._id)
+    methods: {
+      onClickSpider(row) {
+        this.$router.push(`/spiders/${row.spider_id}`)
+      },
+      onClickNode(row) {
+        this.$router.push(`/nodes/${row.node_id}`)
+      },
+      onRefresh() {
+        this.$store.dispatch('deploy/getDeployList', this.spiderForm._id)
+      }
     }
   }
-}
 </script>
 
 <style scoped>

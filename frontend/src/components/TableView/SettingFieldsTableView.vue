@@ -1,16 +1,17 @@
 <template>
   <div class="setting-list-table-view">
     <el-row>
-      <el-table :data="list"
-                class="table edit"
-                :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
-                :cell-style="getCellClassStyle"
+      <el-table
+        :data="list"
+        class="table edit"
+        :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
+        :cell-style="getCellClassStyle"
       >
         <el-table-column class-name="action" width="80px" align="right">
           <template slot-scope="scope">
             <!--            <i class="action-item el-icon-copy-document" @click="onCopyField(scope.row)"></i>-->
-            <i class="action-item el-icon-remove-outline" @click="onRemoveField(scope.row)"></i>
-            <i class="action-item el-icon-circle-plus-outline" @click="onAddField(scope.row)"></i>
+            <i class="action-item el-icon-remove-outline" @click="onRemoveField(scope.row)" />
+            <i class="action-item el-icon-circle-plus-outline" @click="onAddField(scope.row)" />
           </template>
         </el-table-column>
         <el-table-column :label="$t('Name')" width="240px">
@@ -39,114 +40,114 @@
 </template>
 
 <script>
-import {
-  mapState
-} from 'vuex'
+  import {
+    mapState
+  } from 'vuex'
 
-export default {
-  name: 'SettingFieldsTableView',
-  props: {
-    type: {
-      type: String,
-      default: 'list'
-    },
-    title: {
-      type: String,
-      default: ''
-    },
-    stageNames: {
-      type: Array,
-      default () {
-        return []
-      }
-    }
-  },
-  computed: {
-    ...mapState('spider', [
-      'spiderForm'
-    ]),
-    list () {
-      const list = []
-      for (let name in this.spiderForm.config.settings) {
-        if (this.spiderForm.config.settings.hasOwnProperty(name)) {
-          const value = this.spiderForm.config.settings[name]
-          list.push({ name, value })
+  export default {
+    name: 'SettingFieldsTableView',
+    props: {
+      type: {
+        type: String,
+        default: 'list'
+      },
+      title: {
+        type: String,
+        default: ''
+      },
+      stageNames: {
+        type: Array,
+        default() {
+          return []
         }
       }
-      return list
-    }
-  },
-  methods: {
-    onChange (row) {
-      if (this.list.filter(d => d.name === row.name).length > 1) {
-        this.$message.error(this.$t(`Duplicated field names for ${row.name}`))
-      }
-      this.$store.commit('spider/SET_SPIDER_FORM_CONFIG_SETTINGS', this.list)
     },
-    onRemoveField (row) {
-      this.$st.sendEv('爬虫详情', '配置', '删除设置')
-      const list = JSON.parse(JSON.stringify(this.list))
-      for (let i = 0; i < list.length; i++) {
-        if (row.name === list[i].name) {
-          list.splice(i, 1)
+    computed: {
+      ...mapState('spider', [
+        'spiderForm'
+      ]),
+      list() {
+        const list = []
+        for (const name in this.spiderForm.config.settings) {
+          if (Object.prototype.hasOwnProperty.call(this.spiderForm.config.settings, name)) {
+            const value = this.spiderForm.config.settings[name]
+            list.push({ name, value })
+          }
         }
+        return list
       }
-      if (list.length === 0) {
-        list.push({
-          name: `VARIABLE_NAME_${Math.floor(new Date().getTime())}`,
-          value: `VARIABLE_VALUE_${Math.floor(new Date().getTime())}`
+    },
+    created() {
+      if (this.list.length === 0) {
+        this.$store.commit(
+          'spider/SET_SPIDER_FORM_CONFIG_SETTING_ITEM',
+          'VARIABLE_NAME_' + Math.floor(new Date().getTime()),
+          'VARIABLE_VALUE_' + Math.floor(new Date().getTime())
+        )
+      }
+    },
+    methods: {
+      onChange(row) {
+        if (this.list.filter(d => d.name === row.name).length > 1) {
+          this.$message.error(this.$t(`Duplicated field names for ${row.name}`))
+        }
+        this.$store.commit('spider/SET_SPIDER_FORM_CONFIG_SETTINGS', this.list)
+      },
+      onRemoveField(row) {
+        this.$st.sendEv('爬虫详情', '配置', '删除设置')
+        const list = JSON.parse(JSON.stringify(this.list))
+        for (let i = 0; i < list.length; i++) {
+          if (row.name === list[i].name) {
+            list.splice(i, 1)
+          }
+        }
+        if (list.length === 0) {
+          list.push({
+            name: `VARIABLE_NAME_${Math.floor(new Date().getTime())}`,
+            value: `VARIABLE_VALUE_${Math.floor(new Date().getTime())}`
+          })
+        }
+        this.$store.commit('spider/SET_SPIDER_FORM_CONFIG_SETTINGS', list)
+      },
+      onAddField(row) {
+        this.$st.sendEv('爬虫详情', '配置', '添加设置')
+        const list = JSON.parse(JSON.stringify(this.list))
+        for (let i = 0; i < list.length; i++) {
+          if (row.name === list[i].name) {
+            const name = 'VARIABLE_NAME_' + Math.floor(new Date().getTime())
+            const value = 'VARIABLE_VALUE_' + Math.floor(new Date().getTime())
+            list.push({ name, value })
+            break
+          }
+        }
+        this.$store.commit('spider/SET_SPIDER_FORM_CONFIG_SETTINGS', list)
+      },
+      getCellClassStyle({ row, columnIndex }) {
+        if (columnIndex === 1) {
+          // 字段名称
+          if (!row.name) {
+            return {
+              'border': '1px solid red'
+            }
+          }
+        } else if (columnIndex === 3) {
+          // 选择器
+          if (!row.css && !row.xpath) {
+            return {
+              'border': '1px solid red'
+            }
+          }
+        }
+      },
+      onChangeNextStage(row) {
+        this.list.forEach(f => {
+          if (f.name !== row.name) {
+            this.$set(f, 'next_stage', '')
+          }
         })
       }
-      this.$store.commit('spider/SET_SPIDER_FORM_CONFIG_SETTINGS', list)
-    },
-    onAddField (row) {
-      this.$st.sendEv('爬虫详情', '配置', '添加设置')
-      const list = JSON.parse(JSON.stringify(this.list))
-      for (let i = 0; i < list.length; i++) {
-        if (row.name === list[i].name) {
-          const name = 'VARIABLE_NAME_' + Math.floor(new Date().getTime())
-          const value = 'VARIABLE_VALUE_' + Math.floor(new Date().getTime())
-          list.push({ name, value })
-          break
-        }
-      }
-      this.$store.commit('spider/SET_SPIDER_FORM_CONFIG_SETTINGS', list)
-    },
-    getCellClassStyle ({ row, columnIndex }) {
-      if (columnIndex === 1) {
-        // 字段名称
-        if (!row.name) {
-          return {
-            'border': '1px solid red'
-          }
-        }
-      } else if (columnIndex === 3) {
-        // 选择器
-        if (!row.css && !row.xpath) {
-          return {
-            'border': '1px solid red'
-          }
-        }
-      }
-    },
-    onChangeNextStage (row) {
-      this.list.forEach(f => {
-        if (f.name !== row.name) {
-          this.$set(f, 'next_stage', '')
-        }
-      })
-    }
-  },
-  created () {
-    if (this.list.length === 0) {
-      this.$store.commit(
-        'spider/SET_SPIDER_FORM_CONFIG_SETTING_ITEM',
-        'VARIABLE_NAME_' + Math.floor(new Date().getTime()),
-        'VARIABLE_VALUE_' + Math.floor(new Date().getTime())
-      )
     }
   }
-}
 </script>
 
 <style scoped>

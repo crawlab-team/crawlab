@@ -1,8 +1,14 @@
 <template>
   <div class="login-container">
-    <canvas id="canvas"></canvas>
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on"
-             label-position="left">
+    <canvas id="canvas" />
+    <el-form
+      ref="loginForm"
+      :model="loginForm"
+      :rules="loginRules"
+      class="login-form"
+      auto-complete="on"
+      label-position="left"
+    >
       <h3 class="title">
         <span><img style="width:48px;margin-bottom:-5px;margin-right:2px" src="../../assets/logo.svg"></span>RAWLAB
       </h3>
@@ -17,17 +23,18 @@
       </el-form-item>
       <el-form-item prop="password" style="margin-bottom: 28px;">
         <el-input
-          :type="pwdType"
           v-model="loginForm.password"
+          :type="pwdType"
           name="password"
           auto-complete="on"
           :placeholder="$t('Password')"
-          @keyup.enter.native="onKeyEnter"/>
+          @keyup.enter.native="onKeyEnter"
+        />
       </el-form-item>
       <el-form-item v-if="isSignUp" prop="confirmPassword" style="margin-bottom: 28px;">
         <el-input
-          :type="pwdType"
           v-model="loginForm.confirmPassword"
+          :type="pwdType"
           name="password"
           auto-complete="on"
           :placeholder="$t('Confirm Password')"
@@ -43,43 +50,53 @@
         />
       </el-form-item>
       <el-form-item style="border: none">
-        <el-button v-if="isSignUp" :loading="loading" type="primary" style="width:100%;"
-                   @click.native.prevent="handleSignup">
-          {{$t('Sign up')}}
+        <el-button
+          v-if="isSignUp"
+          :loading="loading"
+          type="primary"
+          style="width:100%;"
+          @click.native.prevent="handleSignup"
+        >
+          {{ $t('Sign up') }}
         </el-button>
-        <el-button v-if="!isSignUp" :loading="loading" type="primary" style="width:100%;"
-                   @click.native.prevent="handleLogin">
-          {{$t('Sign in')}}
+        <el-button
+          v-if="!isSignUp"
+          :loading="loading"
+          type="primary"
+          style="width:100%;"
+          @click.native.prevent="handleLogin"
+        >
+          {{ $t('Sign in') }}
         </el-button>
       </el-form-item>
       <div class="alternatives">
         <div class="left">
-          <span v-if="!isSignUp" class="forgot-password">{{$t('Forgot Password')}}</span>
+          <span v-if="!isSignUp" class="forgot-password">{{ $t('Forgot Password') }}</span>
         </div>
-        <div class="right" v-if="setting.allow_register === 'Y'">
-          <span v-if="isSignUp">{{$t('Has Account')}}, </span>
-          <span v-if="isSignUp" class="sign-in" @click="$router.push('/login')">{{$t('Sign-in')}} ></span>
-          <span v-if="!isSignUp">{{$t('New to Crawlab')}}, </span>
-          <span v-if="!isSignUp" class="sign-up" @click="$router.push('/signup')">{{$t('Sign-up')}} ></span>
+        <div v-if="setting.allow_register === 'Y'" class="right">
+          <span v-if="isSignUp">{{ $t('Has Account') }}, </span>
+          <span v-if="isSignUp" class="sign-in" @click="$router.push('/login')">{{ $t('Sign-in') }} ></span>
+          <span v-if="!isSignUp">{{ $t('New to Crawlab') }}, </span>
+          <span v-if="!isSignUp" class="sign-up" @click="$router.push('/signup')">{{ $t('Sign-up') }} ></span>
         </div>
       </div>
       <div class="tips">
-        <span>{{$t('Initial Username/Password')}}: admin/admin</span>
+        <span>{{ $t('Initial Username/Password') }}: admin/admin</span>
         <a href="https://github.com/crawlab-team/crawlab" target="_blank" style="float:right">
           <img src="https://img.shields.io/github/stars/crawlab-team/crawlab?logo=github">
         </a>
       </div>
       <div class="lang">
-        <span @click="setLang('zh')" :class="lang==='zh'?'active':''">中文</span>
+        <span :class="lang==='zh'?'active':''" @click="setLang('zh')">中文</span>
         |
-        <span @click="setLang('en')" :class="lang==='en'?'active':''">English</span>
+        <span :class="lang==='en'?'active':''" @click="setLang('en')">English</span>
       </div>
       <div class="documentation">
-        <a href="http://docs.crawlab.cn" target="_blank">{{$t('Documentation')}}</a>
+        <a href="http://docs.crawlab.cn" target="_blank">{{ $t('Documentation') }}</a>
       </div>
       <div v-if="isShowMobileWarning" class="mobile-warning">
         <el-alert type="error" :closable="false">
-          {{$t('You are running on a mobile device, which is not optimized yet. Please try with a laptop or desktop.')}}
+          {{ $t('You are running on a mobile device, which is not optimized yet. Please try with a laptop or desktop.') }}
         </el-alert>
       </div>
     </el-form>
@@ -87,258 +104,258 @@
 </template>
 
 <script>
-import {
-  mapState
-} from 'vuex'
-import { isValidUsername } from '../../utils/validate'
+  import {
+    mapState
+  } from 'vuex'
+  import { isValidUsername } from '../../utils/validate'
 
-export default {
-  name: 'Login',
-  data () {
-    const validateUsername = (rule, value, callback) => {
-      if (!isValidUsername(value)) {
-        callback(new Error(this.$t('Please enter the correct username')))
-      } else {
-        callback()
-      }
-    }
-    const validatePass = (rule, value, callback) => {
-      if (value.length < 5) {
-        callback(new Error(this.$t('Password length should be no shorter than 5')))
-      } else {
-        callback()
-      }
-    }
-    const validateConfirmPass = (rule, value, callback) => {
-      if (!this.isSignUp) return callback()
-      if (value !== this.loginForm.password) {
-        callback(new Error(this.$t('Two passwords must be the same')))
-      } else {
-        callback()
-      }
-    }
-    return {
-      loginForm: {
-        username: '',
-        password: '',
-        confirmPassword: '',
-        email: ''
-      },
-      loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePass }],
-        confirmPassword: [{ required: true, trigger: 'blur', validator: validateConfirmPass }]
-      },
-      loading: false,
-      pwdType: 'password',
-      isShowMobileWarning: false
-    }
-  },
-  computed: {
-    ...mapState('setting', [
-      'setting'
-    ]),
-    ...mapState('lang', [
-      'lang'
-    ]),
-    isSignUp () {
-      return this.$route.path === '/signup'
-    },
-    redirect () {
-      return this.$route.query.redirect
-    }
-  },
-  methods: {
-    handleLogin () {
-      this.$refs.loginForm.validate(async valid => {
-        if (!valid) return
-        this.loading = true
-        const res = await this.$store.dispatch('user/login', this.loginForm)
-        if (res.status === 200) {
-          // success
-          this.$router.push({ path: this.redirect || '/' })
-          this.$st.sendEv('全局', '登录', '成功')
-          await this.$store.dispatch('user/getInfo')
-        } else if (res.message === 'Network Error' || !res.response) {
-          // no response
-          this.$message({
-            type: 'error',
-            message: this.$t('No response from the server. Please make sure your server is running correctly. You can also refer to the documentation to solve this issue.'),
-            customClass: 'message-error',
-            duration: 5000
-          })
-          this.$st.sendEv('全局', '登录', '服务器无响应')
-        } else if (res.response.status === 401) {
-          // incorrect username or password
-          this.$message({
-            type: 'error',
-            message: '[401] ' + this.$t('Incorrect username or password')
-          })
-          this.$st.sendEv('全局', '登录', '用户名密码错误')
+  export default {
+    name: 'Login',
+    data() {
+      const validateUsername = (rule, value, callback) => {
+        if (!isValidUsername(value)) {
+          callback(new Error(this.$t('Please enter the correct username')))
         } else {
-          // other error
-          this.$message({
-            type: 'error',
-            message: `[${res.response.status}] ${res.response.data.error}`,
-            customClass: 'message-error'
-          })
-          this.$st.sendEv('全局', '登录', '其他错误')
-        }
-        this.loading = false
-      })
-    },
-    handleSignup () {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/register', this.loginForm).then(() => {
-            this.handleLogin()
-            this.loading = false
-            this.$st.sendEv('全局', '注册', '成功')
-          }).catch(err => {
-            this.$message.error(this.$t(err))
-            this.loading = false
-            this.$st.sendEv('全局', '注册', '失败')
-          })
-        }
-      })
-    },
-    onKeyEnter () {
-      const func = this.isSignUp ? this.handleSignup : this.handleLogin
-      func()
-    },
-    setLang (lang) {
-      window.localStorage.setItem('lang', lang)
-      this.$set(this.$i18n, 'locale', lang)
-      this.$store.commit('lang/SET_LANG', lang)
-    }
-  },
-  mounted () {
-    if (window.innerWidth >= 1024) {
-      initCanvas()
-    } else {
-      this.isShowMobileWarning = true
-    }
-  }
-}
-
-const initCanvas = () => {
-  var canvas = document.getElementById('canvas')
-  var ctx = canvas.getContext('2d')
-
-  resize()
-  window.onresize = resize
-
-  function resize () {
-    canvas.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
-    canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
-  }
-
-  var RAF = (function () {
-    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
-      window.setTimeout(callback, 1000 / 60)
-    }
-  })()
-
-  // 鼠标活动时，获取鼠标坐标
-  var warea = { x: null, y: null, max: 20000 }
-  // window.onmousemove = function (e) {
-  //   e = e || window.event
-  //
-  //   warea.x = e.clientX
-  //   warea.y = e.clientY
-  // }
-  // window.onmouseout = function (e) {
-  //   warea.x = null
-  //   warea.y = null
-  // }
-
-  // 添加粒子
-  // x，y为粒子坐标，xa, ya为粒子xy轴加速度，max为连线的最大距离
-  var dots = []
-  for (var i = 0; i < 300; i++) {
-    var x = Math.random() * canvas.width
-    var y = Math.random() * canvas.height
-    var xa = Math.random() * 2 - 1
-    var ya = Math.random() * 2 - 1
-
-    dots.push({
-      x: x,
-      y: y,
-      xa: xa,
-      ya: ya,
-      max: 6000
-    })
-  }
-
-  // 延迟100秒开始执行动画，如果立即执行有时位置计算会出错
-  setTimeout(function () {
-    animate()
-  }, 100)
-
-  // 每一帧循环的逻辑
-  function animate () {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-    // 将鼠标坐标添加进去，产生一个用于比对距离的点数组
-    var ndots = [warea].concat(dots)
-
-    dots.forEach(function (dot) {
-      // 粒子位移
-      dot.x += dot.xa
-      dot.y += dot.ya
-
-      // 遇到边界将加速度反向
-      dot.xa *= (dot.x > canvas.width || dot.x < 0) ? -1 : 1
-      dot.ya *= (dot.y > canvas.height || dot.y < 0) ? -1 : 1
-
-      // 绘制点
-      ctx.fillRect(dot.x - 0.5, dot.y - 0.5, 1, 1)
-
-      // 循环比对粒子间的距离
-      for (var i = 0; i < ndots.length; i++) {
-        var d2 = ndots[i]
-
-        if (dot === d2 || d2.x === null || d2.y === null) continue
-
-        var xc = dot.x - d2.x
-        var yc = dot.y - d2.y
-
-        // 两个粒子之间的距离
-        var dis = xc * xc + yc * yc
-
-        // 距离比
-        var ratio
-
-        // 如果两个粒子之间的距离小于粒子对象的max值，则在两个粒子间画线
-        if (dis < d2.max) {
-          // 如果是鼠标，则让粒子向鼠标的位置移动
-          if (d2 === warea && dis > (d2.max / 2)) {
-            dot.x -= xc * 0.03
-            dot.y -= yc * 0.03
-          }
-
-          // 计算距离比
-          ratio = (d2.max - dis) / d2.max
-
-          // 画线
-          ctx.beginPath()
-          ctx.lineWidth = ratio / 2
-          // 线条颜色
-          ctx.strokeStyle = 'rgba(64,158,255,' + (ratio + 0.1) + ')'
-          ctx.moveTo(dot.x, dot.y)
-          ctx.lineTo(d2.x, d2.y)
-          ctx.stroke()
+          callback()
         }
       }
-
-      // 将已经计算过的粒子从数组中删除
-      ndots.splice(ndots.indexOf(dot), 1)
-    })
-
-    RAF(animate)
+      const validatePass = (rule, value, callback) => {
+        if (value.length < 5) {
+          callback(new Error(this.$t('Password length should be no shorter than 5')))
+        } else {
+          callback()
+        }
+      }
+      const validateConfirmPass = (rule, value, callback) => {
+        if (!this.isSignUp) return callback()
+        if (value !== this.loginForm.password) {
+          callback(new Error(this.$t('Two passwords must be the same')))
+        } else {
+          callback()
+        }
+      }
+      return {
+        loginForm: {
+          username: '',
+          password: '',
+          confirmPassword: '',
+          email: ''
+        },
+        loginRules: {
+          username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+          password: [{ required: true, trigger: 'blur', validator: validatePass }],
+          confirmPassword: [{ required: true, trigger: 'blur', validator: validateConfirmPass }]
+        },
+        loading: false,
+        pwdType: 'password',
+        isShowMobileWarning: false
+      }
+    },
+    computed: {
+      ...mapState('setting', [
+        'setting'
+      ]),
+      ...mapState('lang', [
+        'lang'
+      ]),
+      isSignUp() {
+        return this.$route.path === '/signup'
+      },
+      redirect() {
+        return this.$route.query.redirect
+      }
+    },
+    mounted() {
+      if (window.innerWidth >= 1024) {
+        initCanvas()
+      } else {
+        this.isShowMobileWarning = true
+      }
+    },
+    methods: {
+      handleLogin() {
+        this.$refs.loginForm.validate(async valid => {
+          if (!valid) return
+          this.loading = true
+          const res = await this.$store.dispatch('user/login', this.loginForm)
+          if (res.status === 200) {
+            // success
+            this.$router.push({ path: this.redirect || '/' })
+            this.$st.sendEv('全局', '登录', '成功')
+            await this.$store.dispatch('user/getInfo')
+          } else if (res.message === 'Network Error' || !res.response) {
+            // no response
+            this.$message({
+              type: 'error',
+              message: this.$t('No response from the server. Please make sure your server is running correctly. You can also refer to the documentation to solve this issue.'),
+              customClass: 'message-error',
+              duration: 5000
+            })
+            this.$st.sendEv('全局', '登录', '服务器无响应')
+          } else if (res.response.status === 401) {
+            // incorrect username or password
+            this.$message({
+              type: 'error',
+              message: '[401] ' + this.$t('Incorrect username or password')
+            })
+            this.$st.sendEv('全局', '登录', '用户名密码错误')
+          } else {
+            // other error
+            this.$message({
+              type: 'error',
+              message: `[${res.response.status}] ${res.response.data.error}`,
+              customClass: 'message-error'
+            })
+            this.$st.sendEv('全局', '登录', '其他错误')
+          }
+          this.loading = false
+        })
+      },
+      handleSignup() {
+        this.$refs.loginForm.validate(valid => {
+          if (valid) {
+            this.loading = true
+            this.$store.dispatch('user/register', this.loginForm).then(() => {
+              this.handleLogin()
+              this.loading = false
+              this.$st.sendEv('全局', '注册', '成功')
+            }).catch(err => {
+              this.$message.error(this.$t(err))
+              this.loading = false
+              this.$st.sendEv('全局', '注册', '失败')
+            })
+          }
+        })
+      },
+      onKeyEnter() {
+        const func = this.isSignUp ? this.handleSignup : this.handleLogin
+        func()
+      },
+      setLang(lang) {
+        window.localStorage.setItem('lang', lang)
+        this.$set(this.$i18n, 'locale', lang)
+        this.$store.commit('lang/SET_LANG', lang)
+      }
+    }
   }
-}
+
+  const initCanvas = () => {
+    var canvas = document.getElementById('canvas')
+    var ctx = canvas.getContext('2d')
+
+    resize()
+    window.onresize = resize
+
+    function resize() {
+      canvas.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
+      canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+    }
+
+    var RAF = (function() {
+      return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) {
+        window.setTimeout(callback, 1000 / 60)
+      }
+    })()
+
+    // 鼠标活动时，获取鼠标坐标
+    var warea = { x: null, y: null, max: 20000 }
+    // window.onmousemove = function (e) {
+    //   e = e || window.event
+    //
+    //   warea.x = e.clientX
+    //   warea.y = e.clientY
+    // }
+    // window.onmouseout = function (e) {
+    //   warea.x = null
+    //   warea.y = null
+    // }
+
+    // 添加粒子
+    // x，y为粒子坐标，xa, ya为粒子xy轴加速度，max为连线的最大距离
+    var dots = []
+    for (var i = 0; i < 300; i++) {
+      var x = Math.random() * canvas.width
+      var y = Math.random() * canvas.height
+      var xa = Math.random() * 2 - 1
+      var ya = Math.random() * 2 - 1
+
+      dots.push({
+        x: x,
+        y: y,
+        xa: xa,
+        ya: ya,
+        max: 6000
+      })
+    }
+
+    // 延迟100秒开始执行动画，如果立即执行有时位置计算会出错
+    setTimeout(function() {
+      animate()
+    }, 100)
+
+    // 每一帧循环的逻辑
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+      // 将鼠标坐标添加进去，产生一个用于比对距离的点数组
+      var ndots = [warea].concat(dots)
+
+      dots.forEach(function(dot) {
+        // 粒子位移
+        dot.x += dot.xa
+        dot.y += dot.ya
+
+        // 遇到边界将加速度反向
+        dot.xa *= (dot.x > canvas.width || dot.x < 0) ? -1 : 1
+        dot.ya *= (dot.y > canvas.height || dot.y < 0) ? -1 : 1
+
+        // 绘制点
+        ctx.fillRect(dot.x - 0.5, dot.y - 0.5, 1, 1)
+
+        // 循环比对粒子间的距离
+        for (var i = 0; i < ndots.length; i++) {
+          var d2 = ndots[i]
+
+          if (dot === d2 || d2.x === null || d2.y === null) continue
+
+          var xc = dot.x - d2.x
+          var yc = dot.y - d2.y
+
+          // 两个粒子之间的距离
+          var dis = xc * xc + yc * yc
+
+          // 距离比
+          var ratio
+
+          // 如果两个粒子之间的距离小于粒子对象的max值，则在两个粒子间画线
+          if (dis < d2.max) {
+            // 如果是鼠标，则让粒子向鼠标的位置移动
+            if (d2 === warea && dis > (d2.max / 2)) {
+              dot.x -= xc * 0.03
+              dot.y -= yc * 0.03
+            }
+
+            // 计算距离比
+            ratio = (d2.max - dis) / d2.max
+
+            // 画线
+            ctx.beginPath()
+            ctx.lineWidth = ratio / 2
+            // 线条颜色
+            ctx.strokeStyle = 'rgba(64,158,255,' + (ratio + 0.1) + ')'
+            ctx.moveTo(dot.x, dot.y)
+            ctx.lineTo(d2.x, d2.y)
+            ctx.stroke()
+          }
+        }
+
+        // 将已经计算过的粒子从数组中删除
+        ndots.splice(ndots.indexOf(dot), 1)
+      })
+
+      RAF(animate)
+    }
+  }
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

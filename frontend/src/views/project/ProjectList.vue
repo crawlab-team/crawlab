@@ -4,21 +4,24 @@
     <el-dialog
       :visible.sync="dialogVisible"
       width="640px"
-      :before-close="onDialogClose">
-      <el-form label-width="180px"
-               class="add-form"
-               :model="projectForm"
-               :inline-message="true"
-               ref="projectForm"
-               label-position="right">
+      :before-close="onDialogClose"
+    >
+      <el-form
+        ref="projectForm"
+        label-width="180px"
+        class="add-form"
+        :model="projectForm"
+        :inline-message="true"
+        label-position="right"
+      >
         <el-form-item :label="$t('Project Name')" prop="name" required>
-          <el-input id="name" v-model="projectForm.name" :placeholder="$t('Project Name')"></el-input>
+          <el-input id="name" v-model="projectForm.name" :placeholder="$t('Project Name')" />
         </el-form-item>
         <el-form-item :label="$t('Project Description')" prop="description">
           <el-input
             id="description"
-            type="textarea"
             v-model="projectForm.description"
+            type="textarea"
             :placeholder="$t('Project Description')"
           />
         </el-form-item>
@@ -30,14 +33,13 @@
             allow-create
             filterable
             multiple
-          >
-          </el-select>
+          />
         </el-form-item>
       </el-form>
       <!--取消、保存-->
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" @click="onDialogClose">{{$t('Cancel')}}</el-button>
-        <el-button id="btn-submit" size="small" type="primary" @click="onAddSubmit">{{$t('Submit')}}</el-button>
+        <el-button size="small" @click="onDialogClose">{{ $t('Cancel') }}</el-button>
+        <el-button id="btn-submit" size="small" type="primary" @click="onAddSubmit">{{ $t('Submit') }}</el-button>
       </span>
     </el-dialog>
     <!--./add popup-->
@@ -50,7 +52,7 @@
           :placeholder="$t('Select Tag')"
           @change="onFilterChange"
         >
-          <el-option value="" :label="$t('All Tags')"/>
+          <el-option value="" :label="$t('All Tags')" />
           <el-option
             v-for="tag in projectTags"
             :key="tag"
@@ -66,36 +68,36 @@
           size="small"
           @click="onAdd"
         >
-          {{$t('Add Project')}}
+          {{ $t('Add Project') }}
         </el-button>
       </div>
     </div>
     <div class="content">
       <div v-if="projectList.length === 0" class="empty-list">
-        {{ $t('You have no projects created. You can create a project by clicking the "Add" button.')}}
+        {{ $t('You have no projects created. You can create a project by clicking the "Add" button.') }}
       </div>
       <ul v-else class="list">
         <li
-          class="item"
           v-for="item in projectList.filter(d => d._id !== '000000000000000000000000')"
           :key="item._id"
+          class="item"
           @click="onView(item)"
         >
           <el-card
             class="item-card"
           >
-            <i v-if="!isNoProject(item)" class="btn-edit fa fa-edit" @click="onEdit(item)"></i>
-            <i v-if="!isNoProject(item)" class="btn-close fa fa-trash-o" @click="onRemove(item)"></i>
+            <i v-if="!isNoProject(item)" class="btn-edit fa fa-edit" @click="onEdit(item)" />
+            <i v-if="!isNoProject(item)" class="btn-close fa fa-trash-o" @click="onRemove(item)" />
             <el-row>
               <h4 class="title">{{ item.name }}</h4>
             </el-row>
             <el-row>
               <div style="display: flex; justify-content: space-between">
                 <span class="spider-count">
-                {{$t('Spider Count')}}: {{ item.spiders.length }}
+                  {{ $t('Spider Count') }}: {{ item.spiders.length }}
                 </span>
                 <span class="owner">
-                  {{item.username}}
+                  {{ item.username }}
                 </span>
               </div>
             </el-row>
@@ -124,124 +126,124 @@
 </template>
 
 <script>
-import {
-  mapState
-} from 'vuex'
+  import {
+    mapState
+  } from 'vuex'
 
-export default {
-  name: 'ProjectList',
-  data () {
-    return {
-      defaultTags: [],
-      dialogVisible: false,
-      isClickAction: false,
-      filter: {
-        tag: ''
+  export default {
+    name: 'ProjectList',
+    data() {
+      return {
+        defaultTags: [],
+        dialogVisible: false,
+        isClickAction: false,
+        filter: {
+          tag: ''
+        }
+      }
+    },
+    computed: {
+      ...mapState('project', [
+        'projectForm',
+        'projectList',
+        'projectTags'
+      ])
+    },
+    async created() {
+      await this.$store.dispatch('project/getProjectList', this.filter)
+      await this.$store.dispatch('project/getProjectTags')
+    },
+    methods: {
+      onDialogClose() {
+        this.dialogVisible = false
+      },
+      onFilterChange() {
+        this.$store.dispatch('project/getProjectList', this.filter)
+        this.$st.sendEv('项目', '筛选项目')
+      },
+      onAdd() {
+        this.isEdit = false
+        this.dialogVisible = true
+        this.$store.commit('project/SET_PROJECT_FORM', { tags: [] })
+        this.$st.sendEv('项目', '添加项目')
+      },
+      onAddSubmit() {
+        this.$refs.projectForm.validate(res => {
+          if (res) {
+            const form = JSON.parse(JSON.stringify(this.projectForm))
+            if (this.isEdit) {
+              this.$request.post(`/projects/${this.projectForm._id}`, form).then(response => {
+                if (response.data.error) {
+                  this.$message.error(response.data.error)
+                  return
+                }
+                this.dialogVisible = false
+                this.$store.dispatch('project/getProjectList')
+                this.$message.success(this.$t('The project has been saved'))
+              })
+            } else {
+              this.$request.put('/projects', form).then(response => {
+                if (response.data.error) {
+                  this.$message.error(response.data.error)
+                  return
+                }
+                this.dialogVisible = false
+                this.$store.dispatch('project/getProjectList')
+                this.$message.success(this.$t('The project has been added'))
+              })
+            }
+          }
+        })
+        this.$st.sendEv('项目', '提交项目')
+      },
+      onEdit(row) {
+        this.isClickAction = true
+        setTimeout(() => {
+          this.isClickAction = false
+        }, 100)
+
+        this.$store.commit('project/SET_PROJECT_FORM', row)
+        this.dialogVisible = true
+        this.isEdit = true
+        this.$st.sendEv('项目', '修改项目')
+      },
+      onRemove(row) {
+        this.isClickAction = true
+        setTimeout(() => {
+          this.isClickAction = false
+        }, 100)
+
+        this.$confirm(this.$t('Are you sure to delete the project?'), this.$t('Notification'), {
+          confirmButtonText: this.$t('Confirm'),
+          cancelButtonText: this.$t('Cancel'),
+          type: 'warning'
+        }).then(() => {
+          this.$store.dispatch('project/removeProject', row._id)
+            .then(() => {
+              setTimeout(() => {
+                this.$store.dispatch('project/getProjectList')
+                this.$message.success(this.$t('The project has been removed'))
+              }, 100)
+            })
+        }).catch(() => {
+        })
+        this.$st.sendEv('项目', '删除项目')
+      },
+      onView(row) {
+        if (this.isClickAction) return
+
+        this.$router.push({
+          name: 'SpiderList',
+          params: {
+            project_id: row._id
+          }
+        })
+      },
+      isNoProject(row) {
+        return row._id === '000000000000000000000000'
       }
     }
-  },
-  computed: {
-    ...mapState('project', [
-      'projectForm',
-      'projectList',
-      'projectTags'
-    ])
-  },
-  methods: {
-    onDialogClose () {
-      this.dialogVisible = false
-    },
-    onFilterChange () {
-      this.$store.dispatch('project/getProjectList', this.filter)
-      this.$st.sendEv('项目', '筛选项目')
-    },
-    onAdd () {
-      this.isEdit = false
-      this.dialogVisible = true
-      this.$store.commit('project/SET_PROJECT_FORM', { tags: [] })
-      this.$st.sendEv('项目', '添加项目')
-    },
-    onAddSubmit () {
-      this.$refs.projectForm.validate(res => {
-        if (res) {
-          const form = JSON.parse(JSON.stringify(this.projectForm))
-          if (this.isEdit) {
-            this.$request.post(`/projects/${this.projectForm._id}`, form).then(response => {
-              if (response.data.error) {
-                this.$message.error(response.data.error)
-                return
-              }
-              this.dialogVisible = false
-              this.$store.dispatch('project/getProjectList')
-              this.$message.success(this.$t('The project has been saved'))
-            })
-          } else {
-            this.$request.put('/projects', form).then(response => {
-              if (response.data.error) {
-                this.$message.error(response.data.error)
-                return
-              }
-              this.dialogVisible = false
-              this.$store.dispatch('project/getProjectList')
-              this.$message.success(this.$t('The project has been added'))
-            })
-          }
-        }
-      })
-      this.$st.sendEv('项目', '提交项目')
-    },
-    onEdit (row) {
-      this.isClickAction = true
-      setTimeout(() => {
-        this.isClickAction = false
-      }, 100)
-
-      this.$store.commit('project/SET_PROJECT_FORM', row)
-      this.dialogVisible = true
-      this.isEdit = true
-      this.$st.sendEv('项目', '修改项目')
-    },
-    onRemove (row) {
-      this.isClickAction = true
-      setTimeout(() => {
-        this.isClickAction = false
-      }, 100)
-
-      this.$confirm(this.$t('Are you sure to delete the project?'), this.$t('Notification'), {
-        confirmButtonText: this.$t('Confirm'),
-        cancelButtonText: this.$t('Cancel'),
-        type: 'warning'
-      }).then(() => {
-        this.$store.dispatch('project/removeProject', row._id)
-          .then(() => {
-            setTimeout(() => {
-              this.$store.dispatch('project/getProjectList')
-              this.$message.success(this.$t('The project has been removed'))
-            }, 100)
-          })
-      }).catch(() => {
-      })
-      this.$st.sendEv('项目', '删除项目')
-    },
-    onView (row) {
-      if (this.isClickAction) return
-
-      this.$router.push({
-        name: 'SpiderList',
-        params: {
-          project_id: row._id
-        }
-      })
-    },
-    isNoProject (row) {
-      return row._id === '000000000000000000000000'
-    }
-  },
-  async created () {
-    await this.$store.dispatch('project/getProjectList', this.filter)
-    await this.$store.dispatch('project/getProjectTags')
   }
-}
 </script>
 
 <style scoped>

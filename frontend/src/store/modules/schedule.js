@@ -1,4 +1,5 @@
 import request from '../../api/request'
+
 const state = {
   scheduleList: [],
   scheduleForm: {
@@ -9,16 +10,16 @@ const state = {
 const getters = {}
 
 const mutations = {
-  SET_SCHEDULE_LIST (state, value) {
+  SET_SCHEDULE_LIST(state, value) {
     state.scheduleList = value
   },
-  SET_SCHEDULE_FORM (state, value) {
+  SET_SCHEDULE_FORM(state, value) {
     state.scheduleForm = value
   }
 }
 
 const actions = {
-  getScheduleList ({ state, commit }) {
+  getScheduleList({ state, commit }) {
     request.get('/schedules')
       .then(response => {
         if (response.data.data) {
@@ -31,19 +32,19 @@ const actions = {
         }
       })
   },
-  addSchedule ({ state }) {
+  addSchedule({ state }) {
     request.put('/schedules', state.scheduleForm)
   },
-  editSchedule ({ state }, id) {
+  editSchedule({ state }, id) {
     request.post(`/schedules/${id}`, state.scheduleForm)
   },
-  removeSchedule ({ state }, id) {
+  removeSchedule({ state }, id) {
     request.delete(`/schedules/${id}`)
   },
-  enableSchedule ({ state, dispatch }, id) {
+  enableSchedule({ state, dispatch }, id) {
     return request.post(`/schedules/${id}/enable`)
   },
-  disableSchedule ({ state, dispatch }, id) {
+  disableSchedule({ state, dispatch }, id) {
     return request.post(`/schedules/${id}/disable`)
   }
 }

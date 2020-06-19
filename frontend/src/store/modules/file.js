@@ -9,19 +9,20 @@ const state = {
 const getters = {}
 
 const mutations = {
-  SET_CURRENT_PATH (state, value) {
+  SET_CURRENT_PATH(state, value) {
     state.currentPath = value
   },
-  SET_FILE_LIST (state, value) {
+
+  SET_FILE_LIST(state, value) {
     state.fileList = value
   },
-  SET_FILE_CONTENT (state, value) {
+  SET_FILE_CONTENT(state, value) {
     state.fileContent = value
   }
 }
 
 const actions = {
-  getFileList ({ commit, rootState }, payload) {
+  getFileList({ commit, rootState }, payload) {
     const { path } = payload
     const spiderId = rootState.spider.spiderForm._id
     commit('SET_CURRENT_PATH', path)
@@ -36,7 +37,7 @@ const actions = {
         )
       })
   },
-  getFileContent ({ commit, rootState }, payload) {
+  getFileContent({ commit, rootState }, payload) {
     const { path } = payload
     const spiderId = rootState.spider.spiderForm._id
     return request.get(`/spiders/${spiderId}/file`, { path })
@@ -44,30 +45,32 @@ const actions = {
         commit('SET_FILE_CONTENT', response.data.data)
       })
   },
-  saveFileContent ({ state, rootState }, payload) {
+  saveFileContent({ state, rootState }, payload) {
     const { path } = payload
     const spiderId = rootState.spider.spiderForm._id
-    return request.post(`/spiders/${spiderId}/file`, { path, content: state.fileContent })
+    return request.post(`/spiders/${spiderId}/file`,
+      { path, content: state.fileContent })
   },
-  addFile ({ rootState }, payload) {
+  addFile({ rootState }, payload) {
     const { path } = payload
     const spiderId = rootState.spider.spiderForm._id
     return request.put(`/spiders/${spiderId}/file`, { path })
   },
-  addDir ({ rootState }, payload) {
+  addDir({ rootState }, payload) {
     const { path } = payload
     const spiderId = rootState.spider.spiderForm._id
     return request.put(`/spiders/${spiderId}/dir`, { path })
   },
-  deleteFile ({ rootState }, payload) {
+  deleteFile({ rootState }, payload) {
     const { path } = payload
     const spiderId = rootState.spider.spiderForm._id
     return request.delete(`/spiders/${spiderId}/file`, { path })
   },
-  renameFile ({ rootState }, payload) {
+  renameFile({ rootState }, payload) {
     const { path, newPath } = payload
     const spiderId = rootState.spider.spiderForm._id
-    return request.post(`/spiders/${spiderId}/file/rename`, { path, new_path: newPath })
+    return request.post(`/spiders/${spiderId}/file/rename`,
+      { path, new_path: newPath })
   }
 }
 
