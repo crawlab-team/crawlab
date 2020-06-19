@@ -31,7 +31,9 @@ export default {
     lastWeekday: 'On the last weekday of the month',
     lastWeek: ['On the last', ' of the month'],
     beforeEndMonth: ['day(s) before the end of the month'],
-    nearestWeekday: ['Nearest weekday (Monday to Friday) to the', 'of the month'],
+    nearestWeekday: [
+      'Nearest weekday (Monday to Friday) to the',
+      'of the month'],
     someWeekday: ['On the', 'of the month'],
     cycle: ['From', 'to']
   },
@@ -39,7 +41,14 @@ export default {
     name: 'Week',
     every: 'Every day',
     specific: 'Specific weekday (choose on or many)',
-    list: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+    list: [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday'],
     cycle: ['From', 'to']
   },
   // Week:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],

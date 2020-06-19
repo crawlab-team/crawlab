@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const sendEvCrawlab = async (eventCategory, eventAction, eventLabel) => {
+const sendEvCrawlab = async(eventCategory, eventAction, eventLabel) => {
   await axios.get(process.env.VUE_APP_CRAWLAB_BASE_URL + '/track', {
     params: {
       uid: localStorage.getItem('uid'),
@@ -14,13 +14,13 @@ const sendEvCrawlab = async (eventCategory, eventAction, eventLabel) => {
 }
 
 export default {
-  sendPv (page) {
+  sendPv(page) {
     if (localStorage.getItem('useStats') !== '0') {
       window._hmt.push(['_trackPageview', page])
       sendEvCrawlab('访问页面', page, '')
     }
   },
-  sendEv (category, eventName, optLabel, optValue) {
+  sendEv(category, eventName, optLabel, optValue) {
     if (localStorage.getItem('useStats') !== '0') {
       window._hmt.push(['_trackEvent', category, eventName, optLabel, optValue])
       sendEvCrawlab(category, eventName, optLabel)

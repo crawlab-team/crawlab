@@ -26,37 +26,37 @@ const state = {
 const getters = {}
 
 const mutations = {
-  SET_KEYWORD (state, value) {
+  SET_KEYWORD(state, value) {
     state.keyword = value
   },
-  SET_SITE_LIST (state, value) {
+  SET_SITE_LIST(state, value) {
     state.siteList = value
   },
-  SET_PAGE_NUM (state, value) {
+  SET_PAGE_NUM(state, value) {
     state.pageNum = value
   },
-  SET_PAGE_SIZE (state, value) {
+  SET_PAGE_SIZE(state, value) {
     state.pageSize = value
   },
-  SET_TOTAL_COUNT (state, value) {
+  SET_TOTAL_COUNT(state, value) {
     state.totalCount = value
   },
-  SET_MAIN_CATEGORY_LIST (state, value) {
+  SET_MAIN_CATEGORY_LIST(state, value) {
     state.mainCategoryList = value
   },
-  SET_CATEGORY_LIST (state, value) {
+  SET_CATEGORY_LIST(state, value) {
     state.categoryList = value
   }
 }
 
 const actions = {
-  editSite ({ state, dispatch }, payload) {
+  editSite({ state, dispatch }, payload) {
     const { id, category } = payload
     return request.post(`/sites/${id}`, {
       category
     })
   },
-  getSiteList ({ state, commit }) {
+  getSiteList({ state, commit }) {
     return request.get('/sites', {
       page_num: state.pageNum,
       page_size: state.pageSize,
@@ -71,13 +71,13 @@ const actions = {
         commit('SET_TOTAL_COUNT', response.data.total_count)
       })
   },
-  getMainCategoryList ({ state, commit }) {
+  getMainCategoryList({ state, commit }) {
     return request.get('/sites/get/get_main_category_list')
       .then(response => {
         commit('SET_MAIN_CATEGORY_LIST', response.data.items)
       })
   },
-  getCategoryList ({ state, commit }) {
+  getCategoryList({ state, commit }) {
     return request.get('/sites/get/get_category_list', {
       'main_category': state.filter.mainCategory || undefined
     })

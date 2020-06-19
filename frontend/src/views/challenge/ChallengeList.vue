@@ -8,31 +8,30 @@
       >
         <el-card>
           <div class="title" :title="lang === 'zh' ? c.title_cn : c.title_en">
-            {{lang === 'zh' ? c.title_cn : c.title_en}}
+            {{ lang === 'zh' ? c.title_cn : c.title_en }}
           </div>
           <div class="rating block">
-            <span class="label">{{$t('Difficulty')}}: </span>
+            <span class="label">{{ $t('Difficulty') }}: </span>
             <el-rate
               v-model="c.difficulty"
               disabled
-            >
-            </el-rate>
+            />
           </div>
           <div class="achieved block">
-            <span class="label">{{$t('Status')}}: </span>
+            <span class="label">{{ $t('Status') }}: </span>
             <div class="content">
               <div v-if="c.achieved" class="status is-achieved">
-                <i class="fa fa-check-square-o"></i>
-                <span>{{$t('Achieved')}}</span>
+                <i class="fa fa-check-square-o" />
+                <span>{{ $t('Achieved') }}</span>
               </div>
               <div v-else class="status is-not-achieved">
-                <i class="fa fa-square-o"></i>
-                <span>{{$t('Not Achieved')}}</span>
+                <i class="fa fa-square-o" />
+                <span>{{ $t('Not Achieved') }}</span>
               </div>
             </div>
           </div>
           <div class="description">
-            {{lang === 'zh' ? c.description_cn : c.description_en}}
+            {{ lang === 'zh' ? c.description_cn : c.description_en }}
           </div>
           <div class="actions">
             <el-button
@@ -42,7 +41,7 @@
               icon="el-icon-check"
               disabled
             >
-              {{$t('Achieved')}}
+              {{ $t('Achieved') }}
             </el-button>
             <el-button
               v-else
@@ -51,7 +50,7 @@
               icon="el-icon-s-flag"
               @click="onStartChallenge(c)"
             >
-              {{$t('Start Challenge')}}
+              {{ $t('Start Challenge') }}
             </el-button>
           </div>
         </el-card>
@@ -61,40 +60,40 @@
 </template>
 
 <script>
-import {
-  mapState
-} from 'vuex'
-export default {
-  name: 'ChallengeList',
-  data () {
-    return {
-      challenges: []
-    }
-  },
-  computed: {
-    ...mapState('lang', [
-      'lang'
-    ])
-  },
-  methods: {
-    async getData () {
-      await this.$request.post('/challenges-check')
-      const res = await this.$request.get('/challenges')
-      this.challenges = res.data.data || []
-    },
-    onStartChallenge (c) {
-      if (c.path) {
-        this.$router.push(c.path)
-      } else {
-        this.$message.success(this.$t('You have started the challenge.'))
+  import {
+    mapState
+  } from 'vuex'
+  export default {
+    name: 'ChallengeList',
+    data() {
+      return {
+        challenges: []
       }
-      this.$st.sendEv('挑战', '开始挑战')
+    },
+    computed: {
+      ...mapState('lang', [
+        'lang'
+      ])
+    },
+    async created() {
+      await this.getData()
+    },
+    methods: {
+      async getData() {
+        await this.$request.post('/challenges-check')
+        const res = await this.$request.get('/challenges')
+        this.challenges = res.data.data || []
+      },
+      onStartChallenge(c) {
+        if (c.path) {
+          this.$router.push(c.path)
+        } else {
+          this.$message.success(this.$t('You have started the challenge.'))
+        }
+        this.$st.sendEv('挑战', '开始挑战')
+      }
     }
-  },
-  async created () {
-    await this.getData()
   }
-}
 </script>
 
 <style scoped>

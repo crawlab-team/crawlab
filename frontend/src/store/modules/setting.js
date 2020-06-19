@@ -7,13 +7,13 @@ const state = {
 const getters = {}
 
 const mutations = {
-  SET_SETTING (state, value) {
+  SET_SETTING(state, value) {
     state.setting = value
   }
 }
 
 const actions = {
-  async getSetting ({ commit }) {
+  async getSetting({ commit }) {
     const res = await request.get('/setting')
     commit('SET_SETTING', res.data.data)
 

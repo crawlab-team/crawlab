@@ -37,7 +37,6 @@ export default {
   Running: '进行中',
   Finished: '已完成',
   Error: '错误',
-  Errors: '错误',
   NA: '未知',
   Cancelled: '已取消',
   Abnormal: '异常',
@@ -417,8 +416,6 @@ export default {
   'Disclaimer': '免责声明',
   'Please search dependencies': '请搜索依赖',
   'No Data': '暂无数据',
-  'No data available': '暂无数据',
-  'No data available. Please check whether your spiders are missing dependencies or no spiders created.': '暂无数据。请检查您的爬虫是否缺少依赖，或者没有创建爬虫。',
   'Show installed': '查看已安装',
   'Installing dependency successful': '安装依赖成功',
   'Installing dependency failed': '安装依赖失败',
@@ -541,7 +538,12 @@ export default {
     // Cron Format: [second] [minute] [hour] [day of month] [month] [day of week]
     cron_format: 'Cron 格式: [秒] [分] [小时] [日] [月] [周]'
   },
-
+  auth: {
+    login_expired_message: '您已注销，可以取消以保留在该页面上，或者再次登录',
+    login_expired_title: '确认登出',
+    login_expired_confirm: '确认',
+    login_expired_cancel: '取消'
+  },
   // 内容
   addNodeInstruction: `
 您不能在 Crawlab 的 Web 界面直接添加节点。

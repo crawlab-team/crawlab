@@ -7,13 +7,13 @@ const state = {
 const getters = {}
 
 const mutations = {
-  SET_DEPLOY_LIST (state, value) {
+  SET_DEPLOY_LIST(state, value) {
     state.deployList = value
   }
 }
 
 const actions = {
-  getDeployList ({ state, commit }) {
+  getDeployList({ state, commit }) {
     request.get('/deploys')
       .then(response => {
         commit('SET_DEPLOY_LIST', response.data.items.map(d => {
