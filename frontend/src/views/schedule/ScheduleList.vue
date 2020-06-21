@@ -124,6 +124,7 @@
         </el-form-item>
         <el-form-item :label="$t('Cron')" prop="cron" required>
           <el-input
+            id="cron"
             ref="cron"
             v-model="scheduleForm.cron"
             class="cron"
