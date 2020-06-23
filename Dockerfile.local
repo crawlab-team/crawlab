@@ -13,6 +13,7 @@ FROM node:latest AS frontend-build
 ADD ./frontend /app
 WORKDIR /app
 
+ENV SASS_BINARY_SITE=https://npm.taobao.org/mirrors/node-sass/
 # install frontend
 RUN yarn config set registry https://registry.npm.taobao.org && \
     yarn install && yarn run build:prod
