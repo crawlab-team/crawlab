@@ -22,6 +22,7 @@ const del = (path, data) => {
 const request = service.request
 
 export default {
+  baseUrl: service.defaults.baseURL,
   request,
   get,
   post,
