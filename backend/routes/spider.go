@@ -470,7 +470,7 @@ func UploadSpider(c *gin.Context) {
 	}
 
 	// 上传到GridFs
-	fid, err := services.UploadToGridFs(uploadFile.Filename, tmpFilePath)
+	fid, err := services.RetryUploadToGridFs(uploadFile.Filename, tmpFilePath)
 	if err != nil {
 		log.Errorf("upload to grid fs error: %s", err.Error())
 		debug.PrintStack()
@@ -634,7 +634,7 @@ func UploadSpiderFromId(c *gin.Context) {
 	}
 
 	// 上传到GridFs
-	fid, err := services.UploadToGridFs(spider.Name, tmpFilePath)
+	fid, err := services.RetryUploadToGridFs(spider.Name, tmpFilePath)
 	if err != nil {
 		log.Errorf("upload to grid fs error: %s", err.Error())
 		debug.PrintStack()
