@@ -101,10 +101,6 @@ func GetTaskList(c *gin.Context) {
 // @Router /tasks/{id} [get]
 func GetTask(c *gin.Context) {
 	id := c.Param("id")
-	if !bson.IsObjectIdHex(id) {
-		HandleErrorF(http.StatusBadRequest, c, "invalid id")
-		return
-	}
 	result, err := model.GetTask(id)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
