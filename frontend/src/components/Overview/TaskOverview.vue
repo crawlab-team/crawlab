@@ -7,7 +7,7 @@
         icon="el-icon-position"
         @click="onNavigateToSpider"
       >
-        {{$t('Navigate to Spider')}}
+        {{ $t('Navigate to Spider') }}
       </el-button>
       <el-button
         type="warning"
@@ -15,30 +15,30 @@
         icon="el-icon-position"
         @click="onNavigateToNode"
       >
-        {{$t('Navigate to Node')}}
+        {{ $t('Navigate to Node') }}
       </el-button>
     </el-row>
     <el-row class="content">
       <el-col :span="12" style="padding-right: 20px;">
         <el-row class="task-info-overview-wrapper wrapper">
-          <h4 class="title">{{$t('Task Info')}}</h4>
-          <task-info-view @click-log="() => $emit('click-log')"/>
+          <h4 class="title">{{ $t('Task Info') }}</h4>
+          <task-info-view @click-log="() => $emit('click-log')" />
         </el-row>
-        <el-row style="border-bottom:1px solid #e4e7ed;margin:0 0 20px 0;padding-bottom:20px;"/>
+        <el-row style="border-bottom:1px solid #e4e7ed;margin:0 0 20px 0;padding-bottom:20px;" />
       </el-col>
 
       <el-col :span="12">
         <el-row class="task-info-spider-wrapper wrapper">
           <h4 class="title spider-title" @click="onNavigateToSpider">
-            <i class="fa fa-search" style="margin-right: 5px"></i>
-            {{$t('Spider Info')}}</h4>
-          <spider-info-view :is-view="true"/>
+            <i class="fa fa-search" style="margin-right: 5px" />
+            {{ $t('Spider Info') }}</h4>
+          <spider-info-view :is-view="true" />
         </el-row>
         <el-row class="task-info-node-wrapper wrapper">
           <h4 class="title node-title" @click="onNavigateToNode">
-            <i class="fa fa-search" style="margin-right: 5px"></i>
-            {{$t('Node Info')}}</h4>
-          <node-info-view :is-view="true"/>
+            <i class="fa fa-search" style="margin-right: 5px" />
+            {{ $t('Node Info') }}</h4>
+          <node-info-view :is-view="true" />
         </el-row>
       </el-col>
     </el-row>
@@ -46,41 +46,41 @@
 </template>
 
 <script>
-import {
-  mapState
-} from 'vuex'
-import SpiderInfoView from '../InfoView/SpiderInfoView'
-import NodeInfoView from '../InfoView/NodeInfoView'
-import TaskInfoView from '../InfoView/TaskInfoView'
+  import {
+    mapState
+  } from 'vuex'
+  import SpiderInfoView from '../InfoView/SpiderInfoView'
+  import NodeInfoView from '../InfoView/NodeInfoView'
+  import TaskInfoView from '../InfoView/TaskInfoView'
 
-export default {
-  name: 'SpiderOverview',
-  components: {
-    NodeInfoView,
-    SpiderInfoView,
-    TaskInfoView
-  },
-  computed: {
-    ...mapState('node', [
-      'nodeForm'
-    ]),
-    ...mapState('spider', [
-      'spiderForm'
-    ])
-  },
-  methods: {
-    onNavigateToSpider () {
-      this.$router.push(`/spiders/${this.spiderForm._id}`)
-      this.$st.sendEv('任务详情', '概览', '点击爬虫详情')
+  export default {
+    name: 'SpiderOverview',
+    components: {
+      NodeInfoView,
+      SpiderInfoView,
+      TaskInfoView
     },
-    onNavigateToNode () {
-      this.$router.push(`/nodes/${this.nodeForm._id}`)
-      this.$st.sendEv('任务详情', '概览', '点击节点详情')
+    computed: {
+      ...mapState('node', [
+        'nodeForm'
+      ]),
+      ...mapState('spider', [
+        'spiderForm'
+      ])
+    },
+    created() {
+    },
+    methods: {
+      onNavigateToSpider() {
+        this.$router.push(`/spiders/${this.spiderForm._id}`)
+        this.$st.sendEv('任务详情', '概览', '点击爬虫详情')
+      },
+      onNavigateToNode() {
+        this.$router.push(`/nodes/${this.nodeForm._id}`)
+        this.$st.sendEv('任务详情', '概览', '点击节点详情')
+      }
     }
-  },
-  created () {
   }
-}
 </script>
 
 <style scoped>

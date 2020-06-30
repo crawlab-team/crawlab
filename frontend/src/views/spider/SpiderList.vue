@@ -16,19 +16,21 @@
     <!--./tour-->
 
     <!--add dialog-->
-    <el-dialog :title="$t('Add Spider')"
-               width="40%"
-               :visible.sync="addDialogVisible"
-               :before-close="onAddDialogClose">
+    <el-dialog
+      :title="$t('Add Spider')"
+      width="40%"
+      :visible.sync="addDialogVisible"
+      :before-close="onAddDialogClose"
+    >
       <el-tabs :active-name="activeTabName">
         <!-- customized -->
         <el-tab-pane name="customized" :label="$t('Customized')">
-          <el-form :model="spiderForm" ref="addCustomizedForm" inline-message label-width="120px">
+          <el-form ref="addCustomizedForm" :model="spiderForm" inline-message label-width="120px">
             <el-form-item :label="$t('Spider Name')" prop="name" required>
-              <el-input id="spider-name" v-model="spiderForm.name" :placeholder="$t('Spider Name')"/>
+              <el-input id="spider-name" v-model="spiderForm.name" :placeholder="$t('Spider Name')" />
             </el-form-item>
             <el-form-item :label="$t('Display Name')" prop="display_name" required>
-              <el-input id="display-name" v-model="spiderForm.display_name" :placeholder="$t('Display Name')"/>
+              <el-input id="display-name" v-model="spiderForm.display_name" :placeholder="$t('Display Name')" />
             </el-form-item>
             <el-form-item :label="$t('Project')" prop="project_id" required>
               <el-select
@@ -69,7 +71,7 @@
                 :before-upload="beforeUpload"
               >
                 <el-button id="upload" size="small" type="primary" icon="el-icon-upload">
-                  {{$t('Upload')}}
+                  {{ $t('Upload') }}
                 </el-button>
               </el-upload>
             </el-form-item>
@@ -106,35 +108,41 @@
             :closable="false"
             style="margin-bottom: 10px"
           >
-            <p>{{$t('You can click "Add" to create an empty spider and upload files later.')}}</p>
-            <p>{{$t('OR, you can also click "Upload" and upload a zip file containing your spider project.')}}</p>
+            <p>{{ $t('You can click "Add" to create an empty spider and upload files later.') }}</p>
+            <p>{{ $t('OR, you can also click "Upload" and upload a zip file containing your spider project.') }}</p>
             <p>
-              <i class="fa fa-exclamation-triangle"></i> {{$t('NOTE: When uploading a zip file, please zip your' +
-              ' spider files from the ROOT DIRECTORY.')}}
+              <i class="fa fa-exclamation-triangle" /> {{ $t('NOTE: When uploading a zip file, please zip your' +
+                ' spider files from the ROOT DIRECTORY.') }}
             </p>
             <p style="font-weight: bolder">
               <template v-if="lang === 'en'">
-                Recommend uploading spiders using <a href="https://docs.crawlab.cn/SDK/CLI.html" target="_blank"
-                                                     style="color: #409eff;font-weight: bolder">CLI Tool</a>.
+                Recommend uploading spiders using <a
+                  href="https://docs.crawlab.cn/SDK/CLI.html"
+                  target="_blank"
+                  style="color: #409eff;font-weight: bolder"
+                >CLI Tool</a>.
               </template>
               <template v-else-if="lang === 'zh'">
-                推荐使用 <a href="https://docs.crawlab.cn/SDK/CLI.html" target="_blank"
-                          style="color: #409eff;font-weight: bolder">CLI 工具</a> 上传爬虫。
+                推荐使用 <a
+                  href="https://docs.crawlab.cn/SDK/CLI.html"
+                  target="_blank"
+                  style="color: #409eff;font-weight: bolder"
+                >CLI 工具</a> 上传爬虫。
               </template>
             </p>
           </el-alert>
           <div class="actions">
-            <el-button size="small" type="primary" @click="onAddCustomized">{{$t('Add')}}</el-button>
+            <el-button size="small" type="primary" @click="onAddCustomized">{{ $t('Add') }}</el-button>
           </div>
         </el-tab-pane>
         <!-- configurable -->
         <el-tab-pane name="configurable" :label="$t('Configurable')">
-          <el-form :model="spiderForm" ref="addConfigurableForm" inline-message label-width="120px">
+          <el-form ref="addConfigurableForm" :model="spiderForm" inline-message label-width="120px">
             <el-form-item :label="$t('Spider Name')" prop="name" required>
-              <el-input v-model="spiderForm.name" :placeholder="$t('Spider Name')"/>
+              <el-input v-model="spiderForm.name" :placeholder="$t('Spider Name')" />
             </el-form-item>
             <el-form-item :label="$t('Display Name')" prop="display_name" required>
-              <el-input v-model="spiderForm.display_name" :placeholder="$t('Display Name')"/>
+              <el-input v-model="spiderForm.display_name" :placeholder="$t('Display Name')" />
             </el-form-item>
             <el-form-item :label="$t('Project')" prop="project_id" required>
               <el-select
@@ -151,8 +159,12 @@
               </el-select>
             </el-form-item>
             <el-form-item :label="$t('Template')" prop="template" required>
-              <el-select id="template" v-model="spiderForm.template" :value="spiderForm.template"
-                         :placeholder="$t('Template')">
+              <el-select
+                id="template"
+                v-model="spiderForm.template"
+                :value="spiderForm.template"
+                :placeholder="$t('Template')"
+              >
                 <el-option
                   v-for="template in templateList"
                   :key="template"
@@ -162,11 +174,11 @@
               </el-select>
             </el-form-item>
             <el-form-item :label="$t('Results')" prop="col" required>
-              <el-input v-model="spiderForm.col" :placeholder="$t('Results')"/>
+              <el-input v-model="spiderForm.col" :placeholder="$t('Results')" />
             </el-form-item>
           </el-form>
           <div class="actions">
-            <el-button id="add" size="small" type="primary" @click="onAddConfigurable">{{$t('Add')}}</el-button>
+            <el-button id="add" size="small" type="primary" @click="onAddConfigurable">{{ $t('Add') }}</el-button>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -180,12 +192,12 @@
       width="920px"
     >
       <el-tabs v-model="activeSpiderTaskStatus">
-        <el-tab-pane name="pending" :label="$t('Pending')"/>
-        <el-tab-pane name="running" :label="$t('Running')"/>
-        <el-tab-pane name="finished" :label="$t('Finished')"/>
-        <el-tab-pane name="error" :label="$t('Error')"/>
-        <el-tab-pane name="cancelled" :label="$t('Cancelled')"/>
-        <el-tab-pane name="abnormal" :label="$t('Abnormal')"/>
+        <el-tab-pane name="pending" :label="$t('Pending')" />
+        <el-tab-pane name="running" :label="$t('Running')" />
+        <el-tab-pane name="finished" :label="$t('Finished')" />
+        <el-tab-pane name="error" :label="$t('Error')" />
+        <el-tab-pane name="cancelled" :label="$t('Cancelled')" />
+        <el-tab-pane name="abnormal" :label="$t('Abnormal')" />
       </el-tabs>
       <el-table
         :data="activeNodeList"
@@ -196,7 +208,7 @@
       >
         <el-table-column type="expand">
           <template slot-scope="scope">
-            <h4 style="margin: 5px 10px">{{$t('Tasks')}}</h4>
+            <h4 style="margin: 5px 10px">{{ $t('Tasks') }}</h4>
             <el-table
               :data="getTasksByNode(scope.row)"
               class="table"
@@ -230,7 +242,7 @@
                 width="120px"
               >
                 <template slot-scope="scope">
-                  <status-tag :status="scope.row.status"/>
+                  <status-tag :status="scope.row.status" />
                 </template>
               </el-table-column>
               <el-table-column
@@ -266,9 +278,9 @@
           prop="status"
         >
           <template slot-scope="scope">
-            <el-tag type="info" v-if="scope.row.status === 'offline'">{{$t('Offline')}}</el-tag>
-            <el-tag type="success" v-else-if="scope.row.status === 'online'">{{$t('Online')}}</el-tag>
-            <el-tag type="danger" v-else>{{$t('Unavailable')}}</el-tag>
+            <el-tag v-if="scope.row.status === 'offline'" type="info">{{ $t('Offline') }}</el-tag>
+            <el-tag v-else-if="scope.row.status === 'online'" type="success">{{ $t('Online') }}</el-tag>
+            <el-tag v-else type="danger">{{ $t('Unavailable') }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column
@@ -278,7 +290,7 @@
         />
       </el-table>
       <template slot="footer">
-        <el-button type="primary" size="small" @click="isRunningTasksDialogVisible = false">{{$t('Ok')}}</el-button>
+        <el-button type="primary" size="small" @click="isRunningTasksDialogVisible = false">{{ $t('Ok') }}</el-button>
       </template>
     </el-dialog>
     <!--./running tasks dialog-->
@@ -321,7 +333,7 @@
                 :placeholder="$t('Project')"
                 @change="getList"
               >
-                <el-option value="" :label="$t('All Projects')"/>
+                <el-option value="" :label="$t('All Projects')" />
                 <el-option
                   v-for="p in projectList"
                   :key="p._id"
@@ -337,9 +349,9 @@
                 :placeholder="$t('Owner Type')"
                 @change="getList"
               >
-                <el-option value="me" :label="$t('My Spiders')"/>
-                <el-option value="all" :label="$t('All Spiders')"/>
-                <el-option value="public" :label="$t('Public Spiders')"/>
+                <el-option value="me" :label="$t('My Spiders')" />
+                <el-option value="all" :label="$t('All Spiders')" />
+                <el-option value="public" :label="$t('Public Spiders')" />
               </el-select>
             </el-form-item>
             <el-form-item>
@@ -350,14 +362,17 @@
                 clearable
                 @keyup.enter.native="onSearch"
               >
-                <i slot="suffix" class="el-input__icon el-icon-search"></i>
+                <i slot="suffix" class="el-input__icon el-icon-search" />
               </el-input>
             </el-form-item>
             <el-form-item>
-              <el-button size="small" type="success"
-                         class="btn refresh"
-                         @click="onRefresh">
-                {{$t('Search')}}
+              <el-button
+                size="small"
+                type="success"
+                class="btn refresh"
+                @click="onRefresh"
+              >
+                {{ $t('Search') }}
               </el-button>
             </el-form-item>
           </el-form>
@@ -369,10 +384,10 @@
             type="danger"
             icon="el-icon-video-play"
             class="btn add"
-            @click="onCrawlSelectedSpiders"
             style="font-weight: bolder"
+            @click="onCrawlSelectedSpiders"
           >
-            {{$t('Run')}}
+            {{ $t('Run') }}
           </el-button>
           <el-button
             v-if="this.selectedSpiders.length"
@@ -380,10 +395,10 @@
             type="info"
             :icon="isStopLoading ? 'el-icon-loading' : 'el-icon-video-pause'"
             class="btn add"
-            @click="onStopSelectedSpiders"
             style="font-weight: bolder"
+            @click="onStopSelectedSpiders"
           >
-            {{$t('Stop')}}
+            {{ $t('Stop') }}
           </el-button>
           <el-button
             v-if="this.selectedSpiders.length"
@@ -391,43 +406,43 @@
             type="danger"
             :icon="isRemoveLoading ? 'el-icon-loading' : 'el-icon-delete'"
             class="btn add"
-            @click="onRemoveSelectedSpiders"
             style="font-weight: bolder"
+            @click="onRemoveSelectedSpiders"
           >
-            {{$t('Remove')}}
+            {{ $t('Remove') }}
           </el-button>
           <el-button
             size="small"
             type="success"
             icon="el-icon-plus"
             class="btn add"
-            @click="onAdd"
             style="font-weight: bolder"
+            @click="onAdd"
           >
-            {{$t('Add Spider')}}
+            {{ $t('Add Spider') }}
           </el-button>
         </div>
       </div>
       <!--./filter-->
 
       <!--tabs-->
-      <el-tabs v-model="filter.type" @tab-click="onClickTab" class="tabs">
-        <el-tab-pane :label="$t('All')" name="all" class="all"></el-tab-pane>
-        <el-tab-pane :label="$t('Customized')" name="customized" class="customized"></el-tab-pane>
-        <el-tab-pane :label="$t('Configurable')" name="configurable" class="configurable"></el-tab-pane>
-        <el-tab-pane :label="$t('Long Task')" name="long-task" class="long-task"></el-tab-pane>
+      <el-tabs v-model="filter.type" class="tabs" @tab-click="onClickTab">
+        <el-tab-pane :label="$t('All')" name="all" class="all" />
+        <el-tab-pane :label="$t('Customized')" name="customized" class="customized" />
+        <el-tab-pane :label="$t('Configurable')" name="configurable" class="configurable" />
+        <el-tab-pane :label="$t('Long Task')" name="long-task" class="long-task" />
       </el-tabs>
       <!--./tabs-->
 
       <!--legend-->
-      <status-legend/>
+      <status-legend />
       <!--./legend-->
 
       <!--table list-->
       <el-table
+        ref="table"
         :data="spiderList"
         class="table"
-        ref="table"
         :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
         border
         row-key="_id"
@@ -451,7 +466,7 @@
             :sortable="col.sortable"
           >
             <template slot-scope="scope">
-              {{$t(scope.row.type)}}
+              {{ $t(scope.row.type) }}
             </template>
           </el-table-column>
           <el-table-column
@@ -464,7 +479,7 @@
           >
             <template slot-scope="scope">
               <div :style="{color:scope.row[col.name]>0?'red':''}">
-                {{scope.row[col.name]}}
+                {{ scope.row[col.name] }}
               </div>
             </template>
           </el-table-column>
@@ -477,7 +492,7 @@
             align="left"
           >
             <template slot-scope="scope">
-              <el-input v-model="scope.row[col.name]"></el-input>
+              <el-input v-model="scope.row[col.name]" />
             </template>
           </el-table-column>
           <el-table-column
@@ -489,7 +504,7 @@
             :width="col.width"
           >
             <template slot-scope="scope">
-              {{getTime(scope.row[col.name])}}
+              {{ getTime(scope.row[col.name]) }}
             </template>
           </el-table-column>
           <el-table-column
@@ -501,7 +516,7 @@
             :sortable="col.sortable"
           >
             <template slot-scope="scope">
-              <status-tag :status="scope.row.last_status"/>
+              <status-tag :status="scope.row.last_status" />
             </template>
           </el-table-column>
           <el-table-column
@@ -535,48 +550,48 @@
                 type="primary"
                 size="small"
               >
-                <i class="el-icon-loading"></i>
-                {{getTaskCountByStatus(scope.row, 'pending')}}
+                <i class="el-icon-loading" />
+                {{ getTaskCountByStatus(scope.row, 'pending') }}
               </el-tag>
               <el-tag
                 v-if="getTaskCountByStatus(scope.row, 'running') > 0"
                 type="warning"
                 size="small"
               >
-                <i class="el-icon-loading"></i>
-                {{getTaskCountByStatus(scope.row, 'running')}}
+                <i class="el-icon-loading" />
+                {{ getTaskCountByStatus(scope.row, 'running') }}
               </el-tag>
               <el-tag
                 v-if="getTaskCountByStatus(scope.row, 'finished') > 0"
                 type="success"
                 size="small"
               >
-                <i class="el-icon-check"></i>
-                {{getTaskCountByStatus(scope.row, 'finished')}}
+                <i class="el-icon-check" />
+                {{ getTaskCountByStatus(scope.row, 'finished') }}
               </el-tag>
               <el-tag
                 v-if="getTaskCountByStatus(scope.row, 'error') > 0"
                 type="danger"
                 size="small"
               >
-                <i class="el-icon-error"></i>
-                {{getTaskCountByStatus(scope.row, 'error')}}
+                <i class="el-icon-error" />
+                {{ getTaskCountByStatus(scope.row, 'error') }}
               </el-tag>
               <el-tag
                 v-if="getTaskCountByStatus(scope.row, 'cancelled') > 0"
                 type="info"
                 size="small"
               >
-                <i class="el-icon-video-pause"></i>
-                {{getTaskCountByStatus(scope.row, 'cancelled')}}
+                <i class="el-icon-video-pause" />
+                {{ getTaskCountByStatus(scope.row, 'cancelled') }}
               </el-tag>
               <el-tag
                 v-if="getTaskCountByStatus(scope.row, 'abnormal') > 0"
                 type="danger"
                 size="small"
               >
-                <i class="el-icon-warning"></i>
-                {{getTaskCountByStatus(scope.row, 'abnormal')}}
+                <i class="el-icon-warning" />
+                {{ getTaskCountByStatus(scope.row, 'abnormal') }}
               </el-tag>
             </template>
           </el-table-column>
@@ -588,8 +603,7 @@
             :sortable="col.sortable"
             :align="col.align || 'left'"
             :width="col.width"
-          >
-          </el-table-column>
+          />
         </template>
         <el-table-column :label="$t('Action')" align="left" fixed="right" min-width="220px">
           <template slot-scope="scope">
@@ -622,7 +636,9 @@
             <el-tooltip v-if="!isShowRun(scope.row)" :content="$t('No command line')" placement="top">
               <el-button
                 disabled
-                type="success" icon="fa fa-bug" size="mini"
+                type="success"
+                icon="fa fa-bug"
+                size="mini"
                 @click="onCrawl(scope.row, $event)"
               />
             </el-tooltip>
@@ -649,14 +665,14 @@
       </el-table>
       <div class="pagination">
         <el-pagination
-          @current-change="onPageNumChange"
-          @size-change="onPageSizeChange"
           :current-page.sync="pagination.pageNum"
           :page-sizes="[10, 20, 50, 100]"
           :page-size.sync="pagination.pageSize"
           layout="sizes, prev, pager, next"
-          :total="spiderTotal">
-        </el-pagination>
+          :total="spiderTotal"
+          @current-change="onPageNumChange"
+          @size-change="onPageSizeChange"
+        />
       </div>
       <!--./table list-->
     </el-card>
@@ -664,632 +680,632 @@
 </template>
 
 <script>
-import {
-  mapState,
-  mapGetters
-} from 'vuex'
-import dayjs from 'dayjs'
-import CrawlConfirmDialog from '../../components/Common/CrawlConfirmDialog'
-import StatusTag from '../../components/Status/StatusTag'
-import StatusLegend from '../../components/Status/StatusLegend'
-import CopySpiderDialog from '../../components/Spider/CopySpiderDialog'
+  import {
+    mapState,
+    mapGetters
+  } from 'vuex'
+  import dayjs from 'dayjs'
+  import CrawlConfirmDialog from '../../components/Common/CrawlConfirmDialog'
+  import StatusTag from '../../components/Status/StatusTag'
+  import StatusLegend from '../../components/Status/StatusLegend'
+  import CopySpiderDialog from '../../components/Spider/CopySpiderDialog'
 
-export default {
-  name: 'SpiderList',
-  components: {
-    CopySpiderDialog,
-    StatusLegend,
-    CrawlConfirmDialog,
-    StatusTag
-  },
-  data () {
-    return {
-      pagination: {
-        pageNum: 1,
-        pageSize: 10
-      },
-      importLoading: false,
-      addConfigurableLoading: false,
-      isEditMode: false,
-      dialogVisible: false,
-      addDialogVisible: false,
-      crawlConfirmDialogVisible: false,
-      isRunningTasksDialogVisible: false,
-      activeSpiderId: undefined,
-      activeSpider: undefined,
-      filter: {
-        project_id: '',
-        keyword: '',
-        type: 'all',
-        owner_type: 'me'
-      },
-      sort: {
-        sortKey: '',
-        sortDirection: null
-      },
-      types: [],
-      spiderFormRules: {
-        name: [{ required: true, message: 'Required Field', trigger: 'change' }]
-      },
-      fileList: [],
-      activeTabName: 'customized',
-      tourSteps: [
-        {
-          target: '#tab-customized',
-          content: this.$t('View a list of <strong>Customized Spiders</strong>'),
-          params: {
-            highlight: false
-          }
-        },
-        {
-          target: '#tab-configurable',
-          content: this.$t('View a list of <strong>Configurable Spiders</strong>'),
-          params: {
-            highlight: false
-          }
-        },
-        {
-          target: '.table',
-          content: this.$t('You can view your created spiders here.<br>Click a table row to view <strong>spider details</strong>.'),
-          params: {
-            placement: 'top'
-          }
-        },
-        {
-          target: '.btn.add',
-          content: this.$t('Click to add a new spider.<br><br>You can also add a <strong>Customized Spider</strong> through <a href="https://docs.crawlab.cn/Usage/SDK/CLI.html" target="_blank" style="color: #409EFF">CLI Tool</a>.')
-        }
-      ],
-      tourCallbacks: {
-        onStop: () => {
-          this.$utils.tour.finishTour('spider-list')
-        },
-        onPreviousStep: (currentStep) => {
-          this.$utils.tour.prevStep('spider-list', currentStep)
-        },
-        onNextStep: (currentStep) => {
-          this.$utils.tour.nextStep('spider-list', currentStep)
-        }
-      },
-      tourAddSteps: [
-        {
-          target: '#tab-customized',
-          content: this.$t('<strong>Customized Spider</strong> is a highly customized spider, which is able to run on any programming language and any web crawler framework.'),
-          params: {
-            placement: 'bottom',
-            highlight: false
-          }
-        },
-        {
-          target: '#tab-configurable',
-          content: this.$t('<strong>Configurable Spider</strong> is a spider defined by config data, aimed at streamlining spider development and improving dev efficiency.'),
-          params: {
-            placement: 'bottom',
-            highlight: false
-          }
-        },
-        {
-          target: '#spider-name',
-          content: this.$t('Unique identifier for the spider'),
-          params: {
-            placement: 'right'
-          }
-        },
-        {
-          target: '#display-name',
-          content: this.$t('How the spider is displayed on Crawlab'),
-          params: {
-            placement: 'right'
-          }
-        },
-        {
-          target: '#cmd',
-          content: this.$t('A shell command to be executed when the spider is triggered to run (only available for <strong>Customized Spider</strong>'),
-          params: {
-            placement: 'right'
-          }
-        },
-        {
-          target: '#col',
-          content: this.$t('Where the results are stored in the database'),
-          params: {
-            placement: 'right'
-          }
-        },
-        {
-          target: '#upload',
-          content: this.$t('Upload a zip file containing all spider files to create the spider (only available for <strong>Customized Spider</strong>)'),
-          params: {
-            placement: 'right'
-          }
-        },
-        {
-          target: '#template',
-          content: this.$t('The spider template to create from (only available for <strong>Configurable Spider</strong>)'),
-          params: {
-            placement: 'right'
-          }
-        },
-        {
-          target: '#add',
-          content: this.$t('Click to confirm to add the spider'),
-          params: {
-            placement: 'right'
-          }
-        }
-      ],
-      tourAddCallbacks: {
-        onStop: () => {
-          this.$utils.tour.finishTour('spider-list-add')
-        },
-        onPreviousStep: (currentStep) => {
-          if (currentStep === 7) {
-            this.activeTabName = 'customized'
-          }
-          this.$utils.tour.prevStep('spider-list-add', currentStep)
-        },
-        onNextStep: (currentStep) => {
-          if (currentStep === 6) {
-            this.activeTabName = 'configurable'
-          }
-          this.$utils.tour.nextStep('spider-list-add', currentStep)
-        }
-      },
-      handle: undefined,
-      activeSpiderTaskStatus: 'running',
-      selectedSpiders: [],
-      isStopLoading: false,
-      isRemoveLoading: false,
-      isMultiple: false,
-      copyDialogVisible: false
-    }
-  },
-  computed: {
-    ...mapState('spider', [
-      'importForm',
-      'spiderList',
-      'spiderForm',
-      'spiderTotal',
-      'templateList'
-    ]),
-    ...mapGetters('user', [
-      'userInfo',
-      'token'
-    ]),
-    ...mapState('lang', [
-      'lang'
-    ]),
-    ...mapState('project', [
-      'projectList'
-    ]),
-    ...mapState('node', [
-      'nodeList'
-    ]),
-    uploadForm () {
+  export default {
+    name: 'SpiderList',
+    components: {
+      CopySpiderDialog,
+      StatusLegend,
+      CrawlConfirmDialog,
+      StatusTag
+    },
+    data() {
       return {
-        name: this.spiderForm.name,
-        display_name: this.spiderForm.display_name,
-        col: this.spiderForm.col,
-        cmd: this.spiderForm.cmd
-      }
-    },
-    columns () {
-      const columns = []
-      columns.push({ name: 'display_name', label: 'Name', width: '160', align: 'left', sortable: true })
-      columns.push({ name: 'type', label: 'Spider Type', width: '120', sortable: true })
-      columns.push({ name: 'is_long_task', label: 'Is Long Task', width: '80' })
-      columns.push({ name: 'is_scrapy', label: 'Is Scrapy', width: '80' })
-      columns.push({ name: 'latest_tasks', label: 'Latest Tasks', width: '180' })
-      columns.push({ name: 'last_status', label: 'Last Status', width: '120' })
-      columns.push({ name: 'last_run_ts', label: 'Last Run', width: '140' })
-      columns.push({ name: 'update_ts', label: 'Update Time', width: '140' })
-      columns.push({ name: 'create_ts', label: 'Create Time', width: '140' })
-      columns.push({ name: 'username', label: 'Owner', width: '100' })
-      columns.push({ name: 'remark', label: 'Remark', width: '140' })
-      return columns
-    },
-    activeNodeList () {
-      return this.nodeList.filter(d => {
-        return d.status === 'online'
-      })
-    },
-    activeSpiderIds () {
-      return this.selectedSpiders.map(d => d._id)
-    }
-  },
-  methods: {
-    onSpiderTypeChange (val) {
-      this.filter.type = val
-      this.getList()
-    },
-    onPageSizeChange (val) {
-      this.pagination.pageSize = val
-      this.getList()
-    },
-    onPageNumChange (val) {
-      this.pagination.pageNum = val
-      this.getList()
-    },
-    onSearch () {
-      this.getList()
-    },
-    onAdd () {
-      let projectId = '000000000000000000000000'
-      if (this.filter.project_id) {
-        projectId = this.filter.project_id
-      }
-      this.$store.commit('spider/SET_SPIDER_FORM', {
-        project_id: projectId,
-        template: this.templateList[0]
-      })
-      this.addDialogVisible = true
-
-      setTimeout(() => {
-        if (!this.$utils.tour.isFinishedTour('spider-list-add')) {
-          this.$utils.tour.startTour(this, 'spider-list-add')
-        }
-      }, 300)
-    },
-    onAddConfigurable () {
-      this.$refs['addConfigurableForm'].validate(async res => {
-        if (!res) return
-
-        let res2
-        try {
-          res2 = await this.$store.dispatch('spider/addConfigSpider')
-        } catch (e) {
-          this.$message.error(this.$t('Something wrong happened'))
-          return
-        }
-        this.$router.push(`/spiders/${res2.data.data._id}`)
-        this.getList()
-        this.$st.sendEv('爬虫列表', '添加爬虫', '可配置爬虫')
-      })
-    },
-    onAddCustomized () {
-      this.$refs['addCustomizedForm'].validate(async res => {
-        if (!res) return
-        let res2
-        try {
-          res2 = await this.$store.dispatch('spider/addSpider')
-        } catch (e) {
-          this.$message.error(this.$t('Something wrong happened'))
-          return
-        }
-        this.$router.push(`/spiders/${res2.data.data._id}`)
-        this.getList()
-        this.$st.sendEv('爬虫列表', '添加爬虫', '自定义爬虫')
-      })
-    },
-    onRefresh () {
-      this.getList()
-      this.$st.sendEv('爬虫列表', '刷新')
-    },
-    onSubmit () {
-      const vm = this
-      const formName = 'spiderForm'
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          if (this.isEditMode) {
-            vm.$store.dispatch('spider/editSpider')
-          } else {
-            vm.$store.dispatch('spider/addSpider')
+        pagination: {
+          pageNum: 1,
+          pageSize: 10
+        },
+        importLoading: false,
+        addConfigurableLoading: false,
+        isEditMode: false,
+        dialogVisible: false,
+        addDialogVisible: false,
+        crawlConfirmDialogVisible: false,
+        isRunningTasksDialogVisible: false,
+        activeSpiderId: undefined,
+        activeSpider: undefined,
+        filter: {
+          project_id: '',
+          keyword: '',
+          type: 'all',
+          owner_type: 'me'
+        },
+        sort: {
+          sortKey: '',
+          sortDirection: null
+        },
+        types: [],
+        spiderFormRules: {
+          name: [{ required: true, message: 'Required Field', trigger: 'change' }]
+        },
+        fileList: [],
+        activeTabName: 'customized',
+        tourSteps: [
+          {
+            target: '#tab-customized',
+            content: this.$t('View a list of <strong>Customized Spiders</strong>'),
+            params: {
+              highlight: false
+            }
+          },
+          {
+            target: '#tab-configurable',
+            content: this.$t('View a list of <strong>Configurable Spiders</strong>'),
+            params: {
+              highlight: false
+            }
+          },
+          {
+            target: '.table',
+            content: this.$t('You can view your created spiders here.<br>Click a table row to view <strong>spider details</strong>.'),
+            params: {
+              placement: 'top'
+            }
+          },
+          {
+            target: '.btn.add',
+            content: this.$t('Click to add a new spider.<br><br>You can also add a <strong>Customized Spider</strong> through <a href="https://docs.crawlab.cn/Usage/SDK/CLI.html" target="_blank" style="color: #409EFF">CLI Tool</a>.')
           }
-          vm.dialogVisible = false
-        } else {
-          return false
+        ],
+        tourCallbacks: {
+          onStop: () => {
+            this.$utils.tour.finishTour('spider-list')
+          },
+          onPreviousStep: (currentStep) => {
+            this.$utils.tour.prevStep('spider-list', currentStep)
+          },
+          onNextStep: (currentStep) => {
+            this.$utils.tour.nextStep('spider-list', currentStep)
+          }
+        },
+        tourAddSteps: [
+          {
+            target: '#tab-customized',
+            content: this.$t('<strong>Customized Spider</strong> is a highly customized spider, which is able to run on any programming language and any web crawler framework.'),
+            params: {
+              placement: 'bottom',
+              highlight: false
+            }
+          },
+          {
+            target: '#tab-configurable',
+            content: this.$t('<strong>Configurable Spider</strong> is a spider defined by config data, aimed at streamlining spider development and improving dev efficiency.'),
+            params: {
+              placement: 'bottom',
+              highlight: false
+            }
+          },
+          {
+            target: '#spider-name',
+            content: this.$t('Unique identifier for the spider'),
+            params: {
+              placement: 'right'
+            }
+          },
+          {
+            target: '#display-name',
+            content: this.$t('How the spider is displayed on Crawlab'),
+            params: {
+              placement: 'right'
+            }
+          },
+          {
+            target: '#cmd',
+            content: this.$t('A shell command to be executed when the spider is triggered to run (only available for <strong>Customized Spider</strong>'),
+            params: {
+              placement: 'right'
+            }
+          },
+          {
+            target: '#col',
+            content: this.$t('Where the results are stored in the database'),
+            params: {
+              placement: 'right'
+            }
+          },
+          {
+            target: '#upload',
+            content: this.$t('Upload a zip file containing all spider files to create the spider (only available for <strong>Customized Spider</strong>)'),
+            params: {
+              placement: 'right'
+            }
+          },
+          {
+            target: '#template',
+            content: this.$t('The spider template to create from (only available for <strong>Configurable Spider</strong>)'),
+            params: {
+              placement: 'right'
+            }
+          },
+          {
+            target: '#add',
+            content: this.$t('Click to confirm to add the spider'),
+            params: {
+              placement: 'right'
+            }
+          }
+        ],
+        tourAddCallbacks: {
+          onStop: () => {
+            this.$utils.tour.finishTour('spider-list-add')
+          },
+          onPreviousStep: (currentStep) => {
+            if (currentStep === 7) {
+              this.activeTabName = 'customized'
+            }
+            this.$utils.tour.prevStep('spider-list-add', currentStep)
+          },
+          onNextStep: (currentStep) => {
+            if (currentStep === 6) {
+              this.activeTabName = 'configurable'
+            }
+            this.$utils.tour.nextStep('spider-list-add', currentStep)
+          }
+        },
+        handle: undefined,
+        activeSpiderTaskStatus: 'running',
+        selectedSpiders: [],
+        isStopLoading: false,
+        isRemoveLoading: false,
+        isMultiple: false,
+        copyDialogVisible: false
+      }
+    },
+    computed: {
+      ...mapState('spider', [
+        'importForm',
+        'spiderList',
+        'spiderForm',
+        'spiderTotal',
+        'templateList'
+      ]),
+      ...mapGetters('user', [
+        'userInfo',
+        'token'
+      ]),
+      ...mapState('lang', [
+        'lang'
+      ]),
+      ...mapState('project', [
+        'projectList'
+      ]),
+      ...mapState('node', [
+        'nodeList'
+      ]),
+      uploadForm() {
+        return {
+          name: this.spiderForm.name,
+          display_name: this.spiderForm.display_name,
+          col: this.spiderForm.col,
+          cmd: this.spiderForm.cmd
         }
-      })
-    },
-    onCancel () {
-      this.$store.commit('spider/SET_SPIDER_FORM', {})
-      this.dialogVisible = false
-    },
-    onDialogClose () {
-      this.$store.commit('spider/SET_SPIDER_FORM', {})
-      this.dialogVisible = false
-    },
-    onAddDialogClose () {
-      this.addDialogVisible = false
-    },
-    onEdit (row) {
-      this.isEditMode = true
-      this.$store.commit('spider/SET_SPIDER_FORM', row)
-      this.dialogVisible = true
-    },
-    onRemove (row, ev) {
-      ev.stopPropagation()
-      this.$confirm(this.$t('Are you sure to delete this spider?'), this.$t('Notification'), {
-        confirmButtonText: this.$t('Confirm'),
-        cancelButtonText: this.$t('Cancel'),
-        type: 'warning'
-      }).then(async () => {
-        await this.$store.dispatch('spider/deleteSpider', row._id)
-        this.$message({
-          type: 'success',
-          message: this.$t('Deleted successfully')
+      },
+      columns() {
+        const columns = []
+        columns.push({ name: 'display_name', label: 'Name', width: '160', align: 'left', sortable: true })
+        columns.push({ name: 'type', label: 'Spider Type', width: '120', sortable: true })
+        columns.push({ name: 'is_long_task', label: 'Is Long Task', width: '80' })
+        columns.push({ name: 'is_scrapy', label: 'Is Scrapy', width: '80' })
+        columns.push({ name: 'latest_tasks', label: 'Latest Tasks', width: '180' })
+        columns.push({ name: 'last_status', label: 'Last Status', width: '120' })
+        columns.push({ name: 'last_run_ts', label: 'Last Run', width: '140' })
+        columns.push({ name: 'update_ts', label: 'Update Time', width: '140' })
+        columns.push({ name: 'create_ts', label: 'Create Time', width: '140' })
+        columns.push({ name: 'username', label: 'Owner', width: '100' })
+        columns.push({ name: 'remark', label: 'Remark', width: '140' })
+        return columns
+      },
+      activeNodeList() {
+        return this.nodeList.filter(d => {
+          return d.status === 'online'
         })
-        await this.getList()
-        this.$st.sendEv('爬虫列表', '删除爬虫')
-      })
+      },
+      activeSpiderIds() {
+        return this.selectedSpiders.map(d => d._id)
+      }
     },
-    onCrawl (row, ev) {
-      ev.stopPropagation()
-      this.crawlConfirmDialogVisible = true
-      this.activeSpiderId = row._id
-      this.$st.sendEv('爬虫列表', '点击运行')
-    },
-    onCrawlConfirm () {
-      setTimeout(() => {
-        this.getList()
-      }, 1000)
-    },
-    onCopy (row, ev) {
-      ev.stopPropagation()
-      this.copyDialogVisible = true
-      this.activeSpiderId = row._id
-      this.$st.sendEv('爬虫列表', '点击复制')
-    },
-    onCopyConfirm () {
-      setTimeout(() => {
-        this.getList()
-      }, 1000)
-    },
-    onView (row, ev) {
-      ev.stopPropagation()
-      this.$router.push('/spiders/' + row._id)
-      this.$st.sendEv('爬虫列表', '查看爬虫')
-    },
-    onImport () {
-      this.$refs.importForm.validate(valid => {
-        if (valid) {
-          this.importLoading = true
-          // TODO: switch between github / gitlab / svn
-          this.$store.dispatch('spider/importGithub')
-            .then(response => {
-              this.$message.success('Import repo successfully')
-              this.getList()
-            })
-            .catch(response => {
-              this.$message.error(response.data.error)
-            })
-            .finally(() => {
-              this.dialogVisible = false
-              this.importLoading = false
-            })
-        }
-      })
-      this.$st.sendEv('爬虫列表', '导入爬虫')
-    },
-    openImportDialog () {
-      this.dialogVisible = true
-    },
-    isShowRun (row) {
-      if (!this.isCustomized(row)) return true
-      return !!row.cmd
-    },
-    isCustomized (row) {
-      return row.type === 'customized'
-    },
-    fetchSiteSuggestions (keyword, callback) {
-      this.$request.get('/sites', {
-        keyword: keyword,
-        page_num: 1,
-        page_size: 100
-      }).then(response => {
-        const data = response.data.items.map(d => {
-          d.value = d.name + ' | ' + d.domain
-          return d
-        })
-        callback(data)
-      })
-    },
-    onUploadSuccess (res) {
-      // clear fileList
-      this.fileList = []
+    async created() {
+      // fetch project list
+      await this.$store.dispatch('project/getProjectList')
+
+      // project id
+      if (this.$route.params.project_id) {
+        this.filter.project_id = this.$route.params.project_id
+      }
+
+      // fetch node list
+      await this.$store.dispatch('node/getNodeList')
 
       // fetch spider list
-      setTimeout(() => {
+      await this.getList()
+
+      // fetch template list
+      await this.$store.dispatch('spider/getTemplateList')
+
+      // periodically fetch spider list
+      this.handle = setInterval(() => {
         this.getList()
-      }, 500)
-
-      // message
-      this.$message.success(this.$t('Uploaded spider files successfully'))
-
-      // navigate to spider detail
-      this.$router.push(`/spiders/${res.data._id}`)
+      }, 15000)
     },
-    beforeUpload (file) {
-      return new Promise((resolve, reject) => {
-        this.$refs['addCustomizedForm'].validate(res => {
-          if (res) {
-            resolve()
+    mounted() {
+      const vm = this
+      this.$nextTick(() => {
+        vm.$store.commit('spider/SET_SPIDER_FORM', this.spiderForm)
+      })
+
+      if (!this.$utils.tour.isFinishedTour('spider-list')) {
+        this.$utils.tour.startTour(this, 'spider-list')
+      }
+    },
+    destroyed() {
+      clearInterval(this.handle)
+    },
+    methods: {
+      onSpiderTypeChange(val) {
+        this.filter.type = val
+        this.getList()
+      },
+      onPageSizeChange(val) {
+        this.pagination.pageSize = val
+        this.getList()
+      },
+      onPageNumChange(val) {
+        this.pagination.pageNum = val
+        this.getList()
+      },
+      onSearch() {
+        this.getList()
+      },
+      onAdd() {
+        let projectId = '000000000000000000000000'
+        if (this.filter.project_id) {
+          projectId = this.filter.project_id
+        }
+        this.$store.commit('spider/SET_SPIDER_FORM', {
+          project_id: projectId,
+          template: this.templateList[0]
+        })
+        this.addDialogVisible = true
+
+        setTimeout(() => {
+          if (!this.$utils.tour.isFinishedTour('spider-list-add')) {
+            this.$utils.tour.startTour(this, 'spider-list-add')
+          }
+        }, 300)
+      },
+      onAddConfigurable() {
+        this.$refs['addConfigurableForm'].validate(async res => {
+          if (!res) return
+
+          let res2
+          try {
+            res2 = await this.$store.dispatch('spider/addConfigSpider')
+          } catch (e) {
+            this.$message.error(this.$t('Something wrong happened'))
+            return
+          }
+          this.$router.push(`/spiders/${res2.data.data._id}`)
+          this.getList()
+          this.$st.sendEv('爬虫列表', '添加爬虫', '可配置爬虫')
+        })
+      },
+      onAddCustomized() {
+        this.$refs['addCustomizedForm'].validate(async res => {
+          if (!res) return
+          let res2
+          try {
+            res2 = await this.$store.dispatch('spider/addSpider')
+          } catch (e) {
+            this.$message.error(this.$t('Something wrong happened'))
+            return
+          }
+          this.$router.push(`/spiders/${res2.data.data._id}`)
+          this.getList()
+          this.$st.sendEv('爬虫列表', '添加爬虫', '自定义爬虫')
+        })
+      },
+      onRefresh() {
+        this.getList()
+        this.$st.sendEv('爬虫列表', '刷新')
+      },
+      onSubmit() {
+        const vm = this
+        const formName = 'spiderForm'
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            if (this.isEditMode) {
+              vm.$store.dispatch('spider/editSpider')
+            } else {
+              vm.$store.dispatch('spider/addSpider')
+            }
+            vm.dialogVisible = false
           } else {
-            reject(new Error('form validation error'))
+            return false
           }
         })
-      })
-    },
-    getTime (str) {
-      if (!str || str.match('^0001')) return 'NA'
-      return dayjs(str).format('YYYY-MM-DD HH:mm:ss')
-    },
-    onRowClick (row, column, event) {
-      this.onView(row, event)
-    },
-    onSortChange ({ column, prop, order }) {
-      this.sort.sortKey = order ? prop : ''
-      this.sort.sortDirection = order
-      this.getList()
-    },
-    onClickTab (tab) {
-      this.filter.type = tab.name
-      this.getList()
-    },
-    async getList () {
-      let params = {
-        page_num: this.pagination.pageNum,
-        page_size: this.pagination.pageSize,
-        sort_key: this.sort.sortKey,
-        sort_direction: this.sort.sortDirection,
-        keyword: this.filter.keyword,
-        type: this.filter.type,
-        project_id: this.filter.project_id,
-        owner_type: this.filter.owner_type
-      }
-      await this.$store.dispatch('spider/getSpiderList', params)
+      },
+      onCancel() {
+        this.$store.commit('spider/SET_SPIDER_FORM', {})
+        this.dialogVisible = false
+      },
+      onDialogClose() {
+        this.$store.commit('spider/SET_SPIDER_FORM', {})
+        this.dialogVisible = false
+      },
+      onAddDialogClose() {
+        this.addDialogVisible = false
+      },
+      onEdit(row) {
+        this.isEditMode = true
+        this.$store.commit('spider/SET_SPIDER_FORM', row)
+        this.dialogVisible = true
+      },
+      onRemove(row, ev) {
+        ev.stopPropagation()
+        this.$confirm(this.$t('Are you sure to delete this spider?'), this.$t('Notification'), {
+          confirmButtonText: this.$t('Confirm'),
+          cancelButtonText: this.$t('Cancel'),
+          type: 'warning'
+        }).then(async() => {
+          await this.$store.dispatch('spider/deleteSpider', row._id)
+          this.$message({
+            type: 'success',
+            message: this.$t('Deleted successfully')
+          })
+          await this.getList()
+          this.$st.sendEv('爬虫列表', '删除爬虫')
+        })
+      },
+      onCrawl(row, ev) {
+        ev.stopPropagation()
+        this.crawlConfirmDialogVisible = true
+        this.activeSpiderId = row._id
+        this.$st.sendEv('爬虫列表', '点击运行')
+      },
+      onCrawlConfirm() {
+        setTimeout(() => {
+          this.getList()
+        }, 1000)
+      },
+      onCopy(row, ev) {
+        ev.stopPropagation()
+        this.copyDialogVisible = true
+        this.activeSpiderId = row._id
+        this.$st.sendEv('爬虫列表', '点击复制')
+      },
+      onCopyConfirm() {
+        setTimeout(() => {
+          this.getList()
+        }, 1000)
+      },
+      onView(row, ev) {
+        ev.stopPropagation()
+        this.$router.push('/spiders/' + row._id)
+        this.$st.sendEv('爬虫列表', '查看爬虫')
+      },
+      onImport() {
+        this.$refs.importForm.validate(valid => {
+          if (valid) {
+            this.importLoading = true
+            // TODO: switch between github / gitlab / svn
+            this.$store.dispatch('spider/importGithub')
+              .then(response => {
+                this.$message.success('Import repo successfully')
+                this.getList()
+              })
+              .catch(response => {
+                this.$message.error(response.data.error)
+              })
+              .finally(() => {
+                this.dialogVisible = false
+                this.importLoading = false
+              })
+          }
+        })
+        this.$st.sendEv('爬虫列表', '导入爬虫')
+      },
+      openImportDialog() {
+        this.dialogVisible = true
+      },
+      isShowRun(row) {
+        if (!this.isCustomized(row)) return true
+        return !!row.cmd
+      },
+      isCustomized(row) {
+        return row.type === 'customized'
+      },
+      fetchSiteSuggestions(keyword, callback) {
+        this.$request.get('/sites', {
+          keyword: keyword,
+          page_num: 1,
+          page_size: 100
+        }).then(response => {
+          const data = response.data.items.map(d => {
+            d.value = d.name + ' | ' + d.domain
+            return d
+          })
+          callback(data)
+        })
+      },
+      onUploadSuccess(res) {
+        // clear fileList
+        this.fileList = []
 
-      // 更新当前爬虫（任务列表）
-      this.updateActiveSpider()
-    },
-    getTasksByStatus (row, status) {
-      if (!row.latest_tasks) return []
-      return row.latest_tasks.filter(d => d.status === status)
-    },
-    getTaskCountByStatus (row, status) {
-      return this.getTasksByStatus(row, status).length
-    },
-    updateActiveSpider () {
-      if (this.activeSpider) {
-        for (let i = 0; i < this.spiderList.length; i++) {
-          const spider = this.spiderList[i]
-          if (this.activeSpider._id === spider._id) {
-            this.activeSpider = spider
-          }
-        }
-      }
-    },
-    onViewRunningTasks (row, ev) {
-      ev.stopPropagation()
-      this.activeSpider = row
-      this.isRunningTasksDialogVisible = true
-    },
-    getTasksByNode (row) {
-      if (!this.activeSpider.latest_tasks) {
-        return []
-      }
-      return this.activeSpider.latest_tasks
-        .filter(d => d.node_id === row._id && d.status === this.activeSpiderTaskStatus)
-        .map(d => {
-          d = JSON.parse(JSON.stringify(d))
-          d.create_ts = d.create_ts.match('^0001') ? 'NA' : dayjs(d.create_ts).format('YYYY-MM-DD HH:mm:ss')
-          d.start_ts = d.start_ts.match('^0001') ? 'NA' : dayjs(d.start_ts).format('YYYY-MM-DD HH:mm:ss')
-          d.finish_ts = d.finish_ts.match('^0001') ? 'NA' : dayjs(d.finish_ts).format('YYYY-MM-DD HH:mm:ss')
-          return d
+        // fetch spider list
+        setTimeout(() => {
+          this.getList()
+        }, 500)
+
+        // message
+        this.$message.success(this.$t('Uploaded spider files successfully'))
+
+        // navigate to spider detail
+        this.$router.push(`/spiders/${res.data._id}`)
+      },
+      beforeUpload(file) {
+        return new Promise((resolve, reject) => {
+          this.$refs['addCustomizedForm'].validate(res => {
+            if (res) {
+              resolve()
+            } else {
+              reject(new Error('form validation error'))
+            }
+          })
         })
-    },
-    onViewTask (row) {
-      this.$router.push(`/tasks/${row._id}`)
-      this.$st.sendEv('爬虫列表', '任务列表', '查看任务')
-    },
-    async onStop (row, ev) {
-      ev.stopPropagation()
-      const res = await this.$store.dispatch('task/cancelTask', row._id)
-      if (!res.data.error) {
-        this.$message.success(`Task "${row._id}" has been sent signal to stop`)
+      },
+      getTime(str) {
+        if (!str || str.match('^0001')) return 'NA'
+        return dayjs(str).format('YYYY-MM-DD HH:mm:ss')
+      },
+      onRowClick(row, column, event) {
+        this.onView(row, event)
+      },
+      onSortChange({ column, prop, order }) {
+        this.sort.sortKey = order ? prop : ''
+        this.sort.sortDirection = order
         this.getList()
-      }
-    },
-    onIsScrapy (value) {
-      if (value) {
-        this.spiderForm.cmd = 'scrapy crawl'
-      }
-    },
-    onSpiderSelect (spiders) {
-      this.selectedSpiders = spiders
-    },
-    async onRemoveSelectedSpiders () {
-      this.$confirm(this.$t('Are you sure to delete selected items?'), this.$t('Notification'), {
-        confirmButtonText: this.$t('Confirm'),
-        cancelButtonText: this.$t('Cancel'),
-        type: 'warning'
-      }).then(async () => {
-        this.isRemoveLoading = true
-        try {
-          const res = await this.$request.delete('/spiders', {
-            spider_ids: this.selectedSpiders.map(d => d._id)
-          })
-          if (!res.data.error) {
-            this.$message.success('Delete successfully')
-            this.$refs['table'].clearSelection()
-            await this.getList()
-          }
-        } finally {
-          this.isRemoveLoading = false
+      },
+      onClickTab(tab) {
+        this.filter.type = tab.name
+        this.getList()
+      },
+      async getList() {
+        const params = {
+          page_num: this.pagination.pageNum,
+          page_size: this.pagination.pageSize,
+          sort_key: this.sort.sortKey,
+          sort_direction: this.sort.sortDirection,
+          keyword: this.filter.keyword,
+          type: this.filter.type,
+          project_id: this.filter.project_id,
+          owner_type: this.filter.owner_type
         }
-        this.$st.sendEv('爬虫列表', '批量删除爬虫')
-      })
-    },
-    async onStopSelectedSpiders () {
-      this.$confirm(this.$t('Are you sure to stop selected items?'), this.$t('Notification'), {
-        confirmButtonText: this.$t('Confirm'),
-        cancelButtonText: this.$t('Cancel'),
-        type: 'warning'
-      }).then(async () => {
-        this.isStopLoading = true
-        try {
-          const res = await this.$request.post('/spiders-cancel', {
-            spider_ids: this.selectedSpiders.map(d => d._id)
-          })
-          if (!res.data.error) {
-            this.$message.success('Sent signals to cancel selected tasks')
-            await this.getList()
+        await this.$store.dispatch('spider/getSpiderList', params)
+
+        // 更新当前爬虫（任务列表）
+        this.updateActiveSpider()
+      },
+      getTasksByStatus(row, status) {
+        if (!row.latest_tasks) return []
+        return row.latest_tasks.filter(d => d.status === status)
+      },
+      getTaskCountByStatus(row, status) {
+        return this.getTasksByStatus(row, status).length
+      },
+      updateActiveSpider() {
+        if (this.activeSpider) {
+          for (let i = 0; i < this.spiderList.length; i++) {
+            const spider = this.spiderList[i]
+            if (this.activeSpider._id === spider._id) {
+              this.activeSpider = spider
+            }
           }
-        } finally {
-          this.isStopLoading = false
         }
-        this.$st.sendEv('爬虫列表', '批量删除爬虫')
-      })
-    },
-    onCrawlSelectedSpiders () {
-      this.crawlConfirmDialogVisible = true
-      this.isMultiple = true
-    },
-    onCrawlConfirmDialogClose () {
-      this.crawlConfirmDialogVisible = false
-      this.isMultiple = false
-    },
-    isDisabled (row) {
-      return row.is_public && row.username !== this.userInfo.username && this.userInfo.role !== 'admin'
+      },
+      onViewRunningTasks(row, ev) {
+        ev.stopPropagation()
+        this.activeSpider = row
+        this.isRunningTasksDialogVisible = true
+      },
+      getTasksByNode(row) {
+        if (!this.activeSpider.latest_tasks) {
+          return []
+        }
+        return this.activeSpider.latest_tasks
+          .filter(d => d.node_id === row._id && d.status === this.activeSpiderTaskStatus)
+          .map(d => {
+            d = JSON.parse(JSON.stringify(d))
+            d.create_ts = d.create_ts.match('^0001') ? 'NA' : dayjs(d.create_ts).format('YYYY-MM-DD HH:mm:ss')
+            d.start_ts = d.start_ts.match('^0001') ? 'NA' : dayjs(d.start_ts).format('YYYY-MM-DD HH:mm:ss')
+            d.finish_ts = d.finish_ts.match('^0001') ? 'NA' : dayjs(d.finish_ts).format('YYYY-MM-DD HH:mm:ss')
+            return d
+          })
+      },
+      onViewTask(row) {
+        this.$router.push(`/tasks/${row._id}`)
+        this.$st.sendEv('爬虫列表', '任务列表', '查看任务')
+      },
+      async onStop(row, ev) {
+        ev.stopPropagation()
+        const res = await this.$store.dispatch('task/cancelTask', row._id)
+        if (!res.data.error) {
+          this.$message.success(`Task "${row._id}" has been sent signal to stop`)
+          this.getList()
+        }
+      },
+      onIsScrapy(value) {
+        if (value) {
+          this.spiderForm.cmd = 'scrapy crawl'
+        }
+      },
+      onSpiderSelect(spiders) {
+        this.selectedSpiders = spiders
+      },
+      async onRemoveSelectedSpiders() {
+        this.$confirm(this.$t('Are you sure to delete selected items?'), this.$t('Notification'), {
+          confirmButtonText: this.$t('Confirm'),
+          cancelButtonText: this.$t('Cancel'),
+          type: 'warning'
+        }).then(async() => {
+          this.isRemoveLoading = true
+          try {
+            const res = await this.$request.delete('/spiders', {
+              spider_ids: this.selectedSpiders.map(d => d._id)
+            })
+            if (!res.data.error) {
+              this.$message.success('Delete successfully')
+              this.$refs['table'].clearSelection()
+              await this.getList()
+            }
+          } finally {
+            this.isRemoveLoading = false
+          }
+          this.$st.sendEv('爬虫列表', '批量删除爬虫')
+        })
+      },
+      async onStopSelectedSpiders() {
+        this.$confirm(this.$t('Are you sure to stop selected items?'), this.$t('Notification'), {
+          confirmButtonText: this.$t('Confirm'),
+          cancelButtonText: this.$t('Cancel'),
+          type: 'warning'
+        }).then(async() => {
+          this.isStopLoading = true
+          try {
+            const res = await this.$request.post('/spiders-cancel', {
+              spider_ids: this.selectedSpiders.map(d => d._id)
+            })
+            if (!res.data.error) {
+              this.$message.success('Sent signals to cancel selected tasks')
+              await this.getList()
+            }
+          } finally {
+            this.isStopLoading = false
+          }
+          this.$st.sendEv('爬虫列表', '批量删除爬虫')
+        })
+      },
+      onCrawlSelectedSpiders() {
+        this.crawlConfirmDialogVisible = true
+        this.isMultiple = true
+      },
+      onCrawlConfirmDialogClose() {
+        this.crawlConfirmDialogVisible = false
+        this.isMultiple = false
+      },
+      isDisabled(row) {
+        return row.is_public && row.username !== this.userInfo.username && this.userInfo.role !== 'admin'
+      }
     }
-  },
-  async created () {
-    // fetch project list
-    await this.$store.dispatch('project/getProjectList')
-
-    // project id
-    if (this.$route.params.project_id) {
-      this.filter.project_id = this.$route.params.project_id
-    }
-
-    // fetch node list
-    await this.$store.dispatch('node/getNodeList')
-
-    // fetch spider list
-    await this.getList()
-
-    // fetch template list
-    await this.$store.dispatch('spider/getTemplateList')
-
-    // periodically fetch spider list
-    this.handle = setInterval(() => {
-      this.getList()
-    }, 15000)
-  },
-  mounted () {
-    const vm = this
-    this.$nextTick(() => {
-      vm.$store.commit('spider/SET_SPIDER_FORM', this.spiderForm)
-    })
-
-    if (!this.$utils.tour.isFinishedTour('spider-list')) {
-      this.$utils.tour.startTour(this, 'spider-list')
-    }
-  },
-  destroyed () {
-    clearInterval(this.handle)
   }
-}
 </script>
 
 <style scoped lang="scss">

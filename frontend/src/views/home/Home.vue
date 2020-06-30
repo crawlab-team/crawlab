@@ -2,18 +2,18 @@
   <div class="app-container">
     <el-row>
       <ul class="metric-list">
-        <li class="metric-item" v-for="m in metrics" @click="onClickMetric(m)" :key="m.name">
+        <li v-for="m in metrics" :key="m.name" class="metric-item" @click="onClickMetric(m)">
           <div class="metric-icon" :class="m.color">
             <!--            <font-awesome-icon :icon="m.icon"/>-->
-            <i :class="m.icon"></i>
+            <i :class="m.icon" />
           </div>
           <div class="metric-content" :class="m.color">
             <div class="metric-wrapper">
               <div class="metric-number">
-                {{overviewStats[m.name]}}
+                {{ overviewStats[m.name] }}
               </div>
               <div class="metric-name">
-                {{$t(m.label)}}
+                {{ $t(m.label) }}
               </div>
             </div>
           </div>
@@ -35,76 +35,76 @@
     </el-row>
     <el-row>
       <el-card shadow="hover">
-        <h4 class="title">{{$t('Daily New Tasks')}}</h4>
-        <div id="echarts-daily-tasks" class="echarts-box"></div>
+        <h4 class="title">{{ $t('Daily New Tasks') }}</h4>
+        <div id="echarts-daily-tasks" class="echarts-box" />
       </el-card>
     </el-row>
   </div>
 </template>
 
 <script>
-import request from '../../api/request'
-import echarts from 'echarts'
+  import request from '../../api/request'
+  import echarts from 'echarts'
 
-export default {
-  name: 'Home',
-  data () {
-    return {
-      echarts: {},
-      overviewStats: {},
-      dailyTasks: [],
-      metrics: [
-        { name: 'task_count', label: 'Total Tasks', icon: 'fa fa-check', color: 'blue', path: 'tasks' },
-        { name: 'spider_count', label: 'Spiders', icon: 'fa fa-bug', color: 'green', path: 'spiders' },
-        { name: 'active_node_count', label: 'Active Nodes', icon: 'fa fa-server', color: 'red', path: 'nodes' },
-        { name: 'schedule_count', label: 'Schedules', icon: 'fa fa-clock-o', color: 'orange', path: 'schedules' },
-        { name: 'project_count', label: 'Projects', icon: 'fa fa-code-fork', color: 'grey', path: 'projects' }
-      ]
-    }
-  },
-  methods: {
-    initEchartsDailyTasks () {
-      const option = {
-        xAxis: {
-          type: 'category',
-          data: this.dailyTasks.map(d => d.date)
-        },
-        yAxis: {
-          type: 'value'
-        },
-        series: [{
-          data: this.dailyTasks.map(d => d.task_count),
-          type: 'line',
-          areaStyle: {},
-          smooth: true
-        }],
-        tooltip: {
-          trigger: 'axis',
-          show: true
-        }
+  export default {
+    name: 'Home',
+    data() {
+      return {
+        echarts: {},
+        overviewStats: {},
+        dailyTasks: [],
+        metrics: [
+          { name: 'task_count', label: 'Total Tasks', icon: 'fa fa-check', color: 'blue', path: 'tasks' },
+          { name: 'spider_count', label: 'Spiders', icon: 'fa fa-bug', color: 'green', path: 'spiders' },
+          { name: 'active_node_count', label: 'Active Nodes', icon: 'fa fa-server', color: 'red', path: 'nodes' },
+          { name: 'schedule_count', label: 'Schedules', icon: 'fa fa-clock-o', color: 'orange', path: 'schedules' },
+          { name: 'project_count', label: 'Projects', icon: 'fa fa-code-fork', color: 'grey', path: 'projects' }
+        ]
       }
-      this.echarts.dailyTasks = echarts.init(this.$el.querySelector('#echarts-daily-tasks'))
-      this.echarts.dailyTasks.setOption(option)
     },
-    onClickMetric (m) {
-      this.$router.push(`/${m.path}`)
-    }
-  },
-  created () {
-    request.get('/stats/home')
-      .then(response => {
-        // overview stats
-        this.overviewStats = response.data.data.overview
+    created() {
+      request.get('/stats/home')
+        .then(response => {
+          // overview stats
+          this.overviewStats = response.data.data.overview
 
-        // daily tasks
-        this.dailyTasks = response.data.data.daily
-        this.initEchartsDailyTasks()
-      })
-  },
-  mounted () {
+          // daily tasks
+          this.dailyTasks = response.data.data.daily
+          this.initEchartsDailyTasks()
+        })
+    },
+    mounted() {
     // this.$ba.trackPageview('/')
+    },
+    methods: {
+      initEchartsDailyTasks() {
+        const option = {
+          xAxis: {
+            type: 'category',
+            data: this.dailyTasks.map(d => d.date)
+          },
+          yAxis: {
+            type: 'value'
+          },
+          series: [{
+            data: this.dailyTasks.map(d => d.task_count),
+            type: 'line',
+            areaStyle: {},
+            smooth: true
+          }],
+          tooltip: {
+            trigger: 'axis',
+            show: true
+          }
+        }
+        this.echarts.dailyTasks = echarts.init(this.$el.querySelector('#echarts-daily-tasks'))
+        this.echarts.dailyTasks.setOption(option)
+      },
+      onClickMetric(m) {
+        this.$router.push(`/${m.path}`)
+      }
+    }
   }
-}
 </script>
 
 <style scoped lang="scss">

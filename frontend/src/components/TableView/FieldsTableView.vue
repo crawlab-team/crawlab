@@ -1,24 +1,26 @@
 <template>
   <div class="fields-table-view">
     <el-row>
-      <el-table :data="fields"
-                class="table edit"
-                :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
-                :cell-style="getCellClassStyle"
+      <el-table
+        :data="fields"
+        class="table edit"
+        :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
+        :cell-style="getCellClassStyle"
       >
         <el-table-column class-name="action" width="80px" align="right">
           <template slot-scope="scope">
-            <i class="action-item el-icon-copy-document" @click="onCopyField(scope.row)"></i>
-            <i class="action-item el-icon-remove-outline" @click="onRemoveField(scope.row)"></i>
-            <i class="action-item el-icon-circle-plus-outline" @click="onAddField(scope.row)"></i>
+            <i class="action-item el-icon-copy-document" @click="onCopyField(scope.row)" />
+            <i class="action-item el-icon-remove-outline" @click="onRemoveField(scope.row)" />
+            <i class="action-item el-icon-circle-plus-outline" @click="onAddField(scope.row)" />
           </template>
         </el-table-column>
         <el-table-column :label="$t('Field Name')" width="150px">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.name"
-                      :placeholder="$t('Field Name')"
-                      suffix-icon="el-icon-edit"
-                      @change="onNameChange(scope.row)"
+            <el-input
+              v-model="scope.row.name"
+              :placeholder="$t('Field Name')"
+              suffix-icon="el-icon-edit"
+              @change="onNameChange(scope.row)"
             />
           </template>
         </el-table-column>
@@ -49,16 +51,14 @@
                 v-model="scope.row.css"
                 :placeholder="$t('CSS / XPath')"
                 suffix-icon="el-icon-edit"
-              >
-              </el-input>
+              />
             </template>
             <template v-else>
               <el-input
                 v-model="scope.row.xpath"
                 :placeholder="$t('CSS / XPath')"
                 suffix-icon="el-icon-edit"
-              >
-              </el-input>
+              />
             </template>
           </template>
         </el-table-column>
@@ -69,7 +69,7 @@
                 :class="!isShowAttr(scope.row) ? 'active' : 'inactive'"
                 type="success"
               >
-                {{$t('Text')}}
+                {{ $t('Text') }}
               </el-tag>
             </span>
             <span class="button-selector-item" @click="onClickIsAttribute(scope.row, true)">
@@ -77,7 +77,7 @@
                 :class="isShowAttr(scope.row) ? 'active' : 'inactive'"
                 type="primary"
               >
-                {{$t('Attribute')}}
+                {{ $t('Attribute') }}
               </el-tag>
             </span>
           </template>
@@ -106,14 +106,14 @@
               :class="!scope.row.next_stage ? 'disabled' : ''"
               @change="onChangeNextStage(scope.row)"
             >
-              <el-option :label="$t('No Next Stage')" value=""/>
-              <el-option v-for="n in filteredStageNames" :key="n" :label="n" :value="n"/>
+              <el-option :label="$t('No Next Stage')" value="" />
+              <el-option v-for="n in filteredStageNames" :key="n" :label="n" :value="n" />
             </el-select>
           </template>
         </el-table-column>
         <el-table-column :label="$t('Remark')" width="auto" min-width="120px">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.remark" :placeholder="$t('Remark')" suffix-icon="el-icon-edit"/>
+            <el-input v-model="scope.row.remark" :placeholder="$t('Remark')" suffix-icon="el-icon-edit" />
           </template>
         </el-table-column>
       </el-table>
@@ -122,144 +122,144 @@
 </template>
 
 <script>
-import {
-  mapState
-} from 'vuex'
+  import {
+    mapState
+  } from 'vuex'
 
-export default {
-  name: 'FieldsTableView',
-  props: {
-    type: {
-      type: String,
-      default: 'list'
-    },
-    title: {
-      type: String,
-      default: ''
-    },
-    stage: {
-      type: Object,
-      default () {
-        return {}
-      }
-    },
-    stageNames: {
-      type: Array,
-      default () {
-        return []
-      }
-    },
-    fields: {
-      type: Array,
-      default () {
-        return []
-      }
-    }
-  },
-  computed: {
-    ...mapState('spider', [
-      'spiderForm'
-    ]),
-    filteredStageNames () {
-      return this.stageNames.filter(n => n !== this.stage.name)
-    }
-  },
-  methods: {
-    onNameChange (row) {
-      if (this.fields.filter(d => d.name === row.name).length > 1) {
-        this.$message.error(this.$t(`Duplicated field names for ${row.name}`))
-      }
-      this.$st.sendEv('爬虫详情', '配置', '更改字段')
-    },
-    onClickSelectorType (row, selectorType) {
-      this.$st.sendEv('爬虫详情', '配置', `点击字段选择器类别-${selectorType}`)
-      if (selectorType === 'css') {
-        if (row.xpath) this.$set(row, 'xpath', '')
-        if (!row.css) this.$set(row, 'css', 'body')
-      } else {
-        if (row.css) this.$set(row, 'css', '')
-        if (!row.xpath) this.$set(row, 'xpath', '//body')
-      }
-    },
-    onClickIsAttribute (row, isAttribute) {
-      this.$st.sendEv('爬虫详情', '配置', '设置字段属性')
-      if (!isAttribute) {
-        // 文本
-        if (row.attr) this.$set(row, 'attr', '')
-      } else {
-        // 属性
-        if (!row.attr) this.$set(row, 'attr', 'href')
-      }
-      this.$set(row, 'isAttrChange', false)
-    },
-    onCopyField (row) {
-      for (let i = 0; i < this.fields.length; i++) {
-        if (row.name === this.fields[i].name) {
-          this.fields.splice(i, 0, JSON.parse(JSON.stringify(row)))
-          break
+  export default {
+    name: 'FieldsTableView',
+    props: {
+      type: {
+        type: String,
+        default: 'list'
+      },
+      title: {
+        type: String,
+        default: ''
+      },
+      stage: {
+        type: Object,
+        default() {
+          return {}
+        }
+      },
+      stageNames: {
+        type: Array,
+        default() {
+          return []
+        }
+      },
+      fields: {
+        type: Array,
+        default() {
+          return []
         }
       }
     },
-    onRemoveField (row) {
-      this.$st.sendEv('爬虫详情', '配置', '删除字段')
-      for (let i = 0; i < this.fields.length; i++) {
-        if (row.name === this.fields[i].name) {
-          this.fields.splice(i, 1)
-          break
-        }
-      }
-      if (this.fields.length === 0) {
-        this.fields.push({
-          xpath: '//body',
-          next_stage: ''
-        })
+    computed: {
+      ...mapState('spider', [
+        'spiderForm'
+      ]),
+      filteredStageNames() {
+        return this.stageNames.filter(n => n !== this.stage.name)
       }
     },
-    onAddField (row) {
-      this.$st.sendEv('爬虫详情', '配置', '添加字段')
-      for (let i = 0; i < this.fields.length; i++) {
-        if (row.name === this.fields[i].name) {
-          this.fields.splice(i + 1, 0, {
-            name: `field_${Math.floor(new Date().getTime()).toString()}`,
+    methods: {
+      onNameChange(row) {
+        if (this.fields.filter(d => d.name === row.name).length > 1) {
+          this.$message.error(this.$t(`Duplicated field names for ${row.name}`))
+        }
+        this.$st.sendEv('爬虫详情', '配置', '更改字段')
+      },
+      onClickSelectorType(row, selectorType) {
+        this.$st.sendEv('爬虫详情', '配置', `点击字段选择器类别-${selectorType}`)
+        if (selectorType === 'css') {
+          if (row.xpath) this.$set(row, 'xpath', '')
+          if (!row.css) this.$set(row, 'css', 'body')
+        } else {
+          if (row.css) this.$set(row, 'css', '')
+          if (!row.xpath) this.$set(row, 'xpath', '//body')
+        }
+      },
+      onClickIsAttribute(row, isAttribute) {
+        this.$st.sendEv('爬虫详情', '配置', '设置字段属性')
+        if (!isAttribute) {
+          // 文本
+          if (row.attr) this.$set(row, 'attr', '')
+        } else {
+          // 属性
+          if (!row.attr) this.$set(row, 'attr', 'href')
+        }
+        this.$set(row, 'isAttrChange', false)
+      },
+      onCopyField(row) {
+        for (let i = 0; i < this.fields.length; i++) {
+          if (row.name === this.fields[i].name) {
+            this.fields.splice(i, 0, JSON.parse(JSON.stringify(row)))
+            break
+          }
+        }
+      },
+      onRemoveField(row) {
+        this.$st.sendEv('爬虫详情', '配置', '删除字段')
+        for (let i = 0; i < this.fields.length; i++) {
+          if (row.name === this.fields[i].name) {
+            this.fields.splice(i, 1)
+            break
+          }
+        }
+        if (this.fields.length === 0) {
+          this.fields.push({
             xpath: '//body',
             next_stage: ''
           })
-          break
         }
-      }
-    },
-    getCellClassStyle ({ row, columnIndex }) {
-      if (columnIndex === 1) {
-        // 字段名称
-        if (!row.name) {
-          return {
-            'border': '1px solid red'
+      },
+      onAddField(row) {
+        this.$st.sendEv('爬虫详情', '配置', '添加字段')
+        for (let i = 0; i < this.fields.length; i++) {
+          if (row.name === this.fields[i].name) {
+            this.fields.splice(i + 1, 0, {
+              name: `field_${Math.floor(new Date().getTime()).toString()}`,
+              xpath: '//body',
+              next_stage: ''
+            })
+            break
           }
         }
-      } else if (columnIndex === 3) {
-        // 选择器
-        if (!row.css && !row.xpath) {
-          return {
-            'border': '1px solid red'
+      },
+      getCellClassStyle({ row, columnIndex }) {
+        if (columnIndex === 1) {
+          // 字段名称
+          if (!row.name) {
+            return {
+              'border': '1px solid red'
+            }
+          }
+        } else if (columnIndex === 3) {
+          // 选择器
+          if (!row.css && !row.xpath) {
+            return {
+              'border': '1px solid red'
+            }
           }
         }
+      },
+      onChangeNextStage(row) {
+        this.fields.forEach(f => {
+          if (f.name !== row.name) {
+            this.$set(f, 'next_stage', '')
+          }
+        })
+      },
+      onAttrChange(row) {
+        this.$set(row, 'isAttrChange', !row.attr)
+      },
+      isShowAttr(row) {
+        return (row.attr || row.isAttrChange)
       }
-    },
-    onChangeNextStage (row) {
-      this.fields.forEach(f => {
-        if (f.name !== row.name) {
-          this.$set(f, 'next_stage', '')
-        }
-      })
-    },
-    onAttrChange (row) {
-      this.$set(row, 'isAttrChange', !row.attr)
-    },
-    isShowAttr (row) {
-      return (row.attr || row.isAttrChange)
     }
   }
-}
 </script>
 
 <style scoped>
