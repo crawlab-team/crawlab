@@ -19,6 +19,9 @@ const state = {
   // spider scrapy pipelines
   spiderScrapyPipelines: [],
 
+  // scrapy errors
+  spiderScrapyErrors: {},
+
   // node to deploy/run
   activeNode: {},
 
@@ -116,6 +119,11 @@ const mutations = {
   },
   SET_CONFIG_LIST_TS(state, value) {
     state.configListTs = value
+  },
+  SET_SPIDER_SCRAPY_ERRORS(state, value) {
+    for (const key in value) {
+      Vue.set(state.spiderScrapyErrors, key, value[key])
+    }
   }
 }
 
@@ -142,11 +150,20 @@ const actions = {
   },
   async getSpiderScrapySpiders({ state, commit }, id) {
     const res = await request.get(`/spiders/${id}/scrapy/spiders`)
+    if (res.data.error) {
+      commit('SET_SPIDER_SCRAPY_ERRORS', { spiders: res.data.error })
+      return
+    }
     state.spiderForm.spider_names = res.data.data
     commit('SET_SPIDER_FORM', state.spiderForm)
+    commit('SET_SPIDER_SCRAPY_ERRORS', { spiders: '' })
   },
   async getSpiderScrapySettings({ state, commit }, id) {
     const res = await request.get(`/spiders/${id}/scrapy/settings`)
+    if (res.data.error) {
+      commit('SET_SPIDER_SCRAPY_ERRORS', { settings: res.data.error })
+      return
+    }
     commit('SET_SPIDER_SCRAPY_SETTINGS', res.data.data.map(d => {
       const key = d.key
       const value = d.value
@@ -164,13 +181,17 @@ const actions = {
         type
       }
     }))
+    commit('SET_SPIDER_SCRAPY_ERRORS', { settings: '' })
   },
   async saveSpiderScrapySettings({ state }, id) {
-    return request.post(`/spiders/${id}/scrapy/settings`,
-      state.spiderScrapySettings)
+    return request.post(`/spiders/${id}/scrapy/settings`, state.spiderScrapySettings)
   },
   async getSpiderScrapyItems({ state, commit }, id) {
     const res = await request.get(`/spiders/${id}/scrapy/items`)
+    if (res.data.error) {
+      commit('SET_SPIDER_SCRAPY_ERRORS', { items: res.data.error })
+      return
+    }
     let nodeId = 0
     commit('SET_SPIDER_SCRAPY_ITEMS', res.data.data.map(d => {
       d.id = nodeId++
@@ -187,27 +208,30 @@ const actions = {
       })
       return d
     }))
+    commit('SET_SPIDER_SCRAPY_ERRORS', { items: '' })
   },
   async saveSpiderScrapyItems({ state }, id) {
-    return request.post(`/spiders/${id}/scrapy/items`,
-      state.spiderScrapyItems.map(d => {
-        d.name = d.label
-        d.fields = d.children.map(f => f.label)
-        return d
-      }))
+    return request.post(`/spiders/${id}/scrapy/items`, state.spiderScrapyItems.map(d => {
+      d.name = d.label
+      d.fields = d.children.map(f => f.label)
+      return d
+    }))
   },
   async getSpiderScrapyPipelines({ state, commit }, id) {
     const res = await request.get(`/spiders/${id}/scrapy/pipelines`)
+    if (res.data.error) {
+      commit('SET_SPIDER_SCRAPY_ERRORS', { pipelines: res.data.error })
+      return
+    }
     commit('SET_SPIDER_SCRAPY_PIPELINES', res.data.data)
+    commit('SET_SPIDER_SCRAPY_ERRORS', { pipelines: '' })
   },
   async saveSpiderScrapyPipelines({ state }, id) {
-    return request.post(`/spiders/${id}/scrapy/pipelines`,
-      state.spiderScrapyPipelines)
+    return request.post(`/spiders/${id}/scrapy/pipelines`, state.spiderScrapyPipelines)
   },
   async getSpiderScrapySpiderFilepath({ state, commit }, payload) {
     const { id, spiderName } = payload
-    return request.get(`/spiders/${id}/scrapy/spider/filepath`,
-      { spider_name: spiderName })
+    return request.get(`/spiders/${id}/scrapy/spider/filepath`, { spider_name: spiderName })
   },
   addSpiderScrapySpider({ state }, payload) {
     const { id, form } = payload
@@ -270,13 +294,11 @@ const actions = {
     return request.post(`/spiders/${state.spiderForm._id}/extract_fields`)
   },
   postConfigSpiderConfig({ state }) {
-    return request.post(`/config_spiders/${state.spiderForm._id}/config`,
-      state.spiderForm.config)
+    return request.post(`/config_spiders/${state.spiderForm._id}/config`, state.spiderForm.config)
   },
   saveConfigSpiderSpiderfile({ state, rootState }) {
     const content = rootState.file.fileContent
-    return request.post(`/config_spiders/${state.spiderForm._id}/spiderfile`,
-      { content })
+    return request.post(`/config_spiders/${state.spiderForm._id}/spiderfile`, { content })
   },
   addConfigSpider({ state }) {
     return request.put(`/config_spiders`, state.spiderForm)
