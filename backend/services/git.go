@@ -137,13 +137,38 @@ func SaveSpiderGitSyncError(s model.Spider, errMsg string) {
 }
 
 // 获得Git分支
-func GetGitRemoteBranchesPlain(url string) (branches []string, err error) {
+func GetGitRemoteBranchesPlain(gitUrl string, username string, password string) (branches []string, err error) {
 	storage := memory.NewStorage()
+	u, err := url.Parse(gitUrl)
+	if err != nil {
+		return branches, err
+	}
+	var listOptions git.ListOptions
+	if strings.HasPrefix(gitUrl, "http") {
+		gitUrl = fmt.Sprintf(
+			"%s://%s:%s@%s%s",
+			u.Scheme,
+			username,
+			password,
+			u.Hostname(),
+			u.Path,
+		)
+	} else {
+		auth, err := ssh.NewPublicKeysFromFile(username, path.Join(os.Getenv("HOME"), ".ssh", "id_rsa"), "")
+		if err != nil {
+			log.Error(err.Error())
+			debug.PrintStack()
+			return branches, err
+		}
+		listOptions = git.ListOptions{
+			Auth: auth,
+		}
+	}
 	remote := git.NewRemote(storage, &config.RemoteConfig{
 		URLs: []string{
-			url,
+			gitUrl,
 		}})
-	rfs, err := remote.List(&git.ListOptions{})
+	rfs, err := remote.List(&listOptions)
 	if err != nil {
 		return
 	}

@@ -40,6 +40,7 @@
           <el-input
             v-model="spiderForm.git_username"
             :placeholder="$t('Git Username')"
+            @blur="onGitUrlChange"
           />
         </el-form-item>
         <el-form-item
@@ -51,6 +52,7 @@
             v-model="spiderForm.git_password"
             :placeholder="$t('Git Password')"
             type="password"
+            @blur="onGitUrlChange"
           />
         </el-form-item>
         <el-form-item
