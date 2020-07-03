@@ -31,3 +31,10 @@ func (cm *ChanMap) ChanBlocked(key string) chan string {
 	cm.m.Store(key, ch)
 	return ch
 }
+
+func (cm *ChanMap) HasChanKey(key string) bool {
+	if _, ok := cm.m.Load(key); ok {
+		return true
+	}
+	return false
+}

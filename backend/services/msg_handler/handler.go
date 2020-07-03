@@ -12,17 +12,17 @@ type Handler interface {
 
 func GetMsgHandler(msg entity.NodeMessage) Handler {
 	log.Debugf("received msg , type is : %s", msg.Type)
-	if msg.Type == constants.MsgTypeGetLog || msg.Type == constants.MsgTypeRemoveLog {
-		// 日志相关
-		return &Log{
-			msg: msg,
-		}
-	} else if msg.Type == constants.MsgTypeCancelTask {
-		// 任务相关
-		return &Task{
-			msg: msg,
-		}
-	} else if msg.Type == constants.MsgTypeGetSystemInfo {
+	//if msg.Type == constants.MsgTypeGetLog || msg.Type == constants.MsgTypeRemoveLog {
+	//	// 日志相关
+	//	return &Log{
+	//		msg: msg,
+	//	}
+	//} else if msg.Type == constants.MsgTypeCancelTask {
+	//	// 任务相关
+	//	return &Task{
+	//		msg: msg,
+	//	}
+	if msg.Type == constants.MsgTypeGetSystemInfo {
 		// 系统信息相关
 		return &SystemInfo{
 			msg: msg,

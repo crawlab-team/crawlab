@@ -6,4 +6,5 @@ const (
 	RpcUninstallDep        = "uninstall_dep"
 	RpcGetInstalledDepList = "get_installed_dep_list"
 	RpcGetLang             = "get_lang"
+	RpcCancelTask          = "cancel_task"
 )
