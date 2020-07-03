@@ -121,9 +121,9 @@
       <el-tab-pane :label="$t('Settings')" name="settings">
         <div class="settings">
           <div v-if="!spiderScrapySettings || !spiderScrapySettings.length" class="settings">
-          <span class="empty-text">
-            {{$t('No data available')}}
-          </span>
+            <span class="empty-text">
+              {{$t('No data available')}}
+            </span>
             <template v-if="spiderScrapyErrors.settings">
               <label class="errors-label">{{$t('Errors')}}:</label>
               <el-alert type="error" v-html="getScrapyErrors('settings')"/>
@@ -245,9 +245,9 @@
       <el-tab-pane :label="$t('Spiders')" name="spiders">
         <div class="spiders">
           <div v-if="!spiderForm.spider_names || !spiderForm.spider_names.length" class="spiders">
-          <span class="empty-text error">
-            {{$t('No data available. Please check whether your spiders are missing dependencies or no spiders created.')}}
-          </span>
+            <span class="empty-text error">
+              {{$t('No data available. Please check whether your spiders are missing dependencies or no spiders created.')}}
+            </span>
             <template v-if="spiderScrapyErrors.spiders">
               <label class="errors-label">{{$t('Errors')}}:</label>
               <el-alert type="error" v-html="getScrapyErrors('spiders')"/>
@@ -277,6 +277,7 @@
               </li>
             </ul>
           </div>
+        </div>
       </el-tab-pane>
       <!--./spiders-->
 
@@ -284,9 +285,9 @@
       <el-tab-pane label="Items" name="items">
         <div class="items">
           <div v-if="!spiderScrapyItems || !spiderScrapyItems.length" class="items">
-          <span class="empty-text">
-            {{$t('No data available')}}
-          </span>
+            <span class="empty-text">
+              {{$t('No data available')}}
+            </span>
             <template v-if="spiderScrapyErrors.items">
               <label class="errors-label">{{$t('Errors')}}:</label>
               <el-alert type="error" v-html="getScrapyErrors('items')"/>
@@ -310,67 +311,68 @@
               :data="spiderScrapyItems"
               default-expand-all
             >
-          <span class="custom-tree-node" :class="`level-${data.level}`" slot-scope="{ node, data }">
-            <template v-if="data.level === 1">
-              <span v-if="!node.isEdit" class="label" @click="onItemLabelEdit(node, data, $event)">
-                <i class="el-icon-star-on"></i>
-                {{ data.label }}
-                <i class="el-icon-edit"></i>
+              <span class="custom-tree-node" :class="`level-${data.level}`" slot-scope="{ node, data }">
+                <template v-if="data.level === 1">
+                  <span v-if="!node.isEdit" class="label" @click="onItemLabelEdit(node, data, $event)">
+                    <i class="el-icon-star-on"></i>
+                    {{ data.label }}
+                    <i class="el-icon-edit"></i>
+                  </span>
+                  <el-input
+                    v-else
+                    :ref="`el-input-${data.id}`"
+                    :placeholder="$t('Item Name')"
+                    v-model="data.name"
+                    size="mini"
+                    @change="onItemChange(node, data, $event)"
+                    @blur="$set(node, 'isEdit', false)"
+                  />
+                  <span>
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      icon="el-icon-plus"
+                      @click="onAddItemField(data, $event)">
+                      {{$t('Add Field')}}
+                    </el-button>
+                    <el-button
+                      type="danger"
+                      size="mini"
+                      icon="el-icon-delete"
+                      @click="removeItem(data, $event)">
+                      {{$t('Remove')}}
+                    </el-button>
+                  </span>
+                </template>
+                <template v-if="data.level === 2">
+                  <span v-if="!node.isEdit" class="label" @click="onItemLabelEdit(node, data, $event)">
+                    <i class="el-icon-arrow-right"></i>
+                    {{ node.label }}
+                    <i class="el-icon-edit"></i>
+                  </span>
+                  <el-input
+                    v-else
+                    :ref="`el-input-${data.id}`"
+                    :placeholder="$t('Field Name')"
+                    v-model="data.name"
+                    size="mini"
+                    @change="onItemFieldChange(node, data, $event)"
+                    @blur="node.isEdit = false"
+                  />
+                  <span>
+                    <el-button
+                      type="danger"
+                      size="mini"
+                      icon="el-icon-delete"
+                      @click="onRemoveItemField(node, data, $event)">
+                      {{$t('Remove')}}
+                    </el-button>
+                  </span>
+                </template>
               </span>
-              <el-input
-                v-else
-                :ref="`el-input-${data.id}`"
-                :placeholder="$t('Item Name')"
-                v-model="data.name"
-                size="mini"
-                @change="onItemChange(node, data, $event)"
-                @blur="$set(node, 'isEdit', false)"
-              />
-              <span>
-                <el-button
-                  type="primary"
-                  size="mini"
-                  icon="el-icon-plus"
-                  @click="onAddItemField(data, $event)">
-                  {{$t('Add Field')}}
-                </el-button>
-                <el-button
-                  type="danger"
-                  size="mini"
-                  icon="el-icon-delete"
-                  @click="removeItem(data, $event)">
-                  {{$t('Remove')}}
-                </el-button>
-              </span>
-            </template>
-            <template v-if="data.level === 2">
-              <span v-if="!node.isEdit" class="label" @click="onItemLabelEdit(node, data, $event)">
-                <i class="el-icon-arrow-right"></i>
-                {{ node.label }}
-                <i class="el-icon-edit"></i>
-              </span>
-              <el-input
-                v-else
-                :ref="`el-input-${data.id}`"
-                :placeholder="$t('Field Name')"
-                v-model="data.name"
-                size="mini"
-                @change="onItemFieldChange(node, data, $event)"
-                @blur="node.isEdit = false"
-              />
-              <span>
-                <el-button
-                  type="danger"
-                  size="mini"
-                  icon="el-icon-delete"
-                  @click="onRemoveItemField(node, data, $event)">
-                  {{$t('Remove')}}
-                </el-button>
-              </span>
-            </template>
-          </span>
             </el-tree>
           </div>
+        </div>
       </el-tab-pane>
       <!--./items-->
 
@@ -405,301 +407,300 @@
 </template>
 
 <script>
-import {
-  mapState
-} from 'vuex'
+  import {
+    mapState
+  } from 'vuex'
 
-export default {
-  name: 'SpiderScrapy',
-  computed: {
-    ...mapState('spider', [
-      'spiderForm',
-      'spiderScrapySettings',
-      'spiderScrapyItems',
-      'spiderScrapyPipelines'
-      'spiderScrapyPipelines',
-      'spiderScrapyErrors'
-    ]),
-    activeParamData () {
-      if (this.activeParam.type === 'array') {
-        return this.activeParam.value.map(s => {
-          return { value: s }
-        })
-      } else if (this.activeParam.type === 'object') {
-        return Object.keys(this.activeParam.value).map(key => {
-          return {
-            key,
-            value: this.activeParam.value[key]
-          }
-        })
-      }
-      return []
-    }
-  },
-  data () {
-    return {
-      dialogVisible: false,
-      activeParam: {},
-      activeParamIndex: undefined,
-      isAddSpiderVisible: false,
-      addSpiderForm: {
-        name: '',
-        domain: '',
-        template: 'basic'
-      },
-      isAddSpiderLoading: false,
-      activeTabName: 'settings',
-      loadingDict: {}
-    }
-  },
-  methods: {
-    onOpenDialog () {
-      this.dialogVisible = true
-    },
-    onCloseDialog () {
-      this.dialogVisible = false
-    },
-    onSettingsConfirm () {
-      if (this.activeParam.type === 'array') {
-        this.activeParam.value = this.activeParamData.map(d => d.value)
-      } else if (this.activeParam.type === 'object') {
-        const dict = {}
-        this.activeParamData.forEach(d => {
-          dict[d.key] = d.value
-        })
-        this.activeParam.value = dict
-      }
-      this.$set(this.spiderScrapySettings, this.activeParamIndex, JSON.parse(JSON.stringify(this.activeParam)))
-      this.dialogVisible = false
-      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '确认编辑参数')
-    },
-    onSettingsEditParam (row, index) {
-      this.activeParam = JSON.parse(JSON.stringify(row))
-      this.activeParamIndex = index
-      this.onOpenDialog()
-      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '点击编辑参数')
-    },
-    async onSettingsSave () {
-      const res = await this.$store.dispatch('spider/saveSpiderScrapySettings', this.$route.params.id)
-      if (!res.data.error) {
-        this.$message.success(this.$t('Saved successfully'))
-      }
-      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '保存设置')
-    },
-    onSettingsAdd () {
-      const data = JSON.parse(JSON.stringify(this.spiderScrapySettings))
-      data.push({
-        key: '',
-        value: '',
-        type: 'string'
-      })
-      this.$store.commit('spider/SET_SPIDER_SCRAPY_SETTINGS', data)
-      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '添加参数')
-    },
-    onSettingsRemove (index) {
-      const data = JSON.parse(JSON.stringify(this.spiderScrapySettings))
-      data.splice(index, 1)
-      this.$store.commit('spider/SET_SPIDER_SCRAPY_SETTINGS', data)
-      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '删除参数')
-    },
-    onSettingsActiveParamAdd () {
-      if (this.activeParam.type === 'array') {
-        this.activeParam.value.push('')
-      } else if (this.activeParam.type === 'object') {
-        if (!this.activeParam.value) {
-          this.activeParam.value = {}
+  export default {
+    name: 'SpiderScrapy',
+    computed: {
+      ...mapState('spider', [
+        'spiderForm',
+        'spiderScrapySettings',
+        'spiderScrapyItems',
+        'spiderScrapyPipelines',
+        'spiderScrapyErrors'
+      ]),
+      activeParamData() {
+        if (this.activeParam.type === 'array') {
+          return this.activeParam.value.map(s => {
+            return { value: s }
+          })
+        } else if (this.activeParam.type === 'object') {
+          return Object.keys(this.activeParam.value).map(key => {
+            return {
+              key,
+              value: this.activeParam.value[key]
+            }
+          })
         }
-        this.$set(this.activeParam.value, '', 999)
-      }
-      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '添加参数中参数')
-    },
-    onSettingsActiveParamRemove (index) {
-      if (this.activeParam.type === 'array') {
-        this.activeParam.value.splice(index, 1)
-      } else if (this.activeParam.type === 'object') {
-        const key = this.activeParamData[index].key
-        const value = JSON.parse(JSON.stringify(this.activeParam.value))
-        delete value[key]
-        this.$set(this.activeParam, 'value', value)
-      }
-      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '删除参数中参数')
-    },
-    settingsKeysFetchSuggestions (queryString, cb) {
-      const data = this.$utils.scrapy.settingParamNames
-        .filter(s => {
-          if (!queryString) return true
-          return !!s.match(new RegExp(queryString, 'i'))
-        })
-        .map(s => {
-          return {
-            value: s,
-            label: s
-          }
-        })
-        .sort((a, b) => {
-          return a > b ? -1 : 1
-        })
-      cb(data)
-    },
-    onSettingsParamTypeChange (row) {
-      if (row.type === 'number') {
-        row.value = Number(row.value)
+        return []
       }
     },
-    onAddSpiderConfirm () {
-      this.$refs['add-spider-form'].validate(async valid => {
-        if (!valid) return
-        this.isAddSpiderLoading = true
-        const res = await this.$store.dispatch('spider/addSpiderScrapySpider', {
-          id: this.$route.params.id,
-          form: this.addSpiderForm
-        })
+    data() {
+      return {
+        dialogVisible: false,
+        activeParam: {},
+        activeParamIndex: undefined,
+        isAddSpiderVisible: false,
+        addSpiderForm: {
+          name: '',
+          domain: '',
+          template: 'basic'
+        },
+        isAddSpiderLoading: false,
+        activeTabName: 'settings',
+        loadingDict: {}
+      }
+    },
+    methods: {
+      onOpenDialog() {
+        this.dialogVisible = true
+      },
+      onCloseDialog() {
+        this.dialogVisible = false
+      },
+      onSettingsConfirm() {
+        if (this.activeParam.type === 'array') {
+          this.activeParam.value = this.activeParamData.map(d => d.value)
+        } else if (this.activeParam.type === 'object') {
+          const dict = {}
+          this.activeParamData.forEach(d => {
+            dict[d.key] = d.value
+          })
+          this.activeParam.value = dict
+        }
+        this.$set(this.spiderScrapySettings, this.activeParamIndex, JSON.parse(JSON.stringify(this.activeParam)))
+        this.dialogVisible = false
+        this.$st.sendEv('爬虫详情', 'Scrapy 设置', '确认编辑参数')
+      },
+      onSettingsEditParam(row, index) {
+        this.activeParam = JSON.parse(JSON.stringify(row))
+        this.activeParamIndex = index
+        this.onOpenDialog()
+        this.$st.sendEv('爬虫详情', 'Scrapy 设置', '点击编辑参数')
+      },
+      async onSettingsSave() {
+        const res = await this.$store.dispatch('spider/saveSpiderScrapySettings', this.$route.params.id)
         if (!res.data.error) {
           this.$message.success(this.$t('Saved successfully'))
         }
-        this.isAddSpiderVisible = false
-        this.isAddSpiderLoading = false
-        await this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
-      })
-      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '确认添加爬虫')
-    },
-    onAddSpider () {
-      this.addSpiderForm = {
-        name: '',
-        domain: '',
-        template: 'basic'
-      }
-      this.isAddSpiderVisible = true
-      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '添加爬虫')
-    },
-    getMaxItemNodeId () {
-      let max = 0
-      this.spiderScrapyItems.forEach(d => {
-        if (max < d.id) max = d.id
-        d.children.forEach(f => {
-          if (max < f.id) max = f.id
+        this.$st.sendEv('爬虫详情', 'Scrapy 设置', '保存设置')
+      },
+      onSettingsAdd() {
+        const data = JSON.parse(JSON.stringify(this.spiderScrapySettings))
+        data.push({
+          key: '',
+          value: '',
+          type: 'string'
         })
-      })
-      return max
-    },
-    onAddItem () {
-      const maxId = this.getMaxItemNodeId()
-      this.spiderScrapyItems.push({
-        id: maxId + 1,
-        label: `Item_${+new Date()}`,
-        level: 1,
-        children: [
-          {
-            id: maxId + 2,
-            level: 2,
-            label: `field_${+new Date()}`
+        this.$store.commit('spider/SET_SPIDER_SCRAPY_SETTINGS', data)
+        this.$st.sendEv('爬虫详情', 'Scrapy 设置', '添加参数')
+      },
+      onSettingsRemove(index) {
+        const data = JSON.parse(JSON.stringify(this.spiderScrapySettings))
+        data.splice(index, 1)
+        this.$store.commit('spider/SET_SPIDER_SCRAPY_SETTINGS', data)
+        this.$st.sendEv('爬虫详情', 'Scrapy 设置', '删除参数')
+      },
+      onSettingsActiveParamAdd() {
+        if (this.activeParam.type === 'array') {
+          this.activeParam.value.push('')
+        } else if (this.activeParam.type === 'object') {
+          if (!this.activeParam.value) {
+            this.activeParam.value = {}
           }
-        ]
-      })
-      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '添加Item')
-    },
-    removeItem (data, ev) {
-      ev.stopPropagation()
-      for (let i = 0; i < this.spiderScrapyItems.length; i++) {
-        const item = this.spiderScrapyItems[i]
-        if (item.id === data.id) {
-          this.spiderScrapyItems.splice(i, 1)
-          break
+          this.$set(this.activeParam.value, '', 999)
         }
-      }
-      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '删除Item')
-    },
-    onAddItemField (data, ev) {
-      ev.stopPropagation()
-      for (let i = 0; i < this.spiderScrapyItems.length; i++) {
-        const item = this.spiderScrapyItems[i]
-        if (item.id === data.id) {
-          item.children.push({
-            id: this.getMaxItemNodeId() + 1,
-            level: 2,
-            label: `field_${+new Date()}`
+        this.$st.sendEv('爬虫详情', 'Scrapy 设置', '添加参数中参数')
+      },
+      onSettingsActiveParamRemove(index) {
+        if (this.activeParam.type === 'array') {
+          this.activeParam.value.splice(index, 1)
+        } else if (this.activeParam.type === 'object') {
+          const key = this.activeParamData[index].key
+          const value = JSON.parse(JSON.stringify(this.activeParam.value))
+          delete value[key]
+          this.$set(this.activeParam, 'value', value)
+        }
+        this.$st.sendEv('爬虫详情', 'Scrapy 设置', '删除参数中参数')
+      },
+      settingsKeysFetchSuggestions(queryString, cb) {
+        const data = this.$utils.scrapy.settingParamNames
+          .filter(s => {
+            if (!queryString) return true
+            return !!s.match(new RegExp(queryString, 'i'))
           })
-          break
-        }
-      }
-      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '添加Items字段')
-    },
-    onRemoveItemField (node, data, ev) {
-      ev.stopPropagation()
-      for (let i = 0; i < this.spiderScrapyItems.length; i++) {
-        const item = this.spiderScrapyItems[i]
-        if (item.id === node.parent.data.id) {
-          for (let j = 0; j < item.children.length; j++) {
-            const field = item.children[j]
-            if (field.id === data.id) {
-              item.children.splice(j, 1)
-              break
+          .map(s => {
+            return {
+              value: s,
+              label: s
             }
+          })
+          .sort((a, b) => {
+            return a > b ? -1 : 1
+          })
+        cb(data)
+      },
+      onSettingsParamTypeChange(row) {
+        if (row.type === 'number') {
+          row.value = Number(row.value)
+        }
+      },
+      onAddSpiderConfirm() {
+        this.$refs['add-spider-form'].validate(async valid => {
+          if (!valid) return
+          this.isAddSpiderLoading = true
+          const res = await this.$store.dispatch('spider/addSpiderScrapySpider', {
+            id: this.$route.params.id,
+            form: this.addSpiderForm
+          })
+          if (!res.data.error) {
+            this.$message.success(this.$t('Saved successfully'))
           }
-          break
-        }
-      }
-      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '删除Items字段')
-    },
-    onItemLabelEdit (node, data, ev) {
-      ev.stopPropagation()
-      this.$set(node, 'isEdit', true)
-      this.$set(data, 'name', node.label)
-      setTimeout(() => {
-        this.$refs[`el-input-${data.id}`].focus()
-      }, 0)
-    },
-    onItemChange (node, data, value) {
-      for (let i = 0; i < this.spiderScrapyItems.length; i++) {
-        const item = this.spiderScrapyItems[i]
-        if (item.id === data.id) {
-          item.label = value
-          break
-        }
-      }
-    },
-    onItemFieldChange (node, data, value) {
-      for (let i = 0; i < this.spiderScrapyItems.length; i++) {
-        const item = this.spiderScrapyItems[i]
-        if (item.id === node.parent.data.id) {
-          for (let j = 0; j < item.children.length; j++) {
-            const field = item.children[j]
-            if (field.id === data.id) {
-              item.children[j].label = value
-              break
-            }
-          }
-          break
-        }
-      }
-    },
-    async onItemsSave () {
-      const res = await this.$store.dispatch('spider/saveSpiderScrapyItems', this.$route.params.id)
-      if (!res.data.error) {
-        this.$message.success(this.$t('Saved successfully'))
-      }
-      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '保存Items')
-    },
-    async onClickSpider (spiderName) {
-      if (this.loadingDict[spiderName]) return
-      this.$set(this.loadingDict, spiderName, true)
-      try {
-        const res = await this.$store.dispatch('spider/getSpiderScrapySpiderFilepath', {
-          id: this.$route.params.id,
-          spiderName
+          this.isAddSpiderVisible = false
+          this.isAddSpiderLoading = false
+          await this.$store.dispatch('spider/getSpiderScrapySpiders', this.$route.params.id)
         })
-        this.$emit('click-spider', res.data.data)
-      } finally {
-        this.$set(this.loadingDict, spiderName, false)
+        this.$st.sendEv('爬虫详情', 'Scrapy 设置', '确认添加爬虫')
+      },
+      onAddSpider() {
+        this.addSpiderForm = {
+          name: '',
+          domain: '',
+          template: 'basic'
+        }
+        this.isAddSpiderVisible = true
+        this.$st.sendEv('爬虫详情', 'Scrapy 设置', '添加爬虫')
+      },
+      getMaxItemNodeId() {
+        let max = 0
+        this.spiderScrapyItems.forEach(d => {
+          if (max < d.id) max = d.id
+          d.children.forEach(f => {
+            if (max < f.id) max = f.id
+          })
+        })
+        return max
+      },
+      onAddItem() {
+        const maxId = this.getMaxItemNodeId()
+        this.spiderScrapyItems.push({
+          id: maxId + 1,
+          label: `Item_${+new Date()}`,
+          level: 1,
+          children: [
+            {
+              id: maxId + 2,
+              level: 2,
+              label: `field_${+new Date()}`
+            }
+          ]
+        })
+        this.$st.sendEv('爬虫详情', 'Scrapy 设置', '添加Item')
+      },
+      removeItem(data, ev) {
+        ev.stopPropagation()
+        for (let i = 0; i < this.spiderScrapyItems.length; i++) {
+          const item = this.spiderScrapyItems[i]
+          if (item.id === data.id) {
+            this.spiderScrapyItems.splice(i, 1)
+            break
+          }
+        }
+        this.$st.sendEv('爬虫详情', 'Scrapy 设置', '删除Item')
+      },
+      onAddItemField(data, ev) {
+        ev.stopPropagation()
+        for (let i = 0; i < this.spiderScrapyItems.length; i++) {
+          const item = this.spiderScrapyItems[i]
+          if (item.id === data.id) {
+            item.children.push({
+              id: this.getMaxItemNodeId() + 1,
+              level: 2,
+              label: `field_${+new Date()}`
+            })
+            break
+          }
+        }
+        this.$st.sendEv('爬虫详情', 'Scrapy 设置', '添加Items字段')
+      },
+      onRemoveItemField(node, data, ev) {
+        ev.stopPropagation()
+        for (let i = 0; i < this.spiderScrapyItems.length; i++) {
+          const item = this.spiderScrapyItems[i]
+          if (item.id === node.parent.data.id) {
+            for (let j = 0; j < item.children.length; j++) {
+              const field = item.children[j]
+              if (field.id === data.id) {
+                item.children.splice(j, 1)
+                break
+              }
+            }
+            break
+          }
+        }
+        this.$st.sendEv('爬虫详情', 'Scrapy 设置', '删除Items字段')
+      },
+      onItemLabelEdit(node, data, ev) {
+        ev.stopPropagation()
+        this.$set(node, 'isEdit', true)
+        this.$set(data, 'name', node.label)
+        setTimeout(() => {
+          this.$refs[`el-input-${data.id}`].focus()
+        }, 0)
+      },
+      onItemChange(node, data, value) {
+        for (let i = 0; i < this.spiderScrapyItems.length; i++) {
+          const item = this.spiderScrapyItems[i]
+          if (item.id === data.id) {
+            item.label = value
+            break
+          }
+        }
+      },
+      onItemFieldChange(node, data, value) {
+        for (let i = 0; i < this.spiderScrapyItems.length; i++) {
+          const item = this.spiderScrapyItems[i]
+          if (item.id === node.parent.data.id) {
+            for (let j = 0; j < item.children.length; j++) {
+              const field = item.children[j]
+              if (field.id === data.id) {
+                item.children[j].label = value
+                break
+              }
+            }
+            break
+          }
+        }
+      },
+      async onItemsSave() {
+        const res = await this.$store.dispatch('spider/saveSpiderScrapyItems', this.$route.params.id)
+        if (!res.data.error) {
+          this.$message.success(this.$t('Saved successfully'))
+        }
+        this.$st.sendEv('爬虫详情', 'Scrapy 设置', '保存Items')
+      },
+      async onClickSpider(spiderName) {
+        if (this.loadingDict[spiderName]) return
+        this.$set(this.loadingDict, spiderName, true)
+        try {
+          const res = await this.$store.dispatch('spider/getSpiderScrapySpiderFilepath', {
+            id: this.$route.params.id,
+            spiderName
+          })
+          this.$emit('click-spider', res.data.data)
+        } finally {
+          this.$set(this.loadingDict, spiderName, false)
+        }
+        this.$st.sendEv('爬虫详情', 'Scrapy 设置', '点击爬虫')
+      },
+      getScrapyErrors(type) {
+        if (!this.spiderScrapyErrors || !this.spiderScrapyErrors[type] || (typeof this.spiderScrapyErrors[type] !== 'string')) return ''
+        return this.$utils.html.htmlEscape(this.spiderScrapyErrors[type]).split('\n').join('<br/>')
       }
-      this.$st.sendEv('爬虫详情', 'Scrapy 设置', '点击爬虫')
-    },
-    getScrapyErrors (type) {
-      if (!this.spiderScrapyErrors || !this.spiderScrapyErrors[type] || (typeof this.spiderScrapyErrors[type] !== 'string')) return ''
-      return this.$utils.html.htmlEscape(this.spiderScrapyErrors[type]).split('\n').join('<br/>')
     }
   }
-}
 </script>
 
 <style scoped>
