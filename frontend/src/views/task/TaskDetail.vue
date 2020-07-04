@@ -221,12 +221,12 @@
 
       await this.$store.dispatch('task/getTaskResults', this.$route.params.id)
 
-      this.getTaskLog()
-      this.handle = setInterval(() => {
+      await this.getTaskLog()
+      this.handle = setInterval(async() => {
         if (this.isLogAutoFetch) {
-          this.$store.dispatch('task/getTaskData', this.$route.params.id)
-          this.$store.dispatch('task/getTaskResults', this.$route.params.id)
-          this.getTaskLog()
+          await this.$store.dispatch('task/getTaskData', this.$route.params.id)
+          await this.$store.dispatch('task/getTaskResults', this.$route.params.id)
+          await this.getTaskLog()
         }
       }, 5000)
     },
@@ -282,17 +282,6 @@
 
   .selector .el-select {
     padding-left: 10px;
-  }
-
-  .log-view {
-    margin: 20px;
-    height: 640px;
-  }
-
-  .log-view pre {
-    height: 100%;
-    overflow-x: auto;
-    overflow-y: auto;
   }
 
   .button-group {

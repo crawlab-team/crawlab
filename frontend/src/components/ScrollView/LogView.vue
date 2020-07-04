@@ -7,12 +7,6 @@
           :inactive-text="$t('Auto-Scroll')"
           style="margin-right: 10px"
         />
-        <!--        <el-switch-->
-        <!--          v-model="isLogAutoFetch"-->
-        <!--          :inactive-text="$t('Auto-Refresh')"-->
-        <!--          style="margin-right: 10px"-->
-        <!--        >-->
-        <!--        </el-switch>-->
         <el-input
           v-model="logKeyword"
           size="small"
@@ -37,7 +31,7 @@
           :current-page.sync="taskLogPage"
           :page-sizes="[1000, 2000, 5000, 10000]"
           :page-size.sync="taskLogPageSize"
-          :pager-count="3"
+          :page-count="3"
           layout="sizes, prev, pager, next"
         />
         <el-badge
@@ -57,22 +51,18 @@
     </div>
     <div class="content">
       <div
-        v-loading="isLogFetchLoading"
+        :loading="isLogFetchLoading"
         class="log-view-wrapper"
         :class="isErrorsCollapsed ? 'errors-collapsed' : ''"
       >
         <virtual-list
           ref="log-view"
           class="log-view"
+          :data-key="'index'"
+          :data-sources="items"
+          :data-component="itemComponent"
+          :keeps="taskLogPageSize"
           :start="currentLogIndex - 1"
-          :offset="0"
-          :size="18"
-          :remain="remainSize"
-          :item="item"
-          :itemcount="filteredLogData.length"
-          :itemprops="getItemProps"
-          :tobottom="onToBottom"
-          :onscroll="onScroll"
         />
       </div>
       <div
@@ -123,7 +113,7 @@
     },
     data() {
       return {
-        item: LogItem,
+        itemComponent: LogItem,
         searchString: '',
         isScrolling: false,
         isScrolling2nd: false,
@@ -200,15 +190,24 @@
           this.$store.commit('task/SET_IS_LOG_FETCH_LOADING', value)
         }
       },
-      filteredLogData() {
-        return this.logData.filter(d => {
+      items() {
+        if (!this.logData || this.logData.length === 0) {
+          return []
+        }
+        const filteredLogData = this.logData.filter(d => {
           if (!this.searchString) return true
           return !!d.data.toLowerCase().match(this.searchString.toLowerCase())
         })
-      },
-      remainSize() {
-        const height = document.querySelector('body').clientHeight
-        return (height - 240) / 18
+        return filteredLogData.map(logItem => {
+          const isAnsi = hasAnsi(logItem.data)
+          return {
+            index: logItem.index,
+            data: isAnsi ? convert.toHtml(logItem.data) : logItem.data,
+            searchString: this.logKeyword,
+            active: logItem.active,
+            isAnsi
+          }
+        })
       }
     },
     watch: {
@@ -246,26 +245,6 @@
       clearInterval(this.handle)
     },
     methods: {
-      getItemProps(index) {
-        const logItem = this.filteredLogData[index]
-        const isAnsi = hasAnsi(logItem.data)
-        return {
-          // <item/> will render with itemProps.
-          // https://vuejs.org/v2/guide/render-function.html#createElement-Arguments
-          props: {
-            index: logItem.index,
-            logItem,
-            data: isAnsi ? convert.toHtml(logItem.data) : logItem.data,
-            searchString: this.logKeyword,
-            active: logItem.active,
-            isAnsi
-          }
-        }
-      },
-      onToBottom() {
-      },
-      onScroll() {
-      },
       toBottom() {
         this.$el.querySelector('.log-view').scrollTo({ top: 99999999 })
       },
@@ -319,6 +298,7 @@
   .log-view {
     margin-top: 0 !important;
     overflow-y: scroll !important;
+    height: 600px;
     list-style: none;
     color: #A9B7C6;
     background: #2B2B2B;

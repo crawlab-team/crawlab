@@ -1,12 +1,12 @@
 <template>
-  <div class="log-item" :style="style" :class="`log-item-${index} ${active ? 'active' : ''}`">
-    <div class="line-no">{{ index }}</div>
+  <div class="log-item" :style="style" :class="`log-item-${source.index} ${source.active ? 'active' : ''}`">
+    <div class="line-no">{{ source.index }}</div>
     <div class="line-content">
       <span v-if="isLogEnd" style="color: #E6A23C">
         <span class="loading-text">{{ $t('Updating log...') }}</span>
         <i class="el-icon-loading" />
       </span>
-      <span v-else-if="isAnsi" v-html="dataHtml" />
+      <span v-else-if="source.isAnsi" v-html="dataHtml" />
       <span v-else v-html="dataHtml" />
     </div>
   </div>
@@ -20,31 +20,11 @@
   export default {
     name: 'LogItem',
     props: {
-      index: {
-        type: Number,
-        default: 1
-      },
-      logItem: {
+      source: {
         type: Object,
         default() {
           return {}
         }
-      },
-      data: {
-        type: String,
-        default: ''
-      },
-      isAnsi: {
-        type: Boolean,
-        default: false
-      },
-      searchString: {
-        type: String,
-        default: ''
-      },
-      active: {
-        type: Boolean,
-        default: false
       }
     },
     data() {
@@ -63,14 +43,14 @@
         return new RegExp(this.userInfo.setting.error_regex_pattern, 'i')
       },
       dataHtml() {
-        let html = this.data.replace(this.errorRegex, ' <span style="font-weight: bolder; text-decoration: underline">$1</span> ')
-        if (!this.searchString) return html
-        html = html.replace(new RegExp(`(${this.searchString})`, 'gi'), '<mark>$1</mark>')
+        let html = this.source.data.replace(this.errorRegex, ' <span style="font-weight: bolder; text-decoration: underline">$1</span> ')
+        if (!this.source.searchString) return html
+        html = html.replace(new RegExp(`(${this.source.searchString})`, 'gi'), '<mark>$1</mark>')
         return html
       },
       style() {
         let color = ''
-        if (this.data.match(this.errorRegex)) {
+        if (this.source.data.match(this.errorRegex)) {
           color = '#F56C6C'
         }
         return {
@@ -78,7 +58,7 @@
         }
       },
       isLogEnd() {
-        return this.data === '###LOG_END###'
+        return this.source.data === '###LOG_END###'
       }
     }
   }
