@@ -23,7 +23,7 @@ func EsLog(ctx context.Context, esClient *elastic.Client) gin.HandlerFunc {
 		// 结束时间
 		end := time.Now()
 		//执行时间
-		latency := strconv.FormatInt(int64(end.Sub(start).Milliseconds()), 10)
+		latency := strconv.FormatInt(end.Sub(start).Nanoseconds()/1000, 10)
 		path := c.Request.URL.Path
 
 		clientIP := c.ClientIP()
