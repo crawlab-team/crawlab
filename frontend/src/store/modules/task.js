@@ -154,7 +154,9 @@ const actions = {
         const data = response.data.data
         commit('SET_TASK_FORM', data)
         dispatch('spider/getSpiderData', data.spider_id, { root: true })
-        dispatch('node/getNodeData', data.node_id, { root: true })
+        if (data.node_id && data.node_id !== '000000000000000000000000') {
+          dispatch('node/getNodeData', data.node_id, { root: true })
+        }
       })
   },
   getTaskList({ state, commit }) {
