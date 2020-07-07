@@ -125,9 +125,10 @@ func (r *Redis) HScan(collection string) (results []string, err error) {
 		if err != nil {
 			return results, err
 		}
-
-		results = append(results, items[1])
-
+		for i := 0; i < len(items); i += 2 {
+			cur := items[i+1]
+			results = append(results, cur)
+		}
 		if cursor == 0 {
 			break
 		}
