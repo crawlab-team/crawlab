@@ -139,10 +139,7 @@ func SaveSpiderGitSyncError(s model.Spider, errMsg string) {
 // 获得Git分支
 func GetGitRemoteBranchesPlain(gitUrl string, username string, password string) (branches []string, err error) {
 	storage := memory.NewStorage()
-	u, err := url.Parse(gitUrl)
-	if err != nil {
-		return branches, err
-	}
+	u, _ := url.Parse(gitUrl)
 	var listOptions git.ListOptions
 	if strings.HasPrefix(gitUrl, "http") {
 		gitUrl = fmt.Sprintf(
