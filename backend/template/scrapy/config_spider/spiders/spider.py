@@ -9,7 +9,7 @@ def get_real_url(response, url):
         return url
     elif re.search(r'^\/\/', url):
         u = urlparse(response.url)
-        return u.scheme + url
+        return u.scheme + ":" + url
     return urljoin(response.url, url)
 
 class ConfigSpider(scrapy.Spider):
