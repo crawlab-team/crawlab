@@ -280,13 +280,13 @@ func RemoveSpider(id string) error {
 	utils.RemoveFiles(path)
 
 	// 删除其他节点的爬虫目录
-	msg := entity.NodeMessage{
-		Type:     constants.MsgTypeRemoveSpider,
-		SpiderId: id,
-	}
-	if err := database.Pub(constants.ChannelAllNode, msg); err != nil {
-		return err
-	}
+	//msg := entity.NodeMessage{
+	//	Type:     constants.MsgTypeRemoveSpider,
+	//	SpiderId: id,
+	//}
+	//if err := database.Pub(constants.ChannelAllNode, msg); err != nil {
+	//	return err
+	//}
 
 	// 从数据库中删除该爬虫
 	if err := model.RemoveSpider(bson.ObjectIdHex(id)); err != nil {

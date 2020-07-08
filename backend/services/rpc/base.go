@@ -76,6 +76,8 @@ func GetService(msg entity.RpcMessage) Service {
 		return &GetInstalledDepsService{msg: msg}
 	case constants.RpcCancelTask:
 		return &CancelTaskService{msg: msg}
+	case constants.RpcGetSystemInfoService:
+		return &GetSystemInfoService{msg: msg}
 	}
 	return nil
 }

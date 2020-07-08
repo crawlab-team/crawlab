@@ -5,7 +5,6 @@ import (
 	"crawlab/database"
 	"crawlab/entity"
 	"crawlab/lib/cron"
-	"crawlab/model"
 	"crawlab/services/rpc"
 	"crawlab/utils"
 	"encoding/json"
@@ -55,9 +54,9 @@ func GetRemoteSystemInfo(nodeId string) (sysInfo entity.SystemInfo, err error) {
 // 获取系统信息
 func GetSystemInfo(nodeId string) (sysInfo entity.SystemInfo, err error) {
 	if IsMasterNode(nodeId) {
-		sysInfo, err = model.GetLocalSystemInfo()
+		sysInfo, err = rpc.GetSystemInfoServiceLocal()
 	} else {
-		sysInfo, err = GetRemoteSystemInfo(nodeId)
+		sysInfo, err = rpc.GetSystemInfoServiceRemote(nodeId)
 	}
 	return
 }

@@ -3,16 +3,12 @@ package services
 import (
 	"crawlab/constants"
 	"crawlab/database"
-	"crawlab/entity"
 	"crawlab/model"
 	"crawlab/services/local_node"
-	"crawlab/services/msg_handler"
 	"crawlab/utils"
 	"encoding/json"
-	"fmt"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo/bson"
-	"github.com/gomodule/redigo/redis"
 	"runtime/debug"
 	"time"
 )
@@ -180,41 +176,6 @@ func UpdateNodeData() {
 	}
 }
 
-func MasterNodeCallback(message redis.Message) (err error) {
-	// 反序列化
-	var msg entity.NodeMessage
-	if err := json.Unmarshal(message.Data, &msg); err != nil {
-
-		return err
-	}
-
-	if msg.Type == constants.MsgTypeGetLog {
-		// 获取日志
-		time.Sleep(10 * time.Millisecond)
-		ch := TaskLogChanMap.ChanBlocked(msg.TaskId)
-		ch <- msg.Log
-	} else if msg.Type == constants.MsgTypeGetSystemInfo {
-		// 获取系统信息
-		fmt.Println(msg)
-		time.Sleep(10 * time.Millisecond)
-		ch := SystemInfoChanMap.ChanBlocked(msg.NodeId)
-		sysInfoBytes, _ := json.Marshal(&msg.SysInfo)
-		ch <- utils.BytesToString(sysInfoBytes)
-	}
-	return nil
-}
-
-func WorkerNodeCallback(message redis.Message) (err error) {
-	// 反序列化
-	msg := utils.GetMessage(message)
-	if err := msg_handler.GetMsgHandler(*msg).Handle(); err != nil {
-		log.Errorf("msg handler error: %s", err.Error())
-		debug.PrintStack()
-		return err
-	}
-	return nil
-}
-
 // 发送心跳信息到Redis，每5秒发送一次
 func SendHeartBeat() {
 	for {
@@ -258,24 +219,6 @@ func InitNodeService() error {
 	// 如果为主节点，每10秒刷新所有节点信息
 	if model.IsMaster() {
 		go UpdateNodeStatusPeriodically()
-	}
-
-	if model.IsMaster() {
-		// 如果为主节点，订阅主节点通信频道
-		if err := database.Sub(constants.ChannelMasterNode, MasterNodeCallback); err != nil {
-			return err
-		}
-	} else {
-		// 若为工作节点，订阅单独指定通信频道
-		channel := constants.ChannelWorkerNode + node.Current().Id.Hex()
-		if err := database.Sub(channel, WorkerNodeCallback); err != nil {
-			return err
-		}
-	}
-
-	// 订阅全通道
-	if err := database.Sub(constants.ChannelAllNode, WorkerNodeCallback); err != nil {
-		return err
 	}
 
 	// 更新在当前节点执行中的任务状态为：abnormal

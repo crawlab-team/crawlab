@@ -287,7 +287,11 @@
         if (!this.spiderForm.git_url) return
         this.isGitBranchesLoading = true
         try {
-          const res = await this.$request.get('/git/branches', { url: this.spiderForm.git_url })
+          const res = await this.$request.get('/git/branches', {
+            url: this.spiderForm.git_url,
+            username: this.spiderForm.git_username,
+            password: this.spiderForm.git_password
+          })
           this.gitBranches = res.data.data
           if (!this.spiderForm.git_branch && this.gitBranches.length > 0) {
             this.$set(this.spiderForm, 'git_branch', this.gitBranches[0])
