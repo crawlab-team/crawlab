@@ -175,21 +175,21 @@ func SetLogConfig(wg *sync.WaitGroup, cmd *exec.Cmd, t model.Task, u model.User)
 	spiderLogIndex := viper.GetString("setting.spiderLogIndex")
 	// get stdout reader
 	stdout, err := cmd.StdoutPipe()
-	readerStdout := bufio.NewReader(stdout)
 	if err != nil {
 		log.Errorf("get stdout error: %s", err.Error())
 		debug.PrintStack()
 		return err
 	}
+	readerStdout := bufio.NewReader(stdout)
 
 	// get stderr reader
 	stderr, err := cmd.StderrPipe()
-	readerStderr := bufio.NewReader(stderr)
 	if err != nil {
 		log.Errorf("get stdout error: %s", err.Error())
 		debug.PrintStack()
 		return err
 	}
+	readerStderr := bufio.NewReader(stderr)
 
 	var seq int64
 	var logs []model.LogItem
