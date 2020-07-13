@@ -317,6 +317,12 @@ func main() {
 			authGroup.GET("/git/public-key", routes.GetGitSshPublicKey) // 获取 SSH 公钥
 			authGroup.GET("/git/commits", routes.GetGitCommits)         // 获取 Git Commits
 			authGroup.POST("/git/checkout", routes.PostGitCheckout)     // 获取 Git Commits
+			// 爬虫市场 / 仓库
+			{
+				authGroup.GET("/repos", routes.GetRepoList)               // 获取仓库列表
+				authGroup.GET("/repos/sub-dir", routes.GetRepoSubDirList) // 获取仓库子目录
+				authGroup.POST("/repos/download", routes.DownloadRepo)    // 下载仓库
+			}
 		}
 	}
 

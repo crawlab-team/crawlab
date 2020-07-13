@@ -182,6 +182,25 @@ export const constantRouterMap = [
     ]
   },
   {
+    path: '/repos',
+    component: Layout,
+    meta: {
+      title: 'Spider Market',
+      icon: 'fa fa-cloud'
+    },
+    children: [
+      {
+        path: '',
+        name: 'RepoList',
+        component: () => import('../views/repo/RepoList'),
+        meta: {
+          title: 'Spider Market',
+          icon: 'fa fa-cloud'
+        }
+      }
+    ]
+  },
+  {
     path: '/disclaimer',
     component: Layout,
     meta: {
@@ -243,8 +262,7 @@ export const constantRouterMap = [
     component: Layout,
     meta: {
       title: 'User',
-      icon: 'fa fa-users',
-      isNew: true
+      icon: 'fa fa-users'
     },
     children: [
       {

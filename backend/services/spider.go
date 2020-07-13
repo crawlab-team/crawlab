@@ -239,7 +239,9 @@ func PublishSpider(spider model.Spider) {
 	}
 
 	// 安装依赖
-	go spiderSync.InstallDeps()
+	if viper.GetString("setting.autoInstall") == "Y" {
+		go spiderSync.InstallDeps()
+	}
 
 	//目录不存在，则直接下载
 	path := filepath.Join(viper.GetString("spider.path"), spider.Name)

@@ -13,6 +13,7 @@ export default {
   'Sites': '网站',
   'Setting': '设置',
   'Project': '项目',
+  'Spider Market': '爬虫市场',
 
   // 标签
   'Overview': '概览',
@@ -518,6 +519,15 @@ export default {
   'Year': '年',
   'Years': '年',
 
+  // 爬虫市场
+  'Search Keyword': '搜索关键词',
+  'Sort': '排序',
+  'Default Sort': '默认排序',
+  'Most Stars': '最多 Stars',
+  'Most Forks': '最多 Forks',
+  'Latest Pushed': '最近提交',
+  'Pushed At': '提交时间',
+
   // 全局
   'Related Documentation': '相关文档',
   'Click to view related Documentation': '点击查看相关文档',
@@ -647,6 +657,8 @@ export default {
   'Are you sure to add an API token?': '确认创建 API Token?',
   'Are you sure to delete this API token?': '确认删除该 API Token?',
   'Please enter Web Hook URL': '请输入 Web Hook URL',
+  'Are you sure to download this spider?': '您确定要下载该爬虫?',
+  'Downloaded successfully': '下载成功',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

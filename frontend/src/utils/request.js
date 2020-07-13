@@ -82,7 +82,7 @@ if (!CRAWLAB_API_ADDRESS.match('CRAWLAB_API_ADDRESS')) {
 const service = axios.create({
   baseURL: baseUrl, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000 // request timeout
+  timeout: 15000 // request timeout
 })
 // request interceptor
 service.interceptors.request.use(

@@ -60,3 +60,7 @@ notification:
     smtp:
       user: ''
       password: ''
+repo:
+  apiUrl: "https://center.crawlab.cn/api"
+#  apiUrl: "http://localhost:8002"
+  ossUrl: "https://repo.crawlab.cn"
