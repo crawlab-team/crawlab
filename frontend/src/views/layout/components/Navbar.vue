@@ -275,7 +275,7 @@ docker-compose up -d
     .github {
       height: 50px;
       margin-right: 35px;
-      margin-top: -10px;
+      padding-top: 8px;
     }
 
     .upgrade {
