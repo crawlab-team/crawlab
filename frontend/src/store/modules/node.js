@@ -68,7 +68,8 @@ const actions = {
           response.data.data.map(d => d)
             .sort((a, b) => a.create_ts < b.create_ts ? 1 : -1),
           { root: true })
-      }
+      }else{
+        commit('task/SET_TASK_LIST',[],{ root: true })
     })
   },
   getNodeSystemInfo({ state, commit }, id) {
