@@ -29,7 +29,7 @@
                 @change="onFilterChange"
               >
                 <el-option value="" :label="$t('All')" />
-                <el-option v-for="spider in spiderList" :key="spider._id" :value="spider._id" :label="spider.name" />
+                <el-option v-for="spider in allSpiderList" :key="spider._id" :value="spider._id" :label="spider.name" />
               </el-select>
             </el-form-item>
             <el-form-item prop="status" :label="$t('Status')">
@@ -310,7 +310,7 @@
         'taskForm'
       ]),
       ...mapState('spider', [
-        'spiderList'
+        'allSpiderList'
       ]),
       ...mapState('node', [
         'nodeList'
@@ -350,7 +350,7 @@
     },
     created() {
       this.$store.dispatch('task/getTaskList')
-      this.$store.dispatch('spider/getSpiderList')
+      this.$store.dispatch('spider/getAllSpiderList')
       this.$store.dispatch('node/getNodeList')
     },
     mounted() {

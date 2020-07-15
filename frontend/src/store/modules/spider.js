@@ -4,6 +4,7 @@ import request from '../../api/request'
 const state = {
   // list of spiders
   spiderList: [],
+  allSpiderList: [],
 
   spiderTotal: 0,
 
@@ -71,6 +72,9 @@ const mutations = {
   SET_SPIDER_LIST(state, value) {
     state.spiderList = value
   },
+  SET_ALL_SPIDER_LIST(state, value) {
+    state.allSpiderList = value
+  },
   SET_ACTIVE_NODE(state, value) {
     state.activeNode = value
   },
@@ -133,6 +137,14 @@ const actions = {
       .then(response => {
         commit('SET_SPIDER_LIST', response.data.data.list)
         commit('SET_SPIDER_TOTAL', response.data.data.total)
+      })
+  },
+  getAllSpiderList({ state, commit }, params = {}) {
+    params.page_num = 1
+    params.page_size = 99999999
+    return request.get('/spiders', params)
+      .then(response => {
+        commit('SET_ALL_SPIDER_LIST', response.data.data.list)
       })
   },
   editSpider({ state, dispatch }) {

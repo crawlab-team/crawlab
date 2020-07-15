@@ -16,7 +16,7 @@ const put = (path, data) => {
 
 const del = (path, data) => {
   return service.delete(path, {
-    params: data
+    data
   })
 }
 const request = service.request

@@ -1,10 +1,16 @@
 <script>
+  import {
+    mapState
+  } from 'vuex'
   import ScheduleList from '../schedule/ScheduleList'
 
   export default {
     name: 'SpiderSchedules',
     extends: ScheduleList,
     computed: {
+      ...mapState('spider', [
+        'allSpiderList'
+      ]),
       isDisabledSpiderSchedule() {
         return true
       },
@@ -22,7 +28,7 @@
       this.getNodeList()
 
       // 爬虫列表
-      this.getSpiderList()
+      this.$store.dispatch('spider/getAllSpiderList')
     },
     methods: {
       getNodeList() {
@@ -37,12 +43,6 @@
             return d
           })
         })
-      },
-      getSpiderList() {
-        this.$request.get('/spiders', {})
-          .then(response => {
-            this.spiderList = response.data.data.list || []
-          })
       },
       onAdd() {
         this.isEdit = false

@@ -13,7 +13,7 @@
     <div class="selector">
       <label class="label">{{ $t('Spider') }}: </label>
       <el-select id="spider-select" v-model="spiderForm._id" @change="onSpiderChange">
-        <el-option v-for="op in spiderList" :key="op._id" :value="op._id" :label="op.name" />
+        <el-option v-for="op in allSpiderList" :key="op._id" :value="op._id" :label="op.name" />
       </el-select>
     </div>
 
@@ -167,10 +167,10 @@
         redirectType: ''
       }
     },
-
     computed: {
       ...mapState('spider', [
         'spiderList',
+        'allSpiderList',
         'spiderForm',
         'configListTs'
       ]),
@@ -209,7 +209,7 @@
       await this.$store.dispatch('spider/getTaskList', this.$route.params.id)
 
       // get spider list
-      await this.$store.dispatch('spider/getSpiderList', { owner_type: 'all' })
+      await this.$store.dispatch('spider/getAllSpiderList', { owner_type: 'all' })
     },
     mounted() {
       if (!this.$utils.tour.isFinishedTour('spider-detail')) {

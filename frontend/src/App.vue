@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <dialog-view />
     <router-view />
   </div>
 </template>
@@ -9,14 +8,10 @@
   import {
     mapState
   } from 'vuex'
-  import DialogView from './components/Common/DialogView'
   import { getToken } from '@/utils/auth'
 
   export default {
     name: 'App',
-    components: {
-      DialogView
-    },
     data() {
       return {
         msgPopup: undefined

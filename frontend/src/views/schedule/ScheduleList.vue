@@ -68,7 +68,7 @@
             @change="onSpiderChange"
           >
             <el-option
-              v-for="op in spiderList"
+              v-for="op in allSpiderList"
               :key="op._id"
               :value="op._id"
               :label="`${op.display_name} (${op.name})`"
@@ -84,7 +84,7 @@
             :disabled="isDisabledSpiderSchedule"
           >
             <el-option
-              v-for="op in spiderList"
+              v-for="op in allSpiderList"
               :key="op._id"
               :value="op._id"
               :label="`${op.display_name} (${op.name})`"
@@ -368,7 +368,6 @@
         dialogVisible: false,
         cronDialogVisible: false,
         expression: '',
-        spiderList: [],
         nodeList: [],
         isShowCron: false,
         isLoading: false,
@@ -496,6 +495,7 @@
     },
     computed: {
       ...mapState('spider', [
+        'allSpiderList',
         'spiderForm'
       ]),
       ...mapState('schedule', [
@@ -512,9 +512,9 @@
         return this.scheduleList
       },
       spider() {
-        for (let i = 0; i < this.spiderList.length; i++) {
-          if (this.spiderList[i]._id === this.scheduleForm.spider_id) {
-            return this.spiderList[i]
+        for (let i = 0; i < this.allSpiderList.length; i++) {
+          if (this.allSpiderList[i]._id === this.scheduleForm.spider_id) {
+            return this.allSpiderList[i]
           }
         }
         return {}
@@ -540,10 +540,7 @@
       })
 
       // 爬虫列表
-      request.get('/spiders', { owner_type: 'all' })
-        .then(response => {
-          this.spiderList = response.data.data.list || []
-        })
+      this.$store.dispatch('spider/getAllSpiderList')
     },
     mounted() {
       if (!this.isDisabledSpiderSchedule) {
