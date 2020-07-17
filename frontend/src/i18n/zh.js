@@ -234,6 +234,8 @@ export default {
   'Overwrite': '覆盖',
   'Ignore': '忽略',
   'De-Duplication': '去重',
+  'Same Above': '同上',
+  'Batch Run': '批量运行',
 
   // 爬虫列表
   'Name': '名称',
@@ -659,6 +661,7 @@ export default {
   'Please enter Web Hook URL': '请输入 Web Hook URL',
   'Are you sure to download this spider?': '您确定要下载该爬虫?',
   'Downloaded successfully': '下载成功',
+  'Unable to submit because of some errors': '有错误，无法提交',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

@@ -4,9 +4,12 @@ import request from '../../api/request'
 const state = {
   // list of spiders
   spiderList: [],
-  allSpiderList: [],
 
+  // total number of spiders
   spiderTotal: 0,
+
+  // list of all spiders
+  allSpiderList: [],
 
   // active spider data
   spiderForm: {},

@@ -32,7 +32,9 @@ const state = {
   activeErrorLogItem: {},
   // results
   resultsPageNum: 1,
-  resultsPageSize: 10
+  resultsPageSize: 10,
+  // batch crawl
+  batchCrawlList: []
 }
 
 const getters = {
@@ -144,6 +146,12 @@ const mutations = {
   },
   SET_ACTIVE_ERROR_LOG_ITEM(state, value) {
     state.activeErrorLogItem = value
+  },
+  SET_BATCH_CRAWL_LIST(state, value) {
+    state.batchCrawlList = value
+  },
+  SET_IS_BATCH_CRAWL_DIALOG_VISIBLE(state, value) {
+    state.isBatchCrawlDialogVisible = value
   }
 }
 
