@@ -202,6 +202,85 @@ func PutTask(c *gin.Context) {
 	HandleSuccessData(c, taskIds)
 }
 
+func PutBatchTasks(c *gin.Context) {
+	var tasks []model.Task
+	if err := c.ShouldBindJSON(&tasks); err != nil {
+		HandleError(http.StatusOK, c, err)
+		return
+	}
+	var taskIds []string
+	for _, t := range tasks {
+		if t.RunType == constants.RunTypeAllNodes {
+			// 所有节点
+			nodes, err := model.GetNodeList(nil)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+			for _, node := range nodes {
+				t := model.Task{
+					SpiderId:   t.SpiderId,
+					NodeId:     node.Id,
+					Param:      t.Param,
+					UserId:     services.GetCurrentUserId(c),
+					RunType:    constants.RunTypeAllNodes,
+					ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
+				}
+
+				id, err := services.AddTask(t)
+				if err != nil {
+					HandleError(http.StatusInternalServerError, c, err)
+					return
+				}
+				taskIds = append(taskIds, id)
+			}
+		} else if t.RunType == constants.RunTypeRandom {
+			// 随机
+			t := model.Task{
+				SpiderId:   t.SpiderId,
+				Param:      t.Param,
+				UserId:     services.GetCurrentUserId(c),
+				RunType:    constants.RunTypeRandom,
+				ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
+			}
+			id, err := services.AddTask(t)
+			if err != nil {
+				HandleError(http.StatusInternalServerError, c, err)
+				return
+			}
+			taskIds = append(taskIds, id)
+		} else if t.RunType == constants.RunTypeSelectedNodes {
+			// 指定节点
+			for _, nodeId := range t.NodeIds {
+				t := model.Task{
+					SpiderId:   t.SpiderId,
+					NodeId:     bson.ObjectIdHex(nodeId),
+					Param:      t.Param,
+					UserId:     services.GetCurrentUserId(c),
+					RunType:    constants.RunTypeSelectedNodes,
+					ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
+				}
+
+				id, err := services.AddTask(t)
+				if err != nil {
+					HandleError(http.StatusInternalServerError, c, err)
+					return
+				}
+				taskIds = append(taskIds, id)
+			}
+		} else {
+			HandleErrorF(http.StatusInternalServerError, c, "invalid run_type")
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    taskIds,
+	})
+}
+
 // @Summary Delete task
 // @Description Delete task
 // @Tags task

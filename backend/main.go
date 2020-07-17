@@ -240,6 +240,7 @@ func main() {
 				authGroup.GET("/tasks", routes.GetTaskList)                                 // 任务列表
 				authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情
 				authGroup.PUT("/tasks", routes.PutTask)                                     // 派发任务
+				authGroup.PUT("/tasks/batch", routes.PutBatchTasks)                         // 批量派发任务
 				authGroup.DELETE("/tasks/:id", routes.DeleteTask)                           // 删除任务
 				authGroup.DELETE("/tasks", routes.DeleteSelectedTask)                       // 删除多个任务
 				authGroup.DELETE("/tasks_by_status", routes.DeleteTaskByStatus)             // 删除指定状态的任务
