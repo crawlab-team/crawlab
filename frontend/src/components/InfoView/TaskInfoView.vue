@@ -71,6 +71,9 @@
       </el-form>
     </el-row>
     <el-row class="button-container">
+      <el-button size="small" type="warning" icon="el-icon-refresh" @click="onRestart">
+        {{ $t('Restart') }}
+      </el-button>
       <el-button v-if="isRunning" size="small" type="danger" icon="el-icon-video-pause" @click="onStop">
         {{ $t('Stop') }}
       </el-button>
@@ -100,13 +103,28 @@
       }
     },
     methods: {
-      onRestart() {
-      },
       onStop() {
         this.$store.dispatch('task/cancelTask', this.$route.params.id)
           .then(() => {
             this.$message.success(`Task "${this.$route.params.id}" has been sent signal to stop`)
           })
+        this.$st.sendEv('任务详情', '概览', '停止任务')
+      },
+      onRestart() {
+        this.$confirm(this.$t('Are you sure to restart this task?'), this.$t('Notification'), {
+          confirmButtonText: this.$t('Confirm'),
+          cancelButtonText: this.$t('Cancel'),
+          type: 'warning'
+        }).then(() => {
+          this.$store.dispatch('task/restartTask', this.taskForm._id)
+            .then(() => {
+              this.$message({
+                type: 'success',
+                message: this.$t('Restarted successfully')
+              })
+            })
+          this.$st.sendEv('任务详情', '概览', '重新开始任务')
+        })
       },
       getTime(str) {
         if (!str || str.match('^0001')) return 'NA'

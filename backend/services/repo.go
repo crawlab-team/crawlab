@@ -55,20 +55,31 @@ func DownloadRepo(fullName string, userId bson.ObjectId) (err error) {
 	}
 
 	// 创建爬虫
-	spider := model.Spider{
-		Id:          bson.NewObjectId(),
-		Name:        spiderName,
-		DisplayName: spiderName,
-		Type:        constants.Customized,
-		Src:         spiderPath,
-		ProjectId:   bson.ObjectIdHex(constants.ObjectIdNull),
-		FileId:      bson.ObjectIdHex(constants.ObjectIdNull),
-		UserId:      userId,
-	}
-	if err := spider.Add(); err != nil {
-		log.Error("add spider error: " + err.Error())
-		debug.PrintStack()
-		return err
+	spider := model.GetSpiderByName(spiderName)
+	if spider.Name == "" {
+		// 新增
+		spider := model.Spider{
+			Id:          bson.NewObjectId(),
+			Name:        spiderName,
+			DisplayName: spiderName,
+			Type:        constants.Customized,
+			Src:         spiderPath,
+			ProjectId:   bson.ObjectIdHex(constants.ObjectIdNull),
+			FileId:      bson.ObjectIdHex(constants.ObjectIdNull),
+			UserId:      userId,
+		}
+		if err := spider.Add(); err != nil {
+			log.Error("add spider error: " + err.Error())
+			debug.PrintStack()
+			return err
+		}
+	} else {
+		// 更新
+		if err := spider.Save(); err != nil {
+			log.Error("save spider error: " + err.Error())
+			debug.PrintStack()
+			return err
+		}
 	}
 
 	// 上传爬虫
