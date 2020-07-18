@@ -5,8 +5,24 @@
     :before-close="beforeClose"
   >
     <el-table
-      :data="batchCrawlList"
+      :data="batchScheduleList"
     >
+      <el-table-column
+        :label="$t('Schedule Name')"
+        width="150px"
+      >
+        <template slot-scope="scope">
+          <el-input v-model="scope.row.name" size="mini" :placeholder="$t('Schedule Name')" />
+        </template>
+      </el-table-column>
+      <el-table-column
+        :label="$t('Cron')"
+        width="150px"
+      >
+        <template slot-scope="scope">
+          <el-input v-model="scope.row.cron" size="mini" :placeholder="$t('Cron')" />
+        </template>
+      </el-table-column>
       <el-table-column
         :label="$t('Spider')"
         width="150px"
@@ -19,7 +35,7 @@
             :placeholder="$t('Spider')"
             @change="onSpiderChange(scope.row, $event)"
           >
-<!--            <el-option :label="$t('Same Above')" value="same-above" :placeholder="$t('Spider')"/>-->
+            <!--            <el-option :label="$t('Same Above')" value="same-above" :placeholder="$t('Spider')"/>-->
             <el-option
               v-for="op in allSpiderList"
               :key="op._id"
@@ -35,9 +51,9 @@
       >
         <template slot-scope="scope">
           <el-select v-model="scope.row.run_type" size="mini">
-            <el-option value="all-nodes" :label="$t('All Nodes')"/>
-            <el-option value="selected-nodes" :label="$t('Selected Nodes')"/>
-            <el-option value="random" :label="$t('Random')"/>
+            <el-option value="all-nodes" :label="$t('All Nodes')" />
+            <el-option value="selected-nodes" :label="$t('Selected Nodes')" />
+            <el-option value="random" :label="$t('Random')" />
           </el-select>
         </template>
       </el-table-column>
@@ -103,7 +119,15 @@
         min-width="150px"
       >
         <template slot-scope="scope">
-          <el-input v-model="scope.param" size="mini" :placeholder="$t('Parameters')"/>
+          <el-input v-model="scope.param" size="mini" :placeholder="$t('Parameters')" />
+        </template>
+      </el-table-column>
+      <el-table-column
+        :label="$t('Description')"
+        width="200px"
+      >
+        <template slot-scope="scope">
+          <el-input v-model="scope.row.description" size="mini" type="textarea" :placeholder="$t('Description')" />
         </template>
       </el-table-column>
       <el-table-column
@@ -112,8 +136,8 @@
         width="150px"
       >
         <template slot-scope="scope">
-          <el-button icon="el-icon-plus" size="mini" type="primary" @click="onAdd(scope.$index)"/>
-          <el-button icon="el-icon-delete" size="mini" type="danger" @click="onRemove(scope.$index)"/>
+          <el-button icon="el-icon-plus" size="mini" type="primary" @click="onAdd(scope.$index)" />
+          <el-button icon="el-icon-delete" size="mini" type="danger" @click="onRemove(scope.$index)" />
         </template>
       </el-table-column>
     </el-table>
@@ -135,7 +159,7 @@
   } from 'vuex'
 
   export default {
-    name: 'BatchCrawlDialog',
+    name: 'BatchAddScheduleDialog',
     props: {
       visible: {
         type: Boolean,
@@ -148,8 +172,8 @@
       }
     },
     computed: {
-      ...mapState('task', [
-        'batchCrawlList'
+      ...mapState('schedule', [
+        'batchScheduleList'
       ]),
       ...mapState('spider', [
         'allSpiderList'
@@ -160,15 +184,15 @@
       activeNodeList() {
         return this.nodeList.filter(n => n.status === 'online')
       },
-      validCrawlList() {
-        return this.batchCrawlList.filter(d => !!d.spider_id)
+      validScheduleList() {
+        return this.batchScheduleList.filter(d => !!d.spider_id && !!d.name && !!d.cron)
       },
       isConfirmDisabled() {
-        if (this.validCrawlList.length === 0) {
+        if (this.validScheduleList.length === 0) {
           return true
         }
-        for (let i = 0; i < this.validCrawlList.length; i++) {
-          const row = this.validCrawlList[i]
+        for (let i = 0; i < this.validScheduleList.length; i++) {
+          const row = this.validScheduleList[i]
           const spider = this.getSpiderById(row.spider_id)
           if (!spider) {
             return true
@@ -180,7 +204,7 @@
         return false
       },
       scrapySpidersIds() {
-        return Array.from(new Set(this.validCrawlList.filter(d => {
+        return Array.from(new Set(this.validScheduleList.filter(d => {
           const spider = this.getSpiderById(d.spider_id)
           return spider && spider.is_scrapy
         }).map(d => d.spider_id)))
@@ -200,14 +224,14 @@
       reset() {
         this.$store.commit('task/SET_BATCH_CRAWL_LIST', [])
         for (let i = 0; i < 10; i++) {
-          this.batchCrawlList.push({
+          this.batchScheduleList.push({
             spider_id: '',
             run_type: 'random',
             param: '',
             scrapy_log_level: 'INFO'
           })
         }
-        this.$st.sendEv('批量运行', '重置')
+        this.$st.sendEv('批量添加定时任务', '重置')
       },
       getSpiderById(id) {
         return this.allSpiderList.filter(d => d._id === id)[0] || {}
@@ -221,25 +245,31 @@
             this.$set(row, 'scrapy_spider_name', this.scrapySpidersNamesDict[id][0])
           }
         }
-        this.$st.sendEv('批量运行', '选择爬虫')
+        this.$st.sendEv('批量添加定时任务', '选择爬虫')
       },
       getScrapySpiderNames(id) {
         if (!this.scrapySpidersNamesDict[id]) return []
         return this.scrapySpidersNamesDict[id]
       },
       async onConfirm() {
-        await this.$request.put('/tasks/batch', this.validCrawlList.map(d => {
+        const res = await this.$request.put('/schedules/batch', this.validScheduleList.map(d => {
           const spider = this.getSpiderById(d.spider_id)
           // Scrapy爬虫特殊处理
           if (spider.type === 'customized' && spider.is_scrapy) {
             d.param = `${this.scrapySpidersNamesDict[d.spider_id] ? this.scrapySpidersNamesDict[d.spider_id][0] : ''} --loglevel=${d.scrapy_log_level} ${d.param || ''}`
           }
+          // cron特殊处理
+          d.cron = '0 ' + d.cron
           return d
         }))
+        if (res.status !== 200) {
+          this.$message.error(res.data.error)
+          return
+        }
         this.reset()
         this.$emit('close')
         this.$emit('confirm')
-        this.$st.sendEv('批量运行', '确认批量运行')
+        this.$st.sendEv('批量添加定时任务', '确认添加')
       },
       async fetchScrapySpiderNames(id) {
         if (!this.scrapySpidersNamesDict[id]) {
@@ -251,7 +281,7 @@
         await Promise.all(this.scrapySpidersIds.map(async id => {
           await this.fetchScrapySpiderNames(id)
         }))
-        this.validCrawlList.filter(d => {
+        this.validScheduleList.filter(d => {
           const spider = this.getSpiderById(d.spider_id)
           return spider && spider.is_scrapy
         }).forEach(row => {
@@ -262,17 +292,17 @@
         })
       },
       onAdd(rowIndex) {
-        this.batchCrawlList.splice(rowIndex + 1, 0, {
+        this.batchScheduleList.splice(rowIndex + 1, 0, {
           spider_id: '',
           run_type: 'random',
           param: '',
           scrapy_log_level: 'INFO'
         })
-        this.$st.sendEv('批量运行', '添加')
+        this.$st.sendEv('批量添加定时任务', '添加')
       },
       onRemove(rowIndex) {
-        this.batchCrawlList.splice(rowIndex, 1)
-        this.$st.sendEv('批量运行', '删除')
+        this.batchScheduleList.splice(rowIndex, 1)
+        this.$st.sendEv('批量添加定时任务', '删除')
       }
     }
   }

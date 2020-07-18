@@ -314,6 +314,7 @@ export default {
   'Cron Expression': 'Cron 表达式',
   'Cron expression is invalid': 'Cron 表达式不正确',
   'View Tasks': '查看任务',
+  'Batch Add': '批量添加',
 
   // 网站
   'Site': '网站',

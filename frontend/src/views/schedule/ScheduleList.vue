@@ -205,13 +205,30 @@
     />
     <!--./crawl confirm dialog-->
 
+    <!--batch add schedules dialog-->
+    <batch-add-schedule-dialog
+      :visible="batchAddDialogVisible"
+      @close="onBatchAddClose"
+      @confirm="onBatchAddConfirm"
+    />
+    <!--./batch add schedules dialog-->
+
     <el-card style="border-radius: 0" class="schedule-list">
       <!--filter-->
       <div class="filter">
         <div class="right">
           <el-button
             size="small"
-            type="primary"
+            type="success"
+            icon="el-icon-document-copy"
+            class="btn-add"
+            @click="onBatchAdd"
+          >
+            {{ $t('Batch Add') }}
+          </el-button>
+          <el-button
+            size="small"
+            type="success"
             icon="el-icon-plus"
             class="btn-add"
             @click="onAdd"
@@ -339,10 +356,12 @@
   import ParametersDialog from '../../components/Common/ParametersDialog'
   import ScheduleTaskList from '../../components/Schedule/ScheduleTaskList'
   import CrawlConfirmDialog from '../../components/Common/CrawlConfirmDialog'
+  import BatchAddScheduleDialog from '../../components/Common/BatchAddScheduleDialog'
 
   export default {
     name: 'ScheduleList',
     components: {
+      BatchAddScheduleDialog,
       CrawlConfirmDialog,
       ScheduleTaskList,
       VueCronLinux,
@@ -361,12 +380,13 @@
           { name: 'description', label: 'Description', width: '200px' },
           { name: 'enable', label: 'Enable/Disable', width: '120px' },
           { name: 'username', label: 'Owner', width: '100px' }
-        // { name: 'status', label: 'Status', width: '100px' }
+          // { name: 'status', label: 'Status', width: '100px' }
         ],
         isEdit: false,
         dialogTitle: '',
         dialogVisible: false,
         cronDialogVisible: false,
+        batchAddDialogVisible: false,
         expression: '',
         nodeList: [],
         isShowCron: false,
@@ -500,7 +520,8 @@
       ]),
       ...mapState('schedule', [
         'scheduleList',
-        'scheduleForm'
+        'scheduleForm',
+        'batchScheduleList'
       ]),
       lang() {
         const lang = this.$store.state.lang.lang || window.localStorage.getItem('lang')
@@ -541,6 +562,9 @@
 
       // 爬虫列表
       this.$store.dispatch('spider/getAllSpiderList')
+
+      // 节点列表
+      this.$store.dispatch('node/getNodeList')
     },
     mounted() {
       if (!this.isDisabledSpiderSchedule) {
@@ -597,6 +621,22 @@
           }
         })
         this.$st.sendEv('定时任务', '提交定时任务')
+      },
+      onBatchAdd() {
+        this.$store.commit('schedule/SET_BATCH_SCHEDULE_LIST', [])
+        for (let i = 0; i < 10; i++) {
+          this.batchScheduleList.push({
+            name: '',
+            cron: '',
+            spider_id: '',
+            run_type: 'random',
+            param: '',
+            scrapy_log_level: 'INFO',
+            description: ''
+          })
+        }
+        this.batchAddDialogVisible = true
+        this.$st.sendEv('定时任务', '点击批量添加定时任务')
       },
       isShowRun(row) {
       },
@@ -702,6 +742,14 @@
         this.crawlConfirmDialogVisible = true
         this.$store.commit('schedule/SET_SCHEDULE_FORM', row)
         this.$st.sendEv('定时任务', '点击运行任务')
+      },
+      onBatchAddClose() {
+        this.batchAddDialogVisible = false
+      },
+      onBatchAddConfirm() {
+        setTimeout(() => {
+          this.$store.dispatch('schedule/getScheduleList')
+        }, 1000)
       }
     }
   }

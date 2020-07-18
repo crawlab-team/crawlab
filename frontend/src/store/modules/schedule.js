@@ -4,7 +4,8 @@ const state = {
   scheduleList: [],
   scheduleForm: {
     node_ids: []
-  }
+  },
+  batchScheduleList: []
 }
 
 const getters = {}
@@ -15,6 +16,9 @@ const mutations = {
   },
   SET_SCHEDULE_FORM(state, value) {
     state.scheduleForm = value
+  },
+  SET_BATCH_SCHEDULE_LIST(state, value) {
+    state.batchScheduleList = value
   }
 }
 
