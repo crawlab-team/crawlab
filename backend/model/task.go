@@ -452,7 +452,12 @@ func UpdateTaskToAbnormal(nodeId bson.ObjectId) error {
 
 	selector := bson.M{
 		"node_id": nodeId,
-		"status":  constants.StatusRunning,
+		"status": bson.M{
+			"$in": []string{
+				constants.StatusPending,
+				constants.StatusRunning,
+			},
+		},
 	}
 	update := bson.M{
 		"$set": bson.M{
