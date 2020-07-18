@@ -235,18 +235,36 @@
           >
             {{ $t('Add Schedule') }}
           </el-button>
+          <el-button
+            v-if="selectedSchedules.length > 0"
+            size="small"
+            type="danger"
+            icon="el-icon-delete"
+            class="btn-delete"
+            @click="onRemoveSelectedSchedules"
+          >
+            {{ $t('Remove') }}
+          </el-button>
         </div>
       </div>
       <!--./filter-->
 
       <!--table list-->
       <el-table
+        ref="table"
         :data="filteredTableData"
         class="table"
-        height="500"
         :header-cell-style="{background:'rgb(48, 65, 86)',color:'white'}"
         border
+        row-key="_id"
+        @selection-change="onScheduleSelect"
       >
+        <el-table-column
+          type="selection"
+          width="45"
+          align="center"
+          reserve-selection
+        />
         <template v-for="col in columns">
           <el-table-column
             v-if="col.name === 'status'"
@@ -394,6 +412,7 @@
         isParametersVisible: false,
         isViewTasksDialogVisible: false,
         crawlConfirmDialogVisible: false,
+        selectedSchedules: [],
 
         // tutorial
         tourSteps: [
@@ -638,6 +657,27 @@
         this.batchAddDialogVisible = true
         this.$st.sendEv('定时任务', '点击批量添加定时任务')
       },
+      onRemoveSelectedSchedules() {
+        this.$confirm(this.$t('Are you sure to delete selected items?'), this.$t('Notification'), {
+          confirmButtonText: this.$t('Confirm'),
+          cancelButtonText: this.$t('Cancel'),
+          type: 'warning'
+        }).then(async() => {
+          try {
+            const res = await this.$request.delete('/schedules', {
+              ids: this.selectedSchedules.map(d => d._id)
+            })
+            if (!res.data.error) {
+              this.$message.success('Deleted successfully')
+              this.$refs['table'].clearSelection()
+              await this.$store.dispatch('schedule/getScheduleList')
+            }
+          } finally {
+            // do nothing
+          }
+          this.$st.sendEv('定时任务', '批量删除定时任务')
+        })
+      },
       isShowRun(row) {
       },
       async onEdit(row) {
@@ -750,6 +790,9 @@
         setTimeout(() => {
           this.$store.dispatch('schedule/getScheduleList')
         }, 1000)
+      },
+      onScheduleSelect(schedules) {
+        this.selectedSchedules = schedules
       }
     }
   }
