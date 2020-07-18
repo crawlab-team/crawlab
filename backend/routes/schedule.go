@@ -283,7 +283,7 @@ func DeleteBatchSchedules(c *gin.Context) {
 	HandleSuccess(c)
 }
 
-func SetStatusSchedules(c *gin.Context) {
+func SetEnabledSchedules(c *gin.Context) {
 	type ReqBody struct {
 		ScheduleIds []bson.ObjectId `json:"schedule_ids"`
 		Enabled     bool            `json:"enabled"`
