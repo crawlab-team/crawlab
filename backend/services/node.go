@@ -192,6 +192,26 @@ func UpdateNodeStatusPeriodically() {
 	}
 }
 
+// 每60秒更新异常节点信息
+func UpdateOfflineNodeTaskToAbnormalPeriodically() {
+	for {
+		nodes, err := model.GetNodeList(bson.M{"status": constants.StatusOffline})
+		if err != nil {
+			log.Errorf("get nodes error: " + err.Error())
+			debug.PrintStack()
+			continue
+		}
+		for _, n := range nodes {
+			if err := model.UpdateTaskToAbnormal(n.Id); err != nil {
+				log.Errorf("update task to abnormal error: " + err.Error())
+				debug.PrintStack()
+				continue
+			}
+		}
+		time.Sleep(60 * time.Second)
+	}
+}
+
 // 初始化节点服务
 func InitNodeService() error {
 	node, err := local_node.InitLocalNode()
@@ -216,9 +236,13 @@ func InitNodeService() error {
 		return err
 	}
 
-	// 如果为主节点，每10秒刷新所有节点信息
+	// 如果为主节点
 	if model.IsMaster() {
+		// 每10秒刷新所有节点信息
 		go UpdateNodeStatusPeriodically()
+
+		// 每60秒更新离线节点任务为异常
+		go UpdateOfflineNodeTaskToAbnormalPeriodically()
 	}
 
 	// 更新在当前节点执行中的任务状态为：abnormal
