@@ -236,6 +236,7 @@ export default {
   'De-Duplication': '去重',
   'Same Above': '同上',
   'Batch Run': '批量运行',
+  'Set Projects': '设置项目',
 
   // 爬虫列表
   'Name': '名称',

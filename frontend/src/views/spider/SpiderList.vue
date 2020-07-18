@@ -323,6 +323,38 @@
     />
     <!--./batch crawl dialog-->
 
+    <!--set projects dialog-->
+    <el-dialog
+      :title="$t('Set Projects')"
+      :visible.sync="setProjectsVisible"
+      :before-close="() => setProjectsVisible = false"
+      width="580px"
+    >
+      <el-form
+        ref="set-projects-form"
+        label-width="120px"
+        :model="form"
+      >
+        <el-form-item :label="$t('Project')" prop="projectId" required>
+          <el-select v-model="form.projectId" size="small" :placeholder="$t('Project')">
+            <el-option
+              v-for="op in projectList"
+              :key="op._id"
+              :label="op.name"
+              :value="op._id"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template slot="footer">
+        <el-button type="plain" size="small" @click="setProjectsVisible = false">{{ $t('Cancel') }}</el-button>
+        <el-button type="primary" size="small" @click="onSetProjectsConfirm">
+          {{ $t('Confirm') }}
+        </el-button>
+      </template>
+    </el-dialog>
+    <!--./set projects dialog-->
+
     <el-card style="border-radius: 0">
       <!--filter-->
       <div class="filter">
@@ -395,6 +427,17 @@
             @click="onBatchCrawl"
           >
             {{ $t('Batch Run') }}
+          </el-button>
+          <el-button
+            v-if="this.selectedSpiders.length"
+            size="small"
+            type="primary"
+            icon="el-icon-s-operation"
+            class="btn set-projects"
+            style="font-weight: bolder"
+            @click="onSetProjects"
+          >
+            {{ $t('Set Projects') }}
           </el-button>
           <el-button
             v-if="this.selectedSpiders.length"
@@ -720,6 +763,7 @@
         addDialogVisible: false,
         crawlConfirmDialogVisible: false,
         batchCrawlDialogVisible: false,
+        setProjectsVisible: false,
         isRunningTasksDialogVisible: false,
         activeSpiderId: undefined,
         activeSpider: undefined,
@@ -867,7 +911,10 @@
         isStopLoading: false,
         isRemoveLoading: false,
         isMultiple: false,
-        copyDialogVisible: false
+        copyDialogVisible: false,
+        form: {
+          projectId: null
+        }
       }
     },
     computed: {
@@ -906,6 +953,7 @@
         const columns = []
         columns.push({ name: 'display_name', label: 'Name', width: '160', align: 'left', sortable: true })
         columns.push({ name: 'type', label: 'Spider Type', width: '120', sortable: true })
+        columns.push({ name: 'project_name', label: 'Project', width: '120' })
         columns.push({ name: 'is_long_task', label: 'Is Long Task', width: '80' })
         columns.push({ name: 'is_scrapy', label: 'Is Scrapy', width: '80' })
         columns.push({ name: 'latest_tasks', label: 'Latest Tasks', width: '180' })
@@ -1350,6 +1398,23 @@
       },
       isDisabled(row) {
         return row.is_public && row.username !== this.userInfo.username && this.userInfo.role !== 'admin'
+      },
+      onSetProjects() {
+        this.setProjectsVisible = true
+        this.isMultiple = true
+        this.form.projectId = null
+      },
+      onSetProjectsConfirm() {
+        this.$refs['set-projects-form'].validate(async valid => {
+          if (!valid) return
+          await this.$store.dispatch('spider/setProjects', {
+            projectId: this.form.projectId,
+            spiderIds: this.selectedSpiders.map(d => d._id)
+          })
+          this.setProjectsVisible = false
+          this.isMultiple = false
+          await this.getList()
+        })
       }
     }
   }
