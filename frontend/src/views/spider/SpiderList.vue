@@ -347,7 +347,7 @@
         </el-form-item>
       </el-form>
       <template slot="footer">
-        <el-button type="plain" size="small" @click="setProjectsVisible = false">{{ $t('Cancel') }}</el-button>
+        <el-button type="plain" size="small" @click="setProjectsVisible = false">{{ $t('Stop') }}</el-button>
         <el-button type="primary" size="small" @click="onSetProjectsConfirm">
           {{ $t('Confirm') }}
         </el-button>
