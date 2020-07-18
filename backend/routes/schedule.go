@@ -259,3 +259,62 @@ func PutBatchSchedules(c *gin.Context) {
 
 	HandleSuccess(c)
 }
+
+func DeleteBatchSchedules(c *gin.Context) {
+	ids := make(map[string][]string)
+	if err := c.ShouldBindJSON(&ids); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+	list := ids["ids"]
+	for _, id := range list {
+		if err := model.RemoveSchedule(bson.ObjectIdHex(id)); err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+	}
+
+	// 更新定时任务
+	if err := services.Sched.Update(); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	HandleSuccess(c)
+}
+
+func SetStatusSchedules(c *gin.Context) {
+	type ReqBody struct {
+		ScheduleIds []bson.ObjectId `json:"schedule_ids"`
+		Enabled     bool            `json:"enabled"`
+	}
+	var reqBody ReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+	for _, id := range reqBody.ScheduleIds {
+		s, err := model.GetSchedule(id)
+		if err != nil {
+			log.Errorf("get schedule error: " + err.Error())
+			debug.PrintStack()
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+		s.Enabled = reqBody.Enabled
+		if err := s.Save(); err != nil {
+			log.Errorf("save schedule error: " + err.Error())
+			debug.PrintStack()
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+	}
+
+	// 更新定时任务
+	if err := services.Sched.Update(); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	HandleSuccess(c)
+}
