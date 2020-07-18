@@ -259,6 +259,7 @@ func main() {
 				authGroup.GET("/schedules", routes.GetScheduleList)              // 定时任务列表
 				authGroup.GET("/schedules/:id", routes.GetSchedule)              // 定时任务详情
 				authGroup.PUT("/schedules", routes.PutSchedule)                  // 创建定时任务
+				authGroup.PUT("/schedules/batch", routes.PutBatchSchedules)      // 批量创建定时任务
 				authGroup.POST("/schedules/:id", routes.PostSchedule)            // 修改定时任务
 				authGroup.DELETE("/schedules/:id", routes.DeleteSchedule)        // 删除定时任务
 				authGroup.POST("/schedules/:id/disable", routes.DisableSchedule) // 禁用定时任务

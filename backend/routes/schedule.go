@@ -3,9 +3,11 @@ package routes
 import (
 	"crawlab/model"
 	"crawlab/services"
+	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
 	"net/http"
+	"runtime/debug"
 )
 
 // @Summary Get schedule list
@@ -218,5 +220,42 @@ func EnableSchedule(c *gin.Context) {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
+	HandleSuccess(c)
+}
+
+func PutBatchSchedules(c *gin.Context) {
+	var schedules []model.Schedule
+	if err := c.ShouldBindJSON(&schedules); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+
+	for _, s := range schedules {
+		// 验证cron表达式
+		if err := services.ParserCron(s.Cron); err != nil {
+			log.Errorf("parse cron error: " + err.Error())
+			debug.PrintStack()
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+
+		// 添加 UserID
+		s.UserId = services.GetCurrentUserId(c)
+
+		// 添加定时任务
+		if err := model.AddSchedule(s); err != nil {
+			log.Errorf("add schedule error: " + err.Error())
+			debug.PrintStack()
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+	}
+
+	// 更新定时任务
+	if err := services.Sched.Update(); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
 	HandleSuccess(c)
 }
