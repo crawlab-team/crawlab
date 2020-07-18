@@ -203,7 +203,7 @@
             :width="col.width"
           />
         </template>
-        <el-table-column :label="$t('Action')" align="left" fixed="right" width="150px">
+        <el-table-column :label="$t('Action')" align="left" fixed="right" width="200px">
           <template slot-scope="scope">
             <el-tooltip :content="$t('View')" placement="top">
               <el-button type="primary" icon="el-icon-search" size="mini" @click="onView(scope.row)" />
@@ -222,6 +222,14 @@
                 icon="el-icon-delete"
                 size="mini"
                 @click="onRemove(scope.row, $event)"
+              />
+            </el-tooltip>
+            <el-tooltip v-if="['pending', 'running'].includes(scope.row.status)" :content="$t('Stop')" placement="top">
+              <el-button
+                type="info"
+                icon="el-icon-video-pause"
+                size="mini"
+                @click="onStop(scope.row, $event)"
               />
             </el-tooltip>
           </template>
@@ -424,6 +432,7 @@
               message: resp.data.error
             })
           })
+          this.$st.sendEv('任务列表', '批量重启任务')
         }).catch(() => {
         })
       },
@@ -449,6 +458,7 @@
               message: resp.data.error
             })
           })
+          this.$st.sendEv('任务列表', '批量删除任务')
         }).catch(() => {
         })
       },
@@ -474,6 +484,7 @@
               message: resp.data.error
             })
           })
+          this.$st.sendEv('任务列表', '批量停止任务')
         }).catch(() => {
         })
       },
@@ -509,6 +520,24 @@
               })
             })
           this.$st.sendEv('任务列表', '重新开始任务')
+        })
+      },
+      onStop(row, ev) {
+        ev.stopPropagation()
+        this.$confirm(this.$t('Are you sure to stop this task?'), this.$t('Notification'), {
+          confirmButtonText: this.$t('Confirm'),
+          cancelButtonText: this.$t('Cancel'),
+          type: 'warning'
+        }).then(() => {
+          this.$store.dispatch('task/cancelTask', row._id)
+            .then(() => {
+              this.$message({
+                type: 'success',
+                message: this.$t('Stopped successfully')
+              })
+              this.$store.dispatch('task/getTaskList')
+            })
+          this.$st.sendEv('任务列表', '停止任务')
         })
       },
       onView(row) {

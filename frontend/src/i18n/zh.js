@@ -668,6 +668,9 @@ export default {
   'Are you sure to stop these tasks': '确认停止这些任务?',
   'Are you sure to delete these tasks': '确认删除这些任务?',
   'Stopped successfully': '成功停止',
+  'Are you sure to restart these tasks': '确认重新运行这些任务?',
+  'Restarted successfully': '成功重新运行',
+  'Are you sure to stop this task?': '确认停止这个任务?',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

@@ -1310,6 +1310,7 @@
           this.$message.success(`Task "${row._id}" has been sent signal to stop`)
           this.getList()
         }
+        this.$st.sendEv('爬虫列表', '任务列表', '停止任务')
       },
       onIsScrapy(value) {
         if (value) {
@@ -1331,7 +1332,7 @@
               spider_ids: this.selectedSpiders.map(d => d._id)
             })
             if (!res.data.error) {
-              this.$message.success('Delete successfully')
+              this.$message.success('Deleted successfully')
               this.$refs['table'].clearSelection()
               await this.getList()
             }
@@ -1359,12 +1360,8 @@
           } finally {
             this.isStopLoading = false
           }
-          this.$st.sendEv('爬虫列表', '批量删除爬虫')
+          this.$st.sendEv('爬虫列表', '批量停止爬虫')
         })
-      },
-      onCrawlSelectedSpiders() {
-        this.crawlConfirmDialogVisible = true
-        this.isMultiple = true
       },
       onBatchCrawl() {
         this.$store.commit('task/SET_BATCH_CRAWL_LIST', this.selectedSpiders.map(d => {
@@ -1387,6 +1384,7 @@
         }
         this.batchCrawlDialogVisible = true
         this.isMultiple = true
+        this.$st.sendEv('爬虫列表', '点击批量运行')
       },
       onCrawlConfirmDialogClose() {
         this.crawlConfirmDialogVisible = false
@@ -1415,6 +1413,7 @@
           this.isMultiple = false
           await this.getList()
         })
+        this.$st.sendEv('爬虫列表', '批量设置项目')
       }
     }
   }

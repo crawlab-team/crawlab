@@ -259,6 +259,11 @@ const actions = {
     return await request.post(`/tasks-cancel`, {
       ids
     })
+  },
+  async restartTaskMultiple({ dispatch }, ids) {
+    return await request.post(`/tasks-restart`, {
+      ids
+    })
   }
 }
 

@@ -212,6 +212,7 @@
             scrapy_log_level: 'INFO'
           })
         }
+        this.$st.sendEv('批量运行', '重置')
       },
       getSpiderById(id) {
         return this.allSpiderList.filter(d => d._id === id)[0] || {}
@@ -225,6 +226,7 @@
             this.$set(row, 'scrapy_spider_name', this.scrapySpidersNamesDict[id][0])
           }
         }
+        this.$st.sendEv('批量运行', '选择爬虫')
       },
       getScrapySpiderNames(id) {
         if (!this.scrapySpidersNamesDict[id]) return []
@@ -241,6 +243,7 @@
         }))
         this.reset()
         this.$emit('close')
+        this.$st.sendEv('批量运行', '确认批量运行')
       },
       async fetchScrapySpiderNames(id) {
         if (!this.scrapySpidersNamesDict[id]) {
@@ -269,9 +272,11 @@
           param: '',
           scrapy_log_level: 'INFO'
         })
+        this.$st.sendEv('批量运行', '添加')
       },
       onRemove(rowIndex) {
         this.batchCrawlList.splice(rowIndex, 1)
+        this.$st.sendEv('批量运行', '删除')
       }
     }
   }
