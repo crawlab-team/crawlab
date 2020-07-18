@@ -58,6 +58,16 @@
           </el-button>
           <el-button
             v-if="selectedTasks.length > 0"
+            icon="el-icon-refresh"
+            class="btn-restart"
+            size="small"
+            type="warning"
+            @click="onRestartMultipleTask"
+          >
+            {{ $t('Restart') }}
+          </el-button>
+          <el-button
+            v-if="selectedTasks.length > 0"
             icon="el-icon-delete"
             class="btn-delete"
             size="small"
@@ -391,6 +401,31 @@
       onRefresh() {
         this.$store.dispatch('task/getTaskList')
         this.$st.sendEv('任务列表', '搜索')
+      },
+      onRestartMultipleTask() {
+        this.$confirm(this.$t('Are you sure to restart these tasks'), this.$t('Notification'), {
+          confirmButtonText: this.$t('Confirm'),
+          cancelButtonText: this.$t('Cancel'),
+          type: 'warning'
+        }).then(() => {
+          const ids = this.selectedTasks.map(item => item._id)
+          this.$store.dispatch('task/restartTaskMultiple', ids).then((resp) => {
+            if (resp.data.status === 'ok') {
+              this.$message({
+                type: 'success',
+                message: this.$t('Restarted successfully')
+              })
+              this.$store.dispatch('task/getTaskList')
+              this.$refs['table'].clearSelection()
+              return
+            }
+            this.$message({
+              type: 'error',
+              message: resp.data.error
+            })
+          })
+        }).catch(() => {
+        })
       },
       onRemoveMultipleTask() {
         this.$confirm(this.$t('Are you sure to delete these tasks'), this.$t('Notification'), {

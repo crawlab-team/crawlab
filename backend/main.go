@@ -252,6 +252,7 @@ func main() {
 				authGroup.GET("/tasks/:id/results/download", routes.DownloadTaskResultsCsv) // 下载任务结果
 				authGroup.POST("/tasks/:id/restart", routes.RestartTask)                    // 重新开始任务
 				authGroup.POST("/tasks-cancel", routes.CancelSelectedTask)                  // 批量取消任务
+				authGroup.POST("/tasks-restart", routes.RestartSelectedTask)                // 批量重试任务
 			}
 			// 定时任务
 			{

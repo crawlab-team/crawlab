@@ -219,25 +219,25 @@ export const constantRouterMap = [
       }
     ]
   },
-  {
-    path: '/challenges',
-    component: Layout,
-    meta: {
-      title: 'ChallengeList',
-      icon: 'fa fa-flash'
-    },
-    children: [
-      {
-        path: '',
-        name: 'ChallengeList',
-        component: () => import('../views/challenge/ChallengeList'),
-        meta: {
-          title: 'Challenges',
-          icon: 'fa fa-flash'
-        }
-      }
-    ]
-  },
+  // {
+  //   path: '/challenges',
+  //   component: Layout,
+  //   meta: {
+  //     title: 'ChallengeList',
+  //     icon: 'fa fa-flash'
+  //   },
+  //   children: [
+  //     {
+  //       path: '',
+  //       name: 'ChallengeList',
+  //       component: () => import('../views/challenge/ChallengeList'),
+  //       meta: {
+  //         title: 'Challenges',
+  //         icon: 'fa fa-flash'
+  //       }
+  //     }
+  //   ]
+  // },
   {
     path: '/feedback',
     component: Layout,

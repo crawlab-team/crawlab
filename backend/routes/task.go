@@ -380,6 +380,22 @@ func CancelSelectedTask(c *gin.Context) {
 	HandleSuccess(c)
 }
 
+func RestartSelectedTask(c *gin.Context) {
+	ids := make(map[string][]string)
+	if err := c.ShouldBindJSON(&ids); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+	list := ids["ids"]
+	for _, id := range list {
+		if err := services.RestartTask(id, services.GetCurrentUserId(c)); err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+	}
+	HandleSuccess(c)
+}
+
 // @Summary Get task log
 // @Description Get task log
 // @Tags task
