@@ -46,8 +46,25 @@
           </el-form>
         </div>
         <div class="right">
-          <el-button class="btn-delete" size="small" type="danger" @click="onRemoveMultipleTask">
-            删除任务
+          <el-button
+            v-if="selectedRunningTasks.length > 0"
+            icon="el-icon-video-pause"
+            class="btn-stop"
+            size="small"
+            type="info"
+            @click="onStopMultipleTask"
+          >
+            {{ $t('Cancel') }}
+          </el-button>
+          <el-button
+            v-if="selectedTasks.length > 0"
+            icon="el-icon-delete"
+            class="btn-delete"
+            size="small"
+            type="danger"
+            @click="onRemoveMultipleTask"
+          >
+            {{ $t('Remove') }}
           </el-button>
         </div>
       </div>
@@ -255,7 +272,7 @@
         // { name: 'avg_num_results', label: 'Average Results Count per Second', width: '80' }
         ],
 
-        multipleSelection: [],
+        selectedTasks: [],
 
         // tutorial
         tourSteps: [
@@ -346,6 +363,9 @@
             }
             return false
           })
+      },
+      selectedRunningTasks() {
+        return this.selectedTasks.filter(d => ['pending', 'running'].includes(d.status))
       }
     },
     created() {
@@ -373,24 +393,42 @@
         this.$st.sendEv('任务列表', '搜索')
       },
       onRemoveMultipleTask() {
-        if (this.multipleSelection.length === 0) {
-          this.$message({
-            type: 'error',
-            message: '请选择要删除的任务'
-          })
-          return
-        }
-        this.$confirm('确定删除任务', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+        this.$confirm(this.$t('Are you sure to delete these tasks'), this.$t('Notification'), {
+          confirmButtonText: this.$t('Confirm'),
+          cancelButtonText: this.$t('Cancel'),
           type: 'warning'
         }).then(() => {
-          const ids = this.multipleSelection.map(item => item._id)
+          const ids = this.selectedTasks.map(item => item._id)
           this.$store.dispatch('task/deleteTaskMultiple', ids).then((resp) => {
             if (resp.data.status === 'ok') {
               this.$message({
                 type: 'success',
-                message: '删除任务成功'
+                message: this.$t('Deleted successfully')
+              })
+              this.$store.dispatch('task/getTaskList')
+              this.$refs['table'].clearSelection()
+              return
+            }
+            this.$message({
+              type: 'error',
+              message: resp.data.error
+            })
+          })
+        }).catch(() => {
+        })
+      },
+      onStopMultipleTask() {
+        this.$confirm(this.$t('Are you sure to stop these tasks'), this.$t('Notification'), {
+          confirmButtonText: this.$t('Confirm'),
+          cancelButtonText: this.$t('Cancel'),
+          type: 'warning'
+        }).then(() => {
+          const ids = this.selectedRunningTasks.map(item => item._id)
+          this.$store.dispatch('task/cancelTaskMultiple', ids).then((resp) => {
+            if (resp.data.status === 'ok') {
+              this.$message({
+                type: 'success',
+                message: this.$t('Stopped successfully')
               })
               this.$store.dispatch('task/getTaskList')
               this.$refs['table'].clearSelection()
@@ -477,7 +515,7 @@
         }
       },
       onSelectionChange(val) {
-        this.multipleSelection = val
+        this.selectedTasks = val
       },
       onFilterChange() {
         this.$store.dispatch('task/getTaskList')

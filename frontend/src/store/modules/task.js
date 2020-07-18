@@ -250,13 +250,14 @@ const actions = {
     link.click()
     link.remove()
   },
-  cancelTask({ state, dispatch }, id) {
-    return new Promise(resolve => {
-      request.post(`/tasks/${id}/cancel`)
-        .then(res => {
-          dispatch('getTaskData', id)
-          resolve(res)
-        })
+  async cancelTask({ state, dispatch }, id) {
+    const res = await request.post(`/tasks/${id}/cancel`)
+    dispatch('getTaskData', id)
+    return res
+  },
+  async cancelTaskMultiple({ dispatch }, ids) {
+    return await request.post(`/tasks-cancel`, {
+      ids
     })
   }
 }

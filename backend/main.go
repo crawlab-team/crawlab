@@ -224,6 +224,7 @@ func main() {
 				authGroup.POST("/spiders/:id/git/reset", routes.PostSpiderResetGit)                        // 爬虫 Git 重置
 				authGroup.POST("/spiders-cancel", routes.CancelSelectedSpider)                             // 停止所选爬虫任务
 				authGroup.POST("/spiders-run", routes.RunSelectedSpider)                                   // 运行所选爬虫
+				authGroup.POST("/spiders-set-projects", routes.SetProjectsSelectedSpider)                  // 批量设置爬虫项目
 			}
 			// 可配置爬虫
 			{
@@ -250,6 +251,7 @@ func main() {
 				authGroup.GET("/tasks/:id/results", routes.GetTaskResults)                  // 任务结果
 				authGroup.GET("/tasks/:id/results/download", routes.DownloadTaskResultsCsv) // 下载任务结果
 				authGroup.POST("/tasks/:id/restart", routes.RestartTask)                    // 重新开始任务
+				authGroup.POST("/tasks-cancel", routes.CancelSelectedTask)                  // 批量取消任务
 			}
 			// 定时任务
 			{

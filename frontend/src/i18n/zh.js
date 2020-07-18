@@ -275,6 +275,8 @@ export default {
   'Restart': '重新运行',
   'Redirect to task detail': '跳转到任务详情页',
   'Retry (Maximum 5 Times)': '是否重试（最多 5 次）',
+  'Delete Tasks': '删除任务',
+  'Stop Tasks': '停止任务',
 
   // 任务列表
   'Node': '节点',
@@ -663,6 +665,9 @@ export default {
   'Are you sure to download this spider?': '您确定要下载该爬虫?',
   'Downloaded successfully': '下载成功',
   'Unable to submit because of some errors': '有错误，无法提交',
+  'Are you sure to stop these tasks': '确认停止这些任务?',
+  'Are you sure to delete these tasks': '确认删除这些任务?',
+  'Stopped successfully': '成功停止',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

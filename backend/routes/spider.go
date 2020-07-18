@@ -869,6 +869,39 @@ func RunSelectedSpider(c *gin.Context) {
 	})
 }
 
+func SetProjectsSelectedSpider(c *gin.Context) {
+	type ReqBody struct {
+		ProjectId bson.ObjectId   `json:"project_id"`
+		SpiderIds []bson.ObjectId `json:"spider_ids"`
+	}
+
+	var reqBody ReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleErrorF(http.StatusBadRequest, c, "invalid request")
+		return
+	}
+
+	for _, spiderId := range reqBody.SpiderIds {
+		spider, err := model.GetSpider(spiderId)
+		if err != nil {
+			log.Errorf(err.Error())
+			debug.PrintStack()
+			continue
+		}
+		spider.ProjectId = reqBody.ProjectId
+		if err := spider.Save(); err != nil {
+			log.Errorf(err.Error())
+			debug.PrintStack()
+			continue
+		}
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
 // @Summary Get task list
 // @Description Get task list
 // @Tags spider

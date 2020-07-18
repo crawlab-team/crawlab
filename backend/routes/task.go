@@ -321,7 +321,7 @@ func DeleteTaskByStatus(c *gin.Context) {
 func DeleteSelectedTask(c *gin.Context) {
 	ids := make(map[string][]string)
 	if err := c.ShouldBindJSON(&ids); err != nil {
-		HandleError(http.StatusInternalServerError, c, err)
+		HandleError(http.StatusBadRequest, c, err)
 		return
 	}
 	list := ids["ids"]
@@ -360,6 +360,22 @@ func DeleteTask(c *gin.Context) {
 	if err := model.RemoveTask(id); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
+	}
+	HandleSuccess(c)
+}
+
+func CancelSelectedTask(c *gin.Context) {
+	ids := make(map[string][]string)
+	if err := c.ShouldBindJSON(&ids); err != nil {
+		HandleError(http.StatusBadRequest, c, err)
+		return
+	}
+	list := ids["ids"]
+	for _, id := range list {
+		if err := services.CancelTask(id); err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
 	}
 	HandleSuccess(c)
 }
