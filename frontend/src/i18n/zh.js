@@ -315,6 +315,8 @@ export default {
   'Cron expression is invalid': 'Cron 表达式不正确',
   'View Tasks': '查看任务',
   'Batch Add': '批量添加',
+  'Enable': '启用',
+  'Disable': '禁用',
 
   // 网站
   'Site': '网站',
@@ -672,6 +674,8 @@ export default {
   'Are you sure to restart these tasks': '确认重新运行这些任务?',
   'Restarted successfully': '成功重新运行',
   'Are you sure to stop this task?': '确认停止这个任务?',
+  'Enabled successfully': '成功启用',
+  'Disabled successfully': '成功禁用',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

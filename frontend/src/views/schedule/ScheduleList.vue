@@ -238,6 +238,26 @@
           <el-button
             v-if="selectedSchedules.length > 0"
             size="small"
+            type="primary"
+            icon="el-icon-check"
+            class="btn-enable"
+            @click="onBatchEnable"
+          >
+            {{ $t('Enable') }}
+          </el-button>
+          <el-button
+            v-if="selectedSchedules.length > 0"
+            size="small"
+            type="info"
+            icon="el-icon-close"
+            class="btn-disable"
+            @click="onBatchDisable"
+          >
+            {{ $t('Disable') }}
+          </el-button>
+          <el-button
+            v-if="selectedSchedules.length > 0"
+            size="small"
             type="danger"
             icon="el-icon-delete"
             class="btn-delete"
@@ -677,6 +697,26 @@
           }
           this.$st.sendEv('定时任务', '批量删除定时任务')
         })
+      },
+      async onBatchEnable() {
+        await this.$request.post('/schedules-set-enabled', {
+          schedule_ids: this.selectedSchedules.map(d => d._id),
+          enabled: true
+        })
+        this.$message.success('Enabled successfully')
+        this.$refs['table'].clearSelection()
+        await this.$store.dispatch('schedule/getScheduleList')
+        this.$st.sendEv('定时任务', '批量启用定时任务')
+      },
+      async onBatchDisable() {
+        await this.$request.post('/schedules-set-enabled', {
+          schedule_ids: this.selectedSchedules.map(d => d._id),
+          enabled: false
+        })
+        this.$message.success('Disabled successfully')
+        this.$refs['table'].clearSelection()
+        await this.$store.dispatch('schedule/getScheduleList')
+        this.$st.sendEv('定时任务', '批量禁用定时任务')
       },
       isShowRun(row) {
       },
