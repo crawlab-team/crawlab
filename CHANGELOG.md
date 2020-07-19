@@ -1,9 +1,15 @@
-# 0.5.0 (TBC)
+# 0.5.0 (2020-07-19)
 ### Features / Enhancement
+- **Spider Market**. Allow users to download open-source spiders into Crawlab.
+- **Batch actions**. Allow users to interact with Crawlab in batch fashions, e.g. batch run tasks, batch delete spiders, ect.
 - **Migrate MongoDB driver to `MongoDriver`**.
 - **Refactor and optmize node-related logics**.
 - **Change default `task.workers` to 16**.
 - **Change default nginx `client_max_body_size` to 200m**.
+- **Support writing logs to ElasticSearch**.
+- **Display error details in Scrapy page**.
+- **Removed Challenge page**.
+- **Moved Feedback and Dislaimer pages to navbar**.
 
 ### Bug Fixes
 - **Fixed log not expiring issue because of failure to create TTL index**.
