@@ -29,6 +29,12 @@
       </span>
       <el-dropdown-menu slot="dropdown" class="user-dropdown">
         <el-dropdown-item>
+          <span style="display:block;" @click="() => $router.push('/disclaimer')">{{ $t('Disclaimer') }}</span>
+        </el-dropdown-item>
+        <el-dropdown-item>
+          <span style="display:block;" @click="() => $router.push('/feedback')">{{ $t('Feedback') }}</span>
+        </el-dropdown-item>
+        <el-dropdown-item>
           <span style="display:block;" @click="logout">{{ $t('Logout') }}</span>
         </el-dropdown-item>
       </el-dropdown-menu>
