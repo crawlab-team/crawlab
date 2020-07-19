@@ -152,6 +152,9 @@
         this.getRepos()
       }
     },
+    async created() {
+      await this.getRepos()
+    },
     methods: {
       async getRepos() {
         this.isLoading = true
@@ -182,6 +185,7 @@
           try {
             await this.download(fullName || row.full_name)
             this.$message.success('Downloaded successfully')
+            this.$st.sendEv('爬虫市场', '下载仓库')
           } finally {
             this.$set(row, 'loading', false)
           }
@@ -202,6 +206,7 @@
           })
           this.$set(this.subDirCache, row.full_name, res.data.data)
         }
+        this.$st.sendEv('爬虫市场', '点击展开')
       },
       getSubDirList(row) {
         if (!this.subDirCache[row.full_name]) return []
@@ -212,9 +217,6 @@
           }
         })
       }
-    },
-    async created() {
-      await this.getRepos()
     }
   }
 </script>
