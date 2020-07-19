@@ -1,5 +1,12 @@
 <template>
   <div class="app-container repo-list">
+    <el-dialog
+      :visible.sync="readmeVisible"
+    >
+      <div class="markdown-body" v-html="activeReadme">
+      </div>
+    </el-dialog>
+
     <el-card>
       <div class="filter">
         <el-form inline>
@@ -16,10 +23,10 @@
               v-model="sortKey"
               size="small"
             >
-              <el-option :label="$t('Default Sort')" value=""/>
-              <el-option :label="$t('Most Stars')" value="stars"/>
-              <el-option :label="$t('Most Forks')" value="forks"/>
-              <el-option :label="$t('Latest Pushed')" value="pushed_at"/>
+              <el-option :label="$t('Default Sort')" value="" />
+              <el-option :label="$t('Most Stars')" value="stars" />
+              <el-option :label="$t('Most Forks')" value="forks" />
+              <el-option :label="$t('Latest Pushed')" value="pushed_at" />
             </el-select>
           </el-form-item>
           <el-form-item>
@@ -67,7 +74,13 @@
           :label="$t('Name')"
           prop="full_name"
           width="300px"
-        />
+        >
+          <template slot-scope="scope">
+            <a :href="`https://github.com/${scope.row.full_name}`" target="_blank" style="color: #409eff">
+              {{ scope.row.full_name }}
+            </a>
+          </template>
+        </el-table-column>
         <el-table-column
           :label="$t('Description')"
           prop="description"
@@ -108,6 +121,14 @@
                 v-loading="scope.row.loading"
               />
             </el-tooltip>
+            <el-tooltip v-if="!!scope.row.readme_text" :content="$t('View Readme')" placement="top">
+              <el-button
+                type="primary"
+                icon="fa fa-file-code-o"
+                size="mini"
+                @click="onViewReadme(scope.row)"
+              />
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -126,6 +147,11 @@
 
 <script>
   import dayjs from 'dayjs'
+  import showdown from 'showdown'
+  import 'github-markdown-css/github-markdown.css'
+
+  showdown.setOption('tables', true)
+  showdown.setOption('emoji', true)
 
   export default {
     name: 'RepoList',
@@ -138,7 +164,10 @@
         keyword: '',
         sortKey: '',
         isLoading: false,
-        subDirCache: {}
+        subDirCache: {},
+        activeReadme: '',
+        readmeVisible: false,
+        htmlConverter: new showdown.Converter()
       }
     },
     watch: {
@@ -216,6 +245,10 @@
             full_name: `${row.full_name}/${n}`
           }
         })
+      },
+      onViewReadme(row) {
+        this.activeReadme = this.htmlConverter.makeHtml(row.readme_text)
+        this.readmeVisible = true
       }
     }
   }
