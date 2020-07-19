@@ -74,6 +74,7 @@ type Spider struct {
 	Config      entity.ConfigSpiderData `json:"config"`       // 可配置爬虫配置
 	LatestTasks []Task                  `json:"latest_tasks"` // 最近任务列表
 	Username    string                  `json:"username"`     // 用户名称
+	ProjectName string                  `json:"project_name"` // 项目名称
 
 	// 时间
 	UserId   bson.ObjectId `json:"user_id" bson:"user_id"`
@@ -183,7 +184,6 @@ func GetSpiderList(filter interface{}, skip int, limit int, sortStr string) ([]S
 		if err != nil {
 			log.Errorf(err.Error())
 			debug.PrintStack()
-			continue
 		}
 
 		// 获取正在运行的爬虫
@@ -191,17 +191,27 @@ func GetSpiderList(filter interface{}, skip int, limit int, sortStr string) ([]S
 		if err != nil {
 			log.Errorf(err.Error())
 			debug.PrintStack()
-			continue
 		}
 
 		// 获取用户
 		var user User
-		if spider.UserId.Valid() {
+		if spider.UserId.Valid() && spider.UserId.Hex() != constants.ObjectIdNull {
 			user, err = GetUser(spider.UserId)
 			if err != nil {
 				log.Errorf(err.Error())
 				debug.PrintStack()
-				continue
+			}
+		}
+
+		// 获取项目
+		var project Project
+		if spider.ProjectId.Valid() && spider.ProjectId.Hex() != constants.ObjectIdNull {
+			project, err = GetProject(spider.ProjectId)
+			if err != nil {
+				if err != mgo.ErrNotFound {
+					log.Errorf(err.Error())
+					debug.PrintStack()
+				}
 			}
 		}
 
@@ -210,6 +220,7 @@ func GetSpiderList(filter interface{}, skip int, limit int, sortStr string) ([]S
 		spiders[i].LastStatus = task.Status
 		spiders[i].LatestTasks = latestTasks
 		spiders[i].Username = user.Username
+		spiders[i].ProjectName = project.Name
 	}
 
 	count, _ := c.Find(filter).Count()

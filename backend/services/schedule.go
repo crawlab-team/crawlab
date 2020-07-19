@@ -220,7 +220,7 @@ func (s *Scheduler) Update() error {
 	s.RemoveAll()
 
 	// 获取所有定时任务
-	sList, err := model.GetScheduleList(nil)
+	sList, err := model.GetScheduleList(bson.M{"enabled": true})
 	if err != nil {
 		log.Errorf("get scheduler list error: %s", err.Error())
 		debug.PrintStack()

@@ -223,7 +223,7 @@ func ProcessSpiderFilesFromConfigData(spider model.Spider, configData entity.Con
 	}
 
 	// 上传到GridFs
-	fid, err := UploadToGridFs(spiderZipFileName, tmpFilePath)
+	fid, err := RetryUploadToGridFs(spiderZipFileName, tmpFilePath)
 	if err != nil {
 		log.Errorf("upload to grid fs error: %s", err.Error())
 		return err

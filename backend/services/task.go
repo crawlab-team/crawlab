@@ -4,19 +4,21 @@ import (
 	"bufio"
 	"crawlab/constants"
 	"crawlab/database"
-	"crawlab/entity"
 	"crawlab/lib/cron"
 	"crawlab/model"
+	"crawlab/services/local_node"
 	"crawlab/services/notification"
+	"crawlab/services/rpc"
 	"crawlab/services/spider_handler"
 	"crawlab/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/imroc/req"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"net/http"
 	"os"
@@ -166,32 +168,38 @@ func SetEnv(cmd *exec.Cmd, envs []model.Env, task model.Task, spider model.Spide
 	return cmd
 }
 
-func SetLogConfig(cmd *exec.Cmd, t model.Task, u model.User) error {
+func SetLogConfig(wg *sync.WaitGroup, cmd *exec.Cmd, t model.Task, u model.User) error {
+
+	esChan := make(chan string, 1)
+	esClientStr := viper.GetString("setting.esClient")
+	spiderLogIndex := viper.GetString("setting.spiderLogIndex")
 	// get stdout reader
 	stdout, err := cmd.StdoutPipe()
-	readerStdout := bufio.NewReader(stdout)
 	if err != nil {
 		log.Errorf("get stdout error: %s", err.Error())
 		debug.PrintStack()
 		return err
 	}
+	readerStdout := bufio.NewReader(stdout)
 
 	// get stderr reader
 	stderr, err := cmd.StderrPipe()
-	readerStderr := bufio.NewReader(stderr)
 	if err != nil {
 		log.Errorf("get stdout error: %s", err.Error())
 		debug.PrintStack()
 		return err
 	}
+	readerStderr := bufio.NewReader(stderr)
 
 	var seq int64
 	var logs []model.LogItem
 	isStdoutFinished := false
 	isStderrFinished := false
 
-	// periodically (1 sec) insert log items
+	// periodically (5 sec) insert log items
+	wg.Add(3)
 	go func() {
+		defer wg.Done()
 		for {
 			_ = model.AddLogItems(logs)
 			logs = []model.LogItem{}
@@ -205,12 +213,13 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task, u model.User) error {
 	// expire duration (in seconds)
 	expireDuration := u.Setting.LogExpireDuration
 	if expireDuration == 0 {
-		// by default not expire
-		expireDuration = constants.Infinite
+		// by default 1 day
+		expireDuration = 3600 * 24
 	}
 
 	// read stdout
 	go func() {
+		defer wg.Done()
 		for {
 			line, err := readerStdout.ReadString('\n')
 			if err != nil {
@@ -227,12 +236,19 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task, u model.User) error {
 				Ts:       time.Now(),
 				ExpireTs: time.Now().Add(time.Duration(expireDuration) * time.Second),
 			}
+
+			if esClientStr != "" {
+				esChan <- l.Message
+				go database.WriteMsgToES(time.Now(), esChan, spiderLogIndex)
+			}
+
 			logs = append(logs, l)
 		}
 	}()
 
 	// read stderr
 	go func() {
+		defer wg.Done()
 		for {
 			line, err := readerStderr.ReadString('\n')
 			if err != nil {
@@ -249,10 +265,16 @@ func SetLogConfig(cmd *exec.Cmd, t model.Task, u model.User) error {
 				Ts:       time.Now(),
 				ExpireTs: time.Now().Add(time.Duration(expireDuration) * time.Second),
 			}
+
+			if esClientStr != "" {
+				esChan <- l.Message
+				go database.WriteMsgToES(time.Now(), esChan, spiderLogIndex)
+			}
 			logs = append(logs, l)
 		}
 	}()
 
+	wg.Wait()
 	return nil
 }
 
@@ -337,6 +359,8 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider, u 
 	log.Infof("cwd: %s", cwd)
 	log.Infof("cmd: %s", cmdStr)
 
+	wg := &sync.WaitGroup{}
+
 	// 生成执行命令
 	var cmd *exec.Cmd
 	if runtime.GOOS == constants.Windows {
@@ -349,9 +373,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider, u 
 	cmd.Dir = cwd
 
 	// 日志配置
-	if err := SetLogConfig(cmd, t, u); err != nil {
-		return err
-	}
+	go SetLogConfig(wg, cmd, t, u)
 
 	// 环境变量配置
 	envs := s.Envs
@@ -373,7 +395,6 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider, u 
 
 	// 起一个goroutine来监控进程
 	ch := utils.TaskExecChanMap.ChanBlocked(t.Id)
-
 	go FinishOrCancelTask(ch, cmd, s, t)
 
 	// kill的时候，可以kill所有的子进程
@@ -483,18 +504,20 @@ func ExecuteTask(id int) {
 	tic := time.Now()
 
 	// 获取当前节点
-	node, err := model.GetCurrentNode()
-	if err != nil {
-		log.Errorf("execute task get current node error: %s", err.Error())
-		debug.PrintStack()
-		return
-	}
+	//node, err := model.GetCurrentNode()
+	//if err != nil {
+	//	log.Errorf("execute task get current node error: %s", err.Error())
+	//	debug.PrintStack()
+	//	return
+	//}
+	node := local_node.CurrentNode()
 
 	// 节点队列
 	queueCur := "tasks:node:" + node.Id.Hex()
 
 	// 节点队列任务
 	var msg string
+	var err error
 	if msg, err = database.RedisClient.LPop(queueCur); err != nil {
 		// 节点队列没有任务，获取公共队列任务
 		queuePub := "tasks:public"
@@ -584,6 +607,12 @@ func ExecuteTask(id int) {
 
 	// 储存任务
 	_ = t.Save()
+
+	// 创建结果集索引
+	go func() {
+		col := utils.GetSpiderCol(spider.Col, spider.Name)
+		CreateResultsIndexes(col)
+	}()
 
 	// 起一个cron执行器来统计任务结果数
 	cronExec := cron.New(cron.WithSeconds())
@@ -745,46 +774,25 @@ func CancelTask(id string) (err error) {
 	}
 
 	// 获取当前节点（默认当前节点为主节点）
-	node, err := model.GetCurrentNode()
-	if err != nil {
-		log.Errorf("get current node error: %s", err.Error())
-		debug.PrintStack()
-		return err
-	}
+	//node, err := model.GetCurrentNode()
+	//if err != nil {
+	//	log.Errorf("get current node error: %s", err.Error())
+	//	debug.PrintStack()
+	//	return err
+	//}
+	node := local_node.CurrentNode()
 
 	log.Infof("current node id is: %s", node.Id.Hex())
 	log.Infof("task node id is: %s", task.NodeId.Hex())
 
 	if node.Id == task.NodeId {
 		// 任务节点为主节点
-
-		// 获取任务执行频道
-		ch := utils.TaskExecChanMap.ChanBlocked(id)
-		if ch != nil {
-			// 发出取消进程信号
-			ch <- constants.TaskCancel
-		} else {
-			if err := model.UpdateTaskToAbnormal(node.Id); err != nil {
-				log.Errorf("update task to abnormal : {}", err.Error())
-				debug.PrintStack()
-				return err
-			}
+		if err := rpc.CancelTaskLocal(task.Id, task.NodeId.Hex()); err != nil {
+			return err
 		}
 	} else {
 		// 任务节点为工作节点
-
-		// 序列化消息
-		msg := entity.NodeMessage{
-			Type:   constants.MsgTypeCancelTask,
-			TaskId: id,
-		}
-		msgBytes, err := json.Marshal(&msg)
-		if err != nil {
-			return err
-		}
-
-		// 发布消息
-		if _, err := database.RedisClient.Publish("nodes:"+task.NodeId.Hex(), utils.BytesToString(msgBytes)); err != nil {
+		if err := rpc.CancelTaskRemote(task.Id, task.NodeId.Hex()); err != nil {
 			return err
 		}
 	}
@@ -945,6 +953,15 @@ func GetTaskMarkdownContent(t model.Task, s model.Spider) string {
 		t.ResultCount,
 		errLog,
 	)
+}
+
+func CreateResultsIndexes(col string) {
+	s, c := database.GetCol(col)
+	defer s.Close()
+
+	_ = c.EnsureIndex(mgo.Index{
+		Key: []string{"task_id"},
+	})
 }
 
 func SendTaskEmail(u model.User, t model.Task, s model.Spider) {

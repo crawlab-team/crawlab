@@ -54,7 +54,10 @@ func GetScheduleList(c *gin.Context) {
 
 func GetSchedule(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var result model.Schedule
 	for _, sch := range scheduleList {
 		if sch.Id == bson.ObjectId(id) {
@@ -70,6 +73,10 @@ func GetSchedule(c *gin.Context) {
 
 func PostSchedule(c *gin.Context) {
 	id := c.Param("id")
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var oldItem model.Schedule
 	for _, sch := range scheduleList {
 		if sch.Id == bson.ObjectId(id) {

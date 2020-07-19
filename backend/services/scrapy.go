@@ -6,6 +6,7 @@ import (
 	"crawlab/entity"
 	"crawlab/model"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/Unknwon/goconfig"
 	"github.com/apex/log"
@@ -29,7 +30,7 @@ func GetScrapySpiderNames(s model.Spider) ([]string, error) {
 	if err := cmd.Run(); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
-		return []string{}, err
+		return []string{}, errors.New(stderr.String())
 	}
 
 	spiderNames := strings.Split(stdout.String(), "\n")
@@ -56,7 +57,7 @@ func GetScrapySettings(s model.Spider) (res []map[string]interface{}, err error)
 		log.Errorf(err.Error())
 		log.Errorf(stderr.String())
 		debug.PrintStack()
-		return res, err
+		return res, errors.New(stderr.String())
 	}
 
 	if err := json.Unmarshal([]byte(stdout.String()), &res); err != nil {
@@ -147,7 +148,7 @@ func GetScrapyItems(s model.Spider) (res []map[string]interface{}, err error) {
 		log.Errorf(err.Error())
 		log.Errorf(stderr.String())
 		debug.PrintStack()
-		return res, err
+		return res, errors.New(stderr.String())
 	}
 
 	if err := json.Unmarshal([]byte(stdout.String()), &res); err != nil {
@@ -213,7 +214,7 @@ func GetScrapyPipelines(s model.Spider) (res []string, err error) {
 		log.Errorf(err.Error())
 		log.Errorf(stderr.String())
 		debug.PrintStack()
-		return res, err
+		return res, errors.New(stderr.String())
 	}
 
 	if err := json.Unmarshal([]byte(stdout.String()), &res); err != nil {

@@ -20,6 +20,17 @@ import (
 )
 
 // 添加可配置爬虫
+
+// @Summary Put config spider
+// @Description Put config spider
+// @Tags config spider
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param spider body  model.Spider true "spider item"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /config_spiders [put]
 func PutConfigSpider(c *gin.Context) {
 	var spider model.Spider
 	if err := c.ShouldBindJSON(&spider); err != nil {
@@ -104,9 +115,24 @@ func PostConfigSpider(c *gin.Context) {
 }
 
 // 上传可配置爬虫Spiderfile
+
+// @Summary Upload config spider
+// @Description Upload config spider
+// @Tags config spider
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param spider body  model.Spider true "spider item"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /config_spiders/{id}/upload [post]
 func UploadConfigSpider(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	// 获取爬虫
 	var spider model.Spider
 	spider, err := model.GetSpider(bson.ObjectIdHex(id))
@@ -144,11 +170,13 @@ func UploadConfigSpider(c *gin.Context) {
 		f, err = os.OpenFile(sfPath, os.O_WRONLY, 0777)
 		if err != nil {
 			HandleError(http.StatusInternalServerError, c, err)
+			return
 		}
 	} else {
 		f, err = os.Create(sfPath)
 		if err != nil {
 			HandleError(http.StatusInternalServerError, c, err)
+			return
 		}
 	}
 
@@ -190,13 +218,26 @@ func UploadConfigSpider(c *gin.Context) {
 	})
 }
 
+// @Summary Post config spider
+// @Description Post config spider
+// @Tags config spider
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /config_spiders/{id}/spiderfile [post]
 func PostConfigSpiderSpiderfile(c *gin.Context) {
 	type Body struct {
 		Content string `json:"content"`
 	}
 
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	// 文件内容
 	var reqBody Body
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
@@ -249,9 +290,23 @@ func PostConfigSpiderSpiderfile(c *gin.Context) {
 	})
 }
 
+// @Summary Post config spider config
+// @Description Post config spider config
+// @Tags config spider
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param spider body  model.Spider true "spider item"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /config_spiders/{id}/config [post]
 func PostConfigSpiderConfig(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	// 获取爬虫
 	var spider model.Spider
 	spider, err := model.GetSpider(bson.ObjectIdHex(id))
@@ -296,12 +351,23 @@ func PostConfigSpiderConfig(c *gin.Context) {
 	})
 }
 
+// @Summary Get config spider
+// @Description Get config spider
+// @Tags config spider
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /config_spiders/{id}/config [get]
 func GetConfigSpiderConfig(c *gin.Context) {
 	id := c.Param("id")
 
 	// 校验ID
 	if !bson.IsObjectIdHex(id) {
 		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
 	}
 
 	// 获取爬虫
@@ -319,6 +385,17 @@ func GetConfigSpiderConfig(c *gin.Context) {
 }
 
 // 获取模版名称列表
+
+// @Summary Get config spider template list
+// @Description Get config spider template list
+// @Tags config spider
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /config_spiders_templates [get]
 func GetConfigSpiderTemplateList(c *gin.Context) {
 	var data []string
 	for _, fInfo := range utils.ListDir("./template/spiderfile") {

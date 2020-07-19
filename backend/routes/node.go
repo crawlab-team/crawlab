@@ -8,6 +8,14 @@ import (
 	"net/http"
 )
 
+// @Summary Get nodes
+// @Description Get nodes
+// @Tags node
+// @Produce json
+// @Param Authorization header string true "With the bearer started"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /nodes [get]
 func GetNodeList(c *gin.Context) {
 	nodes, err := model.GetNodeList(nil)
 	if err != nil {
@@ -26,9 +34,21 @@ func GetNodeList(c *gin.Context) {
 	})
 }
 
+// @Summary Get node
+// @Description Get node
+// @Tags node
+// @Produce json
+// @Param Authorization header string true "With the bearer started"
+// @Param id path string true "id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /nodes/{id} [get]
 func GetNode(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	result, err := model.GetNode(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
@@ -54,9 +74,22 @@ func Ping(c *gin.Context) {
 	})
 }
 
+// @Summary Post node
+// @Description Post node
+// @Tags node
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "With the bearer started"
+// @Param id path string true "post node"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /nodes/{id} [post]
 func PostNode(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	item, err := model.GetNode(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
@@ -81,9 +114,21 @@ func PostNode(c *gin.Context) {
 	})
 }
 
+// @Summary Get tasks on node
+// @Description Get tasks on node
+// @Tags node
+// @Produce json
+// @Param Authorization header string true "With the bearer started"
+// @Param id path string true "node id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /nodes/{id}/tasks [get]
 func GetNodeTaskList(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	tasks, err := model.GetNodeTaskList(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
@@ -97,9 +142,21 @@ func GetNodeTaskList(c *gin.Context) {
 	})
 }
 
+// @Summary Get system info
+// @Description Get system info
+// @Tags node
+// @Produce json
+// @Param Authorization header string true "With the bearer started"
+// @Param id path string true "node id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /nodes/{id}/system [get]
 func GetSystemInfo(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	sysInfo, _ := services.GetSystemInfo(id)
 
 	c.JSON(http.StatusOK, Response{
@@ -109,8 +166,21 @@ func GetSystemInfo(c *gin.Context) {
 	})
 }
 
+// @Summary Delete node
+// @Description Delete node
+// @Tags node
+// @Produce json
+// @Param Authorization header string true "With the bearer started"
+// @Param id path string true "node id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /nodes/{id} [delete]
 func DeleteNode(c *gin.Context) {
 	id := c.Param("id")
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	node, err := model.GetNode(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)

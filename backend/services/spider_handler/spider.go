@@ -4,6 +4,7 @@ import (
 	"crawlab/constants"
 	"crawlab/database"
 	"crawlab/model"
+	"crawlab/services/local_node"
 	"crawlab/utils"
 	"fmt"
 	"github.com/apex/log"
@@ -76,7 +77,9 @@ func (s *SpiderSync) RemoveDownCreate(md5 string) {
 
 // 获得下载锁的key
 func (s *SpiderSync) GetLockDownloadKey(spiderId string) string {
-	node, _ := model.GetCurrentNode()
+	//node, _ := model.GetCurrentNode()
+	node := local_node.CurrentNode()
+
 	return node.Id.Hex() + "#" + spiderId
 }
 

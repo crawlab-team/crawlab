@@ -1,66 +1,62 @@
 <template>
   <div id="app">
-    <dialog-view/>
-    <router-view/>
+    <router-view />
   </div>
 </template>
 
 <script>
-import {
-  mapState
-} from 'vuex'
-import DialogView from './components/Common/DialogView'
+  import {
+    mapState
+  } from 'vuex'
+  import { getToken } from '@/utils/auth'
 
-export default {
-  name: 'App',
-  data () {
-    return {
-      msgPopup: undefined
-    }
-  },
-  components: {
-    DialogView
-  },
-  computed: {
-    ...mapState('setting', ['setting']),
-    useStats () {
-      return localStorage.getItem('useStats')
+  export default {
+    name: 'App',
+    data() {
+      return {
+        msgPopup: undefined
+      }
     },
-    uid () {
-      return localStorage.getItem('uid')
+    computed: {
+      ...mapState('setting', ['setting']),
+      useStats() {
+        return localStorage.getItem('useStats')
+      },
+      uid() {
+        return localStorage.getItem('uid')
+      },
+      sid() {
+        return sessionStorage.getItem('sid')
+      }
     },
-    sid () {
-      return sessionStorage.getItem('sid')
-    }
-  },
-  methods: {},
-  async mounted () {
-    // set uid if first visit
-    if (this.uid === undefined || this.uid === null) {
-      localStorage.setItem('uid', this.$utils.encrypt.UUID())
-    }
+    async mounted() {
+      // set uid if first visit
+      if (this.uid === undefined || this.uid === null) {
+        localStorage.setItem('uid', this.$utils.encrypt.UUID())
+      }
 
-    // set session id if starting a session
-    if (this.sid === undefined || this.sid === null) {
-      sessionStorage.setItem('sid', this.$utils.encrypt.UUID())
-    }
+      // set session id if starting a session
+      if (this.sid === undefined || this.sid === null) {
+        sessionStorage.setItem('sid', this.$utils.encrypt.UUID())
+      }
 
-    // get latest version
-    await this.$store.dispatch('version/getLatestRelease')
+      // get latest version
+      await this.$store.dispatch('version/getLatestRelease')
+      if (getToken()) {
+        // get user info
+        await this.$store.dispatch('user/getInfo')
+        // remove loading-placeholder
+        const elLoading = document.querySelector('#loading-placeholder')
+        elLoading.remove()
 
-    // get user info
-    await this.$store.dispatch('user/getInfo')
-
-    // remove loading-placeholder
-    const elLoading = document.querySelector('#loading-placeholder')
-    elLoading.remove()
-
-    // send visit event
-    await this.$request.put('/actions', {
-      type: 'visit'
-    })
+        // send visit event
+        await this.$request.put('/actions', {
+          type: 'visit'
+        })
+      }
+    },
+    methods: {}
   }
-}
 </script>
 
 <style>

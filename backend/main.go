@@ -4,7 +4,8 @@ import (
 	"context"
 	"crawlab/config"
 	"crawlab/database"
-	"crawlab/lib/validate_bridge"
+	_ "crawlab/docs"
+	validate2 "crawlab/lib/validate"
 	"crawlab/middlewares"
 	"crawlab/model"
 	"crawlab/routes"
@@ -14,7 +15,11 @@ import (
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
+	"github.com/olivere/elastic/v7"
 	"github.com/spf13/viper"
+	"github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
 	"net"
 	"net/http"
 	"os"
@@ -24,9 +29,21 @@ import (
 	"time"
 )
 
+var swagHandler gin.HandlerFunc
+
+func init() {
+	swagHandler = ginSwagger.WrapHandler(swaggerFiles.Handler)
+}
 func main() {
-	binding.Validator = new(validate_bridge.DefaultValidator)
-	app := gin.Default()
+	app := gin.New()
+	app.Use(gin.Logger(), gin.Recovery())
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		_ = v.RegisterValidation("bid", validate2.MongoID)
+	}
+
+	if swagHandler != nil {
+		app.GET("/swagger/*any", swagHandler)
+	}
 
 	// 初始化配置
 	if err := config.InitConfig(""); err != nil {
@@ -55,9 +72,17 @@ func main() {
 		log.Error("init log error:" + err.Error())
 		panic(err)
 	}
-	log.Info("initialized log successfully")
+	log.Info("initialized log successfully") // 初始化日志设置
+
+	// 初始化节点服务
+	if err := services.InitNodeService(); err != nil {
+		log.Error("init node service error:" + err.Error())
+		panic(err)
+	}
+	log.Info("initialized local node successfully")
 
 	if model.IsMaster() {
+
 		// 初始化定时任务
 		if err := services.InitScheduler(); err != nil {
 			log.Error("init scheduler error:" + err.Error())
@@ -107,13 +132,6 @@ func main() {
 	}
 	log.Info("initialized task executor successfully")
 
-	// 初始化节点服务
-	if err := services.InitNodeService(); err != nil {
-		log.Error("init node service error:" + err.Error())
-		panic(err)
-	}
-	log.Info("initialized node service successfully")
-
 	// 初始化爬虫服务
 	if err := services.InitSpiderService(); err != nil {
 		log.Error("init spider service error:" + err.Error())
@@ -133,6 +151,15 @@ func main() {
 	// 以下为主节点服务
 	if model.IsMaster() {
 		// 中间件
+		esClientStr := viper.GetString("setting.esClient")
+		if viper.GetString("setting.crawlabLogToES") == "Y" && esClientStr != "" {
+			ctx := context.Background()
+			esClient, err := elastic.NewClient(elastic.SetURL(esClientStr), elastic.SetSniff(false))
+			if err != nil {
+				log.Error("Init es client Error:" + err.Error())
+			}
+			app.Use(middlewares.EsLog(ctx, esClient))
+		}
 		app.Use(middlewares.CORSMiddleware())
 		anonymousGroup := app.Group("/")
 		{
@@ -197,6 +224,7 @@ func main() {
 				authGroup.POST("/spiders/:id/git/reset", routes.PostSpiderResetGit)                        // 爬虫 Git 重置
 				authGroup.POST("/spiders-cancel", routes.CancelSelectedSpider)                             // 停止所选爬虫任务
 				authGroup.POST("/spiders-run", routes.RunSelectedSpider)                                   // 运行所选爬虫
+				authGroup.POST("/spiders-set-projects", routes.SetProjectsSelectedSpider)                  // 批量设置爬虫项目
 			}
 			// 可配置爬虫
 			{
@@ -213,6 +241,7 @@ func main() {
 				authGroup.GET("/tasks", routes.GetTaskList)                                 // 任务列表
 				authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情
 				authGroup.PUT("/tasks", routes.PutTask)                                     // 派发任务
+				authGroup.PUT("/tasks/batch", routes.PutBatchTasks)                         // 批量派发任务
 				authGroup.DELETE("/tasks/:id", routes.DeleteTask)                           // 删除任务
 				authGroup.DELETE("/tasks", routes.DeleteSelectedTask)                       // 删除多个任务
 				authGroup.DELETE("/tasks_by_status", routes.DeleteTaskByStatus)             // 删除指定状态的任务
@@ -222,16 +251,21 @@ func main() {
 				authGroup.GET("/tasks/:id/results", routes.GetTaskResults)                  // 任务结果
 				authGroup.GET("/tasks/:id/results/download", routes.DownloadTaskResultsCsv) // 下载任务结果
 				authGroup.POST("/tasks/:id/restart", routes.RestartTask)                    // 重新开始任务
+				authGroup.POST("/tasks-cancel", routes.CancelSelectedTask)                  // 批量取消任务
+				authGroup.POST("/tasks-restart", routes.RestartSelectedTask)                // 批量重试任务
 			}
 			// 定时任务
 			{
-				authGroup.GET("/schedules", routes.GetScheduleList)              // 定时任务列表
-				authGroup.GET("/schedules/:id", routes.GetSchedule)              // 定时任务详情
-				authGroup.PUT("/schedules", routes.PutSchedule)                  // 创建定时任务
-				authGroup.POST("/schedules/:id", routes.PostSchedule)            // 修改定时任务
-				authGroup.DELETE("/schedules/:id", routes.DeleteSchedule)        // 删除定时任务
-				authGroup.POST("/schedules/:id/disable", routes.DisableSchedule) // 禁用定时任务
-				authGroup.POST("/schedules/:id/enable", routes.EnableSchedule)   // 启用定时任务
+				authGroup.GET("/schedules", routes.GetScheduleList)                  // 定时任务列表
+				authGroup.GET("/schedules/:id", routes.GetSchedule)                  // 定时任务详情
+				authGroup.PUT("/schedules", routes.PutSchedule)                      // 创建定时任务
+				authGroup.PUT("/schedules/batch", routes.PutBatchSchedules)          // 批量创建定时任务
+				authGroup.POST("/schedules/:id", routes.PostSchedule)                // 修改定时任务
+				authGroup.DELETE("/schedules/:id", routes.DeleteSchedule)            // 删除定时任务
+				authGroup.DELETE("/schedules", routes.DeleteBatchSchedules)          // 批量删除定时任务
+				authGroup.POST("/schedules/:id/disable", routes.DisableSchedule)     // 禁用定时任务
+				authGroup.POST("/schedules/:id/enable", routes.EnableSchedule)       // 启用定时任务
+				authGroup.POST("/schedules-set-enabled", routes.SetEnabledSchedules) // 批量设置定时任务状态
 			}
 			// 用户
 			{
@@ -290,6 +324,12 @@ func main() {
 			authGroup.GET("/git/public-key", routes.GetGitSshPublicKey) // 获取 SSH 公钥
 			authGroup.GET("/git/commits", routes.GetGitCommits)         // 获取 Git Commits
 			authGroup.POST("/git/checkout", routes.PostGitCheckout)     // 获取 Git Commits
+			// 爬虫市场 / 仓库
+			{
+				authGroup.GET("/repos", routes.GetRepoList)               // 获取仓库列表
+				authGroup.GET("/repos/sub-dir", routes.GetRepoSubDirList) // 获取仓库子目录
+				authGroup.POST("/repos/download", routes.DownloadRepo)    // 下载仓库
+			}
 		}
 	}
 

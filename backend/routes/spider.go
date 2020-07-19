@@ -28,6 +28,22 @@ import (
 
 // ======== 爬虫管理 ========
 
+// @Summary Get spider list
+// @Description Get spider list
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param page_num query string false "page num"
+// @Param page_size query string false "page size"
+// @Param keyword query string false "keyword"
+// @Param project_id query string false "project_id"
+// @Param type query string false "type"
+// @Param sort_key query  string  false "sort_key"
+// @Param sort_direction query string false "sort_direction"
+// @Param owner_type query string false "owner_type"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /schedules [get]
 func GetSpiderList(c *gin.Context) {
 	pageNum := c.Query("page_num")
 	pageSize := c.Query("page_size")
@@ -90,6 +106,7 @@ func GetSpiderList(c *gin.Context) {
 			sortStr = "+" + sortKey
 		} else {
 			HandleErrorF(http.StatusBadRequest, c, "invalid sort_direction")
+			return
 		}
 	}
 
@@ -109,11 +126,21 @@ func GetSpiderList(c *gin.Context) {
 	})
 }
 
+// @Summary Get spider by id
+// @Description Get spider  by id
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "schedule id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id} [get]
 func GetSpider(c *gin.Context) {
 	id := c.Param("id")
 
 	if !bson.IsObjectIdHex(id) {
 		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
 	}
 
 	spider, err := model.GetSpider(bson.ObjectIdHex(id))
@@ -129,11 +156,23 @@ func GetSpider(c *gin.Context) {
 	})
 }
 
+// @Summary Post spider
+// @Description Post spider
+// @Tags spider
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "schedule id"
+// @Param item body model.Spider true "spider item"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /spiders/{id} [post]
 func PostSpider(c *gin.Context) {
 	id := c.Param("id")
 
 	if !bson.IsObjectIdHex(id) {
 		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
 	}
 
 	var item model.Spider
@@ -177,11 +216,22 @@ func PostSpider(c *gin.Context) {
 	})
 }
 
+// @Summary Publish spider
+// @Description Publish spider
+// @Tags spider
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "schedule id"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /spiders/{id}/publish [post]
 func PublishSpider(c *gin.Context) {
 	id := c.Param("id")
 
 	if !bson.IsObjectIdHex(id) {
 		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
 	}
 
 	spider, err := model.GetSpider(bson.ObjectIdHex(id))
@@ -198,6 +248,16 @@ func PublishSpider(c *gin.Context) {
 	})
 }
 
+// @Summary Put spider
+// @Description Put spider
+// @Tags spider
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param spider body model.Spider true "spider item"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /spiders [put]
 func PutSpider(c *gin.Context) {
 	var spider model.Spider
 	if err := c.ShouldBindJSON(&spider); err != nil {
@@ -279,6 +339,16 @@ func PutSpider(c *gin.Context) {
 	})
 }
 
+// @Summary Copy spider
+// @Description Copy spider
+// @Tags spider
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "schedule id"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /spiders/{id}/copy [post]
 func CopySpider(c *gin.Context) {
 	type ReqBody struct {
 		Name string `json:"name"`
@@ -288,6 +358,7 @@ func CopySpider(c *gin.Context) {
 
 	if !bson.IsObjectIdHex(id) {
 		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
 	}
 
 	var reqBody ReqBody
@@ -326,6 +397,20 @@ func CopySpider(c *gin.Context) {
 	})
 }
 
+// @Summary Upload spider
+// @Description Upload spider
+// @Tags spider
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param file formData file true "spider file to upload"
+// @Param name formData string true "spider name"
+// @Param display_name formData string true "display name"
+// @Param col formData string true "col"
+// @Param cmd formData string true "cmd"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /spiders [post]
 func UploadSpider(c *gin.Context) {
 	// 从body中获取文件
 	uploadFile, err := c.FormFile("file")
@@ -385,7 +470,7 @@ func UploadSpider(c *gin.Context) {
 	}
 
 	// 上传到GridFs
-	fid, err := services.UploadToGridFs(uploadFile.Filename, tmpFilePath)
+	fid, err := services.RetryUploadToGridFs(uploadFile.Filename, tmpFilePath)
 	if err != nil {
 		log.Errorf("upload to grid fs error: %s", err.Error())
 		debug.PrintStack()
@@ -467,11 +552,25 @@ func UploadSpider(c *gin.Context) {
 	})
 }
 
+// @Summary Upload spider by id
+// @Description Upload spider by id
+// @Tags spider
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param file formData file true "spider file to upload"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /spiders/{id}/upload [post]
 func UploadSpiderFromId(c *gin.Context) {
 	// TODO: 与 UploadSpider 部分逻辑重复，需要优化代码
 	// 爬虫ID
 	spiderId := c.Param("id")
-
+	if !bson.IsObjectIdHex(spiderId) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	// 获取爬虫
 	spider, err := model.GetSpider(bson.ObjectIdHex(spiderId))
 	if err != nil {
@@ -535,7 +634,7 @@ func UploadSpiderFromId(c *gin.Context) {
 	}
 
 	// 上传到GridFs
-	fid, err := services.UploadToGridFs(spider.Name, tmpFilePath)
+	fid, err := services.RetryUploadToGridFs(spider.Name, tmpFilePath)
 	if err != nil {
 		log.Errorf("upload to grid fs error: %s", err.Error())
 		debug.PrintStack()
@@ -560,6 +659,15 @@ func UploadSpiderFromId(c *gin.Context) {
 	})
 }
 
+// @Summary Delete spider by id
+// @Description Delete spider by id
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id} [delete]
 func DeleteSpider(c *gin.Context) {
 	id := c.Param("id")
 
@@ -585,6 +693,15 @@ func DeleteSpider(c *gin.Context) {
 	})
 }
 
+// @Summary delete spider
+// @Description delete spider
+// @Tags spider
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /spiders [post]
 func DeleteSelectedSpider(c *gin.Context) {
 	type ReqBody struct {
 		SpiderIds []string `json:"spider_ids"`
@@ -615,6 +732,15 @@ func DeleteSelectedSpider(c *gin.Context) {
 	})
 }
 
+// @Summary cancel spider
+// @Description cancel spider
+// @Tags spider
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /spiders-cancel [post]
 func CancelSelectedSpider(c *gin.Context) {
 	type ReqBody struct {
 		SpiderIds []string `json:"spider_ids"`
@@ -639,6 +765,15 @@ func CancelSelectedSpider(c *gin.Context) {
 	})
 }
 
+// @Summary run spider
+// @Description run spider
+// @Tags spider
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Success 200 json string Response
+// @Failure 500 json string Response
+// @Router /spiders-run [post]
 func RunSelectedSpider(c *gin.Context) {
 	type TaskParam struct {
 		SpiderId bson.ObjectId `json:"spider_id"`
@@ -734,9 +869,54 @@ func RunSelectedSpider(c *gin.Context) {
 	})
 }
 
+func SetProjectsSelectedSpider(c *gin.Context) {
+	type ReqBody struct {
+		ProjectId bson.ObjectId   `json:"project_id"`
+		SpiderIds []bson.ObjectId `json:"spider_ids"`
+	}
+
+	var reqBody ReqBody
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleErrorF(http.StatusBadRequest, c, "invalid request")
+		return
+	}
+
+	for _, spiderId := range reqBody.SpiderIds {
+		spider, err := model.GetSpider(spiderId)
+		if err != nil {
+			log.Errorf(err.Error())
+			debug.PrintStack()
+			continue
+		}
+		spider.ProjectId = reqBody.ProjectId
+		if err := spider.Save(); err != nil {
+			log.Errorf(err.Error())
+			debug.PrintStack()
+			continue
+		}
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
+// @Summary Get task list
+// @Description Get task list
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/tasks [get]
 func GetSpiderTasks(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	spider, err := model.GetSpider(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
@@ -756,6 +936,15 @@ func GetSpiderTasks(c *gin.Context) {
 	})
 }
 
+// @Summary Get spider stats
+// @Description Get spider stats
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/stats [get]
 func GetSpiderStats(c *gin.Context) {
 	type Overview struct {
 		TaskCount            int     `json:"task_count" bson:"task_count"`
@@ -774,7 +963,10 @@ func GetSpiderStats(c *gin.Context) {
 	}
 
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	spider, err := model.GetSpider(bson.ObjectIdHex(id))
 	if err != nil {
 		log.Errorf(err.Error())
@@ -876,6 +1068,15 @@ func GetSpiderStats(c *gin.Context) {
 	})
 }
 
+// @Summary Get schedules
+// @Description Get schedules
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/schedules [get]
 func GetSpiderSchedules(c *gin.Context) {
 	id := c.Param("id")
 
@@ -902,10 +1103,23 @@ func GetSpiderSchedules(c *gin.Context) {
 
 // ======== 爬虫文件管理 ========
 
+// @Summary Get spider dir
+// @Description Get spider dir
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Param path query string true "path"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/dir [get]
 func GetSpiderDir(c *gin.Context) {
 	// 爬虫ID
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	// 目录相对路径
 	path := c.Query("path")
 
@@ -949,10 +1163,23 @@ type SpiderFileReqBody struct {
 	NewPath string `json:"new_path"`
 }
 
+// @Summary Get spider file
+// @Description Get spider file
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Param path query string true "path"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/file [get]
 func GetSpiderFile(c *gin.Context) {
 	// 爬虫ID
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	// 文件相对路径
 	path := c.Query("path")
 
@@ -977,10 +1204,22 @@ func GetSpiderFile(c *gin.Context) {
 	})
 }
 
+// @Summary Get spider dir
+// @Description Get spider dir
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/file/tree [get]
 func GetSpiderFileTree(c *gin.Context) {
 	// 爬虫ID
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	// 获取爬虫
 	spider, err := model.GetSpider(bson.ObjectIdHex(id))
 	if err != nil {
@@ -1007,10 +1246,23 @@ func GetSpiderFileTree(c *gin.Context) {
 	})
 }
 
+// @Summary Post spider file
+// @Description Post spider file
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Param reqBody body routes.SpiderFileReqBody true "path"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/file [post]
 func PostSpiderFile(c *gin.Context) {
 	// 爬虫ID
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	// 文件相对路径
 	var reqBody SpiderFileReqBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
@@ -1044,8 +1296,22 @@ func PostSpiderFile(c *gin.Context) {
 	})
 }
 
+// @Summary Put spider file
+// @Description Put spider file
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Param reqBody body routes.SpiderFileReqBody true "path"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/file [post]
 func PutSpiderFile(c *gin.Context) {
 	spiderId := c.Param("id")
+	if !bson.IsObjectIdHex(spiderId) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var reqBody SpiderFileReqBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		HandleError(http.StatusBadRequest, c, err)
@@ -1084,8 +1350,22 @@ func PutSpiderFile(c *gin.Context) {
 	})
 }
 
+// @Summary Post spider dir
+// @Description Post spider dir
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Param reqBody body routes.SpiderFileReqBody true "path"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/file [put]
 func PutSpiderDir(c *gin.Context) {
 	spiderId := c.Param("id")
+	if !bson.IsObjectIdHex(spiderId) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var reqBody SpiderFileReqBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		HandleError(http.StatusBadRequest, c, err)
@@ -1124,8 +1404,22 @@ func PutSpiderDir(c *gin.Context) {
 	})
 }
 
+// @Summary Delete spider file
+// @Description Delete spider file
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Param reqBody body routes.SpiderFileReqBody true "path"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/file [delete]
 func DeleteSpiderFile(c *gin.Context) {
 	spiderId := c.Param("id")
+	if !bson.IsObjectIdHex(spiderId) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var reqBody SpiderFileReqBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		HandleError(http.StatusBadRequest, c, err)
@@ -1154,8 +1448,23 @@ func DeleteSpiderFile(c *gin.Context) {
 	})
 }
 
+// @Summary Rename spider file
+// @Description Rename spider file
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Param reqBody body routes.SpiderFileReqBody true "path"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/file/rename [post]
 func RenameSpiderFile(c *gin.Context) {
 	spiderId := c.Param("id")
+
+	if !bson.IsObjectIdHex(spiderId) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var reqBody SpiderFileReqBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		HandleError(http.StatusBadRequest, c, err)
@@ -1203,6 +1512,15 @@ func RenameSpiderFile(c *gin.Context) {
 
 // ======== Scrapy 部分 ========
 
+// @Summary Get scrapy spider file
+// @Description Get scrapy spider file
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/scrapy/spiders [get]
 func GetSpiderScrapySpiders(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1230,6 +1548,15 @@ func GetSpiderScrapySpiders(c *gin.Context) {
 	})
 }
 
+// @Summary Put scrapy spider file
+// @Description Put scrapy spider file
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/scrapy/spiders [put]
 func PutSpiderScrapySpiders(c *gin.Context) {
 	type ReqBody struct {
 		Name     string `json:"name"`
@@ -1238,7 +1565,10 @@ func PutSpiderScrapySpiders(c *gin.Context) {
 	}
 
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var reqBody ReqBody
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		HandleErrorF(http.StatusBadRequest, c, "invalid request")
@@ -1267,6 +1597,15 @@ func PutSpiderScrapySpiders(c *gin.Context) {
 	})
 }
 
+// @Summary Get scrapy spider settings
+// @Description Get scrapy spider settings
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/scrapy/settings [get]
 func GetSpiderScrapySettings(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1294,6 +1633,16 @@ func GetSpiderScrapySettings(c *gin.Context) {
 	})
 }
 
+// @Summary Get scrapy spider file
+// @Description Get scrapy spider file
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Param reqData body []entity.ScrapySettingParam true "req data"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/scrapy/settings [post]
 func PostSpiderScrapySettings(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1325,6 +1674,15 @@ func PostSpiderScrapySettings(c *gin.Context) {
 	})
 }
 
+// @Summary Get scrapy spider items
+// @Description Get scrapy spider items
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/scrapy/items [get]
 func GetSpiderScrapyItems(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1352,6 +1710,16 @@ func GetSpiderScrapyItems(c *gin.Context) {
 	})
 }
 
+// @Summary Post scrapy spider items
+// @Description Post scrapy spider items
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Param reqData body 	[]entity.ScrapyItem true "req data"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/scrapy/items [post]
 func PostSpiderScrapyItems(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1383,6 +1751,15 @@ func PostSpiderScrapyItems(c *gin.Context) {
 	})
 }
 
+// @Summary Get scrapy spider pipelines
+// @Description Get scrapy spider pipelines
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/scrapy/pipelines [get]
 func GetSpiderScrapyPipelines(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1410,9 +1787,21 @@ func GetSpiderScrapyPipelines(c *gin.Context) {
 	})
 }
 
+// @Summary Get scrapy spider file path
+// @Description Get scrapy spider file path
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/scrapy/spider/filepath [get]
 func GetSpiderScrapySpiderFilepath(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	spiderName := c.Query("spider_name")
 	if spiderName == "" {
 		HandleErrorF(http.StatusBadRequest, c, "spider_name is empty")
@@ -1447,6 +1836,15 @@ func GetSpiderScrapySpiderFilepath(c *gin.Context) {
 
 // ======== Git 部分 ========
 
+// @Summary Post  spider  sync git
+// @Description Post  spider  sync git
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/git/sync [post]
 func PostSpiderSyncGit(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1472,6 +1870,15 @@ func PostSpiderSyncGit(c *gin.Context) {
 	})
 }
 
+// @Summary Post  spider  reset git
+// @Description Post  spider  reset git
+// @Tags spider
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "spider id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /spiders/{id}/git/reset [post]
 func PostSpiderResetGit(c *gin.Context) {
 	id := c.Param("id")
 

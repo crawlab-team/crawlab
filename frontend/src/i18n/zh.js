@@ -13,6 +13,7 @@ export default {
   'Sites': '网站',
   'Setting': '设置',
   'Project': '项目',
+  'Spider Market': '爬虫市场',
 
   // 标签
   'Overview': '概览',
@@ -233,6 +234,9 @@ export default {
   'Overwrite': '覆盖',
   'Ignore': '忽略',
   'De-Duplication': '去重',
+  'Same Above': '同上',
+  'Batch Run': '批量运行',
+  'Set Projects': '设置项目',
 
   // 爬虫列表
   'Name': '名称',
@@ -271,6 +275,8 @@ export default {
   'Restart': '重新运行',
   'Redirect to task detail': '跳转到任务详情页',
   'Retry (Maximum 5 Times)': '是否重试（最多 5 次）',
+  'Delete Tasks': '删除任务',
+  'Stop Tasks': '停止任务',
 
   // 任务列表
   'Node': '节点',
@@ -308,6 +314,9 @@ export default {
   'Cron Expression': 'Cron 表达式',
   'Cron expression is invalid': 'Cron 表达式不正确',
   'View Tasks': '查看任务',
+  'Batch Add': '批量添加',
+  'Enable': '启用',
+  'Disable': '禁用',
 
   // 网站
   'Site': '网站',
@@ -518,6 +527,15 @@ export default {
   'Year': '年',
   'Years': '年',
 
+  // 爬虫市场
+  'Search Keyword': '搜索关键词',
+  'Sort': '排序',
+  'Default Sort': '默认排序',
+  'Most Stars': '最多 Stars',
+  'Most Forks': '最多 Forks',
+  'Latest Pushed': '最近提交',
+  'Pushed At': '提交时间',
+
   // 全局
   'Related Documentation': '相关文档',
   'Click to view related Documentation': '点击查看相关文档',
@@ -538,7 +556,12 @@ export default {
     // Cron Format: [second] [minute] [hour] [day of month] [month] [day of week]
     cron_format: 'Cron 格式: [秒] [分] [小时] [日] [月] [周]'
   },
-
+  auth: {
+    login_expired_message: '您已注销，可以取消以保留在该页面上，或者再次登录',
+    login_expired_title: '确认登出',
+    login_expired_confirm: '确认',
+    login_expired_cancel: '取消'
+  },
   // 内容
   addNodeInstruction: `
 您不能在 Crawlab 的 Web 界面直接添加节点。
@@ -642,6 +665,17 @@ export default {
   'Are you sure to add an API token?': '确认创建 API Token?',
   'Are you sure to delete this API token?': '确认删除该 API Token?',
   'Please enter Web Hook URL': '请输入 Web Hook URL',
+  'Are you sure to download this spider?': '您确定要下载该爬虫?',
+  'Downloaded successfully': '下载成功',
+  'Unable to submit because of some errors': '有错误，无法提交',
+  'Are you sure to stop these tasks': '确认停止这些任务?',
+  'Are you sure to delete these tasks': '确认删除这些任务?',
+  'Stopped successfully': '成功停止',
+  'Are you sure to restart these tasks': '确认重新运行这些任务?',
+  'Restarted successfully': '成功重新运行',
+  'Are you sure to stop this task?': '确认停止这个任务?',
+  'Enabled successfully': '成功启用',
+  'Disabled successfully': '成功禁用',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

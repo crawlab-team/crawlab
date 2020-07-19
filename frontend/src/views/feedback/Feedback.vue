@@ -51,9 +51,9 @@
             required
           >
             <el-input
+              v-model="form.content"
               type="textarea"
               rows="5"
-              v-model="form.content"
               :placeholder="$t('Please enter your feedback content')"
             />
           </el-form-item>
@@ -76,7 +76,7 @@
                 :disabled="isLoading"
                 @click="submit"
               >
-                {{$t('Submit')}}
+                {{ $t('Submit') }}
               </el-button>
             </div>
           </el-form-item>
@@ -87,65 +87,65 @@
 </template>
 
 <script>
-import axios from 'axios'
-import {
-  mapState
-} from 'vuex'
+  import axios from 'axios'
+  import {
+    mapState
+  } from 'vuex'
 
-export default {
-  name: 'Feedback',
-  data () {
-    return {
-      form: {
-        email: '',
-        wechat: '',
-        content: '',
-        rating: 0
-      },
-      isLoading: false
-    }
-  },
-  computed: {
-    ...mapState('lang', [
-      'lang'
-    ])
-  },
-  methods: {
-    submit () {
-      this.$refs['form'].validate(async valid => {
-        if (!valid) return
-        this.isLoading = true
-        try {
-          const res = await axios.put(process.env.VUE_APP_CRAWLAB_BASE_URL + '/feedback', {
-            uid: localStorage.getItem('uid'),
-            sid: sessionStorage.getItem('sid'),
-            email: this.form.email,
-            wechat: this.form.wechat,
-            content: this.form.content,
-            rating: this.form.rating,
-            v: sessionStorage.getItem('v')
-          })
-          if (res && res.data.error) {
-            this.$message.error(res.data.error)
-            return
+  export default {
+    name: 'Feedback',
+    data() {
+      return {
+        form: {
+          email: '',
+          wechat: '',
+          content: '',
+          rating: 0
+        },
+        isLoading: false
+      }
+    },
+    computed: {
+      ...mapState('lang', [
+        'lang'
+      ])
+    },
+    methods: {
+      submit() {
+        this.$refs['form'].validate(async valid => {
+          if (!valid) return
+          this.isLoading = true
+          try {
+            const res = await axios.put(process.env.VUE_APP_CRAWLAB_BASE_URL + '/feedback', {
+              uid: localStorage.getItem('uid'),
+              sid: sessionStorage.getItem('sid'),
+              email: this.form.email,
+              wechat: this.form.wechat,
+              content: this.form.content,
+              rating: this.form.rating,
+              v: sessionStorage.getItem('v')
+            })
+            if (res && res.data.error) {
+              this.$message.error(res.data.error)
+              return
+            }
+            this.form = {
+              email: '',
+              wechat: '',
+              content: '',
+              rating: 0
+            }
+            this.$message.success(this.$t('Submitted successfully'))
+          } catch (e) {
+            this.$message.error(e.toString())
+          } finally {
+            this.isLoading = false
           }
-          this.form = {
-            email: '',
-            wechat: '',
-            content: '',
-            rating: 0
-          }
-          this.$message.success(this.$t('Submitted successfully'))
-        } catch (e) {
-          this.$message.error(e.toString())
-        } finally {
-          this.isLoading = false
-        }
-        this.$st.sendEv('反馈', '提交反馈')
-      })
+          this.$st.sendEv('反馈', '提交反馈')
+        })
+      }
     }
   }
-}
 </script>
 
 <style scoped>

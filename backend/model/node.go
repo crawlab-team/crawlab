@@ -3,7 +3,6 @@ package model
 import (
 	"crawlab/constants"
 	"crawlab/database"
-	"crawlab/services/register"
 	"errors"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
@@ -26,7 +25,7 @@ type Node struct {
 	Key string `json:"key" bson:"key"`
 
 	// 前端展示
-	IsMaster bool `json:"is_master"`
+	IsMaster bool `json:"is_master" bson:"is_master"`
 
 	UpdateTs     time.Time `json:"update_ts" bson:"update_ts"`
 	CreateTs     time.Time `json:"create_ts" bson:"create_ts"`
@@ -40,67 +39,6 @@ const (
 // 当前节点是否为主节点
 func IsMaster() bool {
 	return viper.GetString("server.master") == Yes
-}
-
-// 获取本机节点
-// TODO: 这里职责不单一，需要重构
-func GetCurrentNode() (Node, error) {
-	// 获得注册的key值
-	key, err := register.GetRegister().GetKey()
-	if err != nil {
-		return Node{}, err
-	}
-
-	// 从数据库中获取当前节点
-	var node Node
-	errNum := 0
-	for {
-		// 如果错误次数超过10次
-		if errNum >= 10 {
-			return node, errors.New("cannot get current node")
-		}
-
-		// 尝试获取节点
-		node, err = GetNodeByKey(key)
-		// 如果获取失败
-		if err != nil {
-			// 如果为主节点，表示为第一次注册，插入节点信息
-			// update: 增加具体错误过滤。防止加入多个master节点，后续需要职责拆分，
-			//只在master节点运行的时候才检测master节点的信息是否存在
-			if IsMaster() && err == mgo.ErrNotFound {
-				// 获取本机信息
-				ip, mac, hostname, key, err := GetNodeBaseInfo()
-				if err != nil {
-					debug.PrintStack()
-					return node, err
-				}
-
-				// 生成节点
-				node = Node{
-					Key:      key,
-					Id:       bson.NewObjectId(),
-					Ip:       ip,
-					Name:     ip,
-					Mac:      mac,
-					Hostname: hostname,
-					IsMaster: true,
-				}
-				if err := node.Add(); err != nil {
-					return node, err
-				}
-				return node, nil
-			}
-			// 增加错误次数
-			errNum++
-
-			// 5秒后重试
-			time.Sleep(5 * time.Second)
-			continue
-		}
-		// 跳出循环
-		break
-	}
-	return node, nil
 }
 
 func (n *Node) Save() error {
@@ -241,34 +179,6 @@ func GetNodeCount(query interface{}) (int, error) {
 	return count, nil
 }
 
-// 节点基本信息
-func GetNodeBaseInfo() (ip string, mac string, hostname string, key string, error error) {
-	ip, err := register.GetRegister().GetIp()
-	if err != nil {
-		debug.PrintStack()
-		return "", "", "", "", err
-	}
-
-	mac, err = register.GetRegister().GetMac()
-	if err != nil {
-		debug.PrintStack()
-		return "", "", "", "", err
-	}
-
-	hostname, err = register.GetRegister().GetHostname()
-	if err != nil {
-		debug.PrintStack()
-		return "", "", "", "", err
-	}
-
-	key, err = register.GetRegister().GetKey()
-	if err != nil {
-		debug.PrintStack()
-		return "", "", "", "", err
-	}
-	return ip, mac, hostname, key, nil
-}
-
 // 根据redis的key值，重置node节点为offline
 func ResetNodeStatusToOffline(list []string) {
 	nodes, _ := GetNodeList(nil)
@@ -289,4 +199,34 @@ func ResetNodeStatusToOffline(list []string) {
 			continue
 		}
 	}
+}
+
+func UpdateMasterNodeInfo(key string, ip string, mac string, hostname string) error {
+	s, c := database.GetCol("nodes")
+	defer s.Close()
+	c.UpdateAll(bson.M{
+		"is_master": true,
+	}, bson.M{
+		"is_master": false,
+	})
+	_, err := c.Upsert(bson.M{
+		"key": key,
+	}, bson.M{
+		"$set": bson.M{
+			"ip":             ip,
+			"port":           "8000",
+			"mac":            mac,
+			"hostname":       hostname,
+			"is_master":      true,
+			"update_ts":      time.Now(),
+			"update_ts_unix": time.Now().Unix(),
+		},
+		"$setOnInsert": bson.M{
+			"key":       key,
+			"name":      key,
+			"create_ts": time.Now(),
+			"_id":       bson.NewObjectId(),
+		},
+	})
+	return err
 }

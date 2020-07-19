@@ -31,9 +31,10 @@ type Task struct {
 	ScheduleId      bson.ObjectId `json:"schedule_id" bson:"schedule_id"`
 
 	// 前端数据
-	SpiderName string `json:"spider_name"`
-	NodeName   string `json:"node_name"`
-	Username   string `json:"username"`
+	SpiderName string   `json:"spider_name"`
+	NodeName   string   `json:"node_name"`
+	Username   string   `json:"username"`
+	NodeIds    []string `json:"node_ids"`
 
 	UserId   bson.ObjectId `json:"user_id" bson:"user_id"`
 	CreateTs time.Time     `json:"create_ts" bson:"create_ts"`
@@ -451,7 +452,12 @@ func UpdateTaskToAbnormal(nodeId bson.ObjectId) error {
 
 	selector := bson.M{
 		"node_id": nodeId,
-		"status":  constants.StatusRunning,
+		"status": bson.M{
+			"$in": []string{
+				constants.StatusPending,
+				constants.StatusRunning,
+			},
+		},
 	}
 	update := bson.M{
 		"$set": bson.M{

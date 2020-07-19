@@ -1,7 +1,6 @@
 package services
 
 import (
-	"bytes"
 	"crawlab/lib/cron"
 	"crawlab/model"
 	"crawlab/services/spider_handler"
@@ -14,10 +13,10 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/ssh"
+	"gopkg.in/src-d/go-git.v4/storage/memory"
 	"io/ioutil"
 	"net/url"
 	"os"
-	"os/exec"
 	"path"
 	"regexp"
 	"runtime/debug"
@@ -138,22 +137,44 @@ func SaveSpiderGitSyncError(s model.Spider, errMsg string) {
 }
 
 // 获得Git分支
-func GetGitRemoteBranchesPlain(url string) (branches []string, err error) {
-	var stdout bytes.Buffer
-	var stderr bytes.Buffer
-
-	cmd := exec.Command("git", "ls-remote", url)
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	if err := cmd.Run(); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return branches, err
+func GetGitRemoteBranchesPlain(gitUrl string, username string, password string) (branches []string, err error) {
+	storage := memory.NewStorage()
+	u, _ := url.Parse(gitUrl)
+	var listOptions git.ListOptions
+	if strings.HasPrefix(gitUrl, "http") {
+		gitUrl = fmt.Sprintf(
+			"%s://%s:%s@%s%s",
+			u.Scheme,
+			username,
+			password,
+			u.Hostname(),
+			u.Path,
+		)
+	} else {
+		auth, err := ssh.NewPublicKeysFromFile(username, path.Join(os.Getenv("HOME"), ".ssh", "id_rsa"), "")
+		if err != nil {
+			log.Error(err.Error())
+			debug.PrintStack()
+			return branches, err
+		}
+		listOptions = git.ListOptions{
+			Auth: auth,
+		}
 	}
-
-	for _, line := range strings.Split(stdout.String(), "\n") {
+	remote := git.NewRemote(storage, &config.RemoteConfig{
+		URLs: []string{
+			gitUrl,
+		}})
+	rfs, err := remote.List(&listOptions)
+	if err != nil {
+		return
+	}
+	for _, rf := range rfs {
+		if rf.Type() == plumbing.SymbolicReference {
+			continue
+		}
 		regex := regexp.MustCompile("refs/heads/(.*)$")
-		res := regex.FindStringSubmatch(line)
+		res := regex.FindStringSubmatch(rf.String())
 		if len(res) > 1 {
 			branches = append(branches, res[1])
 		}
@@ -553,6 +574,17 @@ func GitCheckout(s model.Spider, hash string) (err error) {
 		log.Error(err.Error())
 		debug.PrintStack()
 		return err
+	}
+	//判断远程origin路径是否和当前的GitUrl是同一个，如果不是删掉原来的路径，重新拉取远程代码
+	remote, err := repo.Remote("origin")
+	if err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return err
+	}
+	if remote.String() != s.GitUrl {
+		utils.RemoveFiles(s.Src)
+		return SyncSpiderGit(s)
 	}
 
 	// Checkout

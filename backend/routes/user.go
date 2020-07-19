@@ -25,9 +25,21 @@ type UserRequestData struct {
 	Email    string `json:"email"`
 }
 
+// @Summary Get user
+// @Description user
+// @Tags user
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "user id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /users/{id} [get]
 func GetUser(c *gin.Context) {
 	id := c.Param("id")
-
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	user, err := model.GetUser(bson.ObjectIdHex(id))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
@@ -41,6 +53,15 @@ func GetUser(c *gin.Context) {
 	})
 }
 
+// @Summary Get user list
+// @Description Get user list
+// @Tags token
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param data body routes.UserListRequestData true "data body"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /users [get]
 func GetUserList(c *gin.Context) {
 	// 绑定数据
 	data := UserListRequestData{}
@@ -82,6 +103,15 @@ func GetUserList(c *gin.Context) {
 	})
 }
 
+// @Summary Put user
+// @Description Put user
+// @Tags user
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param reqData body routes.UserRequestData true "reqData body"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /users [put]
 func PutUser(c *gin.Context) {
 	// 绑定请求数据
 	var reqData UserRequestData
@@ -115,11 +145,22 @@ func PutUser(c *gin.Context) {
 	})
 }
 
+// @Summary Post user
+// @Description Post user
+// @Tags user
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param item body model.User true "user body"
+// @Param id path string true "user id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /users/{id} [post]
 func PostUser(c *gin.Context) {
 	id := c.Param("id")
 
 	if !bson.IsObjectIdHex(id) {
 		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
 	}
 
 	var item model.User
@@ -143,6 +184,15 @@ func PostUser(c *gin.Context) {
 	})
 }
 
+// @Summary Delete user
+// @Description Delete user
+// @Tags user
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "user id"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /users/{id} [delete]
 func DeleteUser(c *gin.Context) {
 	id := c.Param("id")
 

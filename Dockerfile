@@ -1,4 +1,4 @@
-FROM golang:1.12 AS backend-build
+FROM golang:latest AS backend-build
 
 WORKDIR /go/src/app
 COPY ./backend .
@@ -8,16 +8,16 @@ ENV GOPROXY https://goproxy.io
 
 RUN go install -v ./...
 
-FROM node:8.16.0-alpine AS frontend-build
+FROM node:latest AS frontend-build
 
 ADD ./frontend /app
 WORKDIR /app
 
 # install frontend
-RUN npm config set unsafe-perm true
-RUN npm install -g yarn && yarn install
+#RUN npm config set unsafe-perm true
+#RUN npm install -g yarn && yarn install
 
-RUN npm run build:prod
+RUN yarn install && yarn run build:prod
 
 # images
 FROM ubuntu:latest
@@ -31,19 +31,21 @@ ENV CRAWLAB_IS_DOCKER Y
 # install packages
 RUN chmod 777 /tmp \
 	&& apt-get update \
-	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip nginx wget \
+	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip nginx wget dumb-init \
 	&& ln -s /usr/bin/pip3 /usr/local/bin/pip \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
 
-# install dumb-init
-RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64
-RUN chmod +x /usr/local/bin/dumb-init
 
 # install backend
 RUN pip install scrapy pymongo bs4 requests crawlab-sdk scrapy-splash
 
 # add files
-ADD . /app
+COPY ./backend/conf /app/backend/conf
+COPY ./backend/data /app/backend/data
+COPY ./backend/scripts /app/backend/scripts
+COPY ./backend/template /app/backend/template
+COPY ./nginx /app/nginx
+COPY ./docker_init.sh /app/docker_init.sh
 
 # copy backend files
 RUN mkdir -p /opt/bin

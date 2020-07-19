@@ -27,8 +27,16 @@ Vue.use(Router)
   }
  **/
 export const constantRouterMap = [
-  { path: '/login', component: () => import('../views/login/index'), hidden: true },
-  { path: '/signup', component: () => import('../views/login/index'), hidden: true },
+  {
+    path: '/login',
+    component: () => import('../views/login/index'),
+    hidden: true
+  },
+  {
+    path: '/signup',
+    component: () => import('../views/login/index'),
+    hidden: true
+  },
   { path: '/404', component: () => import('../views/404'), hidden: true },
   { path: '/', redirect: '/home' },
 
@@ -174,12 +182,32 @@ export const constantRouterMap = [
     ]
   },
   {
+    path: '/repos',
+    component: Layout,
+    meta: {
+      title: 'Spider Market',
+      icon: 'fa fa-cloud'
+    },
+    children: [
+      {
+        path: '',
+        name: 'RepoList',
+        component: () => import('../views/repo/RepoList'),
+        meta: {
+          title: 'Spider Market',
+          icon: 'fa fa-cloud'
+        }
+      }
+    ]
+  },
+  {
     path: '/disclaimer',
     component: Layout,
     meta: {
       title: 'Disclaimer',
       icon: 'fa fa-exclamation-triangle'
     },
+    hidden: true,
     children: [
       {
         path: '',
@@ -192,25 +220,25 @@ export const constantRouterMap = [
       }
     ]
   },
-  {
-    path: '/challenges',
-    component: Layout,
-    meta: {
-      title: 'ChallengeList',
-      icon: 'fa fa-flash'
-    },
-    children: [
-      {
-        path: '',
-        name: 'ChallengeList',
-        component: () => import('../views/challenge/ChallengeList'),
-        meta: {
-          title: 'Challenges',
-          icon: 'fa fa-flash'
-        }
-      }
-    ]
-  },
+  // {
+  //   path: '/challenges',
+  //   component: Layout,
+  //   meta: {
+  //     title: 'ChallengeList',
+  //     icon: 'fa fa-flash'
+  //   },
+  //   children: [
+  //     {
+  //       path: '',
+  //       name: 'ChallengeList',
+  //       component: () => import('../views/challenge/ChallengeList'),
+  //       meta: {
+  //         title: 'Challenges',
+  //         icon: 'fa fa-flash'
+  //       }
+  //     }
+  //   ]
+  // },
   {
     path: '/feedback',
     component: Layout,
@@ -218,6 +246,7 @@ export const constantRouterMap = [
       title: 'Feedback',
       icon: 'fa fa-commenting-o'
     },
+    hidden: true,
     children: [
       {
         path: '',
@@ -235,8 +264,7 @@ export const constantRouterMap = [
     component: Layout,
     meta: {
       title: 'User',
-      icon: 'fa fa-users',
-      isNew: true
+      icon: 'fa fa-users'
     },
     children: [
       {
@@ -297,7 +325,7 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-router.afterEach(async (to, from, next) => {
+router.afterEach(async(to, from, next) => {
   if (to.path) {
     await store.dispatch('setting/getSetting')
     const res = await request.get('/version')

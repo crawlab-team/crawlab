@@ -1,6 +1,6 @@
 version: '3.3'
 services:
-  master: 
+  master:
     image: tikazyq/crawlab:latest
     container_name: master
     environment:
@@ -37,7 +37,7 @@ services:
       # CRAWLAB_NOTIFICATION_MAIL_SENDERIDENTITY: admin@exmaple.com  # sender ID 发送者 ID
       # CRAWLAB_NOTIFICATION_MAIL_SMTP_USER: username  # SMTP username SMTP 用户名
       # CRAWLAB_NOTIFICATION_MAIL_SMTP_PASSWORD: password  # SMTP password SMTP 密码
-    ports:    
+    ports:
       - "8080:8080" # frontend port mapping 前端端口映射
     depends_on:
       - mongo
@@ -54,14 +54,14 @@ services:
     depends_on:
       - mongo
       - redis
-    # environment:
-    #   MONGO_INITDB_ROOT_USERNAME: username
-    #   MONGO_INITDB_ROOT_PASSWORD: password
     # volumes:
     #   - "/var/crawlab/log:/var/logs/crawlab" # log persistent 日志持久化
   mongo:
     image: mongo:latest
     restart: always
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: username
+    #   MONGO_INITDB_ROOT_PASSWORD: password
     # volumes:
     #   - "/opt/crawlab/mongo/data/db:/data/db"  # make data persistent 持久化
     # ports:

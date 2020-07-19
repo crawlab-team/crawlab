@@ -6,10 +6,10 @@
   >
     <el-tab-pane :label="$t('Settings')" name="settings">
       <el-form
+        ref="git-settings-form"
         class="git-settings-form"
         label-width="150px"
         :model="spiderForm"
-        ref="git-settings-form"
       >
         <el-form-item
           :label="$t('Git URL')"
@@ -20,8 +20,7 @@
             v-model="spiderForm.git_url"
             :placeholder="$t('Git URL')"
             @blur="onGitUrlChange"
-          >
-          </el-input>
+          />
         </el-form-item>
         <el-form-item
           :label="$t('Has Credential')"
@@ -41,8 +40,8 @@
           <el-input
             v-model="spiderForm.git_username"
             :placeholder="$t('Git Username')"
-          >
-          </el-input>
+            @blur="onGitUrlChange"
+          />
         </el-form-item>
         <el-form-item
           v-if="spiderForm.git_has_credential"
@@ -53,8 +52,8 @@
             v-model="spiderForm.git_password"
             :placeholder="$t('Git Password')"
             type="password"
-          >
-          </el-input>
+            @blur="onGitUrlChange"
+          />
         </el-form-item>
         <el-form-item
           :label="$t('Git Branch')"
@@ -111,7 +110,7 @@
             type="error"
             :closable="false"
           >
-            {{spiderForm.git_sync_error}}
+            {{ spiderForm.git_sync_error }}
           </el-alert>
         </el-form-item>
         <el-form-item
@@ -122,13 +121,13 @@
             type="info"
             :closable="false"
           >
-            {{sshPublicKey}}
+            {{ sshPublicKey }}
           </el-alert>
           <span class="copy" @click="copySshPublicKey">
-          <i class="el-icon-copy-document"></i>
-          {{$t('Copy')}}
-        </span>
-          <input id="ssh-public-key" v-model="sshPublicKey" v-show="true">
+            <i class="el-icon-copy-document" />
+            {{ $t('Copy') }}
+          </span>
+          <input v-show="true" id="ssh-public-key" v-model="sshPublicKey">
         </el-form-item>
       </el-form>
       <div class="action-wrapper">
@@ -139,7 +138,7 @@
           :icon="isGitResetLoading ? 'el-icon-loading' : 'el-icon-refresh-left'"
           @click="onReset"
         >
-          {{$t('Reset')}}
+          {{ $t('Reset') }}
         </el-button>
         <el-button
           size="small"
@@ -148,10 +147,10 @@
           :disabled="!spiderForm.git_url || isGitSyncLoading"
           @click="onSync"
         >
-          {{$t('Sync')}}
+          {{ $t('Sync') }}
         </el-button>
-        <el-button size="small" type="success" @click="onSave" icon="el-icon-check">
-          {{$t('Save')}}
+        <el-button size="small" type="success" icon="el-icon-check" @click="onSave">
+          {{ $t('Save') }}
         </el-button>
       </div>
     </el-tab-pane>
@@ -168,10 +167,10 @@
           <div class="commit">
             <div class="row">
               <div class="message">
-                {{c.message}}
+                {{ c.message }}
               </div>
               <div class="author">
-                {{c.author}} ({{c.email}})
+                {{ c.author }} ({{ c.email }})
               </div>
             </div>
             <div class="row" style="margin-top: 10px">
@@ -181,7 +180,7 @@
                   type="primary"
                   size="mini"
                 >
-                  <i class="fa fa-tag"></i>
+                  <i class="fa fa-tag" />
                   HEAD
                 </el-tag>
                 <el-tag
@@ -190,8 +189,8 @@
                   :type="b.label === 'master' ? 'danger' : 'warning'"
                   size="mini"
                 >
-                  <i class="fa fa-tag"></i>
-                  {{b.label}}
+                  <i class="fa fa-tag" />
+                  {{ b.label }}
                 </el-tag>
                 <el-tag
                   v-for="b in c.remote_branches"
@@ -199,8 +198,8 @@
                   type="info"
                   size="mini"
                 >
-                  <i class="fa fa-tag"></i>
-                  {{b.label}}
+                  <i class="fa fa-tag" />
+                  {{ b.label }}
                 </el-tag>
                 <el-tag
                   v-for="t in c.tags"
@@ -208,8 +207,8 @@
                   type="success"
                   size="mini"
                 >
-                  <i class="fa fa-tag"></i>
-                  {{t.label}}
+                  <i class="fa fa-tag" />
+                  {{ t.label }}
                 </el-tag>
               </div>
               <div class="actions">
@@ -232,165 +231,169 @@
 </template>
 
 <script>
-import dayjs from 'dayjs'
-import {
-  mapState
-} from 'vuex'
+  import dayjs from 'dayjs'
+  import {
+    mapState
+  } from 'vuex'
 
-export default {
-  name: 'GitSettings',
-  data () {
-    return {
-      gitBranches: [],
-      isGitBranchesLoading: false,
-      isGitSyncLoading: false,
-      isGitResetLoading: false,
-      isGitCheckoutLoading: false,
-      syncFrequencies: [
-        { label: '1m', value: '0 * * * * *' },
-        { label: '5m', value: '0 0/5 * * * *' },
-        { label: '15m', value: '0 0/15 * * * *' },
-        { label: '30m', value: '0 0/30 * * * *' },
-        { label: '1h', value: '0 0 * * * *' },
-        { label: '6h', value: '0 0 0/6 * * *' },
-        { label: '12h', value: '0 0 0/12 * * *' },
-        { label: '1d', value: '0 0 0 0 * *' }
-      ],
-      sshPublicKey: '',
-      activeTabName: 'settings',
-      commits: []
-    }
-  },
-  computed: {
-    ...mapState('spider', [
-      'spiderForm'
-    ])
-  },
-  methods: {
-    onSave () {
-      this.$refs['git-settings-form'].validate(async valid => {
-        if (!valid) return
-        const res = await this.$store.dispatch('spider/editSpider')
-        if (!res.data.error) {
-          this.$message.success(this.$t('Spider info has been saved successfully'))
-        }
-      })
-      this.$st.sendEv('爬虫详情', 'Git 设置', '保存')
-    },
-    async onGitUrlChange () {
-      if (!this.spiderForm.git_url) return
-      this.isGitBranchesLoading = true
-      try {
-        const res = await this.$request.get('/git/branches', { url: this.spiderForm.git_url })
-        this.gitBranches = res.data.data
-        if (!this.spiderForm.git_branch && this.gitBranches.length > 0) {
-          this.$set(this.spiderForm, 'git_branch', this.gitBranches[0])
-        }
-      } finally {
-        this.isGitBranchesLoading = false
+  export default {
+    name: 'GitSettings',
+    data() {
+      return {
+        gitBranches: [],
+        isGitBranchesLoading: false,
+        isGitSyncLoading: false,
+        isGitResetLoading: false,
+        isGitCheckoutLoading: false,
+        syncFrequencies: [
+          { label: '1m', value: '0 * * * * *' },
+          { label: '5m', value: '0 0/5 * * * *' },
+          { label: '15m', value: '0 0/15 * * * *' },
+          { label: '30m', value: '0 0/30 * * * *' },
+          { label: '1h', value: '0 0 * * * *' },
+          { label: '6h', value: '0 0 0/6 * * *' },
+          { label: '12h', value: '0 0 0/12 * * *' },
+          { label: '1d', value: '0 0 0 0 * *' }
+        ],
+        sshPublicKey: '',
+        activeTabName: 'settings',
+        commits: []
       }
     },
-    async onSync () {
-      this.isGitSyncLoading = true
-      try {
-        const res = await this.$request.post(`/spiders/${this.spiderForm._id}/git/sync`)
-        if (!res.data.error) {
-          this.$message.success(this.$t('Git has been synchronized successfully'))
-        }
-      } finally {
-        this.isGitSyncLoading = false
-        await this.updateGit()
-        await this.$store.dispatch('spider/getSpiderData', this.$route.params.id)
+    computed: {
+      ...mapState('spider', [
+        'spiderForm'
+      ])
+    },
+    async created() {
+      if (this.spiderForm.git_url) {
+        this.onGitUrlChange()
       }
-      this.$st.sendEv('爬虫详情', 'Git 设置', '同步')
-    },
-    onReset () {
-      this.$confirm(
-        this.$t('This would delete all files of the spider. Are you sure to continue?'),
-        this.$t('Notification'),
-        {
-          confirmButtonText: this.$t('Confirm'),
-          cancelButtonText: this.$t('Cancel'),
-          type: 'warning'
-        })
-        .then(async () => {
-          this.isGitResetLoading = true
-          try {
-            const res = await this.$request.post(`/spiders/${this.spiderForm._id}/git/reset`)
-            if (!res.data.error) {
-              this.$message.success(this.$t('Git has been reset successfully'))
-              this.$st.sendEv('爬虫详情', 'Git 设置', '确认重置')
-            }
-          } finally {
-            this.isGitResetLoading = false
-            // await this.updateGit()
-          }
-        })
-      this.$st.sendEv('爬虫详情', 'Git 设置', '点击重置')
-    },
-    async getSshPublicKey () {
-      const res = await this.$request.get('/git/public-key')
-      this.sshPublicKey = res.data.data
-    },
-    copySshPublicKey () {
-      const el = document.querySelector('#ssh-public-key')
-      el.focus()
-      el.setSelectionRange(0, this.sshPublicKey.length)
-      document.execCommand('copy')
-      this.$message.success(this.$t('SSH Public Key is copied to the clipboard'))
-      this.$st.sendEv('爬虫详情', 'Git 设置', '拷贝 SSH 公钥')
-    },
-    async getCommits () {
-      const res = await this.$request.get('/git/commits', { spider_id: this.spiderForm._id })
-      this.commits = res.data.data.map(d => {
-        d.ts = dayjs(d.ts).format('YYYY-MM-DD HH:mm:ss')
-        return d
-      })
-    },
-    async checkout (c) {
-      this.isGitCheckoutLoading = true
-      try {
-        const res = await this.$request.post('/git/checkout', { spider_id: this.spiderForm._id, hash: c.hash })
-        if (!res.data.error) {
-          this.$message.success(this.$t('Checkout success'))
-        }
-      } finally {
-        this.isGitCheckoutLoading = false
-        await this.getCommits()
-      }
-      this.$st.sendEv('爬虫详情', 'Git Log', 'Checkout')
-    },
-    async updateGit () {
+      this.getSshPublicKey()
       this.getCommits()
     },
-    getCommitType (c) {
-      if (c.is_head) return 'primary'
-      if (c.branches && c.branches.length) {
-        if (c.branches.map(d => d.label).includes('master')) {
-          return 'danger'
-        } else {
-          return 'warning'
+    methods: {
+      onSave() {
+        this.$refs['git-settings-form'].validate(async valid => {
+          if (!valid) return
+          const res = await this.$store.dispatch('spider/editSpider')
+          if (!res.data.error) {
+            this.$message.success(this.$t('Spider info has been saved successfully'))
+          }
+        })
+        this.$st.sendEv('爬虫详情', 'Git 设置', '保存')
+      },
+      async onGitUrlChange() {
+        if (!this.spiderForm.git_url) return
+        this.isGitBranchesLoading = true
+        try {
+          const res = await this.$request.get('/git/branches', {
+            url: this.spiderForm.git_url,
+            username: this.spiderForm.git_username,
+            password: this.spiderForm.git_password
+          })
+          this.gitBranches = res.data.data
+          if (!this.spiderForm.git_branch && this.gitBranches.length > 0) {
+            this.$set(this.spiderForm, 'git_branch', this.gitBranches[0])
+          }
+        } finally {
+          this.isGitBranchesLoading = false
         }
+      },
+      async onSync() {
+        this.isGitSyncLoading = true
+        try {
+          const res = await this.$request.post(`/spiders/${this.spiderForm._id}/git/sync`)
+          if (!res.data.error) {
+            this.$message.success(this.$t('Git has been synchronized successfully'))
+          }
+        } finally {
+          this.isGitSyncLoading = false
+          await this.updateGit()
+          await this.$store.dispatch('spider/getSpiderData', this.$route.params.id)
+        }
+        this.$st.sendEv('爬虫详情', 'Git 设置', '同步')
+      },
+      onReset() {
+        this.$confirm(
+          this.$t('This would delete all files of the spider. Are you sure to continue?'),
+          this.$t('Notification'),
+          {
+            confirmButtonText: this.$t('Confirm'),
+            cancelButtonText: this.$t('Cancel'),
+            type: 'warning'
+          })
+          .then(async() => {
+            this.isGitResetLoading = true
+            try {
+              const res = await this.$request.post(`/spiders/${this.spiderForm._id}/git/reset`)
+              if (!res.data.error) {
+                this.$message.success(this.$t('Git has been reset successfully'))
+                this.$st.sendEv('爬虫详情', 'Git 设置', '确认重置')
+              }
+            } finally {
+              this.isGitResetLoading = false
+            // await this.updateGit()
+            }
+          })
+        this.$st.sendEv('爬虫详情', 'Git 设置', '点击重置')
+      },
+      async getSshPublicKey() {
+        const res = await this.$request.get('/git/public-key')
+        this.sshPublicKey = res.data.data
+      },
+      copySshPublicKey() {
+        const el = document.querySelector('#ssh-public-key')
+        el.focus()
+        el.setSelectionRange(0, this.sshPublicKey.length)
+        document.execCommand('copy')
+        this.$message.success(this.$t('SSH Public Key is copied to the clipboard'))
+        this.$st.sendEv('爬虫详情', 'Git 设置', '拷贝 SSH 公钥')
+      },
+      async getCommits() {
+        const res = await this.$request.get('/git/commits', { spider_id: this.spiderForm._id })
+        this.commits = res.data.data.map(d => {
+          d.ts = dayjs(d.ts).format('YYYY-MM-DD HH:mm:ss')
+          return d
+        })
+      },
+      async checkout(c) {
+        this.isGitCheckoutLoading = true
+        try {
+          const res = await this.$request.post('/git/checkout', { spider_id: this.spiderForm._id, hash: c.hash })
+          if (!res.data.error) {
+            this.$message.success(this.$t('Checkout success'))
+          }
+        } finally {
+          this.isGitCheckoutLoading = false
+          await this.getCommits()
+        }
+        this.$st.sendEv('爬虫详情', 'Git Log', 'Checkout')
+      },
+      async updateGit() {
+        this.getCommits()
+      },
+      getCommitType(c) {
+        if (c.is_head) return 'primary'
+        if (c.branches && c.branches.length) {
+          if (c.branches.map(d => d.label).includes('master')) {
+            return 'danger'
+          } else {
+            return 'warning'
+          }
+        }
+        if (c.tags && c.tags.length) {
+          return 'success'
+        }
+        if (c.remote_branches && c.remote_branches.length) {
+          return 'info'
+        }
+      },
+      onChangeTab() {
+        this.$st.sendEv('爬虫详情', 'Git 切换标签', this.activeTabName)
       }
-      if (c.tags && c.tags.length) {
-        return 'success'
-      }
-      if (c.remote_branches && c.remote_branches.length) {
-        return 'info'
-      }
-    },
-    onChangeTab () {
-      this.$st.sendEv('爬虫详情', 'Git 切换标签', this.activeTabName)
     }
-  },
-  async created () {
-    if (this.spiderForm.git_url) {
-      this.onGitUrlChange()
-    }
-    this.getSshPublicKey()
-    this.getCommits()
   }
-}
 </script>
 
 <style scoped>

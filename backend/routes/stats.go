@@ -9,6 +9,14 @@ import (
 	"net/http"
 )
 
+// @Summary Get  home stats
+// @Description Get home stats
+// @Tags version
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Success 200 json string Response
+// @Failure 400 json string Response
+// @Router /stats/home [get]
 func GetHomeStats(c *gin.Context) {
 	type DataOverview struct {
 		TaskCount       int `json:"task_count"`

@@ -6,14 +6,7 @@
           v-model="isLogAutoScroll"
           :inactive-text="$t('Auto-Scroll')"
           style="margin-right: 10px"
-        >
-        </el-switch>
-        <!--        <el-switch-->
-        <!--          v-model="isLogAutoFetch"-->
-        <!--          :inactive-text="$t('Auto-Refresh')"-->
-        <!--          style="margin-right: 10px"-->
-        <!--        >-->
-        <!--        </el-switch>-->
+        />
         <el-input
           v-model="logKeyword"
           size="small"
@@ -28,7 +21,7 @@
           icon="el-icon-search"
           @click="onSearchLog"
         >
-          {{$t('Search Log')}}
+          {{ $t('Search Log') }}
         </el-button>
       </div>
       <div class="right">
@@ -38,7 +31,7 @@
           :current-page.sync="taskLogPage"
           :page-sizes="[1000, 2000, 5000, 10000]"
           :page-size.sync="taskLogPageSize"
-          :pager-count="3"
+          :page-count="3"
           layout="sizes, prev, pager, next"
         />
         <el-badge
@@ -51,29 +44,25 @@
             icon="el-icon-warning-outline"
             @click="toggleErrors"
           >
-            {{$t('Error Count')}}
+            {{ $t('Error Count') }}
           </el-button>
         </el-badge>
       </div>
     </div>
     <div class="content">
       <div
-        v-loading="isLogFetchLoading"
+        :loading="isLogFetchLoading"
         class="log-view-wrapper"
         :class="isErrorsCollapsed ? 'errors-collapsed' : ''"
       >
         <virtual-list
-          class="log-view"
           ref="log-view"
+          class="log-view"
+          :data-key="'index'"
+          :data-sources="items"
+          :data-component="itemComponent"
+          :keeps="taskLogPageSize"
           :start="currentLogIndex - 1"
-          :offset="0"
-          :size="18"
-          :remain="remainSize"
-          :item="item"
-          :itemcount="filteredLogData.length"
-          :itemprops="getItemProps"
-          :tobottom="onToBottom"
-          :onscroll="onScroll"
         />
       </div>
       <div
@@ -90,7 +79,7 @@
             @click="onClickError(item)"
           >
             <span class="line-content">
-              {{item.msg}}
+              {{ item.msg }}
             </span>
           </li>
         </ul>
@@ -100,198 +89,187 @@
 </template>
 
 <script>
-import {
-  mapState,
-  mapGetters
-} from 'vuex'
-import VirtualList from 'vue-virtual-scroll-list'
-import Convert from 'ansi-to-html'
-import hasAnsi from 'has-ansi'
+  import {
+    mapState,
+    mapGetters
+  } from 'vuex'
+  import VirtualList from 'vue-virtual-scroll-list'
+  import Convert from 'ansi-to-html'
+  import hasAnsi from 'has-ansi'
 
-import LogItem from './LogItem'
+  import LogItem from './LogItem'
 
-const convert = new Convert()
-export default {
-  name: 'LogView',
-  components: {
-    VirtualList
-  },
-  props: {
-    data: {
-      type: String,
-      default: ''
-    }
-  },
-  data () {
-    return {
-      item: LogItem,
-      searchString: '',
-      isScrolling: false,
-      isScrolling2nd: false,
-      errorRegex: this.$utils.log.errorRegex,
-      currentOffset: 0,
-      isErrorsCollapsed: true,
-      isErrorCollapsing: false
-    }
-  },
-  computed: {
-    ...mapState('task', [
-      'taskForm',
-      'taskLogTotal',
-      'logKeyword',
-      'isLogFetchLoading',
-      'errorLogData'
-    ]),
-    ...mapGetters('task', [
-      'logData'
-    ]),
-    currentLogIndex: {
-      get () {
-        return this.$store.state.task.currentLogIndex
-      },
-      set (value) {
-        this.$store.commit('task/SET_CURRENT_LOG_INDEX', value)
+  const convert = new Convert()
+  export default {
+    name: 'LogView',
+    components: {
+      VirtualList
+    },
+    props: {
+      data: {
+        type: String,
+        default: ''
       }
     },
-    logKeyword: {
-      get () {
-        return this.$store.state.task.logKeyword
-      },
-      set (value) {
-        this.$store.commit('task/SET_LOG_KEYWORD', value)
-      }
-    },
-    taskLogPage: {
-      get () {
-        return this.$store.state.task.taskLogPage
-      },
-      set (value) {
-        this.$store.commit('task/SET_TASK_LOG_PAGE', value)
-      }
-    },
-    taskLogPageSize: {
-      get () {
-        return this.$store.state.task.taskLogPageSize
-      },
-      set (value) {
-        this.$store.commit('task/SET_TASK_LOG_PAGE_SIZE', value)
-      }
-    },
-    isLogAutoScroll: {
-      get () {
-        return this.$store.state.task.isLogAutoScroll
-      },
-      set (value) {
-        this.$store.commit('task/SET_IS_LOG_AUTO_SCROLL', value)
-      }
-    },
-    isLogAutoFetch: {
-      get () {
-        return this.$store.state.task.isLogAutoFetch
-      },
-      set (value) {
-        this.$store.commit('task/SET_IS_LOG_AUTO_FETCH', value)
-      }
-    },
-    isLogFetchLoading: {
-      get () {
-        return this.$store.state.task.isLogFetchLoading
-      },
-      set (value) {
-        this.$store.commit('task/SET_IS_LOG_FETCH_LOADING', value)
-      }
-    },
-    filteredLogData () {
-      return this.logData.filter(d => {
-        if (!this.searchString) return true
-        return !!d.data.toLowerCase().match(this.searchString.toLowerCase())
-      })
-    },
-    remainSize () {
-      const height = document.querySelector('body').clientHeight
-      return (height - 240) / 18
-    }
-  },
-  watch: {
-    taskLogPage () {
-      this.$emit('search')
-      this.$st.sendEv('任务详情', '日志', '改变页数')
-    },
-    taskLogPageSize () {
-      this.$emit('search')
-      this.$st.sendEv('任务详情', '日志', '改变日志每页条数')
-    },
-    isLogAutoScroll () {
-      if (this.isLogAutoScroll) {
-        this.$store.dispatch('task/getTaskLog', {
-          id: this.$route.params.id,
-          keyword: this.logKeyword
-        }).then(() => {
-          this.toBottom()
-        })
-        this.$st.sendEv('任务详情', '日志', '点击自动滚动')
-      } else {
-        this.$st.sendEv('任务详情', '日志', '取消自动滚动')
-      }
-    }
-  },
-  methods: {
-    getItemProps (index) {
-      const logItem = this.filteredLogData[index]
-      const isAnsi = hasAnsi(logItem.data)
+    data() {
       return {
-        // <item/> will render with itemProps.
-        // https://vuejs.org/v2/guide/render-function.html#createElement-Arguments
-        props: {
-          index: logItem.index,
-          logItem,
-          data: isAnsi ? convert.toHtml(logItem.data) : logItem.data,
-          searchString: this.logKeyword,
-          active: logItem.active,
-          isAnsi
+        itemComponent: LogItem,
+        searchString: '',
+        isScrolling: false,
+        isScrolling2nd: false,
+        errorRegex: this.$utils.log.errorRegex,
+        currentOffset: 0,
+        isErrorsCollapsed: true,
+        isErrorCollapsing: false
+      }
+    },
+    computed: {
+      ...mapState('task', [
+        'taskForm',
+        'taskLogTotal',
+        'logKeyword',
+        'isLogFetchLoading',
+        'errorLogData'
+      ]),
+      ...mapGetters('task', [
+        'logData'
+      ]),
+      currentLogIndex: {
+        get() {
+          return this.$store.state.task.currentLogIndex
+        },
+        set(value) {
+          this.$store.commit('task/SET_CURRENT_LOG_INDEX', value)
+        }
+      },
+      logKeyword: {
+        get() {
+          return this.$store.state.task.logKeyword
+        },
+        set(value) {
+          this.$store.commit('task/SET_LOG_KEYWORD', value)
+        }
+      },
+      taskLogPage: {
+        get() {
+          return this.$store.state.task.taskLogPage
+        },
+        set(value) {
+          this.$store.commit('task/SET_TASK_LOG_PAGE', value)
+        }
+      },
+      taskLogPageSize: {
+        get() {
+          return this.$store.state.task.taskLogPageSize
+        },
+        set(value) {
+          this.$store.commit('task/SET_TASK_LOG_PAGE_SIZE', value)
+        }
+      },
+      isLogAutoScroll: {
+        get() {
+          return this.$store.state.task.isLogAutoScroll
+        },
+        set(value) {
+          this.$store.commit('task/SET_IS_LOG_AUTO_SCROLL', value)
+        }
+      },
+      isLogAutoFetch: {
+        get() {
+          return this.$store.state.task.isLogAutoFetch
+        },
+        set(value) {
+          this.$store.commit('task/SET_IS_LOG_AUTO_FETCH', value)
+        }
+      },
+      isLogFetchLoading: {
+        get() {
+          return this.$store.state.task.isLogFetchLoading
+        },
+        set(value) {
+          this.$store.commit('task/SET_IS_LOG_FETCH_LOADING', value)
+        }
+      },
+      items() {
+        if (!this.logData || this.logData.length === 0) {
+          return []
+        }
+        const filteredLogData = this.logData.filter(d => {
+          if (!this.searchString) return true
+          return !!d.data.toLowerCase().match(this.searchString.toLowerCase())
+        })
+        return filteredLogData.map(logItem => {
+          const isAnsi = hasAnsi(logItem.data)
+          return {
+            index: logItem.index,
+            data: isAnsi ? convert.toHtml(logItem.data) : logItem.data,
+            searchString: this.logKeyword,
+            active: logItem.active,
+            isAnsi
+          }
+        })
+      }
+    },
+    watch: {
+      taskLogPage() {
+        this.$emit('search')
+        this.$st.sendEv('任务详情', '日志', '改变页数')
+      },
+      taskLogPageSize() {
+        this.$emit('search')
+        this.$st.sendEv('任务详情', '日志', '改变日志每页条数')
+      },
+      isLogAutoScroll() {
+        if (this.isLogAutoScroll) {
+          this.$store.dispatch('task/getTaskLog', {
+            id: this.$route.params.id,
+            keyword: this.logKeyword
+          }).then(() => {
+            this.toBottom()
+          })
+          this.$st.sendEv('任务详情', '日志', '点击自动滚动')
+        } else {
+          this.$st.sendEv('任务详情', '日志', '取消自动滚动')
         }
       }
     },
-    onToBottom () {
+    mounted() {
+      this.currentLogIndex = 0
+      this.handle = setInterval(() => {
+        if (this.isLogAutoScroll) {
+          this.toBottom()
+        }
+      }, 200)
     },
-    onScroll () {
+    destroyed() {
+      clearInterval(this.handle)
     },
-    toBottom () {
-      this.$el.querySelector('.log-view').scrollTo({ top: 99999999 })
-    },
-    toggleErrors () {
-      this.isErrorsCollapsed = !this.isErrorsCollapsed
-      this.isErrorCollapsing = true
-      setTimeout(() => {
-        this.isErrorCollapsing = false
-      }, 300)
-    },
-    async onClickError (item) {
-      const page = Math.ceil(item.seq / this.taskLogPageSize)
-      this.$store.commit('task/SET_LOG_KEYWORD', '')
-      this.$store.commit('task/SET_TASK_LOG_PAGE', page)
-      this.$store.commit('task/SET_IS_LOG_AUTO_SCROLL', false)
-      this.$store.commit('task/SET_ACTIVE_ERROR_LOG_ITEM', item)
-      this.$emit('search')
-      this.$st.sendEv('任务详情', '日志', '点击错误日志')
-    },
-    onSearchLog () {
-      this.$emit('search')
-      this.$st.sendEv('任务详情', '日志', '搜索日志')
-    }
-  },
-  mounted () {
-    this.currentLogIndex = 0
-    this.handle = setInterval(() => {
-      if (this.isLogAutoScroll) {
-        this.toBottom()
+    methods: {
+      toBottom() {
+        this.$el.querySelector('.log-view').scrollTo({ top: 99999999 })
+      },
+      toggleErrors() {
+        this.isErrorsCollapsed = !this.isErrorsCollapsed
+        this.isErrorCollapsing = true
+        setTimeout(() => {
+          this.isErrorCollapsing = false
+        }, 300)
+      },
+      async onClickError(item) {
+        const page = Math.ceil(item.seq / this.taskLogPageSize)
+        this.$store.commit('task/SET_LOG_KEYWORD', '')
+        this.$store.commit('task/SET_TASK_LOG_PAGE', page)
+        this.$store.commit('task/SET_IS_LOG_AUTO_SCROLL', false)
+        this.$store.commit('task/SET_ACTIVE_ERROR_LOG_ITEM', item)
+        this.$emit('search')
+        this.$st.sendEv('任务详情', '日志', '点击错误日志')
+      },
+      onSearchLog() {
+        this.$emit('search')
+        this.$st.sendEv('任务详情', '日志', '搜索日志')
       }
-    }, 200)
-  },
-  destroyed () {
-    clearInterval(this.handle)
+    }
   }
-}
 </script>
 
 <style scoped>
@@ -320,6 +298,7 @@ export default {
   .log-view {
     margin-top: 0 !important;
     overflow-y: scroll !important;
+    height: 600px;
     list-style: none;
     color: #A9B7C6;
     background: #2B2B2B;

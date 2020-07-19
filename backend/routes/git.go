@@ -10,7 +10,9 @@ import (
 
 func GetGitRemoteBranches(c *gin.Context) {
 	url := c.Query("url")
-	branches, err := services.GetGitRemoteBranchesPlain(url)
+	username := c.Query("username")
+	password := c.Query("password")
+	branches, err := services.GetGitRemoteBranchesPlain(url, username, password)
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return

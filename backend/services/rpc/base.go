@@ -5,11 +5,13 @@ import (
 	"crawlab/database"
 	"crawlab/entity"
 	"crawlab/model"
+	"crawlab/services/local_node"
 	"crawlab/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/apex/log"
+	"github.com/cenkalti/backoff/v4"
 	"github.com/gomodule/redigo/redis"
 	uuid "github.com/satori/go.uuid"
 	"runtime/debug"
@@ -72,17 +74,22 @@ func GetService(msg entity.RpcMessage) Service {
 		return &GetLangService{msg: msg}
 	case constants.RpcGetInstalledDepList:
 		return &GetInstalledDepsService{msg: msg}
+	case constants.RpcCancelTask:
+		return &CancelTaskService{msg: msg}
+	case constants.RpcGetSystemInfoService:
+		return &GetSystemInfoService{msg: msg}
 	}
 	return nil
 }
 
 // 处理RPC消息
-func handleMsg(msgStr string, node model.Node) {
+func handleMsg(msgStr string, node *model.Node) {
 	// 反序列化消息
 	var msg entity.RpcMessage
 	if err := json.Unmarshal([]byte(msgStr), &msg); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
+		return
 	}
 
 	// 获取service
@@ -93,6 +100,7 @@ func handleMsg(msgStr string, node model.Node) {
 	if err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
+		return
 	}
 
 	// 发送返回消息
@@ -105,25 +113,31 @@ func handleMsg(msgStr string, node model.Node) {
 // 初始化服务端RPC服务
 func InitRpcService() error {
 	go func() {
+		node := local_node.CurrentNode()
 		for {
 			// 获取当前节点
-			node, err := model.GetCurrentNode()
-			if err != nil {
-				log.Errorf(err.Error())
-				debug.PrintStack()
-				continue
-			}
+			//node, err := model.GetCurrentNode()
+			//if err != nil {
+			//	log.Errorf(err.Error())
+			//	debug.PrintStack()
+			//	continue
+			//}
+			b := backoff.NewExponentialBackOff()
+			bp := backoff.WithMaxRetries(b, 10)
+			var msgStr string
+			var err error
+			err = backoff.Retry(func() error {
+				msgStr, err = database.RedisClient.BRPop(fmt.Sprintf("rpc:%s", node.Id.Hex()), 0)
 
-			// 获取获取消息队列信息
-			msgStr, err := database.RedisClient.BRPop(fmt.Sprintf("rpc:%s", node.Id.Hex()), 0)
-			if err != nil {
-				if err != redis.ErrNil {
-					log.Errorf(err.Error())
-					debug.PrintStack()
+				if err != nil && err != redis.ErrNil {
+					log.WithError(err).Warnf("waiting for redis pool active connection. will after %f seconds try  again.", b.NextBackOff().Seconds())
+					return err
 				}
+				return err
+			}, bp)
+			if err != nil {
 				continue
 			}
-
 			// 处理消息
 			go handleMsg(msgStr, node)
 		}

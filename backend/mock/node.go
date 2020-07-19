@@ -125,6 +125,10 @@ func GetNodeList(c *gin.Context) {
 func GetNode(c *gin.Context) {
 	var result model.Node
 	id := c.Param("id")
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	for _, node := range NodeList {
 		if node.Id == bson.ObjectId(id) {
 			result = node
@@ -150,6 +154,10 @@ func Ping(c *gin.Context) {
 
 func PostNode(c *gin.Context) {
 	id := c.Param("id")
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	var oldItem model.Node
 	for _, node := range NodeList {
 		if node.Id == bson.ObjectId(id) {
@@ -200,7 +208,10 @@ func DeleteNode(c *gin.Context) {
 
 func GetSystemInfo(c *gin.Context) {
 	id := c.Param("id")
-	log.Info(id)
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
 	sysInfo := systemInfo
 
 	c.JSON(http.StatusOK, Response{

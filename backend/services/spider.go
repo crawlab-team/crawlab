@@ -8,6 +8,7 @@ import (
 	"crawlab/model"
 	"crawlab/services/spider_handler"
 	"crawlab/utils"
+	"errors"
 	"fmt"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
@@ -69,10 +70,9 @@ func UploadSpiderToGridFsFromMaster(spider model.Spider) error {
 	}
 
 	// 上传到GridFs
-	fid, err := UploadToGridFs(spiderZipFileName, tmpFilePath)
+	fid, err := RetryUploadToGridFs(spiderZipFileName, tmpFilePath)
 	if err != nil {
 		log.Errorf("upload to grid fs error: %s", err.Error())
-		return err
 	}
 
 	// 保存爬虫 FileId
@@ -140,6 +140,26 @@ func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, err er
 	fid = f.Id().(bson.ObjectId)
 
 	return fid, nil
+}
+
+// 带重试功能的上传至 GridFS
+func RetryUploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, err error) {
+	maxErrCount := 10
+	errCount := 0
+	for {
+		if errCount > maxErrCount {
+			break
+		}
+		fid, err = UploadToGridFs(fileName, filePath)
+		if err != nil {
+			errCount++
+			log.Errorf("upload to grid fs error: %s", err.Error())
+			time.Sleep(3 * time.Second)
+			continue
+		}
+		return fid, nil
+	}
+	return fid, errors.New("unable to upload to gridfs, please re-upload the spider")
 }
 
 // 写入grid fs
@@ -219,7 +239,9 @@ func PublishSpider(spider model.Spider) {
 	}
 
 	// 安装依赖
-	go spiderSync.InstallDeps()
+	if viper.GetString("setting.autoInstall") == "Y" {
+		go spiderSync.InstallDeps()
+	}
 
 	//目录不存在，则直接下载
 	path := filepath.Join(viper.GetString("spider.path"), spider.Name)
@@ -260,13 +282,13 @@ func RemoveSpider(id string) error {
 	utils.RemoveFiles(path)
 
 	// 删除其他节点的爬虫目录
-	msg := entity.NodeMessage{
-		Type:     constants.MsgTypeRemoveSpider,
-		SpiderId: id,
-	}
-	if err := database.Pub(constants.ChannelAllNode, msg); err != nil {
-		return err
-	}
+	//msg := entity.NodeMessage{
+	//	Type:     constants.MsgTypeRemoveSpider,
+	//	SpiderId: id,
+	//}
+	//if err := database.Pub(constants.ChannelAllNode, msg); err != nil {
+	//	return err
+	//}
 
 	// 从数据库中删除该爬虫
 	if err := model.RemoveSpider(bson.ObjectIdHex(id)); err != nil {

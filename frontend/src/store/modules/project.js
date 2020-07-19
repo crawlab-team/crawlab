@@ -21,7 +21,7 @@ const mutations = {
 }
 
 const actions = {
-  getProjectList ({ state, commit }, payload) {
+  getProjectList({ state, commit }, payload) {
     return request.get('/projects', payload)
       .then(response => {
         if (response.data.data) {
@@ -32,7 +32,7 @@ const actions = {
         }
       })
   },
-  getProjectTags ({ state, commit }) {
+  getProjectTags({ state, commit }) {
     return request.get('/projects/tags')
       .then(response => {
         if (response.data.data) {
@@ -40,13 +40,13 @@ const actions = {
         }
       })
   },
-  addProject ({ state }) {
+  addProject({ state }) {
     return request.put('/projects', state.projectForm)
   },
-  editProject ({ state }, id) {
+  editProject({ state }, id) {
     return request.post(`/projects/${id}`, state.projectForm)
   },
-  removeProject ({ state }, id) {
+  removeProject({ state }, id) {
     return request.delete(`/projects/${id}`)
   }
 }
