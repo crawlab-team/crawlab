@@ -58,7 +58,7 @@ func DownloadRepo(fullName string, userId bson.ObjectId) (err error) {
 	spider := model.GetSpiderByName(spiderName)
 	if spider.Name == "" {
 		// 新增
-		spider := model.Spider{
+		spider = model.Spider{
 			Id:          bson.NewObjectId(),
 			Name:        spiderName,
 			DisplayName: spiderName,
