@@ -1,3 +1,9 @@
+# 0.5.1 (TBC)
+### Features / Enhancement
+
+### Bug Fixes
+- **Fixed first download repo 500 error in Spider Market page**. [#808](https://github.com/crawlab-team/crawlab/issues/808)
+
 # 0.5.0 (2020-07-19)
 ### Features / Enhancement
 - **Spider Market**. Allow users to download open-source spiders into Crawlab.
