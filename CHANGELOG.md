@@ -1,8 +1,10 @@
 # 0.5.1 (TBC)
 ### Features / Enhancement
+- **Added error message details**.
 
 ### Bug Fixes
 - **Fixed first download repo 500 error in Spider Market page**. [#808](https://github.com/crawlab-team/crawlab/issues/808)
+- **Fixed some translation issues**.
 
 # 0.5.0 (2020-07-19)
 ### Features / Enhancement
