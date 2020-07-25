@@ -676,6 +676,7 @@ export default {
   'Are you sure to stop this task?': '确认停止这个任务?',
   'Enabled successfully': '成功启用',
   'Disabled successfully': '成功禁用',
+  'Request Error': '请求错误',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'

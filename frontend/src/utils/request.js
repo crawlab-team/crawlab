@@ -33,7 +33,7 @@ const errorHandler = (error) => {
     const errorText = response.data.error
     const { status } = response
     Message({
-      message: `请求错误 ${status}: ${response.request.responseURL}. ${errorText}`,
+      message: i18n.t('Request Error') + ` ${status}: ${response.request.responseURL}. ${errorText}`,
       type: 'error',
       duration: 5 * 1000
     })
