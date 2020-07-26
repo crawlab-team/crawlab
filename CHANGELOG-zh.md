@@ -5,6 +5,8 @@
 ### Bug 修复
 - **修复在爬虫市场中第一次下载爬虫时会报500错误**. [#808](https://github.com/crawlab-team/crawlab/issues/808)
 - **修复一部分翻译问题**.
+- **修复密码重置问题**. [#811](https://github.com/crawlab-team/crawlab/issues/811)
+- **修复无法安装 Node.js 问题**. [#813](https://github.com/crawlab-team/crawlab/issues/813)
 
 # 0.5.0 (2020-07-19)
 ### 功能 / 优化
