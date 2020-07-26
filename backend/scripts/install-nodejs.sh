@@ -9,6 +9,7 @@ touch /tmp/install-nodejs.lock
 # install node.js
 curl -sL https://deb.nodesource.com/setup_10.x | bash -
 apt install -y nodejs
+apt install -y npm
 
 # install chromium
 # See https://crbug.com/795759
