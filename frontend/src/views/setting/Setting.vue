@@ -48,9 +48,6 @@
           <el-form-item prop="username" :label="$t('Username')">
             <el-input v-model="userInfo.username" disabled />
           </el-form-item>
-          <el-form-item prop="password" :label="$t('Password')">
-            <el-input v-model="userInfo.password" type="password" :placeholder="$t('Password')" />
-          </el-form-item>
           <el-form-item :label="$t('Allow Sending Statistics')">
             <el-switch
               v-model="isAllowSendingStatistics"
@@ -77,6 +74,32 @@
         </el-form>
       </el-tab-pane>
       <!--./通用-->
+
+      <!--更改密码-->
+      <el-tab-pane :label="$t('Change Password')" name="change-password">
+        <el-form
+          ref="change-password-form"
+          :model="userInfo"
+          class="change-password-form"
+          label-width="200px"
+          inline-message
+        >
+          <el-form-item prop="password" :label="$t('Password')" required>
+            <el-input v-model="userInfo.password" type="password" :placeholder="$t('Password')" />
+          </el-form-item>
+          <el-form-item prop="confirm_password" :label="$t('Confirm Password')" required>
+            <el-input v-model="userInfo.confirm_password" type="password" :placeholder="$t('Confirm Password')" />
+          </el-form-item>
+          <el-form-item>
+            <div style="text-align: right">
+              <el-button type="success" size="small" @click="changePassword">
+                {{ $t('Save') }}
+              </el-button>
+            </div>
+          </el-form-item>
+        </el-form>
+      </el-tab-pane>
+      <!--./更改密码-->
 
       <!--消息通知-->
       <el-tab-pane :label="$t('Notifications')" name="notify">
@@ -517,28 +540,51 @@
         input.select()
         document.execCommand('copy')
         this.$message.success(this.$t('Token copied'))
+      },
+      changePassword() {
+        this.$refs['change-password-form'].validate(async valid => {
+          if (!valid) return
+          if (this.userInfo.password !== this.userInfo.confirm_password) {
+            this.$message.error(this.$t('Two passwords do not match'))
+            return
+          }
+          if (this.userInfo.password.length < 5) {
+            this.$message.error(this.$t('Password length should be no shorter than 5'))
+            return
+          }
+          const res = await this.$request.post(`/me/change-password`, {
+            password: this.userInfo.password
+          })
+          if (!res.data.error) {
+            this.$message.success(this.$t('Changed password successfully'))
+          }
+        })
       }
     }
   }
 </script>
 
 <style scoped>
-  .setting-form {
+  .setting-form,
+  .change-password-form {
     width: 600px;
   }
 
-  .setting-form .buttons {
+  .setting-form .buttons,
+  .change-password-form .buttons {
     text-align: right;
   }
 
-  .setting-form .icon {
+  .setting-form .icon,
+  .change-password-form .icon {
     top: calc(50% - 14px / 2);
     right: 14px;
     position: absolute;
     color: #DCDFE6;
   }
 
-  .setting-form >>> .el-form-item__label {
+  .setting-form >>> .el-form-item__label,
+  .change-password-form >>> .el-form-item__label {
     height: 40px;
   }
 

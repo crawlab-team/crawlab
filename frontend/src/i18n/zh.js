@@ -502,6 +502,7 @@ export default {
   'Log Errors': '日志错误',
   'No Expire': '不过期',
   'Log Expire Duration': '日志过期时间',
+  'Change Password': '更改密码',
 
   // 挑战
   'Challenge': '挑战',
@@ -677,6 +678,8 @@ export default {
   'Enabled successfully': '成功启用',
   'Disabled successfully': '成功禁用',
   'Request Error': '请求错误',
+  'Changed password successfully': '成功修改密码',
+  'Two passwords do not match': '两次密码不匹配',
 
   // 其他
   'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'
