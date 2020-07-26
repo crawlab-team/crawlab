@@ -844,7 +844,7 @@
   }
 
   .table {
-    min-height: 360px;
+    min-height: 720px;
     margin-top: 10px;
   }
 
