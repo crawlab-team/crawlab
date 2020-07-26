@@ -5,6 +5,7 @@
 ### Bug Fixes
 - **Fixed first download repo 500 error in Spider Market page**. [#808](https://github.com/crawlab-team/crawlab/issues/808)
 - **Fixed some translation issues**.
+- **Fixed 500 error in task detail page**. [#810](https://github.com/crawlab-team/crawlab/issues/810)
 - **Fixed password reset issue**. [#811](https://github.com/crawlab-team/crawlab/issues/811)
 - **Fixed unable to install node.js issue**. [#813](https://github.com/crawlab-team/crawlab/issues/813)
 
