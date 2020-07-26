@@ -234,10 +234,9 @@ const actions = {
       })
   },
   async getTaskResultExcel({ state, commit }, id) {
-    const { data } = await request.request('GET',
-      '/tasks/' + id + '/results/download', {}, {
-        responseType: 'blob' // important
-      })
+    const { data } = await request.get('/tasks/' + id + '/results/download', {}, {
+      responseType: 'blob' // important
+    })
     const downloadUrl = window.URL.createObjectURL(new Blob([data]))
 
     const link = document.createElement('a')
