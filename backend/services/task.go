@@ -23,7 +23,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"runtime"
 	"runtime/debug"
@@ -116,9 +115,7 @@ func AssignTask(task model.Task) error {
 func SetEnv(cmd *exec.Cmd, envs []model.Env, task model.Task, spider model.Spider) *exec.Cmd {
 	// 默认把Node.js的全局node_modules加入环境变量
 	envPath := os.Getenv("PATH")
-	homePath := os.Getenv("HOME")
-	nodeVersion := "v10.19.0"
-	nodePath := path.Join(homePath, ".nvm/versions/node", nodeVersion, "lib/node_modules")
+	nodePath := "/usr/lib/node_modules"
 	if !strings.Contains(envPath, nodePath) {
 		_ = os.Setenv("PATH", nodePath+":"+envPath)
 	}
