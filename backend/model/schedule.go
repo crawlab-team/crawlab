@@ -69,7 +69,10 @@ func GetScheduleList(filter interface{}) ([]Schedule, error) {
 		if schedule.RunType == constants.RunTypeSelectedNodes {
 			for _, nodeId := range schedule.NodeIds {
 				// 选择单一节点
-				node, _ := GetNode(nodeId)
+				node, err := GetNode(nodeId)
+				if err != nil {
+					continue
+				}
 				schedule.Nodes = append(schedule.Nodes, node)
 			}
 		}
