@@ -7,7 +7,9 @@
 - **修复一部分翻译问题**.
 - **修复任务详情 500 错误**. [#810](https://github.com/crawlab-team/crawlab/issues/810)
 - **修复密码重置问题**. [#811](https://github.com/crawlab-team/crawlab/issues/811)
+- **修复无法下载 CSV 问题**. [#812](https://github.com/crawlab-team/crawlab/issues/812)
 - **修复无法安装 Node.js 问题**. [#813](https://github.com/crawlab-team/crawlab/issues/813)
+- **修复批量添加定时任务时默认为禁用问题**. [#814](https://github.com/crawlab-team/crawlab/issues/814)
 
 # 0.5.0 (2020-07-19)
 ### 功能 / 优化
