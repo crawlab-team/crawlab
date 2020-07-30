@@ -74,6 +74,14 @@ func GetLangList() []entity.Lang {
 			InstallScript:   "install-chromedriver.sh",
 			Type:            constants.LangTypeWebDriver,
 		},
+		{
+			Name:            "Firefox",
+			ExecutableName:  "firefox",
+			ExecutablePaths: []string{"/usr/bin/firefox", "/usr/local/bin/firefox"},
+			LockPath:        "/tmp/install-firefox.lock",
+			InstallScript:   "install-firefox.sh",
+			Type:            constants.LangTypeWebDriver,
+		},
 	}
 	return list
 }
