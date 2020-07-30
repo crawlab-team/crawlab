@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"crawlab/constants"
 	"crawlab/entity"
 	"encoding/json"
 	"github.com/apex/log"
@@ -10,6 +11,7 @@ import (
 
 func GetLangList() []entity.Lang {
 	list := []entity.Lang{
+		// 语言
 		{
 			Name:              "Python",
 			ExecutableName:    "python",
@@ -18,6 +20,7 @@ func GetLangList() []entity.Lang {
 			LockPath:          "/tmp/install-python.lock",
 			DepFileName:       "requirements.txt",
 			InstallDepArgs:    "install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt",
+			Type:              constants.LangTypeLang,
 		},
 		{
 			Name:              "Node.js",
@@ -28,6 +31,7 @@ func GetLangList() []entity.Lang {
 			InstallScript:     "install-nodejs.sh",
 			DepFileName:       "package.json",
 			InstallDepArgs:    "install -g --registry=https://registry.npm.taobao.org",
+			Type:              constants.LangTypeLang,
 		},
 		{
 			Name:            "Java",
@@ -35,6 +39,7 @@ func GetLangList() []entity.Lang {
 			ExecutablePaths: []string{"/usr/bin/java", "/usr/local/bin/java"},
 			LockPath:        "/tmp/install-java.lock",
 			InstallScript:   "install-java.sh",
+			Type:            constants.LangTypeLang,
 		},
 		{
 			Name:            ".Net Core",
@@ -42,6 +47,7 @@ func GetLangList() []entity.Lang {
 			ExecutablePaths: []string{"/usr/bin/dotnet", "/usr/local/bin/dotnet"},
 			LockPath:        "/tmp/install-dotnet.lock",
 			InstallScript:   "install-dotnet.sh",
+			Type:            constants.LangTypeLang,
 		},
 		{
 			Name:            "PHP",
@@ -49,6 +55,7 @@ func GetLangList() []entity.Lang {
 			ExecutablePaths: []string{"/usr/bin/php", "/usr/local/bin/php"},
 			LockPath:        "/tmp/install-php.lock",
 			InstallScript:   "install-php.sh",
+			Type:            constants.LangTypeLang,
 		},
 		{
 			Name:            "Golang",
@@ -56,6 +63,16 @@ func GetLangList() []entity.Lang {
 			ExecutablePaths: []string{"/usr/bin/go", "/usr/local/bin/go"},
 			LockPath:        "/tmp/install-go.lock",
 			InstallScript:   "install-go.sh",
+			Type:            constants.LangTypeLang,
+		},
+		// WebDriver
+		{
+			Name:            "Chrome Driver",
+			ExecutableName:  "chromedriver",
+			ExecutablePaths: []string{"/usr/bin/chromedriver", "/usr/local/bin/chromedriver"},
+			LockPath:        "/tmp/install-chromedriver.lock",
+			InstallScript:   "install-chromedriver.sh",
+			Type:            constants.LangTypeWebDriver,
 		},
 	}
 	return list

@@ -71,6 +71,7 @@ func GetLangList(nodeId string) []entity.Lang {
 	return list
 }
 
+// 获取语言安装状态
 func GetLangInstallStatus(nodeId string, lang entity.Lang) (string, error) {
 	if IsMasterNode(nodeId) {
 		lang := rpc.GetLangLocal(lang)
