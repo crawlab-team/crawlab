@@ -542,19 +542,14 @@ func ExecuteTask(id int) {
 	}
 
 	// 获取爬虫
-	spider, err := t.GetSpider()
-	if err != nil {
-		log.Errorf("execute task, get spider error: %s", err.Error())
-		return
+	var spider model.Spider
+	if t.Type == constants.TaskTypeSpider {
+		spider, err = t.GetSpider()
+		if err != nil {
+			log.Errorf("execute task, get spider error: %s", err.Error())
+			return
+		}
 	}
-
-	// 创建日志目录
-	var fileDir string
-	if fileDir, err = MakeLogDir(t); err != nil {
-		return
-	}
-	// 获取日志文件路径
-	t.LogPath = GetLogFilePaths(fileDir, t)
 
 	// 工作目录
 	cwd := filepath.Join(
@@ -564,12 +559,19 @@ func ExecuteTask(id int) {
 
 	// 执行命令
 	var cmd string
-	if spider.Type == constants.Configurable {
-		// 可配置爬虫命令
-		cmd = "scrapy crawl config_spider"
-	} else {
-		// 自定义爬虫命令
-		cmd = spider.Cmd
+	if t.Type == constants.TaskTypeSpider {
+		// 爬虫任务
+		if spider.Type == constants.Configurable {
+			// 可配置爬虫命令
+			cmd = "scrapy crawl config_spider"
+		} else {
+			// 自定义爬虫命令
+			cmd = spider.Cmd
+		}
+		t.Cmd = cmd
+	} else if t.Type == constants.TaskTypeSystem {
+		// 系统任务
+		cmd = t.Cmd
 	}
 
 	// 加入参数
@@ -590,48 +592,51 @@ func ExecuteTask(id int) {
 	t.Status = constants.StatusRunning                   // 任务状态
 	t.WaitDuration = t.StartTs.Sub(t.CreateTs).Seconds() // 等待时长
 
-	// 发送 Web Hook 请求 (任务开始)
-	go SendWebHookRequest(user, t, spider)
-
-	// 文件检查
-	if err := SpiderFileCheck(t, spider); err != nil {
-		log.Errorf("spider file check error: %s", err.Error())
-		return
-	}
-
-	// 开始执行任务
-	log.Infof(GetWorkerPrefix(id) + "start task (id:" + t.Id + ")")
-
 	// 储存任务
 	_ = t.Save()
 
-	// 创建结果集索引
-	go func() {
-		col := utils.GetSpiderCol(spider.Col, spider.Name)
-		CreateResultsIndexes(col)
-	}()
+	// 发送 Web Hook 请求 (任务开始)
+	go SendWebHookRequest(user, t, spider)
 
-	// 起一个cron执行器来统计任务结果数
-	cronExec := cron.New(cron.WithSeconds())
-	_, err = cronExec.AddFunc("*/5 * * * * *", SaveTaskResultCount(t.Id))
-	if err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
-		debug.PrintStack()
-		return
-	}
-	cronExec.Start()
-	defer cronExec.Stop()
+	// 爬虫任务专属逻辑
+	if t.Type == constants.TaskTypeSpider {
+		// 文件检查
+		if err := SpiderFileCheck(t, spider); err != nil {
+			log.Errorf("spider file check error: %s", err.Error())
+			return
+		}
 
-	// 起一个cron来更新错误日志
-	cronExecErrLog := cron.New(cron.WithSeconds())
-	_, err = cronExecErrLog.AddFunc("*/30 * * * * *", ScanErrorLogs(t))
-	if err != nil {
-		log.Errorf(GetWorkerPrefix(id) + err.Error())
-		debug.PrintStack()
-		return
+		// 开始执行任务
+		log.Infof(GetWorkerPrefix(id) + "start task (id:" + t.Id + ")")
+
+		// 创建结果集索引
+		go func() {
+			col := utils.GetSpiderCol(spider.Col, spider.Name)
+			CreateResultsIndexes(col)
+		}()
+
+		// 起一个cron执行器来统计任务结果数
+		cronExec := cron.New(cron.WithSeconds())
+		_, err = cronExec.AddFunc("*/5 * * * * *", SaveTaskResultCount(t.Id))
+		if err != nil {
+			log.Errorf(GetWorkerPrefix(id) + err.Error())
+			debug.PrintStack()
+			return
+		}
+		cronExec.Start()
+		defer cronExec.Stop()
+
+		// 起一个cron来更新错误日志
+		cronExecErrLog := cron.New(cron.WithSeconds())
+		_, err = cronExecErrLog.AddFunc("*/30 * * * * *", ScanErrorLogs(t))
+		if err != nil {
+			log.Errorf(GetWorkerPrefix(id) + err.Error())
+			debug.PrintStack()
+			return
+		}
+		cronExecErrLog.Start()
+		defer cronExecErrLog.Stop()
 	}
-	cronExecErrLog.Start()
-	defer cronExecErrLog.Stop()
 
 	// 执行Shell命令
 	if err := ExecuteShellCmd(cmd, cwd, t, spider, user); err != nil {
@@ -813,6 +818,7 @@ func RestartTask(id string, uid bson.ObjectId) (err error) {
 		UserId:     uid,
 		RunType:    oldTask.RunType,
 		ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
+		Type:       oldTask.Type,
 	}
 
 	// 加入任务队列

@@ -13,7 +13,8 @@ const state = {
     node_id: '',
     spider_id: '',
     status: '',
-    schedule_id: ''
+    schedule_id: '',
+    type: 'spider'
   },
   // pagination
   pageNum: 1,
@@ -174,7 +175,8 @@ const actions = {
       node_id: state.filter.node_id || undefined,
       spider_id: state.filter.spider_id || undefined,
       status: state.filter.status || undefined,
-      schedule_id: state.filter.schedule_id || undefined
+      schedule_id: state.filter.schedule_id || undefined,
+      type: state.filter.type || undefined
     })
       .then(response => {
         commit('SET_TASK_LIST', response.data.data || [])

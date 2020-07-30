@@ -58,6 +58,7 @@ func AddScheduleTask(s model.Schedule) func() {
 					UserId:     s.UserId,
 					RunType:    constants.RunTypeAllNodes,
 					ScheduleId: s.Id,
+					Type:       constants.TaskTypeSpider,
 				}
 
 				if _, err := AddTask(t); err != nil {
@@ -73,6 +74,7 @@ func AddScheduleTask(s model.Schedule) func() {
 				UserId:     s.UserId,
 				RunType:    constants.RunTypeRandom,
 				ScheduleId: s.Id,
+				Type:       constants.TaskTypeSpider,
 			}
 			if _, err := AddTask(t); err != nil {
 				log.Errorf(err.Error())
@@ -90,6 +92,7 @@ func AddScheduleTask(s model.Schedule) func() {
 					UserId:     s.UserId,
 					RunType:    constants.RunTypeSelectedNodes,
 					ScheduleId: s.Id,
+					Type:       constants.TaskTypeSpider,
 				}
 
 				if _, err := AddTask(t); err != nil {

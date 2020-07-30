@@ -14,6 +14,24 @@
       <div class="filter">
         <div class="left">
           <el-form class="filter-form" :model="filter" label-width="100px" label-position="right" inline>
+            <el-form-item :label="$t('Type')">
+              <el-button-group>
+                <el-button
+                  size="small"
+                  :type="filter.type === 'spider' ? 'primary' : ''"
+                  @click="onClickType('spider')"
+                >
+                  {{ $t('Spider Tasks') }}
+                </el-button>
+                <el-button
+                  size="small"
+                  :type="filter.type === 'system' ? 'primary' : ''"
+                  @click="onClickType('system')"
+                >
+                  {{ $t('System Tasks') }}
+                </el-button>
+              </el-button-group>
+            </el-form-item>
             <el-form-item prop="node_id" :label="$t('Node')">
               <el-select v-model="filter.node_id" size="small" :placeholder="$t('Node')" @change="onFilterChange">
                 <el-option value="" :label="$t('All')" />
@@ -584,6 +602,11 @@
       onFilterChange() {
         this.$store.dispatch('task/getTaskList')
         this.$st.sendEv('任务列表', '筛选任务')
+      },
+      onClickType(type) {
+        this.$set(this.filter, 'type', type)
+        this.$store.dispatch('task/getTaskList')
+        this.$st.sendEv('任务列表', '选择类别', type)
       }
     }
   }

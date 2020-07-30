@@ -19,6 +19,7 @@ type TaskListRequestData struct {
 	SpiderId   string `form:"spider_id"`
 	ScheduleId string `form:"schedule_id"`
 	Status     string `form:"status"`
+	Type       string `form:"type"`
 }
 
 type TaskResultsRequestData struct {
@@ -63,6 +64,9 @@ func GetTaskList(c *gin.Context) {
 	}
 	if data.ScheduleId != "" {
 		query["schedule_id"] = bson.ObjectIdHex(data.ScheduleId)
+	}
+	if data.Type != "" {
+		query["type"] = data.Type
 	}
 
 	// 获取校验
@@ -150,6 +154,7 @@ func PutTask(c *gin.Context) {
 				UserId:     services.GetCurrentUserId(c),
 				RunType:    constants.RunTypeAllNodes,
 				ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
+				Type:       constants.TaskTypeSpider,
 			}
 
 			id, err := services.AddTask(t)
@@ -168,6 +173,7 @@ func PutTask(c *gin.Context) {
 			UserId:     services.GetCurrentUserId(c),
 			RunType:    constants.RunTypeRandom,
 			ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
+			Type:       constants.TaskTypeSpider,
 		}
 		id, err := services.AddTask(t)
 		if err != nil {
@@ -185,6 +191,7 @@ func PutTask(c *gin.Context) {
 				UserId:     services.GetCurrentUserId(c),
 				RunType:    constants.RunTypeSelectedNodes,
 				ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
+				Type:       constants.TaskTypeSpider,
 			}
 
 			id, err := services.AddTask(t)
@@ -225,6 +232,7 @@ func PutBatchTasks(c *gin.Context) {
 					UserId:     services.GetCurrentUserId(c),
 					RunType:    constants.RunTypeAllNodes,
 					ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
+					Type:       constants.TaskTypeSpider,
 				}
 
 				id, err := services.AddTask(t)
@@ -242,6 +250,7 @@ func PutBatchTasks(c *gin.Context) {
 				UserId:     services.GetCurrentUserId(c),
 				RunType:    constants.RunTypeRandom,
 				ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
+				Type:       constants.TaskTypeSpider,
 			}
 			id, err := services.AddTask(t)
 			if err != nil {
@@ -259,6 +268,7 @@ func PutBatchTasks(c *gin.Context) {
 					UserId:     services.GetCurrentUserId(c),
 					RunType:    constants.RunTypeSelectedNodes,
 					ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
+					Type:       constants.TaskTypeSpider,
 				}
 
 				id, err := services.AddTask(t)

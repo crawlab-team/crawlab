@@ -33,6 +33,7 @@ server:
     java: "N"
     dotnet: "N"
     php: "N"
+  scripts: "/app/backend/scripts"
 spider:
   path: "/app/spiders"
 task:

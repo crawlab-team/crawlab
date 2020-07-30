@@ -254,6 +254,11 @@ func main() {
 				authGroup.POST("/tasks-cancel", routes.CancelSelectedTask)                  // 批量取消任务
 				authGroup.POST("/tasks-restart", routes.RestartSelectedTask)                // 批量重试任务
 			}
+			// 系统任务/脚本
+			{
+				authGroup.PUT("/system-tasks", routes.PutSystemTask)      // 运行系统任务
+				authGroup.GET("/system-scripts", routes.GetSystemScripts) // 获取系统脚本列表
+			}
 			// 定时任务
 			{
 				authGroup.GET("/schedules", routes.GetScheduleList)                  // 定时任务列表

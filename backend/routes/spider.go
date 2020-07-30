@@ -812,6 +812,7 @@ func RunSelectedSpider(c *gin.Context) {
 					UserId:     services.GetCurrentUserId(c),
 					RunType:    constants.RunTypeAllNodes,
 					ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
+					Type:       constants.TaskTypeSpider,
 				}
 
 				id, err := services.AddTask(t)
@@ -830,6 +831,7 @@ func RunSelectedSpider(c *gin.Context) {
 				UserId:     services.GetCurrentUserId(c),
 				RunType:    constants.RunTypeRandom,
 				ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
+				Type:       constants.TaskTypeSpider,
 			}
 			id, err := services.AddTask(t)
 			if err != nil {
@@ -847,6 +849,7 @@ func RunSelectedSpider(c *gin.Context) {
 					UserId:     services.GetCurrentUserId(c),
 					RunType:    constants.RunTypeSelectedNodes,
 					ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
+					Type:       constants.TaskTypeSpider,
 				}
 
 				id, err := services.AddTask(t)

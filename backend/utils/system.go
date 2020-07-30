@@ -5,8 +5,11 @@ import (
 	"crawlab/entity"
 	"encoding/json"
 	"github.com/apex/log"
+	"github.com/spf13/viper"
 	"io/ioutil"
+	"path"
 	"runtime/debug"
+	"strings"
 )
 
 func GetLangList() []entity.Lang {
@@ -122,4 +125,25 @@ func GetPackageJsonDeps(filepath string) (deps []string, err error) {
 	}
 
 	return deps, nil
+}
+
+// 获取系统脚本列表
+func GetSystemScripts() (res []string) {
+	scriptsPath := viper.GetString("server.scripts")
+	for _, fInfo := range ListDir(scriptsPath) {
+		if !fInfo.IsDir() && strings.HasSuffix(fInfo.Name(), ".sh") {
+			res = append(res, fInfo.Name())
+		}
+	}
+	return res
+}
+
+func GetSystemScriptPath(scriptName string) string {
+	scriptsPath := viper.GetString("server.scripts")
+	for _, name := range GetSystemScripts() {
+		if name == scriptName {
+			return path.Join(scriptsPath, name)
+		}
+	}
+	return ""
 }
