@@ -317,15 +317,15 @@
       return {
         allLangs: [
           // 语言
-          { label: 'Python', name: 'python', hasDeps: true, type: 'lang' },
-          { label: 'Node.js', name: 'node', hasDeps: true, type: 'lang' },
-          { label: 'Java', name: 'java', hasDeps: false, type: 'lang' },
-          { label: '.Net Core', name: 'dotnet', hasDeps: false, type: 'lang' },
-          { label: 'PHP', name: 'php', hasDeps: false, type: 'lang' },
-          { label: 'Golang', name: 'go', hasDeps: false, type: 'lang' },
+          { label: 'Python', name: 'python', hasDeps: true, script: 'install-python.sh', type: 'lang' },
+          { label: 'Node.js', name: 'node', hasDeps: true, script: 'install-nodejs.sh', type: 'lang' },
+          { label: 'Java', name: 'java', hasDeps: false, script: 'install-java.sh', type: 'lang' },
+          { label: '.Net Core', name: 'dotnet', hasDeps: false, script: 'install-dotnet.sh', type: 'lang' },
+          { label: 'PHP', name: 'php', hasDeps: false, script: 'install-php.sh', type: 'lang' },
+          { label: 'Golang', name: 'go', hasDeps: false, script: 'install-go.sh', type: 'lang' },
           // web driver
-          { label: 'Chrome Driver', name: 'chromedriver', type: 'webdriver' },
-          { label: 'Firefox', name: 'firefox', type: 'webdriver' }
+          { label: 'Chrome Driver', name: 'chromedriver', script: 'install-chromedriver.sh', type: 'webdriver' },
+          { label: 'Firefox', name: 'firefox', script: 'install-firefox.sh', type: 'webdriver' }
         ],
         langsDataDict: {},
         handle: undefined,
@@ -433,17 +433,19 @@
           ev.stopPropagation()
         }
         const lang = this.getLangFromLabel(langLabel)
-        this.$request.post(`/nodes/${nodeId}/langs/install`, {
-          lang: lang.name
+        const res = await this.$request.put('/system-tasks', {
+          run_type: 'selected-nodes',
+          node_ids: [nodeId],
+          script: lang.script
         })
+        if (res && res.data && !res.data.error) {
+          this.$message.success(this.$t('Started to install') + ' ' + lang.label)
+        }
         const key = nodeId + '|' + lang.name
         this.$set(this.langsDataDict[key], 'install_status', 'installing')
         setTimeout(() => {
           this.getLangsData()
         }, 1000)
-        this.$request.put('/actions', {
-          type: 'install_lang'
-        })
         this.$st.sendEv('节点列表', '安装', '安装语言')
       },
       async onInstallLangAll(langLabel, ev) {
