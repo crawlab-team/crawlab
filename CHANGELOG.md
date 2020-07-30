@@ -1,6 +1,8 @@
 # 0.5.1 (TBC)
 ### Features / Enhancement
 - **Added error message details**.
+- **Added Golang programming language support**.
+- **Added web driver installation scripts for Chrome Driver and Firefox**.
 
 ### Bug Fixes
 - **Fixed first download repo 500 error in Spider Market page**. [#808](https://github.com/crawlab-team/crawlab/issues/808)

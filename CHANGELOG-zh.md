@@ -1,6 +1,8 @@
 # 0.5.1 (TBC)
 ### 功能 / 优化
 - **加入错误详情信息**.
+- **加入 Golang 编程语言支持**.
+- **加入 Chrome Driver 和 Firefox 的 Web Driver 安装脚本**.
 
 ### Bug 修复
 - **修复在爬虫市场中第一次下载爬虫时会报500错误**. [#808](https://github.com/crawlab-team/crawlab/issues/808)
