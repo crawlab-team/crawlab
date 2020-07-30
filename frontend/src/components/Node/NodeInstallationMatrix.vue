@@ -324,7 +324,8 @@
           { label: 'PHP', name: 'php', hasDeps: false, type: 'lang' },
           { label: 'Golang', name: 'go', hasDeps: false, type: 'lang' },
           // web driver
-          { label: 'Chrome Driver', name: 'chromedriver', type: 'webdriver' }
+          { label: 'Chrome Driver', name: 'chromedriver', type: 'webdriver' },
+          { label: 'Firefox', name: 'firefox', type: 'webdriver' }
         ],
         langsDataDict: {},
         handle: undefined,
