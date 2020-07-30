@@ -225,7 +225,8 @@
           { label: 'Node.js', name: 'node', hasDeps: true },
           { label: 'Java', name: 'java', hasDeps: false },
           { label: '.Net Core', name: 'dotnet', hasDeps: false },
-          { label: 'PHP', name: 'php', hasDeps: false }
+          { label: 'PHP', name: 'php', hasDeps: false },
+          { label: 'Golang', name: 'go', hasDeps: false }
         ],
         langsDataDict: {},
         handle: undefined,

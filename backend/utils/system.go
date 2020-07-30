@@ -50,6 +50,13 @@ func GetLangList() []entity.Lang {
 			LockPath:        "/tmp/install-php.lock",
 			InstallScript:   "install-php.sh",
 		},
+		{
+			Name:            "Golang",
+			ExecutableName:  "go",
+			ExecutablePaths: []string{"/usr/bin/go", "/usr/local/bin/go"},
+			LockPath:        "/tmp/install-go.lock",
+			InstallScript:   "install-go.sh",
+		},
 	}
 	return list
 }
