@@ -1,3 +1,9 @@
+# lock global
+touch /tmp/install.lock
+
+# lock
+touch /tmp/install-chromedriver.lock
+
 export DEBIAN_FRONTEND=noninteractive \
   && apt-get update \
   && apt-get install \
@@ -16,3 +22,9 @@ export DEBIAN_FRONTEND=noninteractive \
   && unzip /tmp/driver.zip \
   && chmod 755 chromedriver \
   && mv chromedriver /usr/local/bin
+
+# unlock global
+rm /tmp/install.lock
+
+# unlock
+rm /tmp/install-chromedriver.lock
