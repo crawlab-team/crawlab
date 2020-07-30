@@ -42,6 +42,8 @@ func PutSystemTask(c *gin.Context) {
 		return
 	}
 
+	// TODO: 校验脚本是否正在运行
+
 	// 获取执行命令
 	cmd := fmt.Sprintf("sh %s", utils.GetSystemScriptPath(reqBody.Script))
 
