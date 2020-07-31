@@ -242,6 +242,9 @@ func PutBatchSchedules(c *gin.Context) {
 		// 添加 UserID
 		s.UserId = services.GetCurrentUserId(c)
 
+		// 默认启用
+		s.Enabled = true
+
 		// 添加定时任务
 		if err := model.AddSchedule(s); err != nil {
 			log.Errorf("add schedule error: " + err.Error())

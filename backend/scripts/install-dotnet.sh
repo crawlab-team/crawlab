@@ -1,3 +1,8 @@
+#!/bin/bash
+
+# fail immediately if error
+set -e
+
 # lock global
 touch /tmp/install.lock
 

@@ -18,3 +18,8 @@ const (
 	InstallStatusInstallingOther = "installing-other"
 	InstallStatusInstalled       = "installed"
 )
+
+const (
+	LangTypeLang      = "lang"
+	LangTypeWebDriver = "webdriver"
+)

@@ -72,7 +72,11 @@
                       <i class="el-icon-error" />
                       {{ $t('Not Installed') }}
                     </el-tag>
-                    <el-button type="primary" size="mini" @click="onInstallLang(scope.row._id, scope.column.label, $event)">
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="onInstallLang(scope.row._id, scope.column.label, $event)"
+                    >
                       {{ $t('Install') }}
                     </el-button>
                   </div>
@@ -203,6 +207,97 @@
           </el-table-column>
         </el-table>
       </el-tab-pane>
+      <el-tab-pane label="Web Driver" name="webdriver">
+        <div class="webdriver-table">
+          <el-table
+            class="table"
+            :data="nodeList"
+            :header-cell-style="{background:'rgb(48, 65, 86)',color:'white',height:'50px'}"
+            border
+            @row-click="onLangTableRowClick"
+          >
+            <el-table-column
+              :label="$t('Node')"
+              width="240px"
+              prop="name"
+              fixed
+            />
+            <el-table-column
+              :label="$t('nodeList.type')"
+              width="120px"
+              fixed
+            >
+              <template slot-scope="scope">
+                <el-tag v-if="scope.row.is_master" type="primary">{{ $t('Master') }}</el-tag>
+                <el-tag v-else type="warning">{{ $t('Worker') }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              :label="$t('Status')"
+              width="120px"
+              fixed
+            >
+              <template slot-scope="scope">
+                <el-tag v-if="scope.row.status === 'offline'" type="info">{{ $t('Offline') }}</el-tag>
+                <el-tag v-else-if="scope.row.status === 'online'" type="success">{{ $t('Online') }}</el-tag>
+                <el-tag v-else type="danger">{{ $t('Unavailable') }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              v-for="wd in webdrivers"
+              :key="wd.name"
+              :label="wd.label"
+              width="220px"
+            >
+              <template slot="header" slot-scope="scope">
+                <div class="header-with-action">
+                  <span>{{ scope.column.label }}</span>
+                  <el-button type="primary" size="mini" @click="onInstallLangAll(scope.column.label, $event)">
+                    {{ $t('Install') }}
+                  </el-button>
+                </div>
+              </template>
+              <template slot-scope="scope">
+                <template v-if="getLangInstallStatus(scope.row._id, wd.name) === 'installed'">
+                  <el-tag type="success">
+                    <i class="el-icon-check" />
+                    {{ $t('Installed') }}
+                  </el-tag>
+                </template>
+                <template v-else-if="getLangInstallStatus(scope.row._id, wd.name) === 'installing'">
+                  <el-tag type="warning">
+                    <i class="el-icon-loading" />
+                    {{ $t('Installing') }}
+                  </el-tag>
+                </template>
+                <template
+                  v-else-if="['installing-other', 'not-installed'].includes(getLangInstallStatus(scope.row._id, wd.name))"
+                >
+                  <div class="cell-with-action">
+                    <el-tag type="danger">
+                      <i class="el-icon-error" />
+                      {{ $t('Not Installed') }}
+                    </el-tag>
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="onInstallLang(scope.row._id, scope.column.label, $event)"
+                    >
+                      {{ $t('Install') }}
+                    </el-button>
+                  </div>
+                </template>
+                <template v-else-if="getLangInstallStatus(scope.row._id, wd.name) === 'na'">
+                  <el-tag type="info">
+                    <i class="el-icon-question" />
+                    {{ $t('N/A') }}
+                  </el-tag>
+                </template>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -220,12 +315,17 @@
     },
     data() {
       return {
-        langs: [
-          { label: 'Python', name: 'python', hasDeps: true },
-          { label: 'Node.js', name: 'node', hasDeps: true },
-          { label: 'Java', name: 'java', hasDeps: false },
-          { label: '.Net Core', name: 'dotnet', hasDeps: false },
-          { label: 'PHP', name: 'php', hasDeps: false }
+        allLangs: [
+          // 语言
+          { label: 'Python', name: 'python', hasDeps: true, script: 'install-python.sh', type: 'lang' },
+          { label: 'Node.js', name: 'node', hasDeps: true, script: 'install-nodejs.sh', type: 'lang' },
+          { label: 'Java', name: 'java', hasDeps: false, script: 'install-java.sh', type: 'lang' },
+          { label: '.Net Core', name: 'dotnet', hasDeps: false, script: 'install-dotnet.sh', type: 'lang' },
+          { label: 'PHP', name: 'php', hasDeps: false, script: 'install-php.sh', type: 'lang' },
+          { label: 'Golang', name: 'go', hasDeps: false, script: 'install-go.sh', type: 'lang' },
+          // web driver
+          { label: 'Chrome Driver', name: 'chromedriver', script: 'install-chromedriver.sh', type: 'webdriver' },
+          { label: 'Firefox', name: 'firefox', script: 'install-firefox.sh', type: 'webdriver' }
         ],
         langsDataDict: {},
         handle: undefined,
@@ -243,6 +343,12 @@
       ...mapState('node', [
         'nodeList'
       ]),
+      langs() {
+        return this.allLangs.filter(d => d.type === 'lang')
+      },
+      webdrivers() {
+        return this.allLangs.filter(d => d.type === 'webdriver')
+      },
       activeNodes() {
         return this.nodeList.filter(d => d.status === 'online')
       },
@@ -254,7 +360,7 @@
         })
       },
       langsWithDeps() {
-        return this.langs.filter(l => l.hasDeps)
+        return this.allLangs.filter(l => l.hasDeps)
       }
     },
     watch: {
@@ -315,8 +421,8 @@
         return lang.install_status
       },
       getLangFromLabel(label) {
-        for (let i = 0; i < this.langs.length; i++) {
-          const lang = this.langs[i]
+        for (let i = 0; i < this.allLangs.length; i++) {
+          const lang = this.allLangs[i]
           if (lang.label === label) {
             return lang
           }
@@ -327,17 +433,19 @@
           ev.stopPropagation()
         }
         const lang = this.getLangFromLabel(langLabel)
-        this.$request.post(`/nodes/${nodeId}/langs/install`, {
-          lang: lang.name
+        const res = await this.$request.put('/system-tasks', {
+          run_type: 'selected-nodes',
+          node_ids: [nodeId],
+          script: lang.script
         })
+        if (res && res.data && !res.data.error) {
+          this.$message.success(this.$t('Started to install') + ' ' + lang.label)
+        }
         const key = nodeId + '|' + lang.name
         this.$set(this.langsDataDict[key], 'install_status', 'installing')
         setTimeout(() => {
           this.getLangsData()
         }, 1000)
-        this.$request.put('/actions', {
-          type: 'install_lang'
-        })
         this.$st.sendEv('节点列表', '安装', '安装语言')
       },
       async onInstallLangAll(langLabel, ev) {
