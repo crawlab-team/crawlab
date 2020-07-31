@@ -24,7 +24,7 @@
             </el-tag>
           </el-badge>
           <el-tag
-            v-if="taskForm.status === 'finished' && taskForm.result_count === 0"
+            v-if="taskForm.type === 'spider' && taskForm.status === 'finished' && taskForm.result_count === 0"
             type="danger"
             style="margin-left: 10px"
           >
@@ -32,8 +32,8 @@
             {{ $t('Empty results') }}
           </el-tag>
         </el-form-item>
-        <el-form-item :label="$t('Log File Path')">
-          <el-input v-model="taskForm.log_path" placeholder="Log File Path" disabled />
+        <el-form-item :label="$t('Execute Command')">
+          <el-input v-model="taskForm.cmd" placeholder="Execute Command" disabled />
         </el-form-item>
         <el-form-item :label="$t('Parameters')">
           <el-input v-model="taskForm.param" placeholder="Parameters" disabled />

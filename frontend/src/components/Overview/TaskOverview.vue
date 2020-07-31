@@ -2,6 +2,7 @@
   <div class="task-overview">
     <el-row class="action-wrapper">
       <el-button
+        v-if="taskForm.type === 'spider'"
         type="primary"
         size="small"
         icon="el-icon-position"
@@ -28,7 +29,7 @@
       </el-col>
 
       <el-col :span="12">
-        <el-row class="task-info-spider-wrapper wrapper">
+        <el-row v-if="taskForm.type === 'spider'" class="task-info-spider-wrapper wrapper">
           <h4 class="title spider-title" @click="onNavigateToSpider">
             <i class="fa fa-search" style="margin-right: 5px" />
             {{ $t('Spider Info') }}</h4>
@@ -66,6 +67,9 @@
       ]),
       ...mapState('spider', [
         'spiderForm'
+      ]),
+      ...mapState('task', [
+        'taskForm'
       ])
     },
     created() {

@@ -104,6 +104,7 @@ export default {
   'Worker': '工作节点',
   'Installation': '安装',
   'Search Dependencies': '搜索依赖',
+  'Started to install': '开始安装',
 
   // 节点列表
   'IP': 'IP地址',
