@@ -5,12 +5,15 @@ import (
 	"crawlab/database"
 	"crawlab/entity"
 	"crawlab/lib/cron"
+	"crawlab/model"
 	"crawlab/services/rpc"
 	"crawlab/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
 	"github.com/imroc/req"
 	"os/exec"
 	"regexp"
@@ -73,6 +76,22 @@ func GetLangList(nodeId string) []entity.Lang {
 
 // 获取语言安装状态
 func GetLangInstallStatus(nodeId string, lang entity.Lang) (string, error) {
+	_, err := model.GetTaskByFilter(bson.M{
+		"node_id": nodeId,
+		"cmd":     fmt.Sprintf("sh %s", utils.GetSystemScriptPath(lang.InstallScript)),
+		"status": bson.M{
+			"$in": []string{constants.StatusPending, constants.StatusRunning},
+		},
+	})
+	if err == nil {
+		// 任务正在运行，正在安装
+		return constants.InstallStatusInstalling, nil
+	}
+	if err != mgo.ErrNotFound {
+		// 发生错误
+		return "", err
+	}
+	// 获取状态
 	if IsMasterNode(nodeId) {
 		lang := rpc.GetLangLocal(lang)
 		return lang.InstallStatus, nil

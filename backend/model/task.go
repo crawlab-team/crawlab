@@ -5,6 +5,7 @@ import (
 	"crawlab/database"
 	"crawlab/utils"
 	"github.com/apex/log"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"runtime/debug"
 	"time"
@@ -514,4 +515,20 @@ func UpdateTaskErrorLogs(taskId string, errorRegexPattern string) error {
 	}
 
 	return nil
+}
+
+func GetTaskByFilter(filter bson.M) (t Task, err error) {
+	s, c := database.GetCol("tasks")
+	defer s.Close()
+
+	if err := c.Find(filter).One(&t); err != nil {
+		if err != mgo.ErrNotFound {
+			log.Errorf("find task by filter error: " + err.Error())
+			debug.PrintStack()
+			return t, err
+		}
+		return t, err
+	}
+
+	return t, nil
 }

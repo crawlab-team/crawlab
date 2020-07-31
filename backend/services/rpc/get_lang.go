@@ -48,17 +48,17 @@ func GetLangLocal(lang entity.Lang) entity.Lang {
 		}
 	}
 
-	// 检查是否正在安装
-	if utils.Exists(lang.LockPath) {
-		lang.InstallStatus = constants.InstallStatusInstalling
-		return lang
-	}
-
-	// 检查其他语言是否在安装
-	if utils.Exists("/tmp/install.lock") {
-		lang.InstallStatus = constants.InstallStatusInstallingOther
-		return lang
-	}
+	//// 检查是否正在安装
+	//if utils.Exists(lang.LockPath) {
+	//	lang.InstallStatus = constants.InstallStatusInstalling
+	//	return lang
+	//}
+	//
+	//// 检查其他语言是否在安装
+	//if utils.Exists("/tmp/install.lock") {
+	//	lang.InstallStatus = constants.InstallStatusInstallingOther
+	//	return lang
+	//}
 
 	lang.InstallStatus = constants.InstallStatusNotInstalled
 	return lang

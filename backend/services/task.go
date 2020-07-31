@@ -408,37 +408,17 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider, u 
 	if err := WaitTaskProcess(cmd, t, s); err != nil {
 		return err
 	}
-	ch <- constants.TaskFinish
-	return nil
-}
 
-// 生成日志目录
-func MakeLogDir(t model.Task) (fileDir string, err error) {
-	// 日志目录
-	fileDir = filepath.Join(viper.GetString("log.path"), t.SpiderId.Hex())
-
-	// 如果日志目录不存在，生成该目录
-	if !utils.Exists(fileDir) {
-		if err := os.MkdirAll(fileDir, 0777); err != nil {
-			log.Errorf("execute task, make log dir error: %s", err.Error())
-			debug.PrintStack()
-			return "", err
-		}
+	// 如果返回值不为0，返回错误
+	returnCode := cmd.ProcessState.ExitCode()
+	if returnCode != 0 {
+		log.Errorf(fmt.Sprintf("task returned code not zero: %d", returnCode))
+		debug.PrintStack()
+		return errors.New(fmt.Sprintf("task returned code not zero: %d", returnCode))
 	}
 
-	return fileDir, nil
-}
-
-// 获取日志文件路径
-func GetLogFilePaths(fileDir string, t model.Task) (filePath string) {
-	// 时间戳
-	ts := time.Now()
-	tsStr := ts.Format("20060102150405")
-
-	// stdout日志文件
-	filePath = filepath.Join(fileDir, t.Id+"_"+tsStr+".log")
-
-	return filePath
+	ch <- constants.TaskFinish
+	return nil
 }
 
 // 生成执行任务方法
@@ -695,11 +675,13 @@ func ExecuteTask(id int) {
 
 func FinishUpTask(s model.Spider, t model.Task) {
 	// 更新任务结果数
-	go func() {
-		if err := model.UpdateTaskResultCount(t.Id); err != nil {
-			return
-		}
-	}()
+	if t.Type == constants.TaskTypeSpider {
+		go func() {
+			if err := model.UpdateTaskResultCount(t.Id); err != nil {
+				return
+			}
+		}()
+	}
 
 	// 更新任务错误日志
 	go func() {
@@ -814,6 +796,7 @@ func RestartTask(id string, uid bson.ObjectId) (err error) {
 	newTask := model.Task{
 		SpiderId:   oldTask.SpiderId,
 		NodeId:     oldTask.NodeId,
+		Cmd:        oldTask.Cmd,
 		Param:      oldTask.Param,
 		UserId:     uid,
 		RunType:    oldTask.RunType,
