@@ -1,8 +1,10 @@
-# 0.5.1 (TBC)
+# 0.5.1 (2020-07-31)
 ### Features / Enhancement
 - **Added error message details**.
 - **Added Golang programming language support**.
 - **Added web driver installation scripts for Chrome Driver and Firefox**.
+- **Support system tasks**. A "system task" is similar to normal spider task, it allows users to view logs of general tasks such as installing languages.
+- **Changed methods of installing languages from RPC to system tasks**.
 
 ### Bug Fixes
 - **Fixed first download repo 500 error in Spider Market page**. [#808](https://github.com/crawlab-team/crawlab/issues/808)
