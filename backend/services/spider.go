@@ -517,6 +517,7 @@ func InitDemoSpiders() {
 		yamlFile, err := ioutil.ReadFile(path.Join(spiderPath, "Spiderfile"))
 		if err != nil {
 			log.Errorf("read yaml error: " + err.Error())
+			utils.RemoveFiles(spiderPath)
 			//debug.PrintStack()
 			continue
 		}
@@ -582,6 +583,8 @@ func InitDemoSpiders() {
 				debug.PrintStack()
 				continue
 			}
+		} else {
+		    utils.RemoveFiles(spiderPath)
 		}
 	}
 

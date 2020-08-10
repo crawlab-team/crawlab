@@ -1,4 +1,5 @@
 name: "realestate"
 display_name: "链家网 (Scrapy)"
 col: "results_realestate"
+type: "customized"
 cmd: "scrapy crawl lianjia"
