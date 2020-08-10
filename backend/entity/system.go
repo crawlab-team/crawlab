@@ -24,6 +24,7 @@ type Lang struct {
 	InstallStatus     string   `json:"install_status"`
 	DepFileName       string   `json:"dep_file_name"`
 	InstallDepArgs    string   `json:"install_dep_cmd"`
+	Type              string   `json:"type"`
 }
 
 type Dependency struct {

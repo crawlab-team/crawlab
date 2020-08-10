@@ -33,13 +33,14 @@ server:
     java: "N"
     dotnet: "N"
     php: "N"
+  scripts: "/app/backend/scripts"
 spider:
   path: "/app/spiders"
 task:
   workers: 16
 other:
   tmppath: "/tmp"
-version: 0.5.0
+version: 0.5.1
 setting:
   crawlabLogToES: "N" # Send crawlab runtime log to ES, open this option "Y", remember to set esClient
   crawlabLogIndex: "crawlab-log"

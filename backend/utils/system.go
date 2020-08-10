@@ -1,15 +1,20 @@
 package utils
 
 import (
+	"crawlab/constants"
 	"crawlab/entity"
 	"encoding/json"
 	"github.com/apex/log"
+	"github.com/spf13/viper"
 	"io/ioutil"
+	"path"
 	"runtime/debug"
+	"strings"
 )
 
 func GetLangList() []entity.Lang {
 	list := []entity.Lang{
+		// 语言
 		{
 			Name:              "Python",
 			ExecutableName:    "python",
@@ -18,6 +23,7 @@ func GetLangList() []entity.Lang {
 			LockPath:          "/tmp/install-python.lock",
 			DepFileName:       "requirements.txt",
 			InstallDepArgs:    "install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt",
+			Type:              constants.LangTypeLang,
 		},
 		{
 			Name:              "Node.js",
@@ -28,6 +34,7 @@ func GetLangList() []entity.Lang {
 			InstallScript:     "install-nodejs.sh",
 			DepFileName:       "package.json",
 			InstallDepArgs:    "install -g --registry=https://registry.npm.taobao.org",
+			Type:              constants.LangTypeLang,
 		},
 		{
 			Name:            "Java",
@@ -35,6 +42,7 @@ func GetLangList() []entity.Lang {
 			ExecutablePaths: []string{"/usr/bin/java", "/usr/local/bin/java"},
 			LockPath:        "/tmp/install-java.lock",
 			InstallScript:   "install-java.sh",
+			Type:            constants.LangTypeLang,
 		},
 		{
 			Name:            ".Net Core",
@@ -42,6 +50,7 @@ func GetLangList() []entity.Lang {
 			ExecutablePaths: []string{"/usr/bin/dotnet", "/usr/local/bin/dotnet"},
 			LockPath:        "/tmp/install-dotnet.lock",
 			InstallScript:   "install-dotnet.sh",
+			Type:            constants.LangTypeLang,
 		},
 		{
 			Name:            "PHP",
@@ -49,6 +58,32 @@ func GetLangList() []entity.Lang {
 			ExecutablePaths: []string{"/usr/bin/php", "/usr/local/bin/php"},
 			LockPath:        "/tmp/install-php.lock",
 			InstallScript:   "install-php.sh",
+			Type:            constants.LangTypeLang,
+		},
+		{
+			Name:            "Golang",
+			ExecutableName:  "go",
+			ExecutablePaths: []string{"/usr/bin/go", "/usr/local/bin/go"},
+			LockPath:        "/tmp/install-go.lock",
+			InstallScript:   "install-go.sh",
+			Type:            constants.LangTypeLang,
+		},
+		// WebDriver
+		{
+			Name:            "Chrome Driver",
+			ExecutableName:  "chromedriver",
+			ExecutablePaths: []string{"/usr/bin/chromedriver", "/usr/local/bin/chromedriver"},
+			LockPath:        "/tmp/install-chromedriver.lock",
+			InstallScript:   "install-chromedriver.sh",
+			Type:            constants.LangTypeWebDriver,
+		},
+		{
+			Name:            "Firefox",
+			ExecutableName:  "firefox",
+			ExecutablePaths: []string{"/usr/bin/firefox", "/usr/local/bin/firefox"},
+			LockPath:        "/tmp/install-firefox.lock",
+			InstallScript:   "install-firefox.sh",
+			Type:            constants.LangTypeWebDriver,
 		},
 	}
 	return list
@@ -90,4 +125,25 @@ func GetPackageJsonDeps(filepath string) (deps []string, err error) {
 	}
 
 	return deps, nil
+}
+
+// 获取系统脚本列表
+func GetSystemScripts() (res []string) {
+	scriptsPath := viper.GetString("server.scripts")
+	for _, fInfo := range ListDir(scriptsPath) {
+		if !fInfo.IsDir() && strings.HasSuffix(fInfo.Name(), ".sh") {
+			res = append(res, fInfo.Name())
+		}
+	}
+	return res
+}
+
+func GetSystemScriptPath(scriptName string) string {
+	scriptsPath := viper.GetString("server.scripts")
+	for _, name := range GetSystemScripts() {
+		if name == scriptName {
+			return path.Join(scriptsPath, name)
+		}
+	}
+	return ""
 }

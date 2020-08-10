@@ -213,24 +213,30 @@
         return ['pending', 'running'].includes(this.taskForm.status)
       }
     },
-    async created() {
+    async mounted() {
       await this.$store.dispatch('task/getTaskData', this.$route.params.id)
 
       this.isLogAutoFetch = !!this.isRunning
       this.isLogAutoScroll = !!this.isRunning
 
-      await this.$store.dispatch('task/getTaskResults', this.$route.params.id)
+      if (this.taskForm.type === 'spider') {
+        await this.$store.dispatch('task/getTaskResults', this.$route.params.id)
+      }
 
       await this.getTaskLog()
+
       this.handle = setInterval(async() => {
         if (this.isLogAutoFetch) {
           await this.$store.dispatch('task/getTaskData', this.$route.params.id)
-          await this.$store.dispatch('task/getTaskResults', this.$route.params.id)
+
           await this.getTaskLog()
+
+          if (this.taskForm.type === 'spider') {
+            await this.$store.dispatch('task/getTaskResults', this.$route.params.id)
+          }
         }
       }, 5000)
-    },
-    mounted() {
+
       if (!this.$utils.tour.isFinishedTour('task-detail')) {
         this.$utils.tour.startTour(this, 'task-detail')
       }
@@ -241,9 +247,6 @@
     methods: {
       onTabClick(tab) {
         this.$st.sendEv('任务详情', '切换标签', tab.name)
-      },
-      onSpiderChange(id) {
-        this.$router.push(`/spiders/${id}`)
       },
       onResultsPageChange(payload) {
         const { pageNum, pageSize } = payload

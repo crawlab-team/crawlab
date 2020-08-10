@@ -1,4 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/bash
+
+# fail immediately if error
+set -e
 
 { # this ensures the entire script is downloaded #
 

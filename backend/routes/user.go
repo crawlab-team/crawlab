@@ -279,9 +279,6 @@ func PostMe(c *gin.Context) {
 	if reqBody.Email != "" {
 		user.Email = reqBody.Email
 	}
-	if reqBody.Password != "" {
-		user.Password = utils.EncryptPassword(reqBody.Password)
-	}
 	if reqBody.Setting.NotificationTrigger != "" {
 		user.Setting.NotificationTrigger = reqBody.Setting.NotificationTrigger
 	}
@@ -302,6 +299,36 @@ func PostMe(c *gin.Context) {
 		user.UserId = bson.ObjectIdHex(constants.ObjectIdNull)
 	}
 
+	if err := user.Save(); err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+	})
+}
+
+func PostMeChangePassword(c *gin.Context) {
+	ctx := context.WithGinContext(c)
+	user := ctx.User()
+	if user == nil {
+		ctx.FailedWithError(constants.ErrorUserNotFound, http.StatusUnauthorized)
+		return
+	}
+	var reqBody model.User
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		HandleErrorF(http.StatusBadRequest, c, "invalid request")
+		return
+	}
+	if reqBody.Password == "" {
+		HandleErrorF(http.StatusBadRequest, c, "password is empty")
+		return
+	}
+	if user.UserId.Hex() == "" {
+		user.UserId = bson.ObjectIdHex(constants.ObjectIdNull)
+	}
+	user.Password = utils.EncryptPassword(reqBody.Password)
 	if err := user.Save(); err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return

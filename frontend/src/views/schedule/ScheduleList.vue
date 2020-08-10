@@ -688,7 +688,7 @@
               ids: this.selectedSchedules.map(d => d._id)
             })
             if (!res.data.error) {
-              this.$message.success('Deleted successfully')
+              this.$message.success(this.$t('Deleted successfully'))
               this.$refs['table'].clearSelection()
               await this.$store.dispatch('schedule/getScheduleList')
             }
@@ -844,7 +844,7 @@
   }
 
   .table {
-    min-height: 360px;
+    min-height: 720px;
     margin-top: 10px;
   }
 

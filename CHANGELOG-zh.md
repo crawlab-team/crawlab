@@ -1,3 +1,20 @@
+# 0.5.1 (2020-07-31)
+### 功能 / 优化
+- **加入错误详情信息**.
+- **加入 Golang 编程语言支持**.
+- **加入 Chrome Driver 和 Firefox 的 Web Driver 安装脚本**.
+- **支持系统任务**. "系统任务"跟普通爬虫任务相似，允许用户查看诸如安装语言之类的任务日志.
+- **将安装语言从 RPC 更改为系统任务**.
+
+### Bug 修复
+- **修复在爬虫市场中第一次下载爬虫时会报500错误**. [#808](https://github.com/crawlab-team/crawlab/issues/808)
+- **修复一部分翻译问题**.
+- **修复任务详情 500 错误**. [#810](https://github.com/crawlab-team/crawlab/issues/810)
+- **修复密码重置问题**. [#811](https://github.com/crawlab-team/crawlab/issues/811)
+- **修复无法下载 CSV 问题**. [#812](https://github.com/crawlab-team/crawlab/issues/812)
+- **修复无法安装 Node.js 问题**. [#813](https://github.com/crawlab-team/crawlab/issues/813)
+- **修复批量添加定时任务时默认为禁用问题**. [#814](https://github.com/crawlab-team/crawlab/issues/814)
+
 # 0.5.0 (2020-07-19)
 ### 功能 / 优化
 - **爬虫市场**. 允许用户下载开源爬虫到 Crawlab.

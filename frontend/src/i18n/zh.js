@@ -38,6 +38,7 @@ export default {
   Running: '进行中',
   Finished: '已完成',
   Error: '错误',
+  Errors: '错误',
   NA: '未知',
   Cancelled: '已取消',
   Abnormal: '异常',
@@ -104,6 +105,9 @@ export default {
   'Worker': '工作节点',
   'Installation': '安装',
   'Search Dependencies': '搜索依赖',
+  'Monitor': '监控',
+  'Time Range': '时间区间',
+  'Started to install': '开始安装',
 
   // 节点列表
   'IP': 'IP地址',
@@ -114,6 +118,38 @@ export default {
   Offline: '离线',
   Unavailable: '未知',
 
+  // 监控指标
+  'node_stats_cpu_usage_percent': '节点 CPU 使用百分比',
+  'node_stats_disk_total': '节点总磁盘大小',
+  'node_stats_disk_usage': '节点磁盘使用量',
+  'node_stats_disk_usage_percent': '节点磁盘使用百分比',
+  'node_stats_mem_total': '节点总内存大小',
+  'node_stats_mem_usage': '节点内存使用量',
+  'node_stats_mem_usage_percent': '节点内存使用百分比',
+  'node_stats_network_bytes_recv': '节点网络接收字节数',
+  'node_stats_network_bytes_sent': '节点网络发送字节数',
+  'node_stats_network_packets_recv': '节点网络接收包数',
+  'node_stats_network_packets_sent': '节点网络发送包数',
+  'mongo_stats_mem_resident': 'MongoDB 内存使用量',
+  'mongo_stats_mem_virtual': 'MongoDB 虚拟内存大小',
+  'mongo_stats_mem_usage_percent': 'MongoDB 内存使用百分比',
+  'mongo_stats_fs_total': 'MongoDB 总文件系统大小',
+  'mongo_stats_fs_used': 'MongoDB 文件系统使用量',
+  'mongo_stats_fs_usage_percent': 'MongoDB 文件系统使用百分比',
+  'mongo_stats_storage_size': 'MongoDB 储存大小',
+  'mongo_stats_data_size': 'MongoDB 数据大小',
+  'mongo_stats_index_size': 'MongoDB 索引大小',
+  'mongo_stats_objects': 'MongoDB Object 数量',
+  'mongo_stats_collections': 'MongoDB Collection 数量',
+  'mongo_stats_indexes': 'MongoDB 索引数量',
+  'mongo_stats_avg_obj_size': 'MongoDB 平均 Object 大小',
+  'redis_stats_dataset_bytes': 'Redis 数据字节数',
+  'redis_stats_keys_count': 'Redis Key 数量',
+  'redis_stats_overhead_total': 'Redis Overhead 总大小',
+  'redis_stats_peak_allocated': 'Redis 峰值分配大小',
+  'redis_stats_startup_allocated': 'Redis 启动分配大小',
+  'redis_stats_total_allocated': 'Redis 总分配大小',
+
   // 爬虫
   'Spider Info': '爬虫信息',
   'Spider ID': '爬虫ID',
@@ -121,6 +157,8 @@ export default {
   'Source Folder': '代码目录',
   'Execute Command': '执行命令',
   'Results Collection': '结果集',
+  'Results Table': '结果表',
+  'Default': '默认',
   'Spider Type': '爬虫类型',
   'Language': '语言',
   'Schedule Enabled': '是否开启定时任务',
@@ -284,6 +322,9 @@ export default {
   'Start Time': '开始时间',
   'Finish Time': '结束时间',
   'Update Time': '更新时间',
+  'Type': '类别',
+  'Spider Tasks': '爬虫任务',
+  'System Tasks': '系统任务',
 
   // 部署
   'Time': '时间',
@@ -425,6 +466,8 @@ export default {
   'Disclaimer': '免责声明',
   'Please search dependencies': '请搜索依赖',
   'No Data': '暂无数据',
+  'No data available': '暂无数据',
+  'No data available. Please check whether your spiders are missing dependencies or no spiders created.': '暂无数据。请检查您的爬虫是否缺少依赖，或者没有创建爬虫。',
   'Show installed': '查看已安装',
   'Installing dependency successful': '安装依赖成功',
   'Installing dependency failed': '安装依赖失败',
@@ -502,6 +545,14 @@ export default {
   'Log Errors': '日志错误',
   'No Expire': '不过期',
   'Log Expire Duration': '日志过期时间',
+  'Database': '数据库',
+  'Data Source': '数据源',
+  'Data Source Type': '数据源类别',
+  'Host': '主机',
+  'Host address, e.g. 192.168.0.1': '主机地址，例如 192.168.0.1',
+  'Port, e.g. 27017': '端口，例如 27017',
+  'Auth Source (Default: admin)': 'Auth Source (默认: admin)',
+  'Change Password': '更改密码',
 
   // 挑战
   'Challenge': '挑战',
@@ -556,12 +607,21 @@ export default {
     // Cron Format: [second] [minute] [hour] [day of month] [month] [day of week]
     cron_format: 'Cron 格式: [秒] [分] [小时] [日] [月] [周]'
   },
-  auth: {
-    login_expired_message: '您已注销，可以取消以保留在该页面上，或者再次登录',
-    login_expired_title: '确认登出',
-    login_expired_confirm: '确认',
-    login_expired_cancel: '取消'
-  },
+
+  // 监控
+  'Disk': '磁盘',
+  'Data Size': '数据大小',
+  'Storage Size': '储存大小',
+  'Memory': '内存',
+  'CPU': 'CPU',
+  'Index Size': '索引大小',
+  'Total Allocated': '总分配内存',
+  'Peak Allocated': '峰值内存',
+  'Dataset Size': '数据大小',
+  'Overhead Size': '额外开销',
+  'Disk Usage': '磁盘使用量',
+  'Memory Usage': '内存使用量',
+
   // 内容
   addNodeInstruction: `
 您不能在 Crawlab 的 Web 界面直接添加节点。
@@ -665,6 +725,9 @@ export default {
   'Are you sure to add an API token?': '确认创建 API Token?',
   'Are you sure to delete this API token?': '确认删除该 API Token?',
   'Please enter Web Hook URL': '请输入 Web Hook URL',
+  'Change data source failed': '更改数据源失败',
+  'Changed data source successfully': '更改数据源成功',
+  'Are you sure to delete this data source?': '您确定删除该数据源?',
   'Are you sure to download this spider?': '您确定要下载该爬虫?',
   'Downloaded successfully': '下载成功',
   'Unable to submit because of some errors': '有错误，无法提交',
@@ -676,7 +739,11 @@ export default {
   'Are you sure to stop this task?': '确认停止这个任务?',
   'Enabled successfully': '成功启用',
   'Disabled successfully': '成功禁用',
+  'Request Error': '请求错误',
+  'Changed password successfully': '成功修改密码',
+  'Two passwords do not match': '两次密码不匹配',
 
   // 其他
-  'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧'
+  'Star crawlab-team/crawlab on GitHub': '在 GitHub 上为 Crawlab 加星吧',
+  'How to buy': '如何购买'
 }

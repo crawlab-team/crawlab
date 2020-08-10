@@ -25,3 +25,8 @@ const (
 	RunTypeRandom        string = "random"
 	RunTypeSelectedNodes string = "selected-nodes"
 )
+
+const (
+	TaskTypeSpider string = "spider"
+	TaskTypeSystem string = "system"
+)
