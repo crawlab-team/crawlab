@@ -125,12 +125,12 @@ func (s *SpiderSync) Download() {
 	defer session.Close()
 
 	f, err := gf.OpenId(bson.ObjectIdHex(fileId))
-	defer utils.Close(f)
 	if err != nil {
 		log.Errorf("open file id: " + fileId + ", spider id:" + spiderId + ", error: " + err.Error())
 		debug.PrintStack()
 		return
 	}
+	defer utils.Close(f)
 
 	// 生成唯一ID
 	randomId := uuid.NewV4()
