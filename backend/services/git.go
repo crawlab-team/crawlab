@@ -139,17 +139,9 @@ func SaveSpiderGitSyncError(s model.Spider, errMsg string) {
 // 获得Git分支
 func GetGitRemoteBranchesPlain(gitUrl string, username string, password string) (branches []string, err error) {
 	storage := memory.NewStorage()
-	u, _ := url.Parse(gitUrl)
 	var listOptions git.ListOptions
 	if strings.HasPrefix(gitUrl, "http") {
-		gitUrl = fmt.Sprintf(
-			"%s://%s:%s@%s%s",
-			u.Scheme,
-			username,
-			password,
-			u.Hostname(),
-			u.Path,
-		)
+		gitUrl = formatGitUrl(gitUrl, username, password)
 	} else {
 		auth, err := ssh.NewPublicKeysFromFile(username, path.Join(os.Getenv("HOME"), ".ssh", "id_rsa"), "")
 		if err != nil {
@@ -181,6 +173,33 @@ func GetGitRemoteBranchesPlain(gitUrl string, username string, password string) 
 	}
 
 	return branches, nil
+}
+
+func formatGitUrl(gitUrl, username, password string) string {
+	u, _ := url.Parse(gitUrl)
+	gitHost := u.Hostname()
+	gitPort := u.Port()
+	if gitPort == "" {
+		gitUrl = fmt.Sprintf(
+			"%s://%s:%s@%s%s",
+			u.Scheme,
+			username,
+			password,
+			u.Hostname(),
+			u.Path,
+		)
+	} else {
+		gitUrl = fmt.Sprintf(
+			"%s://%s:%s@%s:%s%s",
+			u.Scheme,
+			username,
+			password,
+			gitHost,
+			gitPort,
+			u.Path,
+		)
+	}
+	return gitUrl
 }
 
 // 重置爬虫Git
