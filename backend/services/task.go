@@ -10,6 +10,7 @@ import (
 	"crawlab/services/notification"
 	"crawlab/services/rpc"
 	"crawlab/services/spider_handler"
+	"crawlab/services/sys_exec"
 	"crawlab/utils"
 	"encoding/json"
 	"errors"
@@ -24,12 +25,10 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 )
 
@@ -281,15 +280,8 @@ func FinishOrCancelTask(ch chan string, cmd *exec.Cmd, s model.Spider, t model.T
 	log.Infof("process received signal: %s", signal)
 
 	if signal == constants.TaskCancel && cmd.Process != nil {
-		var err error
-		// 兼容windows
-		if runtime.GOOS == constants.Windows {
-			err = cmd.Process.Kill()
-		} else {
-			err = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
-		}
-		// 取消进程
-		if err != nil {
+		// 终止进程
+		if err := sys_exec.KillProcess(cmd); err != nil {
 			log.Errorf("process kill error: %s", err.Error())
 			debug.PrintStack()
 
@@ -359,12 +351,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider, u 
 	wg := &sync.WaitGroup{}
 
 	// 生成执行命令
-	var cmd *exec.Cmd
-	if runtime.GOOS == constants.Windows {
-		cmd = exec.Command("cmd", "/C", cmdStr)
-	} else {
-		cmd = exec.Command("sh", "-c", cmdStr)
-	}
+	cmd := sys_exec.BuildCmd(cmdStr)
 
 	// 工作目录
 	cmd.Dir = cwd
@@ -395,9 +382,7 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider, u 
 	go FinishOrCancelTask(ch, cmd, s, t)
 
 	// kill的时候，可以kill所有的子进程
-	if runtime.GOOS != constants.Windows {
-		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	}
+	sys_exec.Setpgid(cmd)
 
 	// 启动进程
 	if err := StartTaskProcess(cmd, t); err != nil {
