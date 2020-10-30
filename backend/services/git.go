@@ -260,7 +260,7 @@ func SyncSpiderGit(s model.Spider) (err error) {
 			u.Scheme,
 			s.GitUsername,
 			s.GitPassword,
-			u.Hostname(),
+			u.Host,
 			u.Path,
 		)
 	}
