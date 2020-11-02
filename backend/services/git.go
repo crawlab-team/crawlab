@@ -248,21 +248,11 @@ func SyncSpiderGit(s model.Spider) (err error) {
 	}
 
 	// 生成 URL
-	gitUrl := s.GitUrl
+	var gitUrl string
 	if s.GitUsername != "" && s.GitPassword != "" {
-		u, err := url.Parse(s.GitUrl)
-		if err != nil {
-			SaveSpiderGitSyncError(s, err.Error())
-			return err
-		}
-		gitUrl = fmt.Sprintf(
-			"%s://%s:%s@%s%s",
-			u.Scheme,
-			s.GitUsername,
-			s.GitPassword,
-			u.Hostname(),
-			u.Path,
-		)
+		gitUrl = formatGitUrl(s.GitUrl, s.GitUsername, s.GitPassword)
+	} else {
+		gitUrl = s.GitUrl
 	}
 
 	// 创建 remote
