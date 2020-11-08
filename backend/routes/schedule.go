@@ -127,6 +127,8 @@ func PutSchedule(c *gin.Context) {
 		return
 	}
 
+	//成功后，则启动定时任务
+	item.Enabled=true
 	// 加入用户ID
 	item.UserId = services.GetCurrentUserId(c)
 
@@ -141,6 +143,7 @@ func PutSchedule(c *gin.Context) {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
+
 
 	HandleSuccess(c)
 }
