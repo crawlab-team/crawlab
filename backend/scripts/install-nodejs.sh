@@ -10,9 +10,8 @@ touch /tmp/install.lock
 touch /tmp/install-nodejs.lock
 
 # install node.js
-curl -sL https://deb.nodesource.com/setup_10.x | bash -
-apt-get update && apt install -y nodejs nodejs-dev node-gyp libssl1.0-dev
-apt-get update && apt install -y npm
+curl -sL https://deb.nodesource.com/setup_12.x | bash -
+apt-get update && apt install -y nodejs 
 
 # install chromium
 # See https://crbug.com/795759
@@ -38,7 +37,7 @@ apt-get update \
 # install default dependencies
 PUPPETEER_DOWNLOAD_HOST=https://npm.taobao.org/mirrors
 npm config set puppeteer_download_host=https://npm.taobao.org/mirrors
-npm install puppeteer-chromium-resolver crawlab-sdk -g --unsafe-perm=true --registry=https://registry.npm.taobao.org
+npm install puppeteer-chromium-resolver apify crawlab-sdk -g --unsafe-perm=true --registry=https://registry.npm.taobao.org
 
 # unlock
 rm /tmp/install-nodejs.lock

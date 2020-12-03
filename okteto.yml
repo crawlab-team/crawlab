@@ -1,0 +1,15 @@
+name: oktetocrawl
+image: okteto/golang:1
+command: bash
+securityContext:
+  capabilities:
+    add:
+    - SYS_PTRACE
+volumes:
+- /go/pkg/
+- /root/.cache/go-build/
+sync:
+- .:/usr/src/app
+forward:
+- 2345:2345
+- 8080:8080

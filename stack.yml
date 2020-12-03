@@ -1,0 +1,44 @@
+name: crawlab
+services:
+  master:
+    public: true
+    image: tikazyq/crawlab:latest
+    #container_name: master
+    environment:
+     - CRAWLAB_SERVER_MASTER=Y
+     - CRAWLAB_MONGO_HOST=mongo
+     - CRAWLAB_REDIS_ADDRESS=redis 
+     - CRAWLAB_SERVER_LANG_NODE=Y
+
+    ports:
+      - 8080
+    # depends_on:
+    #   - mongo
+    #   - redis
+      
+  worker:
+    public: true
+    image: tikazyq/crawlab:latest
+    #container_name: worker
+    environment:
+     - CRAWLAB_SERVER_MASTER=Y
+     - CRAWLAB_MONGO_HOST=mongo
+     - CRAWLAB_REDIS_ADDRESS=redis 
+     - CRAWLAB_SERVER_LANG_NODE=Y
+    # depends_on:
+    #   - mongo
+    #   - redis
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - 27017
+
+  redis:
+    image: redis:latest
+    resources:
+      cpu: 100m
+      memory: 128Mi
+      storage: 1Gi
+    ports:
+      - 6379

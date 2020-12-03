@@ -9,6 +9,7 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	"github.com/gomodule/redigo/redis"
 	"github.com/spf13/viper"
+	"net/url"
 	"runtime/debug"
 	"strings"
 	"time"
@@ -167,17 +168,17 @@ func NewRedisPool() *redis.Pool {
 	var address = viper.GetString("redis.address")
 	var port = viper.GetString("redis.port")
 	var database = viper.GetString("redis.database")
-	var password = viper.GetString("redis.password")
+	var password = url.QueryEscape(viper.GetString("redis.password"))
 
-	var url string
+	var redisUrl string
 	if password == "" {
-		url = "redis://" + address + ":" + port + "/" + database
+		redisUrl = "redis://" + address + ":" + port + "/" + database
 	} else {
-		url = "redis://x:" + password + "@" + address + ":" + port + "/" + database
+		redisUrl = "redis://x:" + password + "@" + address + ":" + port + "/" + database
 	}
 	return &redis.Pool{
 		Dial: func() (conn redis.Conn, e error) {
-			return redis.DialURL(url,
+			return redis.DialURL(redisUrl,
 				redis.DialConnectTimeout(time.Second*10),
 				redis.DialReadTimeout(time.Second*600),
 				redis.DialWriteTimeout(time.Second*10),
