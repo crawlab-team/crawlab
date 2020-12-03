@@ -312,6 +312,7 @@ func SyncSpiderGit(s model.Spider) (err error) {
 	if err := wt.Pull(&git.PullOptions{
 		RemoteName:    "origin",
 		Auth:          auth,
+		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 		ReferenceName: plumbing.HEAD,
 		SingleBranch:  false,
 	}); err != nil {
