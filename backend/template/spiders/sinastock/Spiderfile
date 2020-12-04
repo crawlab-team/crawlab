@@ -1,5 +1,0 @@
-name: "sinastock"
-display_name: "新浪股票 (Scrapy)"
-type: "customized"
-col: "results_sinastock"
-cmd: "scrapy crawl sinastock_spider"

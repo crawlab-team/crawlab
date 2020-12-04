@@ -2,24 +2,20 @@ package main
 
 import (
 	"context"
-	"crawlab/config"
-	"crawlab/database"
-	_ "crawlab/docs"
-	validate2 "crawlab/lib/validate"
-	"crawlab/middlewares"
-	"crawlab/model"
-	"crawlab/routes"
-	"crawlab/services"
-	"crawlab/services/challenge"
-	"crawlab/services/rpc"
 	"github.com/apex/log"
+	"github.com/crawlab-team/crawlab-core/config"
+	validate2 "github.com/crawlab-team/crawlab-core/lib/validate"
+	"github.com/crawlab-team/crawlab-core/middlewares"
+	"github.com/crawlab-team/crawlab-core/model"
+	"github.com/crawlab-team/crawlab-core/routes"
+	"github.com/crawlab-team/crawlab-core/services"
+	"github.com/crawlab-team/crawlab-core/services/rpc"
+	"github.com/crawlab-team/crawlab-db"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"github.com/olivere/elastic/v7"
 	"github.com/spf13/viper"
-	"github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
 	"net"
 	"net/http"
 	"os"
@@ -29,20 +25,11 @@ import (
 	"time"
 )
 
-var swagHandler gin.HandlerFunc
-
-func init() {
-	swagHandler = ginSwagger.WrapHandler(swaggerFiles.Handler)
-}
 func main() {
 	app := gin.New()
 	app.Use(gin.Logger(), gin.Recovery())
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		_ = v.RegisterValidation("bid", validate2.MongoID)
-	}
-
-	if swagHandler != nil {
-		app.GET("/swagger/*any", swagHandler)
 	}
 
 	// 初始化配置
@@ -52,7 +39,7 @@ func main() {
 	}
 	log.Info("initialized config successfully")
 	// 初始化Mongodb数据库
-	if err := database.InitMongo(); err != nil {
+	if err := db.InitMongo(); err != nil {
 		log.Error("init mongodb error:" + err.Error())
 		debug.PrintStack()
 		panic(err)
@@ -60,7 +47,7 @@ func main() {
 	log.Info("initialized mongodb successfully")
 
 	// 初始化Redis数据库
-	if err := database.InitRedis(); err != nil {
+	if err := db.InitRedis(); err != nil {
 		log.Error("init redis error:" + err.Error())
 		debug.PrintStack()
 		panic(err)
@@ -106,14 +93,6 @@ func main() {
 			panic(err)
 		}
 		log.Info("initialized dependency fetcher successfully")
-
-		// 初始化挑战服务
-		if err := challenge.InitChallengeService(); err != nil {
-			log.Error("init challenge service error:" + err.Error())
-			debug.PrintStack()
-			panic(err)
-		}
-		log.Info("initialized challenge service successfully")
 
 		// 初始化清理服务
 		if err := services.InitCleanService(); err != nil {
@@ -238,13 +217,13 @@ func main() {
 			}
 			// 任务
 			{
-				authGroup.GET("/tasks", routes.GetTaskList)                                 // 任务列表
-				authGroup.GET("/tasks/:id", routes.GetTask)                                 // 任务详情
-				authGroup.PUT("/tasks", routes.PutTask)                                     // 派发任务
-				authGroup.PUT("/tasks/batch", routes.PutBatchTasks)                         // 批量派发任务
-				authGroup.DELETE("/tasks/:id", routes.DeleteTask)                           // 删除任务
-				authGroup.DELETE("/tasks", routes.DeleteSelectedTask)                       // 删除多个任务
-				authGroup.DELETE("/tasks_by_status", routes.DeleteTaskByStatus)             // 删除指定状态的任务
+				authGroup.GET("/tasks", routes.GetTaskList)           // 任务列表
+				authGroup.GET("/tasks/:id", routes.GetTask)           // 任务详情
+				authGroup.PUT("/tasks", routes.PutTask)               // 派发任务
+				authGroup.PUT("/tasks/batch", routes.PutBatchTasks)   // 批量派发任务
+				authGroup.DELETE("/tasks/:id", routes.DeleteTask)     // 删除任务
+				authGroup.DELETE("/tasks", routes.DeleteSelectedTask) // 删除多个任务
+				//authGroup.DELETE("/tasks_by_status", routes.DeleteTaskByStatus)             // 删除指定状态的任务
 				authGroup.POST("/tasks/:id/cancel", routes.CancelTask)                      // 取消任务
 				authGroup.GET("/tasks/:id/log", routes.GetTaskLog)                          // 任务日志
 				authGroup.GET("/tasks/:id/error-log", routes.GetTaskErrorLog)               // 任务错误日志
@@ -303,11 +282,6 @@ func main() {
 				authGroup.POST("/projects/:id", routes.PostProject)     // 新增
 				authGroup.DELETE("/projects/:id", routes.DeleteProject) // 删除
 			}
-			// 挑战
-			{
-				authGroup.GET("/challenges", routes.GetChallengeList)          // 挑战列表
-				authGroup.POST("/challenges-check", routes.CheckChallengeList) // 检查挑战列表
-			}
 			// 操作
 			{
 				//authGroup.GET("/actions", routes.GetActionList)   // 操作列表
@@ -330,12 +304,6 @@ func main() {
 			authGroup.GET("/git/public-key", routes.GetGitSshPublicKey) // 获取 SSH 公钥
 			authGroup.GET("/git/commits", routes.GetGitCommits)         // 获取 Git Commits
 			authGroup.POST("/git/checkout", routes.PostGitCheckout)     // 获取 Git Commits
-			// 爬虫市场 / 仓库
-			{
-				authGroup.GET("/repos", routes.GetRepoList)               // 获取仓库列表
-				authGroup.GET("/repos/sub-dir", routes.GetRepoSubDirList) // 获取仓库子目录
-				authGroup.POST("/repos/download", routes.DownloadRepo)    // 下载仓库
-			}
 		}
 	}
 
