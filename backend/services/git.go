@@ -12,6 +12,8 @@ import (
 	"gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
+	"gopkg.in/src-d/go-git.v4/plumbing/transport"
+	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/ssh"
 	"gopkg.in/src-d/go-git.v4/storage/memory"
 	"io/ioutil"
@@ -269,7 +271,7 @@ func SyncSpiderGit(s model.Spider) (err error) {
 	}
 
 	// 生成验证信息
-	var auth ssh.AuthMethod
+	var auth transport.AuthMethod
 	if !strings.HasPrefix(s.GitUrl, "http") {
 		// 为 SSH
 		regex := regexp.MustCompile("^(?:ssh://?)?([0-9a-zA-Z_]+)@")
@@ -288,6 +290,11 @@ func SyncSpiderGit(s model.Spider) (err error) {
 			debug.PrintStack()
 			SaveSpiderGitSyncError(s, err.Error())
 			return err
+		}
+	} else {
+		// 为 HTTP
+		if s.GitUsername != "" && s.GitPassword != "" {
+			auth = &http.BasicAuth{s.GitUsername, s.GitPassword}
 		}
 	}
 
