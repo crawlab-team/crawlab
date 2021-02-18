@@ -14,13 +14,11 @@ redis:
   port: 6379
 log:
   level: info
-  path: "/var/logs/crawlab"
-  isDeletePeriodically: "N"
-  deleteFrequency: "@hourly"
+  path: "/logs"
 server:
   host: 0.0.0.0
   port: 8000
-  master: "Y"
+  master: true
   secret: "crawlab"
   register:
     # type 填 mac/ip/customName, 如果是ip，则需要手动指定IP, 如果是 customName, 需填写你的 customNodeName
@@ -35,9 +33,12 @@ server:
     php: "N"
   scripts: "/app/backend/scripts"
 spider:
-  path: "/app/spiders"
+  fs: "/spiders"
+  workspace: "/workspace"
+  repo: "/repo"
 task:
   workers: 16
+  cancelWaitSeconds: 30
 other:
   tmppath: "/tmp"
 version: 0.5.1
