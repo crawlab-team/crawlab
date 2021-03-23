@@ -24,7 +24,6 @@
     >
       <el-tabs :active-name="activeTabName">
         <!-- customized -->
-        <el-tab-pane name="customized" :label="$t('Customized')">
           <el-form ref="addCustomizedForm" :model="spiderForm" inline-message label-width="120px">
             <el-form-item :label="$t('Spider Name')" prop="name" required>
               <el-input id="spider-name" v-model="spiderForm.name" :placeholder="$t('Spider Name')" />
