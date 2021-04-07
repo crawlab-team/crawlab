@@ -1,9 +1,9 @@
 package main
 
-import "crawlab/services"
+import "crawlab/apps"
 
 func main() {
-	api := services.NewApiService()
+	api := apps.NewApi()
 	api.Init()
 	api.Run()
 

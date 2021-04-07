@@ -1,4 +1,4 @@
-package services
+package apps
 
 import (
 	"context"
@@ -20,16 +20,11 @@ import (
 	"time"
 )
 
-type ApiInterface interface {
-	Init()
-	Run()
-}
-
-type ApiService struct {
+type Api struct {
 	app *gin.Engine
 }
 
-func (svc *ApiService) Init() {
+func (svc *Api) Init() {
 	// initialize config
 	_ = svc.initService("config", config.InitConfig)
 
@@ -46,7 +41,7 @@ func (svc *ApiService) Init() {
 	_ = svc.initServiceWithApp("routes", routes.InitRoutes)
 }
 
-func (svc *ApiService) Run() {
+func (svc *Api) Run() {
 	host := viper.GetString("server.host")
 	port := viper.GetString("server.port")
 	address := net.JoinHostPort(host, port)
@@ -73,13 +68,13 @@ func (svc *ApiService) Run() {
 	}
 }
 
-func (svc *ApiService) initServiceWithApp(name string, fn func(app *gin.Engine) error) (err error) {
+func (svc *Api) initServiceWithApp(name string, fn func(app *gin.Engine) error) (err error) {
 	return svc.initService(name, func() error {
 		return fn(svc.app)
 	})
 }
 
-func (svc *ApiService) initService(name string, fn func() error) (err error) {
+func (svc *Api) initService(name string, fn func() error) (err error) {
 	if err := fn(); err != nil {
 		log.Error(fmt.Sprintf("init %s error: %s", name, err.Error()))
 		_ = trace.TraceError(err)
@@ -89,9 +84,9 @@ func (svc *ApiService) initService(name string, fn func() error) (err error) {
 	return nil
 }
 
-func NewApiService() *ApiService {
+func NewApi() *Api {
 	app := gin.New()
-	return &ApiService{
+	return &Api{
 		app: app,
 	}
 }
