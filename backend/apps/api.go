@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab-core/config"
+	"github.com/crawlab-team/crawlab-core/controllers"
 	"github.com/crawlab-team/crawlab-core/middlewares"
+	"github.com/crawlab-team/crawlab-core/models"
 	"github.com/crawlab-team/crawlab-core/routes"
 	"github.com/crawlab-team/crawlab-db/mongo"
 	"github.com/crawlab-team/crawlab-db/redis"
@@ -24,29 +26,35 @@ type Api struct {
 	app *gin.Engine
 }
 
-func (svc *Api) Init() {
+func (app *Api) Init() {
 	// initialize config
-	_ = svc.initService("config", config.InitConfig)
+	_ = app.initModule("config", config.InitConfig)
 
 	// initialize mongo
-	_ = svc.initService("mongo", mongo.InitMongo)
+	_ = app.initModule("mongo", mongo.InitMongo)
 
 	// initialize redis
-	_ = svc.initService("redis", redis.InitRedis)
+	_ = app.initModule("redis", redis.InitRedis)
+
+	// initialize model services
+	_ = app.initModule("modeServices", models.InitModelServices)
+
+	// initialize controllers
+	_ = app.initModule("controllers", controllers.InitControllers)
 
 	// initialize middlewares
-	_ = svc.initServiceWithApp("middlewares", middlewares.InitMiddlewares)
+	_ = app.initModuleWithApp("middlewares", middlewares.InitMiddlewares)
 
 	// initialize routes
-	_ = svc.initServiceWithApp("routes", routes.InitRoutes)
+	_ = app.initModuleWithApp("routes", routes.InitRoutes)
 }
 
-func (svc *Api) Run() {
+func (app *Api) Run() {
 	host := viper.GetString("server.host")
 	port := viper.GetString("server.port")
 	address := net.JoinHostPort(host, port)
 	srv := &http.Server{
-		Handler: svc.app,
+		Handler: app.app,
 		Addr:    address,
 	}
 	go func() {
@@ -68,13 +76,13 @@ func (svc *Api) Run() {
 	}
 }
 
-func (svc *Api) initServiceWithApp(name string, fn func(app *gin.Engine) error) (err error) {
-	return svc.initService(name, func() error {
-		return fn(svc.app)
+func (app *Api) initModuleWithApp(name string, fn func(app *gin.Engine) error) (err error) {
+	return app.initModule(name, func() error {
+		return fn(app.app)
 	})
 }
 
-func (svc *Api) initService(name string, fn func() error) (err error) {
+func (app *Api) initModule(name string, fn func() error) (err error) {
 	if err := fn(); err != nil {
 		log.Error(fmt.Sprintf("init %s error: %s", name, err.Error()))
 		_ = trace.TraceError(err)
