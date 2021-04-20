@@ -37,7 +37,7 @@ func (app *Api) Init() {
 	_ = app.initModule("redis", redis.InitRedis)
 
 	// initialize model services
-	_ = app.initModule("modeServices", models.InitModelServices)
+	_ = app.initModule("mode-services", models.InitModelServices)
 
 	// initialize controllers
 	_ = app.initModule("controllers", controllers.InitControllers)
