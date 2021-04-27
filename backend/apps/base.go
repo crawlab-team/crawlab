@@ -4,22 +4,47 @@ import (
 	"fmt"
 	"github.com/apex/log"
 	"github.com/crawlab-team/go-trace"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 type App interface {
-	Init()
-	Run()
+	init()
+	run()
+	stop()
 }
 
 type BaseApp struct {
 }
 
-func (app *BaseApp) Init() {
+func (app *BaseApp) init() {
 	panic("implement me")
 }
 
-func (app *BaseApp) Run() {
+func (app *BaseApp) run() {
 	panic("implement me")
+}
+
+func (app *BaseApp) stop() {
+	panic("implement me")
+}
+
+func (app *BaseApp) start() {
+	app.init()
+	go app.run()
+	app.waitForStop()
+	app.stop()
+}
+
+func (app *BaseApp) Start() {
+	app.start()
+}
+
+func (app *BaseApp) waitForStop() {
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
 }
 
 func (app *BaseApp) initModule(name string, fn func() error) (err error) {

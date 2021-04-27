@@ -1,6 +1,7 @@
 package apps
 
 import (
+	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab-core/services"
 )
 
@@ -8,12 +9,12 @@ type Handler struct {
 	BaseApp
 }
 
-func (app *Handler) Init() {
+func (app *Handler) init() {
 	_ = app.initModule("task-service", services.InitTaskService)
 }
 
-func (app *Handler) Run() {
-	panic("implement me")
+func (app *Handler) run() {
+	log.Info("handler has started")
 }
 
 func NewHandler() *Handler {
