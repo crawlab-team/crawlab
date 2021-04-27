@@ -19,7 +19,7 @@ require (
 	github.com/crawlab-team/crawlab-db v0.0.2
 	github.com/crawlab-team/go-trace v0.0.0
 	github.com/gin-gonic/gin v1.6.3
-	github.com/go-playground/validator/v10 v10.3.0
-	github.com/olivere/elastic/v7 v7.0.15
+	github.com/mitchellh/go-homedir v1.1.0
+	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.1
 )

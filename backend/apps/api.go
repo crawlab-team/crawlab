@@ -2,7 +2,6 @@ package apps
 
 import (
 	"context"
-	"fmt"
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab-core/config"
 	"github.com/crawlab-team/crawlab-core/controllers"
@@ -11,7 +10,6 @@ import (
 	"github.com/crawlab-team/crawlab-core/routes"
 	"github.com/crawlab-team/crawlab-db/mongo"
 	"github.com/crawlab-team/crawlab-db/redis"
-	"github.com/crawlab-team/go-trace"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"net"
@@ -23,6 +21,7 @@ import (
 )
 
 type Api struct {
+	BaseApp
 	app *gin.Engine
 }
 
@@ -80,16 +79,6 @@ func (app *Api) initModuleWithApp(name string, fn func(app *gin.Engine) error) (
 	return app.initModule(name, func() error {
 		return fn(app.app)
 	})
-}
-
-func (app *Api) initModule(name string, fn func() error) (err error) {
-	if err := fn(); err != nil {
-		log.Error(fmt.Sprintf("init %s error: %s", name, err.Error()))
-		_ = trace.TraceError(err)
-		panic(err)
-	}
-	log.Info(fmt.Sprintf("initialized %s successfully", name))
-	return nil
 }
 
 func NewApi() *Api {
