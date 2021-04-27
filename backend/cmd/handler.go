@@ -11,8 +11,9 @@ func init() {
 
 var handlerCmd = &cobra.Command{
 	Use:   "handler",
-	Short: "Start API server",
-	Long:  `Start API server of Crawlab which serves data to frontend`,
+	Short: "Start task handler",
+	Long: `Start task handler service (worker) of Crawlab 
+which runs tasks assigned by master node`,
 	Run: func(cmd *cobra.Command, args []string) {
 		handler := apps.NewHandler()
 		handler.Init()
