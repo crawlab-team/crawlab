@@ -33,7 +33,7 @@ func (app *Api) Init() {
 	_ = initModule("redis", redis.InitRedis)
 
 	// initialize model services
-	_ = initModule("mode-services", models.InitModelServices)
+	_ = initModule("model-services", models.InitModelServices)
 
 	// initialize controllers
 	_ = initModule("controllers", controllers.InitControllers)
@@ -45,7 +45,7 @@ func (app *Api) Init() {
 	_ = app.initModuleWithApp("routes", routes.InitRoutes)
 }
 
-func (app *Api) Run() {
+func (app *Api) Start() {
 	host := viper.GetString("server.host")
 	port := viper.GetString("server.port")
 	address := net.JoinHostPort(host, port)
@@ -62,9 +62,14 @@ func (app *Api) Run() {
 	}
 }
 
+func (app *Api) Wait() {
+	DefaultWait()
+}
+
 func (app *Api) Stop() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
+
 	if err := app.srv.Shutdown(ctx); err != nil {
 		log.Error("run server error:" + err.Error())
 	}

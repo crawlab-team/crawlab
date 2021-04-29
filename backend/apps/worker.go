@@ -1,28 +1,31 @@
 package apps
 
-import (
-	"github.com/apex/log"
-	"github.com/crawlab-team/crawlab-core/grpc"
-)
-
 type Worker struct {
 	handler *Handler
+	quit    chan int
 }
 
 func (app *Worker) Init() {
-	_ = initModule("grpc", grpc.InitGrpcServices)
+	initApp("handler", app.handler)
 }
 
-func (app *Worker) Run() {
-	log.Info("worker has started")
+func (app *Worker) Start() {
+	go app.handler.Start()
+}
+
+func (app *Worker) Wait() {
+	<-app.quit
 }
 
 func (app *Worker) Stop() {
-	log.Info("worker has stopped")
+	app.handler.Stop()
+
+	app.quit <- 1
 }
 
 func NewWorker() *Worker {
 	return &Worker{
 		handler: NewHandler(),
+		quit:    make(chan int, 1),
 	}
 }

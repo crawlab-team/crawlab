@@ -2,6 +2,7 @@ package apps
 
 type App interface {
 	Init()
-	Run()
+	Start()
+	Wait()
 	Stop()
 }
