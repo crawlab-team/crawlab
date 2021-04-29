@@ -18,26 +18,25 @@ import (
 )
 
 type Api struct {
-	BaseApp
 	app *gin.Engine
 	srv *http.Server
 }
 
-func (app *Api) init() {
+func (app *Api) Init() {
 	// initialize config
-	_ = app.initModule("config", config.InitConfig)
+	_ = initModule("config", config.InitConfig)
 
 	// initialize mongo
-	_ = app.initModule("mongo", mongo.InitMongo)
+	_ = initModule("mongo", mongo.InitMongo)
 
 	// initialize redis
-	_ = app.initModule("redis", redis.InitRedis)
+	_ = initModule("redis", redis.InitRedis)
 
 	// initialize model services
-	_ = app.initModule("mode-services", models.InitModelServices)
+	_ = initModule("mode-services", models.InitModelServices)
 
 	// initialize controllers
-	_ = app.initModule("controllers", controllers.InitControllers)
+	_ = initModule("controllers", controllers.InitControllers)
 
 	// initialize middlewares
 	_ = app.initModuleWithApp("middlewares", middlewares.InitMiddlewares)
@@ -46,7 +45,7 @@ func (app *Api) init() {
 	_ = app.initModuleWithApp("routes", routes.InitRoutes)
 }
 
-func (app *Api) run() {
+func (app *Api) Run() {
 	host := viper.GetString("server.host")
 	port := viper.GetString("server.port")
 	address := net.JoinHostPort(host, port)
@@ -63,7 +62,7 @@ func (app *Api) run() {
 	}
 }
 
-func (app *Api) stop() {
+func (app *Api) Stop() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	if err := app.srv.Shutdown(ctx); err != nil {
@@ -72,7 +71,7 @@ func (app *Api) stop() {
 }
 
 func (app *Api) initModuleWithApp(name string, fn func(app *gin.Engine) error) (err error) {
-	return app.initModule(name, func() error {
+	return initModule(name, func() error {
 		return fn(app.app)
 	})
 }

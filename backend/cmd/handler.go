@@ -10,13 +10,13 @@ func init() {
 }
 
 var handlerCmd = &cobra.Command{
-	Use:   "handler",
-	Short: "Start task handler",
-	Long: `Start task handler service (worker) of Crawlab 
-which runs tasks assigned by master node`,
+	Use:     "handler",
+	Aliases: []string{"H"},
+	Short:   "Start handler",
+	Long: `Start a handler instance of Crawlab 
+which runs tasks with given parameters`,
 	Run: func(cmd *cobra.Command, args []string) {
 		handler := apps.NewHandler()
-		handler.Init()
-		handler.Run()
+		apps.Start(handler)
 	},
 }

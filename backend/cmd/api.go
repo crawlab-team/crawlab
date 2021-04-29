@@ -10,12 +10,12 @@ func init() {
 }
 
 var apiCmd = &cobra.Command{
-	Use:   "api",
-	Short: "Start API server",
-	Long:  `Start API server of Crawlab which serves data to frontend`,
+	Use:     "api",
+	Aliases: []string{"A"},
+	Short:   "Start API server",
+	Long:    `Start API server of Crawlab which serves data to frontend`,
 	Run: func(cmd *cobra.Command, args []string) {
 		api := apps.NewApi()
-		api.Init()
-		api.Run()
+		apps.Start(api)
 	},
 }

@@ -2,19 +2,22 @@ package apps
 
 import (
 	"github.com/apex/log"
-	"github.com/crawlab-team/crawlab-core/services"
+	"github.com/crawlab-team/crawlab-core/grpc"
 )
 
 type Handler struct {
-	BaseApp
 }
 
-func (app *Handler) init() {
-	_ = app.initModule("task-service", services.InitTaskService)
+func (app *Handler) Init() {
+	_ = initModule("grpc", grpc.InitGrpcServices)
 }
 
-func (app *Handler) run() {
+func (app *Handler) Run() {
 	log.Info("handler has started")
+}
+
+func (app *Handler) Stop() {
+	log.Info("handler has stopped")
 }
 
 func NewHandler() *Handler {
