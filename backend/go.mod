@@ -31,7 +31,7 @@ require (
 	github.com/spf13/viper v1.7.0
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/swaggo/gin-swagger v1.2.0
-	github.com/swaggo/swag v1.6.6
+	github.com/swaggo/swag v1.6.9
 	go.uber.org/atomic v1.6.0
 	golang.org/x/sys v0.0.0-20200420163511-1957bb5e6d1f // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
