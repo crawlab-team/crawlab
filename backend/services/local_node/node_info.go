@@ -39,12 +39,12 @@ func (l *LocalNode) Ready() error {
 
 func NewLocalNode(ip string, identify string, identifyTypeString string) (node *LocalNode, err error) {
 	addrs, err := sockaddr.GetPrivateInterfaces()
+	if len(addrs) == 0 {
+		return node, errors.New("address not found")
+	}
 	if ip == "" {
 		if err != nil {
 			return node, err
-		}
-		if len(addrs) == 0 {
-			return node, errors.New("address not found")
 		}
 		ipaddr := *sockaddr.ToIPAddr(addrs[0].SockAddr)
 		ip = ipaddr.NetIP().String()
