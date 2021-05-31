@@ -3,10 +3,8 @@ package apps
 import (
 	"fmt"
 	"github.com/apex/log"
+	"github.com/crawlab-team/crawlab-core/utils"
 	"github.com/crawlab-team/go-trace"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func Start(app App) {
@@ -21,9 +19,7 @@ func start(app App) {
 }
 
 func DefaultWait() {
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
+	utils.DefaultWait()
 }
 
 func initModule(name string, fn func() error) (err error) {

@@ -1,22 +1,37 @@
 package apps
 
+import (
+	"github.com/crawlab-team/crawlab-core/config"
+	"github.com/crawlab-team/crawlab-core/interfaces"
+	"github.com/crawlab-team/crawlab-core/node/service"
+	"go.uber.org/dig"
+)
+
 type Master struct {
-	api       *Api
-	scheduler *Scheduler
-	quit      chan int
+	// settings
+	runOnMaster bool
+
+	// dependencies
+	interfaces.WithConfigPath
+	masterSvc interfaces.NodeMasterService
+
+	// modules
+	api *Api
+
+	// internals
+	quit chan int
+}
+
+func (app *Master) SetRunOnMaster(ok bool) {
+	app.runOnMaster = ok
 }
 
 func (app *Master) Init() {
-	// api
-	initApp("api", app.api)
-
-	// scheduler
-	initApp("scheduler", app.scheduler)
 }
 
 func (app *Master) Start() {
 	go app.api.Start()
-	go app.scheduler.Start()
+	go app.masterSvc.Start()
 }
 
 func (app *Master) Wait() {
@@ -25,15 +40,32 @@ func (app *Master) Wait() {
 
 func (app *Master) Stop() {
 	app.api.Stop()
-	app.scheduler.Stop()
-
 	app.quit <- 1
 }
 
-func NewMaster() *Master {
-	return &Master{
-		api:       NewApi(),
-		scheduler: NewScheduler(),
-		quit:      make(chan int, 1),
+func NewMaster(opts ...MasterOption) (app MasterApp) {
+	// master
+	m := &Master{
+		WithConfigPath: config.NewConfigPathService(),
+		api:            NewApi(),
+		quit:           make(chan int, 1),
 	}
+
+	// apply options
+	for _, opt := range opts {
+		opt(m)
+	}
+
+	// dependency injection
+	c := dig.New()
+	if err := c.Provide(service.ProvideMasterService(m.GetConfigPath())); err != nil {
+		panic(err)
+	}
+	if err := c.Invoke(func(masterSvc interfaces.NodeMasterService) {
+		m.masterSvc = masterSvc
+	}); err != nil {
+		panic(err)
+	}
+
+	return m
 }

@@ -16,7 +16,9 @@ var masterCmd = &cobra.Command{
 	Long: `Start a master instance of Crawlab 
 which runs api and assign tasks to worker nodes`,
 	Run: func(cmd *cobra.Command, args []string) {
-		master := apps.NewMaster()
+		master := apps.NewMaster(
+			apps.WithRunOnMaster(runOnMaster),
+		)
 		apps.Start(master)
 	},
 }

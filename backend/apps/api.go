@@ -3,13 +3,11 @@ package apps
 import (
 	"context"
 	"github.com/apex/log"
-	"github.com/crawlab-team/crawlab-core/config"
 	"github.com/crawlab-team/crawlab-core/controllers"
+	"github.com/crawlab-team/crawlab-core/interfaces"
 	"github.com/crawlab-team/crawlab-core/middlewares"
-	"github.com/crawlab-team/crawlab-core/models"
 	"github.com/crawlab-team/crawlab-core/routes"
 	"github.com/crawlab-team/crawlab-db/mongo"
-	"github.com/crawlab-team/crawlab-db/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"net"
@@ -18,22 +16,17 @@ import (
 )
 
 type Api struct {
+	// dependencies
+	interfaces.WithConfigPath
+
+	// internals
 	app *gin.Engine
 	srv *http.Server
 }
 
 func (app *Api) Init() {
-	// initialize config
-	_ = initModule("config", config.InitConfig)
-
 	// initialize mongo
 	_ = initModule("mongo", mongo.InitMongo)
-
-	// initialize redis
-	_ = initModule("redis", redis.InitRedis)
-
-	// initialize model services
-	_ = initModule("model-services", models.InitModelServices)
 
 	// initialize controllers
 	_ = initModule("controllers", controllers.InitControllers)
@@ -82,8 +75,9 @@ func (app *Api) initModuleWithApp(name string, fn func(app *gin.Engine) error) (
 }
 
 func NewApi() *Api {
-	app := gin.New()
-	return &Api{
-		app: app,
+	api := &Api{
+		app: gin.New(),
 	}
+	api.Init()
+	return api
 }

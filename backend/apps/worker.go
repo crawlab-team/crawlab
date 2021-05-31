@@ -6,7 +6,7 @@ type Worker struct {
 }
 
 func (app *Worker) Init() {
-	initApp("handler", app.handler)
+	initApp("handler", app.handler) // handler
 }
 
 func (app *Worker) Start() {
