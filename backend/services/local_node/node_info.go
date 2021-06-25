@@ -1,6 +1,7 @@
 package local_node
 
 import (
+	"crawlab/services/local_machine_info"
 	"errors"
 	"github.com/hashicorp/go-sockaddr"
 	"os"
@@ -23,9 +24,11 @@ type local struct {
 	Identify     string
 	IdentifyType IdentifyType
 }
+
 type LocalNode struct {
 	local
 	mongo
+	local_machine_info.MachineInfo
 }
 
 func (l *LocalNode) Ready() error {
@@ -56,6 +59,10 @@ func NewLocalNode(ip string, identify string, identifyTypeString string) (node *
 		return node, err
 	}
 	local := local{Ip: ip, Mac: mac, Hostname: hostname}
+
+	// 获取机器使用信息
+	machineinfo := local_machine_info.CollectMachineInfo()
+
 	switch IdentifyType(identifyTypeString) {
 	case Ip:
 		local.Identify = local.Ip
@@ -70,5 +77,5 @@ func NewLocalNode(ip string, identify string, identifyTypeString string) (node *
 		local.Identify = identify
 		local.IdentifyType = IdentifyType(identifyTypeString)
 	}
-	return &LocalNode{local: local, mongo: mongo{}}, nil
+	return &LocalNode{local: local, mongo: mongo{}, MachineInfo: machineinfo}, nil
 }

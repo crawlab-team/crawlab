@@ -4,6 +4,7 @@ import (
 	"crawlab/constants"
 	"crawlab/database"
 	"crawlab/model"
+	"crawlab/services/local_machine_info"
 	"crawlab/services/local_node"
 	"crawlab/utils"
 	"encoding/json"
@@ -24,6 +25,8 @@ type Data struct {
 	Master       bool      `json:"master"`
 	UpdateTs     time.Time `json:"update_ts"`
 	UpdateTsUnix int64     `json:"update_ts_unix"`
+
+	Usage local_machine_info.MachineInfo `json:"usage"`
 }
 
 // 所有调用IsMasterNode的方法，都永远会在master节点执行，所以GetCurrentNode方法返回永远是master节点
@@ -136,6 +139,7 @@ func UpdateNodeInfo(data *Data) (err error) {
 			"is_master":      data.Master,
 			"update_ts":      time.Now(),
 			"update_ts_unix": time.Now().Unix(),
+			"usage":          data.Usage,
 		},
 		"$setOnInsert": bson.M{
 			"name": data.Name,
@@ -160,6 +164,7 @@ func UpdateNodeData() {
 		Master:       model.IsMaster(),
 		UpdateTs:     time.Now(),
 		UpdateTsUnix: time.Now().Unix(),
+		Usage:        localNode.MachineInfo,
 	}
 
 	// 注册节点到Redis
