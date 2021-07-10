@@ -65,6 +65,7 @@ notification:
 config:
   path: ''
 grpc:
-  client:
-    address: localhost:9666
+  address: localhost:9666
+  server:
+    address: 0.0.0.0:9666
   authKey: Crawlab2021!

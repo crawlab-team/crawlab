@@ -44,7 +44,8 @@ which runs api and assign tasks to worker nodes`,
 				fmt.Println(fmt.Sprintf("invalid grpc-address: %s", masterGrpcAddress))
 			}
 			opts = append(opts, apps.WithMasterGrpcAddress(address))
-			viper.Set("grpc.client.address", masterGrpcAddress)
+			viper.Set("grpc.address", masterGrpcAddress)
+			viper.Set("grpc.server.address", masterGrpcAddress)
 		}
 
 		// app

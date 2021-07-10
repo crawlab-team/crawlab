@@ -44,7 +44,7 @@ assigned by the master node`,
 				return
 			}
 			opts = append(opts, apps.WithWorkerGrpcAddress(address))
-			viper.Set("grpc.client.address", workerGrpcAddress)
+			viper.Set("grpc.address", workerGrpcAddress)
 		}
 
 		// app
