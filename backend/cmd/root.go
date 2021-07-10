@@ -10,8 +10,7 @@ import (
 
 var (
 	// Used for flags.
-	cfgFile     string
-	runOnMaster bool
+	cfgFile string
 
 	rootCmd = &cobra.Command{
 		Use:   "crawlab",
@@ -30,9 +29,6 @@ func Execute() error {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-
-	rootCmd.PersistentFlags().BoolVar(&runOnMaster, "runOnMaster", false, "Whether to run tasks on master node (default: false)")
-	_ = viper.BindPFlag("runOnMaster", rootCmd.PersistentFlags().Lookup("runOnMaster"))
 }
 
 func initConfig() {

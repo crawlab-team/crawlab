@@ -62,3 +62,9 @@ notification:
     smtp:
       user: ''
       password: ''
+config:
+  path: ''
+grpc:
+  client:
+    address: localhost:9666
+  authKey: Crawlab2021!

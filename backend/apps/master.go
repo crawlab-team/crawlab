@@ -10,6 +10,7 @@ import (
 type Master struct {
 	// settings
 	runOnMaster bool
+	grpcAddress interfaces.Address
 
 	// dependencies
 	interfaces.WithConfigPath
@@ -20,6 +21,10 @@ type Master struct {
 
 	// internals
 	quit chan int
+}
+
+func (app *Master) SetGrpcAddress(address interfaces.Address) {
+	app.grpcAddress = address
 }
 
 func (app *Master) SetRunOnMaster(ok bool) {
@@ -56,9 +61,15 @@ func NewMaster(opts ...MasterOption) (app MasterApp) {
 		opt(m)
 	}
 
+	// service options
+	var svcOpts []service.Option
+	if m.grpcAddress != nil {
+		svcOpts = append(svcOpts, service.WithAddress(m.grpcAddress))
+	}
+
 	// dependency injection
 	c := dig.New()
-	if err := c.Provide(service.ProvideMasterService(m.GetConfigPath())); err != nil {
+	if err := c.Provide(service.ProvideMasterService(m.GetConfigPath(), svcOpts...)); err != nil {
 		panic(err)
 	}
 	if err := c.Invoke(func(masterSvc interfaces.NodeMasterService) {

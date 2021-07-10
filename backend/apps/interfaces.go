@@ -9,8 +9,17 @@ type App interface {
 	Stop()
 }
 
-type MasterApp interface {
+type NodeApp interface {
 	App
 	interfaces.WithConfigPath
+	SetGrpcAddress(address interfaces.Address)
+}
+
+type MasterApp interface {
+	NodeApp
 	SetRunOnMaster(ok bool)
+}
+
+type WorkerApp interface {
+	NodeApp
 }
