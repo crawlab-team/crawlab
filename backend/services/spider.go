@@ -6,8 +6,10 @@ import (
 	"crawlab/entity"
 	"crawlab/lib/cron"
 	"crawlab/model"
+	"crawlab/services/local_node"
 	"crawlab/services/spider_handler"
 	"crawlab/utils"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/apex/log"
@@ -36,6 +38,11 @@ type SpiderUploadMessage struct {
 	SpiderId string
 }
 
+type SaveTask struct {
+	SaveTime          time.Time
+	SaveSnapshotTasks model.Task
+}
+
 // 从主节点上传爬虫到GridFS
 func UploadSpiderToGridFsFromMaster(spider model.Spider) error {
 	// 爬虫所在目录
@@ -59,7 +66,7 @@ func UploadSpiderToGridFsFromMaster(spider model.Spider) error {
 
 	// 判断文件是否已经存在
 	var gfFile model.GridFs
-	if err := gf.Find(bson.M{"filename": spiderZipFileName}).One(&gfFile); err == nil {
+	if err := gf.Find(bson.M{"filename": spiderZipFileName, "metadata": bson.M{"username": spider.Username}}).One(&gfFile); err == nil {
 		// 已经存在文件，则删除
 		log.Errorf(gfFile.Id.Hex() + " already exists. removing...")
 		if err := gf.RemoveId(gfFile.Id); err != nil {
@@ -70,7 +77,7 @@ func UploadSpiderToGridFsFromMaster(spider model.Spider) error {
 	}
 
 	// 上传到GridFs
-	fid, err := RetryUploadToGridFs(spiderZipFileName, tmpFilePath)
+	fid, err := RetryUploadToGridFs(spiderZipFileName, tmpFilePath, spider.Username)
 	if err != nil {
 		log.Errorf("upload to grid fs error: %s", err.Error())
 	}
@@ -99,7 +106,7 @@ func UploadSpiderToGridFsFromMaster(spider model.Spider) error {
 }
 
 // 上传zip文件到GridFS
-func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, err error) {
+func UploadToGridFs(fileName string, filePath string, username string) (fid bson.ObjectId, err error) {
 	fid = ""
 
 	// 获取MongoDB GridFS连接
@@ -113,6 +120,8 @@ func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, err er
 		debug.PrintStack()
 		return
 	}
+
+	f.SetMeta(bson.M{"username": username})
 
 	// 分片读取爬虫zip文件
 	err = ReadFileByStep(filePath, WriteToGridFS, f)
@@ -143,14 +152,14 @@ func UploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, err er
 }
 
 // 带重试功能的上传至 GridFS
-func RetryUploadToGridFs(fileName string, filePath string) (fid bson.ObjectId, err error) {
+func RetryUploadToGridFs(fileName string, filePath string, username string) (fid bson.ObjectId, err error) {
 	maxErrCount := 10
 	errCount := 0
 	for {
 		if errCount > maxErrCount {
 			break
 		}
-		fid, err = UploadToGridFs(fileName, filePath)
+		fid, err = UploadToGridFs(fileName, filePath, username)
 		if err != nil {
 			errCount++
 			log.Errorf("upload to grid fs error: %s", err.Error())
@@ -238,18 +247,17 @@ func PublishSpider(spider model.Spider) {
 		Spider: spider,
 	}
 
-	// 安装依赖
-	if viper.GetString("setting.autoInstall") == "Y" {
-		go spiderSync.InstallDeps()
-	}
-
 	//目录不存在，则直接下载
-	path := filepath.Join(viper.GetString("spider.path"), spider.Name)
+	path := model.GetSpiderSrcByUsername(spider)
 	if !utils.Exists(path) {
 		log.Infof("path not found: %s", path)
 		spiderSync.Download()
 		spiderSync.CreateMd5File(gfFile.Md5)
-		spiderSync.CheckIsScrapy()
+		//spiderSync.CheckIsScrapy()
+		// 安装依赖
+		if viper.GetString("setting.autoInstall") == "Y" {
+			go spiderSync.InstallDeps()
+		}
 		return
 	}
 
@@ -257,15 +265,29 @@ func PublishSpider(spider model.Spider) {
 	md5 := filepath.Join(path, spider_handler.Md5File)
 	if !utils.Exists(md5) {
 		log.Infof("md5 file not found: %s", md5)
-		spiderSync.RemoveDownCreate(gfFile.Md5)
+		spiderSync.DownCreate(gfFile.Md5)
+		// 安装依赖
+		if viper.GetString("setting.autoInstall") == "Y" {
+			go spiderSync.InstallDeps()
+		}
 		return
 	}
 
 	// md5值不一样，则下载
 	md5Str := utils.GetSpiderMd5Str(md5)
 	if gfFile.Md5 != md5Str {
+		// 暂时写死通过
+		if gfFile.Length <= 22 && gfFile.Md5 == "76cdb2bad9582d23c1f6f4d868218d6c" {
+			log.Infof("file is empty, remove local node file")
+			spiderSync.RemoveDownCreate(gfFile.Md5)
+			return
+		}
 		log.Infof("md5 is different, gf-md5:%s, file-md5:%s", gfFile.Md5, md5Str)
-		spiderSync.RemoveDownCreate(gfFile.Md5)
+		spiderSync.DownCreate(gfFile.Md5)
+		// 安装依赖
+		if viper.GetString("setting.autoInstall") == "Y" {
+			go spiderSync.InstallDeps()
+		}
 		return
 	}
 }
@@ -278,7 +300,7 @@ func RemoveSpider(id string) error {
 	}
 
 	// 删除爬虫文件目录
-	path := filepath.Join(viper.GetString("spider.path"), spider.Name)
+	path := model.GetSpiderSrcByUsername(spider)
 	utils.RemoveFiles(path)
 
 	// 删除其他节点的爬虫目录
@@ -492,7 +514,7 @@ func InitDemoSpiders() {
 		spiderName := info.Name()
 
 		// 如果爬虫在数据库中不存在，则添加
-		spider := model.GetSpiderByName(spiderName)
+		spider := model.GetSpiderByName(spiderName, "")
 		if spider.Name != "" {
 			// 存在同名爬虫，跳过
 			continue
@@ -589,16 +611,105 @@ func InitDemoSpiders() {
 	PublishAllSpiders()
 }
 
+func SaveRunningTaskSnapshot() error {
+	l := local_node.CurrentNode()
+	tasks, err := model.GetNodeTaskList(l.Id)
+	if err != nil {
+		log.Errorf(err.Error())
+		debug.PrintStack()
+		return err
+	}
+
+	var saveTask []SaveTask
+
+	for _, task := range tasks {
+		//fmt.Printf("%v", task)
+		if task.Status == constants.StatusRunning {
+			currentTask := SaveTask{
+				SaveTime:          time.Now(),
+				SaveSnapshotTasks: task,
+			}
+			saveTask = append(saveTask, currentTask)
+		}
+	}
+
+	tasksByte, err1 := json.Marshal(saveTask)
+	if err1 != nil {
+		return err1
+	}
+	err2 := utils.WriteFile(viper.GetString("other.pausePath")+"/pause", string(tasksByte)+"\n")
+	if err2 != nil {
+		return err2
+	}
+	log.Infof("save running task successfully total: %d", len(saveTask))
+
+	return nil
+}
+
+func SaveTaskSnapshot() func() {
+	return func() {
+		if err := SaveRunningTaskSnapshot(); err != nil {
+			log.Errorf(err.Error())
+			debug.PrintStack()
+			return
+		}
+	}
+}
+
+// 恢复当前节点中止之前执行任务
+func RecoverTaskSnapshot() error {
+	RunningBeforeTaskLine := utils.ReadFileOneLine(viper.GetString("other.pausePath") + "/pause")
+	if RunningBeforeTaskLine == "" {
+		return nil
+	}
+	var RunningBeforeTasks []SaveTask
+	err := json.Unmarshal([]byte(RunningBeforeTaskLine), &RunningBeforeTasks)
+	if err != nil {
+		return err
+	}
+
+	for _, runningBeforeTask := range RunningBeforeTasks {
+		now := time.Now()
+		if now.Sub(runningBeforeTask.SaveTime).Minutes() < 10 {
+			tid, err := AddTask(runningBeforeTask.SaveSnapshotTasks)
+			if err != nil {
+				log.Errorf("恢复任务失败", err.Error())
+				debug.PrintStack()
+				return err
+			}
+			log.Infof("recover task is success id: %s", tid)
+		}
+	}
+
+	return nil
+}
+
 // 启动爬虫服务
 func InitSpiderService() error {
 	// 构造定时任务执行器
 	cPub := cron.New(cron.WithSeconds())
-	if _, err := cPub.AddFunc("0 * * * * *", PublishAllSpiders); err != nil {
+	if _, err := cPub.AddFunc("*/30 * * * * *", PublishAllSpiders); err != nil {
 		return err
 	}
 
 	// 启动定时任务
 	cPub.Start()
+
+	// 恢复当前节点执行任务快照
+	err1 := RecoverTaskSnapshot()
+	if err1 != nil {
+		return err1
+	}
+
+	// 定时保存当前节点运行快照
+	cronExec := cron.New(cron.WithSeconds())
+	_, err2 := cronExec.AddFunc("3 * * * * *", SaveTaskSnapshot())
+	if err2 != nil {
+		log.Errorf(err2.Error())
+		debug.PrintStack()
+		return err2
+	}
+	cronExec.Start()
 
 	if model.IsMaster() && viper.GetString("setting.demoSpiders") == "Y" {
 		// 初始化Demo爬虫

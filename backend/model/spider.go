@@ -5,12 +5,15 @@ import (
 	"crawlab/database"
 	"crawlab/entity"
 	"crawlab/utils"
+	"encoding/json"
 	"errors"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
+	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"math"
 	"path/filepath"
 	"runtime/debug"
 	"time"
@@ -19,6 +22,14 @@ import (
 type Env struct {
 	Name  string `json:"name" bson:"name"`
 	Value string `json:"value" bson:"value"`
+}
+
+//任务虚拟环境同步状态
+type SpiderDep struct {
+	NodeName   string `json:"node_name" bson:"node_name"`               //节点名称
+	SyncStatus bool   `json:"sync_status" bson:"sync_status"`           // 同步状态
+	SyncError  string `json:"sync_error" bson:"sync_error"`             //同步异常
+	UpdateTime int    `json:"sync_update_time" bson:"sync_update_time"` // 同步时间
 }
 
 type Spider struct {
@@ -55,6 +66,9 @@ type Spider struct {
 	GitAutoSync      bool   `json:"git_auto_sync" bson:"git_auto_sync"`           // Git 是否自动同步
 	GitSyncFrequency string `json:"git_sync_frequency" bson:"git_sync_frequency"` // Git 同步频率
 	GitSyncError     string `json:"git_sync_error" bson:"git_sync_error"`         // Git 同步错误
+
+	// 项目依赖同步结果
+	DepSyncResults []SpiderDep `json:"dep_sync_results" bson:"dep_sync_results"` // 项目依赖环境同步结果
 
 	// 长任务
 	IsLongTask bool `json:"is_long_task" bson:"is_long_task"` // 是否为长任务
@@ -251,17 +265,20 @@ func GetSpiderByFileId(fileId bson.ObjectId) *Spider {
 	return result
 }
 
-// 获取爬虫(根据名称)
-func GetSpiderByName(name string) Spider {
+// 获取爬虫(根据名称和用户名称)
+func GetSpiderByName(name string, username string) Spider {
 	s, c := database.GetCol("spiders")
 	defer s.Close()
 
+	//username := services.GetCurrentUser()
+
 	var spider Spider
-	if err := c.Find(bson.M{"name": name}).One(&spider); err != nil && err != mgo.ErrNotFound {
+	if err := c.Find(bson.M{"name": name, "username": username}).One(&spider); err != nil && err != mgo.ErrNotFound {
 		log.Errorf("get spider error: %s, spider_name: %s", err.Error(), name)
 		//debug.PrintStack()
 		return spider
 	}
+	spider.Src = GetSpiderSrcByUsername(spider)
 
 	// 获取用户
 	var user User
@@ -287,6 +304,7 @@ func GetSpider(id bson.ObjectId) (Spider, error) {
 		}
 		return spider, err
 	}
+	spider.Src = GetSpiderSrcByUsername(spider)
 
 	// 如果为可配置爬虫，获取爬虫配置
 	if spider.Type == constants.Configurable && utils.Exists(filepath.Join(spider.Src, "Spiderfile")) {
@@ -411,4 +429,69 @@ func GetConfigSpiderData(spider Spider) (entity.ConfigSpiderData, error) {
 	}
 
 	return configData, nil
+}
+
+func GetSpiderDepSync(spider Spider) ([]SpiderDep, error) {
+	var spiderDepInfo []SpiderDep
+	var spiderDepInfoMsg SpiderDep
+	redisKey := "spider_sync:" + spider.Name
+
+	isExits, err := database.RedisClient.Exits(redisKey)
+	if err != nil {
+		return nil, err
+	}
+	if !isExits {
+		return spiderDepInfo, nil
+	}
+
+	allNodes, err1 := GetNodeList(nil)
+	if err1 != nil {
+		return nil, err1
+	}
+	reqNum := 0
+	for reqNum <= 10 {
+		reqNum++
+		nodeLen, err := database.RedisClient.HLen(redisKey)
+		if err != nil {
+			return nil, err
+		}
+		if nodeLen-1 >= int(math.Ceil(float64(len(allNodes)/3))) {
+			break
+		}
+		time.Sleep(time.Second * 5)
+	}
+	allSyncInfo, err2 := database.RedisClient.HScan(redisKey)
+	if err2 != nil {
+		return nil, err2
+	}
+	for _, syncInfo := range allSyncInfo {
+		if err := json.Unmarshal([]byte(syncInfo), &spiderDepInfoMsg); err != nil {
+			continue
+		}
+
+		// redis中key超过时间, 该信息记录无效
+		if spiderDepInfoMsg.NodeName == "begin" {
+			if int(time.Now().Unix())-spiderDepInfoMsg.UpdateTime >= 60*3 {
+				if err := database.RedisClient.DelKey(redisKey); err != nil {
+					return nil, err
+				}
+				return nil, nil
+			}
+			continue
+
+		}
+
+		spiderDepInfo = append(spiderDepInfo, spiderDepInfoMsg)
+	}
+
+	if err := database.RedisClient.DelKey(redisKey); err != nil {
+		return nil, err
+	}
+
+	return spiderDepInfo, nil
+}
+
+func GetSpiderSrcByUsername(spider Spider) string {
+	spiderSrc := filepath.Join(viper.GetString("spider.path"), spider.Username, spider.Name)
+	return spiderSrc
 }

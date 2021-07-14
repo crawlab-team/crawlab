@@ -45,6 +45,23 @@ func (r *Redis) RPush(collection string, value interface{}) error {
 	return nil
 }
 
+func (r *Redis) Exits(collection string) (bool, error) {
+	c := r.pool.Get()
+	defer utils.Close(c)
+
+	res, err := redis.Int(c.Do("EXISTS", collection))
+	if err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return false, err
+	}
+	if res == 0 {
+		return false, nil
+	}
+
+	return true, nil
+}
+
 func (r *Redis) LPush(collection string, value interface{}) error {
 	c := r.pool.Get()
 	defer utils.Close(c)
@@ -79,6 +96,20 @@ func (r *Redis) HSet(collection string, key string, value string) error {
 	}
 	return nil
 }
+
+func (r *Redis) HLen(collection string) (int, error) {
+	c := r.pool.Get()
+	defer utils.Close(c)
+
+	keyLen, err := redis.Int(c.Do("HLEN", collection))
+	if err != nil {
+		log.Error(err.Error())
+		debug.PrintStack()
+		return 0, err
+	}
+	return keyLen, nil
+}
+
 func (r *Redis) Ping() error {
 	c := r.pool.Get()
 	defer utils.Close(c)
@@ -108,6 +139,7 @@ func (r *Redis) HDel(collection string, key string) error {
 	}
 	return nil
 }
+
 func (r *Redis) HScan(collection string) (results []string, err error) {
 	c := r.pool.Get()
 	defer utils.Close(c)
@@ -287,4 +319,51 @@ func (r *Redis) UnLock(lockKey string, value int64) {
 		log.Errorf("unlock failed: key=%s", lockKey)
 		return
 	}
+}
+
+func (r *Redis) GetListAll(collection string) ([]string, error) {
+	c := r.pool.Get()
+	defer utils.Close(c)
+
+	value, err2 := redis.Strings(c.Do("LRANGE", collection, 0, -1))
+	if err2 != nil {
+		return value, err2
+	}
+	return value, nil
+}
+
+func (r *Redis) RemoveValue(collection string, value string) error {
+	c := r.pool.Get()
+	defer utils.Close(c)
+
+	_, err2 := c.Do("LREM", collection, 0, value)
+	if err2 != nil {
+		return err2
+	}
+	return nil
+}
+
+func (r *Redis) DelKey(collection string) error {
+	c := r.pool.Get()
+	defer utils.Close(c)
+
+	_, err := redis.Int64(c.Do("DEL", collection))
+	if err != nil {
+		log.Errorf("unlock failed, error: %s", err.Error())
+		debug.PrintStack()
+		return err
+	}
+	return nil
+}
+func (r *Redis) Expire(collection string, expireTime int) error {
+	c := r.pool.Get()
+	defer utils.Close(c)
+
+	_, err := redis.Int64(c.Do("EXPIRE", collection, expireTime))
+	if err != nil {
+		log.Errorf("unlock failed, error: %s", err.Error())
+		debug.PrintStack()
+		return err
+	}
+	return nil
 }

@@ -7,6 +7,7 @@ import (
 	"crawlab/services"
 	"crawlab/utils"
 	"encoding/csv"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/globalsign/mgo/bson"
 	"net/http"
@@ -167,11 +168,27 @@ func PutTask(c *gin.Context) {
 		}
 	} else if reqBody.RunType == constants.RunTypeRandom {
 		// 随机
+
+		// 获取所有节点当前服务器负载状况
+		nodes, err := model.GetNodeList(nil)
+		if err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+		fmt.Printf("%v", nodes)
+
+		node, err := model.ChoiceNodes(nodes)
+		if err != nil {
+			HandleError(http.StatusInternalServerError, c, err)
+			return
+		}
+		nodeId := node.Id
 		t := model.Task{
 			SpiderId:   reqBody.SpiderId,
+			NodeId:     nodeId,
 			Param:      reqBody.Param,
 			UserId:     services.GetCurrentUserId(c),
-			RunType:    constants.RunTypeRandom,
+			RunType:    constants.RunTypeSelectedNodes,
 			ScheduleId: bson.ObjectIdHex(constants.ObjectIdNull),
 			Type:       constants.TaskTypeSpider,
 		}

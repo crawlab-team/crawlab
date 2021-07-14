@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -52,3 +53,6 @@ func NewBusinessError(code int, message string, httpCodes ...int) *OPError {
 	}
 	return NewOpError(code, message, ScopeBusiness, httpCode)
 }
+
+var ErrGotNodeEmpty = errors.New("current cannot find available node")
+var ErrIpEmpty = errors.New("id is empty")

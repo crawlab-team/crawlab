@@ -54,6 +54,28 @@ func OpenFile(fileName string) *os.File {
 	return file
 }
 
+// 写入文件
+func WriteFile(fileName string, content string) error {
+	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	if err != nil {
+		log.Errorf("write file error: %s, file_name: %s", err.Error(), fileName)
+		debug.PrintStack()
+		return err
+	}
+	defer file.Close()
+
+	write := bufio.NewWriter(file)
+	_, err1 := write.Write([]byte(content))
+	if err1 != nil {
+		return err1
+	}
+	err1 = write.Flush()
+	if err1 != nil {
+		return err1
+	}
+	return nil
+}
+
 // 创建文件夹
 func CreateDirPath(filePath string) {
 	if !Exists(filePath) {

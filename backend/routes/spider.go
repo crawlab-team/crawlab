@@ -156,6 +156,33 @@ func GetSpider(c *gin.Context) {
 	})
 }
 
+func GetInstallSyncResultSpider(c *gin.Context) {
+	id := c.Param("id")
+
+	if !bson.IsObjectIdHex(id) {
+		HandleErrorF(http.StatusBadRequest, c, "invalid id")
+		return
+	}
+
+	spider, err := model.GetSpider(bson.ObjectIdHex(id))
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	syncData, err := model.GetSpiderDepSync(spider)
+	if err != nil {
+		HandleError(http.StatusInternalServerError, c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{
+		Status:  "ok",
+		Message: "success",
+		Data:    syncData,
+	})
+}
+
 // @Summary Post spider
 // @Description Post spider
 // @Tags spider
@@ -271,8 +298,10 @@ func PutSpider(c *gin.Context) {
 		return
 	}
 
+	CurrentUser := services.GetCurrentUser(c)
+
 	// 判断爬虫是否存在
-	if spider := model.GetSpiderByName(spider.Name); spider.Name != "" {
+	if spider := model.GetSpiderByName(spider.Name, CurrentUser.Username); spider.Name != "" {
 		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("spider for '%s' already exists", spider.Name))
 		return
 	}
@@ -284,10 +313,14 @@ func PutSpider(c *gin.Context) {
 	spider.FileId = bson.ObjectIdHex(constants.ObjectIdNull)
 
 	// UserId
-	spider.UserId = services.GetCurrentUserId(c)
+	spider.UserId = CurrentUser.Id
+
+	spider.Username = CurrentUser.Username
 
 	// 爬虫目录
-	spiderDir := filepath.Join(viper.GetString("spider.path"), spider.Name)
+	// 增加用户目录 完善用户项目隔离
+	//spiderDir := filepath.Join(viper.GetString("spider.path"), spider.Username, spider.Name)
+	spiderDir := model.GetSpiderSrcByUsername(spider)
 
 	// 赋值到爬虫实例
 	spider.Src = spiderDir
@@ -367,9 +400,11 @@ func CopySpider(c *gin.Context) {
 		return
 	}
 
+	currentUsername := services.GetCurrentUser(c).Username
+
 	// 检查新爬虫名称是否存在
 	// 如果存在，则返回错误
-	s := model.GetSpiderByName(reqBody.Name)
+	s := model.GetSpiderByName(reqBody.Name, currentUsername)
 	if s.Name != "" {
 		HandleErrorF(http.StatusBadRequest, c, fmt.Sprintf("spider name '%s' already exists", reqBody.Name))
 		return
@@ -419,6 +454,7 @@ func UploadSpider(c *gin.Context) {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
 	}
+	currentUsername := services.GetCurrentUser(c).Username
 
 	// 获取参数
 	name := c.PostForm("name")
@@ -459,7 +495,7 @@ func UploadSpider(c *gin.Context) {
 
 	// 判断文件是否已经存在
 	var gfFile model.GridFs
-	if err := gf.Find(bson.M{"filename": uploadFile.Filename}).One(&gfFile); err == nil {
+	if err := gf.Find(bson.M{"filename": uploadFile.Filename, "metadata": bson.M{"username": currentUsername}}).One(&gfFile); err == nil {
 		// 已经存在文件，则删除
 		if err := gf.RemoveId(gfFile.Id); err != nil {
 			log.Errorf("remove grid fs error: %s", err.Error())
@@ -470,7 +506,7 @@ func UploadSpider(c *gin.Context) {
 	}
 
 	// 上传到GridFs
-	fid, err := services.RetryUploadToGridFs(uploadFile.Filename, tmpFilePath)
+	fid, err := services.RetryUploadToGridFs(uploadFile.Filename, tmpFilePath, currentUsername)
 	if err != nil {
 		log.Errorf("upload to grid fs error: %s", err.Error())
 		debug.PrintStack()
@@ -485,19 +521,21 @@ func UploadSpider(c *gin.Context) {
 	if name != "" {
 		spiderName = name
 	}
-	spider := model.GetSpiderByName(spiderName)
+
+	spider := model.GetSpiderByName(spiderName, currentUsername)
 	if spider.Name == "" {
 		// 保存爬虫信息
-		srcPath := viper.GetString("spider.path")
 		spider := model.Spider{
 			Name:        spiderName,
 			DisplayName: spiderName,
 			Type:        constants.Customized,
-			Src:         filepath.Join(srcPath, spiderName),
-			FileId:      fid,
-			ProjectId:   bson.ObjectIdHex(constants.ObjectIdNull),
-			UserId:      services.GetCurrentUserId(c),
+			//Src:         filepath.Join(srcPath, spiderName),
+			FileId:    fid,
+			ProjectId: bson.ObjectIdHex(constants.ObjectIdNull),
+			UserId:    services.GetCurrentUserId(c),
 		}
+		srcPath := model.GetSpiderSrcByUsername(spider)
+		spider.Src = srcPath
 		if name != "" {
 			spider.Name = name
 		}
@@ -540,7 +578,7 @@ func UploadSpider(c *gin.Context) {
 	}
 
 	// 获取爬虫
-	spider = model.GetSpiderByName(spiderName)
+	spider = model.GetSpiderByName(spiderName, spider.Username)
 
 	// 发起同步
 	services.PublishSpider(spider)
@@ -623,7 +661,7 @@ func UploadSpiderFromId(c *gin.Context) {
 
 	// 判断文件是否已经存在
 	var gfFile model.GridFs
-	if err := gf.Find(bson.M{"filename": spider.Name}).One(&gfFile); err == nil {
+	if err := gf.Find(bson.M{"filename": spider.Name, "metadata": bson.M{"username": spider.Username}}).One(&gfFile); err == nil {
 		// 已经存在文件，则删除
 		if err := gf.RemoveId(gfFile.Id); err != nil {
 			log.Errorf("remove grid fs error: " + err.Error())
@@ -633,8 +671,9 @@ func UploadSpiderFromId(c *gin.Context) {
 		}
 	}
 
+	currentUsername := services.GetCurrentUser(c).Username
 	// 上传到GridFs
-	fid, err := services.RetryUploadToGridFs(spider.Name, tmpFilePath)
+	fid, err := services.RetryUploadToGridFs(spider.Name, tmpFilePath, currentUsername)
 	if err != nil {
 		log.Errorf("upload to grid fs error: %s", err.Error())
 		debug.PrintStack()
@@ -1135,7 +1174,7 @@ func GetSpiderDir(c *gin.Context) {
 
 	// 获取目录下文件列表
 	spiderPath := viper.GetString("spider.path")
-	f, err := ioutil.ReadDir(filepath.Join(spiderPath, spider.Name, path))
+	f, err := ioutil.ReadDir(filepath.Join(spiderPath, spider.Username, spider.Name, path))
 	if err != nil {
 		HandleError(http.StatusInternalServerError, c, err)
 		return
@@ -1231,8 +1270,8 @@ func GetSpiderFileTree(c *gin.Context) {
 	}
 
 	// 获取目录下文件列表
-	spiderPath := viper.GetString("spider.path")
-	spiderFilePath := filepath.Join(spiderPath, spider.Name)
+	//spiderPath := viper.GetString("spider.path")
+	spiderFilePath := model.GetSpiderSrcByUsername(spider)
 
 	// 获取文件目录树
 	fileNodeTree, err := services.GetFileNodeTree(spiderFilePath, 0)

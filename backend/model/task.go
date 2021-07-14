@@ -475,6 +475,64 @@ func UpdateTaskToAbnormal(nodeId bson.ObjectId) error {
 	return nil
 }
 
+func UpdateOneTaskToAbnormal(nodeId bson.ObjectId, taskId string) error {
+	// 更新task记录过期时间
+	expireDuration := 24 * 30
+
+	s, c := database.GetCol("tasks")
+	defer s.Close()
+
+	selectorWait := bson.M{
+		"node_id": nodeId,
+		"_id":     taskId,
+		"status": bson.M{
+			"$in": []string{
+				constants.StatusPending,
+			},
+		},
+	}
+
+	selectorRunning := bson.M{
+		"node_id": nodeId,
+		"_id":     taskId,
+		"status": bson.M{
+			"$in": []string{
+				constants.StatusRunning,
+			},
+		},
+	}
+
+	updateRunning := bson.M{
+		"$set": bson.M{
+			"status":    constants.StatusAbnormal,
+			"expire_ts": time.Now().Add(time.Duration(expireDuration) * time.Hour),
+		},
+	}
+	updateWait := bson.M{
+		"$set": bson.M{
+			"status":    constants.StatusCancelled,
+			"expire_ts": time.Now().Add(time.Duration(expireDuration) * time.Hour),
+		},
+	}
+
+	_, err := c.UpdateAll(selectorWait, updateWait)
+	if err != nil {
+		log.Errorf("update task to abnormal error: %s,  node_id : %s, task_id: %s", err.Error(), nodeId.Hex())
+		debug.PrintStack()
+		return err
+	}
+
+	_, err2 := c.UpdateAll(selectorRunning, updateRunning)
+	if err2 != nil {
+		log.Errorf("update task to abnormal error: %s,  node_id : %s, task_id: %s", err2.Error(), nodeId.Hex(), taskId)
+		debug.PrintStack()
+		return err2
+	}
+
+	return nil
+}
+
+
 // update task error logs
 func UpdateTaskErrorLogs(taskId string, errorRegexPattern string) error {
 	s, c := database.GetCol("logs")

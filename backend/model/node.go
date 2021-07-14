@@ -3,7 +3,8 @@ package model
 import (
 	"crawlab/constants"
 	"crawlab/database"
-	"errors"
+	"crawlab/errors"
+	"crawlab/services/local_machine_info"
 	"github.com/apex/log"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
@@ -13,14 +14,15 @@ import (
 )
 
 type Node struct {
-	Id          bson.ObjectId `json:"_id" bson:"_id"`
-	Name        string        `json:"name" bson:"name"`
-	Status      string        `json:"status" bson:"status"`
-	Ip          string        `json:"ip" bson:"ip"`
-	Port        string        `json:"port" bson:"port"`
-	Mac         string        `json:"mac" bson:"mac"`
-	Hostname    string        `json:"hostname" bson:"hostname"`
-	Description string        `json:"description" bson:"description"`
+	Id          bson.ObjectId                  `json:"_id" bson:"_id"`
+	Name        string                         `json:"name" bson:"name"`
+	Status      string                         `json:"status" bson:"status"`
+	Ip          string                         `json:"ip" bson:"ip"`
+	Port        string                         `json:"port" bson:"port"`
+	Mac         string                         `json:"mac" bson:"mac"`
+	Hostname    string                         `json:"hostname" bson:"hostname"`
+	Description string                         `json:"description" bson:"description"`
+	Usage       local_machine_info.MachineInfo `json:"usage" bson:"usage"`
 	// 用于唯一标识节点，可能是mac地址，可能是ip地址
 	Key string `json:"key" bson:"key"`
 
@@ -107,7 +109,7 @@ func GetNode(id bson.ObjectId) (Node, error) {
 	if id.Hex() == "" {
 		log.Infof("id is empty")
 		debug.PrintStack()
-		return node, errors.New("id is empty")
+		return node, errors.ErrIpEmpty
 	}
 
 	s, c := database.GetCol("nodes")
@@ -229,4 +231,43 @@ func UpdateMasterNodeInfo(key string, ip string, mac string, hostname string) er
 		},
 	})
 	return err
+}
+
+func ChoiceNodes(nodes []Node) (Node, error) {
+	// 挑选出最有节点
+	// 无可用节点、返回异常
+
+	// 挑选指标--加权平均
+	// (x * y * z) / (x1 * y1 * z1)
+	var betterRate = 0.0
+	var cpuW = 3.0
+	var dhW = 1.0
+	var memW = 1.0
+	betterNode := Node{}
+
+	for _, node := range nodes {
+		if node.Status != "online" {
+			continue
+		}
+		if viper.GetString("setting.runOnMaster") == "N" && node.IsMaster {
+			continue
+		}
+		cpu := (node.Usage.LoadAvg1 / float64(node.Usage.CpuNums)) * 2
+		dhUse := node.Usage.DhUsed
+		memUse := node.Usage.MemUsed
+		curRate := cpu*cpuW + dhUse*dhW + memW*memUse
+		if betterRate == 0 {
+			betterRate = curRate
+			betterNode = node
+			continue
+		}
+		if curRate < betterRate {
+			betterRate = curRate
+			betterNode = node
+		}
+	}
+	if betterNode == (Node{}) {
+		return betterNode, errors.ErrGotNodeEmpty
+	}
+	return betterNode, nil
 }

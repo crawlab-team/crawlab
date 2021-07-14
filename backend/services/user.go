@@ -74,6 +74,14 @@ func CheckToken(tokenStr string) (user model.User, err error) {
 		return
 	}
 
+	now := time.Now()
+	exceedTime := now.Sub(time.Unix(int64(claim["nbf"].(float64)), 0))
+	if exceedTime.Hours() > 24{
+		err = errors.New("token was timeout exceeded")
+		return
+	}
+
+
 	id := bson.ObjectIdHex(claim["id"].(string))
 	username := claim["username"].(string)
 	user, err = model.GetUser(id)

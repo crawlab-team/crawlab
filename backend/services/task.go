@@ -21,9 +21,11 @@ import (
 	"github.com/imroc/req"
 	"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"runtime/debug"
 	"strconv"
@@ -375,6 +377,11 @@ func ExecuteShellCmd(cmdStr string, cwd string, t model.Task, s model.Spider, u 
 			envs = append(envs, model.Env{Name: "CRAWLAB_SETTING_" + envName, Value: envValue})
 		}
 	}
+
+	// 检查当前任务是否存在虚拟环境，若存在则使用虚拟环境
+	if utils.Exists(path.Join(cwd, s.Name+"_venv")) {
+		envs = append(envs, model.Env{Name: "PATH", Value: path.Join(cwd, s.Name+"_venv", "bin")})
+	}
 	cmd = SetEnv(cmd, envs, t, s)
 
 	// 起一个goroutine来监控进程
@@ -474,7 +481,7 @@ func ExecuteTask(id int) {
 	//}
 	node := local_node.CurrentNode()
 
-	// 节点队列
+	// 节点队列 -- node.Id ---> mongoDB document的默认id，是一个唯一值
 	queueCur := "tasks:node:" + node.Id.Hex()
 
 	// 节点队列任务
@@ -517,10 +524,7 @@ func ExecuteTask(id int) {
 	}
 
 	// 工作目录
-	cwd := filepath.Join(
-		viper.GetString("spider.path"),
-		spider.Name,
-	)
+	cwd := model.GetSpiderSrcByUsername(spider)
 
 	// 执行命令
 	var cmd string
@@ -581,8 +585,9 @@ func ExecuteTask(id int) {
 		}()
 
 		// 起一个cron执行器来统计任务结果数
+		// 这里如果全部任务都使用cron定时任务来执行的话，将会造成后端数据库瞬时压力大
 		cronExec := cron.New(cron.WithSeconds())
-		_, err = cronExec.AddFunc("*/5 * * * * *", SaveTaskResultCount(t.Id))
+		_, err = cronExec.AddFunc(fmt.Sprintf("%d/5 * * * * *", rand.Intn(5)), SaveTaskResultCount(t.Id))
 		if err != nil {
 			log.Errorf(GetWorkerPrefix(id) + err.Error())
 			debug.PrintStack()
@@ -592,15 +597,17 @@ func ExecuteTask(id int) {
 		defer cronExec.Stop()
 
 		// 起一个cron来更新错误日志
-		cronExecErrLog := cron.New(cron.WithSeconds())
-		_, err = cronExecErrLog.AddFunc("*/30 * * * * *", ScanErrorLogs(t))
-		if err != nil {
-			log.Errorf(GetWorkerPrefix(id) + err.Error())
-			debug.PrintStack()
-			return
-		}
-		cronExecErrLog.Start()
-		defer cronExecErrLog.Stop()
+		// 这里如果全部任务都使用cron定时任务来执行的话，将会造成后端数据库瞬时压力大
+		// 处理方式有问题数据库不一定能扛住
+		//cronExecErrLog := cron.New(cron.WithSeconds())
+		//_, err = cronExecErrLog.AddFunc(fmt.Sprintf("%d/30 * * * * *", rand.Intn(30)), ScanErrorLogs(t))
+		//if err != nil {
+		//	log.Errorf(GetWorkerPrefix(id) + err.Error())
+		//	debug.PrintStack()
+		//	return
+		//}
+		//cronExecErrLog.Start()
+		//defer cronExecErrLog.Stop()
 	}
 
 	// 执行Shell命令
@@ -688,12 +695,12 @@ func SpiderFileCheck(t model.Task, spider model.Spider) error {
 	}
 
 	// 判断md5值是否一致
-	path := filepath.Join(viper.GetString("spider.path"), spider.Name)
+	path := model.GetSpiderSrcByUsername(spider)
 	md5File := filepath.Join(path, spider_handler.Md5File)
 	md5 := utils.GetSpiderMd5Str(md5File)
 	if gfFile.Md5 != md5 {
 		spiderSync := spider_handler.SpiderSync{Spider: spider}
-		spiderSync.RemoveDownCreate(gfFile.Md5)
+		spiderSync.DownCreate(gfFile.Md5)
 	}
 	return nil
 }
@@ -737,6 +744,12 @@ func CancelTask(id string) (err error) {
 		return err
 	}
 
+	if _, err := model.GetNode(task.NodeId); err != nil {
+		_ = model.UpdateOneTaskToAbnormal(task.NodeId, task.Id)
+
+		return errors.New("the task execution node has gone offline")
+	}
+
 	// 如果任务状态不为pending或running，返回错误
 	if task.Status != constants.StatusPending && task.Status != constants.StatusRunning {
 		return errors.New("task is not cancellable")
@@ -776,6 +789,16 @@ func RestartTask(id string, uid bson.ObjectId) (err error) {
 		log.Errorf("task not found, task id : %s, error: %s", id, err.Error())
 		debug.PrintStack()
 		return err
+	}
+
+	// 校验重新运行节点是否存在-若不存在返回异常
+	oldNode, err := model.GetNode(oldTask.NodeId)
+	if err != nil {
+		return errors.New("current node was offline")
+	}
+
+	if oldNode.Status == "offline" {
+		return errors.New("current node was offline")
 	}
 
 	newTask := model.Task{
@@ -1031,6 +1054,29 @@ func SendWebHookRequest(u model.User, t model.Task, s model.Spider) {
 	}
 }
 
+func InitTasksIndexes() error {
+	// 创建tasks document索引
+	s, c := database.GetCol("tasks")
+	defer s.Close()
+
+	_ = c.EnsureIndex(mgo.Index{
+		Key: []string{"user_id", "spider_id"},
+	})
+	_ = c.EnsureIndex(mgo.Index{
+		Key: []string{"user_id", "type"},
+	})
+	_ = c.EnsureIndex(mgo.Index{
+		Key: []string{"user_id", "node_id"},
+	})
+	_ = c.EnsureIndex(mgo.Index{
+		Key:         []string{"expire_ts"},
+		Sparse:      true,
+		ExpireAfter: 1 * time.Second,
+	})
+
+	return nil
+}
+
 func InitTaskExecutor() error {
 	// 构造任务执行器
 	c := cron.New(cron.WithSeconds())
@@ -1039,9 +1085,16 @@ func InitTaskExecutor() error {
 	}
 
 	// 如果不允许主节点运行任务，则跳过
-	if model.IsMaster() && viper.GetString("setting.runOnMaster") == "N" {
-		return nil
+	if model.IsMaster() {
+		if err := InitTasksIndexes(); err != nil {
+			log.Errorf(err.Error())
+			return err
+		}
+		if viper.GetString("setting.runOnMaster") == "N" {
+			return nil
+		}
 	}
+
 
 	// 运行定时任务
 	if err := Exec.Start(); err != nil {
