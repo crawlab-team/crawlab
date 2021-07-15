@@ -1,6 +1,6 @@
 {
   "name": "crawlab-frontend",
-  "version": "0.1.0",
+  "version": "0.6.0-beta.20210715",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve --port=8081",
