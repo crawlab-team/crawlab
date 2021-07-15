@@ -28,3 +28,11 @@
     }
   }
 }
+
+.el-button {
+  &:not(.is-circle) {
+    .fa {
+      margin-right: 5px;
+    }
+  }
+}

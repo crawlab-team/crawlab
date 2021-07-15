@@ -1,0 +1,3 @@
+interface TaskPriorityProps {
+  priority?: number;
+}
