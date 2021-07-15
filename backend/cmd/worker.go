@@ -11,6 +11,7 @@ import (
 var (
 	workerConfigPath  string
 	workerGrpcAddress string
+	workerGrpcAuthKey string
 )
 
 func init() {
@@ -21,6 +22,9 @@ func init() {
 
 	workerCmd.PersistentFlags().StringVarP(&workerGrpcAddress, "grpc-address", "g", "", "gRPC address of worker node")
 	_ = viper.BindPFlag("grpcAddress", workerCmd.PersistentFlags().Lookup("grpcAddress"))
+
+	workerCmd.PersistentFlags().StringVarP(&workerGrpcAuthKey, "grpc-auth-key", "a", "", "gRPC auth key of worker node")
+	_ = viper.BindPFlag("grpcAuthKey", workerCmd.PersistentFlags().Lookup("grpcAuthKey"))
 }
 
 var workerCmd = &cobra.Command{
@@ -45,6 +49,9 @@ assigned by the master node`,
 			}
 			opts = append(opts, apps.WithWorkerGrpcAddress(address))
 			viper.Set("grpc.address", workerGrpcAddress)
+		}
+		if workerGrpcAuthKey != "" {
+			viper.Set("grpc.authKey", workerGrpcAuthKey)
 		}
 
 		// app

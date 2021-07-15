@@ -12,6 +12,7 @@ var (
 	runOnMaster       bool
 	masterConfigPath  string
 	masterGrpcAddress string
+	masterGrpcAuthKey string
 )
 
 func init() {
@@ -22,6 +23,9 @@ func init() {
 
 	masterCmd.PersistentFlags().StringVarP(&masterGrpcAddress, "grpc-address", "g", "", "gRPC address of master node")
 	_ = viper.BindPFlag("grpcAddress", masterCmd.PersistentFlags().Lookup("grpcAddress"))
+
+	masterCmd.PersistentFlags().StringVarP(&masterGrpcAuthKey, "grpc-auth-key", "a", "", "gRPC auth key of master node")
+	_ = viper.BindPFlag("grpcAuthKey", masterCmd.PersistentFlags().Lookup("grpcAuthKey"))
 }
 
 var masterCmd = &cobra.Command{
@@ -46,6 +50,9 @@ which runs api and assign tasks to worker nodes`,
 			opts = append(opts, apps.WithMasterGrpcAddress(address))
 			viper.Set("grpc.address", masterGrpcAddress)
 			viper.Set("grpc.server.address", masterGrpcAddress)
+		}
+		if masterGrpcAuthKey != "" {
+			viper.Set("grpc.authKey", masterGrpcAuthKey)
 		}
 
 		// app
