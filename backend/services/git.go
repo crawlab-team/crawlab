@@ -12,6 +12,8 @@ import (
 	"gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
+	"gopkg.in/src-d/go-git.v4/plumbing/transport"
+	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/ssh"
 	"gopkg.in/src-d/go-git.v4/storage/memory"
 	"io/ioutil"
@@ -139,17 +141,9 @@ func SaveSpiderGitSyncError(s model.Spider, errMsg string) {
 // 获得Git分支
 func GetGitRemoteBranchesPlain(gitUrl string, username string, password string) (branches []string, err error) {
 	storage := memory.NewStorage()
-	u, _ := url.Parse(gitUrl)
 	var listOptions git.ListOptions
 	if strings.HasPrefix(gitUrl, "http") {
-		gitUrl = fmt.Sprintf(
-			"%s://%s:%s@%s%s",
-			u.Scheme,
-			username,
-			password,
-			u.Hostname(),
-			u.Path,
-		)
+		gitUrl = formatGitUrl(gitUrl, username, password)
 	} else {
 		auth, err := ssh.NewPublicKeysFromFile(username, path.Join(os.Getenv("HOME"), ".ssh", "id_rsa"), "")
 		if err != nil {
@@ -181,6 +175,33 @@ func GetGitRemoteBranchesPlain(gitUrl string, username string, password string) 
 	}
 
 	return branches, nil
+}
+
+func formatGitUrl(gitUrl, username, password string) string {
+	u, _ := url.Parse(gitUrl)
+	gitHost := u.Hostname()
+	gitPort := u.Port()
+	if gitPort == "" {
+		gitUrl = fmt.Sprintf(
+			"%s://%s:%s@%s%s",
+			u.Scheme,
+			username,
+			password,
+			u.Hostname(),
+			u.Path,
+		)
+	} else {
+		gitUrl = fmt.Sprintf(
+			"%s://%s:%s@%s:%s%s",
+			u.Scheme,
+			username,
+			password,
+			gitHost,
+			gitPort,
+			u.Path,
+		)
+	}
+	return gitUrl
 }
 
 // 重置爬虫Git
@@ -229,21 +250,11 @@ func SyncSpiderGit(s model.Spider) (err error) {
 	}
 
 	// 生成 URL
-	gitUrl := s.GitUrl
+	var gitUrl string
 	if s.GitUsername != "" && s.GitPassword != "" {
-		u, err := url.Parse(s.GitUrl)
-		if err != nil {
-			SaveSpiderGitSyncError(s, err.Error())
-			return err
-		}
-		gitUrl = fmt.Sprintf(
-			"%s://%s:%s@%s%s",
-			u.Scheme,
-			s.GitUsername,
-			s.GitPassword,
-			u.Hostname(),
-			u.Path,
-		)
+		gitUrl = formatGitUrl(s.GitUrl, s.GitUsername, s.GitPassword)
+	} else {
+		gitUrl = s.GitUrl
 	}
 
 	// 创建 remote
@@ -260,7 +271,7 @@ func SyncSpiderGit(s model.Spider) (err error) {
 	}
 
 	// 生成验证信息
-	var auth ssh.AuthMethod
+	var auth transport.AuthMethod
 	if !strings.HasPrefix(s.GitUrl, "http") {
 		// 为 SSH
 		regex := regexp.MustCompile("^(?:ssh://?)?([0-9a-zA-Z_]+)@")
@@ -279,6 +290,11 @@ func SyncSpiderGit(s model.Spider) (err error) {
 			debug.PrintStack()
 			SaveSpiderGitSyncError(s, err.Error())
 			return err
+		}
+	} else {
+		// 为 HTTP
+		if s.GitUsername != "" && s.GitPassword != "" {
+			auth = &http.BasicAuth{s.GitUsername, s.GitPassword}
 		}
 	}
 
@@ -303,6 +319,7 @@ func SyncSpiderGit(s model.Spider) (err error) {
 	if err := wt.Pull(&git.PullOptions{
 		RemoteName:    "origin",
 		Auth:          auth,
+		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 		ReferenceName: plumbing.HEAD,
 		SingleBranch:  false,
 	}); err != nil {

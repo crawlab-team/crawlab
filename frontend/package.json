@@ -29,6 +29,7 @@
     "element-ui": "^2.13.2",
     "font-awesome": "^4.7.0",
     "github-markdown-css": "^4.0.0",
+    "has-ansi": "^2.0.0",
     "js-cookie": "^2.2.1",
     "normalize.css": "^8.0.1",
     "npm": "^6.14.5",
