@@ -1,0 +1,3 @@
+interface TaskModeProps {
+  mode?: TaskMode;
+}

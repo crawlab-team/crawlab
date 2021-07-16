@@ -1,0 +1,13 @@
+export const FILTER_OP_NOT_SET = 'ns';
+export const FILTER_OP_CONTAINS = 'c';
+export const FILTER_OP_NOT_CONTAINS = 'nc';
+export const FILTER_OP_REGEX = 'r';
+export const FILTER_OP_EQUAL = 'eq';
+export const FILTER_OP_NOT_EQUAL = 'ne';
+export const FILTER_OP_IN = 'in';
+export const FILTER_OP_NOT_IN = 'nin';
+export const FILTER_OP_GREATER_THAN = 'gt';
+export const FILTER_OP_GREATER_THAN_EQUAL = 'gte';
+export const FILTER_OP_LESS_THAN = 'lt';
+export const FILTER_OP_LESS_THAN_EQUAL = 'lte';
+export const FILTER_OP_SEARCH = 's';

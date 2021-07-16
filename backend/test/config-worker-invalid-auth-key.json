@@ -1,0 +1,10 @@
+{
+  "key": "worker-invalid-auth-key",
+  "is_master": false,
+  "name": "worker",
+  "ip": "",
+  "mac": "",
+  "hostname": "",
+  "description": "",
+  "auth_key": "invalid-auth-key"
+}

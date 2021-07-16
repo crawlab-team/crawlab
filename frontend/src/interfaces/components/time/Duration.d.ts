@@ -1,0 +1,3 @@
+interface DurationProps {
+  duration?: number;
+}
