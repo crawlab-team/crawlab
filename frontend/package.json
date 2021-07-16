@@ -21,6 +21,7 @@
     "ansi-to-html": "^0.6.14",
     "axios": "^0.19.2",
     "babel-polyfill": "^6.26.0",
+    "binary-downloader": "^0.2.0",
     "core-js": "^3.6.5",
     "cross-env": "^7.0.2",
     "dayjs": "^1.8.28",
