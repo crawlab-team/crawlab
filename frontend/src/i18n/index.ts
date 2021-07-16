@@ -3,7 +3,7 @@ import en from './lang/en';
 import zh from './lang/zh';
 
 const i18n: any = createI18n({
-  locale: localStorage.getItem('lang') || 'zh',
+  locale: localStorage.getItem('lang') || 'en',
   messages: {
     en,
     zh
