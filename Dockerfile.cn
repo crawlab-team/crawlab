@@ -4,7 +4,7 @@ WORKDIR /go/src/app
 COPY ./backend .
 
 ENV GO111MODULE on
-ENV GOPROXY https://goproxy.io
+#ENV GOPROXY https://goproxy.io
 
 RUN go mod tidy \
   && go install -v ./...
@@ -13,6 +13,7 @@ FROM node:12 AS frontend-build
 
 ADD ./frontend /app
 WORKDIR /app
+RUN rm /app/.npmrc
 
 # install frontend
 #RUN npm config set unsafe-perm true
