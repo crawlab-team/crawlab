@@ -42,9 +42,9 @@ RUN pip install scrapy pymongo bs4 requests crawlab-sdk
 
 # add files
 COPY ./backend/conf /app/backend/conf
-COPY ./backend/data /app/backend/data
-COPY ./backend/scripts /app/backend/scripts
-COPY ./backend/template /app/backend/template
+#COPY ./backend/data /app/backend/data
+#COPY ./backend/scripts /app/backend/scripts
+#COPY ./backend/template /app/backend/template
 COPY ./nginx /app/nginx
 COPY ./docker_init.sh /app/docker_init.sh
 
