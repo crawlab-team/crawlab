@@ -1,8 +1,8 @@
 # Crawlab
 
 <p>
-  <a href="https://hub.docker.com/r/tikazyq/crawlab/builds" target="_blank">
-    <img src="https://github.com/crawlab-team/crawlab/workflows/Docker/badge.svg">
+  <a href="https://github.com/crawlab-team/crawlab/actions/workflows/dockerpush.yml" target="_blank">
+    <img src="https://github.com/crawlab-team/crawlab/actions/workflows/dockerpush.yml/badge.svg">
   </a>
   <a href="https://hub.docker.com/r/tikazyq/crawlab" target="_blank">
     <img src="https://img.shields.io/docker/pulls/tikazyq/crawlab?label=pulls&logo=docker">

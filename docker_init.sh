@@ -2,7 +2,7 @@
 
 # replace absolute api url to relative
 jspath=`ls /app/dist/js/app.*.js`
-sed -i "s?/http:\/\/localhost:8000/\/api/?g" ${jspath}
+sed -i "s?http:\/\/localhost:8000?\/api?g" ${jspath}
 
 # replace default api path to new one
 # if [ "${CRAWLAB_API_ADDRESS}" = "" ]; 
@@ -25,6 +25,9 @@ sed -i "s?/http:\/\/localhost:8000/\/api/?g" ${jspath}
 
 # start nginx
 service nginx start
+
+# start seaweedfs server
+weed server -dir /data -master.dir /data -volume.dir.idx /data -ip localhost -ip.bind 0.0.0.0 -filer >> /var/log/weed.log 2>&1 &
 
 #grant script 
 # chmod +x /app/backend/scripts/*.sh

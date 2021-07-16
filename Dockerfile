@@ -36,6 +36,10 @@ RUN chmod 777 /tmp \
 	&& ln -s /usr/bin/pip3 /usr/local/bin/pip \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
 
+# install seaweedfs
+RUN wget https://github.com/chrislusf/seaweedfs/releases/download/2.48/linux_amd64.tar.gz \
+  && tar -zxf linux_amd64.tar.gz \
+  && cp weed /usr/local/bin
 
 # install backend
 RUN pip install scrapy pymongo bs4 requests crawlab-sdk
