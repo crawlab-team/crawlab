@@ -94,12 +94,13 @@
           <img alt="github-stars" src="https://img.shields.io/github/stars/crawlab-team/crawlab?logo=github">
         </a>
       </div>
-      <div class="lang">
+      <!-- TODO: implement -->
+      <div v-if="false" class="lang">
         <span :class="lang==='zh'?'active':''" @click="setLang('zh')">中文</span>
         |
         <span :class="lang==='en'?'active':''" @click="setLang('en')">English</span>
       </div>
-      <div class="documentation">
+      <div v-if="false" class="documentation">
         <a href="https://docs.crawlab.cn" target="_blank">{{ $t('Documentation') }}</a>
       </div>
       <div class="mobile-warning" v-if="isShowMobileWarning">
@@ -129,8 +130,6 @@ const {
 export default defineComponent({
   name: 'Login',
   setup() {
-    const {tm} = useI18n();
-
     const route = useRoute();
 
     const router = useRouter();
@@ -150,7 +149,7 @@ export default defineComponent({
 
     const validateUsername = (rule: any, value: any, callback: any) => {
       if (!isValidUsername(value)) {
-        callback(new Error(tm('Please enter the correct username')));
+        callback(new Error('Please enter the correct username'));
       } else {
         callback();
       }
@@ -158,7 +157,7 @@ export default defineComponent({
 
     const validatePass = (rule: any, value: any, callback: any) => {
       if (value.length < 5) {
-        callback(new Error(tm('Password length should be no shorter than 5')));
+        callback(new Error('Password length should be no shorter than 5'));
       } else {
         callback();
       }
@@ -167,7 +166,7 @@ export default defineComponent({
     const validateConfirmPass = (rule: any, value: any, callback: any) => {
       if (!isSignup.value) return callback();
       if (value !== loginForm.value.password) {
-        callback(new Error(tm('Two passwords must be the same')));
+        callback(new Error('Two passwords must be the same'));
       } else {
         callback();
       }

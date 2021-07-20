@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -33,19 +33,22 @@ func init() {
 
 func initConfig() {
 	if cfgFile != "" {
-		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		cobra.CheckErr(err)
-
-		// Search config in home directory with name ".cobra" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".cobra")
+		viper.AddConfigPath("./conf")
+		viper.SetConfigName("config")
 	}
 
+	// file format as yaml
+	viper.SetConfigType("yaml")
+
+	// auto load env
 	viper.AutomaticEnv()
+
+	// env prefix as CRAWLAB
+	viper.SetEnvPrefix("CRAWLAB")
+	replacer := strings.NewReplacer(".", "_")
+	viper.SetEnvKeyReplacer(replacer)
 
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())

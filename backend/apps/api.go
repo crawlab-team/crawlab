@@ -7,7 +7,6 @@ import (
 	"github.com/crawlab-team/crawlab-core/interfaces"
 	"github.com/crawlab-team/crawlab-core/middlewares"
 	"github.com/crawlab-team/crawlab-core/routes"
-	"github.com/crawlab-team/crawlab-db/mongo"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"net"
@@ -25,9 +24,6 @@ type Api struct {
 }
 
 func (app *Api) Init() {
-	// initialize mongo
-	_ = initModule("mongo", mongo.InitMongo)
-
 	// initialize controllers
 	_ = initModule("controllers", controllers.InitControllers)
 

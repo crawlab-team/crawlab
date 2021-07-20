@@ -1,8 +1,27 @@
 import axios, {AxiosRequestConfig} from 'axios';
+import {ElMessageBox} from 'element-plus';
+import router from '@/router';
 
 // TODO: request interception
 
 // TODO: response interception
+let msgBoxVisible = false;
+axios.interceptors.response.use(res => {
+  return res;
+}, err => {
+  const status = err?.response?.status;
+  if (status === 401) {
+    if (msgBoxVisible) return;
+    msgBoxVisible = true;
+    ElMessageBox.confirm('You seem to have been logged-out, try to login again?', 'Unauthorized', {type: 'warning'})
+      .then(_ => router.push('/login'))
+      .finally(() => {
+        msgBoxVisible = false;
+      });
+  } else {
+    console.error(err);
+  }
+});
 
 const useRequest = () => {
   // implementation

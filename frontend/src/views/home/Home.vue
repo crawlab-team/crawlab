@@ -228,7 +228,7 @@ export default defineComponent({
       // TODO: filter by date range?
       const {start, end} = dateRange.value;
       const res = await get(`/stats/daily`);
-      dailyConfig.value.data = spanDateRange(start, end, res.data, 'date');
+      dailyConfig.value.data = spanDateRange(start, end, res.data || [], 'date');
     };
 
     const getTasks = async () => {

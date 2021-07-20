@@ -4,7 +4,8 @@ services:
     image: crawlabteam/crawlab:latest
     container_name: crawlab_master
     environment:
-      CRAWLAB_MONGO_HOST: 'mongo'
+      CRAWLAB_SERVER_MASTER: Y
+      CRAWLAB_MONGO_HOST: mongo
     ports:
       - "8080:8080" # frontend port mapping 前端端口映射
     depends_on:

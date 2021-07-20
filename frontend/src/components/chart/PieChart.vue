@@ -1,5 +1,8 @@
 <template>
   <div :style="style" class="pie-chart">
+    <div v-if="isEmpty" class="empty-placeholder">
+      No Data Available
+    </div>
     <div ref="elRef" class="echarts-element"></div>
   </div>
 </template>
@@ -46,8 +49,16 @@ export default defineComponent({
     const elRef = ref<HTMLDivElement>();
     const chart = ref<ECharts>();
 
+    const isEmpty = computed<boolean>(() => {
+      const {config} = props;
+      const {data} = config;
+      if (!data) return true;
+      return data.length === 0;
+
+    });
+
     const getSeriesData = (data: StatsResult[], key?: string) => {
-      const {valueKey, labelKey, config} = props;
+      const {valueKey, labelKey} = props;
       const _valueKey = !key ? valueKey : key;
 
       if (_valueKey) {
@@ -69,7 +80,7 @@ export default defineComponent({
 
       const seriesItem = {
         type: 'pie',
-        data: getSeriesData(data),
+        data: getSeriesData(data || []),
         radius: ['40%', '70%'],
         alignTo: 'labelLine',
       } as EChartSeries;
@@ -119,6 +130,7 @@ export default defineComponent({
     });
 
     return {
+      isEmpty,
       style,
       elRef,
       render,
@@ -128,7 +140,22 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+@import "../../styles/variables";
+
 .pie-chart {
+  position: relative;
+
+  .empty-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+  }
+
   .echarts-element {
     width: 100%;
     height: 100%;

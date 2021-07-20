@@ -15,8 +15,16 @@
     <!-- ./Input -->
 
     <!-- Button -->
-    <Button v-if="buttonLabel" :disabled="disabled" :size="size" :type="buttonType" class="button" no-margin>
-      <Icon v-if="buttonIcon" :icon="buttonIcon"/>
+    <Button
+        v-if="buttonLabel"
+        :disabled="disabled"
+        :size="size"
+        :type="buttonType"
+        class="button"
+        no-margin
+        @click="onClick"
+    >
+      <Icon v-if="buttonIcon" :icon="buttonIcon" />
       {{ buttonLabel }}
     </Button>
     <template v-else-if="buttonIcon">
@@ -27,6 +35,7 @@
           :size="size"
           :type="buttonType"
           class="button"
+          @click="onClick"
       />
       <IconButton
           v-else
@@ -35,6 +44,7 @@
           :size="size"
           :type="buttonType"
           class="button"
+          @click="onClick"
       />
     </template>
     <!-- ./Button -->

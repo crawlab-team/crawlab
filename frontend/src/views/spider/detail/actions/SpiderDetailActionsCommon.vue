@@ -11,7 +11,8 @@
       <FaIconButton :icon="['far', 'star']" plain tooltip="Favorite" type="warning"/>
     </NavActionItem>
   </NavActionGroup>
-  <NavActionGroup>
+  <!--TODO: implement-->
+  <NavActionGroup v-if="false">
     <NavActionFaIcon :icon="['fab', 'git-alt']"/>
     <NavActionItem>
       <FaIconButton :icon="['fa', 'upload']" tooltip="Upload File" type="primary"/>

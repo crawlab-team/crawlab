@@ -51,4 +51,8 @@ Host *
 EOF
 
 # start backend
-crawlab-server
+if [ "${CRAWLAB_SERVER_MASTER}" = "Y" ];
+	crawlab-server master
+then
+	crawlab-server worker
+fi
