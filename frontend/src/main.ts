@@ -13,8 +13,12 @@ import 'normalize.css/normalize.css';
 import 'font-awesome/css/font-awesome.min.css';
 import 'element-plus/lib/theme-chalk/index.css';
 import '@/styles/index.scss';
+import {initBaiduTonji} from '@/admin/baidu';
 
 library.add(fab, far, fas);
+
+// baidu tongji
+initBaiduTonji();
 
 createApp(App)
   .use(store)

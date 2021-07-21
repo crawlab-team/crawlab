@@ -10,6 +10,7 @@ import user from '@/router/user';
 import tag from '@/router/tag';
 import token from '@/router/token';
 import {initRouterAuth} from '@/router/auth';
+import {sendPv} from '@/utils/admin';
 
 export const routes: Array<RouteRecordRaw> = [
   ...login,
@@ -46,6 +47,12 @@ export const menuItems: MenuItem[] = [
 const router = createRouter({
   history: createWebHashHistory(process.env.BASE_URL),
   routes,
+});
+
+router.afterEach(async (to, from, next) => {
+  if (to.path) {
+    sendPv(to.path);
+  }
 });
 
 initRouterAuth(router);
