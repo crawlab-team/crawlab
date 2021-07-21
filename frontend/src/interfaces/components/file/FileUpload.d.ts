@@ -9,7 +9,8 @@ interface FileUploadModeOption {
   value: string;
 }
 
-interface FileUploadDirInfo {
-  dirName: string;
-  fileCount: number;
+interface FileUploadInfo {
+  dirName?: string;
+  fileCount?: number;
+  filePaths?: string[];
 }

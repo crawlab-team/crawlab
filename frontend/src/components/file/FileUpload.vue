@@ -19,15 +19,16 @@
           :http-request="() => {}"
           drag
           multiple
+          :show-file-list="false"
       >
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">Drag files here, or <em>click to upload</em></div>
       </el-upload>
-      <input v-bind="getInputProps()">
+      <input v-bind="getInputProps()" multiple>
     </template>
     <template v-else-if="mode === FILE_UPLOAD_MODE_DIR">
       <div class="folder-upload">
-        <Button @click="open">
+        <Button size="large" @click="open">
           <i class="fa fa-folder"></i>
           Click to Select Folder to Upload
         </Button>
@@ -48,8 +49,16 @@
           />
         </template>
       </div>
-      <input v-bind="getInputProps()" webkitdirectory>
+      <input v-bind="getInputProps()" webkitdirectory multiple>
     </template>
+    <div v-if="dirInfo?.filePaths?.length > 0" class="file-list-wrapper">
+      <h4 class="title">Files to Upload</h4>
+      <ul class="file-list">
+        <li v-for="(path, $index) in dirInfo?.filePaths" :key="$index" class="file-item">
+          {{ path }}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -86,12 +95,12 @@ export default defineComponent({
   setup(props: FileUploadProps, {emit}) {
     const modeOptions: FileUploadModeOption[] = [
       {
-        label: 'Files',
-        value: FILE_UPLOAD_MODE_FILES,
-      },
-      {
         label: 'Folder',
         value: FILE_UPLOAD_MODE_DIR,
+      },
+      {
+        label: 'Files',
+        value: FILE_UPLOAD_MODE_FILES,
       },
     ];
     const internalMode = ref<string>();
@@ -122,11 +131,14 @@ export default defineComponent({
       internalMode.value = mode;
     });
 
-    const dirInfo = ref<FileUploadDirInfo>();
+    const dirInfo = ref<FileUploadInfo>();
 
-    const setDirInfo = (info: FileUploadDirInfo) => {
-      console.debug(info);
+    const setInfo = (info: FileUploadInfo) => {
       dirInfo.value = plainClone(info);
+    }
+
+    const resetInfo = (info: FileUploadInfo) => {
+      dirInfo.value = undefined;
     };
 
     return {
@@ -140,13 +152,16 @@ export default defineComponent({
       clearFiles,
       onModeChange,
       dirInfo,
-      setDirInfo,
+      setInfo,
+      resetInfo,
     };
   },
 });
 </script>
 
 <style scoped lang="scss">
+@import "../../styles/variables";
+
 .file-upload {
   .mode-select {
     margin-bottom: 20px;
@@ -159,6 +174,26 @@ export default defineComponent({
   .folder-upload {
     display: flex;
     align-items: center;
+
+  }
+
+  .file-list-wrapper {
+    .title {
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .file-list {
+      list-style: none;
+      max-height: 400px;
+      overflow: auto;
+      border: 1px solid $infoPlainColor;
+      padding: 10px;
+      margin-top: 10px;
+
+      .file-item {
+      }
+    }
   }
 }
 </style>

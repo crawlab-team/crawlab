@@ -40,6 +40,8 @@ import FileUpload from '@/components/file/FileUpload.vue';
 import Dialog from '@/components/dialog/Dialog.vue';
 import {ElMessage} from 'element-plus';
 import {FILE_UPLOAD_MODE_DIR, FILE_UPLOAD_MODE_FILES} from '@/constants/file';
+import {FileWithPath} from 'file-selector';
+import {getOSPathSeparator} from '@/utils/os';
 
 export default defineComponent({
   name: 'SpiderDetailActionsFiles',
@@ -64,8 +66,8 @@ export default defineComponent({
       saveFileBinary,
     } = useSpiderService(store);
 
-    const mode = ref<string>(FILE_UPLOAD_MODE_FILES);
-    const files = ref<File[]>();
+    const mode = ref<string>(FILE_UPLOAD_MODE_DIR);
+    const files = ref<FileWithPath[]>([]);
 
     const id = computed<string>(() => route.params.id as string);
 
@@ -74,14 +76,50 @@ export default defineComponent({
     const confirmLoading = ref<boolean>(false);
     const confirmDisabled = computed<boolean>(() => !files.value?.length);
 
+    const hasMultiDir = computed<boolean>(() => {
+      if (!files.value) return false;
+      const set = new Set<string>();
+      for (const f of files.value) {
+        const lv1 = f.path?.split(getOSPathSeparator())[0] as string;
+        if (!set.has(lv1)) {
+          set.add(lv1);
+        }
+        if (set.size > 1) {
+          return true;
+        }
+      }
+      return false;
+    });
+
+    const getFilePath = (path: string) => {
+      if (hasMultiDir.value) {
+        return path;
+      } else {
+        return path.split(getOSPathSeparator()).filter((_, i) => i > 0).join(getOSPathSeparator());
+      }
+    };
+
+    const setInfo = () => {
+      // set file upload info
+      const info = {
+        fileCount: files.value.length,
+        filePaths: files.value.map(f => f.path || f.name),
+      } as FileUploadInfo;
+      if (mode.value === FILE_UPLOAD_MODE_DIR) {
+        const f = files.value[0];
+        info.dirName = f.path?.split(getOSPathSeparator())[0];
+      }
+      fileUploadRef.value?.setInfo(info);
+    };
+
     const onOpenFilesSettings = () => {
       store.commit(`${storeNamespace}/setEditorSettingsDialogVisible`, true);
     };
 
     const uploadFiles = async () => {
       if (!files.value) return;
-      await Promise.all(files.value.map(f => {
-        return saveFileBinary(id.value, f.name, f as File);
+      await Promise.all(files.value.map((f: FileWithPath) => {
+        return saveFileBinary(id.value, getFilePath(f.path as string), f as File);
       }));
       await listRootDir(id.value);
     };
@@ -90,20 +128,11 @@ export default defineComponent({
       getInputProps,
       open,
     } = useDropzone({
-      onDrop: async (fileList: InputFile[]) => {
-        if (mode.value === FILE_UPLOAD_MODE_DIR) {
-          if (!fileList.length) return;
-          const f = fileList[0];
-          const dirName = f.path?.split('/')[0];
-          const fileCount = fileList.length;
-          const dirInfo = {
-            dirName,
-            fileCount,
-          } as FileUploadDirInfo;
-          console.debug(fileList, dirInfo);
-          fileUploadRef.value?.setDirInfo(dirInfo);
-        }
-        files.value = fileList as File[];
+      onDrop: (fileList: InputFile[]) => {
+        files.value = fileList.map(f => f as FileWithPath);
+
+        // set file upload info
+        setInfo();
       },
     });
 
@@ -115,10 +144,19 @@ export default defineComponent({
 
     const onModeChange = (value: string) => {
       mode.value = value;
+
+      // reset file upload info
+      fileUploadRef.value?.resetInfo();
     };
 
-    const onFilesChange = (fileList: File[]) => {
-      files.value = fileList;
+    const onFilesChange = (fileList: FileWithPath[]) => {
+      if (!fileList.length) return;
+
+      // set files
+      files.value = fileList as FileWithPath[];
+
+      // set file upload info
+      setInfo();
     };
 
     const onUploadConfirm = async () => {
