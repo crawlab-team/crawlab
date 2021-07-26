@@ -20,6 +20,9 @@ library.add(fab, far, fas);
 // baidu tongji
 initBaiduTonji();
 
+// remove loading placeholder
+document.querySelector('#loading-placeholder')?.remove();
+
 createApp(App)
   .use(store)
   .use(router)
