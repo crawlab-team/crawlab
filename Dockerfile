@@ -18,7 +18,7 @@ WORKDIR /app
 #RUN npm config set unsafe-perm true
 #RUN npm install -g yarn && yarn install
 
-RUN yarn install && yarn run build
+RUN yarn install && yarn run build:docker
 
 # images
 FROM ubuntu:latest

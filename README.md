@@ -41,15 +41,14 @@ Three methods:
 
 ### Pre-requisite (Docker)
 - Docker 18.03+
-- Redis 5.x+
 - MongoDB 3.6+
 - Docker Compose 1.24+ (optional but recommended)
 
 ### Pre-requisite (Direct Deploy)
 - Go 1.12+
 - Node 8.12+
-- Redis 5.x+
 - MongoDB 3.6+
+- SeaweedFS 
 
 ## Quick Start
 

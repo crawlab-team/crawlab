@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve --port=8081",
     "build": "vue-cli-service build",
+    "build:docker": "vue-cli-service build --mode docker",
     "lint": "vue-cli-service lint",
     "test": "jest"
   },
