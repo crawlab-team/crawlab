@@ -5,10 +5,12 @@ const endpoint = 'nodes';
 
 export default [
   {
+    name: 'NodeList',
     path: endpoint,
-    component: import('@/views/node/list/NodeList.vue'),
+    component: () => import('@/views/node/list/NodeList.vue'),
   },
   {
+    name: 'NodeDetail',
     path: `${endpoint}/:id`,
     redirect: to => {
       return {path: to.path + '/' + TAB_NAME_OVERVIEW};

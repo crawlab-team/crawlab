@@ -15,7 +15,7 @@
   </div>
 </template>
 <script lang="ts">
-import {computed, defineComponent} from 'vue';
+import {computed, defineComponent, watch} from 'vue';
 import ListLayout from '@/layouts/ListLayout.vue';
 import {useStore} from 'vuex';
 import useTaskDetail from '@/views/task/detail/taskDetail';
@@ -75,6 +75,8 @@ export default defineComponent({
         console.warn('deleteByIdConfirm is not implemented');
       },
     } as ListLayoutActionFunctions;
+
+    watch(() => tablePagination.value, actionFunctions.getList);
 
     return {
       actionFunctions,

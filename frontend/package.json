@@ -4,8 +4,10 @@
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve --port=8081",
+    "serve:build:local": "vue-cli-service serve --port=8082 --model local",
     "build": "vue-cli-service build",
     "build:docker": "vue-cli-service build --mode docker",
+    "build:local": "vue-cli-service build --mode local",
     "lint": "vue-cli-service lint",
     "test": "jest"
   },
