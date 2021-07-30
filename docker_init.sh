@@ -2,7 +2,7 @@
 
 # replace absolute api url to relative
 jspath=`ls /app/dist/js/index.*.js`
-sed -i "s?###VUE_APP_API_BASE_URL###?\/api?g" ${jspath}
+sed -i "s?VUE_APP_API_BASE_URL?\/api?g" ${jspath}
 
 # replace default api path to new one
 # if [ "${CRAWLAB_API_ADDRESS}" = "" ]; 

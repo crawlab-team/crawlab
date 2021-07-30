@@ -1,4 +1,4 @@
-FROM golang:1 AS backend-build
+FROM golang:1.15 AS backend-build
 
 WORKDIR /go/src/app
 COPY ./backend .
@@ -13,11 +13,13 @@ FROM node:12 AS frontend-build
 
 ADD ./frontend /app
 WORKDIR /app
+#RUN rm /app/.npmrc
 
-ENV SASS_BINARY_SITE=https://npm.taobao.org/mirrors/node-sass/
 # install frontend
-RUN yarn config set registry https://registry.npm.taobao.org && \
-    yarn install && yarn run build:prod
+#RUN npm config set unsafe-perm true
+#RUN npm install -g yarn && yarn install
+
+RUN yarn install && yarn run build:docker
 
 # images
 FROM ubuntu:latest
@@ -28,25 +30,24 @@ ENV DEBIAN_FRONTEND noninteractive
 # set CRAWLAB_IS_DOCKER
 ENV CRAWLAB_IS_DOCKER Y
 
-
-
 # install packages
 RUN chmod 777 /tmp \
-    && sed -i 's/archive.ubuntu.com/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list \
 	&& apt-get update \
-	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip nginx wget dumb-init cloc\
+	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip nginx wget dumb-init cloc \
 	&& ln -s /usr/bin/pip3 /usr/local/bin/pip \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
 
+# install seaweedfs
+RUN wget https://github.com/chrislusf/seaweedfs/releases/download/2.59/linux_amd64.tar.gz \
+  && tar -zxf linux_amd64.tar.gz \
+  && cp weed /usr/local/bin
 
 # install backend
-RUN pip install scrapy pymongo bs4 requests crawlab-sdk scrapy-splash -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip install scrapy pymongo bs4 requests -i https://mirrors.aliyun.com/pypi/simple
+RUN pip install crawlab-sdk==0.6.b20210729-1634
 
 # add files
 COPY ./backend/conf /app/backend/conf
-COPY ./backend/data /app/backend/data
-COPY ./backend/scripts /app/backend/scripts
-COPY ./backend/template /app/backend/template
 COPY ./nginx /app/nginx
 COPY ./docker_init.sh /app/docker_init.sh
 

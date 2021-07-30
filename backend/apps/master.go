@@ -2,6 +2,7 @@ package apps
 
 import (
 	"github.com/crawlab-team/crawlab-core/config"
+	"github.com/crawlab-team/crawlab-core/controllers"
 	"github.com/crawlab-team/crawlab-core/interfaces"
 	"github.com/crawlab-team/crawlab-core/node/service"
 	"go.uber.org/dig"
@@ -32,6 +33,10 @@ func (app *Master) SetRunOnMaster(ok bool) {
 }
 
 func (app *Master) Init() {
+	// initialize controllers
+	if err := controllers.InitControllers(); err != nil {
+		panic(err)
+	}
 }
 
 func (app *Master) Start() {

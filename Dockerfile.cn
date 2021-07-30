@@ -4,7 +4,7 @@ WORKDIR /go/src/app
 COPY ./backend .
 
 ENV GO111MODULE on
-#ENV GOPROXY https://goproxy.io
+ENV GOPROXY https://goproxy.io
 
 RUN go mod tidy \
   && go install -v ./...
@@ -13,7 +13,7 @@ FROM node:12 AS frontend-build
 
 ADD ./frontend /app
 WORKDIR /app
-RUN rm /app/.npmrc
+#RUN rm /app/.npmrc
 
 # install frontend
 #RUN npm config set unsafe-perm true
@@ -43,7 +43,7 @@ RUN wget https://github.com/chrislusf/seaweedfs/releases/download/2.59/linux_amd
   && cp weed /usr/local/bin
 
 # install backend
-RUN pip install scrapy pymongo bs4 requests crawlab-sdk
+RUN pip install scrapy pymongo bs4 requests crawlab-sdk -i https://mirrors.aliyun.com/pypi/simple
 
 # add files
 COPY ./backend/conf /app/backend/conf
