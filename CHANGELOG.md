@@ -1,4 +1,9 @@
+# 0.6.0 (TBC)
+
+(TBC)
+
 # 0.5.1 (2020-07-31)
+
 ### Features / Enhancement
 - **Added error message details**.
 - **Added Golang programming language support**.
