@@ -35,9 +35,9 @@
 ## 安装
 
 三种方式:
-1. [Docker](http://docs.crawlab.cn/Installation/Docker.html)（推荐）
-2. [直接部署](http://docs.crawlab.cn/Installation/Direct.html)（了解内核）
-3. [Kubernetes](http://docs.crawlab.cn/Installation/Kubernetes.html) (多节点部署)
+1. [Docker](http://docs.crawlab.cn/zh/Installation/Docker.html)（推荐）
+2. [直接部署](http://docs.crawlab.cn/zh/Installation/Direct.html)（了解内核）
+3. [Kubernetes](http://docs.crawlab.cn/zh/Installation/Kubernetes.html) (多节点部署)
 
 ### 要求（Docker）
 - Docker 18.03+
