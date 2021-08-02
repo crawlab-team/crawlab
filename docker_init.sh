@@ -23,12 +23,6 @@ sed -i "s?VUE_APP_API_BASE_URL?\/api?g" ${jspath}
 # 	sed -i "s?/css/?${CRAWLAB_BASE_URL}/css/?g" ${indexpath}
 # fi
 
-# start nginx
-service nginx start
-
-# start seaweedfs server
-weed server -dir /data -master.dir /data -volume.dir.idx /data -ip localhost -ip.bind 0.0.0.0 -filer >> /var/log/weed.log 2>&1 &
-
 #grant script 
 # chmod +x /app/backend/scripts/*.sh
 
@@ -51,8 +45,29 @@ Host *
 EOF
 
 # start backend
-if [ "${CRAWLAB_SERVER_MASTER}" = "Y" ];
+if [ "${CRAWLAB_NODE_MASTER}" = "Y" ]; then
+	# start nginx
+	service nginx start
+
+	# start seaweedfs server
+	seaweedfsDataPath=/data/seaweedfs
+	if [ -e ${seaweedfsDataPath} ]; then
+		:
+	else
+		mkdir -p ${seaweedfsDataPath}
+	fi
+	weed server \
+		-dir /data \
+		-master.dir ${seaweedfsDataPath} \
+		-volume.dir.idx ${seaweedfsDataPath} \
+		-ip localhost \
+		-volume.port 9999 \
+		-filer \
+		>> /var/log/weed.log 2>&1 &
+
+	# start crawlab
 	crawlab-server master
-then
+else
+	# start crawlab
 	crawlab-server worker
 fi

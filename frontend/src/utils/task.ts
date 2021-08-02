@@ -1,5 +1,5 @@
 import {
-  TASK_MODE_ALL,
+  TASK_MODE_ALL_NODES,
   TASK_MODE_RANDOM,
   TASK_MODE_SELECTED_NODE_TAGS,
   TASK_MODE_SELECTED_NODES,
@@ -34,7 +34,7 @@ export const isCancellable = (status: TaskStatus): boolean => {
 export const getModeOptions = (): SelectOption[] => {
   return [
     {value: TASK_MODE_RANDOM, label: 'Random Node'},
-    {value: TASK_MODE_ALL, label: 'All Nodes'},
+    {value: TASK_MODE_ALL_NODES, label: 'All Nodes'},
     {value: TASK_MODE_SELECTED_NODES, label: 'Selected Nodes'},
     {value: TASK_MODE_SELECTED_NODE_TAGS, label: 'Selected Tags'},
   ];

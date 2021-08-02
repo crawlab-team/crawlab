@@ -10,7 +10,7 @@
 <script lang="ts">
 import {computed, defineComponent} from 'vue';
 import {
-  TASK_MODE_ALL,
+  TASK_MODE_ALL_NODES,
   TASK_MODE_RANDOM,
   TASK_MODE_SELECTED_NODE_TAGS,
   TASK_MODE_SELECTED_NODES
@@ -30,7 +30,7 @@ export default defineComponent({
       switch (mode) {
         case TASK_MODE_RANDOM:
           return 'warning';
-        case TASK_MODE_ALL:
+        case TASK_MODE_ALL_NODES:
           return 'success';
         case TASK_MODE_SELECTED_NODES:
           return 'primary';
@@ -46,7 +46,7 @@ export default defineComponent({
       switch (mode) {
         case TASK_MODE_RANDOM:
           return 'Random';
-        case TASK_MODE_ALL:
+        case TASK_MODE_ALL_NODES:
           return 'All Nodes';
         case TASK_MODE_SELECTED_NODES:
           return 'Nodes';
@@ -62,7 +62,7 @@ export default defineComponent({
       switch (mode) {
         case TASK_MODE_RANDOM:
           return ['fa', 'random'];
-        case TASK_MODE_ALL:
+        case TASK_MODE_ALL_NODES:
           return ['fa', 'sitemap'];
         case TASK_MODE_SELECTED_NODES:
           return ['fa', 'network-wired'];
@@ -78,7 +78,7 @@ export default defineComponent({
       switch (mode) {
         case TASK_MODE_RANDOM:
           return 'Run on a random node';
-        case TASK_MODE_ALL:
+        case TASK_MODE_ALL_NODES:
           return 'Run on all nodes';
         case TASK_MODE_SELECTED_NODES:
           return 'Run on selected nodes';
