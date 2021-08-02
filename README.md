@@ -113,7 +113,7 @@ services:
     restart: always
 ```
 
-Then execute the command below, and Crawlab Master Node + MongoDB + Redis will start up. Open the browser and enter `http://localhost:8080` to see the UI interface.
+Then execute the command below, and Crawlab Master and Worker Nodes + MongoDB will start up. Open the browser and enter `http://localhost:8080` to see the UI interface.
 
 ```bash
 docker-compose up -d
@@ -173,7 +173,7 @@ The frontend app interacts with the master node, which communicates with other c
 The Master Node is the core of the Crawlab architecture. It is the center control system of Crawlab.
 
 The Master Node provides below services:
-1. Task Coordination;
+1. Task Scheduling;
 2. Worker Node Management and Communication;
 3. Spider Deployment;
 4. Frontend and API Services;
