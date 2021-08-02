@@ -1,23 +1,25 @@
-FROM golang:1.12 AS backend-build
+FROM golang:1.15 AS backend-build
 
 WORKDIR /go/src/app
 COPY ./backend .
 
 ENV GO111MODULE on
-ENV GOPROXY https://goproxy.io
+#ENV GOPROXY https://goproxy.io
 
-RUN go install -v ./...
+RUN go mod tidy \
+  && go install -v ./...
 
-FROM node:8.16.0-alpine AS frontend-build
+FROM node:12 AS frontend-build
 
 ADD ./frontend /app
 WORKDIR /app
+RUN rm /app/.npmrc
 
 # install frontend
-RUN npm config set unsafe-perm true
-RUN npm install -g yarn && yarn install
+#RUN npm config set unsafe-perm true
+#RUN npm install -g yarn && yarn install
 
-RUN npm run build:prod
+RUN yarn install && yarn run build:docker
 
 # images
 FROM ubuntu:latest
@@ -31,19 +33,22 @@ ENV CRAWLAB_IS_DOCKER Y
 # install packages
 RUN chmod 777 /tmp \
 	&& apt-get update \
-	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip nginx wget \
+	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip nginx wget dumb-init cloc \
 	&& ln -s /usr/bin/pip3 /usr/local/bin/pip \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
 
-# install dumb-init
-RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64
-RUN chmod +x /usr/local/bin/dumb-init
+# install seaweedfs
+RUN wget https://github.com/chrislusf/seaweedfs/releases/download/2.59/linux_amd64.tar.gz \
+  && tar -zxf linux_amd64.tar.gz \
+  && cp weed /usr/local/bin
 
 # install backend
-RUN pip install scrapy pymongo bs4 requests crawlab-sdk scrapy-splash
+RUN pip install scrapy pymongo bs4 requests crawlab-sdk
 
 # add files
-ADD . /app
+COPY ./backend/conf /app/backend/conf
+COPY ./nginx /app/nginx
+COPY ./docker_init.sh /app/docker_init.sh
 
 # copy backend files
 RUN mkdir -p /opt/bin

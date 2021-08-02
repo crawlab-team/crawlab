@@ -1,6 +1,0 @@
-name: "bing_general"
-display_name: "必应搜索 (通用)"
-remark: "必应搜索 Crawlab，列表+分页"
-col: "results_bing_general"
-type: "customized"
-cmd: "python bing_spider.py"

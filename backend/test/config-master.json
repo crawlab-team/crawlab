@@ -1,0 +1,10 @@
+{
+  "key": "master",
+  "is_master": true,
+  "name": "master",
+  "ip": "",
+  "mac": "",
+  "hostname": "",
+  "description": "",
+  "auth_key": "Crawlab2021!"
+}

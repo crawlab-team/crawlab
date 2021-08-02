@@ -4,17 +4,17 @@ module.exports = {
     node: true
   },
   'extends': [
-    'plugin:vue/essential',
-    '@vue/standard'
+    'plugin:vue/vue3-essential',
+    'eslint:recommended',
+    '@vue/typescript/recommended'
   ],
-  rules: {
-    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
-  },
   parserOptions: {
-    parser: 'babel-eslint'
+    ecmaVersion: 2020
   },
-  globals: {
-    '_hmt': 1
+  rules: {
+    'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    '@typescript-eslint/no-explicit-any': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    '@typescript-eslint/camelcase': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
   }
 }

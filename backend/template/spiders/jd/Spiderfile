@@ -1,5 +1,0 @@
-name: "jd"
-display_name: "京东 (Scrapy)"
-col: "results_jd"
-type: "customized"
-cmd: "scrapy crawl jd_spider"

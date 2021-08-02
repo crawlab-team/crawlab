@@ -1,3 +1,46 @@
+# 0.6.0 (TBC)
+
+(TBC)
+
+# 0.5.1 (2020-07-31)
+
+### Features / Enhancement
+- **Added error message details**.
+- **Added Golang programming language support**.
+- **Added web driver installation scripts for Chrome Driver and Firefox**.
+- **Support system tasks**. A "system task" is similar to normal spider task, it allows users to view logs of general tasks such as installing languages.
+- **Changed methods of installing languages from RPC to system tasks**.
+
+### Bug Fixes
+- **Fixed first download repo 500 error in Spider Market page**. [#808](https://github.com/crawlab-team/crawlab/issues/808)
+- **Fixed some translation issues**.
+- **Fixed 500 error in task detail page**. [#810](https://github.com/crawlab-team/crawlab/issues/810)
+- **Fixed password reset issue**. [#811](https://github.com/crawlab-team/crawlab/issues/811)
+- **Fixed unable to download CSV issue**. [#812](https://github.com/crawlab-team/crawlab/issues/812)
+- **Fixed unable to install node.js issue**. [#813](https://github.com/crawlab-team/crawlab/issues/813)
+- **Fixed disabled status for batch adding schedules**. [#814](https://github.com/crawlab-team/crawlab/issues/814)
+
+# 0.5.0 (2020-07-19)
+### Features / Enhancement
+- **Spider Market**. Allow users to download open-source spiders into Crawlab.
+- **Batch actions**. Allow users to interact with Crawlab in batch fashions, e.g. batch run tasks, batch delete spiders, ect.
+- **Migrate MongoDB driver to `MongoDriver`**.
+- **Refactor and optmize node-related logics**.
+- **Change default `task.workers` to 16**.
+- **Change default nginx `client_max_body_size` to 200m**.
+- **Support writing logs to ElasticSearch**.
+- **Display error details in Scrapy page**.
+- **Removed Challenge page**.
+- **Moved Feedback and Dislaimer pages to navbar**.
+
+### Bug Fixes
+- **Fixed log not expiring issue because of failure to create TTL index**.
+- **Set default log expire duration to 1 day**.
+- **`task_id` index not created**.
+- **`docker-compose.yml` fix**.
+- **Fixed 404 page**.
+- **Fixed unable to create worker node before master node issue**.
+
 # 0.4.10 (2020-04-21)
 ### Features / Enhancement
 - **Enhanced Log Management**. Centralizing log storage in MongoDB, reduced the dependency of PubSub, allowing log error detection.

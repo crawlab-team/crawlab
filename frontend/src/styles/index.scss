@@ -3,9 +3,12 @@
 @import './transition.scss';
 @import './element-ui.scss';
 @import './sidebar.scss';
+@import './color.scss';
 
 body {
   height: 100%;
+  margin: 0;
+  padding: 0;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -75,4 +78,16 @@ a:hover {
 
 .app-container {
   padding: 20px;
+}
+
+// context-menu
+.el-popover.context-menu {
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: 0 0 5px #303133;
+}
+
+.invisible {
+  visibility: hidden;
 }

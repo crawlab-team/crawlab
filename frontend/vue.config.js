@@ -1,4 +1,10 @@
 module.exports = {
-  publicPath: process.env.BASE_URL || '/'
-  // TODO: need to configure output static files with hash
+  pages: {
+    index: {
+      entry: 'src/main.ts',
+      template: 'public/index.html',
+      filename: 'index.html',
+      title: 'Crawlab | Distributed Web Crawler Admin Platform',
+    }
+  }
 }

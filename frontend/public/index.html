@@ -2,14 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="renderer" content="webkit">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="/font-awesome.min.css" type="text/css">
-
-    <!-- Place this tag in your head or just before your close body tag. -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width,initial-scale=1.0" name="viewport">
+    <link href="<%= BASE_URL %>favicon.ico" rel="icon">
+    <link href="font-awesome.min.css" rel="stylesheet">
+    <title><%= htmlWebpackPlugin.options.title %></title>
     <style>
         #loading-placeholder {
             position: fixed;
@@ -73,6 +70,7 @@
         }
 
         #loading-placeholder .sub-title-wrapper {
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -81,13 +79,32 @@
         }
 
         #loading-placeholder .sub-title-wrapper .sub-title {
+            position: absolute;
             font-size: 18px;
             font-weight: 300;
             font-family: "Verdana", serif;
             font-style: italic;
             color: #67C23A;
+            transform: rotate3d(1, 0, 0, 90deg);
+            animation: flip 20s infinite;
             /*color: #E6A23C;*/
             /*color: #F56C6C;*/
+        }
+
+        #loading-placeholder .sub-title-wrapper > .sub-title:nth-child(1) {
+            animation-delay: calc(20s / 4 * 0);
+        }
+
+        #loading-placeholder .sub-title-wrapper > .sub-title:nth-child(2) {
+            animation-delay: calc(20s / 4 * 1);
+        }
+
+        #loading-placeholder .sub-title-wrapper > .sub-title:nth-child(3) {
+            animation-delay: calc(20s / 4 * 2);
+        }
+
+        #loading-placeholder .sub-title-wrapper > .sub-title:nth-child(4) {
+            animation-delay: calc(20s / 4 * 3);
         }
 
         #loading-placeholder .loading-text {
@@ -131,11 +148,43 @@
                 transform: scale(1);
             }
         }
-    </style>
 
-    <title>Crawlab</title>
+        @keyframes flip {
+            0% {
+                transform: rotate3d(1, 0, 0, 90deg);
+            }
+
+            2% {
+                transform: rotate3d(1, 0, 0, 90deg);
+            }
+
+            7% {
+                transform: rotate3d(1, 0, 0, 0);
+            }
+
+            23% {
+                transform: rotate3d(1, 0, 0, 0);
+            }
+
+            27% {
+                transform: rotate3d(1, 0, 0, 90deg);
+            }
+
+            50% {
+                transform: rotate3d(1, 0, 0, 90deg);
+            }
+
+            100% {
+                transform: rotate3d(1, 0, 0, 90deg);
+            }
+        }
+    </style>
 </head>
 <body>
+<noscript>
+    <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
+        Please enable it to continue.</strong>
+</noscript>
 <div id="loading-placeholder">
     <div style="margin-bottom: 150px">
         <div class="title-wrapper">
@@ -150,7 +199,10 @@
             </h3>
         </div>
         <div class="sub-title-wrapper">
-            <span class="sub-title"><i class="fa fa-check-square-o"></i> Easy crawling</span>
+            <span class="sub-title"><i class="fa fa-cloud-download"></i> Easy Crawling</span>
+            <span class="sub-title"><i class="fa fa-diamond"></i> Better Management</span>
+            <span class="sub-title"><i class="fa fa-dollar"></i> Gain Data Value</span>
+            <span class="sub-title"><i class="fa fa-server"></i> Good Scalability</span>
         </div>
         <div class="loading-text">
             Loading...

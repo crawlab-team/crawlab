@@ -1,0 +1,15 @@
+[submodule "backend/core"]
+	path = backend/core
+	url = https://github.com/crawlab-team/crawlab-core
+[submodule "backend/db"]
+	path = backend/db
+	url = https://github.com/crawlab-team/crawlab-db
+[submodule "backend/fs"]
+	path = backend/fs
+	url = https://github.com/crawlab-team/crawlab-fs
+[submodule "backend/vcs"]
+	path = backend/vcs
+	url = https://github.com/crawlab-team/crawlab-vcs
+[submodule "backend/log"]
+	path = backend/log
+	url = https://github.com/crawlab-team/crawlab-log

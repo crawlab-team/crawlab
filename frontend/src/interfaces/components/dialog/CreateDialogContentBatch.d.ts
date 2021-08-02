@@ -1,0 +1,3 @@
+interface CreateDialogContentBatchProps {
+  fields: FormTableField[];
+}
