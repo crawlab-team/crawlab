@@ -1,0 +1,3 @@
+interface FormReadonlyValueProps {
+  value: string;
+}

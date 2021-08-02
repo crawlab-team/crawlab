@@ -1,23 +1,25 @@
-FROM golang:latest AS backend-build
+FROM golang:1.15 AS backend-build
 
 WORKDIR /go/src/app
 COPY ./backend .
 
 ENV GO111MODULE on
-ENV GOPROXY https://goproxy.io
+#ENV GOPROXY https://goproxy.io
 
-RUN go install -v ./...
+RUN go mod tidy \
+  && go install -v ./...
 
-FROM node:latest AS frontend-build
+FROM node:12 AS frontend-build
 
 ADD ./frontend /app
 WORKDIR /app
+RUN rm /app/.npmrc
 
 # install frontend
 #RUN npm config set unsafe-perm true
 #RUN npm install -g yarn && yarn install
 
-RUN yarn install && yarn run build:prod
+RUN yarn install && yarn run build:docker
 
 # images
 FROM ubuntu:latest
@@ -35,15 +37,16 @@ RUN chmod 777 /tmp \
 	&& ln -s /usr/bin/pip3 /usr/local/bin/pip \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
 
+# install seaweedfs
+RUN wget https://github.com/chrislusf/seaweedfs/releases/download/2.59/linux_amd64.tar.gz \
+  && tar -zxf linux_amd64.tar.gz \
+  && cp weed /usr/local/bin
 
 # install backend
-RUN pip install scrapy pymongo bs4 requests crawlab-sdk scrapy-splash
+RUN pip install scrapy pymongo bs4 requests crawlab-sdk
 
 # add files
 COPY ./backend/conf /app/backend/conf
-COPY ./backend/data /app/backend/data
-COPY ./backend/scripts /app/backend/scripts
-COPY ./backend/template /app/backend/template
 COPY ./nginx /app/nginx
 COPY ./docker_init.sh /app/docker_init.sh
 

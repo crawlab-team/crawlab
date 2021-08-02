@@ -1,69 +1,43 @@
-name: Docker
+name: Docker Image CI
 
 on:
   push:
-    # Publish `master` as Docker `latest` image.
-    branches:
-      - master
-      - release
-      - develop
-
-    # Publish `v1.2.3` tags as releases.
-    tags:
-      - v*
-
+    branches: [ master, release, develop ]
+  pull_request:
+    branches: [ master ]
+    
 env:
-  IMAGE_NAME: tikazyq/crawlab
-
+  IMAGE_NAME: crawlabteam/crawlab
+  
 jobs:
-  # Push image to GitHub Package Registry.
-  # See also https://docs.docker.com/docker-hub/builds/
-  push:
+
+  build:
+
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
 
     steps:
-      - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+    - name: Build image
+      run: docker build . --file Dockerfile --tag image
+        
+    - name: Log into registry
+      run: echo ${{ secrets.DOCKER_PASSWORD}} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
-      - name: Build image
-        run: docker build . --file Dockerfile --tag image
+    - name: Push image
+      run: |
+        IMAGE_ID=$IMAGE_NAME
 
-      - name: Log into registry
-        run: echo ${{ secrets.DOCKER_PASSWORD}} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+        # Strip git ref prefix from version
+        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
-      - name: Push image
-        run: |
-          IMAGE_ID=$IMAGE_NAME
+        # Strip "v" prefix from tag name
+        [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+        # Use Docker `latest` tag convention
+        [ "$VERSION" == "master" ] && VERSION=latest
 
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+        echo IMAGE_ID=$IMAGE_ID
+        echo VERSION=$VERSION
 
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "master" ] && VERSION=latest
-
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-
-          docker tag image $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
-
-      - name: Deploy
-        run: |
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-
-          if [ "$VERSION" == "release" ]; then
-            curl ${{ secrets.JENKINS_RELEASE_URL }}
-          fi
-          if [ "$VERSION" == "develop" ]; then
-            curl ${{ secrets.JENKINS_DEVELOP_URL }}
-          fi
-          if [ "$VERSION" == "master" ]; then
-            curl ${{ secrets.JENKINS_DEMO_URL }}
-          fi
+        docker tag image $IMAGE_ID:$VERSION
+        docker push $IMAGE_ID:$VERSION

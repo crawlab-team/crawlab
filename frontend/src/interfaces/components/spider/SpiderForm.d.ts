@@ -1,0 +1,3 @@
+interface SpiderFormProps {
+  isCreate: boolean;
+}

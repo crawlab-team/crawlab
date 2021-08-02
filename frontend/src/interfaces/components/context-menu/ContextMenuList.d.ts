@@ -1,0 +1,3 @@
+interface ContextMenuListProps {
+  items: ContextMenuItem[];
+}

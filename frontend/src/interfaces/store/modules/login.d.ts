@@ -1,0 +1,3 @@
+interface LoginStoreState {
+  isSignUp: boolean;
+}
