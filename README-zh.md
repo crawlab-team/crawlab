@@ -46,7 +46,7 @@
 
 ### 要求（直接部署）
 - Go 1.15+
-- Node 8.12+
+- Node 12.20+
 - MongoDB 3.6+
 - [SeaweedFS](https://github.com/chrislusf/seaweedfs) 2.59+
 
