@@ -46,7 +46,7 @@ Three methods:
 
 ### Pre-requisite (Direct Deploy)
 - Go 1.15+
-- Node 8.12+
+- Node 12.20+
 - MongoDB 3.6+
 - [SeaweedFS](https://github.com/chrislusf/seaweedfs) 2.59+
 
@@ -66,42 +66,44 @@ Next, you can look into the `docker-compose.yml` (with detailed config params) a
 
 ### Docker
 
-Please use `docker-compose` to one-click to start up. By doing so, you don't even have to configure MongoDB and Redis databases. Create a file named `docker-compose.yml` and input the code below.
+Please use `docker-compose` to one-click to start up. By doing so, you don't even have to configure MongoDB database. Create a file named `docker-compose.yml` and input the code below.
 
 
 ```yaml
 version: '3.3'
 services:
-  master:
+  master: 
     image: crawlabteam/crawlab:latest
     container_name: crawlab_example_master
     environment:
-      CRAWLAB_SERVER_MASTER: "Y"
+      CRAWLAB_NODE_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
     volumes:
       - "./.crawlab/master:/root/.crawlab"
-    ports:
+    ports:    
       - "8080:8080"
     depends_on:
       - mongo
 
-  worker01:
+  worker01: 
     image: crawlabteam/crawlab:latest
     container_name: crawlab_example_worker01
     environment:
-      CRAWLAB_SERVER_MASTER: "N"
+      CRAWLAB_NODE_MASTER: "N"
       CRAWLAB_GRPC_ADDRESS: "master"
+      CRAWLAB_FS_FILER_URL: "http://master:8080/api/filer"
     volumes:
       - "./.crawlab/worker01:/root/.crawlab"
     depends_on:
       - master
 
-  worker02:
+  worker02: 
     image: crawlabteam/crawlab:latest
     container_name: crawlab_example_worker02
     environment:
-      CRAWLAB_SERVER_MASTER: "N"
+      CRAWLAB_NODE_MASTER: "N"
       CRAWLAB_GRPC_ADDRESS: "master"
+      CRAWLAB_FS_FILER_URL: "http://master:8080/api/filer"
     volumes:
       - "./.crawlab/worker02:/root/.crawlab"
     depends_on:
