@@ -66,40 +66,43 @@ docker-compose up -d
 
 ### Docker
 
-请用`docker-compose`来一键启动，甚至不用配置MongoDB和Redis数据库，**当然我们推荐这样做**。在当前目录中创建`docker-compose.yml`文件，输入以下内容。
+请用`docker-compose`来一键启动，甚至不用配置 MongoDB 数据库，**当然我们推荐这样做**。在当前目录中创建`docker-compose.yml`文件，输入以下内容。
 
 ```yaml
+version: '3.3'
 services:
-  master:
+  master: 
     image: crawlabteam/crawlab:latest
     container_name: crawlab_example_master
     environment:
-      CRAWLAB_SERVER_MASTER: "Y"
+      CRAWLAB_NODE_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
     volumes:
       - "./.crawlab/master:/root/.crawlab"
-    ports:
+    ports:    
       - "8080:8080"
     depends_on:
       - mongo
 
-  worker01:
+  worker01: 
     image: crawlabteam/crawlab:latest
     container_name: crawlab_example_worker01
     environment:
-      CRAWLAB_SERVER_MASTER: "N"
+      CRAWLAB_NODE_MASTER: "N"
       CRAWLAB_GRPC_ADDRESS: "master"
+      CRAWLAB_FS_FILER_URL: "http://master:8080/api/filer"
     volumes:
       - "./.crawlab/worker01:/root/.crawlab"
     depends_on:
       - master
 
-  worker02:
+  worker02: 
     image: crawlabteam/crawlab:latest
     container_name: crawlab_example_worker02
     environment:
-      CRAWLAB_SERVER_MASTER: "N"
+      CRAWLAB_NODE_MASTER: "N"
       CRAWLAB_GRPC_ADDRESS: "master"
+      CRAWLAB_FS_FILER_URL: "http://master:8080/api/filer"
     volumes:
       - "./.crawlab/worker02:/root/.crawlab"
     depends_on:
