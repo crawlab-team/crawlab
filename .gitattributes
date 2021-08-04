@@ -2,6 +2,8 @@
 *.yml linguist-language=Go
 *.html linguist-language=Go
 *.js linguist-language=Go
+*.ts linguist-language=Go
+*.vue linguist-language=Go
 *.xml linguist-language=Go
 *.css linguist-language=Go
 *.sql linguist-language=Go
