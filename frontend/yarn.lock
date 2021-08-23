@@ -9868,6 +9868,11 @@ vue3-dropzone@^0.0.7:
     attr-accept "^2.2.2"
     file-selector "^0.2.4"
 
+vue3-sfc-loader@^0.8.4:
+  version "0.8.4"
+  resolved "https://registry.nlark.com/vue3-sfc-loader/download/vue3-sfc-loader-0.8.4.tgz#b13309c2a466a4a9139ece4a42047e157ad8e21b"
+  integrity sha1-sTMJwqRmpKkTns5KQgR+FXrY4hs=
+
 vue@^3.0.4:
   version "3.0.11"
   resolved "https://registry.npm.taobao.org/vue/download/vue-3.0.11.tgz#c82f9594cbf4dcc869241d4c8dd3e08d9a8f4b5f"

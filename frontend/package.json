@@ -1,5 +1,5 @@
 {
-  "name": "crawlab-frontend",
+  "name": "@crawlab/frontend",
   "version": "0.6.0-beta.20210715",
   "private": false,
   "scripts": {
@@ -48,6 +48,7 @@
     "vue-i18n": "^9.0.0-beta.11",
     "vue-router": "^4.0.0-0",
     "vue3-dropzone": "^0.0.7",
+    "vue3-sfc-loader": "^0.8.4",
     "vuex": "^4.0.0-0"
   },
   "devDependencies": {

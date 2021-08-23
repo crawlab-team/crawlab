@@ -2,6 +2,8 @@ module crawlab
 
 go 1.15
 
+replace github.com/crawlab-team/crawlab-core => /Users/marvzhang/projects/crawlab-team/crawlab-core
+
 require (
 	github.com/apex/log v1.9.0
 	github.com/crawlab-team/crawlab-core v0.6.0-beta.20210811.1634

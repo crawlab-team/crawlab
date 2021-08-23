@@ -9,6 +9,7 @@ import schedule from '@/router/schedule';
 import user from '@/router/user';
 import tag from '@/router/tag';
 import token from '@/router/token';
+import plugin from '@/router/plugin';
 import {initRouterAuth} from '@/router/auth';
 import {sendPv} from '@/utils/admin';
 
@@ -28,6 +29,7 @@ export const routes: Array<RouteRecordRaw> = [
       ...user,
       ...tag,
       ...token,
+      ...plugin,
     ],
   },
 ];
@@ -42,6 +44,7 @@ export const menuItems: MenuItem[] = [
   {path: '/users', title: 'Users', icon: ['fa', 'users']},
   {path: '/tags', title: 'Tags', icon: ['fa', 'tag']},
   {path: '/tokens', title: 'Tokens', icon: ['fa', 'key']},
+  {path: '/plugins', title: 'Plugins', icon: ['fa', 'plug']},
 ];
 
 const router = createRouter({

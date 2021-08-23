@@ -117,7 +117,6 @@
 <script lang="ts">
 import {computed, defineComponent, onMounted, onUnmounted, ref} from 'vue';
 import {isValidUsername} from '@/utils/validate';
-import {useI18n} from 'vue-i18n';
 import {useRoute, useRouter} from 'vue-router';
 import logo from '@/assets/logo.svg';
 import {ElForm, ElMessage} from 'element-plus';

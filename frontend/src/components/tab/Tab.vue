@@ -23,7 +23,7 @@ import {computed, defineComponent, PropType} from 'vue';
 import MenuItemIcon from '@/components/icon/MenuItemIcon.vue';
 import {useStore} from 'vuex';
 import {getPrimaryPath} from '@/utils/path';
-import {useI18n} from 'vue-i18n';
+// import {useI18n} from 'vue-i18n';
 import {useRouter} from 'vue-router';
 import Icon from '@/components/icon/Icon.vue';
 
@@ -57,7 +57,7 @@ export default defineComponent({
     'click',
   ],
   setup(props: TabProps, {emit}) {
-    const {tm} = useI18n();
+    // const {tm} = useI18n();
     const router = useRouter();
     const storeNamespace = 'layout';
     const store = useStore();
@@ -77,7 +77,8 @@ export default defineComponent({
 
     const title = computed(() => {
       // TODO: detailed title
-      return item.value?.title || tm('No Title');
+      // return item.value?.title || tm('No Title');
+      return item.value?.title;
     });
 
     const active = computed(() => {

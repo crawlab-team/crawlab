@@ -3,7 +3,7 @@ import ElementPlus from 'element-plus';
 import App from '@/App.vue';
 import router from '@/router';
 import store from '@/store';
-import i18n from '@/i18n';
+// import i18n from '@/i18n';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {fab} from '@fortawesome/free-brands-svg-icons';
@@ -23,10 +23,11 @@ initBaiduTonji();
 // remove loading placeholder
 document.querySelector('#loading-placeholder')?.remove();
 
-createApp(App)
+const app = createApp(App);
+app
   .use(store)
   .use(router)
   .use(ElementPlus)
-  .use(i18n)
+  // .use(i18n)
   .component('font-awesome-icon', FontAwesomeIcon)
   .mount('#app');
