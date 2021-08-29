@@ -1,26 +1,26 @@
-const vue = window['Vue'];
+import * as vue from '@vue/runtime-dom';
 const {loadModule: sfcLoadModule} = window['vue3-sfc-loader'];
 
-export const getLoadModuleOptions = () => {
+export const getLoadModuleOptions = (): any => {
   return {
     moduleCache: {
       vue,
     },
-    pathResolve({ refPath, relPath }: {refPath?: string; relPath?: string}) {
+    pathResolve({refPath, relPath}: { refPath?: string; relPath?: string }) {
       // self
-      if ( relPath === '.' ) {
+      if (relPath === '.') {
         return refPath;
       }
 
       // relPath is a module name ?
-      if ( relPath?.[0] !== '.' && relPath?.[0] !== '/' ) {
+      if (relPath?.toString()?.[0] !== '.' && relPath?.toString()?.[0] !== '/') {
         return relPath;
       }
 
-      return String(new URL(relPath, refPath === undefined ? window.location.toString() : refPath));
+      return String(new URL(relPath.toString(), refPath === undefined ? window.location.toString() : refPath.toString()));
     },
     async getFile(url: string) {
-      const res = await fetch(url);
+      const res = await fetch(url.toString());
       if (!res.ok) {
         throw Object.assign(new Error(res.statusText + ' ' + url), {res});
       }

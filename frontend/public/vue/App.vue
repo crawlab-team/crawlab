@@ -4,10 +4,9 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
 import HelloWorld from './HelloWorld.vue';
 
-export default defineComponent({
+export default {
   name: 'App',
   components: {
     HelloWorld,
@@ -15,5 +14,5 @@ export default defineComponent({
   setup() {
     return {};
   },
-});
+};
 </script>

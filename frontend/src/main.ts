@@ -15,6 +15,7 @@ import 'element-plus/lib/theme-chalk/index.css';
 import '@/styles/index.scss';
 import {initBaiduTonji} from '@/admin/baidu';
 
+// fontawesome
 library.add(fab, far, fas);
 
 // baidu tongji
@@ -23,6 +24,7 @@ initBaiduTonji();
 // remove loading placeholder
 document.querySelector('#loading-placeholder')?.remove();
 
+// app
 const app = createApp(App);
 app
   .use(store)
