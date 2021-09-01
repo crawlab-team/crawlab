@@ -2,6 +2,7 @@ interface ListRequestParams {
   page?: number;
   size?: number;
   conditions?: FilterConditionData[] | string;
+  all?: boolean | string | number;
 }
 
 interface BatchRequestPayload {

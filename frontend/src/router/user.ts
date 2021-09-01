@@ -3,10 +3,12 @@ import {TAB_NAME_OVERVIEW} from '@/constants/tab';
 
 export default [
   {
+    name: 'UserList',
     path: 'users',
     component: () => import('@/views/user/list/UserList.vue'),
   },
   {
+    name: 'UserDetail',
     path: 'users/:id',
     redirect: to => {
       return {path: to.path + '/' + TAB_NAME_OVERVIEW};

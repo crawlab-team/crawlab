@@ -1,5 +1,3 @@
-type Node = CNode;
-
 type NodeStoreModule = BaseModule<NodeStoreState, NodeStoreGetters, NodeStoreMutations, NodeStoreActions>;
 
 type NodeStoreState = BaseStoreState<CNode>;

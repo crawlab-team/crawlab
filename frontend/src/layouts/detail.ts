@@ -6,6 +6,10 @@ import {plainClone} from '@/utils/object';
 import {getRoutePathByDepth} from '@/utils/route';
 import {ElMessage} from 'element-plus';
 
+const IGNORE_GET_ALL_NS = [
+  'task',
+];
+
 const useDetail = <T = BaseModel>(ns: ListStoreNamespace) => {
   const router = useRouter();
   const route = useRoute();
@@ -129,6 +133,7 @@ const useDetail = <T = BaseModel>(ns: ListStoreNamespace) => {
 
   onBeforeMount(getForm);
   onBeforeMount(async () => {
+    if (IGNORE_GET_ALL_NS.includes(ns)) return;
     await store.dispatch(`${ns}/getAllList`);
   });
 

@@ -1,10 +1,11 @@
-import axios, {AxiosRequestConfig} from 'axios';
+import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
 import {ElMessageBox} from 'element-plus';
 import router from '@/router';
+import {getRequestBaseUrl} from '@/utils/request';
 
 // TODO: request interception
 
-// TODO: response interception
+// response interception
 let msgBoxVisible = false;
 axios.interceptors.response.use(res => {
   return res;
@@ -24,13 +25,9 @@ axios.interceptors.response.use(res => {
 });
 
 const useRequest = () => {
-  // implementation
-  const baseUrl = process.env.VUE_APP_API_BASE_URL || 'http://localhost:8000';
+  const baseUrl = getRequestBaseUrl();
 
-  const request = async <R = any>(opts: AxiosRequestConfig): Promise<R> => {
-    // base url
-    const baseURL = baseUrl;
-
+  const getHeaders = (): any => {
     // headers
     const headers = {} as any;
 
@@ -39,6 +36,16 @@ const useRequest = () => {
     if (token) {
       headers['Authorization'] = token;
     }
+
+    return headers;
+  }
+
+  const request = async <R = any>(opts: AxiosRequestConfig): Promise<R> => {
+    // base url
+    const baseURL = baseUrl;
+
+    // headers
+    const headers = getHeaders();
 
     // axios response
     const res = await axios.request({
@@ -112,7 +119,7 @@ const useRequest = () => {
   };
 
   const getAll = async <T = any>(url: string, opts?: AxiosRequestConfig) => {
-    return await getList(url, {}, opts);
+    return await getList(url, {all: true}, opts);
   };
 
   const postList = async <T = any, R = Response, PM = any>(url: string, data?: BatchRequestPayloadWithJsonStringData, params?: PM, opts?: AxiosRequestConfig): Promise<R> => {
@@ -125,6 +132,31 @@ const useRequest = () => {
 
   const delList = async <T = any, R = Response, PM = any>(url: string, data?: BatchRequestPayload, params?: PM, opts?: AxiosRequestConfig): Promise<R> => {
     return await del<BatchRequestPayload, R, PM>(url, data, params, opts);
+  };
+
+  const requestRaw = async <R = any>(opts: AxiosRequestConfig): Promise<AxiosResponse> => {
+    // base url
+    const baseURL = baseUrl;
+
+    // headers
+    const headers = getHeaders();
+
+    // axios response
+    return await axios.request({
+      ...opts,
+      baseURL,
+      headers,
+    });
+  };
+
+  const getRaw = async <T = any, PM = any>(url: string, params?: PM, opts?: AxiosRequestConfig): Promise<AxiosResponse> => {
+    opts = {
+      ...opts,
+      method: 'GET',
+      url,
+      params,
+    };
+    return await requestRaw(opts);
   };
 
   return {
@@ -140,6 +172,8 @@ const useRequest = () => {
     postList,
     putList,
     delList,
+    requestRaw,
+    getRaw,
   };
 };
 

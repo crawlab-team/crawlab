@@ -188,6 +188,9 @@ export const getDefaultStoreMutations = <T = any>(): BaseStoreMutations<T> => {
     collapseActions: (state: BaseStoreState<T>) => {
       state.actionsCollapsed = true;
     },
+    setTabs: (state: BaseStoreState<T>, tabs) => {
+      state.tabs = tabs;
+    },
     setAfterSave: (state: BaseStoreState<T>, fnList) => {
       state.afterSave = fnList;
     },

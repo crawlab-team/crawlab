@@ -10,10 +10,12 @@ import {
 
 export default [
   {
+    name: 'SpiderList',
     path: 'spiders',
     component: () => import('@/views/spider/list/SpiderList.vue'),
   },
   {
+    name: 'SpiderDetail',
     path: 'spiders/:id',
     redirect: to => {
       return {path: to.path + '/' + TAB_NAME_OVERVIEW};

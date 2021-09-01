@@ -1,22 +1,23 @@
 <template>
   <el-container class="basic-layout">
-    <Sidebar/>
+    <Sidebar />
     <el-container :class="sidebarCollapsed ? 'collapsed' : ''" class="container">
-      <Header/>
-      <TabsView/>
+      <Header />
+      <TabsView />
       <div class="container-body">
-        <router-view/>
+        <router-view />
       </div>
     </el-container>
   </el-container>
 </template>
 
 <script lang="ts">
-import {computed, defineComponent} from 'vue';
+import {computed, defineComponent, onMounted} from 'vue';
 import Header from './components/Header.vue';
 import Sidebar from './components/Sidebar.vue';
 import {useStore} from 'vuex';
 import TabsView from '@/layouts/components/TabsView.vue';
+import {initPlugins} from '@/utils/plugin';
 
 export default defineComponent({
   name: 'BasicLayout',

@@ -1,7 +1,14 @@
 import * as vue from '@vue/runtime-dom';
+import {getRequestBaseUrl} from '@/utils/request';
+import useRequest from '@/services/request';
+
 const {loadModule: sfcLoadModule} = window['vue3-sfc-loader'];
 
-export const getLoadModuleOptions = (): any => {
+const {
+  getRaw,
+} = useRequest();
+
+const getLoadModuleOptions = (): any => {
   return {
     moduleCache: {
       vue,
@@ -20,12 +27,9 @@ export const getLoadModuleOptions = (): any => {
       return String(new URL(relPath.toString(), refPath === undefined ? window.location.toString() : refPath.toString()));
     },
     async getFile(url: string) {
-      const res = await fetch(url.toString());
-      if (!res.ok) {
-        throw Object.assign(new Error(res.statusText + ' ' + url), {res});
-      }
+      const res = await getRaw(url.toString());
       return {
-        getContentData: (asBinary: boolean) => asBinary ? res.arrayBuffer() : res.text(),
+        getContentData: async (_: boolean) => res.data,
       };
     },
     addStyle(textContent: string) {
@@ -36,4 +40,4 @@ export const getLoadModuleOptions = (): any => {
   };
 };
 
-export const loadModule = sfcLoadModule;
+export const loadModule = (path: string) => sfcLoadModule(`${getRequestBaseUrl()}${path}`, getLoadModuleOptions());

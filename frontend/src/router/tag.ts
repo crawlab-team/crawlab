@@ -5,10 +5,12 @@ const endpoint = 'tags';
 
 export default [
   {
+    name: 'TagList',
     path: endpoint,
     component: () => import('@/views/tag/list/TagList.vue'),
   },
   {
+    name: 'TagDetail',
     path: `${endpoint}/:id`,
     redirect: to => {
       return {path: to.path + '/overview'};

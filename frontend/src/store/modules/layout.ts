@@ -35,6 +35,9 @@ export default {
     }
   },
   mutations: {
+    setMenuItems(state: LayoutStoreState, items: MenuItem[]) {
+      state.menuItems = items;
+    },
     setSideBarCollapsed(state: LayoutStoreState, value: boolean) {
       state.sidebarCollapsed = value;
     },

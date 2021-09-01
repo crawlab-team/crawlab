@@ -4,6 +4,7 @@ const endpoint = '';
 
 export default [
   {
+    name: 'Home',
     path: endpoint,
     component: () => import('@/views/home/Home.vue'),
   },

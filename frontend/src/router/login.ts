@@ -4,6 +4,7 @@ const endpoint = '/login';
 
 export default [
   {
+    name: 'Login',
     path: endpoint,
     component: () => import('@/views/login/Login.vue'),
   },

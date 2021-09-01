@@ -10,7 +10,7 @@ import user from '@/router/user';
 import tag from '@/router/tag';
 import token from '@/router/token';
 import plugin from '@/router/plugin';
-import {initRouterAuth} from '@/router/auth';
+import {initRouterAuth} from '@/router/hooks/auth';
 import {sendPv} from '@/utils/admin';
 
 export const routes: Array<RouteRecordRaw> = [

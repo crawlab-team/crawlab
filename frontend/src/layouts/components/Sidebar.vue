@@ -63,7 +63,6 @@ export default defineComponent({
     const route = useRoute();
     const store = useStore();
     const {layout} = store.state as RootStoreState;
-    const {menuItems} = layout;
     const storeNamespace = 'layout';
 
     const activePath = computed<string>(() => {
@@ -71,6 +70,8 @@ export default defineComponent({
     });
 
     const sidebarCollapsed = computed<boolean>(() => layout.sidebarCollapsed);
+
+    const menuItems = computed<MenuItem[]>(() => layout.menuItems);
 
     const toggleIcon = computed<string[]>(() => {
       if (sidebarCollapsed.value) {

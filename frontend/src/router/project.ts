@@ -5,10 +5,12 @@ const endpoint = 'projects';
 
 export default [
   {
+    name: 'ProjectList',
     path: endpoint,
     component: () => import('@/views/project/list/ProjectList.vue'),
   },
   {
+    name: 'ProjectDetail',
     path: `${endpoint}/:id`,
     redirect: to => {
       return {path: to.path + '/overview'};

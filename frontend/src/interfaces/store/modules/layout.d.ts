@@ -26,6 +26,7 @@ declare global {
   }
 
   interface LayoutStoreMutations extends MutationTree<LayoutStoreState> {
+    setMenuItems: StoreMutation<LayoutStoreState, MenuItem[]>;
     setSideBarCollapsed: StoreMutation<LayoutStoreState, boolean>;
     setTabs: StoreMutation<LayoutStoreState, Tab[]>;
     setActiveTabId: StoreMutation<LayoutStoreState, number>;

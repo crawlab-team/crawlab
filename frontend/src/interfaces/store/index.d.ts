@@ -14,6 +14,7 @@ declare global {
     schedule: ScheduleStoreState;
     user: UserStoreState;
     token: TokenStoreState;
+    plugin: PluginStoreState;
   }
 
   type StoreGetter<S, T> = (state: S, getters: StoreGetter<S, T>, rootState: RootStoreState, rootGetters: any) => T;
@@ -103,6 +104,7 @@ declare global {
     collapseSidebar: StoreMutation<BaseStoreState<T>>;
     expandActions: StoreMutation<BaseStoreState<T>>;
     collapseActions: StoreMutation<BaseStoreState<T>>;
+    setTabs: StoreMutation<BaseStoreState, NavItem[]>;
     setAfterSave: StoreMutation<BaseStoreState<T>, (() => Promise)[]>;
   }
 
@@ -133,7 +135,8 @@ declare global {
     | 'tag'
     | 'dataCollection'
     | 'user'
-    | 'token';
+    | 'token'
+    | 'plugin';
   type ListStoreNamespace =
     'node'
     | 'project'
@@ -143,7 +146,8 @@ declare global {
     | 'dataCollection'
     | 'schedule'
     | 'user'
-    | 'token';
+    | 'token'
+    | 'plugin';
 
   interface StoreContext<T> {
     namespace: StoreNamespace;

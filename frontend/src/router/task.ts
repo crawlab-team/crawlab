@@ -5,10 +5,12 @@ const endpoint = 'tasks';
 
 export default [
   {
+    name: 'TaskList',
     path: endpoint,
     component: () => import('@/views/task/list/TaskList.vue'),
   },
   {
+    name: 'TaskDetail',
     path: `${endpoint}/:id`,
     redirect: to => {
       return {path: to.path + '/overview'};

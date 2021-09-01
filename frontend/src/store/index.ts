@@ -11,6 +11,7 @@ import dataCollection from '@/store/modules/dataCollection';
 import schedule from '@/store/modules/schedule';
 import user from '@/store/modules/user';
 import token from '@/store/modules/token';
+import plugin from '@/store/modules/plugin';
 
 export default createStore<RootStoreState>({
   modules: {
@@ -26,5 +27,6 @@ export default createStore<RootStoreState>({
     schedule,
     user,
     token,
+    plugin,
   },
 }) as Store<RootStoreState>;
