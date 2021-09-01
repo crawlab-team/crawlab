@@ -1,3 +1,0 @@
-interface NodeActiveProps {
-  active: boolean;
-}

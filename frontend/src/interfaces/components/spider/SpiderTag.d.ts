@@ -1,3 +1,0 @@
-interface SpiderTagProps {
-  spider: Spider;
-}
