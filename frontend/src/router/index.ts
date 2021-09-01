@@ -17,7 +17,7 @@ export const routes: Array<RouteRecordRaw> = [
   ...login,
   {
     path: '/',
-    name: '',
+    name: 'Root',
     component: () => import('@/layouts/BasicLayout.vue'),
     children: [
       ...home,

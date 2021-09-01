@@ -41,7 +41,10 @@ const initPluginSidebarMenuItems = (store: Store<RootStoreState>) => {
 };
 
 const addPluginRouteTab = (store: Store<RootStoreState>, p: Plugin, pc: PluginUIComponent) => {
+  // current routes paths
   const routesPaths = router.getRoutes().map(r => r.path);
+
+  // iterate parent paths
   pc.parent_paths?.forEach(parentPath => {
     // plugin route path
     const pluginPath = `${parentPath}/${pc.path}`;
@@ -73,8 +76,22 @@ const addPluginRouteTab = (store: Store<RootStoreState>, p: Plugin, pc: PluginUI
   });
 };
 
-const addPluginRouteView = (store: Store<RootStoreState>, pc: PluginUIComponent) => {
-  // TODO: implement
+const addPluginRouteView = (p: Plugin, pc: PluginUIComponent) => {
+  // current routes paths
+  const routesPaths = router.getRoutes().map(r => r.path);
+
+  // plugin route path
+  const pluginPath = pc.path;
+
+  // skip if plugin route already added
+  if (routesPaths.includes(pluginPath as string)) return;
+
+  // add route
+  router.addRoute('Root', {
+    name: pc.name,
+    path: pc.path as string,
+    component: () => loadModule(`${PLUGIN_PROXY_ENDPOINT}/${p.name}/${pc.src}`)
+  });
 };
 
 const initPluginRoutes = (store: Store<RootStoreState>) => {
@@ -91,7 +108,7 @@ const initPluginRoutes = (store: Store<RootStoreState>) => {
 
       switch (pc.type) {
         case PLUGIN_UI_COMPONENT_TYPE_VIEW:
-          addPluginRouteView(store, pc);
+          addPluginRouteView(p, pc);
           break;
         case PLUGIN_UI_COMPONENT_TYPE_TAB:
           addPluginRouteTab(store, p, pc);
@@ -99,6 +116,7 @@ const initPluginRoutes = (store: Store<RootStoreState>) => {
       }
     });
   });
+  console.debug(router.getRoutes());
 };
 
 export const initPlugins = async (store: Store<RootStoreState>) => {
