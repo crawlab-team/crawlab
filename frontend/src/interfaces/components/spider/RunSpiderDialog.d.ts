@@ -1,3 +1,0 @@
-interface RunSpiderDialogProps {
-  spider?: Spider;
-}

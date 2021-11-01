@@ -1,7 +1,7 @@
 {
   "key": "master",
   "is_master": true,
-  "name": "master",
+  "name": "Master Node",
   "ip": "",
   "mac": "",
   "hostname": "",

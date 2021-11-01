@@ -1,3 +1,0 @@
-interface FilterConditionListProps {
-  conditions: FilterConditionData[];
-}

@@ -1,0 +1,10 @@
+{
+  "key": "worker-02",
+  "is_master": false,
+  "name": "Worker Node 02",
+  "ip": "",
+  "mac": "",
+  "hostname": "",
+  "description": "",
+  "auth_key": "Crawlab2021!"
+}

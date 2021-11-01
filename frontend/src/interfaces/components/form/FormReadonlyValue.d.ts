@@ -1,3 +1,0 @@
-interface FormReadonlyValueProps {
-  value: string;
-}
