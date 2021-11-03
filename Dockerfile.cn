@@ -35,7 +35,7 @@ RUN chmod 777 /tmp \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
 
 # install seaweedfs
-RUN wget https://github.com/chrislusf/seaweedfs/releases/download/2.59/linux_amd64.tar.gz \
+RUN wget https://github.com/chrislusf/seaweedfs/releases/download/2.76/linux_amd64.tar.gz \
   && tar -zxf linux_amd64.tar.gz \
   && cp weed /usr/local/bin
 
