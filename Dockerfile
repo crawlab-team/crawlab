@@ -41,7 +41,7 @@ RUN wget https://github.com/chrislusf/seaweedfs/releases/download/2.76/linux_amd
 
 # install backend
 RUN pip install scrapy pymongo bs4 requests
-RUN pip install crawlab-sdk==0.6.b20210729-1634
+RUN pip install crawlab-sdk==0.6.b20211024-1207
 
 # add files
 COPY ./backend/conf /app/backend/conf
