@@ -16,9 +16,6 @@ WORKDIR /app
 #RUN rm /app/.npmrc
 
 # install frontend
-#RUN npm config set unsafe-perm true
-#RUN npm install -g yarn && yarn install
-
 RUN yarn install && yarn run build:docker
 
 # images
