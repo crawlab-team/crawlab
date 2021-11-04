@@ -30,9 +30,17 @@ ENV CRAWLAB_IS_DOCKER Y
 # install packages
 RUN chmod 777 /tmp \
 	&& apt-get update \
-	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip nginx wget dumb-init cloc \
+	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate nginx wget dumb-init cloc \
+
+# install python
+RUN apt-get install python3 python3-pip \
 	&& ln -s /usr/bin/pip3 /usr/local/bin/pip \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
+
+# install golang
+RUN curl -OL https://golang.org/dl/go1.16.7.linux-amd64.tar.gz \
+	&& tar -C /usr/local -xvf go1.16.7.linux-amd64.tar.gz \
+	&& ln -s /usr/local/go/bin/go /usr/local/bin/go
 
 # install seaweedfs
 RUN wget https://github.com/chrislusf/seaweedfs/releases/download/2.76/linux_amd64.tar.gz \
