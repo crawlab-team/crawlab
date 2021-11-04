@@ -33,7 +33,7 @@ RUN chmod 777 /tmp \
 	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate nginx wget dumb-init cloc
 
 # install python
-RUN apt-get install python3 python3-pip \
+RUN apt-get install -y python3 python3-pip \
 	&& ln -s /usr/bin/pip3 /usr/local/bin/pip \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
 
