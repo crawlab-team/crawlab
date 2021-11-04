@@ -30,7 +30,7 @@ ENV CRAWLAB_IS_DOCKER Y
 # install packages
 RUN chmod 777 /tmp \
 	&& apt-get update \
-	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate nginx wget dumb-init cloc \
+	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate nginx wget dumb-init cloc
 
 # install python
 RUN apt-get install python3 python3-pip \
