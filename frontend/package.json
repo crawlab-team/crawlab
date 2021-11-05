@@ -1,10 +1,12 @@
 {
   "name": "@crawlab/app",
-  "version": "0.6.0-beta.202111032108",
+  "version": "0.6.0-beta.202111052150",
   "description": "",
   "scripts": {
     "serve": "vue-cli-service serve",
+    "serve:dist": "serve dist",
     "build": "vue-cli-service build",
+    "build:development": "vue-cli-service build --mode development",
     "build:docker": "vue-cli-service build --mode docker"
   },
   "author": {
@@ -13,12 +15,13 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
-    "crawlab-ui": "0.6.0-beta.202111032108",
+    "crawlab-ui": "0.6.0-beta.202111052136",
     "vue": "3.0.11",
     "vue-router": "^4.0.11"
   },
   "devDependencies": {
     "@vue/cli-service": "^4.5.13",
-    "@vue/compiler-sfc": "^3.0.11"
+    "@vue/compiler-sfc": "^3.0.11",
+    "serve": "^13.0.2"
   }
 }
