@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build:docker": "npm run build"
+    "build:docker": "vue-cli-service build --mode docker"
   },
   "author": {
     "name": "Marvin Zhang",
