@@ -1,3 +1,0 @@
-interface CreateSpiderDialogProps {
-  visible: boolean;
-}

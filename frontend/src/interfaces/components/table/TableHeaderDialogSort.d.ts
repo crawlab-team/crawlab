@@ -1,3 +1,0 @@
-interface TableHeaderDialogSortProps {
-  value?: string;
-}

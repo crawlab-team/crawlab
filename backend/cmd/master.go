@@ -2,30 +2,11 @@ package cmd
 
 import (
 	"crawlab/apps"
-	"fmt"
-	"github.com/crawlab-team/crawlab-core/entity"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-)
-
-var (
-	runOnMaster       bool
-	masterConfigPath  string
-	masterGrpcAddress string
-	masterGrpcAuthKey string
 )
 
 func init() {
 	rootCmd.AddCommand(masterCmd)
-
-	masterCmd.PersistentFlags().StringVarP(&masterConfigPath, "config-path", "c", "", "Config path of master node")
-	_ = viper.BindPFlag("configPath", masterCmd.PersistentFlags().Lookup("configPath"))
-
-	masterCmd.PersistentFlags().StringVarP(&masterGrpcAddress, "grpc-address", "g", "", "gRPC address of master node")
-	_ = viper.BindPFlag("grpcAddress", masterCmd.PersistentFlags().Lookup("grpcAddress"))
-
-	masterCmd.PersistentFlags().StringVarP(&masterGrpcAuthKey, "grpc-auth-key", "a", "", "gRPC auth key of master node")
-	_ = viper.BindPFlag("grpcAuthKey", masterCmd.PersistentFlags().Lookup("grpcAuthKey"))
 }
 
 var masterCmd = &cobra.Command{
@@ -37,23 +18,6 @@ which runs api and assign tasks to worker nodes`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// options
 		var opts []apps.MasterOption
-		if masterConfigPath != "" {
-			opts = append(opts, apps.WithMasterConfigPath(masterConfigPath))
-			viper.Set("config.path", masterConfigPath)
-		}
-		opts = append(opts, apps.WithRunOnMaster(runOnMaster))
-		if masterGrpcAddress != "" {
-			address, err := entity.NewAddressFromString(masterGrpcAddress)
-			if err != nil {
-				fmt.Println(fmt.Sprintf("invalid grpc-address: %s", masterGrpcAddress))
-			}
-			opts = append(opts, apps.WithMasterGrpcAddress(address))
-			viper.Set("grpc.address", masterGrpcAddress)
-			viper.Set("grpc.server.address", masterGrpcAddress)
-		}
-		if masterGrpcAuthKey != "" {
-			viper.Set("grpc.authKey", masterGrpcAuthKey)
-		}
 
 		// app
 		master := apps.NewMaster(opts...)

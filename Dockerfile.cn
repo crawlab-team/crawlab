@@ -16,9 +16,6 @@ WORKDIR /app
 #RUN rm /app/.npmrc
 
 # install frontend
-#RUN npm config set unsafe-perm true
-#RUN npm install -g yarn && yarn install
-
 RUN yarn install && yarn run build:docker
 
 # images
@@ -33,18 +30,26 @@ ENV CRAWLAB_IS_DOCKER Y
 # install packages
 RUN chmod 777 /tmp \
 	&& apt-get update \
-	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate python3 python3-pip nginx wget dumb-init cloc \
+	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate nginx wget dumb-init cloc
+
+# install python
+RUN apt-get install -y python3 python3-pip \
 	&& ln -s /usr/bin/pip3 /usr/local/bin/pip \
 	&& ln -s /usr/bin/python3 /usr/local/bin/python
 
+# install golang
+RUN curl -OL https://storage.googleapis.com/golang/go1.16.7.linux-amd64.tar.gz \
+	&& tar -C /usr/local -xvf go1.16.7.linux-amd64.tar.gz \
+	&& ln -s /usr/local/go/bin/go /usr/local/bin/go
+
 # install seaweedfs
-RUN wget https://github.com/chrislusf/seaweedfs/releases/download/2.59/linux_amd64.tar.gz \
+RUN wget https://github.com/chrislusf/seaweedfs/releases/download/2.76/linux_amd64.tar.gz \
   && tar -zxf linux_amd64.tar.gz \
   && cp weed /usr/local/bin
 
 # install backend
 RUN pip install scrapy pymongo bs4 requests -i https://mirrors.aliyun.com/pypi/simple
-RUN pip install crawlab-sdk==0.6.b20210729-1634
+RUN pip install crawlab-sdk==0.6.b20211024-1207
 
 # add files
 COPY ./backend/conf /app/backend/conf

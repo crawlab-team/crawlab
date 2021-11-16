@@ -1,213 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta content="IE=edge" http-equiv="X-UA-Compatible">
-    <meta content="width=device-width,initial-scale=1.0" name="viewport">
-    <link href="<%= BASE_URL %>favicon.ico" rel="icon">
-    <link href="font-awesome.min.css" rel="stylesheet">
-    <title><%= htmlWebpackPlugin.options.title %></title>
-    <style>
-        #loading-placeholder {
-            position: fixed;
-            background: white;
-            z-index: -1;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width,initial-scale=1.0" name="viewport">
+  <link href="<%= BASE_URL %>favicon.ico" rel="icon">
+  <link href="font-awesome.min.css" rel="stylesheet">
+  <title><%= htmlWebpackPlugin.options.title %></title>
+  <script src="/js/vue3-sfc-loader.js"></script>
+  <style>
+      #loading-placeholder {
+          position: fixed;
+          background: white;
+          z-index: -1;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+      }
 
-        #loading-placeholder .title-wrapper {
-            height: 54px;
-        }
+      #loading-placeholder .title-wrapper {
+          height: 54px;
+      }
 
-        #loading-placeholder .title {
-            font-family: "Verdana", serif;
-            font-weight: 600;
-            font-size: 48px;
-            color: #409EFF;
-            text-align: center;
-            cursor: default;
-            letter-spacing: -5px;
-            margin: 0;
-        }
+      #loading-placeholder .title {
+          font-family: "Verdana", serif;
+          font-weight: 600;
+          font-size: 48px;
+          color: #409EFF;
+          text-align: center;
+          cursor: default;
+          letter-spacing: -5px;
+          margin: 0;
+      }
 
-        #loading-placeholder .title > span {
-            display: inline-block;
-            animation: change-shape 1s infinite;
-        }
+      #loading-placeholder .title > span {
+          display: inline-block;
+          animation: change-shape 1s infinite;
+      }
 
-        #loading-placeholder .title > span:nth-child(1) {
-            animation-delay: calc(1s / 7 * 0 / 2);
-        }
+      #loading-placeholder .title > span:nth-child(1) {
+          animation-delay: calc(1s / 7 * 0 / 2);
+      }
 
-        #loading-placeholder .title > span:nth-child(2) {
-            animation-delay: calc(1s / 7 * 1 / 2);
-        }
+      #loading-placeholder .title > span:nth-child(2) {
+          animation-delay: calc(1s / 7 * 1 / 2);
+      }
 
-        #loading-placeholder .title > span:nth-child(3) {
-            animation-delay: calc(1s / 7 * 2 / 2);
-        }
+      #loading-placeholder .title > span:nth-child(3) {
+          animation-delay: calc(1s / 7 * 2 / 2);
+      }
 
-        #loading-placeholder .title > span:nth-child(4) {
-            animation-delay: calc(1s / 7 * 3 / 2);
-        }
+      #loading-placeholder .title > span:nth-child(4) {
+          animation-delay: calc(1s / 7 * 3 / 2);
+      }
 
-        #loading-placeholder .title > span:nth-child(5) {
-            animation-delay: calc(1s / 7 * 4 / 2);
-        }
+      #loading-placeholder .title > span:nth-child(5) {
+          animation-delay: calc(1s / 7 * 4 / 2);
+      }
 
-        #loading-placeholder .title > span:nth-child(6) {
-            animation-delay: calc(1s / 7 * 5 / 2);
-        }
+      #loading-placeholder .title > span:nth-child(6) {
+          animation-delay: calc(1s / 7 * 5 / 2);
+      }
 
-        #loading-placeholder .title > span:nth-child(7) {
-            animation-delay: calc(1s / 7 * 6 / 2);
-        }
+      #loading-placeholder .title > span:nth-child(7) {
+          animation-delay: calc(1s / 7 * 6 / 2);
+      }
 
-        #loading-placeholder .sub-title-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 10px;
-            height: 28px;
-        }
+      #loading-placeholder .sub-title-wrapper {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 10px;
+          height: 28px;
+      }
 
-        #loading-placeholder .sub-title-wrapper .sub-title {
-            position: absolute;
-            font-size: 18px;
-            font-weight: 300;
-            font-family: "Verdana", serif;
-            font-style: italic;
-            color: #67C23A;
-            transform: rotate3d(1, 0, 0, 90deg);
-            animation: flip 20s infinite;
-            /*color: #E6A23C;*/
-            /*color: #F56C6C;*/
-        }
+      #loading-placeholder .sub-title-wrapper .sub-title {
+          position: absolute;
+          font-size: 18px;
+          font-weight: 300;
+          font-family: "Verdana", serif;
+          font-style: italic;
+          color: #67C23A;
+          transform: rotate3d(1, 0, 0, 90deg);
+          animation: flip 20s infinite;
+          /*color: #E6A23C;*/
+          /*color: #F56C6C;*/
+      }
 
-        #loading-placeholder .sub-title-wrapper > .sub-title:nth-child(1) {
-            animation-delay: calc(20s / 4 * 0);
-        }
+      #loading-placeholder .sub-title-wrapper > .sub-title:nth-child(1) {
+          animation-delay: calc(20s / 4 * 0);
+      }
 
-        #loading-placeholder .sub-title-wrapper > .sub-title:nth-child(2) {
-            animation-delay: calc(20s / 4 * 1);
-        }
+      #loading-placeholder .sub-title-wrapper > .sub-title:nth-child(2) {
+          animation-delay: calc(20s / 4 * 1);
+      }
 
-        #loading-placeholder .sub-title-wrapper > .sub-title:nth-child(3) {
-            animation-delay: calc(20s / 4 * 2);
-        }
+      #loading-placeholder .sub-title-wrapper > .sub-title:nth-child(3) {
+          animation-delay: calc(20s / 4 * 2);
+      }
 
-        #loading-placeholder .sub-title-wrapper > .sub-title:nth-child(4) {
-            animation-delay: calc(20s / 4 * 3);
-        }
+      #loading-placeholder .sub-title-wrapper > .sub-title:nth-child(4) {
+          animation-delay: calc(20s / 4 * 3);
+      }
 
-        #loading-placeholder .loading-text {
-            text-align: center;
-            font-weight: bolder;
-            font-family: "Verdana", serif;
-            font-style: italic;
-            color: #889aa4;
-            font-size: 14px;
-            animation: blink-loading 2s ease-in infinite;
-        }
+      #loading-placeholder .loading-text {
+          text-align: center;
+          font-weight: bolder;
+          font-family: "Verdana", serif;
+          font-style: italic;
+          color: #889aa4;
+          font-size: 14px;
+          animation: blink-loading 2s ease-in infinite;
+      }
 
-        @keyframes blink-loading {
-            0% {
-                opacity: 100%;
-            }
+      @keyframes blink-loading {
+          0% {
+              opacity: 100%;
+          }
 
-            50% {
-                opacity: 50%;
-            }
+          50% {
+              opacity: 50%;
+          }
 
-            100% {
-                opacity: 100%;
-            }
-        }
+          100% {
+              opacity: 100%;
+          }
+      }
 
-        @keyframes change-shape {
-            0% {
-                transform: scale(1);
-            }
+      @keyframes change-shape {
+          0% {
+              transform: scale(1);
+          }
 
-            25% {
-                transform: scale(1.2);
-            }
+          25% {
+              transform: scale(1.2);
+          }
 
-            50% {
-                transform: scale(1);
-            }
+          50% {
+              transform: scale(1);
+          }
 
-            100% {
-                transform: scale(1);
-            }
-        }
+          100% {
+              transform: scale(1);
+          }
+      }
 
-        @keyframes flip {
-            0% {
-                transform: rotate3d(1, 0, 0, 90deg);
-            }
+      @keyframes flip {
+          0% {
+              transform: rotate3d(1, 0, 0, 90deg);
+          }
 
-            2% {
-                transform: rotate3d(1, 0, 0, 90deg);
-            }
+          2% {
+              transform: rotate3d(1, 0, 0, 90deg);
+          }
 
-            7% {
-                transform: rotate3d(1, 0, 0, 0);
-            }
+          7% {
+              transform: rotate3d(1, 0, 0, 0);
+          }
 
-            23% {
-                transform: rotate3d(1, 0, 0, 0);
-            }
+          23% {
+              transform: rotate3d(1, 0, 0, 0);
+          }
 
-            27% {
-                transform: rotate3d(1, 0, 0, 90deg);
-            }
+          27% {
+              transform: rotate3d(1, 0, 0, 90deg);
+          }
 
-            50% {
-                transform: rotate3d(1, 0, 0, 90deg);
-            }
+          50% {
+              transform: rotate3d(1, 0, 0, 90deg);
+          }
 
-            100% {
-                transform: rotate3d(1, 0, 0, 90deg);
-            }
-        }
-    </style>
+          100% {
+              transform: rotate3d(1, 0, 0, 90deg);
+          }
+      }
+  </style>
 </head>
 <body>
 <noscript>
-    <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
-        Please enable it to continue.</strong>
+  <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
+    Please enable it to continue.</strong>
 </noscript>
 <div id="loading-placeholder">
-    <div style="margin-bottom: 150px">
-        <div class="title-wrapper">
-            <h3 class="title">
-                <span>C</span>
-                <span>R</span>
-                <span>A</span>
-                <span>W</span>
-                <span>L</span>
-                <span>A</span>
-                <span>B</span>
-            </h3>
-        </div>
-        <div class="sub-title-wrapper">
-            <span class="sub-title"><i class="fa fa-cloud-download"></i> Easy Crawling</span>
-            <span class="sub-title"><i class="fa fa-diamond"></i> Better Management</span>
-            <span class="sub-title"><i class="fa fa-dollar"></i> Gain Data Value</span>
-            <span class="sub-title"><i class="fa fa-server"></i> Good Scalability</span>
-        </div>
-        <div class="loading-text">
-            Loading...
-        </div>
+  <div style="margin-bottom: 150px">
+    <div class="title-wrapper">
+      <h3 class="title">
+        <span>C</span>
+        <span>R</span>
+        <span>A</span>
+        <span>W</span>
+        <span>L</span>
+        <span>A</span>
+        <span>B</span>
+      </h3>
     </div>
+    <div class="sub-title-wrapper">
+      <span class="sub-title"><i class="fa fa-cloud-download"></i> Easy Crawling</span>
+      <span class="sub-title"><i class="fa fa-diamond"></i> Better Management</span>
+      <span class="sub-title"><i class="fa fa-dollar"></i> Gain Data Value</span>
+      <span class="sub-title"><i class="fa fa-server"></i> Good Scalability</span>
+    </div>
+    <div class="loading-text">
+      Loading...
+    </div>
+  </div>
 </div>
 <div id="app"></div>
 <!-- built files will be auto injected -->
