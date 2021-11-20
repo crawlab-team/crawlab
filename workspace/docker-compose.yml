@@ -1,95 +1,56 @@
-version: "3.3"
+version: '3.3'
 services:
   master:
     build:
-      context: dockerfiles/golang
-    command: "air -c .air.conf"
+      context: ./dockerfiles/golang
+    command: "air -c .air.master.conf"
     volumes:
+      - "./.crawlab/master:/root/.crawlab"
       - ../backend:/backend
-      - /backend/tmp
-    depends_on:
-      - mongo
-      - redis
-    ports:
-      - 8000:8000
+      - ../backend/go.mod.local:/backend/go.mod
+      - ../..:/libs/crawlab-team
     environment:
-      CRAWLAB_SPIDER_PATH: "/spiders"
-      CRAWLAB_SETTING_ENABLEDEMOSPIDERS: "Y"
+      CRAWLAB_NODE_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
-      CRAWLAB_REDIS_ADDRESS: "redis"
-      CRAWLAB_SERVER_MASTER: "Y"
-      CRAWLAB_SERVER_REGISTER_TYPE: "customName"
-      CRAWLAB_SERVER_REGISTER_CUSTOMNODENAME: "master_1"
-      CRAWLAB_SERVER_PORT: 8000
-  worker-1:
-    build:
-      context: dockerfiles/golang
-    command: "air -c .air.conf"
+    ports:
+      - "9080:8080"
     depends_on:
       - mongo
-      - redis
-    ports:
-      - 8001:8000
-    volumes:
-      - ../backend:/backend
-      - /backend/tmp
 
-    environment:
-      CRAWLAB_SPIDER_PATH: "/spiders"
-      CRAWLAB_MONGO_HOST: "mongo"
-      CRAWLAB_REDIS_ADDRESS: "redis"
-      CRAWLAB_SERVER_MASTER: "N"
-      CRAWLAB_SERVER_PORT: 8001
-      CRAWLAB_SERVER_REGISTER_TYPE: "customName"
-      CRAWLAB_SERVER_REGISTER_CUSTOMNODENAME: "worker_1"
-  worker-2:
+  worker01:
     build:
-      context: dockerfiles/golang
-    command: "air -c .air.conf"
-    depends_on:
-      - mongo
-      - redis
-    ports:
-      - 8002:8000
+      context: ./dockerfiles/golang
+    command: "air -c .air.worker.conf"
+    environment:
+      CRAWLAB_NODE_MASTER: "N"
+      CRAWLAB_GRPC_ADDRESS: "master"
+      CRAWLAB_FS_FILER_URL: "http://master:8080/api/filer"
     volumes:
+      - "./.crawlab/worker01:/root/.crawlab"
       - ../backend:/backend
-    environment:
-      CRAWLAB_SPIDER_PATH: "/spiders"
-      CRAWLAB_MONGO_HOST: "mongo"
-      CRAWLAB_REDIS_ADDRESS: "redis"
-      CRAWLAB_SERVER_MASTER: "N"
-      CRAWLAB_SERVER_PORT: 8002
-      CRAWLAB_SERVER_REGISTER_TYPE: "customName"
-      CRAWLAB_SERVER_REGISTER_CUSTOMNODENAME: "worker_2"
-  ui:
-    build:
-      context: ./dockerfiles/node
-    container_name: crawlab_frontend
-    ports:
-      - 8080:8080
-    volumes:
-      - ../frontend:/frontend
-      - /frontend/node_modules
-    command:
-      - /bin/sh
-      - -c
-      - |
-        yarn install
-        yarn run serve
+      - ../backend/go.mod.local:/backend/go.mod
+      - ../..:/libs/crawlab-team
     depends_on:
       - master
+
+  worker02:
+    build:
+      context: ./dockerfiles/golang
+    command: "air -c .air.worker.conf"
+    environment:
+      CRAWLAB_NODE_MASTER: "N"
+      CRAWLAB_GRPC_ADDRESS: "master"
+      CRAWLAB_FS_FILER_URL: "http://master:8080/api/filer"
+    volumes:
+      - "./.crawlab/worker02:/root/.crawlab"
+      - ../backend:/backend
+      - ../backend/go.mod.local:/backend/go.mod
+      - ../..:/libs/crawlab-team
+    depends_on:
+      - master
+
   mongo:
-    image: mongo:latest
+    image: mongo:4
     restart: always
-    # volumes:
-    #   - "/opt/crawlab/mongo/data/db:/data/db"  # make data persistent 持久化
     ports:
-      - "27017:27017"  # expose port to host machine 暴露接口到宿主机
-  redis:
-    image: redis:latest
-    restart: always
-    # command: redis-server --requirepass "password" # set redis password 设置 Redis 密码
-    # volumes:
-    #   - "/opt/crawlab/redis/data:/data"  # make data persistent 持久化
-    ports:
-      - "6379:6379"  # expose port to host machine 暴露接口到宿主机
+      - "28017:27017"

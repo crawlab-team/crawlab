@@ -7,3 +7,4 @@ tmp/
 _book/
 *.lock
 vendor/
+.crawlab
