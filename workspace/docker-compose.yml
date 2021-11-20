@@ -3,17 +3,21 @@ services:
   master:
     build:
       context: ./dockerfiles/golang
-    command: "air -c .air.master.conf"
+    command: /bin/bash -c "/app/bin/docker-start-master.sh && air -c .air.master.conf"
     volumes:
       - "./.crawlab/master:/root/.crawlab"
       - ../backend:/backend
       - ../backend/go.mod.local:/backend/go.mod
       - ../..:/libs/crawlab-team
+      - ../bin:/app/bin
+      - ../nginx:/etc/nginx/conf.d
+      - ../frontend/dist:/app/dist
     environment:
       CRAWLAB_NODE_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
     ports:
       - "9080:8080"
+      - "9000:8000"
     depends_on:
       - mongo
 
