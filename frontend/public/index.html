@@ -7,6 +7,9 @@
   <link href="<%= BASE_URL %>favicon.ico" rel="icon">
   <link href="font-awesome.min.css" rel="stylesheet">
   <title><%= htmlWebpackPlugin.options.title %></title>
+  <script>
+  window.VUE_APP_API_BASE_URL = '<%= VUE_APP_API_BASE_URL %>'
+  </script>
   <script src="/js/vue3-sfc-loader.js"></script>
   <style>
       #loading-placeholder {

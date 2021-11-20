@@ -1,4 +1,4 @@
-FROM golang:1.15 AS backend-build
+FROM golang:1.16 AS backend-build
 
 WORKDIR /go/src/app
 COPY ./backend .
@@ -54,7 +54,7 @@ RUN pip install crawlab-sdk==0.6.b20211024-1207
 # add files
 COPY ./backend/conf /app/backend/conf
 COPY ./nginx /app/nginx
-COPY ./docker_init.sh /app/docker_init.sh
+COPY ./bin /app/bin
 
 # copy backend files
 RUN mkdir -p /opt/bin
@@ -84,4 +84,4 @@ EXPOSE 8080
 EXPOSE 8000
 
 # start backend
-CMD ["/bin/bash", "/app/docker_init.sh"]
+CMD ["/bin/bash", "/app/bin/docker-init.sh"]
