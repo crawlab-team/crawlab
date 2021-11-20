@@ -5,7 +5,8 @@ services:
       context: ./dockerfiles/golang
     command: /bin/bash -c "/app/bin/docker-start-master.sh && air -c .air.master.conf"
     volumes:
-      - "./.crawlab/master:/root/.crawlab"
+      - ./.crawlab/master:/root/.crawlab
+      - ./.crawlab/go/pkg/mod:/go/pkg/mod
       - ../backend:/backend
       - ../backend/go.mod.local:/backend/go.mod
       - ../..:/libs/crawlab-team
@@ -14,6 +15,7 @@ services:
       - ../frontend/dist:/app/dist
     environment:
       CRAWLAB_NODE_MASTER: "Y"
+      CRAWLAB_NODE_NAME: "Master Node"
       CRAWLAB_MONGO_HOST: "mongo"
     ports:
       - "9080:8080"
@@ -27,10 +29,12 @@ services:
     command: "air -c .air.worker.conf"
     environment:
       CRAWLAB_NODE_MASTER: "N"
+      CRAWLAB_NODE_NAME: "Worker Node 01"
       CRAWLAB_GRPC_ADDRESS: "master"
       CRAWLAB_FS_FILER_URL: "http://master:8080/api/filer"
     volumes:
-      - "./.crawlab/worker01:/root/.crawlab"
+      - ./.crawlab/worker01:/root/.crawlab
+      - ./.crawlab/go/pkg/mod:/go/pkg/mod
       - ../backend:/backend
       - ../backend/go.mod.local:/backend/go.mod
       - ../..:/libs/crawlab-team
@@ -43,10 +47,12 @@ services:
     command: "air -c .air.worker.conf"
     environment:
       CRAWLAB_NODE_MASTER: "N"
+      CRAWLAB_NODE_NAME: "Worker Node 01"
       CRAWLAB_GRPC_ADDRESS: "master"
       CRAWLAB_FS_FILER_URL: "http://master:8080/api/filer"
     volumes:
-      - "./.crawlab/worker02:/root/.crawlab"
+      - ./.crawlab/worker02:/root/.crawlab
+      - ./.crawlab/go/pkg/mod:/go/pkg/mod
       - ../backend:/backend
       - ../backend/go.mod.local:/backend/go.mod
       - ../..:/libs/crawlab-team
