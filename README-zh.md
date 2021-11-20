@@ -30,7 +30,7 @@
 
 基于Golang的分布式爬虫管理平台，支持Python、NodeJS、Go、Java、PHP等多种编程语言以及多种爬虫框架。
 
-[查看演示 Demo](http://crawlab.cn/demo) | [文档](http://docs.crawlab.cn)
+[查看演示 Demo](https://demo-pro.crawlab.cn) | [文档](https://docs.crawlab.cn) | [文档 (v0.6-beta)](https://docs-next.crawlab.cn)
 
 ## 安装
 

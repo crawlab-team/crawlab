@@ -30,7 +30,7 @@
 
 Golang-based distributed web crawler management platform, supporting various languages including Python, NodeJS, Go, Java, PHP and various web crawler frameworks including Scrapy, Puppeteer, Selenium.
 
-[Demo](http://crawlab.cn/demo) | [Documentation](http://docs.crawlab.cn)
+[Demo](https://demo-pro.crawlab.cn) | [Documentation](https://docs.crawlab.cn) | [Documentation (v0.6-beta)](http://docs-next.crawlab.cn)
 
 ## Installation
 
