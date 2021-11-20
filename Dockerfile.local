@@ -1,4 +1,4 @@
-FROM golang:1.15 AS backend-build
+FROM golang:1.16 AS backend-build
 
 WORKDIR /go/src/app
 COPY ./backend .
