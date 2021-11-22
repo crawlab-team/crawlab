@@ -15,7 +15,7 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
-    "crawlab-ui": "0.6.0-beta.20211120.1838",
+    "crawlab-ui": "0.6.0-beta.20211122.1141",
     "vue": "3.0.11",
     "vue-router": "^4.0.11"
   },
