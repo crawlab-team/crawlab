@@ -8,3 +8,4 @@ _book/
 *.lock
 vendor/
 .crawlab
+dist/
