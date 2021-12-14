@@ -61,3 +61,5 @@ fs:
     proxy: http://localhost:8888
     url: http://localhost:8000/filer
     authKey: Crawlab2021!
+node:
+  master: Y

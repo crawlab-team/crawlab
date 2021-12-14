@@ -43,7 +43,7 @@ RUN curl -OL https://storage.googleapis.com/golang/go1.16.7.linux-amd64.tar.gz \
 	&& ln -s /usr/local/go/bin/go /usr/local/bin/go
 
 # install seaweedfs
-RUN wget https://github.com/chrislusf/seaweedfs/releases/download/2.76/linux_amd64.tar.gz \
+RUN wget https://github.com/crawlab-team/resources/raw/main/seaweedfs/2.79/linux_amd64.tar.gz \
   && tar -zxf linux_amd64.tar.gz \
   && cp weed /usr/local/bin
 
