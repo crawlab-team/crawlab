@@ -43,13 +43,13 @@ RUN curl -OL https://golang.org/dl/go1.16.7.linux-amd64.tar.gz \
 	&& ln -s /usr/local/go/bin/go /usr/local/bin/go
 
 # install seaweedfs
-RUN wget https://github.com/chrislusf/seaweedfs/releases/download/2.76/linux_amd64.tar.gz \
+RUN wget https://github.com/crawlab-team/resources/raw/main/seaweedfs/2.79/linux_amd64.tar.gz \
   && tar -zxf linux_amd64.tar.gz \
   && cp weed /usr/local/bin
 
 # install backend
 RUN pip install scrapy pymongo bs4 requests -i https://mirrors.aliyun.com/pypi/simple
-RUN pip install crawlab-sdk==0.6.b20211024-1207
+RUN pip install crawlab-sdk==0.6.b20211213-2123
 
 # add files
 COPY ./backend/conf /app/backend/conf
