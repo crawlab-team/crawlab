@@ -1,6 +1,6 @@
 {
   "name": "@crawlab/app",
-  "version": "0.6.0-beta.202111052150",
+  "version": "0.6.0-beta.20211221.1200",
   "description": "",
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -15,7 +15,7 @@
   },
   "license": "BSD-3-Clause",
   "dependencies": {
-    "crawlab-ui": "0.6.0-beta.20211214.1200",
+    "crawlab-ui": "0.6.0-beta.20211219.1200",
     "vue": "3.0.11",
     "vue-router": "^4.0.11"
   },
