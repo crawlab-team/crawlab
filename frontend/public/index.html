@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <title><%= htmlWebpackPlugin.options.title %></title>
+  <link rel="icon" type="image/x-icon" href="<%= BASE_URL %>favicon.ico">
+  <link rel="stylesheet" href="font-awesome.min.css">
   <meta charset="utf-8">
   <meta content="IE=edge" http-equiv="X-UA-Compatible">
   <meta content="width=device-width,initial-scale=1.0" name="viewport">
-  <link href="<%= BASE_URL %>favicon.ico" rel="icon">
-  <link href="font-awesome.min.css" rel="stylesheet">
-  <title><%= htmlWebpackPlugin.options.title %></title>
   <script>
   window.VUE_APP_API_BASE_URL = '<%= VUE_APP_API_BASE_URL %>'
   </script>
