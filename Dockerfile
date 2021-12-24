@@ -49,7 +49,7 @@ RUN wget https://github.com/crawlab-team/resources/raw/main/seaweedfs/2.79/linux
 
 # install backend
 RUN pip install scrapy pymongo bs4 requests
-RUN pip install crawlab-sdk==0.6.b20211213-2123
+RUN pip install crawlab-sdk==0.6.b20211224-1500
 
 # add files
 COPY ./backend/conf /app/backend/conf
