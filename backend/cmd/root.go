@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/apex/log"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -54,4 +55,17 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+
+	// initialize log level
+	initLogLevel()
+}
+
+func initLogLevel() {
+	// set log level
+	logLevel := viper.GetString("log.level")
+	l, err := log.ParseLevel(logLevel)
+	if err != nil {
+		l = log.InfoLevel
+	}
+	log.SetLevel(l)
 }
