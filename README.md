@@ -164,7 +164,7 @@ For Docker Deployment details, please refer to [relevant documentation](https://
 
 ## Architecture
 
-The architecture of Crawlab is consisted of a master node, worker nodes, [SeaweeFS](https://github.com/chrislusf/seaweedfs) (a distributed file system) and MongoDB database. 
+The architecture of Crawlab is consisted of a master node, worker nodes, [SeaweedFS](https://github.com/chrislusf/seaweedfs) (a distributed file system) and MongoDB database. 
 
 ![](https://github.com/crawlab-team/images/blob/main/20210729/crawlab-architecture-v0.6.png?raw=true)
 
