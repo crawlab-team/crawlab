@@ -166,7 +166,7 @@ Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-d
 
 ## 架构
 
-Crawlab的架构包括了一个主节点（Master Node）和多个工作节点（Worker Node），以及 [SeaweeFS](https://github.com/chrislusf/seaweedfs) (分布式文件系统) 和 MongoDB 数据库。
+Crawlab的架构包括了一个主节点（Master Node）和多个工作节点（Worker Node），以及 [SeaweedFS](https://github.com/chrislusf/seaweedfs) (分布式文件系统) 和 MongoDB 数据库。
 
 ![](https://github.com/crawlab-team/images/blob/main/20210729/crawlab-architecture-v0.6.png?raw=true)
 
