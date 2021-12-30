@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/apex/log v1.9.0
-	github.com/crawlab-team/crawlab-core v0.6.0-beta.20211224.1718
+	github.com/crawlab-team/crawlab-core v0.6.0-beta.20211230.1200
 	github.com/crawlab-team/go-trace v0.1.1
 	github.com/gin-gonic/gin v1.7.1
 	github.com/spf13/cobra v1.1.3
