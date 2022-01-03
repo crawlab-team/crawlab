@@ -74,6 +74,6 @@ func NewApi() *Api {
 	api := &Api{
 		app: gin.New(),
 	}
-	api.Init()
+	// api.Init()
 	return api
 }
