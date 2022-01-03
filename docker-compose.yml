@@ -12,15 +12,15 @@ services:
       - mongo
     # volumes:
     #   - "/var/crawlab/log:/var/logs/crawlab" # log persistent 日志持久化
-  #worker:
-  #  image: tikazyq/crawlab:latest
-  #  container_name: worker
-  #  environment:
-  #    CRAWLAB_SERVER_MASTER: "N"
-  #    CRAWLAB_MONGO_HOST: "mongo"
+  worker:
+    image: crawlabteam/crawlab:latest
+    container_name: worker
+    environment:
+      CRAWLAB_SERVER_MASTER: "N"
+      CRAWLAB_MONGO_HOST: "mongo"
   #    CRAWLAB_REDIS_ADDRESS: "redis"
-  #  depends_on:
-  #    - mongo
+    depends_on:
+      - mongo
     # volumes:
     #   - "/var/crawlab/log:/var/logs/crawlab" # log persistent 日志持久化
   mongo:
