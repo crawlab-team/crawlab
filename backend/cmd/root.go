@@ -30,6 +30,7 @@ func Execute() error {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "c", "", "Use Custom Config File")
 }
 
 func initConfig() {
