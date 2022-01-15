@@ -1,0 +1,23 @@
+version: '2'
+
+services:
+
+  fs:
+    image: chrislusf/seaweedfs:2.79 # use a remote image
+    container_name: crawlab_localdev_fs
+    restart: always
+#    command: "server -dir /data -master.dir /data -volume.dir.idx /data -ip localhost -ip.bind 0.0.0.0 -filer -encryptVolumeData" # auth
+    command: "server -dir /data -master.dir /data -volume.dir.idx /data -ip localhost -ip.bind 0.0.0.0 -filer" # no auth
+    ports:
+      - 8888:8888
+    volumes:
+      - ./data/fs:/data
+  
+  mongo:
+    image: mongo:5
+    container_name: crawlab_localdev_mongo
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data/mongo:/data
