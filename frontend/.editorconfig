@@ -1,0 +1,40 @@
+root = true
+
+[*]
+tab_width = 2
+# charset = utf-8
+# end_of_line = lf
+# indent_size = 4
+# indent_style = space
+# insert_final_newline = true
+# max_line_length = 120
+# tab_width = 4
+# trim_trailing_whitespace = true
+
+[*.ts]
+indent_size = 2
+
+[*.scss]
+indent_size = 2
+
+[{*.ats, *.ts}]
+# indent_size = 2
+# tab_width = 2
+
+[{*.js, *.cjs}]
+# indent_size = 2
+# tab_width = 2
+
+[{*.sht, *.html, *.shtm, *.shtml, *.htm, *.ng}]
+# indent_size = 2
+# tab_width = 2
+
+[{.analysis_options, *.yml, *.yaml}]
+# indent_size = 2
+
+[{.babelrc, .prettierrc, .stylelintrc, .eslintrc, jest.config, *.json, *.jsb3, *.jsb2, *.bowerrc}]
+# indent_size = 2
+
+[vue.config.js]
+indent_size = 2
+tab_width = 2
