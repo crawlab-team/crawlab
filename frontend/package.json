@@ -1,7 +1,6 @@
 {
   "name": "@crawlab/app",
-  "version": "0.6.0-beta.20211226.1800",
-  "description": "",
+  "version": "0.6.0-beta.20220128.1800",
   "scripts": {
     "serve": "vue-cli-service serve",
     "serve:dist": "serve dist",
@@ -30,6 +29,7 @@
     "vue-router": "^4.0.11"
   },
   "devDependencies": {
+    "crawlab-ui": "0.6.0-beta.20220128.1900",
     "@vue/cli-service": "^4.5.13",
     "@vue/compiler-sfc": "^3.0.11",
     "copy-webpack-plugin": "^6.0",
