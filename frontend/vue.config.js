@@ -35,6 +35,15 @@ const config = {
   },
   outputDir: './dist',
   configureWebpack: {
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          include: /node_modules\/crawlab-ui/,
+          loader: 'raw-loader',
+        }
+      ]
+    },
     optimization,
     resolve: {
       alias,
