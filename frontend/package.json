@@ -29,10 +29,14 @@
     "vue-router": "^4.0.11"
   },
   "devDependencies": {
-    "crawlab-ui": "0.6.0-beta.20220128.1900",
+    "@babel/core": "^7.17.2",
+    "@babel/preset-env": "^7.16.11",
     "@vue/cli-service": "^4.5.13",
     "@vue/compiler-sfc": "^3.0.11",
+    "babel-loader": "^8.2.3",
     "copy-webpack-plugin": "^6.0",
+    "crawlab-ui": "0.6.0-beta.20220128.1900",
+    "raw-loader": "^4.0.2",
     "serve": "^13.0.2",
     "webpack-bundle-analyzer": "^4.5.0"
   }

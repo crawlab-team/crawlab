@@ -45,7 +45,7 @@ const config = {
 
 if (['development', 'local'].includes(process.env.NODE_ENV)) {
   // do nothing
-} else if (['production'].includes(process.env.NODE_ENV)) {
+} else if (['production', 'docker'].includes(process.env.NODE_ENV)) {
   config.configureWebpack.plugins.push(new CopyWebpackPlugin({
     patterns: [
       {
