@@ -4,6 +4,7 @@ services:
     image: crawlabteam/crawlab:latest
     container_name: crawlab_master
     environment:
+      CRAWLAB_BASE_URL: crawlab
       CRAWLAB_SERVER_MASTER: Y
       CRAWLAB_MONGO_HOST: mongo
     ports:

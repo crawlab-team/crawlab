@@ -1,0 +1,12 @@
+version: '3'
+
+tasks:
+  dev:
+    desc: Switch to dev mode for local development.
+    cmds:
+      - cp -f go.mod.dev go.mod
+
+  deploy:
+    desc: Switch to deploy mode for code publish.
+    cmds:
+      - echo 'not implemented'
