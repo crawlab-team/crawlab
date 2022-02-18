@@ -3,6 +3,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 const alias = {
+  'crawlab-ui$': 'crawlab-ui/dist/crawlab-ui.umd.min.js',
   'element-plus$': 'element-plus/dist/index.full.min.js',
   'echarts$': 'echarts/dist/echarts.min.js',
   'codemirror$': 'codemirror/lib/codemirror.js',
@@ -15,9 +16,14 @@ const optimization = {
     minChunks: 1,
     maxAsyncRequests: 3,
     cacheGroups: {
-      vendors: {
+      defaultVendors: {
         test: /[\\/]node_modules[\\/]/,
         priority: -10,
+        reuseExistingChunk: true,
+      },
+      default: {
+        minChunks: 2,
+        priority: -20,
         reuseExistingChunk: true,
       },
     },
@@ -35,15 +41,6 @@ const config = {
   },
   outputDir: './dist',
   configureWebpack: {
-    module: {
-      rules: [
-        {
-          test: /\.js$/,
-          include: /node_modules\/crawlab-ui/,
-          loader: 'raw-loader',
-        }
-      ]
-    },
     optimization,
     resolve: {
       alias,
