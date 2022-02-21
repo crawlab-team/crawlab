@@ -1,7 +1,7 @@
 package main
 
 import (
-	"crawlab/cmd"
+	"github.com/crawlab-team/crawlab-core/cmd"
 )
 
 func main() {
