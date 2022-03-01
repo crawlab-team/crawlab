@@ -35,9 +35,9 @@ Golang-based distributed web crawler management platform, supporting various lan
 ## Installation
 
 Three methods:
-1. [Docker](http://docs.crawlab.cn/Installation/Docker.html) (Recommended)
-2. [Direct Deploy](http://docs.crawlab.cn/Installation/Direct.html) (Check Internal Kernel)
-3. [Kubernetes](http://docs.crawlab.cn/Installation/Kubernetes.html) (Multi-Node Deployment)
+1. [Docker](http://docs.crawlab.cn/en/Installation/Docker.html) (Recommended)
+2. [Direct Deploy](http://docs.crawlab.cn/en/Installation/Direct.html) (Check Internal Kernel)
+3. [Kubernetes](http://docs.crawlab.cn/en/Installation/Kubernetes.html) (Multi-Node Deployment)
 
 ### Pre-requisite (Docker)
 - Docker 18.03+
