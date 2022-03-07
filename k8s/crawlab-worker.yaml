@@ -14,7 +14,7 @@ spec:
         app: crawlab-worker
     spec:
       containers:
-      - image: tikazyq/crawlab:latest
+      - image: crawlabteam/crawlab:latest
         imagePullPolicy: Always
         name: crawlab
         env:
