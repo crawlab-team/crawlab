@@ -5,20 +5,23 @@ metadata:
   namespace: crawlab
 spec:
   ports:
-  - port: 8080
+  - port: 80
     targetPort: 8080
-    nodePort: 30088
+    name: http
+  - name: grpc
+    port: 9666
+    targetPort: 9666
   selector:
     app: crawlab-master
-  type: NodePort
+  type: ClusterIP
+
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: crawlab-master
   namespace: crawlab
 spec:
-  serviceName: crawlab-master
   selector:
     matchLabels:
       app: crawlab-master
@@ -28,11 +31,11 @@ spec:
         app: crawlab-master
     spec:
       containers:
-      - image: tikazyq/crawlab:latest
+      - image: crawlabteam/crawlab:latest
         imagePullPolicy: Always
         name: crawlab
         env:
-        - name: CRAWLAB_SERVER_MASTER
+        - name: CRAWLAB_NODE_MASTER
           value: "Y"
         - name: CRAWLAB_MONGO_HOST
           value: "mongo"
@@ -51,3 +54,5 @@ spec:
         ports:
         - containerPort: 8080
           name: crawlab
+        - containerPort: 9666
+          name: grpc
