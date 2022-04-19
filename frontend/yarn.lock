@@ -3472,10 +3472,10 @@ cosmiconfig@^5.0.0:
     js-yaml "^3.13.1"
     parse-json "^4.0.0"
 
-crawlab-ui@^0.6.0-beta.20220418.1200:
-  version "0.6.0-beta.20220418.1200"
-  resolved "https://registry.npmmirror.com/crawlab-ui/-/crawlab-ui-0.6.0-beta.20220418.1200.tgz#be001315813e945dd1bbfc06f752806be12417de"
-  integrity sha512-oikNpoh1P82mMWC3ocTLC6NssT+2MOPya3dQgMSKkKSJ5iLfBAVO9sHjDQGwXZwbV45aNQn/DM5+wX3YdySRIA==
+crawlab-ui@^0.6.0-beta.20220419:
+  version "0.6.0-beta.20220419"
+  resolved "https://registry.npmmirror.com/crawlab-ui/-/crawlab-ui-0.6.0-beta.20220419.tgz#74978a9629ed406b7476edee3ffedade901fa02f"
+  integrity sha512-impV4hRb7hChmJ+U2Qh/9CGgua+h3pMpFA7W3xcftGoJxDDRoVKJqPrTzaf7z9FCSZO+y7nYS6fa3rF/8ZU4eA==
   dependencies:
     "@element-plus/icons" "^0.0.11"
     "@fortawesome/fontawesome-common-types" "^6.1.0"
@@ -3501,7 +3501,7 @@ crawlab-ui@^0.6.0-beta.20220418.1200:
     cron-parser "^3.5.0"
     cronstrue "^1.114.0"
     dayjs "^1.10.5"
-    echarts "^5.3.1"
+    echarts "^5.3.2"
     element-plus "^1.3.0-beta.10"
     font-awesome "^4.7.0"
     getos "^3.2.1"
@@ -4129,7 +4129,7 @@ echarts@^5.1.2:
     tslib "2.3.0"
     zrender "5.3.0"
 
-echarts@^5.3.1:
+echarts@^5.3.2:
   version "5.3.2"
   resolved "https://registry.npmmirror.com/echarts/-/echarts-5.3.2.tgz#0a7b3be8c48a48b2e7cb1b82121df0c208d42d2c"
   integrity sha512-LWCt7ohOKdJqyiBJ0OGBmE9szLdfA9sGcsMEi+GGoc6+Xo75C+BkcT/6NNGRHAWtnQl2fNow05AQjznpap28TQ==
