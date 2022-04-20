@@ -1,10 +1,9 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: crawlab-worker
   namespace: crawlab
 spec:
-  serviceName: crawlab-worker
   replicas: 2
   selector:
     matchLabels:
@@ -15,11 +14,11 @@ spec:
         app: crawlab-worker
     spec:
       containers:
-      - image: tikazyq/crawlab:latest
+      - image: crawlabteam/crawlab:latest
         imagePullPolicy: Always
         name: crawlab
         env:
-        - name: CRAWLAB_SERVER_MASTER
+        - name: CRAWLAB_NODE_MASTER
           value: "N"
         - name: CRAWLAB_MONGO_HOST
           value: "mongo"
@@ -33,3 +32,7 @@ spec:
           value: "Y"
         - name: CRAWLAB_SERVER_REGISTER_TYPE
           value: "hostname"
+        - name: CRAWLAB_GRPC_ADDRESS
+          value: "crawlab"
+        - name: CRAWLAB_FS_FILER_URL
+          value: "http://crawlab/api/filer"

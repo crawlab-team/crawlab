@@ -2,11 +2,11 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ master, release, develop ]
+    branches: [ develop ]
   pull_request:
     branches: [ master ]
   release:
-    types: [created]
+    types: [ published ]
     
 env:
   IMAGE_NAME: crawlabteam/crawlab

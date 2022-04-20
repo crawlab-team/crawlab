@@ -122,11 +122,11 @@ github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f/go.mod h1:E3G3o1h8I7cfc
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
 github.com/cpuguy83/go-md2man/v2 v2.0.1/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/crawlab-team/crawlab-core v0.0.1/go.mod h1:6dJHMvrmIJbfYHhYNeGZkGOLEBvur+yGiFzLCRXx92k=
-github.com/crawlab-team/crawlab-core v0.6.0-beta.20220221.1800 h1:YPhY7kSj8PB1+lNUkV2uFHt2kKmfNdx+m+SKGA3b+y8=
-github.com/crawlab-team/crawlab-core v0.6.0-beta.20220221.1800/go.mod h1:mkhhinUpJKGgjmctvcnmTPl9sAGMdCYznoeFtR6QnN8=
+github.com/crawlab-team/crawlab-core v0.6.0-beta.20220420.1200 h1:ngwvPofCVO7dhvpnAInjdJnwPX0iOTc7GmGJnqXD2Wc=
+github.com/crawlab-team/crawlab-core v0.6.0-beta.20220420.1200/go.mod h1:KqfjSkEclVY39nC58bsq3MLcuXbDnsPp/ClcBDkqOF0=
 github.com/crawlab-team/crawlab-db v0.0.2/go.mod h1:o7o4rbcyAWlFGHg9VS7V7tM/GqRq+N2mnAXO71cZA78=
-github.com/crawlab-team/crawlab-db v0.1.3 h1:RqLoXGZEMUH1B8SQB5OcNmJeyY2xILvwyhv4X9faWl4=
-github.com/crawlab-team/crawlab-db v0.1.3/go.mod h1:kPkGZ1P802XdbFFb8byMpZfNG2lWTNoWNRy4beS0/QY=
+github.com/crawlab-team/crawlab-db v0.6.0-beta.20220417.1300 h1:2EymVIiOspX28qNC1Qon3W1fzXKQ8hi6ho3QtXB4w6k=
+github.com/crawlab-team/crawlab-db v0.6.0-beta.20220417.1300/go.mod h1:gfeF0nAnFuup6iYvgHkY0in/HpO/+JktXqVNMdhoxhU=
 github.com/crawlab-team/crawlab-fs v0.0.0/go.mod h1:k2VXprQspLAmbgO5sSpqMjg/xP4iKDkW4RyTWY8eTZM=
 github.com/crawlab-team/crawlab-fs v0.6.0-beta.20211101.1940 h1:KFZ39oe/QyhhRhXYZSmzDZl3L/JUEPkiiaf4+/iuboY=
 github.com/crawlab-team/crawlab-fs v0.6.0-beta.20211101.1940/go.mod h1:dA1G6xeiClbTMkjRuoagGrcKfQ97jJZRAhZUSwrKdoI=
