@@ -3472,10 +3472,10 @@ cosmiconfig@^5.0.0:
     js-yaml "^3.13.1"
     parse-json "^4.0.0"
 
-crawlab-ui@^0.6.0-beta.20220423:
-  version "0.6.0-beta.20220423"
-  resolved "https://registry.npmmirror.com/crawlab-ui/-/crawlab-ui-0.6.0-beta.20220423.tgz#01344d5298af7b18af272029dfa4fc963c3a4142"
-  integrity sha512-VMhNGjxMlN4e6BMRHl0iiyb/FeNTfSdTP+ERIS/Axshhi45+DZyAHSE1auM4lVo5R1j7s8mpWp+qh2PjcwEhIg==
+crawlab-ui@^0.6.0-beta.20220424:
+  version "0.6.0-beta.20220424"
+  resolved "https://registry.npmmirror.com/crawlab-ui/-/crawlab-ui-0.6.0-beta.20220424.tgz#7a21b4c680dda84a3efbb4f4b83261b50c0e5269"
+  integrity sha512-rGMgrU8/pqKWjI/YTX30sgThYyTROlLT4s3dxOHbWrGQ36y7z30nYO9rwFyxvdkBEysc/coWBPKUAu6OlVTLOQ==
   dependencies:
     "@element-plus/icons" "^0.0.11"
     "@fortawesome/fontawesome-common-types" "^6.1.0"
