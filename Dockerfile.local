@@ -19,7 +19,7 @@ WORKDIR /app
 RUN yarn install && yarn run build:docker
 
 # images
-FROM ubuntu:latest
+FROM ubuntu:20.04
 
 # set as non-interactive
 ENV DEBIAN_FRONTEND noninteractive
