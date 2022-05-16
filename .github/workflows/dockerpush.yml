@@ -44,7 +44,7 @@ jobs:
         docker tag image $IMAGE_ID:$VERSION
         docker push $IMAGE_ID:$VERSION
 
-        if [[ $VERSION -eq "latest" ]]; then
+        if [[ $VERSION == "latest" ]]; then
           docker tag image $IMAGE_ID:main
           docker push $IMAGE_ID:main
         fi
