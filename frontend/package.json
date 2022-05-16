@@ -1,6 +1,6 @@
 {
   "name": "@crawlab/app",
-  "version": "0.6.0-beta.20220429.1200",
+  "version": "0.6.0-beta.20220515",
   "scripts": {
     "serve": "vue-cli-service serve",
     "serve:dist": "serve dist",
