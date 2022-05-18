@@ -12,12 +12,12 @@ fi
 if test -z "$CRAWLAB_INIT_BAIDU_TONGJI"; then
 	:
 else
-	sed -i "s/  window.VUE_APP_INIT_BAIDU_TONGJI =/  window.VUE_APP_INIT_BAIDU_TONGJI = '${CRAWLAB_INIT_BAIDU_TONGJI}'/g" ${indexpath}
+	sed -i "s/  window.VUE_APP_INIT_BAIDU_TONGJI = ''/  window.VUE_APP_INIT_BAIDU_TONGJI = '${CRAWLAB_INIT_BAIDU_TONGJI}'/g" ${indexpath}
 fi
 if test -z "$CRAWLAB_INIT_UMENG"; then
 	:
 else
-	sed -i "s/  window.VUE_APP_INIT_UMENG =/  window.VUE_APP_INIT_UMENG = '${CRAWLAB_INIT_UMENG}'/g" ${indexpath}
+	sed -i "s/  window.VUE_APP_INIT_UMENG = ''/  window.VUE_APP_INIT_UMENG = '${CRAWLAB_INIT_UMENG}'/g" ${indexpath}
 fi
 
 # start nginx
