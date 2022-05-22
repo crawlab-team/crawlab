@@ -30,25 +30,11 @@
 
 基于Golang的分布式爬虫管理平台，支持Python、NodeJS、Go、Java、PHP等多种编程语言以及多种爬虫框架。
 
-[查看演示 Demo](https://demo-pro.crawlab.cn) | [文档](https://docs.crawlab.cn) | [文档 (v0.6-beta)](https://docs-next.crawlab.cn)
+[查看演示 Demo](https://demo-pro.crawlab.cn) | [文档](https://docs.crawlab.cn/zh/)
 
 ## 安装
 
-三种方式:
-1. [Docker](http://docs.crawlab.cn/zh/Installation/Docker.html)（推荐）
-2. [直接部署](http://docs.crawlab.cn/zh/Installation/Direct.html)（了解内核）
-3. [Kubernetes](http://docs.crawlab.cn/zh/Installation/Kubernetes.html) (多节点部署)
-
-### 要求（Docker）
-- Docker 18.03+
-- MongoDB 3.6+
-- Docker Compose 1.24+ (可选，但推荐)
-
-### 要求（直接部署）
-- Go 1.15+
-- Node 12.20+
-- MongoDB 3.6+
-- [SeaweedFS](https://github.com/chrislusf/seaweedfs) 2.59+
+您可以参考这个[安装指南](https://docs.crawlab.cn/zh/guide/installation)。
 
 ## 快速开始
 
@@ -109,7 +95,7 @@ services:
       - master
 
   mongo:
-    image: mongo:latest
+    image: mongo:4.2
     container_name: crawlab_example_mongo
     restart: always
 ```
@@ -120,11 +106,7 @@ services:
 docker-compose up -d
 ```
 
-Docker部署的详情，请见[相关文档](https://tikazyq.github.io/crawlab-docs/Installation/Docker.html)。
-
-### 直接部署
-
-请参考[相关文档](https://tikazyq.github.io/crawlab-docs/Installation/Direct.html)。
+Docker部署的详情，请见[相关文档](https://docs.crawlab.cn/zh/guide/installation/docker.html)。
 
 ## 截图
 

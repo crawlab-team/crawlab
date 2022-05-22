@@ -4,33 +4,31 @@ services:
     image: crawlabteam/crawlab:latest
     container_name: crawlab_master
     environment:
-      CRAWLAB_BASE_URL: crawlab
-      CRAWLAB_SERVER_MASTER: Y
+      CRAWLAB_NODE_MASTER: Y
       CRAWLAB_MONGO_HOST: mongo
     ports:
       - "8080:8080" # frontend port mapping 前端端口映射
     depends_on:
       - mongo
     # volumes:
-    #   - "/var/crawlab/log:/var/logs/crawlab" # log persistent 日志持久化
+    #   - "/opt/crawlab/master:/data"  # data persistent 持久化数据
   worker:
     image: crawlabteam/crawlab:latest
-    container_name: worker
+    container_name: crawlab_worker
     environment:
-      CRAWLAB_SERVER_MASTER: "N"
+      CRAWLAB_NODE_MASTER: "N"
       CRAWLAB_MONGO_HOST: "mongo"
-  #    CRAWLAB_REDIS_ADDRESS: "redis"
     depends_on:
       - mongo
     # volumes:
-    #   - "/var/crawlab/log:/var/logs/crawlab" # log persistent 日志持久化
+    #   - "/opt/crawlab/worker:/data"  # data persistent 持久化数据
   mongo:
-    image: mongo:latest
+    image: mongo:4.2
     #restart: always
     # environment:
     #   MONGO_INITDB_ROOT_USERNAME: username
     #   MONGO_INITDB_ROOT_PASSWORD: password
     # volumes:
-    #   - "/opt/crawlab/mongo/data/db:/data/db"  # make data persistent 持久化
+    #   - "/opt/crawlab/mongo/data/db:/data/db"  # data persistent 持久化数据
     # ports:
     #   - "27017:27017"  # expose port to host machine 暴露接口到宿主机
