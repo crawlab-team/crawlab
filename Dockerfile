@@ -24,9 +24,6 @@ FROM ubuntu:20.04
 # set as non-interactive
 ENV DEBIAN_FRONTEND noninteractive
 
-# set CRAWLAB_IS_DOCKER
-ENV CRAWLAB_IS_DOCKER Y
-
 # install packages
 RUN chmod 777 /tmp \
 	&& apt-get update \
@@ -67,6 +64,9 @@ COPY --from=frontend-build /app/dist /app/dist
 # copy nginx config files
 COPY ./nginx/crawlab.conf /etc/nginx/conf.d
 
+# install plugins
+RUN /bin/bash /app/bin/docker-install-plugins.sh
+
 # working directory
 WORKDIR /app/backend
 
@@ -76,6 +76,9 @@ ENV TZ Asia/Shanghai
 # language environment
 ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8
+
+# docker
+ENV CRAWLAB_DOCKER Y
 
 # frontend port
 EXPOSE 8080
