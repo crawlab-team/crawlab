@@ -4,6 +4,8 @@ function install_plugin() {
   # plugins executables directory
   local bin_path="/app/plugins/bin"
   if [ -d $bin_path ]; then
+    :
+  else
     mkdir "$bin_path"
   fi
 
