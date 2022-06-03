@@ -8,3 +8,4 @@ ENV GO111MODULE on
 
 RUN go mod tidy \
   && go install -v ./...
+
