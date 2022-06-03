@@ -1,52 +1,9 @@
-FROM golang:1.16 AS backend-build
+FROM crawlabteam/crawlab-backend:latest AS backend-build
 
-WORKDIR /go/src/app
-COPY ./backend .
-
-ENV GO111MODULE on
-#ENV GOPROXY https://goproxy.io
-
-RUN go mod tidy \
-  && go install -v ./...
-
-FROM node:12 AS frontend-build
-
-ADD ./frontend /app
-WORKDIR /app
-RUN rm /app/.npmrc
-
-# install frontend
-RUN yarn install && yarn run build:docker
+FROM crawlabteam/crawlab-frontend:latest AS frontend-build
 
 # images
-FROM ubuntu:20.04
-
-# set as non-interactive
-ENV DEBIAN_FRONTEND noninteractive
-
-# install packages
-RUN chmod 777 /tmp \
-	&& apt-get update \
-	&& apt-get install -y curl git net-tools iputils-ping ntp ntpdate nginx wget dumb-init cloc
-
-# install python
-RUN apt-get install -y python3 python3-pip \
-	&& ln -s /usr/bin/pip3 /usr/local/bin/pip \
-	&& ln -s /usr/bin/python3 /usr/local/bin/python
-
-# install golang
-RUN curl -OL https://golang.org/dl/go1.16.7.linux-amd64.tar.gz \
-	&& tar -C /usr/local -xvf go1.16.7.linux-amd64.tar.gz \
-	&& ln -s /usr/local/go/bin/go /usr/local/bin/go
-
-# install seaweedfs
-RUN wget https://github.com/crawlab-team/resources/raw/main/seaweedfs/2.79/linux_amd64.tar.gz \
-  && tar -zxf linux_amd64.tar.gz \
-  && cp weed /usr/local/bin
-
-# install backend
-RUN pip install scrapy pymongo bs4 requests
-RUN pip install crawlab-sdk==0.6.b20211224-1500
+FROM crawlabteam/crawlab-base:latest
 
 # add files
 COPY ./backend/conf /app/backend/conf
@@ -66,25 +23,6 @@ COPY ./nginx/crawlab.conf /etc/nginx/conf.d
 
 # install plugins
 RUN /bin/bash /app/bin/docker-install-plugins.sh
-
-# working directory
-WORKDIR /app/backend
-
-# timezone environment
-ENV TZ Asia/Shanghai
-
-# language environment
-ENV LC_ALL C.UTF-8
-ENV LANG C.UTF-8
-
-# docker
-ENV CRAWLAB_DOCKER Y
-
-# frontend port
-EXPOSE 8080
-
-# backend port
-EXPOSE 8000
 
 # start backend
 CMD ["/bin/bash", "/app/bin/docker-init.sh"]
