@@ -1,0 +1,145 @@
+name: "Docker Image CI: crawlab"
+
+on:
+  push:
+    branches: [ develop, main ]
+  #pull_request:
+  #  branches: [ main ]
+  release:
+    types: [ published ]
+
+env:
+  IMAGE_PATH_CRAWLAB_BACKEND: backend
+  IMAGE_PATH_CRAWLAB_FRONTEND: frontend
+  IMAGE_NAME_CRAWLAB: crawlabteam/crawlab
+  IMAGE_NAME_CRAWLAB_BACKEND: crawlabteam/crawlab-backend
+  IMAGE_NAME_CRAWLAB_FRONTEND: crawlabteam/crawlab-frontend
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      is_matched_backend: ${{ steps.check_changed_files.outputs.is_matched_backend }}
+      is_matched_frontend: ${{ steps.check_changed_files.outputs.is_matched_frontend }}
+      is_matched_dockerfile: ${{ steps.check_changed_files.outputs.is_matched_dockerfile }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get changed files
+        id: changed_files
+        uses: tj-actions/changed-files@v18.7
+      - id: check_changed_files
+        name: Check changed files
+        run: |
+          # check changed files
+          is_matched_backend=0
+          is_matched_frontend=0
+          is_matched_dockerfile=0
+          for file in ${{ steps.changed_files.outputs.all_changed_files }}; do
+            if [[ $file =~ ^${IMAGE_PATH_CRAWLAB_BACKEND}/.* ]]; then
+              file_backend=$file
+              is_matched_backend=1
+            fi
+            if [[ $file =~ ^${IMAGE_PATH_CRAWLAB_FRONTEND}/.* ]]; then
+              file_frontend=$file
+              is_matched_frontend=1
+            fi
+            if [[ $file == Dockerfile ]]; then
+              file_dockerfile=$file
+              is_matched_dockerfile=1
+            fi
+          done
+          
+          # set outputs
+          echo "::set-output name=is_matched_backend::$is_matched_backend"
+          echo "::set-output name=is_matched_frontend::$is_matched_frontend"
+          echo "::set-output name=is_matched_dockerfile::$is_matched_dockerfile"
+          
+          # echo outputs
+          echo "is_matched_backend=$is_matched_backend, file_backend=$file_backend"
+          echo "is_matched_frontend=$is_matched_frontend, file_frontend=$file_frontend"
+          echo "is_matched_dockerfile=$is_matched_dockerfile, file_dockerfile=$file_dockerfile"
+      - id: version
+        name: Get version
+        run: |
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "main" ] && VERSION=latest
+          
+          echo "::set-output name=version::$VERSION"
+
+  build-backend:
+    needs: [ setup ]
+    if: needs.setup.outputs.is_matched_backend == '1'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v18.7
+      - name: Build image
+        run: |
+          cd $IMAGE_PATH_CRAWLAB_BACKEND
+          docker build . --file Dockerfile --tag image
+      - name: Log into registry
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push image
+        run: |
+          IMAGE_VERSION=${{needs.setup.outputs.version}}
+          IMAGE_NAME=$IMAGE_NAME_CRAWLAB_BACKEND
+          docker tag image $IMAGE_NAME:$IMAGE_VERSION
+          docker push $IMAGE_NAME:$IMAGE_VERSION
+
+  build-frontend:
+    needs: [ setup ]
+    if: needs.setup.outputs.is_matched_frontend == '1'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v18.7
+      - name: Build image
+        run: |
+          cd $IMAGE_PATH_CRAWLAB_FRONTEND
+          docker build . --file Dockerfile --tag image
+      - name: Log into registry
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push image
+        run: |
+          IMAGE_VERSION=${{needs.setup.outputs.version}}
+          IMAGE_NAME=$IMAGE_NAME_CRAWLAB_FRONTEND
+          docker tag image $IMAGE_NAME:$IMAGE_VERSION
+          docker push $IMAGE_NAME:$IMAGE_VERSION
+
+  build-crawlab:
+    if: ${{ always() }}
+    needs: [ setup, build-backend, build-frontend ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Update Dockerfile
+        run: |
+          IMAGE_VERSION=${{needs.setup.outputs.version}}
+          if [[ $IMAGE_VERSION != "latest" ]]; then
+            for n in crawlab-backend crawlab-frontend; do
+              IMAGE_NAME=$n
+              sed -i "s/${IMAGE_NAME}:latest/${IMAGE_NAME}:${IMAGE_VERSION}/" Dockerfile
+            done
+          fi
+
+      - name: Build image
+        run: docker build . --file Dockerfile --tag image
+      - name: Log into registry
+        run: echo ${{ secrets.DOCKER_PASSWORD}} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Push image
+        run: |
+          IMAGE_VERSION=${{needs.setup.outputs.version}}
+          IMAGE_ID=$IMAGE_NAME_CRAWLAB
+          docker tag image $IMAGE_ID:$IMAGE_VERSION
+          docker push $IMAGE_ID:$IMAGE_VERSION
