@@ -123,6 +123,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Update Dockerfile
+        run: |
+          IMAGE_VERSION=${{needs.setup.outputs.version}}
+          if [[ $IMAGE_VERSION != "latest" ]]; then
+            for n in crawlab-backend crawlab-frontend; do
+              IMAGE_NAME=$n
+              sed "s/$IMAGE_NAME:latest/$IMAGE_NAME:$IMAGE_VERSION/g" Dockerfile > Dockerfile
+            done
+          fi
+
       - name: Build image
         run: docker build . --file Dockerfile --tag image
       - name: Log into registry
