@@ -19,54 +19,46 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      is_matched_backend: ${{ steps.changed_files_backend.outputs.matched }}
-      is_matched_frontend: ${{ steps.changed_files_frontend.outputs.matched }}
-      is_matched_dockerfile: ${{ steps.changed_files_dockerfile.outputs.matched }}
+      is_matched_backend: ${{ steps.changed_files.outputs.is_matched_backend }}
+      is_matched_frontend: ${{ steps.changed_files.outputs.is_matched_frontend }}
+      is_matched_dockerfile: ${{ steps.changed_files.outputs.is_matched_dockerfile }}
       version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v2
       - name: Get changed files
-        id: changed-files
+        id: changed_files
         uses: tj-actions/changed-files@v18.7
-      - id: changed_files_backend
+      - id: changed_files
         name: Check changed files for backend
         run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          # check changed files
+          is_matched_backend=0
+          is_matched_frontend=0
+          is_matched_dockerfile=0
+          for file in ${{ steps.changed_files.outputs.all_changed_files }}; do
             if [[ $file =~ ^${IMAGE_PATH_CRAWLAB_BACKEND}/.* ]]; then
-              file=$file
-              is_matched=1
-              break
+              file_backend=$file
+              is_matched_backend=1
             fi
-          done
-          echo "::set-output name=matched::$is_matched"
-          echo "is_matched: $is_matched"
-          echo "file: $file"
-      - id: changed_files_frontend
-        name: Check changed files for frontend
-        run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             if [[ $file =~ ^${IMAGE_PATH_CRAWLAB_FRONTEND}/.* ]]; then
-              file=$file
-              is_matched=1
-              break
+              file_frontend=$file
+              is_matched_frontend=1
+            fi
+            if [[ $file =~ Dockerfile ]]; then
+              file_dockerfile=$file
+              is_matched_dockerfile=1
             fi
           done
-          echo "::set-output name=matched::$is_matched"
-          echo "is_matched: $is_matched"
-          echo "file: $file"
-      - id: changed_files_dockerfile
-        name: Check changed files for Dockerfile
-        run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            if [[ $file == Dockerfile ]]; then
-              file=$file
-              is_matched=1
-              break
-            fi
-          done
-          echo "::set-output name=matched::$is_matched"
-          echo "is_matched: $is_matched"
-          echo "file: $file"
+          
+          # set outputs
+          echo "::set-output name=matched_backend::$is_matched_backend"
+          echo "::set-output name=matched_frontend::$is_matched_frontend"
+          echo "::set-output name=matched_dockerfile::$is_matched_dockerfile"
+          
+          # echo outputs
+          echo "is_matched_backend=$is_matched_backend, file_backend=$file_backend"
+          echo "is_matched_frontend=$is_matched_frontend, file_frontend=$file_frontend"
+          echo "is_matched_dockerfile=$is_matched_dockerfile, file_dockerfile=$file_dockerfile"
       - id: version
         name: Get version
         run: |
