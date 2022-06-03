@@ -141,5 +141,5 @@ jobs:
         run: |
           IMAGE_VERSION=${{needs.setup.outputs.version}}
           IMAGE_ID=$IMAGE_NAME_CRAWLAB
-          docker tag image $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+          docker tag image $IMAGE_ID:$IMAGE_VERSION
+          docker push $IMAGE_ID:$IMAGE_VERSION
