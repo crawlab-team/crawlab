@@ -6,3 +6,4 @@ RUN rm /app/.npmrc
 
 # install frontend
 RUN yarn install && yarn run build:docker
+
