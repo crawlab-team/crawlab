@@ -19,16 +19,16 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      is_matched_backend: ${{ steps.changed_files.outputs.is_matched_backend }}
-      is_matched_frontend: ${{ steps.changed_files.outputs.is_matched_frontend }}
-      is_matched_dockerfile: ${{ steps.changed_files.outputs.is_matched_dockerfile }}
+      is_matched_backend: ${{ steps.check_changed_files.outputs.is_matched_backend }}
+      is_matched_frontend: ${{ steps.check_changed_files.outputs.is_matched_frontend }}
+      is_matched_dockerfile: ${{ steps.check_changed_files.outputs.is_matched_dockerfile }}
       version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v2
       - name: Get changed files
         id: changed_files
         uses: tj-actions/changed-files@v18.7
-      - id: changed_files
+      - id: check_changed_files
         name: Check changed files for backend
         run: |
           # check changed files
