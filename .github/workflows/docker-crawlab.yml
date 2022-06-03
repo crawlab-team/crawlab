@@ -18,33 +18,37 @@ env:
 jobs:
   setup:
     runs-on: ubuntu-latest
+    outputs:
+      is_matched_backend: ${{ steps.changed_files_backend.outputs.matched }}
+      is_matched_frontend: ${{ steps.changed_files_frontend.outputs.matched }}
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v2
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v18.7
-      - name: Check changed files
+      - id: changed_files_backend
+        name: Check changed files for backend
         run: |
-          is_matched=0
-          
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             if [[ $file =~ ^${IMAGE_PATH_CRAWLAB_BACKEND}/.* ]]; then
-              echo "is_matched_backend=1" >> $GITHUB_ENV
               is_matched=1
               break
             fi
           done
-          
+          echo "::set-output name=matched::$is_matched"
+      - id: changed_files_frontend
+        name: Check changed files for frontend
+        run: |
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             if [[ $file =~ ^${IMAGE_PATH_CRAWLAB_FRONTEND}/.* ]]; then
-              echo "is_matched_frontend=1" >> $GITHUB_ENV
               is_matched=1
               break
             fi
           done
-          
-          echo "is_matched=${is_matched}" >> $GITHUB_ENV
-      - name: Get version
+          echo "::set-output name=matched::$is_matched"
+      - id: version
+        name: Get version
         run: |
           # Strip git ref prefix from version
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
@@ -55,11 +59,11 @@ jobs:
           # Use Docker `latest` tag convention
           [ "$VERSION" == "main" ] && VERSION=latest
           
-          echo "IMAGE_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "::set-output name=version::$VERSION"
 
   build-backend:
-    if: ${{ env.is_matched_backend == '1' }}
     needs: [ setup ]
+    if: needs.setup.outputs.is_matched_backend == '1'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -79,8 +83,8 @@ jobs:
           docker push $IMAGE_NAME:$IMAGE_VERSION
 
   build-frontend:
-    if: ${{ env.is_matched_frontend == '1' }}
     needs: [ setup ]
+    if: needs.setup.outputs.is_matched_frontend == '1'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -100,8 +104,8 @@ jobs:
           docker push $IMAGE_NAME:$IMAGE_VERSION
 
   build:
-    if: ${{ env.is_matched == '1' }}
-    needs: [ build-backend, build-frontend ]
+    needs: [ setup, build-backend, build-frontend ]
+    if: needs.setup.outputs.is_matched_backend == '1' || needs.setup.outputs.is_matched_frontend == '1'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
