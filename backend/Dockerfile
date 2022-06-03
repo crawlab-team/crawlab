@@ -1,4 +1,4 @@
-FROM golang:1.16
+FROM golang:1.16 AS build
 
 WORKDIR /go/src/app
 COPY . .
@@ -9,3 +9,7 @@ ENV GO111MODULE on
 RUN go mod tidy \
   && go install -v ./...
 
+FROM alpine:3.14
+
+# copy files
+COPY --from=backend-build /go/bin/crawlab /go/bin/crawlab

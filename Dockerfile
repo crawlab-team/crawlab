@@ -2,6 +2,8 @@ FROM crawlabteam/crawlab-backend:latest AS backend-build
 
 FROM crawlabteam/crawlab-frontend:latest AS frontend-build
 
+FROM crawlabteam/crawlab-public-plugins:latest AS public-plugins-build
+
 # images
 FROM crawlabteam/crawlab-base:latest
 
@@ -18,11 +20,11 @@ RUN cp /opt/bin/crawlab /usr/local/bin/crawlab-server
 # copy frontend files
 COPY --from=frontend-build /app/dist /app/dist
 
+# copy public-plugins files
+COPY --from=public-plugins-build /app/plugins /app/plugins
+
 # copy nginx config files
 COPY ./nginx/crawlab.conf /etc/nginx/conf.d
-
-# install plugins
-RUN /bin/bash /app/bin/docker-install-plugins.sh
 
 # start backend
 CMD ["/bin/bash", "/app/bin/docker-init.sh"]
