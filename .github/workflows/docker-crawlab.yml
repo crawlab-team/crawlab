@@ -129,7 +129,7 @@ jobs:
           if [[ $IMAGE_VERSION != "latest" ]]; then
             for n in crawlab-backend crawlab-frontend; do
               IMAGE_NAME=$n
-              sed -i '' "s/${IMAGE_NAME}:latest/${IMAGE_NAME}:${IMAGE_VERSION}/" Dockerfile
+              sed -i "s/${IMAGE_NAME}:latest/${IMAGE_NAME}:${IMAGE_VERSION}/" Dockerfile
             done
           fi
 
