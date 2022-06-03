@@ -6,7 +6,7 @@ function install_plugin() {
   if [ -d $bin_path ]; then
     :
   else
-    mkdir "$bin_path"
+    mkdir -p "$bin_path"
   fi
 
   # plugin name

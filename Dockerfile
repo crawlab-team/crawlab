@@ -26,4 +26,3 @@ RUN /bin/bash /app/bin/docker-install-plugins.sh
 
 # start backend
 CMD ["/bin/bash", "/app/bin/docker-init.sh"]
-
