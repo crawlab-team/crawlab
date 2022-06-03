@@ -29,7 +29,7 @@ jobs:
         id: changed_files
         uses: tj-actions/changed-files@v18.7
       - id: check_changed_files
-        name: Check changed files for backend
+        name: Check changed files
         run: |
           # check changed files
           is_matched_backend=0
@@ -44,16 +44,16 @@ jobs:
               file_frontend=$file
               is_matched_frontend=1
             fi
-            if [[ $file =~ Dockerfile ]]; then
+            if [[ $file == Dockerfile ]]; then
               file_dockerfile=$file
               is_matched_dockerfile=1
             fi
           done
           
           # set outputs
-          echo "::set-output name=matched_backend::$is_matched_backend"
-          echo "::set-output name=matched_frontend::$is_matched_frontend"
-          echo "::set-output name=matched_dockerfile::$is_matched_dockerfile"
+          echo "::set-output name=is_matched_backend::$is_matched_backend"
+          echo "::set-output name=is_matched_frontend::$is_matched_frontend"
+          echo "::set-output name=is_matched_dockerfile::$is_matched_dockerfile"
           
           # echo outputs
           echo "is_matched_backend=$is_matched_backend, file_backend=$file_backend"
