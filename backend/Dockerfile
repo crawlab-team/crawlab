@@ -12,4 +12,4 @@ RUN go mod tidy \
 FROM alpine:3.14
 
 # copy files
-COPY --from=backend-build /go/bin/crawlab /go/bin/crawlab
+COPY --from=build /go/bin/crawlab /go/bin/crawlab
