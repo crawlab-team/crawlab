@@ -118,7 +118,7 @@ jobs:
           docker push $IMAGE_NAME:$IMAGE_VERSION
 
   build-crawlab:
-    if: ${{ always() }}
+    if: ${{ success() }}
     needs: [ setup, build-backend, build-frontend ]
     runs-on: ubuntu-latest
     steps:
