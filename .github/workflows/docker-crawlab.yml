@@ -117,7 +117,7 @@ jobs:
           docker tag image $IMAGE_NAME:$IMAGE_VERSION
           docker push $IMAGE_NAME:$IMAGE_VERSION
 
-  build:
+  build-crawlab:
     needs: [ setup, build-backend, build-frontend ]
     if: needs.setup.outputs.is_matched_backend == '1' || needs.setup.outputs.is_matched_frontend == '1' || needs.setup.outputs.is_matched_dockerfile == '1'
     runs-on: ubuntu-latest
