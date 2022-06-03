@@ -21,6 +21,7 @@ jobs:
     outputs:
       is_matched_backend: ${{ steps.changed_files_backend.outputs.matched }}
       is_matched_frontend: ${{ steps.changed_files_frontend.outputs.matched }}
+      is_matched_dockerfile: ${{ steps.changed_files_dockerfile.outputs.matched }}
       version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v2
@@ -42,6 +43,16 @@ jobs:
         run: |
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             if [[ $file =~ ^${IMAGE_PATH_CRAWLAB_FRONTEND}/.* ]]; then
+              is_matched=1
+              break
+            fi
+          done
+          echo "::set-output name=matched::$is_matched"
+      - id: changed_files_dockerfile
+        name: Check changed files for Dockerfile
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            if [[ $file == Dockerfile ]]; then
               is_matched=1
               break
             fi
@@ -107,7 +118,7 @@ jobs:
 
   build:
     needs: [ setup, build-backend, build-frontend ]
-    if: needs.setup.outputs.is_matched_backend == '1' || needs.setup.outputs.is_matched_frontend == '1'
+    if: needs.setup.outputs.is_matched_backend == '1' || needs.setup.outputs.is_matched_frontend == '1' || needs.setup.outputs.is_matched_dockerfile == '1'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
