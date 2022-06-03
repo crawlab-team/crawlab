@@ -33,11 +33,14 @@ jobs:
         run: |
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             if [[ $file =~ ^${IMAGE_PATH_CRAWLAB_BACKEND}/.* ]]; then
+              file=$file
               is_matched=1
               break
             fi
           done
           echo "::set-output name=matched::$is_matched"
+          echo "is_matched: $is_matched"
+          echo "file: $file"
       - id: changed_files_frontend
         name: Check changed files for frontend
         run: |
