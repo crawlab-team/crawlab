@@ -1,6 +1,6 @@
 FROM node:12
 
-ADD ./frontend /app
+ADD . /app
 WORKDIR /app
 RUN rm /app/.npmrc
 
