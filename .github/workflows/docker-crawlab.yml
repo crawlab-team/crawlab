@@ -25,16 +25,25 @@ jobs:
         uses: tj-actions/changed-files@v18.7
       - name: Check changed files
         run: |
+          is_matched=0
+          
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             if [[ $file =~ ^${IMAGE_PATH_CRAWLAB_BACKEND}/.* ]]; then
               echo "is_matched_backend=1" >> $GITHUB_ENV
-              break
-            fi
-            if [[ $file =~ ^${IMAGE_PATH_CRAWLAB_FRONTEND}/.* ]]; then
-              echo "is_matched_frontend=1" >> $GITHUB_ENV
+              is_matched=1
               break
             fi
           done
+          
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            if [[ $file =~ ^${IMAGE_PATH_CRAWLAB_FRONTEND}/.* ]]; then
+              echo "is_matched_frontend=1" >> $GITHUB_ENV
+              is_matched=1
+              break
+            fi
+          done
+          
+          echo "is_matched=${is_matched}" >> $GITHUB_ENV
       - name: Get version
         run: |
           # Strip git ref prefix from version
@@ -91,7 +100,7 @@ jobs:
           docker push $IMAGE_NAME:$IMAGE_VERSION
 
   build:
-    if: ${{ env.is_matched_backend == '1' || env.is_matched_frontend == '1' }}
+    if: ${{ env.is_matched == '1' }}
     needs: [ build-backend, build-frontend ]
     runs-on: ubuntu-latest
     steps:
