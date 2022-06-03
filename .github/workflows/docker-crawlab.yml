@@ -78,6 +78,7 @@ jobs:
         run: echo ${{ secrets.DOCKER_PASSWORD}} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push image
         run: |
+          IMAGE_VERSION=${{needs.setup.outputs.version}}
           IMAGE_NAME=$IMAGE_NAME_CRAWLAB_BACKEND
           docker tag image $IMAGE_NAME:$IMAGE_VERSION
           docker push $IMAGE_NAME:$IMAGE_VERSION
@@ -99,6 +100,7 @@ jobs:
         run: echo ${{ secrets.DOCKER_PASSWORD}} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push image
         run: |
+          IMAGE_VERSION=${{needs.setup.outputs.version}}
           IMAGE_NAME=$IMAGE_NAME_CRAWLAB_FRONTEND
           docker tag image $IMAGE_NAME:$IMAGE_VERSION
           docker push $IMAGE_NAME:$IMAGE_VERSION
@@ -115,6 +117,7 @@ jobs:
         run: echo ${{ secrets.DOCKER_PASSWORD}} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push image
         run: |
+          IMAGE_VERSION=${{needs.setup.outputs.version}}
           IMAGE_ID=$IMAGE_NAME_CRAWLAB
           docker tag image $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
