@@ -28,4 +28,3 @@ COPY ./nginx/crawlab.conf /etc/nginx/conf.d
 
 # start backend
 CMD ["/bin/bash", "/app/bin/docker-init.sh"]
-
