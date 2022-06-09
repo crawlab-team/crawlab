@@ -7,6 +7,7 @@ on:
   #  branches: [ main ]
   release:
     types: [ published ]
+  workflow_dispatch:
 
 env:
   IMAGE_PATH_CRAWLAB_BACKEND: backend
