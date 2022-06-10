@@ -122,6 +122,11 @@ jobs:
     if: ${{ always() }}
     needs: [ setup, build-backend, build-frontend ]
     runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:4.2
+        ports:
+          - 27017:27017
     steps:
       - uses: actions/checkout@v2
       - name: Update Dockerfile
@@ -139,8 +144,8 @@ jobs:
         run: echo ${{ secrets.DOCKER_PASSWORD}} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Test image
         run: |
-          docker run -d --name crawlab_master --rm image 
-          sleep 10
+          docker run -d --name crawlab_master --rm image -e CRAWLAB_NODE_MASTER=Y
+          sleep 30
           docker ps
           docker logs crawlab_master
           curl http://localhost:8080/api/system-info
