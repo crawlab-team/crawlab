@@ -146,6 +146,7 @@ jobs:
         run: |
           docker run -d --rm --name crawlab_master \
             -e CRAWLAB_NODE_MASTER=Y \
+            -e CRAWLAB_MONGO_HOST=localhost \
             -p 8080:8080 \
             image
           sleep 30
