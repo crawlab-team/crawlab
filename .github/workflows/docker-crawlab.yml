@@ -143,6 +143,7 @@ jobs:
           sleep 10
           docker ps
           curl http://localhost:8080/api/system-info
+          docker logs crawlab_master
           docker stop crawlab_master
       - name: Push image
         run: |
