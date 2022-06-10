@@ -138,18 +138,25 @@ jobs:
               sed -i "s/${IMAGE_NAME}:latest/${IMAGE_NAME}:${IMAGE_VERSION}/" Dockerfile
             done
           fi
+
       - name: Build image
         run: docker build . --file Dockerfile --tag image
-      - name: Log into registry
-        run: echo ${{ secrets.DOCKER_PASSWORD}} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
       - name: Test image
         run: |
-          docker run -d --name crawlab_master --rm -e CRAWLAB_NODE_MASTER=Y -p 8080:8080 image
-          sleep 10
+          docker run -d --rm --name crawlab_master \
+            -e CRAWLAB_NODE_MASTER=Y \
+            -p 8080:8080 \
+            image
+          sleep 30
           docker ps
           docker logs crawlab_master
           curl http://localhost:8080/api/system-info
           docker stop crawlab_master
+
+      - name: Log into registry
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
       - name: Push image
         run: |
           IMAGE_VERSION=${{needs.setup.outputs.version}}
