@@ -146,12 +146,12 @@ jobs:
         run: |
           docker run -d --rm --name crawlab_master \
             -e CRAWLAB_NODE_MASTER=Y \
-            -p 8080:8080 \
             image
           sleep 30
           docker ps
           docker logs crawlab_master
-          res=`curl http://localhost:8080/api/system-info -s`
+          res=`docker exec crawlab_master curl http://localhost:8000/system-info -s`
+          echo $res
           if [[ $res =~ "success" ]]; then
             :
           else
