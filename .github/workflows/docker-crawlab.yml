@@ -151,7 +151,12 @@ jobs:
           sleep 30
           docker ps
           docker logs crawlab_master
-          curl http://localhost:8080/api/system-info
+          res=`curl http://localhost:8080/api/system-info -s`
+          if [[ $res =~ "success" ]]; then
+            :
+          else
+            exit 1
+          fi
           docker stop crawlab_master
 
       - name: Log into registry
