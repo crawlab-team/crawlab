@@ -145,7 +145,7 @@ jobs:
       - name: Test image
         run: |
           docker run -d --name crawlab_master --rm image -e CRAWLAB_NODE_MASTER=Y
-          sleep 30
+          sleep 10
           docker ps
           docker logs crawlab_master
           curl http://localhost:8080/api/system-info
