@@ -147,9 +147,10 @@ jobs:
           docker run -d --rm --name crawlab_master \
             -e CRAWLAB_NODE_MASTER=Y \
             -e CRAWLAB_MONGO_HOST=localhost \
+            -e CRAWLAB_MONGO_PORT=27017 \
             -p 8080:8080 \
             image
-          sleep 30
+          sleep 10
           docker ps
           docker logs crawlab_master
           res=`curl http://localhost:8080/api/system-info -s`
