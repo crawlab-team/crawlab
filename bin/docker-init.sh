@@ -4,14 +4,14 @@ if [ "${CRAWLAB_NODE_MASTER}" = "Y" ]; then
   # start master
   /bin/bash /app/bin/docker-start-master.sh
 
-  # env
-  export IS_MASTER=1
+  # node type
+  echo "node type: master"
 
   # start crawlab
   crawlab-server master
 else
-  # env
-  export IS_MASTER=0
+  # node type
+  echo "node type: worker"
 
   # start crawlab
   crawlab-server worker
