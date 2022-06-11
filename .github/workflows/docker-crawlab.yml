@@ -151,7 +151,7 @@ jobs:
             -p 8080:8080 \
             image
           docker exec crawlab_master env
-          sleep 10
+          sleep 20
           docker ps
           docker logs crawlab_master
           res=`curl http://localhost:8080/api/system-info -s`
