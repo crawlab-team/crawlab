@@ -150,6 +150,7 @@ jobs:
             -e CRAWLAB_MONGO_PORT=27017 \
             -p 8080:8080 \
             image
+          docker exec crawlab_master env
           sleep 10
           docker ps
           docker logs crawlab_master
