@@ -145,7 +145,7 @@ jobs:
       - name: Test image
         run: |
           docker run -d --rm --name crawlab_master \
-            -e CRAWLAB_NODE_MASTER=Y \
+            -e CRAWLAB_NODE_MASTER=true \
             -e CRAWLAB_MONGO_HOST=localhost \
             -e CRAWLAB_MONGO_PORT=27017 \
             -p 8080:8080 \
