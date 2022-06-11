@@ -136,6 +136,8 @@ github.com/crawlab-team/crawlab-core v0.6.1-0.20220610131302-39654de64d31 h1:Fws
 github.com/crawlab-team/crawlab-core v0.6.1-0.20220610131302-39654de64d31/go.mod h1:KqfjSkEclVY39nC58bsq3MLcuXbDnsPp/ClcBDkqOF0=
 github.com/crawlab-team/crawlab-core v0.6.1-0.20220611025234-152e21d0e57f h1:M0OFYwG68cWydh5guI7aXJy/i8+vXLleUd5wOAZgTq0=
 github.com/crawlab-team/crawlab-core v0.6.1-0.20220611025234-152e21d0e57f/go.mod h1:KqfjSkEclVY39nC58bsq3MLcuXbDnsPp/ClcBDkqOF0=
+github.com/crawlab-team/crawlab-core v0.6.1-0.20220611032702-c31cbc7d599b h1:oUwe+ap4+e0WhQ6JVZ6YPALfuVKhcYzeRTgyOeKPk28=
+github.com/crawlab-team/crawlab-core v0.6.1-0.20220611032702-c31cbc7d599b/go.mod h1:KqfjSkEclVY39nC58bsq3MLcuXbDnsPp/ClcBDkqOF0=
 github.com/crawlab-team/crawlab-db v0.0.2/go.mod h1:o7o4rbcyAWlFGHg9VS7V7tM/GqRq+N2mnAXO71cZA78=
 github.com/crawlab-team/crawlab-db v0.6.0-beta.20220417.1300 h1:2EymVIiOspX28qNC1Qon3W1fzXKQ8hi6ho3QtXB4w6k=
 github.com/crawlab-team/crawlab-db v0.6.0-beta.20220417.1300/go.mod h1:gfeF0nAnFuup6iYvgHkY0in/HpO/+JktXqVNMdhoxhU=
