@@ -144,7 +144,6 @@ jobs:
 
       - name: Test image
         run: |
-          curl http://localhost:27017
           docker run --rm -d --name crawlab_master \
             -e CRAWLAB_NODE_MASTER=true \
             -e CRAWLAB_DEMO=false \
@@ -153,9 +152,9 @@ jobs:
             -p 8080:8080 \
             --network host \
             image
-          docker logs -f crawlab_master &
           docker exec crawlab_master env
-          sleep 30
+          docker logs -f crawlab_master &
+          sleep 10
           docker ps
           docker exec crawlab_master ls -l /var/log
           res=`docker exec crawlab_master curl http://localhost:8000/system-info -s`
