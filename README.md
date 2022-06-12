@@ -30,25 +30,11 @@
 
 Golang-based distributed web crawler management platform, supporting various languages including Python, NodeJS, Go, Java, PHP and various web crawler frameworks including Scrapy, Puppeteer, Selenium.
 
-[Demo](https://demo-pro.crawlab.cn) | [Documentation](https://docs.crawlab.cn) | [Documentation (v0.6-beta)](http://docs-next.crawlab.cn)
+[Demo](https://demo-pro.crawlab.cn) | [Documentation](https://docs.crawlab.cn/en/)
 
 ## Installation
 
-Three methods:
-1. [Docker](http://docs.crawlab.cn/en/Installation/Docker.html) (Recommended)
-2. [Direct Deploy](http://docs.crawlab.cn/en/Installation/Direct.html) (Check Internal Kernel)
-3. [Kubernetes](http://docs.crawlab.cn/en/Installation/Kubernetes.html) (Multi-Node Deployment)
-
-### Pre-requisite (Docker)
-- Docker 18.03+
-- MongoDB 3.6+
-- Docker Compose 1.24+ (optional but recommended)
-
-### Pre-requisite (Direct Deploy)
-- Go 1.15+
-- Node 12.20+
-- MongoDB 3.6+
-- [SeaweedFS](https://github.com/chrislusf/seaweedfs) 2.59+
+You can follow the [installation guide](https://docs.crawlab.cn/en/guide/installation/).
 
 ## Quick Start
 
@@ -60,7 +46,7 @@ cd examples/docker/basic
 docker-compose up -d
 ```
 
-Next, you can look into the `docker-compose.yml` (with detailed config params) and the [Documentation (Chinese)](http://docs.crawlab.cn) for further information. 
+Next, you can look into the `docker-compose.yml` (with detailed config params) and the [Documentation](http://docs.crawlab.cn/en/) for further information. 
 
 ## Run
 
@@ -110,7 +96,7 @@ services:
       - master
 
   mongo:
-    image: mongo:latest
+    image: mongo:4.2
     container_name: crawlab_example_mongo
     restart: always
 ```
@@ -121,7 +107,7 @@ Then execute the command below, and Crawlab Master and Worker Nodes + MongoDB wi
 docker-compose up -d
 ```
 
-For Docker Deployment details, please refer to [relevant documentation](https://tikazyq.github.io/crawlab-docs/Installation/Docker.html).
+For Docker Deployment details, please refer to [relevant documentation](https://docs.crawlab.cn/en/guide/installation/docker.html).
 
 
 ## Screenshot
