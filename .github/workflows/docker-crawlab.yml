@@ -157,7 +157,9 @@ jobs:
           sleep 10
           docker ps
           docker exec crawlab_master ls -l /var/log
-          res=`docker exec crawlab_master curl http://localhost:8000/system-info -s`
+          cmd='curl http://localhost:8080/api/system-info -s'
+          echo "cmd: ${cmd}"
+          res=`${cmd}`
           echo "res: ${res}"
           if [[ $res =~ "success" ]]; then
             :
