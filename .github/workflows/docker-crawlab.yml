@@ -156,7 +156,7 @@ jobs:
           docker ps
           docker logs crawlab_master
           docker exec crawlab_master ls -l /var/log
-          docker exec crawlab_master curl http://localhost:8000/system-info -v
+          res=`docker exec crawlab_master curl http://localhost:8000/system-info -s`
           echo "res: ${res}"
           if [[ $res =~ "success" ]]; then
             :
