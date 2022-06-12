@@ -153,9 +153,8 @@ jobs:
             image
           docker logs -f crawlab_master &
           docker exec crawlab_master env
-          sleep 10
+          sleep 30
           docker ps
-          docker logs crawlab_master
           docker exec crawlab_master ls -l /var/log
           res=`docker exec crawlab_master curl http://localhost:8000/system-info -s`
           echo "res: ${res}"
