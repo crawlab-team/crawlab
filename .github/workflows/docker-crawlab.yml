@@ -156,14 +156,13 @@ jobs:
           docker ps
           docker logs crawlab_master
           docker exec crawlab_master ls -l /var/log
-          #docker exec crawlab_master curl http://localhost:8888 -v
-          #docker exec crawlab_master curl http://localhost:8000/system-info -v
-          #echo "res: ${res}"
-          #if [[ $res =~ "success" ]]; then
-          #  :
-          #else
-          #  exit 1
-          #fi
+          docker exec crawlab_master curl http://localhost:8000/system-info -v
+          echo "res: ${res}"
+          if [[ $res =~ "success" ]]; then
+            :
+          else
+            exit 1
+          fi
           docker stop crawlab_master
 
       - name: Log into registry
