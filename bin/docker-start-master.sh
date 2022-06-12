@@ -1,4 +1,5 @@
 #!/bin/bash
+# NOTE: deprecated
 
 # replace env
 indexPath=/app/dist/index.html
