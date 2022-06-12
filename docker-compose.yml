@@ -1,34 +1,14 @@
 version: '3.3'
 services:
   master:
-    image: crawlabteam/crawlab:latest
+    image: crawlabteam/crawlab
     container_name: crawlab_master
     environment:
-      CRAWLAB_NODE_MASTER: Y
-      CRAWLAB_MONGO_HOST: mongo
-    ports:
-      - "8080:8080" # frontend port mapping 前端端口映射
-    depends_on:
-      - mongo
-    # volumes:
-    #   - "/opt/crawlab/master:/data"  # data persistent 持久化数据
-  worker:
-    image: crawlabteam/crawlab:latest
-    container_name: crawlab_worker
-    environment:
-      CRAWLAB_NODE_MASTER: "N"
+      CRAWLAB_NODE_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "mongo"
+    ports:
+      - "8080:8080"
     depends_on:
       - mongo
-    # volumes:
-    #   - "/opt/crawlab/worker:/data"  # data persistent 持久化数据
   mongo:
     image: mongo:4.2
-    #restart: always
-    # environment:
-    #   MONGO_INITDB_ROOT_USERNAME: username
-    #   MONGO_INITDB_ROOT_PASSWORD: password
-    # volumes:
-    #   - "/opt/crawlab/mongo/data/db:/data/db"  # data persistent 持久化数据
-    # ports:
-    #   - "27017:27017"  # expose port to host machine 暴露接口到宿主机
