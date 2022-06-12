@@ -156,7 +156,6 @@ jobs:
           docker logs -f crawlab_master &
           sleep 10
           docker ps
-          docker exec crawlab_master ls -l /var/log
           cmd='curl http://localhost:8080/api/system-info -s'
           echo "cmd: ${cmd}"
           res=`${cmd}`
