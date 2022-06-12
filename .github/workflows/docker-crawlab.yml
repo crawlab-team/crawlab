@@ -144,6 +144,7 @@ jobs:
 
       - name: Test image
         run: |
+          curl http://localhost:27017
           docker run --rm -d --name crawlab_master \
             -e CRAWLAB_NODE_MASTER=true \
             -e CRAWLAB_DEMO=false \
