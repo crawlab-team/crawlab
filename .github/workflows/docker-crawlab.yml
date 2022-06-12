@@ -155,8 +155,9 @@ jobs:
           sleep 20
           docker ps
           docker logs crawlab_master
-          docker exec crawlab_master curl http://localhost:8888 -v
-          docker exec crawlab_master curl http://localhost:8000/system-info -v
+          docker exec crawlab_master ls -l /var/log
+          #docker exec crawlab_master curl http://localhost:8888 -v
+          #docker exec crawlab_master curl http://localhost:8000/system-info -v
           #echo "res: ${res}"
           #if [[ $res =~ "success" ]]; then
           #  :
