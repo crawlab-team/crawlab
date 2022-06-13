@@ -8,6 +8,7 @@ on:
   release:
     types: [ published ]
   workflow_dispatch:
+  workflow_call:
 
 env:
   IMAGE_PATH_CRAWLAB_BACKEND: backend
