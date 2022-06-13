@@ -8,6 +8,7 @@ on:
   release:
     types: [ published ]
   workflow_dispatch:
+  workflow_call:
 
 env:
   IMAGE_PATH_CRAWLAB_BACKEND: backend
@@ -146,7 +147,7 @@ jobs:
         run: |
           docker run --rm -d --name crawlab_master \
             -e CRAWLAB_NODE_MASTER=true \
-            -e CRAWLAB_DEMO=false \
+            -e CRAWLAB_DEMO=true \
             -e CRAWLAB_MONGO_HOST=localhost \
             -e CRAWLAB_MONGO_PORT=27017 \
             -p 8080:8080 \
@@ -166,6 +167,16 @@ jobs:
             exit 1
           fi
           docker stop crawlab_master
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'
+
+      - name: Test demo
+        run: |
+          pip install crawlab-demo
+          crawlab-demo validate
 
       - name: Log into registry
         run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
