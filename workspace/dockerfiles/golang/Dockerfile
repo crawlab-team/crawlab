@@ -32,7 +32,7 @@ RUN curl -OL https://storage.googleapis.com/golang/go1.16.7.linux-amd64.tar.gz \
 RUN wget https://github.com/chrislusf/seaweedfs/releases/download/2.76/linux_amd64.tar.gz \
   && tar -zxf linux_amd64.tar.gz \
   && cp weed /usr/local/bin \
-  && linux_amd64.tar.gz
+  && rm linux_amd64.tar.gz
 
 # install backend
 RUN pip install scrapy pymongo bs4 requests -i https://mirrors.aliyun.com/pypi/simple
