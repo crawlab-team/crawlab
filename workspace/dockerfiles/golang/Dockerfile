@@ -25,12 +25,14 @@ RUN apt-get install -y python3 python3-pip \
 # install golang
 RUN curl -OL https://storage.googleapis.com/golang/go1.16.7.linux-amd64.tar.gz \
 	&& tar -C /usr/local -xvf go1.16.7.linux-amd64.tar.gz \
-	&& ln -s /usr/local/go/bin/go /usr/local/bin/go
+	&& ln -s /usr/local/go/bin/go /usr/local/bin/go \
+	&& rm go1.16.7.linux-amd64.tar.gz
 
 # install seaweedfs
 RUN wget https://github.com/chrislusf/seaweedfs/releases/download/2.76/linux_amd64.tar.gz \
   && tar -zxf linux_amd64.tar.gz \
-  && cp weed /usr/local/bin
+  && cp weed /usr/local/bin \
+  && linux_amd64.tar.gz
 
 # install backend
 RUN pip install scrapy pymongo bs4 requests -i https://mirrors.aliyun.com/pypi/simple
