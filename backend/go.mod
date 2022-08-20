@@ -2,4 +2,4 @@ module crawlab
 
 go 1.16
 
-require github.com/crawlab-team/crawlab-core v0.6.1-0.20220820094433-4877b4d3d563
+require github.com/crawlab-team/crawlab-core v0.6.1-0.20220820100747-949070004761
