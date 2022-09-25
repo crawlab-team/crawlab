@@ -9,7 +9,10 @@ services:
 #    command: "server -dir /data -master.dir /data -volume.dir.idx /data -ip localhost -ip.bind 0.0.0.0 -filer -encryptVolumeData" # auth
     command: "server -dir /data -master.dir /data -volume.dir.idx /data -ip localhost -ip.bind 0.0.0.0 -filer" # no auth
     ports:
+      - 8080:8080
       - 8888:8888
+      - 9333:9333
+      - 7333:7333
     volumes:
       - ./data/fs:/data
   
