@@ -1,11 +1,13 @@
-FROM node:12 AS build
+FROM node:14 AS build
 
 ADD . /app
 WORKDIR /app
 RUN rm /app/.npmrc
 
 # install frontend
-RUN yarn install && yarn run build:docker
+RUN npm i -g pnpm
+RUN pnpm install
+RUN pnpm run build
 
 FROM alpine:3.14
 

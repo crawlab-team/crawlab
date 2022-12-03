@@ -4,10 +4,7 @@
   "scripts": {
     "serve": "vite --debug",
     "serve:dist": "serve dist",
-    "build": "vite build",
-    "build:development": "vue-cli-service build --mode development",
-    "build:docker": "vue-cli-service build --mode docker",
-    "build:analyze": "vue-cli-service build --mode analyze"
+    "build": "vite build"
   },
   "author": {
     "name": "Marvin Zhang",
