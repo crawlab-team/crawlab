@@ -3,18 +3,37 @@ version: '3.3'
 # uffizzi integration
 x-uffizzi:
   ingress:
-    service: master
+    service: crawl
     port: 8080
 
 services:
 
-  master:
+  crawl:
     image: "${CRAWLAB_IMAGE}"
     environment:
       CRAWLAB_NODE_MASTER: "Y"
+      CRAWLAB_MONGO_HOST: "localhost"  # mongo host address. In the docker compose network, directly refer to the service name
+      CRAWLAB_MONGO_PORT: "27017"  # mongo port
+      CRAWLAB_MONGO_DB: "crawlab"  # mongo database
+      CRAWLAB_MONGO_USERNAME: "username"  # mongo username
+      CRAWLAB_MONGO_PASSWORD: "password"  # mongo password
     ports:
       - "8080:8080"
     deploy:
           resources:
             limits:
-              memory: 500M
+              memory: 2000M
+
+  mongo:
+    image: mongo:4.2
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "username"  # mongo username
+      MONGO_INITDB_ROOT_PASSWORD: "password"  # mongo password
+    deploy:
+          resources:
+            limits:
+              memory: 2000M
+    # volumes:
+    #   - "/opt/crawlab/mongo/data/db:/data/db"  # persistent mongo data
+    # ports:
+    #   - "27017:27017"  # expose mongo port to host machine
