@@ -1,0 +1,22 @@
+version: '3.3'
+
+# uffizzi integration
+x-uffizzi:
+  ingress:
+    service: master
+    port: 8080
+
+services:
+
+  master:
+    image: "${CRAWLAB_IMAGE}"
+    environment:
+      CRAWLAB_NODE_MASTER: "Y"
+      CRAWLAB_MONGO_HOST: "mongo"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:4.2
