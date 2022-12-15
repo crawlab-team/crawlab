@@ -12,16 +12,8 @@ services:
     image: "${CRAWLAB_IMAGE}"
     environment:
       CRAWLAB_NODE_MASTER: "Y"
-      CRAWLAB_MONGO_HOST: "localhost"
     ports:
       - "8080:8080"
-    deploy:
-          resources:
-            limits:
-              memory: 500M
-
-  mongo:
-    image: mongo:4.2
     deploy:
           resources:
             limits:
