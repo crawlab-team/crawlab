@@ -38,7 +38,7 @@ services:
     volumes:
       - ./backend:/backend
       - ./backend/go.mod.local:/backend/go.mod
-      - ..:/libs/crawlab-team
+      - .:/libs/crawlab-team
     depends_on:
       - master
 
