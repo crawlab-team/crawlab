@@ -5,17 +5,8 @@ services:
     container_name: crawlab_master
     environment:
       CRAWLAB_NODE_MASTER: "Y"
-      CRAWLAB_MONGO_HOST: "localhost"
+      CRAWLAB_MONGO_HOST: "mongo"
     ports:
       - "8080:8080"
-    deploy:
-          resources:
-            limits:
-              memory: 500M
-
   mongo:
     image: mongo:4.2
-    deploy:
-          resources:
-            limits:
-              memory: 500M
