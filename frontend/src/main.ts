@@ -1,4 +1,4 @@
-import '../node_modules/crawlab-ui/dist/style.css';
+import 'crawlab-ui/dist/style.css';
 import 'vue';
 import {createApp} from 'crawlab-ui';
 

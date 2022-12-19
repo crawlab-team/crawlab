@@ -2,9 +2,10 @@
   "name": "@crawlab/app",
   "version": "0.6.0",
   "scripts": {
-    "serve": "vite --debug",
+    "serve": "vite",
     "serve:dist": "serve dist",
-    "build": "vite build"
+    "build": "vite build",
+    "build:docker": "vite build --mode docker"
   },
   "author": {
     "name": "Marvin Zhang",
@@ -21,7 +22,7 @@
     "@vitejs/plugin-vue": "^3.2.0",
     "atom-material-icons": "^3.0.0",
     "codemirror": "^5.59.1",
-    "crawlab-ui": "0.6.0-23",
+    "crawlab-ui": "0.6.0-37",
     "echarts": "^5.1.2",
     "element-plus": "^1.3.0-beta.10",
     "vue": "^3.2",
