@@ -1,18 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title><%= htmlWebpackPlugin.options.title %></title>
-  <link rel="icon" type="image/x-icon" href="<%= BASE_URL %>favicon.ico">
-  <link rel="stylesheet" href="font-awesome.min.css">
   <meta charset="utf-8">
   <meta content="IE=edge" http-equiv="X-UA-Compatible">
   <meta content="width=device-width,initial-scale=1.0" name="viewport">
-  <script>
-      window.VUE_APP_API_BASE_URL = '<%= VUE_APP_API_BASE_URL %>';
-      window.VUE_APP_INIT_UMENG = '<%= VUE_APP_INIT_UMENG %>';
-      window.VUE_APP_INIT_BAIDU_TONGJI = '<%= VUE_APP_INIT_BAIDU_TONGJI %>';
-  </script>
-  <script src="/js/vue3-sfc-loader.js"></script>
+  <link href="favicon.ico" rel="icon">
+  <link href="font-awesome.min.css" rel="stylesheet">
+  <title>Crawlab</title>
+  <script src="js/vue3-sfc-loader.js"></script>
+  <script src="js/login-canvas.js"></script>
+  <script src="simplemde/simplemde.js"></script>
   <style>
       #loading-placeholder {
           position: fixed;
@@ -216,6 +213,7 @@
   </div>
 </div>
 <div id="app"></div>
+<script type="module" src="/src/main.ts"></script>
 <!-- built files will be auto injected -->
 </body>
 </html>
