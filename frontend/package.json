@@ -22,7 +22,7 @@
     "@vitejs/plugin-vue": "^3.2.0",
     "atom-material-icons": "^3.0.0",
     "codemirror": "^5.59.1",
-    "crawlab-ui": "0.6.0-37",
+    "crawlab-ui": "0.6.0-38",
     "echarts": "^5.1.2",
     "element-plus": "^1.3.0-beta.10",
     "vue": "^3.2",
