@@ -10,7 +10,7 @@ services:
 
   crawl:
     image: "${CRAWLAB_IMAGE}"
-    # command: /bin/bash -c "rm -f /backend/dist/crawlab && go build -o ./dist/crawlab ./"
+    command: /bin/bash -c "rm -f /backend/dist/crawlab && go build -o ./dist/crawlab ./"
     environment:
       CRAWLAB_NODE_MASTER: "Y"
       CRAWLAB_MONGO_HOST: "localhost"  # mongo host address. In the docker compose network, directly refer to the service name
@@ -28,19 +28,19 @@ services:
 
   worker01:
     image: "${CRAWLAB_IMAGE}"
-    # command: /bin/bash -c "/dist/crawlab worker"
+    command: /bin/bash -c "/dist/crawlab worker"
     environment:
       CRAWLAB_NODE_MASTER: "N"
       CRAWLAB_NODE_NAME: "Worker Node 01"
-      CRAWLAB_GRPC_ADDRESS: "crawl"
+      # CRAWLAB_GRPC_ADDRESS: "crawl"
       CRAWLAB_FS_FILER_URL: "http://localhost:8080/api/filer"
       CRAWLAB_LOG_LEVEL: debug
     volumes:
       - ./backend:/backend
       - ./backend/go.mod.local:/backend/go.mod
       - .:/libs/crawlab-team
-    depends_on:
-      - master
+    # depends_on:
+    #   - master
 
   mongo:
     image: mongo:4.2
