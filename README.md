@@ -2,7 +2,7 @@
 
 <p>
   <a href="https://github.com/crawlab-team/crawlab/actions/workflows/dockerpush.yml" target="_blank">
-    <img src="https://github.com/crawlab-team/crawlab/actions/workflows/dockerpush.yml/badge.svg">
+    <img src="https://github.com/crawlab-team/crawlab/workflows/Docker/badge.svg">
   </a>
   <a href="https://hub.docker.com/r/tikazyq/crawlab" target="_blank">
     <img src="https://img.shields.io/docker/pulls/tikazyq/crawlab?label=pulls&logo=docker">
@@ -10,7 +10,7 @@
   <a href="https://github.com/crawlab-team/crawlab/releases" target="_blank">
     <img src="https://img.shields.io/github/release/crawlab-team/crawlab.svg?logo=github">
   </a>
-  <a href="https://github.com/crawlab-team/crawlab/commits/master" target="_blank">
+  <a href="https://github.com/crawlab-team/crawlab/commits/main" target="_blank">
     <img src="https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg">
   </a>
   <a href="https://github.com/crawlab-team/crawlab/issues?q=is%3Aissue+is%3Aopen+label%3Abug" target="_blank">
@@ -19,14 +19,14 @@
   <a href="https://github.com/crawlab-team/crawlab/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement" target="_blank">
     <img src="https://img.shields.io/github/issues/crawlab-team/crawlab/enhancement.svg?label=enhancements&color=cyan">
   </a>
-  <a href="https://github.com/crawlab-team/crawlab/blob/master/LICENSE" target="_blank">
+  <a href="https://github.com/crawlab-team/crawlab/blob/main/LICENSE" target="_blank">
     <img src="https://img.shields.io/github/license/crawlab-team/crawlab.svg">
   </a>
 </p>
 
-[中文](https://github.com/crawlab-team/crawlab/blob/master/README-zh.md) | English
+[中文](https://github.com/crawlab-team/crawlab/blob/main/README-zh.md) | English
 
-[Installation](#installation) | [Run](#run) | [Screenshot](#screenshot) | [Architecture](#architecture) | [Integration](#integration-with-other-frameworks) | [Compare](#comparison-with-other-frameworks) | [Community & Sponsorship](#community--sponsorship) | [CHANGELOG](https://github.com/crawlab-team/crawlab/blob/master/CHANGELOG.md) | [Disclaimer](https://github.com/crawlab-team/crawlab/blob/master/DISCLAIMER.md)
+[Installation](#installation) | [Run](#run) | [Screenshot](#screenshot) | [Architecture](#architecture) | [Integration](#integration-with-other-frameworks) | [Compare](#comparison-with-other-frameworks) | [Community & Sponsorship](#community--sponsorship) | [CHANGELOG](https://github.com/crawlab-team/crawlab/blob/main/CHANGELOG.md) | [Disclaimer](https://github.com/crawlab-team/crawlab/blob/main/DISCLAIMER.md)
 
 Golang-based distributed web crawler management platform, supporting various languages including Python, NodeJS, Go, Java, PHP and various web crawler frameworks including Scrapy, Puppeteer, Selenium.
 
