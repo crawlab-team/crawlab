@@ -10,7 +10,7 @@
   <a href="https://github.com/crawlab-team/crawlab/releases" target="_blank">
     <img src="https://img.shields.io/github/release/crawlab-team/crawlab.svg?logo=github">
   </a>
-  <a href="https://github.com/crawlab-team/crawlab/commits/master" target="_blank">
+  <a href="https://github.com/crawlab-team/crawlab/commits/main" target="_blank">
     <img src="https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg">
   </a>
   <a href="https://github.com/crawlab-team/crawlab/issues?q=is%3Aissue+is%3Aopen+label%3Abug" target="_blank">
@@ -19,14 +19,14 @@
   <a href="https://github.com/crawlab-team/crawlab/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement" target="_blank">
     <img src="https://img.shields.io/github/issues/crawlab-team/crawlab/enhancement.svg?label=enhancements&color=cyan">
   </a>
-  <a href="https://github.com/crawlab-team/crawlab/blob/master/LICENSE" target="_blank">
+  <a href="https://github.com/crawlab-team/crawlab/blob/main/LICENSE" target="_blank">
     <img src="https://img.shields.io/github/license/crawlab-team/crawlab.svg">
   </a>
 </p>
 
 中文 | [English](https://github.com/crawlab-team/crawlab)
 
-[安装](#安装) | [运行](#运行) | [截图](#截图) | [架构](#架构) | [集成](#与其他框架的集成) | [比较](#与其他框架比较) | [相关文章](#相关文章) | [社区&赞助](#社区--赞助) | [更新日志](https://github.com/crawlab-team/crawlab/blob/master/CHANGELOG-zh.md) | [免责声明](https://github.com/crawlab-team/crawlab/blob/master/DISCLAIMER-zh.md)
+[安装](#安装) | [运行](#运行) | [截图](#截图) | [架构](#架构) | [集成](#与其他框架的集成) | [比较](#与其他框架比较) | [相关文章](#相关文章) | [社区&赞助](#社区--赞助) | [更新日志](https://github.com/crawlab-team/crawlab/blob/main/CHANGELOG-zh.md) | [免责声明](https://github.com/crawlab-team/crawlab/blob/main/DISCLAIMER-zh.md)
 
 基于Golang的分布式爬虫管理平台，支持Python、NodeJS、Go、Java、PHP等多种编程语言以及多种爬虫框架。
 
