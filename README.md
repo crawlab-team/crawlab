@@ -257,9 +257,11 @@ Crawlab is easy to use, general enough to adapt spiders in any language and any 
   <img src="https://avatars3.githubusercontent.com/u/32983588?s=460&u=83082ddc0a3020279374b94cce70f1aebb220b3d&v=4" height="80">
 </a>
 
-## Supported by Jetbrains
+## Supported by JetBrains
 
-![JetBrains Logo (Main) logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png)
+<p align="center">
+    <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" height="360">
+</p>
 
 ## Community
 
