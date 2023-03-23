@@ -1,8 +1,8 @@
 # Crawlab
 
 <p>
-  <a href="https://github.com/crawlab-team/crawlab/actions/workflows/dockerpush.yml" target="_blank">
-    <img src="https://github.com/crawlab-team/crawlab/workflows/Docker/badge.svg">
+  <a href="https://github.com/crawlab-team/crawlab/actions/workflows/docker-crawlab.yml" target="_blank">
+    <img src="https://github.com/crawlab-team/crawlab/workflows/Docker%20Image%20CI:%20crawlab/badge.svg">
   </a>
   <a href="https://hub.docker.com/r/tikazyq/crawlab" target="_blank">
     <img src="https://img.shields.io/docker/pulls/tikazyq/crawlab?label=pulls&logo=docker">
@@ -30,7 +30,7 @@
 
 Golang-based distributed web crawler management platform, supporting various languages including Python, NodeJS, Go, Java, PHP and various web crawler frameworks including Scrapy, Puppeteer, Selenium.
 
-[Demo](https://demo-pro.crawlab.cn) | [Documentation](https://docs.crawlab.cn/en/)
+[Demo](https://demo.crawlab.cn) | [Documentation](https://docs.crawlab.cn/en/)
 
 ## Installation
 
