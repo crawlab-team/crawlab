@@ -5,7 +5,7 @@ WORKDIR /app
 RUN rm /app/.npmrc
 
 # install frontend
-RUN npm i -g pnpm
+RUN npm i -g pnpm@7
 RUN pnpm install
 RUN pnpm run build
 
