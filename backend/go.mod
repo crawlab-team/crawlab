@@ -2,7 +2,7 @@ module crawlab
 
 go 1.18
 
-require github.com/crawlab-team/crawlab-core v0.6.2-0.20230604073947-ed9c36918bbd
+require github.com/crawlab-team/crawlab-core v0.6.2-0.20230608034801-cf59917a496a
 
 require (
 	github.com/Masterminds/semver v1.4.2 // indirect
