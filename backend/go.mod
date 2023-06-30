@@ -2,13 +2,13 @@ module crawlab
 
 go 1.18
 
-require github.com/crawlab-team/crawlab-core v0.6.3-0.20230619044014-c85c10a2a53c
+require github.com/crawlab-team/crawlab-core v0.6.3-0.20230629045720-afb0e8df1cd5
 
 require (
 	github.com/Masterminds/semver v1.4.2 // indirect
 	github.com/Masterminds/sprig v2.16.0+incompatible // indirect
-	github.com/Microsoft/go-winio v0.5.2 // indirect
-	github.com/ProtonMail/go-crypto v0.0.0-20230518184743-7afd39499903 // indirect
+	github.com/Microsoft/go-winio v0.6.1 // indirect
+	github.com/ProtonMail/go-crypto v0.0.0-20230626094100-7e9e0395ebec // indirect
 	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/ReneKroon/ttlcache v1.7.0 // indirect
 	github.com/acomagu/bufpipe v1.0.4 // indirect
@@ -21,7 +21,7 @@ require (
 	github.com/crawlab-team/crawlab-db v0.6.0-beta.20220417.1300.0.20221226064900-5a357ee73484 // indirect
 	github.com/crawlab-team/crawlab-fs v0.6.0-beta.20211101.1940.0.20221218100256-a28d12756f73 // indirect
 	github.com/crawlab-team/crawlab-grpc v0.6.0-beta.20211219.1930.0.20221020032435-afa1c691f73c // indirect
-	github.com/crawlab-team/crawlab-vcs v0.6.2-0.20230604071631-1bf1ab20e7be // indirect
+	github.com/crawlab-team/crawlab-vcs v0.6.2-0.20230629045457-afe0be0e2185 // indirect
 	github.com/crawlab-team/go-trace v0.1.1 // indirect
 	github.com/crawlab-team/goseaweedfs v0.6.0-beta.20211101.1936.0.20220912021203-dfee5f74dd69 // indirect
 	github.com/crawlab-team/template-parser v0.0.4-0.20221006034646-9bb77a7ae86e // indirect
@@ -53,7 +53,7 @@ require (
 	github.com/hashicorp/go-uuid v1.0.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/huandu/xstrings v1.2.0 // indirect
-	github.com/imdario/mergo v0.3.15 // indirect
+	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/imroc/req v0.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
@@ -98,7 +98,7 @@ require (
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/segmentio/fasthash v1.0.3 // indirect
 	github.com/segmentio/kafka-go v0.4.39 // indirect
-	github.com/sergi/go-diff v1.1.0 // indirect
+	github.com/sergi/go-diff v1.3.1 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/skeema/knownhosts v1.1.1 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
@@ -122,14 +122,14 @@ require (
 	github.com/xdg-go/stringprep v1.0.2 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
-	github.com/ztrue/tracerr v0.3.0 // indirect
+	github.com/ztrue/tracerr v0.4.0 // indirect
 	go.mongodb.org/mongo-driver v1.8.0 // indirect
 	go.uber.org/dig v1.10.0 // indirect
-	golang.org/x/crypto v0.9.0 // indirect
-	golang.org/x/net v0.10.0 // indirect
-	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/crypto v0.10.0 // indirect
+	golang.org/x/net v0.11.0 // indirect
+	golang.org/x/sync v0.3.0 // indirect
+	golang.org/x/sys v0.9.0 // indirect
+	golang.org/x/text v0.10.0 // indirect
 	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa // indirect
 	google.golang.org/grpc v1.42.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
