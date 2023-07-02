@@ -1,8 +1,8 @@
 # Crawlab
 
 <p>
-  <a href="https://hub.docker.com/r/tikazyq/crawlab/builds" target="_blank">
-    <img src="https://github.com/crawlab-team/crawlab/workflows/Docker/badge.svg">
+  <a href="https://github.com/crawlab-team/crawlab/actions/workflows/docker-crawlab.yml" target="_blank">
+    <img src="https://github.com/crawlab-team/crawlab/workflows/Docker%20Image%20CI:%20crawlab/badge.svg">
   </a>
   <a href="https://hub.docker.com/r/tikazyq/crawlab" target="_blank">
     <img src="https://img.shields.io/docker/pulls/tikazyq/crawlab?label=pulls&logo=docker">
@@ -10,7 +10,7 @@
   <a href="https://github.com/crawlab-team/crawlab/releases" target="_blank">
     <img src="https://img.shields.io/github/release/crawlab-team/crawlab.svg?logo=github">
   </a>
-  <a href="https://github.com/crawlab-team/crawlab/commits/master" target="_blank">
+  <a href="https://github.com/crawlab-team/crawlab/commits/main" target="_blank">
     <img src="https://img.shields.io/github/last-commit/crawlab-team/crawlab.svg">
   </a>
   <a href="https://github.com/crawlab-team/crawlab/issues?q=is%3Aissue+is%3Aopen+label%3Abug" target="_blank">
@@ -19,18 +19,18 @@
   <a href="https://github.com/crawlab-team/crawlab/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement" target="_blank">
     <img src="https://img.shields.io/github/issues/crawlab-team/crawlab/enhancement.svg?label=enhancements&color=cyan">
   </a>
-  <a href="https://github.com/crawlab-team/crawlab/blob/master/LICENSE" target="_blank">
+  <a href="https://github.com/crawlab-team/crawlab/blob/main/LICENSE" target="_blank">
     <img src="https://img.shields.io/github/license/crawlab-team/crawlab.svg">
   </a>
 </p>
 
 中文 | [English](https://github.com/crawlab-team/crawlab)
 
-[安装](#安装) | [运行](#运行) | [截图](#截图) | [架构](#架构) | [集成](#与其他框架的集成) | [比较](#与其他框架比较) | [相关文章](#相关文章) | [社区&赞助](#社区--赞助) | [更新日志](https://github.com/crawlab-team/crawlab/blob/master/CHANGELOG-zh.md) | [免责声明](https://github.com/crawlab-team/crawlab/blob/master/DISCLAIMER-zh.md)
+[安装](#安装) | [运行](#运行) | [截图](#截图) | [架构](#架构) | [集成](#与其他框架的集成) | [比较](#与其他框架比较) | [相关文章](#相关文章) | [社区&赞助](#社区--赞助) | [更新日志](https://github.com/crawlab-team/crawlab/blob/main/CHANGELOG-zh.md) | [免责声明](https://github.com/crawlab-team/crawlab/blob/main/DISCLAIMER-zh.md)
 
 基于Golang的分布式爬虫管理平台，支持Python、NodeJS、Go、Java、PHP等多种编程语言以及多种爬虫框架。
 
-[查看演示 Demo](https://demo-pro.crawlab.cn) | [文档](https://docs.crawlab.cn/zh/)
+[查看演示 Demo](https://demo.crawlab.cn) | [文档](https://docs.crawlab.cn/zh/)
 
 ## 安装
 
@@ -257,11 +257,18 @@ Crawlab使用起来很方便，也很通用，可以适用于几乎任何主流�
   <img src="https://avatars3.githubusercontent.com/u/32983588?s=460&u=83082ddc0a3020279374b94cce70f1aebb220b3d&v=4" height="80">
 </a>
 
-## 社区 & 赞助
+## JetBrains 支持
 
-如果您觉得Crawlab对您的日常开发或公司有帮助，请加作者微信 tikazyq1 并注明"Crawlab"，作者会将你拉入群。或者，您可以扫下方支付宝二维码给作者打赏去升级团队协作软件或买一杯咖啡。
+<p align="center">
+  <a href="https://www.jetbrains.com" target="_blank">
+    <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" height="360">
+  </a>
+</p>
+
+## 社区
+
+如果您觉得Crawlab对您的日常开发或公司有帮助，请加作者微信 tikazyq1 并注明"Crawlab"，作者会将你拉入群。
 
 <p align="center">
     <img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/qrcode.png" height="360">
-    <img src="https://crawlab.oss-cn-hangzhou.aliyuncs.com/gitbook/payment.jpg" height="360">
 </p>
