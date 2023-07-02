@@ -4,9 +4,6 @@
   <a href="https://github.com/crawlab-team/crawlab/actions/workflows/docker-crawlab.yml" target="_blank">
     <img src="https://github.com/crawlab-team/crawlab/workflows/Docker%20Image%20CI:%20crawlab/badge.svg">
   </a>
-  <a href="https://hub.docker.com/r/tikazyq/crawlab" target="_blank">
-    <img src="https://img.shields.io/docker/pulls/tikazyq/crawlab?label=pulls&logo=docker">
-  </a>
   <a href="https://github.com/crawlab-team/crawlab/releases" target="_blank">
     <img src="https://img.shields.io/github/release/crawlab-team/crawlab.svg?logo=github">
   </a>
