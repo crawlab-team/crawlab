@@ -30,8 +30,8 @@ dependencies:
     specifier: ^5.59.1
     version: registry.npmmirror.com/codemirror@5.65.10
   crawlab-ui:
-    specifier: 0.6.2-10
-    version: 0.6.2-10
+    specifier: 0.6.2-11
+    version: 0.6.2-11
   echarts:
     specifier: ^5.1.2
     version: registry.npmmirror.com/echarts@5.4.0
@@ -800,8 +800,8 @@ packages:
     requiresBuild: true
     dev: false
 
-  /crawlab-ui@0.6.2-10:
-    resolution: {integrity: sha512-gu543qK1NNaj20kpdfU+9noeMeaUSZlVONWq+ns5NQdF0A99dQLygDygRdVf/7ziu/2stzD1feDt4GoQzNe7TA==}
+  /crawlab-ui@0.6.2-11:
+    resolution: {integrity: sha512-61xWlZoHfLbWNB/Z6kDyQHqULt1Qh4E0xwrctfVSj9Y5KLI9ceoUIUILA4Wtf7sF9fYK2YxXSIj4+SQe3+HhwQ==}
     dependencies:
       '@element-plus/icons': 0.0.11
       '@fortawesome/fontawesome-common-types': 6.2.1
