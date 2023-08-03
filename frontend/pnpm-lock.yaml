@@ -36,8 +36,8 @@ dependencies:
     specifier: ^5.1.2
     version: registry.npmmirror.com/echarts@5.4.0
   element-plus:
-    specifier: ^1.3.0-beta.10
-    version: registry.npmmirror.com/element-plus@1.3.0-beta.10(vue@3.2.45)
+    specifier: ^2.1.0
+    version: 2.1.0(@types/lodash-es@4.17.8)(vue@3.2.45)
   vue:
     specifier: ^3.2
     version: registry.npmmirror.com/vue@3.2.45
@@ -125,6 +125,14 @@ packages:
       vue: ^3.2.0
     dependencies:
       vue: 3.2.45
+    dev: false
+
+  /@element-plus/icons-vue@1.1.4(vue@3.2.45):
+    resolution: {integrity: sha512-Iz/nHqdp1sFPmdzRwHkEQQA3lKvoObk8azgABZ81QUOpW9s/lUyQVUSh0tNtEPZXQlKwlSh7SPgoVxzrE0uuVQ==}
+    peerDependencies:
+      vue: ^3.2.0
+    dependencies:
+      vue: registry.npmmirror.com/vue@3.2.45
     dev: false
 
   /@element-plus/icons@0.0.11:
@@ -331,6 +339,16 @@ packages:
     resolution: {integrity: sha512-G6SdYh6gHxgCTU0s4cMIRHwRO4p3f7jQSZbDPfUOZpUAG1od3rTjT0e8rxGThUiTTWQHwpBRws8eHO8D2QqfkA==}
     dev: false
 
+  /@types/lodash-es@4.17.8:
+    resolution: {integrity: sha512-euY3XQcZmIzSy7YH5+Unb3b2X12Wtk54YWINBvvGQ5SmMvwb11JQskGsfkH/5HXK77Kr8GF0wkVDIxzAisWtog==}
+    dependencies:
+      '@types/lodash': 4.14.196
+    dev: false
+
+  /@types/lodash@4.14.196:
+    resolution: {integrity: sha512-22y3o88f4a94mKljsZcanlNWPzO0uBsBdzLAngf2tp533LzZcQzb6+eZPJ+vCTt+bqF2XnvT9gejTLsAcJAJyQ==}
+    dev: false
+
   /@types/md5@2.3.2:
     resolution: {integrity: sha512-v+JFDu96+UYJ3/UWzB0mEglIS//MZXgRaJ4ubUPwOM0gvLc/kcQ3TWNYwENEK7/EcXGQVrW8h/XqednSjBd/Og==}
     dev: false
@@ -460,7 +478,7 @@ packages:
         optional: true
     dependencies:
       '@vueuse/shared': 7.7.1(vue@3.2.45)
-      vue: 3.2.45
+      vue: registry.npmmirror.com/vue@3.2.45
       vue-demi: 0.13.11(vue@3.2.45)
     dev: false
 
@@ -475,7 +493,7 @@ packages:
       vue:
         optional: true
     dependencies:
-      vue: 3.2.45
+      vue: registry.npmmirror.com/vue@3.2.45
       vue-demi: 0.13.11(vue@3.2.45)
     dev: false
 
@@ -992,6 +1010,29 @@ packages:
       - '@vue/composition-api'
     dev: false
 
+  /element-plus@2.1.0(@types/lodash-es@4.17.8)(vue@3.2.45):
+    resolution: {integrity: sha512-PQM3LMv5qKf0sS/k+PXuBcmKl1Eb3b7fxKPyFHZ6eodZcNykbEMcpLZefQkvmDr6calVnuQ7TUnTm7Tm9LJXvg==}
+    peerDependencies:
+      vue: ^3.2.0
+    dependencies:
+      '@ctrl/tinycolor': 3.4.1
+      '@element-plus/icons-vue': 1.1.4(vue@3.2.45)
+      '@popperjs/core': 2.11.6
+      '@vueuse/core': 7.7.1(vue@3.2.45)
+      async-validator: 4.2.5
+      dayjs: 1.11.6
+      escape-html: 1.0.3
+      lodash: 4.17.21
+      lodash-es: 4.17.21
+      lodash-unified: 1.0.3(@types/lodash-es@4.17.8)(lodash-es@4.17.21)(lodash@4.17.21)
+      memoize-one: 6.0.0
+      normalize-wheel-es: 1.2.0
+      vue: registry.npmmirror.com/vue@3.2.45
+    transitivePeerDependencies:
+      - '@types/lodash-es'
+      - '@vue/composition-api'
+    dev: false
+
   /emoji-regex@7.0.3:
     resolution: {integrity: sha512-CwBLREIQ7LvYFB0WyRvwhq5N5qPhc6PMjD6bYggFlI5YyDgl+0vxq5VHbMOFqLg7hfWzmu8T5Z1QofhmTIhItA==}
     dev: false
@@ -1183,6 +1224,10 @@ packages:
     resolution: {integrity: sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==}
     engines: {node: '>=6'}
     dev: true
+
+  /escape-html@1.0.3:
+    resolution: {integrity: sha512-NiSupZ4OeuGwr68lGIeym/ksIZMJodUGOSCZ/FSnTxcrekbvqrgdUxlJOMpijaKZVjAJrWrGs/6Jy8OMuyj9ow==}
+    dev: false
 
   /escape-string-regexp@1.0.5:
     resolution: {integrity: sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==}
@@ -1496,6 +1541,22 @@ packages:
     dependencies:
       p-locate: 3.0.0
       path-exists: 3.0.0
+    dev: false
+
+  /lodash-es@4.17.21:
+    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
+    dev: false
+
+  /lodash-unified@1.0.3(@types/lodash-es@4.17.8)(lodash-es@4.17.21)(lodash@4.17.21):
+    resolution: {integrity: sha512-WK9qSozxXOD7ZJQlpSqOT+om2ZfcT4yO+03FuzAHD0wF6S0l0090LRPDx3vhTTLZ8cFKpBn+IOcVXK6qOcIlfQ==}
+    peerDependencies:
+      '@types/lodash-es': '*'
+      lodash: '*'
+      lodash-es: '*'
+    dependencies:
+      '@types/lodash-es': 4.17.8
+      lodash: 4.17.21
+      lodash-es: 4.17.21
     dev: false
 
   /lodash.template@4.5.0:
@@ -2286,7 +2347,7 @@ packages:
       '@vue/composition-api':
         optional: true
     dependencies:
-      vue: 3.2.45
+      vue: registry.npmmirror.com/vue@3.2.45
     dev: false
 
   /vue-i18n@9.1.9(vue@3.2.45):
@@ -2491,24 +2552,6 @@ packages:
       '@babel/helper-validator-identifier': registry.npmmirror.com/@babel/helper-validator-identifier@7.19.1
       to-fast-properties: registry.npmmirror.com/to-fast-properties@2.0.0
 
-  registry.npmmirror.com/@ctrl/tinycolor@3.4.1:
-    resolution: {integrity: sha512-ej5oVy6lykXsvieQtqZxCOaLT+xD4+QNarq78cIYISHmZXshCvROLudpQN3lfL8G0NL7plMSSK+zlyvCaIJ4Iw==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/@ctrl/tinycolor/-/tinycolor-3.4.1.tgz}
-    name: '@ctrl/tinycolor'
-    version: 3.4.1
-    engines: {node: '>=10'}
-    dev: false
-
-  registry.npmmirror.com/@element-plus/icons-vue@0.2.7(vue@3.2.45):
-    resolution: {integrity: sha512-S8kDbfVaWkQvbUYQE1ui448tzaHfUvyESCep9J6uPRlViyQPXjdIfwLBhV6AmQSOfFS8rL+xehJGhvzPXLrSBg==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/@element-plus/icons-vue/-/icons-vue-0.2.7.tgz}
-    id: registry.npmmirror.com/@element-plus/icons-vue/0.2.7
-    name: '@element-plus/icons-vue'
-    version: 0.2.7
-    peerDependencies:
-      vue: ^3.2.0
-    dependencies:
-      vue: registry.npmmirror.com/vue@3.2.45
-    dev: false
-
   registry.npmmirror.com/@element-plus/icons@0.0.11:
     resolution: {integrity: sha512-iKQXSxXu131Ai+I9Ymtcof9WId7kaXvB1+WRfAfpQCW7UiAMYgdNDqb/u0hgTo2Yq3MwC4MWJnNuTBEpG8r7+A==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/@element-plus/icons/-/icons-0.0.11.tgz}
     name: '@element-plus/icons'
@@ -2624,12 +2667,6 @@ packages:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/@polka/url/-/url-1.0.0-next.21.tgz}
     name: '@polka/url'
     version: 1.0.0-next.21
-    dev: false
-
-  registry.npmmirror.com/@popperjs/core@2.11.6:
-    resolution: {integrity: sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/@popperjs/core/-/core-2.11.6.tgz}
-    name: '@popperjs/core'
-    version: 2.11.6
     dev: false
 
   registry.npmmirror.com/@types/node@18.11.10:
@@ -2802,43 +2839,6 @@ packages:
     name: '@vue/shared'
     version: 3.2.45
 
-  registry.npmmirror.com/@vueuse/core@7.7.1(vue@3.2.45):
-    resolution: {integrity: sha512-PRRgbATMpoeUmkCEBtUeJgOwtew8s+4UsEd+Pm7MhkjL2ihCNrSqxNVtM6NFE4uP2sWnkGcZpCjPuNSxowJ1Ow==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/@vueuse/core/-/core-7.7.1.tgz}
-    id: registry.npmmirror.com/@vueuse/core/7.7.1
-    name: '@vueuse/core'
-    version: 7.7.1
-    peerDependencies:
-      '@vue/composition-api': ^1.1.0
-      vue: ^2.6.0 || ^3.2.0
-    peerDependenciesMeta:
-      '@vue/composition-api':
-        optional: true
-      vue:
-        optional: true
-    dependencies:
-      '@vueuse/shared': registry.npmmirror.com/@vueuse/shared@7.7.1(vue@3.2.45)
-      vue: registry.npmmirror.com/vue@3.2.45
-      vue-demi: registry.npmmirror.com/vue-demi@0.13.11(vue@3.2.45)
-    dev: false
-
-  registry.npmmirror.com/@vueuse/shared@7.7.1(vue@3.2.45):
-    resolution: {integrity: sha512-rN2qd22AUl7VdBxihagWyhUNHCyVk9IpvBTTfHoLH9G7rGE552X1f+zeCfehuno0zXif13jPw+icW/wn2a0rnQ==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/@vueuse/shared/-/shared-7.7.1.tgz}
-    id: registry.npmmirror.com/@vueuse/shared/7.7.1
-    name: '@vueuse/shared'
-    version: 7.7.1
-    peerDependencies:
-      '@vue/composition-api': ^1.1.0
-      vue: ^2.6.0 || ^3.2.0
-    peerDependenciesMeta:
-      '@vue/composition-api':
-        optional: true
-      vue:
-        optional: true
-    dependencies:
-      vue: registry.npmmirror.com/vue@3.2.45
-      vue-demi: registry.npmmirror.com/vue-demi@0.13.11(vue@3.2.45)
-    dev: false
-
   registry.npmmirror.com/accepts@1.3.8:
     resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/accepts/-/accepts-1.3.8.tgz}
     name: accepts
@@ -2872,12 +2872,6 @@ packages:
     name: array-timsort
     version: 1.0.3
     dev: true
-
-  registry.npmmirror.com/async-validator@4.2.5:
-    resolution: {integrity: sha512-7HhHjtERjqlNbZtqNqy2rckN/SpOOlmDliet+lP7k+eKZEjPk3DgyeU9lIXLdeLz0uBbbVp+9Qdow9wJWgwwfg==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/async-validator/-/async-validator-4.2.5.tgz}
-    name: async-validator
-    version: 4.2.5
-    dev: false
 
   registry.npmmirror.com/atom-material-icons@3.0.0:
     resolution: {integrity: sha512-qtMR5KxQh82iLIFOdrQZViq21GTNT+/mccrVAg41hIlrhpwHAEjCeGj91Iyas9GL28ld0D0hagHv6ipGWlLZHw==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/atom-material-icons/-/atom-material-icons-3.0.0.tgz}
@@ -3020,12 +3014,6 @@ packages:
     name: csstype
     version: 2.6.21
 
-  registry.npmmirror.com/dayjs@1.11.6:
-    resolution: {integrity: sha512-zZbY5giJAinCG+7AGaw0wIhNZ6J8AhWuSXKvuc1KAyMiRsvGQWqh4L+MomvhdAYjN+lqvVCMq1I41e3YHvXkyQ==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/dayjs/-/dayjs-1.11.6.tgz}
-    name: dayjs
-    version: 1.11.6
-    dev: false
-
   registry.npmmirror.com/de-indent@1.0.2:
     resolution: {integrity: sha512-e/1zu3xH5MQryN2zdVaF0OrdNLUbvWxzMbi+iNA6Bky7l1RoP8a2fIbRocyHclXt/arDrrR6lL3TqFD9pMQTsg==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/de-indent/-/de-indent-1.0.2.tgz}
     name: de-indent
@@ -3052,28 +3040,6 @@ packages:
     dependencies:
       tslib: registry.npmmirror.com/tslib@2.3.0
       zrender: registry.npmmirror.com/zrender@5.4.0
-    dev: false
-
-  registry.npmmirror.com/element-plus@1.3.0-beta.10(vue@3.2.45):
-    resolution: {integrity: sha512-uPcre5liDfYvGbfaBDN2K7K5x6egBFdDQz0sv2cupcqzepUQoTMpq+mdTnHXzHChHhVwcLGp95kLYLL9yMkT8g==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/element-plus/-/element-plus-1.3.0-beta.10.tgz}
-    id: registry.npmmirror.com/element-plus/1.3.0-beta.10
-    name: element-plus
-    version: 1.3.0-beta.10
-    peerDependencies:
-      vue: ^3.2.0
-    dependencies:
-      '@ctrl/tinycolor': registry.npmmirror.com/@ctrl/tinycolor@3.4.1
-      '@element-plus/icons-vue': registry.npmmirror.com/@element-plus/icons-vue@0.2.7(vue@3.2.45)
-      '@popperjs/core': registry.npmmirror.com/@popperjs/core@2.11.6
-      '@vueuse/core': registry.npmmirror.com/@vueuse/core@7.7.1(vue@3.2.45)
-      async-validator: registry.npmmirror.com/async-validator@4.2.5
-      dayjs: registry.npmmirror.com/dayjs@1.11.6
-      lodash: registry.npmmirror.com/lodash@4.17.21
-      memoize-one: registry.npmmirror.com/memoize-one@6.0.0
-      normalize-wheel-es: registry.npmmirror.com/normalize-wheel-es@1.2.0
-      vue: registry.npmmirror.com/vue@3.2.45
-    transitivePeerDependencies:
-      - '@vue/composition-api'
     dev: false
 
   registry.npmmirror.com/esbuild@0.15.16:
@@ -3275,12 +3241,6 @@ packages:
     dev: false
     optional: true
 
-  registry.npmmirror.com/lodash@4.17.21:
-    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/lodash/-/lodash-4.17.21.tgz}
-    name: lodash
-    version: 4.17.21
-    dev: false
-
   registry.npmmirror.com/magic-string@0.25.9:
     resolution: {integrity: sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/magic-string/-/magic-string-0.25.9.tgz}
     name: magic-string
@@ -3295,12 +3255,6 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       '@arr/every': registry.npmmirror.com/@arr/every@1.0.1
-    dev: false
-
-  registry.npmmirror.com/memoize-one@6.0.0:
-    resolution: {integrity: sha512-rkpe71W0N0c0Xz6QD0eJETuWAJGnJ9afsl1srmwPrI+yBCkge5EycXXbYRyvL29zZVUWQCY7InPRCv3GDXuZNw==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/memoize-one/-/memoize-one-6.0.0.tgz}
-    name: memoize-one
-    version: 6.0.0
     dev: false
 
   registry.npmmirror.com/merge2@1.4.1:
@@ -3391,12 +3345,6 @@ packages:
     version: 3.0.0
     engines: {node: '>=0.10.0'}
     dev: true
-
-  registry.npmmirror.com/normalize-wheel-es@1.2.0:
-    resolution: {integrity: sha512-Wj7+EJQ8mSuXr2iWfnujrimU35R2W4FAErEyTmJoJ7ucwTn2hOUSsRehMb5RSYkxXGTM7Y9QpvPmp++w5ftoJw==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/normalize-wheel-es/-/normalize-wheel-es-1.2.0.tgz}
-    name: normalize-wheel-es
-    version: 1.2.0
-    dev: false
 
   registry.npmmirror.com/on-headers@1.0.2:
     resolution: {integrity: sha512-pZAE+FJLoyITytdqK0U5s+FIpjN0JP3OzFi/u8Rx+EV5/W+JTWGXG8xFzevE7AjBfDqHv/8vL8qQsIhHnqRkrA==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/on-headers/-/on-headers-1.0.2.tgz}
@@ -3710,24 +3658,6 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
-
-  registry.npmmirror.com/vue-demi@0.13.11(vue@3.2.45):
-    resolution: {integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/vue-demi/-/vue-demi-0.13.11.tgz}
-    id: registry.npmmirror.com/vue-demi/0.13.11
-    name: vue-demi
-    version: 0.13.11
-    engines: {node: '>=12'}
-    hasBin: true
-    requiresBuild: true
-    peerDependencies:
-      '@vue/composition-api': ^1.0.0-rc.1
-      vue: ^3.0.0-0 || ^2.6.0
-    peerDependenciesMeta:
-      '@vue/composition-api':
-        optional: true
-    dependencies:
-      vue: registry.npmmirror.com/vue@3.2.45
-    dev: false
 
   registry.npmmirror.com/vue-router@4.1.6(vue@3.2.45):
     resolution: {integrity: sha512-DYWYwsG6xNPmLq/FmZn8Ip+qrhFEzA14EI12MsMgVxvHFDYvlr4NXpVF5hrRH1wVcDP8fGi5F4rxuJSl8/r+EQ==, registry: https://registry.npmjs.org/, tarball: https://registry.npmmirror.com/vue-router/-/vue-router-4.1.6.tgz}
