@@ -2,7 +2,7 @@ module crawlab
 
 go 1.18
 
-require github.com/crawlab-team/crawlab-core v0.6.3-0.20230804030437-664646cf1665
+require github.com/crawlab-team/crawlab-core v0.6.3-0.20231021045242-07956209f653
 
 require (
 	github.com/Masterminds/semver v1.4.2 // indirect
@@ -21,7 +21,7 @@ require (
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
 	github.com/crawlab-team/crawlab-db v0.6.0-beta.20220417.1300.0.20221226064900-5a357ee73484 // indirect
-	github.com/crawlab-team/crawlab-fs v0.6.0-beta.20211101.1940.0.20221218100256-a28d12756f73 // indirect
+	github.com/crawlab-team/crawlab-fs v0.6.3 // indirect
 	github.com/crawlab-team/crawlab-grpc v0.6.0-beta.20211219.1930.0.20221020032435-afa1c691f73c // indirect
 	github.com/crawlab-team/crawlab-vcs v0.6.2-0.20230629045457-afe0be0e2185 // indirect
 	github.com/crawlab-team/go-trace v0.1.1 // indirect
