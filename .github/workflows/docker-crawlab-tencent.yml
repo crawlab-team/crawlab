@@ -1,4 +1,4 @@
-name: "Docker Image CI: crawlab"
+name: "Docker Image CI: crawlab (tencent)"
 
 on:
   push:
