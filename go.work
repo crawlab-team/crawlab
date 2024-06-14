@@ -1,0 +1,11 @@
+go 1.22
+
+use (
+	core
+	db
+	grpc
+	template-parser
+	trace
+	vcs
+	fs
+)

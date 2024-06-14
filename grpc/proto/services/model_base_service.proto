@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+import "entity/request.proto";
+import "entity/response.proto";
+
+package grpc;
+option go_package = ".;grpc";
+
+service ModelBaseService {
+  rpc GetById(Request) returns (Response){};
+  rpc Get(Request) returns (Response){};
+  rpc GetList(Request) returns (Response){};
+  rpc DeleteById(Request) returns (Response){};
+  rpc Delete(Request) returns (Response){};
+  rpc DeleteList(Request) returns (Response){};
+  rpc ForceDeleteList(Request) returns (Response){};
+  rpc UpdateById(Request) returns (Response){};
+  rpc Update(Request) returns (Response){};
+  rpc UpdateDoc(Request) returns (Response){};
+  rpc Insert(Request) returns (Response){};
+  rpc Count(Request) returns (Response){};
+}

@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+import "entity/stream_message.proto";
+
+package grpc;
+option go_package = ".;grpc";
+
+service MessageService {
+  rpc Connect(stream StreamMessage) returns (stream StreamMessage){};
+}

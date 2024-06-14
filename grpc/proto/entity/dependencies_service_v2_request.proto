@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package grpc;
+option go_package = ".;grpc";
+
+message Dependency {
+  string name = 1;
+  string version = 2;
+}
+
+message DependenciesServiceV2ConnectRequest {
+  string node_key = 1;
+}
+
+message DependenciesServiceV2SyncRequest {
+  string node_key = 1;
+  string lang = 2;
+  repeated Dependency dependencies = 3;
+}
+
+message DependenciesServiceV2InstallRequest {
+  string node_key = 1;
+  string lang = 2;
+  repeated Dependency dependencies = 3;
+  string proxy = 4;
+}
+
+message DependenciesServiceV2UninstallRequest {
+  string node_key = 1;
+  string lang = 2;
+  repeated Dependency dependencies = 3;
+}

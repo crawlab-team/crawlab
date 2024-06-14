@@ -1,0 +1,5 @@
+.idea
+.DS_Store
+tmp/
+vendor/
+go.sum

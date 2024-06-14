@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import "entity/response_code.proto";
+
+package grpc;
+option go_package = ".;grpc";
+
+message Response {
+  ResponseCode code = 1;
+  string message = 2;
+  bytes data = 3;
+  string error = 4;
+  int64 total = 5;
+}

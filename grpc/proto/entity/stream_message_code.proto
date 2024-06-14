@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package grpc;
+option go_package = ".;grpc";
+
+enum StreamMessageCode {
+  // ping worker nodes to check their health
+  PING = 0;
+  // ask worker node(s) to run task with given id
+  RUN_TASK = 1;
+  // ask worker node(s) to cancel task with given id
+  CANCEL_TASK = 2;
+  // insert data
+  INSERT_DATA = 3;
+  // insert logs
+  INSERT_LOGS = 4;
+  // send event
+  SEND_EVENT = 5;
+  // install plugin
+  INSTALL_PLUGIN = 6;
+  // uninstall plugin
+  UNINSTALL_PLUGIN = 7;
+  // start plugin
+  START_PLUGIN = 8;
+  // stop plugin
+  STOP_PLUGIN = 9;
+  // connect
+  CONNECT = 10;
+  // disconnect
+  DISCONNECT = 11;
+  // send
+  SEND = 12;
+}

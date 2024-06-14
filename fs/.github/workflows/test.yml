@@ -1,0 +1,54 @@
+name: Test and coverage
+
+on: [ push, pull_request ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Go environment
+        uses: actions/setup-go@v2.1.3
+        with:
+          # The Go version to download (if necessary) and use. Supports semver spec and ranges.
+          go-version: 1.15
+
+#      - name: Download Binary Files
+#        run: |
+#          mkdir -p $GITHUB_WORKSPACE/seaweedfs
+#          curl https://github.com/chrislusf/seaweedfs/releases/download/2.48/linux_amd64.tar.gz -o $GITHUB_WORKSPACE/seaweedfs/linux_amd64.tar.gz
+#          cd $GITHUB_WORKSPACE/seaweedfs
+#          ls -l
+#          tar -zxf linux_amd64.tar.gz
+      - name: Download Binary Files
+        uses: fabriciobastian/download-release-asset-action@v1.0.6
+        with:
+          # A specific release version. Defaults to latest
+          version: 2.48 # default is latest
+          # Relative path to the repository in the format user/repo e.g.: myuser/my-repository
+          repository: chrislusf/seaweedfs # default is
+          # The name of the asset to download from the release
+          file: linux_amd64.tar.gz
+          # Path to the directory where to download the asset
+          out: seaweedfs # optional, default is .
+
+      - name: Extract Binary Files
+        run: |
+          cd $GITHUB_WORKSPACE/seaweedfs
+          tar -zxf linux_amd64.tar.gz
+
+      - name: Validate Binary Files
+        run: |
+          cd $GITHUB_WORKSPACE/seaweedfs
+          ls -l weed
+
+      - name: Run Tests
+        run: go test ./... -race -coverprofile=coverage.txt -covermode=atomic -coverpkg github.com/crawlab-team/crawlab/fs
+
+      - name: Codecov
+        uses: codecov/codecov-action@v1.5.0
+        with:
+          # Repository upload token - get it from codecov.io. Required only for private repositories
+          token: ${{ secrets.CODECOV_TOKEN }}
+          # Comma-separated list of files to upload
