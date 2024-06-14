@@ -16,7 +16,6 @@ require github.com/crawlab-team/crawlab/core v0.0.0-20240614095218-7b4ee8399ab0
 
 require (
 	dario.cat/mergo v1.0.0 // indirect
-	github.com/crawlab-team/crawlab/trace v0.1.0 // indirect
 	github.com/cyphar/filepath-securejoin v0.2.4 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
