@@ -39,10 +39,10 @@ require (
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
 	github.com/crawlab-team/crawlab/db v0.6.0-1 // indirect
-	github.com/crawlab-team/crawlab/fs v0.0.0-20240614083850-ff2830bd7994 // indirect
-	github.com/crawlab-team/crawlab/grpc v0.0.0-20240614083850-ff2830bd7994 // indirect
-	github.com/crawlab-team/crawlab/template-parser v0.0.0-20240614083850-ff2830bd7994 // indirect
-	github.com/crawlab-team/crawlab/vcs v0.1.1 // indirect
+	github.com/crawlab-team/crawlab/fs v0.0.0-20240614093256-0834d6771b27 // indirect
+	github.com/crawlab-team/crawlab/grpc v0.0.0-20240614093256-0834d6771b27 // indirect
+	github.com/crawlab-team/crawlab/template-parser v0.0.0-20240614093256-0834d6771b27 // indirect
+	github.com/crawlab-team/crawlab/vcs v0.0.0-20240614093256-0834d6771b27 // indirect
 	github.com/crawlab-team/goseaweedfs v0.6.0-beta.20211101.1936.0.20220912021203-dfee5f74dd69 // indirect
 	github.com/denisenkom/go-mssqldb v0.11.0 // indirect
 	github.com/elastic/elastic-transport-go/v8 v8.2.0 // indirect
@@ -141,7 +141,6 @@ require (
 	go.mongodb.org/mongo-driver v1.15.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/dig v1.10.0 // indirect
-	go.uber.org/goleak v1.1.11 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
