@@ -41,6 +41,7 @@ require (
 	github.com/crawlab-team/crawlab/fs v0.0.0-20240614095218-7b4ee8399ab0 // indirect
 	github.com/crawlab-team/crawlab/grpc v0.0.0-20240614095218-7b4ee8399ab0 // indirect
 	github.com/crawlab-team/crawlab/template-parser v0.0.0-20240614095218-7b4ee8399ab0 // indirect
+	github.com/crawlab-team/crawlab/trace v0.0.0-20240614095218-7b4ee8399ab0 // indirect
 	github.com/crawlab-team/crawlab/vcs v0.0.0-20240614095218-7b4ee8399ab0 // indirect
 	github.com/crawlab-team/goseaweedfs v0.6.0-beta.20211101.1936.0.20220912021203-dfee5f74dd69 // indirect
 	github.com/denisenkom/go-mssqldb v0.11.0 // indirect

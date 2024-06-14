@@ -7,10 +7,10 @@ import (
 
 type BaseModelV2[T any] struct {
 	Id        primitive.ObjectID `json:"_id" bson:"_id"`
-	CreatedAt time.Time          `json:"created_ts" bson:"created_ts"`
-	CreatedBy primitive.ObjectID `json:"created_by" bson:"created_by"`
-	UpdatedAt time.Time          `json:"updated_ts" bson:"updated_ts"`
-	UpdatedBy primitive.ObjectID `json:"updated_by" bson:"updated_by"`
+	CreatedAt time.Time          `json:"created_ts,omitempty" bson:"created_ts,omitempty"`
+	CreatedBy primitive.ObjectID `json:"created_by,omitempty" bson:"created_by,omitempty"`
+	UpdatedAt time.Time          `json:"updated_ts,omitempty" bson:"updated_ts,omitempty"`
+	UpdatedBy primitive.ObjectID `json:"updated_by,omitempty" bson:"updated_by,omitempty"`
 }
 
 func (m *BaseModelV2[T]) GetId() primitive.ObjectID {
