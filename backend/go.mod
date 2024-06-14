@@ -24,7 +24,7 @@ require (
 )
 
 require (
-	cloud.google.com/go v0.99.0 // indirect
+	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	github.com/Masterminds/semver v1.4.2 // indirect
 	github.com/Masterminds/sprig v2.16.0+incompatible // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
@@ -38,11 +38,11 @@ require (
 	github.com/cenkalti/backoff/v4 v4.1.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
-	github.com/crawlab-team/crawlab/db v0.0.0-20240614083850-ff2830bd7994
-	github.com/crawlab-team/crawlab/fs v0.0.0-20240614083850-ff2830bd7994
-	github.com/crawlab-team/crawlab/grpc v0.0.0-20240614083850-ff2830bd7994
-	github.com/crawlab-team/crawlab/template-parser v0.0.0-20240614083850-ff2830bd7994
-	github.com/crawlab-team/crawlab/vcs v0.0.0-20240614083850-ff2830bd7994
+	github.com/crawlab-team/crawlab/db v0.6.0-1 // indirect
+	github.com/crawlab-team/crawlab/fs v0.0.0-20240614083850-ff2830bd7994 // indirect
+	github.com/crawlab-team/crawlab/grpc v0.0.0-20240614083850-ff2830bd7994 // indirect
+	github.com/crawlab-team/crawlab/template-parser v0.0.0-20240614083850-ff2830bd7994 // indirect
+	github.com/crawlab-team/crawlab/vcs v0.1.1 // indirect
 	github.com/crawlab-team/goseaweedfs v0.6.0-beta.20211101.1936.0.20220912021203-dfee5f74dd69 // indirect
 	github.com/denisenkom/go-mssqldb v0.11.0 // indirect
 	github.com/elastic/elastic-transport-go/v8 v8.2.0 // indirect
@@ -140,16 +140,16 @@ require (
 	go.mongodb.org/mongo-driver v1.15.0 // indirect
 	go.uber.org/dig v1.10.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
-	golang.org/x/crypto v0.21.0 // indirect
-	golang.org/x/mod v0.13.0 // indirect
-	golang.org/x/net v0.22.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
-	golang.org/x/tools v0.14.0 // indirect
-	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa // indirect
+	golang.org/x/crypto v0.23.0 // indirect
+	golang.org/x/mod v0.17.0 // indirect
+	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
+	golang.org/x/tools v0.20.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117 // indirect
 	google.golang.org/grpc v1.64.0 // indirect
-	google.golang.org/protobuf v1.34.1 // indirect
+	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
