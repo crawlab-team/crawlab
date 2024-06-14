@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package grpc;
+option go_package = ".;grpc";
+
+message StreamMessageDataTask {
+  string task_id = 1;
+  string data = 2;
+}

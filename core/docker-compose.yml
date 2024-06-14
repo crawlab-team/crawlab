@@ -1,0 +1,14 @@
+version: '3.3'
+services:
+    mongo:
+        image: mongo:latest
+        container_name: mongo
+        restart: always
+        ports:
+            - "27017:27017"
+    redis:
+        image: redis:latest
+        container_name: redis
+        restart: always
+        ports:
+            - "6379:6379"

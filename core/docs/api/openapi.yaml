@@ -1,0 +1,4225 @@
+openapi: 3.0.0
+info:
+  title: Crawlab API
+  version: 0.6.0
+  description: Crawlab API
+  license:
+    name: BSD-3-Clause
+    url: https://github.com/crawlab-team/crawlab-pro/blob/main/LICENSE
+
+servers:
+  - url: http://localhost:8000
+    description: Local API
+  - url: http://localhost:8080/api
+    description: Docker API
+  - url: https://demo-pro.crawlab.cn/api
+    description: Demo API
+
+tags:
+  - name: login
+    description: Login related
+    x-displayName: Login
+  - name: version
+    description: Version related
+    x-displayName: Version
+  - name: node
+    description: Node related
+    x-displayName: Node
+  - name: project
+    description: Project related
+    x-displayName: Project
+
+x-tagGroups:
+  - name: Anomalous
+    tags:
+      - login
+      - version
+  - name: Auth Required
+    tags:
+      - node
+      - project
+
+paths:
+  # login
+  /login:
+    post:
+      tags: [ login ]
+      operationId: postLogin
+      summary: Login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+            example:
+              username: admin
+              password: admin
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostLoginResponse'
+        401:
+          description: Login failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+  /logout:
+    post:
+      tags: [ login ]
+      operationId: postLogout
+      summary: Logout
+      responses:
+        200:
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+
+  # version
+  /version:
+    get:
+      tags: [ version ]
+      operationId: getVersion
+      summary: Get version
+      responses:
+        200:
+          description: Get version successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetVersionResponse'
+              example:
+                status: ok
+                data: v0.6.0
+
+  # node
+  /nodes:
+    get:
+      tags: [ node ]
+      operationId: getNodes
+      summary: Get nodes
+      security:
+        - apiToken: [ ]
+      parameters:
+        - in: query
+          name: page
+          description: Page number
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: page_size
+          description: Page size
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        200:
+          description: Get nodes successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetNodesResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    put:
+      tags: [ node ]
+      operationId: putNode
+      summary: Update node
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchRequestPayloadWithStringData'
+      responses:
+        200:
+          description: Update node successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    delete:
+      tags: [ node ]
+      operationId: deleteNodes
+      summary: Delete nodes
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchRequestPayload'
+      responses:
+        200:
+          description: Delete node successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /nodes/{id}:
+    get:
+      tags: [ node ]
+      operationId: getNode
+      summary: Get node
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Node ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get node successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetNodeResponse'
+        404:
+          description: Node not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    put:
+      tags: [ node ]
+      operationId: putNode
+      summary: Update node
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Node ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Node'
+      responses:
+        200:
+          description: Update node successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Node not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+
+  # project
+  /projects:
+    get:
+      tags: [ project ]
+      operationId: getProjects
+      summary: Get projects
+      security:
+        - apiToken: [ ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: size
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Get projects successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetProjectsResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    post:
+      tags: [ project ]
+      operationId: postProject
+      summary: Create project
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostProjectRequest'
+      responses:
+        200:
+          description: Create project successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    put:
+      tags: [ project ]
+      operationId: putProjects
+      summary: Update projects
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchRequestPayloadWithStringData'
+      responses:
+        200:
+          description: Update project successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    delete:
+      tags: [ project ]
+      operationId: deleteProjects
+      summary: Delete projects
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchRequestPayload'
+      responses:
+        200:
+          description: Delete project successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /projects/batch:
+    post:
+      tags: [ project ]
+      operationId: postProjects
+      summary: Create projects
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/PostProjectRequest'
+      responses:
+        200:
+          description: Update project successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /projects/{id}:
+    get:
+      tags: [ project ]
+      operationId: getProject
+      summary: Get project
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Project ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get project successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetProjectResponse'
+        404:
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    post:
+      tags: [ project ]
+      operationId: postProject
+      summary: Update project
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Project ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+      responses:
+        200:
+          description: Update project successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    delete:
+      tags: [ project ]
+      operationId: deleteProject
+      summary: Delete project
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Project ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Delete project successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+
+  # spider
+  /spiders:
+    get:
+      tags: [ spider ]
+      operationId: getSpiders
+      summary: Get spiders
+      security:
+        - apiToken: [ ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: size
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Get spiders successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSpidersResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    post:
+      tags: [ spider ]
+      operationId: postSpiders
+      summary: Create spiders
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchRequestPayloadWithStringData'
+      responses:
+        200:
+          description: Create spiders successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/batch:
+    post:
+      tags: [ spider ]
+      operationId: postSpiders
+      summary: Update spiders
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/PostSpiderRequest'
+      responses:
+        200:
+          description: Update spiders successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/{id}:
+    get:
+      tags: [ spider ]
+      operationId: getSpider
+      summary: Get spider
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get spider successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSpiderResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    post:
+      tags: [ spider ]
+      operationId: postSpider
+      summary: Update spider
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Spider'
+      responses:
+        200:
+          description: Update spider successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    delete:
+      tags: [ spider ]
+      operationId: deleteSpider
+      summary: Delete spider
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+  /spiders/{id}/files/list:
+    get:
+      tags: [ spider ]
+      operationId: getSpiderFilesList
+      summary: Get spider files list
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get spider files list successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSpiderFilesListResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/{id}/files/get:
+    get:
+      tags: [ spider ]
+      operationId: getSpiderFile
+      summary: Get spider file
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          description: File path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get spider file successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSpiderFileResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/{id}/files/info:
+    get:
+      tags: [ spider ]
+      operationId: getSpiderFileInfo
+      summary: Get spider file info
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          description: File path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get spider file info successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSpiderFileInfoResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/{id}/files/save:
+    post:
+      tags: [ spider ]
+      operationId: postSpiderFile
+      summary: Save spider file
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          description: File path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostSpiderFileRequest'
+      responses:
+        200:
+          description: Save spider file successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/{id}/files/save/dir:
+    post:
+      tags: [ spider ]
+      operationId: postSpiderFileDir
+      summary: Save spider file dir
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          description: File path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostSpiderFileDirRequest'
+      responses:
+        200:
+          description: Save spider file dir successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/{id}/files/renameFile:
+    post:
+      tags: [ spider ]
+      operationId: postSpiderFileRenameFile
+      summary: Rename spider file
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          description: File path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostSpiderFileRenameFileRequest'
+      responses:
+        200:
+          description: Rename spider file successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/{id}/files/delete:
+    post:
+      tags: [ spider ]
+      operationId: postSpiderFileDelete
+      summary: Delete spider file
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          description: File path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Delete spider file successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/{id}/files/copy:
+    post:
+      tags: [ spider ]
+      operationId: postSpiderFileCopy
+      summary: Copy spider file
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          description: File path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostSpiderFileCopyRequest'
+      responses:
+        200:
+          description: Copy spider file successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/{id}/run:
+    post:
+      tags: [ spider ]
+      operationId: postSpiderRun
+      summary: Run spider
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostSpiderRunRequest'
+      responses:
+        200:
+          description: Run spider successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/{id}/git:
+    get:
+      tags: [ spider ]
+      operationId: getSpiderGit
+      summary: Get spider git
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get spider git successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSpiderGitResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/{id}/git/remote-refs:
+    get:
+      tags: [ spider ]
+      operationId: getSpiderGitRemoteRefs
+      summary: Get spider git remote refs
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get spider git remote refs successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSpiderGitRemoteRefsResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/{id}/git/pull:
+    post:
+      tags: [ spider ]
+      operationId: postSpiderGitPull
+      summary: Pull spider git
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostSpiderGitPullRequest'
+      responses:
+        200:
+          description: Pull spider git successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/{id}/git/commit:
+    post:
+      tags: [ spider ]
+      operationId: postSpiderGitCommit
+      summary: Commit spider git
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostSpiderGitCommitRequest'
+      responses:
+        200:
+          description: Commit spider git successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/{id}/data-source:
+    get:
+      tags: [ spider ]
+      operationId: getSpiderDataSource
+      summary: Get spider data source
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get spider data source successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSpiderDataSourceResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /spiders/{id}/data-source/{ds_id}:
+    post:
+      tags: [ spider ]
+      operationId: postSpiderDataSource
+      summary: Create spider data source
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Spider ID
+          required: true
+          schema:
+            type: string
+        - name: ds_id
+          in: path
+          description: Data source ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Create spider data source successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Spider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+
+  # schedule
+  /schedules:
+    get:
+      tags: [ schedule ]
+      operationId: getSchedules
+      summary: Get schedules
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+        - name: page_size
+          in: query
+          description: Page size
+          required: false
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Get schedules successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSchedulesResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    post:
+      tags: [ schedule ]
+      operationId: postSchedule
+      summary: Create schedule
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostScheduleRequest'
+      responses:
+        200:
+          description: Create schedule successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    put:
+      tags: [ schedule ]
+      operationId: putSchedule
+      summary: Update schedule
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Schedule ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchRequestPayloadWithStringData'
+      responses:
+        200:
+          description: Update schedule successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Schedule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    delete:
+      tags: [ schedule ]
+      operationId: deleteSchedules
+      summary: Delete schedules
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchRequestPayload'
+      responses:
+        200:
+          description: Delete schedule successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Schedule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /schedules/batch:
+    post:
+      tags: [ schedule ]
+      operationId: postSchedulesBatch
+      summary: Create schedules
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostSchedulesBatchRequest'
+      responses:
+        200:
+          description: Create schedules successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /schedules/{id}:
+    get:
+      tags: [ schedule ]
+      operationId: getSchedule
+      summary: Get schedule
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Schedule ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get schedule successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetScheduleResponse'
+        404:
+          description: Schedule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    put:
+      tags: [ schedule ]
+      operationId: putSchedule
+      summary: Update schedule
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Schedule ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PutScheduleRequest'
+      responses:
+        200:
+          description: Update schedule successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Schedule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    delete:
+      tags: [ schedule ]
+      operationId: deleteSchedule
+      summary: Delete schedule
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Schedule ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Delete schedule successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Schedule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /schedules/{id}/enabled:
+    post:
+      tags: [ schedule ]
+      operationId: postScheduleEnabled
+      summary: Enable schedule
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Schedule ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Enable schedule successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Schedule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /schedules/{id}/disabled:
+    post:
+      tags: [ schedule ]
+      operationId: postScheduleDisabled
+      summary: Disable schedule
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Schedule ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Disable schedule successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Schedule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+
+  # task
+  /tasks:
+    get:
+      tags: [ task ]
+      operationId: getTasks
+      summary: Get tasks
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+        - name: size
+          in: query
+          description: Page size number
+          required: false
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Get tasks successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTasksResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    delete:
+      tags: [ task ]
+      operationId: deleteTasks
+      summary: Delete tasks
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: ids
+          in: query
+          description: Task IDs
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        200:
+          description: Delete tasks successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /tasks/run:
+    post:
+      tags: [ task ]
+      operationId: postTaskRun
+      summary: Run task
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostTaskRunRequest'
+      responses:
+        200:
+          description: Run task successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /tasks/{id}:
+    get:
+      tags: [ task ]
+      operationId: getTask
+      summary: Get task
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Task ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get task successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTaskResponse'
+        404:
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    delete:
+      tags: [ task ]
+      operationId: deleteTask
+      summary: Delete task
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Task ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Delete task successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /tasks/{id}/restart:
+    post:
+      tags: [ task ]
+      operationId: postTaskRestart
+      summary: Restart task
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Task ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Restart task successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /tasks/{id}/cancel:
+    post:
+      tags: [ task ]
+      operationId: postTaskCancel
+      summary: Cancel task
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Task ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Cancel task successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /tasks/{id}/logs:
+    get:
+      tags: [ task ]
+      operationId: getTaskLogs
+      summary: Get task logs
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Task ID
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+        - name: size
+          in: query
+          description: Page size number
+          required: false
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Get task logs successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTaskLogsResponse'
+        404:
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /tasks/{id}/data:
+    get:
+      tags: [ task ]
+      operationId: getTaskData
+      summary: Get task data
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Task ID
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+        - name: size
+          in: query
+          description: Page size number
+          required: false
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Get task data successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTaskDataResponse'
+        404:
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+
+  # user
+  /users:
+    get:
+      tags: [ user ]
+      operationId: getUsers
+      summary: Get users
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+          example: 1
+        - name: size
+          in: query
+          description: Page size number
+          required: false
+          schema:
+            type: integer
+          example: 10
+      responses:
+        200:
+          description: Get users successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUsersResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    post:
+      tags: [ user ]
+      operationId: postUser
+      summary: Create user
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostUserRequest'
+      responses:
+        200:
+          description: Create user successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    put:
+      tags: [ user ]
+      operationId: putUser
+      summary: Update user
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchRequestPayloadWithStringData'
+      responses:
+        200:
+          description: Update user successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    delete:
+      tags: [ user ]
+      operationId: deleteUser
+      summary: Delete user
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Delete user successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /users/{id}:
+    get:
+      tags: [ user ]
+      operationId: getUser
+      summary: Get user
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get user successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUserResponse'
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    put:
+      tags: [ user ]
+      operationId: putUser
+      summary: Update user
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PutUserRequest'
+      responses:
+        200:
+          description: Update user successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    delete:
+      tags: [ user ]
+      operationId: deleteUser
+      summary: Delete user
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Delete user successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /users/{id}/change-password:
+    post:
+      tags: [ user ]
+      operationId: changePassword
+      summary: Change password
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostUserChangePasswordRequest'
+      responses:
+        200:
+          description: Change password successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /users/me:
+    get:
+      tags: [ user ]
+      operationId: getMe
+      summary: Get me
+      security:
+        - apiToken: [ ]
+      responses:
+        200:
+          description: Get me successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUserResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    put:
+      tags: [ user ]
+      operationId: putMe
+      summary: Update me
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PutUserRequest'
+      responses:
+        200:
+          description: Update me successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+
+  # token
+  /tokens:
+    get:
+      tags: [ token ]
+      operationId: getTokens
+      summary: Get tokens
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+          example: 1
+        - name: size
+          in: query
+          description: Page size
+          required: false
+          schema:
+            type: integer
+          example: 10
+      responses:
+        200:
+          description: Get tokens successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTokensResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    post:
+      tags: [ token ]
+      operationId: postToken
+      summary: Create token
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostTokenRequest'
+      responses:
+        200:
+          description: Create token successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /tokens/{id}:
+    get:
+      tags: [ token ]
+      operationId: getToken
+      summary: Get token
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Token ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get token successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTokenResponse'
+        404:
+          description: Token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    put:
+      tags: [ token ]
+      operationId: putToken
+      summary: Update token
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Token ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PutTokenRequest'
+      responses:
+        200:
+          description: Update token successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    delete:
+      tags: [ token ]
+      operationId: deleteToken
+      summary: Delete token
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Token ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Delete token successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+
+  # plugin
+  /plugins:
+    get:
+      tags: [ plugin ]
+      operationId: getPlugins
+      summary: Get plugins
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+          example: 1
+        - name: size
+          in: query
+          description: Page size
+          required: false
+          schema:
+            type: integer
+          example: 10
+      responses:
+        200:
+          description: Get plugins successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPluginsResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+    post:
+      tags: [ plugin ]
+      operationId: postPlugin
+      summary: Create plugin
+      security:
+        - apiToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostPluginRequest'
+      responses:
+        200:
+          description: Create plugin successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /plugins/{id}:
+    get:
+      tags: [ plugin ]
+      operationId: getPlugin
+      summary: Get plugin
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Plugin ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get plugin successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPluginResponse'
+        404:
+          description: Plugin not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /plugins/{id}/start:
+    post:
+      tags: [ plugin ]
+      operationId: startPlugin
+      summary: Start plugin
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Plugin ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Start plugin successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Plugin not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /plugins/{id}/stop:
+    post:
+      tags: [ plugin ]
+      operationId: stopPlugin
+      summary: Stop plugin
+      security:
+        - apiToken: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Plugin ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Stop plugin successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        404:
+          description: Plugin not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /plugins/public:
+    get:
+      tags: [ plugin ]
+      operationId: getPublicPlugins
+      summary: Get public plugins
+      security:
+        - apiToken: [ ]
+      responses:
+        200:
+          description: Get public plugins successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPublicPluginsResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+  /plugins/public/info:
+    get:
+      tags: [ plugin ]
+      operationId: getPublicPluginsInfo
+      summary: Get public plugins info
+      security:
+        - apiToken: [ ]
+      parameters:
+        - in: query
+          name: full_name
+          description: Plugin full name
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Get public plugins info successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPublicPluginsInfoResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestErrorResponse'
+
+components:
+  schemas:
+    # base request bodies
+    BatchRequestPayload:
+      description: Batch request payload
+      properties:
+        ids:
+          type: array
+          description: Model IDs to operate
+          items:
+            type: string
+    BatchRequestPayloadWithStringData:
+      description: Batch request payload with string data
+      properties:
+        ids:
+          type: array
+          description: Model IDs to operate
+          items:
+            type: string
+        data:
+          type: string
+          description: JSON marshalled model fields data to operate
+        fields:
+          type: array
+          description: Fields to operate
+          items:
+            type: string
+
+    # request bodies
+    PostProjectRequest:
+      description: Put project request body
+      properties:
+        name:
+          type: string
+          description: Project name
+        description:
+          type: string
+          description: Project description
+    PostSpiderRequest:
+      description: Put project request body
+      properties:
+        name:
+          type: string
+          description: Spider name
+        description:
+          type: string
+          description: Spider description
+        type:
+          type: string
+          description: Spider type
+        params:
+          type: string
+          description: Default spider task params
+        col_name:
+          type: string
+          description: Spider collection name
+        project_id:
+          type: string
+          description: Spider project ID
+        mode:
+          type: string
+          enum:
+            - random
+            - all-nodes
+            - selected-nodes
+          description: Default spider task mode
+    PostSpiderFileRequest:
+      description: Post spider file request body
+      properties:
+        path:
+          type: string
+          description: File path
+        data:
+          type: string
+          description: File data
+    PostSpiderFileDirRequest:
+      description: Post spider file dir request body
+      properties:
+        path:
+          type: string
+          description: File path
+    PostSpiderFileRenameFileRequest:
+      description: Post spider file rename file request body
+      properties:
+        path:
+          type: string
+          description: File path
+        new_path:
+          type: string
+          description: New file path
+    PostSpiderFileCopyRequest:
+      description: Post spider file copy request body
+      properties:
+        path:
+          type: string
+          description: File path
+        new_path:
+          type: string
+          description: New file path
+    PostSpiderRunRequest:
+      description: Post spider run request body
+      properties:
+        params:
+          type: string
+          description: Spider task params
+        mode:
+          type: string
+          enum:
+            - random
+            - all-nodes
+            - selected-nodes
+          description: Spider task mode
+      example:
+        mode: random
+    PostSpiderGitPullRequest:
+      description: Post spider git pull request body
+      properties:
+        branch:
+          type: string
+          description: Git branch
+        commit:
+          type: string
+          description: Git commit
+        remote:
+          type: string
+          description: Git remote
+        ref:
+          type: string
+          description: Git ref
+    PostSpiderGitCommitRequest:
+      description: Post spider git commit request body
+      $ref: '#/components/schemas/GitPayload'
+    PostScheduleRequest:
+      description: Post schedule request body
+      properties:
+        name:
+          type: string
+          description: Schedule name
+        description:
+          type: string
+          description: Schedule description
+        spider_id:
+          type: string
+          description: Schedule spider ID
+        cron:
+          type: string
+          description: Cron expression
+        cmd:
+          type: string
+          description: Execute Command
+        params:
+          type: string
+          description: Schedule params
+        mode:
+          $ref: '#/components/schemas/TaskMode'
+    PostSchedulesBatchRequest:
+      description: Post schedules batch request body
+      properties:
+        data:
+          type: array
+          description: Schedules data
+          items:
+            $ref: '#/components/schemas/PostScheduleRequest'
+    PutScheduleRequest:
+      description: Put schedule request body
+      properties:
+        name:
+          type: string
+          description: Schedule name
+        description:
+          type: string
+          description: Schedule description
+        project_id:
+          type: string
+          description: Schedule project ID
+        spider_id:
+          type: string
+          description: Schedule spider ID
+        cron:
+          type: string
+          description: Cron expression
+        params:
+          type: string
+          description: Schedule params
+        mode:
+          $ref: '#/components/schemas/TaskMode'
+    PostTaskRunRequest:
+      description: Post task run request body
+      properties:
+        spider_id:
+          type: string
+          description: Task spider ID
+        cmd:
+          type: string
+          description: Task command
+        params:
+          type: string
+          description: Task params
+        mode:
+          $ref: '#/components/schemas/TaskMode'
+        priority:
+          type: integer
+          description: Task priority
+    PostUserRequest:
+      description: Post user request body
+      properties:
+        username:
+          type: string
+          description: User username
+        password:
+          type: string
+          description: User password
+        email:
+          type: string
+          description: User email
+        role:
+          type: string
+          enum:
+            - admin
+            - user
+          description: User role
+    PutUserRequest:
+      description: Put user request body
+      properties:
+        username:
+          type: string
+          description: User username
+        email:
+          type: string
+          description: User email
+        role:
+          type: string
+          enum:
+            - admin
+            - user
+          description: User role
+    PostUserChangePasswordRequest:
+      description: Post user change password request body
+      properties:
+        password:
+          type: string
+          description: New password
+    PostTokenRequest:
+      description: Post token request body
+      properties:
+        name:
+          type: string
+          description: Token name
+    PutTokenRequest:
+      description: Put token request body
+      properties:
+        name:
+          type: string
+          description: Token name
+    PostPluginRequest:
+      description: Post plugin request body
+      properties:
+        name:
+          type: string
+          description: Plugin name
+        full_name:
+          type: string
+          description: Plugin full name
+
+    # base responses
+    BaseResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status of the response
+        message:
+          type: string
+          description: Message of the response
+    EmptyResponse:
+      description: Empty response body
+      $ref: '#/components/schemas/BaseResponse'
+      example:
+        status: ok
+        message: success
+    Response:
+      description: Response body
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+    ListResponse:
+      description: List response body
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+            total:
+              type: integer
+    ErrorResponse:
+      description: Error response body
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          properties:
+            error:
+              type: string
+
+    # error response
+    NotFoundErrorResponse:
+      description: Not found error response body
+      $ref: '#/components/schemas/ErrorResponse'
+      example:
+        status: error
+        message: not found
+    BadRequestErrorResponse:
+      description: Bad request error response
+      $ref: '#/components/schemas/ErrorResponse'
+      example:
+        status: error
+        message: bad request
+    UnauthorizedErrorResponse:
+      description: Unauthorized error response
+      $ref: '#/components/schemas/ErrorResponse'
+      example:
+        status: error
+        message: unauthorized
+
+    # success response
+    PostLoginResponse:
+      type: object
+      properties:
+        data:
+          type: string
+          description: API token
+    GetVersionResponse:
+      type: object
+      properties:
+        data:
+          type: string
+          description: Version
+    GetNodesResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ListResponse'
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Node'
+    GetNodeResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Node'
+    GetProjectsResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ListResponse'
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Project'
+    GetProjectResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            data:
+              $ref: '#/components/schemas/Project'
+    GetSpidersResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ListResponse'
+        - properties:
+            data:
+              $ref: '#/components/schemas/Spider'
+    GetSpiderResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Spider'
+    GetSpiderFilesListResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ListResponse'
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/SpiderFile'
+      example:
+        {
+          "status": "ok",
+          "message": "success",
+          "data": [
+            {
+              "name": "scrapy_baidu",
+              "path": "/scrapy_baidu",
+              "full_path": "/fs/62c66a8ef9dce6fe4caa58e5/scrapy_baidu",
+              "extension": "",
+              "md5": "",
+              "is_dir": true,
+              "file_size": 0,
+              "children": [
+                {
+                  "name": "spiders",
+                  "path": "/scrapy_baidu/spiders",
+                  "full_path": "/fs/62c66a8ef9dce6fe4caa58e5/scrapy_baidu/spiders",
+                  "extension": "",
+                  "md5": "",
+                  "is_dir": true,
+                  "file_size": 0,
+                  "children": [
+                    {
+                      "name": "__init__.py",
+                      "path": "/scrapy_baidu/spiders/__init__.py",
+                      "full_path": "/fs/62c66a8ef9dce6fe4caa58e5/scrapy_baidu/spiders/__init__.py",
+                      "extension": "py",
+                      "md5": "EoqQSUWYa98Uwyno4FRZYw==",
+                      "is_dir": false,
+                      "file_size": 161,
+                      "children": null
+                    },
+                    {
+                      "name": "baidu.py",
+                      "path": "/scrapy_baidu/spiders/baidu.py",
+                      "full_path": "/fs/62c66a8ef9dce6fe4caa58e5/scrapy_baidu/spiders/baidu.py",
+                      "extension": "py",
+                      "md5": "AhySHuGyj88CEA1ZbUJ19g==",
+                      "is_dir": false,
+                      "file_size": 791,
+                      "children": null
+                    }
+                  ]
+                },
+                {
+                  "name": "__init__.py",
+                  "path": "/scrapy_baidu/__init__.py",
+                  "full_path": "/fs/62c66a8ef9dce6fe4caa58e5/scrapy_baidu/__init__.py",
+                  "extension": "py",
+                  "md5": "chXunH2dwinSkhpA6JnsXw==",
+                  "is_dir": false,
+                  "file_size": 1,
+                  "children": null
+                },
+                {
+                  "name": "items.py",
+                  "path": "/scrapy_baidu/items.py",
+                  "full_path": "/fs/62c66a8ef9dce6fe4caa58e5/scrapy_baidu/items.py",
+                  "extension": "py",
+                  "md5": "Zg9KIbCe1h/coLSkQcQ9Sg==",
+                  "is_dir": false,
+                  "file_size": 311,
+                  "children": null
+                },
+                {
+                  "name": "middlewares.py",
+                  "path": "/scrapy_baidu/middlewares.py",
+                  "full_path": "/fs/62c66a8ef9dce6fe4caa58e5/scrapy_baidu/middlewares.py",
+                  "extension": "py",
+                  "md5": "4FQr2+wt4ALcuRYxzjsUdQ==",
+                  "is_dir": false,
+                  "file_size": 3658,
+                  "children": null
+                },
+                {
+                  "name": "pipelines.py",
+                  "path": "/scrapy_baidu/pipelines.py",
+                  "full_path": "/fs/62c66a8ef9dce6fe4caa58e5/scrapy_baidu/pipelines.py",
+                  "extension": "py",
+                  "md5": "q8MuuuJwvuV0gcE42Mg2oQ==",
+                  "is_dir": false,
+                  "file_size": 259,
+                  "children": null
+                },
+                {
+                  "name": "settings.py",
+                  "path": "/scrapy_baidu/settings.py",
+                  "full_path": "/fs/62c66a8ef9dce6fe4caa58e5/scrapy_baidu/settings.py",
+                  "extension": "py",
+                  "md5": "hh/13eHBaVrLNtB27duOZQ==",
+                  "is_dir": false,
+                  "file_size": 3201,
+                  "children": null
+                }
+              ]
+            },
+            {
+              "name": "__init__.py",
+              "path": "/__init__.py",
+              "full_path": "/fs/62c66a8ef9dce6fe4caa58e5/__init__.py",
+              "extension": "py",
+              "md5": "chXunH2dwinSkhpA6JnsXw==",
+              "is_dir": false,
+              "file_size": 1,
+              "children": null
+            },
+            {
+              "name": "crawlab.json",
+              "path": "/crawlab.json",
+              "full_path": "/fs/62c66a8ef9dce6fe4caa58e5/crawlab.json",
+              "extension": "json",
+              "md5": "jQ5qto4lYSEzWNF77h11gw==",
+              "is_dir": false,
+              "file_size": 169,
+              "children": null
+            },
+            {
+              "name": "scrapy.cfg",
+              "path": "/scrapy.cfg",
+              "full_path": "/fs/62c66a8ef9dce6fe4caa58e5/scrapy.cfg",
+              "extension": "cfg",
+              "md5": "UAALAu5OkhbTVtwQeFXpQA==",
+              "is_dir": false,
+              "file_size": 267,
+              "children": null
+            }
+          ],
+          "error": ""
+        }
+    GetSpiderFileResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            data:
+              type: string
+              description: Spider file content
+      example:
+        {
+          "status": "ok",
+          "message": "success",
+          "data": "# Automatically created by: scrapy startproject\n#\n# For more information about the [deploy] section see:\n# https://scrapyd.readthedocs.io/en/latest/deploy.html\n\n[settings]\ndefault = scrapy_baidu.settings\n\n[deploy]\n#url = http://localhost:6800/\nproject = scrapy_baidu\n",
+          "error": ""
+        }
+    GetSpiderFileInfoResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            data:
+              $ref: '#/components/schemas/SpiderFile'
+      example:
+        {
+          "status": "ok",
+          "message": "success",
+          "data": {
+            "name": "openapi.yaml",
+            "path": "/openapi.yaml",
+            "full_path": "/fs/62c66a8af9dce6fe4caa58e3/openapi.yaml",
+            "extension": "yaml",
+            "md5": "1UUumcDmYtVAUOZZNegjJA==",
+            "is_dir": false,
+            "file_size": 27698,
+            "children": null
+          },
+          "error": ""
+        }
+    GetSpiderGitResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            data:
+              type: object
+              description: Spider git content
+              properties:
+                current_branch:
+                  type: string
+                  description: Current git branch
+                branches:
+                  type: array
+                  description: Git branches
+                  items:
+                    type: string
+                changes:
+                  type: array
+                  description: Git changes
+                  items:
+                    $ref: '#/components/schemas/GitFileStatus'
+                logs:
+                  type: array
+                  description: Git logs
+                  items:
+                    $ref: '#/components/schemas/GitLog'
+                ignore:
+                  type: array
+                  description: Git ignore files
+                  items:
+                    type: string
+                git:
+                  type: object
+                  description: Git url
+                  $ref: '#/components/schemas/Git'
+    GetSpiderGitRemoteRefsResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            data:
+              type: object
+              description: Spider git remote refs
+              properties:
+                refs:
+                  type: array
+                  description: Git remote refs
+                  items:
+                    $ref: '#/components/schemas/GitRef'
+    GetSpiderDataSourceResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            data:
+              type: array
+              description: Spider data source
+              items:
+                $ref: '#/components/schemas/DataSource'
+    GetScheduleResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            data:
+            type: array
+            description: Schedules
+            items:
+              $ref: '#/components/schemas/Schedule'
+    GetSchedulesResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            data:
+            type: array
+            description: Schedules
+            items:
+              $ref: '#/components/schemas/Schedule'
+    GetTasksResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ListResponse'
+        - properties:
+            data:
+            type: array
+            description: Tasks
+            items:
+            $ref: '#/components/schemas/Task'
+    GetTaskResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            data:
+            $ref: '#/components/schemas/Task'
+    GetTaskLogsResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ListResponse'
+        - properties:
+          data:
+            type: array
+            description: Task logs
+            items:
+              type: string
+    GetTaskDataResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ListResponse'
+        - properties:
+            data:
+              type: array
+              items:
+                type: object
+    GetUsersResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ListResponse'
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+      example:
+        {
+          "status": "ok",
+          "message": "success",
+          "total": 1,
+          "data": [
+            {
+              "_id": "62c665fb6e54352bf1b279e2",
+              "username": "admin",
+              "role": "admin",
+              "email": ""
+            }
+          ],
+          "error": ""
+        }
+    GetUserResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            data:
+            $ref: '#/components/schemas/User'
+      example:
+        {
+          "status": "ok",
+          "message": "success",
+          "data": {
+            "_id": "62c665fb6e54352bf1b279e2",
+            "username": "admin",
+            "role": "admin",
+            "email": ""
+          },
+          "error": ""
+        }
+    GetTokensResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ListResponse'
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Token'
+      example:
+        {
+          "status": "ok",
+          "message": "success",
+          "total": 1,
+          "data": [
+            {
+              "_id": "62c8e9e7f23518fd080f04aa",
+              "name": "my token",
+              "token": "xxxxxxxxxx"
+            }
+          ],
+          "error": ""
+        }
+    GetTokenResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            data:
+            $ref: '#/components/schemas/Token'
+      example:
+        {
+          "status": "ok",
+          "message": "success",
+          "data": {
+            "_id": "62c8e9e7f23518fd080f04aa",
+            "name": "my token",
+            "token": "xxxxxxxxxx"
+          },
+          "error": ""
+        }
+    GetPluginsResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ListResponse'
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Plugin'
+      example:
+        {
+          "status": "ok",
+          "message": "success",
+          "total": 3,
+          "data": [
+            {
+              "_id": "62a88b02112099e6932808a8",
+              "name": "spider-assistant",
+              "short_name": "plugin-spider-assistant",
+              "full_name": "crawlab-team/plugin-spider-assistant",
+              "description": "Spider assistant plugin for Crawlab",
+              "proto": "http",
+              "active": false,
+              "endpoint": "localhost:9997",
+              "cmd": "sh ./bin/start.sh",
+              "docker_cmd": "/app/plugins/bin/plugin-spider-assistant",
+              "docker_dir": "/app/plugins/plugin-spider-assistant",
+              "event_key": {
+                "include": "^model:",
+                "exclude": "artifact"
+              },
+              "install_type": "public",
+              "install_url": "/app/plugins/plugin-spider-assistant",
+              "install_cmd": "",
+              "deploy_mode": "master",
+              "auto_start": true,
+              "ui_components": [
+                {
+                  "name": "assistant",
+                  "title": "assistant.detail.tabs.title",
+                  "src": "ui/src/AssistantDetail.vue",
+                  "type": "tab",
+                  "path": "assistant",
+                  "parent_paths": [
+                    "/spiders/:id"
+                  ]
+                }
+              ],
+              "ui_sidebar_navs": [ ],
+              "ui_assets": [ ],
+              "lang_url": "ui/lang",
+              "status": null
+            },
+            {
+              "_id": "62a88b04112099e6932808aa",
+              "name": "notification",
+              "short_name": "plugin-notification",
+              "full_name": "crawlab-team/plugin-notification",
+              "description": "A plugin for handling notifications",
+              "proto": "http",
+              "active": false,
+              "endpoint": "localhost:39999",
+              "cmd": "sh ./bin/start.sh",
+              "docker_cmd": "/app/plugins/bin/plugin-notification",
+              "docker_dir": "/app/plugins/plugin-notification",
+              "event_key": {
+                "include": "^model:",
+                "exclude": "artifact"
+              },
+              "install_type": "public",
+              "install_url": "/app/plugins/plugin-notification",
+              "install_cmd": "",
+              "deploy_mode": "master_only",
+              "auto_start": true,
+              "ui_components": [
+                {
+                  "name": "notification-list",
+                  "title": "Notifications",
+                  "src": "ui/src/NotificationList.vue",
+                  "type": "view",
+                  "path": "notifications",
+                  "parent_paths": null
+                },
+                {
+                  "name": "notification-detail",
+                  "title": "Notifications",
+                  "src": "ui/src/NotificationDetail.vue",
+                  "type": "view",
+                  "path": "notifications/:id",
+                  "parent_paths": null
+                }
+              ],
+              "ui_sidebar_navs": [
+                {
+                  "path": "/notifications",
+                  "title": "plugins.notification.ui_sidebar_navs.title.notifications",
+                  "icon": [
+                    "fa",
+                    "envelope"
+                  ]
+                }
+              ],
+              "ui_assets": [
+                {
+                  "path": "ui/public/simplemde/simplemde.js",
+                  "type": "js"
+                },
+                {
+                  "path": "ui/public/simplemde/simplemde.css",
+                  "type": "css"
+                },
+                {
+                  "path": "ui/public/css/style.css",
+                  "type": "css"
+                }
+              ],
+              "lang_url": "ui/lang",
+              "status": null
+            },
+            {
+              "_id": "62c390ab5853635d26cf76c7",
+              "name": "dependency",
+              "short_name": "plugin-dependency",
+              "full_name": "crawlab-team/plugin-dependency",
+              "description": "A plugin for managing dependencies",
+              "proto": "http",
+              "active": false,
+              "endpoint": "localhost:9998",
+              "cmd": "sh ./bin/start.sh",
+              "docker_cmd": "/app/plugins/bin/plugin-dependency",
+              "docker_dir": "/app/plugins/plugin-dependency",
+              "event_key": {
+                "include": "^model:",
+                "exclude": "artifact"
+              },
+              "install_type": "public",
+              "install_url": "/app/plugins/plugin-dependency",
+              "install_cmd": "",
+              "deploy_mode": "all",
+              "auto_start": true,
+              "ui_components": [
+                {
+                  "name": "dependency-settings",
+                  "title": "Dependencies Settings",
+                  "src": "ui/src/setting/DependencySettings.vue",
+                  "type": "view",
+                  "path": "dependencies/settings",
+                  "parent_paths": null
+                },
+                {
+                  "name": "dependency-python",
+                  "title": "Dependencies Python",
+                  "src": "ui/src/python/DependencyPython.vue",
+                  "type": "view",
+                  "path": "dependencies/python",
+                  "parent_paths": null
+                },
+                {
+                  "name": "dependency-node",
+                  "title": "Dependencies Node",
+                  "src": "ui/src/node/DependencyNode.vue",
+                  "type": "view",
+                  "path": "dependencies/node",
+                  "parent_paths": null
+                },
+                {
+                  "name": "dependencies",
+                  "title": "ui_components.title.dependencies",
+                  "src": "ui/src/spider/DependencySpiderTab.vue",
+                  "type": "tab",
+                  "path": "dependencies",
+                  "parent_paths": [
+                    "/spiders/:id"
+                  ]
+                }
+              ],
+              "ui_sidebar_navs": [
+                {
+                  "path": "/dependencies",
+                  "title": "plugins.dependency.ui_sidebar_navs.title.dependencies",
+                  "icon": [
+                    "fa",
+                    "puzzle-piece"
+                  ],
+                  "children": [
+                    {
+                      "path": "/dependencies/python",
+                      "title": "plugins.dependency.ui_sidebar_navs.title.python",
+                      "icon": [
+                        "fab",
+                        "python"
+                      ]
+                    },
+                    {
+                      "path": "/dependencies/node",
+                      "title": "plugins.dependency.ui_sidebar_navs.title.node",
+                      "icon": [
+                        "fab",
+                        "node-js"
+                      ]
+                    },
+                    {
+                      "path": "/dependencies/settings",
+                      "title": "plugins.dependency.ui_sidebar_navs.title.settings",
+                      "icon": [
+                        "fa",
+                        "cog"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "ui_assets": [ ],
+              "lang_url": "ui/lang",
+              "status": null
+            }
+          ],
+          "error": ""
+        }
+    GetPluginResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            data:
+              $ref: '#/components/schemas/Plugin'
+    GetPublicPluginsResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/PublicPlugin'
+    GetPublicPluginsInfoResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Response'
+        - properties:
+            data:
+            type: array
+            items:
+              type: object
+
+    # models
+    Model:
+      description: Base model
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID of the model (MongoDB ObjectID)
+    ModelWithNameDescription:
+      allOf:
+        - $ref: '#/components/schemas/Model'
+        - properties:
+            name:
+              type: string
+              description: Name of the model
+            description:
+              type: string
+              description: Description of the model
+    ModelWithKey:
+      allOf:
+        - $ref: '#/components/schemas/Model'
+        - properties:
+            key:
+              type: string
+              description: Key of the model
+    Node:
+      description: Node model
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ModelWithKey'
+        - $ref: '#/components/schemas/ModelWithNameDescription'
+        - properties:
+            ip:
+              description: Node IP
+              type: string
+            port:
+              description: Node port
+              type: string
+            mac:
+              description: Node MAC
+              type: string
+            hostname:
+              description: Node hostname
+              type: string
+            is_master:
+              description: Whether the node is master
+              type: boolean
+            status:
+              description: Node current status
+              type: string
+              enum:
+                - online
+                - offline
+            enabled:
+              description: Node enabled
+              type: boolean
+            active:
+              description: Node active
+              type: boolean
+            active_ts:
+              description: Node active timestamp
+              type: string
+              format: date-time
+            available_runners:
+              description: Available number of available runners of the node
+              type: integer
+            max_runners:
+              description: Max number of runners of the node
+              type: integer
+    Project:
+      description: Project model
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ModelWithNameDescription'
+        - properties:
+            spiders:
+              description: Spiders of the project
+              type: integer
+    TaskStat:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Model'
+        - properties:
+            create_ts:
+              type: string
+              format: date-time
+            start_ts:
+              type: string
+              format: date-time
+            end_ts:
+              type: string
+              format: date-time
+            wait_duration:
+              type: integer
+            runtime_duration:
+              type: integer
+            total_duration:
+              type: integer
+            result_count:
+              type: integer
+            error_log_count:
+              type: integer
+    Task:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Model'
+        - properties:
+            spider_id:
+              type: string
+            status:
+              type: string
+            node_id:
+              type: string
+            cmd:
+              type: string
+            param:
+              type: string
+            error:
+              type: string
+            pid:
+              description: Process ID
+              type: integer
+            schedule_id:
+              type: string
+            type:
+              type: string
+            mode:
+              $ref: '#/components/schemas/TaskMode'
+            node_ids:
+              type: array
+              items:
+                type: string
+            parent_id:
+              type: string
+            priority:
+              type: integer
+            stat:
+              $ref: '#/components/schemas/TaskStat'
+            has_sub:
+              type: boolean
+            sub_tasks:
+              type: array
+              items:
+                $ref: '#/components/schemas/Task'
+            user_id:
+              type: string
+    TaskMode:
+      type: string
+      enum:
+        - random
+        - all-nodes
+        - selected-nodes
+    SpiderStat:
+      description: Spider stat
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Model'
+        - properties:
+            type:
+              description: Last task ID
+              type: string
+            task:
+              description: Last task
+              $ref: '#/components/schemas/Task'
+    Spider:
+      description: Spider model
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ModelWithNameDescription'
+        - properties:
+            type:
+              description: Spider type
+              type: string
+            col_id:
+              description: Spider collection ID
+              type: string
+            col_name:
+              description: Spider collection name
+              type: string
+            data_source_id:
+              description: Spider data source id
+              type: string
+            data_source_name:
+              description: Spider data source name
+              type: string
+            project_id:
+              description: Spider project id
+              type: string
+            mode:
+              description: Spider task mode
+              $ref: '#/components/schemas/TaskMode'
+            node_ids:
+              description: Spider task selected node IDs
+              type: array
+              items:
+                type: string
+            stat:
+              description: Spider stat
+              $ref: '#/components/schemas/SpiderStat'
+    SpiderFile:
+      description: Spider file model
+      type: object
+      properties:
+        name:
+          description: File name
+          type: string
+        path:
+          description: File path
+          type: string
+        full_path:
+          description: Full file path
+          type: string
+        extension:
+          description: File extension
+          type: string
+        md5:
+          description: File MD5 hash
+          type: string
+        is_dir:
+          description: Whether the file is directory
+          type: string
+        fileSize:
+          description: File size
+          type: integer
+        children:
+          description: Children files
+          type: array
+          items:
+            $ref: '#/components/schemas/SpiderFile'
+    GitFileStatus:
+      description: Git file status
+      type: object
+      properties:
+        path:
+          description: File path
+          type: string
+        name:
+          description: File name
+          type: string
+        is_dir:
+          description: Whether the file is directory
+          type: boolean
+        staging:
+          description: Staging
+          type: string
+        worktree:
+          description: Worktree
+          type: string
+        extra:
+          description: Extra
+          type: string
+        children:
+          description: Children files
+          type: array
+          items:
+            $ref: '#/components/schemas/GitFileStatus'
+    GitRef:
+      description: Git ref
+      type: object
+      properties:
+        type:
+          description: Ref type
+          type: string
+        name:
+          description: Ref name
+          type: string
+        full_name:
+          description: Ref full name
+          type: string
+        hash:
+          description: Ref hash
+          type: string
+        timestamp:
+          description: Ref timestamp
+          type: string
+          format: date-time
+    GitLog:
+      description: Git log
+      type: object
+      properties:
+        hash:
+          description: Commit hash
+          type: string
+        msg:
+          description: Commit message
+          type: string
+        author_name:
+          description: Author name
+          type: string
+        author_email:
+          description: Author email
+          type: string
+        timestamp:
+          description: Commit timestamp
+          type: string
+          format: date-time
+        refs:
+          description: Commit refs
+          type: array
+          items:
+            $ref: '#/components/schemas/GitRef'
+    Git:
+      description: Git model
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ModelWithKey'
+        - properties:
+          url:
+            description: Git url
+            type: string
+          branch:
+            description: Git branch
+            type: string
+          changes:
+            description: Git changes
+            type: array
+            items:
+              $ref: '#/components/schemas/GitFileStatus'
+          logs:
+            description: Git logs
+            type: array
+            items:
+              $ref: '#/components/schemas/GitLog'
+          ignore:
+            description: Git ignore files
+            type: array
+            items:
+              type: string
+          git:
+            description: Git url
+            type: string
+    GitPayload:
+      description: Git payload
+      type: object
+      properties:
+        paths:
+          description: Git paths
+          type: array
+          items:
+            type: string
+        commit_message:
+          description: Commit message
+          type: string
+        branch:
+          description: Branch
+          type: string
+        tag:
+          description: Tag
+          type: string
+    DataSource:
+      description: Data source model
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ModelWithKey'
+        - properties:
+            name:
+              description: Data source name
+              type: string
+            description:
+              description: Data source description
+              type: string
+            type:
+              description: Data source type
+              type: string
+            host:
+              description: Data source host
+              type: string
+            port:
+              description: Data source port
+              type: string
+            url:
+              description: Data source url
+              type: string
+            hosts:
+              description: Data source hosts
+              type: array
+              items:
+                type: string
+            database:
+              description: Data source database
+              type: string
+            username:
+              description: Data source username
+              type: string
+            password:
+              description: Data source password
+              type: string
+            enabled:
+              description: Data source enabled
+              type: boolean
+            connect_type:
+              description: Data source connect type
+              type: string
+            status:
+              description: Data source status
+              type: string
+            error:
+              description: Data source error
+              type: string
+            extra:
+              description: Data source extra
+              type: object
+    Schedule:
+      description: Schedule model
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ModelWithKey'
+        - properties:
+            spider_id:
+              description: Schedule spider ID
+              type: string
+            cron:
+              description: Schedule cron
+              type: string
+              example: "* * * * *"
+            entry_id:
+              description: Schedule entry ID
+              type: string
+              example: 1
+            cmd:
+              description: Schedule execute command
+              type: string
+              example: scrapy crawl spider
+            param:
+              description: Schedule execute command param
+              type: string
+              example: -a param1=value1 -a param2=value2
+            mode:
+              description: Schedule task mode
+              type: string
+              example: random
+            node_ids:
+            enabled:
+              description: Schedule enabled
+              type: boolean
+              example: true
+            user_id:
+              description: Schedule user ID
+              type: string
+    User:
+      description: User model
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Model'
+        - properties:
+          username:
+            description: User username
+            type: string
+          email:
+            description: User email
+            type: string
+          role:
+            description: User role
+            type: string
+    Token:
+      description: Token model
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Model'
+        - properties:
+            name:
+              description: Token name
+              type: string
+            token:
+              description: Token
+              type: string
+    Plugin:
+      description: Plugin model
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ModelWithNameDescription'
+        - properties:
+            short_name:
+              description: Plugin short name
+              type: string
+            full_name:
+              description: Plugin full name
+              type: string
+            proto:
+              description: Plugin protocol
+              type: string
+            active:
+              description: Plugin active
+              type: boolean
+            endpoint:
+              description: Plugin endpoint
+              type: string
+            cmd:
+              description: Plugin cmd
+              type: string
+            docker_cmd:
+              description: Plugin docker cmd
+              type: string
+            docker_dir:
+              description: Plugin docker directory
+              type: string
+            event_key:
+              description: Plugin event key
+              $ref: '#/components/schemas/PluginEventKey'
+            install_type:
+              description: Plugin install type
+              type: string
+            install_url:
+              description: Plugin install url
+              type: string
+            install_cmd:
+              description: Plugin install cmd
+              type: string
+            deploy_mode:
+              description: Plugin deploy mode
+              type: string
+            auto_start:
+              description: Plugin auto start
+              type: boolean
+            ui_components:
+              description: Plugin ui components
+              type: array
+              items:
+                $ref: '#/components/schemas/PluginUIComponent'
+            ui_sidebar_navs:
+              description: Plugin ui sidebar navs
+              type: array
+              items:
+                $ref: '#/components/schemas/PluginUINav'
+            ui_assets:
+              description: Plugin ui assets
+              type: array
+              items:
+                $ref: '#/components/schemas/PluginUIAsset'
+            lang_url:
+              description: Plugin language url
+              type: string
+            status:
+              description: Plugin status
+              $ref: '#/components/schemas/PluginStatus'
+    PluginEventKey:
+      description: Plugin event key model
+      type: object
+      properties:
+        include:
+          description: Plugin included event key
+          type: array
+          items:
+            type: string
+        exclude:
+          description: Plugin excluded event key
+          type: array
+          items:
+            type: string
+    PluginUIComponent:
+      description: Plugin ui component model
+      type: object
+      properties:
+        name:
+          description: Plugin ui component name
+          type: string
+        title:
+          description: Plugin ui component title
+          type: string
+        src:
+          description: Plugin ui component src
+          type: string
+        type:
+          description: Plugin ui component type
+          type: string
+        path:
+          description: Plugin ui component path
+          type: string
+        parent_paths:
+          description: Plugin ui component parent paths
+          type: array
+          items:
+            type: string
+    PluginUINav:
+      description: Plugin ui nav model
+      type: object
+      properties:
+        path:
+          description: Plugin ui nav path
+          type: string
+        title:
+          description: Plugin ui nav title
+          type: string
+        icon:
+          description: Plugin ui nav icon
+          type: array
+          items:
+            type: string
+        children:
+          description: Plugin ui nav children
+          type: array
+          items:
+            $ref: '#/components/schemas/PluginUINav'
+    PluginUIAsset:
+      description: Plugin ui asset model
+      type: object
+      properties:
+        path:
+          description: Plugin ui asset path
+          type: string
+        type:
+          description: Plugin ui asset type
+          type: string
+    PluginStatus:
+      description: Plugin status model
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Model'
+        - properties:
+            plugin_id:
+              description: Plugin ID
+              type: string
+            node_id:
+              description: Node ID
+              type: string
+            status:
+              description: Plugin status
+              type: string
+            pid:
+              description: Plugin process ID
+              type: integer
+            error:
+              description: Plugin error
+              type: string
+            node:
+              description: Node model
+              $ref: '#/components/schemas/Node'
+    PublicPlugin:
+      description: Public plugin model
+      type: object
+      properties:
+        id:
+          description: Public plugin ID
+          type: string
+        name:
+          description: Public plugin name
+          type: string
+        full_name:
+          description: Public plugin full name
+          type: string
+        description:
+          description: Public plugin description
+          type: string
+        html_url:
+          description: Public plugin html url
+          type: string
+        pushed_at:
+          description: Public plugin pushed at
+          type: string
+        created_at:
+          description: Public plugin created at
+          type: string
+        updated_at:
+          description: Public plugin updated at
+          type: string
+
+  securitySchemes:
+    apiToken:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: API Token
+      x-displayName: API Token

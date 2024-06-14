@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import "entity/request.proto";
+import "entity/response.proto";
+import "entity/stream_message.proto";
+
+package grpc;
+option go_package = ".;grpc";
+
+service TaskService {
+  rpc Subscribe(stream StreamMessage) returns (Response){};
+  rpc Fetch(Request) returns (Response){};
+  rpc SendNotification(Request) returns (Response){};
+}

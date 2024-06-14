@@ -1,0 +1,10 @@
+.idea
+.DS_Store
+vendor/
+tmp/
+build/
+dist/
+*.log
+gen/
+*.exe
+*.txt

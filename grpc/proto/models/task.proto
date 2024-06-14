@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package grpc;
+option go_package = ".;grpc";
+
+message Task {
+  string _id = 1;
+  string spider_id = 2;
+  string status = 5;
+  string node_id = 6;
+  string cmd = 8;
+  string param = 9;
+  string error = 10;
+  int32 pid = 16;
+  string run_type = 17;
+  string schedule_id = 18;
+  string type = 19;
+}

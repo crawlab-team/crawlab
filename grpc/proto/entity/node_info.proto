@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package grpc;
+option go_package = ".;grpc";
+
+message NodeInfo {
+  string key = 1;
+  bool is_master = 2;
+}

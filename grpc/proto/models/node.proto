@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package grpc;
+option go_package = ".;grpc";
+
+message Node {
+  string _id = 1;
+  string name = 2;
+  string ip = 3;
+  string port = 5;
+  string mac = 6;
+  string hostname = 7;
+  string description = 8;
+  string key = 9;
+  bool is_master = 11;
+  string update_ts = 12;
+  string create_ts = 13;
+  int64 update_ts_unix = 14;
+}

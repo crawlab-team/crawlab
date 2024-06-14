@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+import "entity/request.proto";
+import "entity/response.proto";
+
+package grpc;
+option go_package = ".;grpc";
+
+service ModelDelegate {
+  rpc Do(Request) returns (Response){};
+}

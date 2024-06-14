@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import "entity/plugin_request.proto";
+import "entity/response.proto";
+import "entity/stream_message.proto";
+
+package grpc;
+option go_package = ".;grpc";
+
+service PluginService {
+  rpc Register(PluginRequest) returns (Response){};
+  rpc Subscribe(PluginRequest) returns (stream StreamMessage){};
+  rpc Poll(stream StreamMessage) returns (stream StreamMessage){};
+}
