@@ -4,23 +4,22 @@ go 1.22
 
 replace (
 	github.com/crawlab-team/crawlab/db => ../db
+	github.com/crawlab-team/crawlab/fs => ../fs
 	github.com/crawlab-team/crawlab/grpc => ../grpc
 	github.com/crawlab-team/crawlab/template-parser => ../template-parser
 	github.com/crawlab-team/crawlab/trace => ../trace
 	github.com/crawlab-team/crawlab/vcs => ../vcs
-	github.com/crawlab-team/crawlab/fs => ../fs
 )
 
 require (
 	github.com/ReneKroon/ttlcache v1.7.0
 	github.com/apex/log v1.9.0
 	github.com/cenkalti/backoff/v4 v4.1.0
-	github.com/crawlab-team/crawlab/fs v0.6.3-2
-	github.com/crawlab-team/crawlab/db v0.6.0-1
-	github.com/crawlab-team/crawlab/grpc v0.0.0
-	github.com/crawlab-team/crawlab/template-parser v0.0.4-0.20221006034646-9bb77a7ae86e
-	github.com/crawlab-team/crawlab/trace v0.1.0
-	github.com/crawlab-team/crawlab/vcs v0.1.1
+	github.com/crawlab-team/crawlab/db v0.0.0-20240614083850-ff2830bd7994
+	github.com/crawlab-team/crawlab/fs v0.0.0-20240614083850-ff2830bd7994
+	github.com/crawlab-team/crawlab/grpc v0.0.0-20240614083850-ff2830bd7994
+	github.com/crawlab-team/crawlab/trace v0.0.0-20240614083850-ff2830bd7994
+	github.com/crawlab-team/crawlab/vcs v0.0.0-20240614083850-ff2830bd7994
 	github.com/elastic/go-elasticsearch/v8 v8.7.0
 	github.com/emirpasic/gods v1.18.1
 	github.com/fsnotify/fsnotify v1.5.1
@@ -71,6 +70,7 @@ require (
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
+	github.com/crawlab-team/goseaweedfs v0.6.0-beta.20211101.1936.0.20220912021203-dfee5f74dd69 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/denisenkom/go-mssqldb v0.11.0 // indirect
 	github.com/elastic/elastic-transport-go/v8 v8.2.0 // indirect
@@ -117,6 +117,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/lib/pq v1.10.4 // indirect
+	github.com/linxGnu/gumble v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
