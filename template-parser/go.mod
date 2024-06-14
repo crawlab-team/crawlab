@@ -5,7 +5,7 @@ go 1.22
 replace github.com/crawlab-team/crawlab/db => ../db
 
 require (
-	github.com/crawlab-team/crawlab/db v0.6.0-1
+	github.com/crawlab-team/crawlab/db v0.0.0-20240614094818-e8f694eab76e
 	github.com/robertkrimen/otto v0.0.0-20210614181706-373ff5438452
 	github.com/stretchr/testify v1.9.0
 	go.mongodb.org/mongo-driver v1.15.0
