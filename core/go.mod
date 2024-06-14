@@ -15,12 +15,12 @@ require (
 	github.com/ReneKroon/ttlcache v1.7.0
 	github.com/apex/log v1.9.0
 	github.com/cenkalti/backoff/v4 v4.1.0
-	github.com/crawlab-team/crawlab/db v0.6.0-1
-	github.com/crawlab-team/crawlab/fs v0.0.0-20240614083850-ff2830bd7994
-	github.com/crawlab-team/crawlab/grpc v0.0.0-20240614083850-ff2830bd7994
-	github.com/crawlab-team/crawlab/template-parser v0.0.0-00010101000000-000000000000
-	github.com/crawlab-team/crawlab/trace v0.0.0-20240614083850-ff2830bd7994
-	github.com/crawlab-team/crawlab/vcs v0.1.1
+	github.com/crawlab-team/crawlab/db v0.0.0-20240614093256-0834d6771b27
+	github.com/crawlab-team/crawlab/fs v0.0.0-20240614093256-0834d6771b27
+	github.com/crawlab-team/crawlab/grpc v0.0.0-20240614093256-0834d6771b27
+	github.com/crawlab-team/crawlab/template-parser v0.0.0-20240614093256-0834d6771b27
+	github.com/crawlab-team/crawlab/trace v0.0.0-20240614093256-0834d6771b27
+	github.com/crawlab-team/crawlab/vcs v0.0.0-20240614093256-0834d6771b27
 	github.com/elastic/go-elasticsearch/v8 v8.7.0
 	github.com/emirpasic/gods v1.18.1
 	github.com/fsnotify/fsnotify v1.7.0
@@ -30,7 +30,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.1-0.20190118093823-f849b5445de4
-	github.com/hashicorp/go-uuid v1.0.1
+	github.com/hashicorp/go-uuid v1.0.3
 	github.com/imroc/req v0.3.0
 	github.com/matcornic/hermes/v2 v2.1.0
 	github.com/mitchellh/go-homedir v1.1.0
@@ -171,6 +171,7 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	github.com/ztrue/tracerr v0.4.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
+	go.uber.org/goleak v1.1.11 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
