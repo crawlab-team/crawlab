@@ -8,7 +8,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/task"
 	"github.com/crawlab-team/crawlab/core/task/log"
 	"github.com/crawlab-team/crawlab/db/mongo"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"sync"

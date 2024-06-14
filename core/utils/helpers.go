@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 	"io"
 	"reflect"
 	"unsafe"

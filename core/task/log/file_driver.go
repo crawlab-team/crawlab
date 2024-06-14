@@ -6,7 +6,7 @@ import (
 	"errors"
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/utils"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 	"github.com/spf13/viper"
 	"io"
 	"os"

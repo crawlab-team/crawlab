@@ -12,7 +12,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/task/handler"
 	"github.com/crawlab-team/crawlab/core/utils"
 	grpc "github.com/crawlab-team/crawlab/grpc"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 	"time"
 )
 

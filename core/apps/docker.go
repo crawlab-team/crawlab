@@ -6,7 +6,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/sys_exec"
 	"github.com/crawlab-team/crawlab/core/utils"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 	"github.com/imroc/req"
 	"github.com/spf13/viper"
 	"os"

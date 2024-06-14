@@ -11,7 +11,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	nodeconfig "github.com/crawlab-team/crawlab/core/node/config"
 	grpc2 "github.com/crawlab-team/crawlab/grpc"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"

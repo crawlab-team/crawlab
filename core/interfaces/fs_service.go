@@ -1,8 +1,8 @@
 package interfaces
 
 import (
-	cfs "github.com/crawlab-team/crawlab-fs"
-	vcs "github.com/crawlab-team/crawlab-vcs"
+	cfs "github.com/crawlab-team/crawlab/fs"
+	vcs "github.com/crawlab-team/crawlab/vcs"
 )
 
 type FsService interface {

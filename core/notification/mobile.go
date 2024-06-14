@@ -2,7 +2,7 @@ package notification
 
 import (
 	"errors"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 	"github.com/imroc/req"
 	"strings"
 )

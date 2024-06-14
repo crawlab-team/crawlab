@@ -11,7 +11,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/models/models"
 	"github.com/crawlab-team/crawlab/core/utils"
 	grpc "github.com/crawlab-team/crawlab/grpc"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 	"github.com/spf13/viper"
 	"time"
 )

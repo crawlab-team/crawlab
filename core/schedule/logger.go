@@ -3,7 +3,7 @@ package schedule
 import (
 	"fmt"
 	"github.com/apex/log"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 	"github.com/robfig/cron/v3"
 	"strings"
 )

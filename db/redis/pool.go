@@ -1,7 +1,7 @@
 package redis
 
 import (
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 	"github.com/gomodule/redigo/redis"
 	"github.com/spf13/viper"
 	"time"

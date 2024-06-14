@@ -20,13 +20,13 @@ require (
 	github.com/cenkalti/backoff/v4 v4.1.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
-	github.com/crawlab-team/crawlab-db v0.6.0-beta.20220417.1300.0.20221226064900-5a357ee73484 // indirect
-	github.com/crawlab-team/crawlab-fs v0.6.3 // indirect
+	github.com/crawlab-team/crawlab/db v0.6.0-beta.20220417.1300.0.20221226064900-5a357ee73484 // indirect
+	github.com/crawlab-team/crawlab/fs v0.6.3 // indirect
 	github.com/crawlab-team/crawlab-grpc v0.6.0-beta.20211219.1930.0.20221020032435-afa1c691f73c // indirect
 	github.com/crawlab-team/crawlab-vcs v0.6.2-0.20230629045457-afe0be0e2185 // indirect
-	github.com/crawlab-team/go-trace v0.1.1 // indirect
+	github.com/crawlab-team/crawlab/vcs v0.1.1 // indirect
 	github.com/crawlab-team/goseaweedfs v0.6.0-beta.20211101.1936.0.20220912021203-dfee5f74dd69 // indirect
-	github.com/crawlab-team/template-parser v0.0.4-0.20221006034646-9bb77a7ae86e // indirect
+	github.com/crawlab-team/crawlab/template-parser v0.0.4-0.20221006034646-9bb77a7ae86e // indirect
 	github.com/denisenkom/go-mssqldb v0.11.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/elastic/elastic-transport-go/v8 v8.2.0 // indirect

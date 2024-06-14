@@ -3,7 +3,7 @@ package server
 import (
 	"encoding/json"
 	"github.com/crawlab-team/crawlab/grpc"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 )
 
 func HandleError(err error) (res *grpc.Response, err2 error) {

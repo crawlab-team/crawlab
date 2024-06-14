@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  server:
+    image: chrislusf/seaweedfs # use a remote image
+    container_name: seaweedfs-server
+    restart: always
+#    command: "server -dir /data -master.dir /data -volume.dir.idx /data -ip localhost -ip.bind 0.0.0.0 -filer -encryptVolumeData"
+    command: "server -dir /data -master.dir /data -volume.dir.idx /data -ip localhost -ip.bind 0.0.0.0 -filer"
+    ports:
+      - 8888:8888
+    #volumes:
+    #  - /data/seaweedfs:/data

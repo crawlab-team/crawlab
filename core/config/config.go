@@ -3,7 +3,7 @@ package config
 import (
 	"bytes"
 	"github.com/apex/log"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"strings"

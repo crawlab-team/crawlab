@@ -5,7 +5,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/entity"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/grpc"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 )
 
 func NewModelBaseServiceBinder(req *grpc.Request) (b *ModelBaseServiceBinder) {

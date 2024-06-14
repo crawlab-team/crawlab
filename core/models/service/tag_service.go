@@ -6,7 +6,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/models/delegate"
 	models2 "github.com/crawlab-team/crawlab/core/models/models"
 	"github.com/crawlab-team/crawlab/db/mongo"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	mongo2 "go.mongodb.org/mongo-driver/mongo"

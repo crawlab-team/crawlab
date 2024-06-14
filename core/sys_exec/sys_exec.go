@@ -2,7 +2,7 @@ package sys_exec
 
 import (
 	"bufio"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 	"github.com/shirou/gopsutil/process"
 	"os/exec"
 	"time"

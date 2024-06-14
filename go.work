@@ -2,6 +2,10 @@ go 1.22
 
 use (
 	core
-	grpc
 	db
+	grpc
+	template-parser
+	trace
+	vcs
+	fs
 )

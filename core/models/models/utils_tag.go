@@ -4,7 +4,7 @@ import (
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/errors"
 	"github.com/crawlab-team/crawlab/core/interfaces"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 )
 
 func convertInterfacesToTags(tags []interfaces.Tag) (res []Tag) {

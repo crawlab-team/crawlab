@@ -5,7 +5,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/models/models"
 	"github.com/crawlab-team/crawlab/db/mongo"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 )
 
 func NewListBinder(id interfaces.ModelId, fr *mongo.FindResult) (b interfaces.ModelListBinder) {

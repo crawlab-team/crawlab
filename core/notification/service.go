@@ -8,7 +8,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/utils"
 	mongo2 "github.com/crawlab-team/crawlab/db/mongo"
-	parser "github.com/crawlab-team/template-parser"
+	parser "github.com/crawlab-team/crawlab/template-parser"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

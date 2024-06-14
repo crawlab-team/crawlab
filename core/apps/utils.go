@@ -19,7 +19,7 @@ import (
 	taskstats "github.com/crawlab-team/crawlab/core/task/stats"
 	"github.com/crawlab-team/crawlab/core/user"
 	"github.com/crawlab-team/crawlab/core/utils"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 )
 
 func Start(app App) {

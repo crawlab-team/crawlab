@@ -6,7 +6,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/models/service"
 	utils2 "github.com/crawlab-team/crawlab/core/utils"
 	"github.com/crawlab-team/crawlab/db/generic"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
 	"github.com/upper/db/v4"
 	"time"
 )

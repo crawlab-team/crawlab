@@ -3,7 +3,6 @@ package controllers
 import (
 	"bytes"
 	"fmt"
-	vcs "github.com/crawlab-team/crawlab-vcs"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/container"
 	"github.com/crawlab-team/crawlab/core/entity"
@@ -15,7 +14,8 @@ import (
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/utils"
 	"github.com/crawlab-team/crawlab/db/mongo"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
+	"github.com/crawlab-team/crawlab/vcs"
 	"github.com/gin-gonic/gin"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"

@@ -5,6 +5,7 @@ import (
 	"github.com/crawlab-team/crawlab/db"
 	"github.com/crawlab-team/crawlab/db/errors"
 	"github.com/crawlab-team/crawlab/db/utils"
+	"github.com/crawlab-team/crawlab/trace"
 	"github.com/gomodule/redigo/redis"
 	"reflect"
 	"strings"

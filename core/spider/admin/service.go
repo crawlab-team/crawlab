@@ -3,7 +3,6 @@ package admin
 import (
 	"context"
 	"github.com/apex/log"
-	vcs "github.com/crawlab-team/crawlab-vcs"
 	config2 "github.com/crawlab-team/crawlab/core/config"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/container"
@@ -12,7 +11,8 @@ import (
 	"github.com/crawlab-team/crawlab/core/models/models"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/utils"
-	"github.com/crawlab-team/go-trace"
+	"github.com/crawlab-team/crawlab/trace"
+	"github.com/crawlab-team/crawlab/vcs"
 	"github.com/google/uuid"
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/viper"

@@ -1,6 +1,7 @@
 package result
 
 import (
+	"github.com/crawlab-team/crawlab/trace"
 	"time"
 
 	"github.com/crawlab-team/crawlab/core/constants"
@@ -10,7 +11,6 @@ import (
 	"github.com/crawlab-team/crawlab/core/utils"
 	"github.com/crawlab-team/crawlab/db/generic"
 	"github.com/crawlab-team/crawlab/db/mongo"
-	"github.com/crawlab-team/go-trace"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	mongo2 "go.mongodb.org/mongo-driver/mongo"

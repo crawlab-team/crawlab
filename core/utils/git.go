@@ -1,10 +1,10 @@
 package utils
 
 import (
-	vcs "github.com/crawlab-team/crawlab-vcs"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/models/models"
+	vcs "github.com/crawlab-team/crawlab/vcs"
 )
 
 func InitGitClientAuth(g interfaces.Git, gitClient *vcs.GitClient) {

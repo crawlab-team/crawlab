@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"github.com/crawlab-team/crawlab/db/errors"
+	"github.com/crawlab-team/crawlab/trace"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
