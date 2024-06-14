@@ -15,12 +15,12 @@ require (
 	github.com/ReneKroon/ttlcache v1.7.0
 	github.com/apex/log v1.9.0
 	github.com/cenkalti/backoff/v4 v4.1.0
-	github.com/crawlab-team/crawlab/db v0.0.0-20240614094818-e8f694eab76e
-	github.com/crawlab-team/crawlab/fs v0.0.0-20240614094818-e8f694eab76e
-	github.com/crawlab-team/crawlab/grpc v0.0.0-20240614094818-e8f694eab76e
-	github.com/crawlab-team/crawlab/template-parser v0.0.0-20240614094818-e8f694eab76e
-	github.com/crawlab-team/crawlab/trace v0.0.0-20240614094818-e8f694eab76e
-	github.com/crawlab-team/crawlab/vcs v0.0.0-20240614094818-e8f694eab76e
+	github.com/crawlab-team/crawlab/db v0.0.0-20240614095218-7b4ee8399ab0
+	github.com/crawlab-team/crawlab/fs v0.0.0-20240614095218-7b4ee8399ab0
+	github.com/crawlab-team/crawlab/grpc v0.0.0-20240614095218-7b4ee8399ab0
+	github.com/crawlab-team/crawlab/template-parser v0.0.0-20240614095218-7b4ee8399ab0
+	github.com/crawlab-team/crawlab/trace v0.0.0-20240614095218-7b4ee8399ab0
+	github.com/crawlab-team/crawlab/vcs v0.0.0-20240614095218-7b4ee8399ab0
 	github.com/elastic/go-elasticsearch/v8 v8.7.0
 	github.com/emirpasic/gods v1.18.1
 	github.com/fsnotify/fsnotify v1.7.0

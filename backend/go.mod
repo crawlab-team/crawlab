@@ -12,7 +12,7 @@ replace (
 	github.com/crawlab-team/crawlab/vcs => ../vcs
 )
 
-require github.com/crawlab-team/crawlab/core v0.0.0-20240614094818-e8f694eab76e
+require github.com/crawlab-team/crawlab/core v0.0.0-20240614095218-7b4ee8399ab0
 
 require (
 	dario.cat/mergo v1.0.0 // indirect
@@ -38,11 +38,11 @@ require (
 	github.com/cenkalti/backoff/v4 v4.1.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
-	github.com/crawlab-team/crawlab/db v0.6.0-1 // indirect
-	github.com/crawlab-team/crawlab/fs v0.0.0-20240614094818-e8f694eab76e // indirect
-	github.com/crawlab-team/crawlab/grpc v0.0.0-20240614094818-e8f694eab76e // indirect
-	github.com/crawlab-team/crawlab/template-parser v0.0.0-20240614094818-e8f694eab76e // indirect
-	github.com/crawlab-team/crawlab/vcs v0.0.0-20240614094818-e8f694eab76e // indirect
+	github.com/crawlab-team/crawlab/db v0.0.0-20240614095218-7b4ee8399ab0 // indirect
+	github.com/crawlab-team/crawlab/fs v0.0.0-20240614095218-7b4ee8399ab0 // indirect
+	github.com/crawlab-team/crawlab/grpc v0.0.0-20240614095218-7b4ee8399ab0 // indirect
+	github.com/crawlab-team/crawlab/template-parser v0.0.0-20240614095218-7b4ee8399ab0 // indirect
+	github.com/crawlab-team/crawlab/vcs v0.0.0-20240614095218-7b4ee8399ab0 // indirect
 	github.com/crawlab-team/goseaweedfs v0.6.0-beta.20211101.1936.0.20220912021203-dfee5f74dd69 // indirect
 	github.com/denisenkom/go-mssqldb v0.11.0 // indirect
 	github.com/elastic/elastic-transport-go/v8 v8.2.0 // indirect
