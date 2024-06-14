@@ -2,12 +2,12 @@ package notification
 
 import (
 	"github.com/apex/log"
-	mongo2 "github.com/crawlab-team/crawlab-db/mongo"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/entity"
 	"github.com/crawlab-team/crawlab/core/models/models"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/utils"
+	mongo2 "github.com/crawlab-team/crawlab/db/mongo"
 	parser "github.com/crawlab-team/template-parser"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

@@ -1,7 +1,6 @@
 package scheduler
 
 import (
-	"github.com/crawlab-team/crawlab-db/mongo"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/container"
 	"github.com/crawlab-team/crawlab/core/errors"
@@ -10,6 +9,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/models/models"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/task"
+	"github.com/crawlab-team/crawlab/db/mongo"
 	grpc "github.com/crawlab-team/crawlab/grpc"
 	"github.com/crawlab-team/go-trace"
 	"go.mongodb.org/mongo-driver/bson"

@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/apex/log"
-	"github.com/crawlab-team/crawlab-db/mongo"
 	config2 "github.com/crawlab-team/crawlab/core/config"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/container"
@@ -17,6 +16,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/notification"
 	"github.com/crawlab-team/crawlab/core/system"
 	"github.com/crawlab-team/crawlab/core/utils"
+	"github.com/crawlab-team/crawlab/db/mongo"
 	grpc "github.com/crawlab-team/crawlab/grpc"
 	"github.com/crawlab-team/go-trace"
 	"github.com/spf13/viper"

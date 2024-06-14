@@ -3,4 +3,5 @@ go 1.22
 use (
 	core
 	grpc
+	db
 )

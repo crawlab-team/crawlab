@@ -3,16 +3,17 @@ module github.com/crawlab-team/crawlab/core
 go 1.22
 
 replace (
-	github.com/crawlab-team/crawlab/grpc latest => ../grpc latest
+	github.com/crawlab-team/crawlab/grpc => ../grpc
+	github.com/crawlab-team/crawlab/db => ../db
 )
 
 require (
 	github.com/ReneKroon/ttlcache v1.7.0
 	github.com/apex/log v1.9.0
 	github.com/cenkalti/backoff/v4 v4.1.0
-	github.com/crawlab-team/crawlab-db v0.6.0-beta.20220417.1300.0.20221226064900-5a357ee73484
+	github.com/crawlab-team/crawlab/db v0.0.0
 	github.com/crawlab-team/crawlab-fs v0.6.3-2
-	github.com/crawlab-team/crawlab/grpc latest
+	github.com/crawlab-team/crawlab/grpc v0.0.0
 	github.com/crawlab-team/crawlab-vcs v0.6.2-0.20230629045457-afe0be0e2185
 	github.com/crawlab-team/go-trace v0.1.1
 	github.com/crawlab-team/template-parser v0.0.4-0.20221006034646-9bb77a7ae86e

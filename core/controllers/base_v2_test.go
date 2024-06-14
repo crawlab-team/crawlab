@@ -14,7 +14,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/crawlab-team/crawlab-db/mongo"
+	"github.com/crawlab-team/crawlab/db/mongo"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )

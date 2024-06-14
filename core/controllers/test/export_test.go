@@ -1,8 +1,8 @@
 package test
 
 import (
-	"github.com/crawlab-team/crawlab-db/mongo"
 	"github.com/crawlab-team/crawlab/core/constants"
+	"github.com/crawlab-team/crawlab/db/mongo"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"

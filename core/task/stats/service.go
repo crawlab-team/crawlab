@@ -1,13 +1,13 @@
 package stats
 
 import (
-	"github.com/crawlab-team/crawlab-db/mongo"
 	"github.com/crawlab-team/crawlab/core/container"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/result"
 	"github.com/crawlab-team/crawlab/core/task"
 	"github.com/crawlab-team/crawlab/core/task/log"
+	"github.com/crawlab-team/crawlab/db/mongo"
 	"github.com/crawlab-team/go-trace"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

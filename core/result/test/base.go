@@ -1,12 +1,12 @@
 package test
 
 import (
-	"github.com/crawlab-team/crawlab-db/mongo"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/models/delegate"
 	"github.com/crawlab-team/crawlab/core/models/models"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/result"
+	"github.com/crawlab-team/crawlab/db/mongo"
 	"go.uber.org/dig"
 	"testing"
 )

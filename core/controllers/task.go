@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"github.com/crawlab-team/crawlab-db/generic"
-	"github.com/crawlab-team/crawlab-db/mongo"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/container"
 	"github.com/crawlab-team/crawlab/core/errors"
@@ -13,6 +11,8 @@ import (
 	"github.com/crawlab-team/crawlab/core/result"
 	"github.com/crawlab-team/crawlab/core/task/log"
 	"github.com/crawlab-team/crawlab/core/utils"
+	"github.com/crawlab-team/crawlab/db/generic"
+	"github.com/crawlab-team/crawlab/db/mongo"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

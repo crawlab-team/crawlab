@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/crawlab-team/crawlab-db/generic"
+	"github.com/crawlab-team/crawlab/db/generic"
 	"github.com/upper/db/v4"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )

@@ -2,10 +2,10 @@ package utils
 
 import (
 	"context"
-	"github.com/crawlab-team/crawlab-db/generic"
-	"github.com/crawlab-team/crawlab-db/mongo"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/models/models"
+	"github.com/crawlab-team/crawlab/db/generic"
+	"github.com/crawlab-team/crawlab/db/mongo"
 	"go.mongodb.org/mongo-driver/bson"
 	mongo2 "go.mongodb.org/mongo-driver/mongo"
 	"time"

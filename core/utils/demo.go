@@ -2,8 +2,8 @@ package utils
 
 import (
 	"fmt"
-	"github.com/crawlab-team/crawlab-db/mongo"
 	"github.com/crawlab-team/crawlab/core/sys_exec"
+	"github.com/crawlab-team/crawlab/db/mongo"
 	"github.com/crawlab-team/go-trace"
 	"github.com/spf13/viper"
 )

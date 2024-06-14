@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/crawlab-team/crawlab-db/mongo"
 	"github.com/crawlab-team/crawlab/core/interfaces"
+	"github.com/crawlab-team/crawlab/db/mongo"
 )
 
 type Option func(ModelService)

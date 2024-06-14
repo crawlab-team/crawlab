@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"github.com/crawlab-team/crawlab-db/generic"
 	"github.com/crawlab-team/crawlab/core/models/models"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/result"
 	"github.com/crawlab-team/crawlab/core/utils"
+	"github.com/crawlab-team/crawlab/db/generic"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

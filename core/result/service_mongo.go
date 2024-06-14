@@ -3,13 +3,13 @@ package result
 import (
 	"time"
 
-	"github.com/crawlab-team/crawlab-db/generic"
-	"github.com/crawlab-team/crawlab-db/mongo"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/models/models"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/utils"
+	"github.com/crawlab-team/crawlab/db/generic"
+	"github.com/crawlab-team/crawlab/db/mongo"
 	"github.com/crawlab-team/go-trace"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

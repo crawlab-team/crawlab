@@ -3,8 +3,6 @@ package controllers
 import (
 	"errors"
 	log2 "github.com/apex/log"
-	"github.com/crawlab-team/crawlab-db/generic"
-	"github.com/crawlab-team/crawlab-db/mongo"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/models/models"
@@ -14,6 +12,8 @@ import (
 	"github.com/crawlab-team/crawlab/core/task/log"
 	"github.com/crawlab-team/crawlab/core/task/scheduler"
 	"github.com/crawlab-team/crawlab/core/utils"
+	"github.com/crawlab-team/crawlab/db/generic"
+	"github.com/crawlab-team/crawlab/db/mongo"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
