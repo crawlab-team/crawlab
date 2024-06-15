@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DependenciesServiceV2Client interface {
-	Connect(ctx context.Context, opts ...grpc.CallOption) (DependenciesServiceV2_ConnectClient, error)
+	Connect(ctx context.Context, in *DependenciesServiceV2ConnectRequest, opts ...grpc.CallOption) (DependenciesServiceV2_ConnectClient, error)
 	Sync(ctx context.Context, in *DependenciesServiceV2SyncRequest, opts ...grpc.CallOption) (*Response, error)
 	UpdateTaskLog(ctx context.Context, opts ...grpc.CallOption) (DependenciesServiceV2_UpdateTaskLogClient, error)
 }
@@ -35,27 +35,28 @@ func NewDependenciesServiceV2Client(cc grpc.ClientConnInterface) DependenciesSer
 	return &dependenciesServiceV2Client{cc}
 }
 
-func (c *dependenciesServiceV2Client) Connect(ctx context.Context, opts ...grpc.CallOption) (DependenciesServiceV2_ConnectClient, error) {
+func (c *dependenciesServiceV2Client) Connect(ctx context.Context, in *DependenciesServiceV2ConnectRequest, opts ...grpc.CallOption) (DependenciesServiceV2_ConnectClient, error) {
 	stream, err := c.cc.NewStream(ctx, &DependenciesServiceV2_ServiceDesc.Streams[0], "/grpc.DependenciesServiceV2/Connect", opts...)
 	if err != nil {
 		return nil, err
 	}
 	x := &dependenciesServiceV2ConnectClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
 	return x, nil
 }
 
 type DependenciesServiceV2_ConnectClient interface {
-	Send(*DependenciesServiceV2ConnectRequest) error
 	Recv() (*DependenciesServiceV2ConnectResponse, error)
 	grpc.ClientStream
 }
 
 type dependenciesServiceV2ConnectClient struct {
 	grpc.ClientStream
-}
-
-func (x *dependenciesServiceV2ConnectClient) Send(m *DependenciesServiceV2ConnectRequest) error {
-	return x.ClientStream.SendMsg(m)
 }
 
 func (x *dependenciesServiceV2ConnectClient) Recv() (*DependenciesServiceV2ConnectResponse, error) {
@@ -113,7 +114,7 @@ func (x *dependenciesServiceV2UpdateTaskLogClient) CloseAndRecv() (*Response, er
 // All implementations must embed UnimplementedDependenciesServiceV2Server
 // for forward compatibility
 type DependenciesServiceV2Server interface {
-	Connect(DependenciesServiceV2_ConnectServer) error
+	Connect(*DependenciesServiceV2ConnectRequest, DependenciesServiceV2_ConnectServer) error
 	Sync(context.Context, *DependenciesServiceV2SyncRequest) (*Response, error)
 	UpdateTaskLog(DependenciesServiceV2_UpdateTaskLogServer) error
 	mustEmbedUnimplementedDependenciesServiceV2Server()
@@ -123,7 +124,7 @@ type DependenciesServiceV2Server interface {
 type UnimplementedDependenciesServiceV2Server struct {
 }
 
-func (UnimplementedDependenciesServiceV2Server) Connect(DependenciesServiceV2_ConnectServer) error {
+func (UnimplementedDependenciesServiceV2Server) Connect(*DependenciesServiceV2ConnectRequest, DependenciesServiceV2_ConnectServer) error {
 	return status.Errorf(codes.Unimplemented, "method Connect not implemented")
 }
 func (UnimplementedDependenciesServiceV2Server) Sync(context.Context, *DependenciesServiceV2SyncRequest) (*Response, error) {
@@ -146,12 +147,15 @@ func RegisterDependenciesServiceV2Server(s grpc.ServiceRegistrar, srv Dependenci
 }
 
 func _DependenciesServiceV2_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(DependenciesServiceV2Server).Connect(&dependenciesServiceV2ConnectServer{stream})
+	m := new(DependenciesServiceV2ConnectRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(DependenciesServiceV2Server).Connect(m, &dependenciesServiceV2ConnectServer{stream})
 }
 
 type DependenciesServiceV2_ConnectServer interface {
 	Send(*DependenciesServiceV2ConnectResponse) error
-	Recv() (*DependenciesServiceV2ConnectRequest, error)
 	grpc.ServerStream
 }
 
@@ -161,14 +165,6 @@ type dependenciesServiceV2ConnectServer struct {
 
 func (x *dependenciesServiceV2ConnectServer) Send(m *DependenciesServiceV2ConnectResponse) error {
 	return x.ServerStream.SendMsg(m)
-}
-
-func (x *dependenciesServiceV2ConnectServer) Recv() (*DependenciesServiceV2ConnectRequest, error) {
-	m := new(DependenciesServiceV2ConnectRequest)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
 }
 
 func _DependenciesServiceV2_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -232,7 +228,6 @@ var DependenciesServiceV2_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "Connect",
 			Handler:       _DependenciesServiceV2_Connect_Handler,
 			ServerStreams: true,
-			ClientStreams: true,
 		},
 		{
 			StreamName:    "UpdateTaskLog",

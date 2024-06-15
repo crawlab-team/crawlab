@@ -40,7 +40,7 @@ type GrpcClientV2 struct {
 	NodeClient               grpc2.NodeServiceClient
 	TaskClient               grpc2.TaskServiceClient
 	ModelBaseServiceV2Client grpc2.ModelBaseServiceV2Client
-	DependenciesClient       grpc2.DependencyServiceV2Client
+	DependenciesClient       grpc2.DependenciesServiceV2Client
 }
 
 func (c *GrpcClientV2) Init() (err error) {
@@ -95,7 +95,7 @@ func (c *GrpcClientV2) Register() {
 	c.NodeClient = grpc2.NewNodeServiceClient(c.conn)
 	c.ModelBaseServiceV2Client = grpc2.NewModelBaseServiceV2Client(c.conn)
 	c.TaskClient = grpc2.NewTaskServiceClient(c.conn)
-	c.DependenciesClient = grpc2.NewDependencyServiceV2Client(c.conn)
+	c.DependenciesClient = grpc2.NewDependenciesServiceV2Client(c.conn)
 
 	// log
 	log.Infof("[GrpcClient] grpc client registered client services")
