@@ -58,7 +58,6 @@ func InitRoutes(app *gin.Engine) (err error) {
 	RegisterController(groups.AuthGroup, "/data/collections", NewControllerV2[models.DataCollectionV2]())
 	RegisterController(groups.AuthGroup, "/data-sources", NewControllerV2[models.DataSourceV2]())
 	RegisterController(groups.AuthGroup, "/environments", NewControllerV2[models.EnvironmentV2]())
-	RegisterController(groups.AuthGroup, "/gits", NewControllerV2[models.GitV2]())
 	RegisterController(groups.AuthGroup, "/nodes", NewControllerV2[models.NodeV2]())
 	RegisterController(groups.AuthGroup, "/notifications/settings", NewControllerV2[models.SettingV2]())
 	RegisterController(groups.AuthGroup, "/permissions", NewControllerV2[models.PermissionV2]())
@@ -172,31 +171,7 @@ func InitRoutes(app *gin.Engine) (err error) {
 			Path:        "/:id/run",
 			HandlerFunc: PostSpiderRun,
 		},
-		Action{
-			Method:      http.MethodGet,
-			Path:        "/:id/git",
-			HandlerFunc: GetSpiderGit,
-		},
-		Action{
-			Method:      http.MethodGet,
-			Path:        "/:id/git/remote-refs",
-			HandlerFunc: GetSpiderGitRemoteRefs,
-		},
-		Action{
-			Method:      http.MethodPost,
-			Path:        "/:id/git/checkout",
-			HandlerFunc: PostSpiderGitCheckout,
-		},
-		Action{
-			Method:      http.MethodPost,
-			Path:        "/:id/git/pull",
-			HandlerFunc: PostSpiderGitPull,
-		},
-		Action{
-			Method:      http.MethodPost,
-			Path:        "/:id/git/commit",
-			HandlerFunc: PostSpiderGitCommit,
-		},
+
 		Action{
 			Method:      http.MethodGet,
 			Path:        "/:id/data-source",
