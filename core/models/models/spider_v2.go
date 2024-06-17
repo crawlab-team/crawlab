@@ -17,14 +17,16 @@ type SpiderV2 struct {
 	ProjectId             primitive.ObjectID   `json:"project_id" bson:"project_id"`         // Project.Id
 	Mode                  string               `json:"mode" bson:"mode"`                     // default Task.Mode
 	NodeIds               []primitive.ObjectID `json:"node_ids" bson:"node_ids"`             // default Task.NodeIds
-	Stat                  *SpiderStatV2        `json:"stat,omitempty" bson:"-"`
+	GitId                 primitive.ObjectID   `json:"git_id" bson:"git_id"`                 // related Git.Id
+	GitRootPath           string               `json:"git_root_path" bson:"git_root_path"`
+	Git                   *GitV2               `json:"git,omitempty" bson:"-"`
+
+	// stats
+	Stat *SpiderStatV2 `json:"stat,omitempty" bson:"-"`
 
 	// execution
 	Cmd         string `json:"cmd" bson:"cmd"`     // execute command
 	Param       string `json:"param" bson:"param"` // default task param
 	Priority    int    `json:"priority" bson:"priority"`
 	AutoInstall bool   `json:"auto_install" bson:"auto_install"`
-
-	// settings
-	IncrementalSync bool `json:"incremental_sync" bson:"incremental_sync"` // whether to incrementally sync files
 }
