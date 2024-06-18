@@ -59,6 +59,12 @@ func WithDefaultBranch(branch string) GitOption {
 	}
 }
 
+func WithDefaultInit(init bool) GitOption {
+	return func(c *GitClient) {
+		c.defaultInit = init
+	}
+}
+
 func WithPrivateKeyPath(path string) GitOption {
 	return func(c *GitClient) {
 		c.privateKeyPath = path
