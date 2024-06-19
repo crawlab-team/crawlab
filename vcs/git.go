@@ -550,21 +550,27 @@ func (c *GitClient) GetRemoteRefs(remoteName string) (gitRefs []GitRef, err erro
 	for _, ref := range refs {
 		// ref type
 		var refType string
+		var gitRef *GitRef
 		if strings.HasPrefix(ref.Name().String(), "refs/heads") {
 			refType = GitRefTypeBranch
+			gitRef = &GitRef{
+				Type:     refType,
+				Name:     remoteName + "/" + ref.Name().Short(),
+				FullName: ref.Name().String(),
+				Hash:     ref.Hash().String(),
+			}
 		} else if strings.HasPrefix(ref.Name().String(), "refs/tags") {
 			refType = GitRefTypeTag
+			gitRef = &GitRef{
+				Type:     refType,
+				Name:     ref.Name().Short(),
+				FullName: ref.Name().String(),
+				Hash:     ref.Hash().String(),
+			}
 		} else {
 			continue
 		}
-
-		// add to branches
-		gitRefs = append(gitRefs, GitRef{
-			Type:     refType,
-			Name:     ref.Name().Short(),
-			FullName: ref.Name().String(),
-			Hash:     ref.Hash().String(),
-		})
+		gitRefs = append(gitRefs, *gitRef)
 	}
 
 	// logs without tags
