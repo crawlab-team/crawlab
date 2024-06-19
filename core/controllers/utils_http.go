@@ -31,6 +31,10 @@ func HandleErrorBadRequest(c *gin.Context, err error) {
 	HandleError(http.StatusBadRequest, c, err)
 }
 
+func HandleErrorForbidden(c *gin.Context, err error) {
+	HandleError(http.StatusForbidden, c, err)
+}
+
 func HandleErrorUnauthorized(c *gin.Context, err error) {
 	HandleError(http.StatusUnauthorized, c, err)
 }
