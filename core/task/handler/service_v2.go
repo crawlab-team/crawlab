@@ -43,7 +43,10 @@ type ServiceV2 struct {
 func (svc *ServiceV2) Start() {
 	// Initialize gRPC if not started
 	if !svc.c.IsStarted() {
-		svc.c.Start()
+		err := svc.c.Start()
+		if err != nil {
+			return
+		}
 	}
 
 	go svc.ReportStatus()

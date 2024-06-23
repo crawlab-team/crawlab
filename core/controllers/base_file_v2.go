@@ -8,7 +8,6 @@ import (
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io"
 	"os"
 	"path/filepath"
@@ -18,7 +17,7 @@ import (
 func GetBaseFileListDir(rootPath string, c *gin.Context) {
 	path := c.Query("path")
 
-	fsSvc, err := getBaseFileFsSvc(rootPath, c)
+	fsSvc, err := getBaseFileFsSvc(rootPath)
 	if err != nil {
 		HandleErrorBadRequest(c, err)
 		return
@@ -38,7 +37,7 @@ func GetBaseFileListDir(rootPath string, c *gin.Context) {
 func GetBaseFileFile(rootPath string, c *gin.Context) {
 	path := c.Query("path")
 
-	fsSvc, err := getBaseFileFsSvc(rootPath, c)
+	fsSvc, err := getBaseFileFsSvc(rootPath)
 	if err != nil {
 		HandleErrorBadRequest(c, err)
 		return
@@ -56,7 +55,7 @@ func GetBaseFileFile(rootPath string, c *gin.Context) {
 func GetBaseFileFileInfo(rootPath string, c *gin.Context) {
 	path := c.Query("path")
 
-	fsSvc, err := getBaseFileFsSvc(rootPath, c)
+	fsSvc, err := getBaseFileFsSvc(rootPath)
 	if err != nil {
 		HandleErrorBadRequest(c, err)
 		return
@@ -72,7 +71,7 @@ func GetBaseFileFileInfo(rootPath string, c *gin.Context) {
 }
 
 func PostBaseFileSaveFile(rootPath string, c *gin.Context) {
-	fsSvc, err := getBaseFileFsSvc(rootPath, c)
+	fsSvc, err := getBaseFileFsSvc(rootPath)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -122,7 +121,7 @@ func PostBaseFileSaveFile(rootPath string, c *gin.Context) {
 }
 
 func PostBaseFileSaveFiles(rootPath string, c *gin.Context) {
-	fsSvc, err := getBaseFileFsSvc(rootPath, c)
+	fsSvc, err := getBaseFileFsSvc(rootPath)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -183,7 +182,7 @@ func PostBaseFileSaveDir(rootPath string, c *gin.Context) {
 		return
 	}
 
-	fsSvc, err := getBaseFileFsSvc(rootPath, c)
+	fsSvc, err := getBaseFileFsSvc(rootPath)
 	if err != nil {
 		HandleErrorBadRequest(c, err)
 		return
@@ -207,7 +206,7 @@ func PostBaseFileRenameFile(rootPath string, c *gin.Context) {
 		return
 	}
 
-	fsSvc, err := getBaseFileFsSvc(rootPath, c)
+	fsSvc, err := getBaseFileFsSvc(rootPath)
 	if err != nil {
 		HandleErrorBadRequest(c, err)
 		return
@@ -231,7 +230,7 @@ func DeleteBaseFileFile(rootPath string, c *gin.Context) {
 		payload.Path = "."
 	}
 
-	fsSvc, err := getBaseFileFsSvc(rootPath, c)
+	fsSvc, err := getBaseFileFsSvc(rootPath)
 	if err != nil {
 		HandleErrorBadRequest(c, err)
 		return
@@ -259,7 +258,7 @@ func PostBaseFileCopyFile(rootPath string, c *gin.Context) {
 		return
 	}
 
-	fsSvc, err := getBaseFileFsSvc(rootPath, c)
+	fsSvc, err := getBaseFileFsSvc(rootPath)
 	if err != nil {
 		HandleErrorBadRequest(c, err)
 		return
@@ -274,7 +273,7 @@ func PostBaseFileCopyFile(rootPath string, c *gin.Context) {
 }
 
 func PostBaseFileExport(rootPath string, c *gin.Context) {
-	fsSvc, err := getBaseFileFsSvc(rootPath, c)
+	fsSvc, err := getBaseFileFsSvc(rootPath)
 	if err != nil {
 		HandleErrorBadRequest(c, err)
 		return
@@ -292,14 +291,9 @@ func PostBaseFileExport(rootPath string, c *gin.Context) {
 	c.File(zipFilePath)
 }
 
-func getBaseFileFsSvc(rootPath string, c *gin.Context) (svc interfaces.FsServiceV2, err error) {
-	id, err := primitive.ObjectIDFromHex(c.Param("id"))
-	if err != nil {
-		return nil, err
-	}
-
+func getBaseFileFsSvc(rootPath string) (svc interfaces.FsServiceV2, err error) {
 	workspacePath := viper.GetString("workspace")
-	fsSvc := fs.NewFsServiceV2(filepath.Join(workspacePath, id.Hex(), rootPath))
+	fsSvc := fs.NewFsServiceV2(filepath.Join(workspacePath, rootPath))
 
 	return fsSvc, nil
 }

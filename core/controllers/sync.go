@@ -31,7 +31,8 @@ type syncContext struct {
 
 func (ctx *syncContext) scan(c *gin.Context) {
 	id := c.Param("id")
-	dir := ctx._getDir(id)
+	path := c.Query("path")
+	dir := ctx._getDir(id, path)
 	files, err := utils.ScanDirectory(dir)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
@@ -43,13 +44,13 @@ func (ctx *syncContext) scan(c *gin.Context) {
 func (ctx *syncContext) download(c *gin.Context) {
 	id := c.Param("id")
 	filePath := c.Query("path")
-	dir := ctx._getDir(id)
+	dir := ctx._getDir(id, "")
 	c.File(filepath.Join(dir, filePath))
 }
 
-func (ctx *syncContext) _getDir(id string) string {
+func (ctx *syncContext) _getDir(id string, path string) string {
 	workspacePath := viper.GetString("workspace")
-	return filepath.Join(workspacePath, id)
+	return filepath.Join(workspacePath, id, path)
 }
 
 func newSyncContext() syncContext {

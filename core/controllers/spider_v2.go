@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"errors"
-	log2 "github.com/apex/log"
+	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/fs"
 	"github.com/crawlab-team/crawlab/core/interfaces"
@@ -11,6 +11,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/spider/admin"
 	"github.com/crawlab-team/crawlab/core/utils"
 	"github.com/crawlab-team/crawlab/db/mongo"
+	"github.com/crawlab-team/crawlab/trace"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
@@ -64,12 +65,25 @@ func GetSpiderById(c *gin.Context) {
 }
 
 func GetSpiderList(c *gin.Context) {
+	// get all list
+	all := MustGetFilterAll(c)
+	if all {
+		NewControllerV2[models.ProjectV2]().getAll(c)
+		return
+	}
+
+	// get list
 	withStats := c.Query("stats")
 	if withStats == "" {
 		NewControllerV2[models.SpiderV2]().GetList(c)
 		return
 	}
 
+	// get list with stats
+	getSpiderListWithStats(c)
+}
+
+func getSpiderListWithStats(c *gin.Context) {
 	// params
 	pagination := MustGetPagination(c)
 	query := MustGetFilterQuery(c)
@@ -205,6 +219,7 @@ func PostSpider(c *gin.Context) {
 		return
 	}
 
+	// user
 	u := GetUserFromContextV2(c)
 
 	// add
@@ -229,7 +244,12 @@ func PostSpider(c *gin.Context) {
 	}
 
 	// create folder
-	err = getSpiderFsSvcById(id).CreateDir(".")
+	fsSvc, err := getSpiderFsSvcById(id)
+	if err != nil {
+		HandleErrorInternalServerError(c, err)
+		return
+	}
+	err = fsSvc.CreateDir(".")
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -336,7 +356,7 @@ func DeleteSpiderById(c *gin.Context) {
 				// delete task logs
 				logPath := filepath.Join(viper.GetString("log.path"), id)
 				if err := os.RemoveAll(logPath); err != nil {
-					log2.Warnf("failed to remove task log directory: %s", logPath)
+					log.Warnf("failed to remove task log directory: %s", logPath)
 				}
 				wg.Done()
 			}(id.Hex())
@@ -348,6 +368,35 @@ func DeleteSpiderById(c *gin.Context) {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
+
+	go func() {
+		// spider
+		s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+		if err != nil {
+			log.Errorf("failed to get spider: %s", err.Error())
+			trace.PrintError(err)
+			return
+		}
+
+		// skip spider with git
+		if !s.GitId.IsZero() {
+			return
+		}
+
+		// delete spider directory
+		fsSvc, err := getSpiderFsSvcById(id)
+		if err != nil {
+			log.Errorf("failed to get spider fs service: %s", err.Error())
+			trace.PrintError(err)
+			return
+		}
+		err = fsSvc.Delete(".")
+		if err != nil {
+			log.Errorf("failed to delete spider directory: %s", err.Error())
+			trace.PrintError(err)
+			return
+		}
+	}()
 
 	HandleSuccess(c)
 }
@@ -414,7 +463,7 @@ func DeleteSpiderList(c *gin.Context) {
 				// delete task logs
 				logPath := filepath.Join(viper.GetString("log.path"), id)
 				if err := os.RemoveAll(logPath); err != nil {
-					log2.Warnf("failed to remove task log directory: %s", logPath)
+					log.Warnf("failed to remove task log directory: %s", logPath)
 				}
 				wg.Done()
 			}(id.Hex())
@@ -427,97 +476,136 @@ func DeleteSpiderList(c *gin.Context) {
 		return
 	}
 
+	// delete spider directories
+	go func() {
+		wg := sync.WaitGroup{}
+		wg.Add(len(payload.Ids))
+		for _, id := range payload.Ids {
+			go func(id primitive.ObjectID) {
+				defer wg.Done()
+
+				// spider
+				s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+				if err != nil {
+					log.Errorf("failed to get spider: %s", err.Error())
+					trace.PrintError(err)
+					return
+				}
+
+				// skip spider with git
+				if !s.GitId.IsZero() {
+					return
+				}
+
+				// delete spider directory
+				fsSvc, err := getSpiderFsSvcById(id)
+				if err != nil {
+					log.Errorf("failed to get spider fs service: %s", err.Error())
+					trace.PrintError(err)
+					return
+				}
+				err = fsSvc.Delete(".")
+				if err != nil {
+					log.Errorf("failed to delete spider directory: %s", err.Error())
+					trace.PrintError(err)
+					return
+				}
+			}(id)
+		}
+		wg.Wait()
+	}()
+
 	HandleSuccess(c)
 }
 
 func GetSpiderListDir(c *gin.Context) {
-	s, err := allowSpiderGit(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorInternalServerError(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-	GetBaseFileListDir(s.GitRootPath, c)
+	GetBaseFileListDir(rootPath, c)
 }
 
 func GetSpiderFile(c *gin.Context) {
-	s, err := allowSpiderGit(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorInternalServerError(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-	GetBaseFileFile(s.GitRootPath, c)
+	GetBaseFileFile(rootPath, c)
 }
 
 func GetSpiderFileInfo(c *gin.Context) {
-	s, err := allowSpiderGit(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorInternalServerError(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-	GetBaseFileFileInfo(s.GitRootPath, c)
+	GetBaseFileFileInfo(rootPath, c)
 }
 
 func PostSpiderSaveFile(c *gin.Context) {
-	s, err := allowSpiderGit(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorInternalServerError(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-	PostBaseFileSaveFile(s.GitRootPath, c)
+	PostBaseFileSaveFile(rootPath, c)
 }
 
 func PostSpiderSaveFiles(c *gin.Context) {
-	s, err := allowSpiderGit(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorInternalServerError(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-	PostBaseFileSaveFiles(s.GitRootPath, c)
+	PostBaseFileSaveFiles(rootPath, c)
 }
 
 func PostSpiderSaveDir(c *gin.Context) {
-	s, err := allowSpiderGit(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorInternalServerError(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-	PostBaseFileSaveDir(s.GitRootPath, c)
+	PostBaseFileSaveDir(rootPath, c)
 }
 
 func PostSpiderRenameFile(c *gin.Context) {
-	s, err := allowSpiderGit(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorInternalServerError(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-	PostBaseFileRenameFile(s.GitRootPath, c)
+	PostBaseFileRenameFile(rootPath, c)
 }
 
 func DeleteSpiderFile(c *gin.Context) {
-	s, err := allowSpiderGit(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorInternalServerError(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-	DeleteBaseFileFile(s.GitRootPath, c)
+	DeleteBaseFileFile(rootPath, c)
 }
 
 func PostSpiderCopyFile(c *gin.Context) {
-	s, err := allowSpiderGit(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorInternalServerError(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-	PostBaseFileCopyFile(s.GitRootPath, c)
+	PostBaseFileCopyFile(rootPath, c)
 }
 
 func PostSpiderExport(c *gin.Context) {
-	s, err := allowSpiderGit(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorInternalServerError(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-	PostBaseFileExport(s.GitRootPath, c)
+	PostBaseFileExport(rootPath, c)
 }
 
 func PostSpiderRun(c *gin.Context) {
@@ -628,22 +716,25 @@ func PostSpiderDataSource(c *gin.Context) {
 	HandleSuccess(c)
 }
 
-func getSpiderFsSvc(c *gin.Context) (svc interfaces.FsServiceV2, err error) {
-	id, err := primitive.ObjectIDFromHex(c.Param("id"))
-	if err != nil {
-		return nil, err
-	}
-
+func getSpiderFsSvc(s *models.SpiderV2) (svc interfaces.FsServiceV2, err error) {
 	workspacePath := viper.GetString("workspace")
-	fsSvc := fs.NewFsServiceV2(filepath.Join(workspacePath, id.Hex()))
+	fsSvc := fs.NewFsServiceV2(filepath.Join(workspacePath, s.Id.Hex()))
 
 	return fsSvc, nil
 }
 
-func getSpiderFsSvcById(id primitive.ObjectID) interfaces.FsServiceV2 {
-	workspacePath := viper.GetString("workspace")
-	fsSvc := fs.NewFsServiceV2(filepath.Join(workspacePath, id.Hex()))
-	return fsSvc
+func GetSpiderFsSvcById(id primitive.ObjectID) (svc interfaces.FsServiceV2, err error) {
+	return getSpiderFsSvcById(id)
+}
+
+func getSpiderFsSvcById(id primitive.ObjectID) (svc interfaces.FsServiceV2, err error) {
+	s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+	if err != nil {
+		log.Errorf("failed to get spider: %s", err.Error())
+		trace.PrintError(err)
+		return nil, err
+	}
+	return getSpiderFsSvc(s)
 }
 
 func upsertSpiderDataCollection(s *models.SpiderV2) (err error) {
@@ -685,21 +776,32 @@ func upsertSpiderDataCollection(s *models.SpiderV2) (err error) {
 	return nil
 }
 
-func allowSpiderGit(c *gin.Context) (s models.SpiderV2, err error) {
-	if utils.IsPro() {
-		return s, nil
-	}
+func UpsertSpiderDataCollection(s *models.SpiderV2) (err error) {
+	return upsertSpiderDataCollection(s)
+}
+
+func getSpiderRootPath(c *gin.Context) (rootPath string, err error) {
+	// spider id
 	id, err := primitive.ObjectIDFromHex(c.Param("id"))
 	if err != nil {
-		return s, err
+		return "", err
 	}
-	_s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+
+	// spider
+	s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
 	if err != nil {
-		return s, err
+		return "", err
 	}
+
+	// check git permission
+	if !utils.IsPro() && !s.GitId.IsZero() {
+		return "", errors.New("git is not allowed in the community version")
+	}
+
+	// if git id is zero, return spider id as root path
 	if s.GitId.IsZero() {
-		return s, errors.New("git is not allowed in this edition")
+		return id.Hex(), nil
 	}
-	s = *_s
-	return s, nil
+
+	return filepath.Join(s.GitId.Hex(), rootPath), nil
 }
