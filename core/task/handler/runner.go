@@ -237,7 +237,7 @@ func (r *Runner) configureCmd() {
 	}
 
 	// get cmd instance
-	r.cmd = sys_exec.BuildCmd(cmdStr)
+	r.cmd, _ = sys_exec.BuildCmd(cmdStr)
 
 	// set working directory
 	r.cmd.Dir = r.cwd

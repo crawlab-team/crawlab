@@ -80,10 +80,11 @@ func GetProjectList(c *gin.Context) {
 	}
 
 	// assign
+	var data []models.ProjectV2
 	for _, p := range projects {
 		p.Spiders = cache[p.Id]
-		projects = append(projects, p)
+		data = append(data, p)
 	}
 
-	HandleSuccessWithListData(c, projects, total)
+	HandleSuccessWithListData(c, data, total)
 }

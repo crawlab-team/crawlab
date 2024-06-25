@@ -17,7 +17,6 @@ import (
 type ServiceV2 struct {
 	// dependencies
 	nodeCfgSvc interfaces.NodeConfigService
-	modelSvc   service.ModelService
 
 	// internals
 	mu             sync.Mutex
@@ -64,7 +63,7 @@ func (svc *ServiceV2) getResultService(id primitive.ObjectID) (resultSvc interfa
 	}
 
 	// task
-	t, err := svc.modelSvc.GetTaskById(id)
+	t, err := service.NewModelServiceV2[models.TaskV2]().GetById(id)
 	if err != nil {
 		return nil, err
 	}

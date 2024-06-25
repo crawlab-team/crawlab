@@ -8,7 +8,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/utils"
 	"github.com/crawlab-team/crawlab/trace"
 	"os"
-	"path"
+	"path/filepath"
 )
 
 type Service struct {
@@ -18,7 +18,7 @@ type Service struct {
 
 func (svc *Service) Init() (err error) {
 	// check config directory path
-	configDirPath := path.Dir(svc.path)
+	configDirPath := filepath.Dir(svc.path)
 	if !utils.Exists(configDirPath) {
 		if err := os.MkdirAll(configDirPath, os.FileMode(0766)); err != nil {
 			return trace.TraceError(err)
@@ -55,13 +55,14 @@ func (svc *Service) Reload() (err error) {
 }
 
 func (svc *Service) GetBasicNodeInfo() (res interfaces.Entity) {
-	return &entity.NodeInfo{
+	res = &entity.NodeInfo{
 		Key:        svc.GetNodeKey(),
 		Name:       svc.GetNodeName(),
 		IsMaster:   svc.IsMaster(),
 		AuthKey:    svc.GetAuthKey(),
 		MaxRunners: svc.GetMaxRunners(),
 	}
+	return res
 }
 
 func (svc *Service) GetNodeKey() (res string) {

@@ -95,12 +95,15 @@ func (r *RunnerV2) Run() (err error) {
 	// sync files worker nodes
 	if !utils.IsMaster() {
 		if err := r.syncFiles(); err != nil {
-			return err
+			return r.updateTask(constants.TaskStatusError, err)
 		}
 	}
 
 	// configure cmd
-	r.configureCmd()
+	err = r.configureCmd()
+	if err != nil {
+		return r.updateTask(constants.TaskStatusError, err)
+	}
 
 	// configure environment variables
 	r.configureEnv()
@@ -205,7 +208,7 @@ func (r *RunnerV2) GetTaskId() (id primitive.ObjectID) {
 	return r.tid
 }
 
-func (r *RunnerV2) configureCmd() {
+func (r *RunnerV2) configureCmd() (err error) {
 	var cmdStr string
 
 	// customized spider
@@ -223,13 +226,17 @@ func (r *RunnerV2) configureCmd() {
 	}
 
 	// get cmd instance
-	r.cmd = sys_exec.BuildCmd(cmdStr)
+	r.cmd, err = sys_exec.BuildCmd(cmdStr)
+	if err != nil {
+		log.Errorf("Error building command: %v", err)
+		trace.PrintError(err)
+		return err
+	}
 
 	// set working directory
 	r.cmd.Dir = r.cwd
 
-	// configure pgid to allow killing sub processes
-	//sys_exec.SetPgid(r.cmd)
+	return nil
 }
 
 func (r *RunnerV2) configureLogging() {
@@ -320,16 +327,18 @@ func (r *RunnerV2) configureEnv() {
 
 func (r *RunnerV2) syncFiles() (err error) {
 	var id string
+	var workingDir string
 	if r.s.GitId.IsZero() {
 		id = r.s.Id.Hex()
+		workingDir = ""
 	} else {
 		id = r.s.GitId.Hex()
+		workingDir = r.s.GitRootPath
 	}
 	masterURL := fmt.Sprintf("%s/sync/%s", viper.GetString("api.endpoint"), id)
-	workerDir := r.cwd
 
 	// get file list from master
-	resp, err := http.Get(masterURL + "/scan?path=" + workerDir)
+	resp, err := http.Get(masterURL + "/scan?path=" + workingDir)
 	if err != nil {
 		log.Errorf("Error getting file list from master: %v", err)
 		return trace.TraceError(err)
@@ -354,15 +363,15 @@ func (r *RunnerV2) syncFiles() (err error) {
 	}
 
 	// create worker directory if not exists
-	if _, err := os.Stat(workerDir); os.IsNotExist(err) {
-		if err := os.MkdirAll(workerDir, os.ModePerm); err != nil {
+	if _, err := os.Stat(r.cwd); os.IsNotExist(err) {
+		if err := os.MkdirAll(r.cwd, os.ModePerm); err != nil {
 			log.Errorf("Error creating worker directory: %v", err)
 			return trace.TraceError(err)
 		}
 	}
 
 	// get file list from worker
-	workerFiles, err := utils.ScanDirectory(workerDir)
+	workerFiles, err := utils.ScanDirectory(r.cwd)
 	if err != nil {
 		log.Errorf("Error scanning worker directory: %v", err)
 		return trace.TraceError(err)
@@ -391,7 +400,7 @@ func (r *RunnerV2) syncFiles() (err error) {
 			go func(path string, masterFile entity.FsFileInfo) {
 				defer wg.Done()
 				logrus.Infof("File needs to be synchronized: %s", path)
-				err := r.downloadFile(masterURL+"/download?path="+path, filepath.Join(workerDir, path))
+				err := r.downloadFile(masterURL+"/download?path="+path, filepath.Join(r.cwd, path))
 				if err != nil {
 					logrus.Errorf("Error downloading file: %v", err)
 					select {

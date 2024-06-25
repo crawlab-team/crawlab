@@ -83,7 +83,7 @@ func (svr NodeServerV2) Register(ctx context.Context, req *grpc.Request) (res *g
 		}
 		node.SetCreated(primitive.NilObjectID)
 		node.SetUpdated(primitive.NilObjectID)
-		_, err = service.NewModelServiceV2[models.NodeV2]().InsertOne(*nodeDb)
+		node.Id, err = service.NewModelServiceV2[models.NodeV2]().InsertOne(node)
 		if err != nil {
 			return HandleError(err)
 		}

@@ -363,6 +363,18 @@ func InitRoutes(app *gin.Engine) (err error) {
 			HandlerFunc: PostLogout,
 		},
 	})
+	RegisterActions(groups.AnonymousGroup, "/sync", []Action{
+		{
+			Method:      http.MethodGet,
+			Path:        "/:id/scan",
+			HandlerFunc: GetSyncScan,
+		},
+		{
+			Method:      http.MethodGet,
+			Path:        "/:id/download",
+			HandlerFunc: GetSyncDownload,
+		},
+	})
 
 	return nil
 }
