@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package grpc;
+option go_package = ".;grpc";
+
+message Metric {
+  string namespace = 1;
+  string subsystem = 2;
+  string module = 3;
+  string name = 4;
+  float value = 5;
+  string help = 6;
+  string labels = 7;
+  MetricProcess process = 8;
+}
+
+message MetricProcess {
+  int32 pid = 1;
+}
+
+message MetricsServiceV2ConnectRequest {
+  string node_key = 1;
+  repeated Metric metrics = 2;
+}
+
+enum MetricsServiceV2Code {
+  SYNC_METRICS = 0;
+}
+
+message MetricsServiceV2ConnectResponse {
+  MetricsServiceV2Code code = 1;
+}
+
+service MetricsServiceV2 {
+  rpc Connect(stream MetricsServiceV2ConnectRequest) returns (stream MetricsServiceV2ConnectResponse){};
+}

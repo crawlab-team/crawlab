@@ -68,7 +68,7 @@ func GetSpiderList(c *gin.Context) {
 	// get all list
 	all := MustGetFilterAll(c)
 	if all {
-		NewControllerV2[models.ProjectV2]().getAll(c)
+		NewControllerV2[models.SpiderV2]().getAll(c)
 		return
 	}
 
