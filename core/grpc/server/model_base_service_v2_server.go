@@ -26,6 +26,7 @@ var (
 		*new(models.EnvironmentV2),
 		*new(models.GitV2),
 		*new(models.NodeV2),
+		*new(models.NotificationSettingV2),
 		*new(models.PermissionV2),
 		*new(models.ProjectV2),
 		*new(models.RolePermissionV2),

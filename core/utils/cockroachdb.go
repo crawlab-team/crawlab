@@ -58,3 +58,48 @@ func getCockroachdbSession(ctx context.Context, ds *models.DataSource) (s db.Ses
 
 	return s, err
 }
+
+func GetCockroachdbSessionWithTimeoutV2(ds *models.DataSourceV2, timeout time.Duration) (s db.Session, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	return getCockroachdbSessionV2(ctx, ds)
+}
+
+func getCockroachdbSessionV2(ctx context.Context, ds *models.DataSourceV2) (s db.Session, err error) {
+	// normalize settings
+	host := ds.Host
+	port := ds.Port
+	if ds.Host == "" {
+		host = constants.DefaultHost
+	}
+	if ds.Port == "" {
+		port = constants.DefaultCockroachdbPort
+	}
+
+	// connect settings
+	settings := mssql.ConnectionURL{
+		User:     ds.Username,
+		Password: ds.Password,
+		Database: ds.Database,
+		Host:     fmt.Sprintf("%s:%s", host, port),
+		Options:  nil,
+	}
+
+	// session
+	done := make(chan struct{})
+	go func() {
+		s, err = mssql.Open(settings)
+		close(done)
+	}()
+
+	// wait for done
+	select {
+	case <-ctx.Done():
+		if ctx.Err() != nil {
+			err = ctx.Err()
+		}
+	case <-done:
+	}
+
+	return s, err
+}

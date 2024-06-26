@@ -43,3 +43,35 @@ func getSqliteSession(ctx context.Context, ds *models.DataSource) (s db.Session,
 
 	return s, err
 }
+
+func GetSqliteSessionWithTimeoutV2(ds *models.DataSourceV2, timeout time.Duration) (s db.Session, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	return getSqliteSessionV2(ctx, ds)
+}
+
+func getSqliteSessionV2(ctx context.Context, ds *models.DataSourceV2) (s db.Session, err error) {
+	// connect settings
+	settings := sqlite.ConnectionURL{
+		Database: ds.Database,
+		Options:  nil,
+	}
+
+	// session
+	done := make(chan struct{})
+	go func() {
+		s, err = sqlite.Open(settings)
+		close(done)
+	}()
+
+	// wait for done
+	select {
+	case <-ctx.Done():
+		if ctx.Err() != nil {
+			err = ctx.Err()
+		}
+	case <-done:
+	}
+
+	return s, err
+}

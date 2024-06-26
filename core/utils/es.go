@@ -50,34 +50,75 @@ func getElasticsearchClient(ctx context.Context, ds *models.DataSource) (c *elas
 		Addresses: addresses,
 		Username:  ds.Username,
 		Password:  ds.Password,
-		//CloudID:                 "",
-		//APIKey:                  "",
-		//ServiceToken:            "",
-		//CertificateFingerprint:  "",
-		//Header:                  nil,
-		//CACert:                  nil,
-		//RetryOnStatus:           nil,
-		//DisableRetry:            false,
-		//EnableRetryOnTimeout:    false,
-		//MaxRetries:              0,
-		//CompressRequestBody:     false,
-		//DiscoverNodesOnStart:    false,
-		//DiscoverNodesInterval:   0,
-		//EnableMetrics:           false,
-		//EnableDebugLogger:       false,
-		//EnableCompatibilityMode: false,
-		//DisableMetaHeader:       false,
-		//UseResponseCheckOnly:    false,
 		RetryBackoff: func(i int) time.Duration {
 			if i == 1 {
 				rb.Reset()
 			}
 			return rb.NextBackOff()
 		},
-		//Transport:               nil,
-		//Logger:                  nil,
-		//Selector:                nil,
-		//ConnectionPoolFunc:      nil,
+	}
+
+	// es client
+	done := make(chan struct{})
+	go func() {
+		c, err = elasticsearch.NewClient(cfg)
+		if err != nil {
+			return
+		}
+		var res *esapi.Response
+		res, err = c.Info()
+		fmt.Println(res)
+		close(done)
+	}()
+
+	// wait for done
+	select {
+	case <-ctx.Done():
+		if ctx.Err() != nil {
+			err = ctx.Err()
+		}
+	case <-done:
+	}
+
+	return c, err
+}
+
+func GetElasticsearchClientWithTimeoutV2(ds *models.DataSourceV2, timeout time.Duration) (c *elasticsearch.Client, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	return getElasticsearchClientV2(ctx, ds)
+}
+
+func getElasticsearchClientV2(ctx context.Context, ds *models.DataSourceV2) (c *elasticsearch.Client, err error) {
+	// normalize settings
+	host := ds.Host
+	port := ds.Port
+	if ds.Host == "" {
+		host = constants.DefaultHost
+	}
+	if ds.Port == "" {
+		port = constants.DefaultElasticsearchPort
+	}
+
+	// es hosts
+	addresses := []string{
+		fmt.Sprintf("http://%s:%s", host, port),
+	}
+
+	// retry backoff
+	rb := backoff.NewExponentialBackOff()
+
+	// es client options
+	cfg := elasticsearch.Config{
+		Addresses: addresses,
+		Username:  ds.Username,
+		Password:  ds.Password,
+		RetryBackoff: func(i int) time.Duration {
+			if i == 1 {
+				rb.Reset()
+			}
+			return rb.NextBackOff()
+		},
 	}
 
 	// es client

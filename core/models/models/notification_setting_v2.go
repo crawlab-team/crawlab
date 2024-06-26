@@ -3,17 +3,19 @@ package models
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type NotificationSettingV2 struct {
-	Id          primitive.ObjectID        `json:"_id" bson:"_id"`
-	Type        string                    `json:"type" bson:"type"`
-	Name        string                    `json:"name" bson:"name"`
-	Description string                    `json:"description" bson:"description"`
-	Enabled     bool                      `json:"enabled" bson:"enabled"`
-	Global      bool                      `json:"global" bson:"global"`
-	Title       string                    `json:"title,omitempty" bson:"title,omitempty"`
-	Template    string                    `json:"template,omitempty" bson:"template,omitempty"`
-	TaskTrigger string                    `json:"task_trigger" bson:"task_trigger"`
-	Mail        NotificationSettingMail   `json:"mail,omitempty" bson:"mail,omitempty"`
-	Mobile      NotificationSettingMobile `json:"mobile,omitempty" bson:"mobile,omitempty"`
+	any                                `collection:"notification_settings"`
+	BaseModelV2[NotificationSettingV2] `bson:",inline"`
+	Id                                 primitive.ObjectID        `json:"_id" bson:"_id"`
+	Type                               string                    `json:"type" bson:"type"`
+	Name                               string                    `json:"name" bson:"name"`
+	Description                        string                    `json:"description" bson:"description"`
+	Enabled                            bool                      `json:"enabled" bson:"enabled"`
+	Global                             bool                      `json:"global" bson:"global"`
+	Title                              string                    `json:"title,omitempty" bson:"title,omitempty"`
+	Template                           string                    `json:"template,omitempty" bson:"template,omitempty"`
+	TaskTrigger                        string                    `json:"task_trigger" bson:"task_trigger"`
+	Mail                               NotificationSettingMail   `json:"mail,omitempty" bson:"mail,omitempty"`
+	Mobile                             NotificationSettingMobile `json:"mobile,omitempty" bson:"mobile,omitempty"`
 }
 
 type NotificationSettingMail struct {

@@ -36,9 +36,9 @@ type MasterServiceV2 struct {
 	schedulerSvc    *scheduler.ServiceV2
 	handlerSvc      *handler.ServiceV2
 	scheduleSvc     *schedule.ServiceV2
-	notificationSvc *notification.Service
+	notificationSvc *notification.ServiceV2
 	spiderAdminSvc  *admin.ServiceV2
-	systemSvc       *system.Service
+	systemSvc       *system.ServiceV2
 
 	// settings
 	cfgPath         string
@@ -368,7 +368,7 @@ func NewMasterServiceV2() (res interfaces.NodeMasterService, err error) {
 	}
 
 	// notification service
-	svc.notificationSvc = notification.GetService()
+	svc.notificationSvc = notification.GetServiceV2()
 
 	// spider admin service
 	svc.spiderAdminSvc, err = admin.GetSpiderAdminServiceV2()
@@ -377,7 +377,7 @@ func NewMasterServiceV2() (res interfaces.NodeMasterService, err error) {
 	}
 
 	// system service
-	svc.systemSvc = system.GetService()
+	svc.systemSvc = system.GetServiceV2()
 
 	// init
 	if err := svc.Init(); err != nil {

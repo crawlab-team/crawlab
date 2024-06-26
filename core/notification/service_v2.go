@@ -41,7 +41,6 @@ func (svc *ServiceV2) initData() (err error) {
 	// data to initialize
 	settings := []models.NotificationSettingV2{
 		{
-			Id:          primitive.NewObjectID(),
 			Type:        TypeMail,
 			Enabled:     true,
 			Name:        "任务通知（邮件）",
@@ -77,7 +76,6 @@ func (svc *ServiceV2) initData() (err error) {
 			},
 		},
 		{
-			Id:          primitive.NewObjectID(),
 			Type:        TypeMail,
 			Enabled:     true,
 			Name:        "Task Change (Mail)",
@@ -113,7 +111,6 @@ Please find the task data as below.
 			},
 		},
 		{
-			Id:          primitive.NewObjectID(),
 			Type:        TypeMobile,
 			Enabled:     true,
 			Name:        "任务通知（移动端）",
@@ -142,7 +139,6 @@ Please find the task data as below.
 			Mobile: models.NotificationSettingMobile{},
 		},
 		{
-			Id:          primitive.NewObjectID(),
 			Type:        TypeMobile,
 			Enabled:     true,
 			Name:        "Task Change (Mobile)",

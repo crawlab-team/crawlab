@@ -56,10 +56,26 @@ func InitRoutes(app *gin.Engine) (err error) {
 	groups := NewRouterGroups(app)
 
 	RegisterController(groups.AuthGroup, "/data/collections", NewControllerV2[models.DataCollectionV2]())
-	RegisterController(groups.AuthGroup, "/data-sources", NewControllerV2[models.DataSourceV2]())
+	RegisterController(groups.AuthGroup, "/data-sources", NewControllerV2[models.DataSourceV2]([]Action{
+		{
+			Method:      http.MethodPost,
+			Path:        "",
+			HandlerFunc: PostDataSource,
+		},
+		{
+			Method:      http.MethodPut,
+			Path:        "/:id",
+			HandlerFunc: PutDataSourceById,
+		},
+		{
+			Method:      http.MethodPost,
+			Path:        "/:id/change-password",
+			HandlerFunc: PostDataSourceChangePassword,
+		},
+	}...))
 	RegisterController(groups.AuthGroup, "/environments", NewControllerV2[models.EnvironmentV2]())
 	RegisterController(groups.AuthGroup, "/nodes", NewControllerV2[models.NodeV2]())
-	RegisterController(groups.AuthGroup, "/notifications/settings", NewControllerV2[models.SettingV2]())
+	RegisterController(groups.AuthGroup, "/notifications/settings", NewControllerV2[models.NotificationSettingV2]())
 	RegisterController(groups.AuthGroup, "/permissions", NewControllerV2[models.PermissionV2]())
 	RegisterController(groups.AuthGroup, "/projects", NewControllerV2[models.ProjectV2]([]Action{
 		{

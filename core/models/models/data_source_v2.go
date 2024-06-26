@@ -12,7 +12,7 @@ type DataSourceV2 struct {
 	Hosts                   []string          `json:"hosts" bson:"hosts"`
 	Database                string            `json:"database" bson:"database"`
 	Username                string            `json:"username" bson:"username"`
-	Password                string            `json:"password,omitempty" bson:"-"`
+	Password                string            `json:"-,omitempty" bson:"password"`
 	ConnectType             string            `json:"connect_type" bson:"connect_type"`
 	Status                  string            `json:"status" bson:"status"`
 	Error                   string            `json:"error" bson:"error"`
