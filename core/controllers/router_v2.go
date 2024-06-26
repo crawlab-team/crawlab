@@ -76,7 +76,7 @@ func InitRoutes(app *gin.Engine) (err error) {
 	RegisterController(groups.AuthGroup, "/environments", NewControllerV2[models.EnvironmentV2]())
 	RegisterController(groups.AuthGroup, "/nodes", NewControllerV2[models.NodeV2]())
 	RegisterController(groups.AuthGroup, "/notifications/settings", NewControllerV2[models.NotificationSettingV2]())
-	RegisterController(groups.AuthGroup, "/permissions", NewControllerV2[models.PermissionV2]())
+	//RegisterController(groups.AuthGroup, "/permissions", NewControllerV2[models.PermissionV2]())
 	RegisterController(groups.AuthGroup, "/projects", NewControllerV2[models.ProjectV2]([]Action{
 		{
 			Method:      http.MethodGet,
