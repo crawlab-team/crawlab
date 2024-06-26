@@ -1,11 +1,8 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
-
 type NotificationSettingV2 struct {
 	any                                `collection:"notification_settings"`
 	BaseModelV2[NotificationSettingV2] `bson:",inline"`
-	Id                                 primitive.ObjectID        `json:"_id" bson:"_id"`
 	Type                               string                    `json:"type" bson:"type"`
 	Name                               string                    `json:"name" bson:"name"`
 	Description                        string                    `json:"description" bson:"description"`

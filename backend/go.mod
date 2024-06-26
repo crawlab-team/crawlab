@@ -43,9 +43,10 @@ require (
 	github.com/crawlab-team/crawlab/template-parser v0.0.0-20240614095218-7b4ee8399ab0 // indirect
 	github.com/crawlab-team/crawlab/trace v0.0.0-20240614095218-7b4ee8399ab0 // indirect
 	github.com/crawlab-team/crawlab/vcs v0.0.0-20240614095218-7b4ee8399ab0 // indirect
+	github.com/crawlab-team/goseaweedfs v0.6.3 // indirect
 	github.com/denisenkom/go-mssqldb v0.11.0 // indirect
-	github.com/elastic/elastic-transport-go/v8 v8.2.0 // indirect
-	github.com/elastic/go-elasticsearch/v8 v8.7.0 // indirect
+	github.com/elastic/elastic-transport-go/v8 v8.6.0 // indirect
+	github.com/elastic/go-elasticsearch/v8 v8.14.0 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
@@ -54,6 +55,8 @@ require (
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
 	github.com/go-git/go-billy/v5 v5.5.0 // indirect
 	github.com/go-git/go-git/v5 v5.12.0 // indirect
+	github.com/go-logr/logr v1.4.1 // indirect
+	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
@@ -137,6 +140,9 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	github.com/ztrue/tracerr v0.4.0 // indirect
 	go.mongodb.org/mongo-driver v1.15.0 // indirect
+	go.opentelemetry.io/otel v1.24.0 // indirect
+	go.opentelemetry.io/otel/metric v1.24.0 // indirect
+	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/dig v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect

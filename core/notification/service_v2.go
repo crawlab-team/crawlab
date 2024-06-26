@@ -143,7 +143,7 @@ Please find the task data as below.
 			Enabled:     true,
 			Name:        "Task Change (Mobile)",
 			Description: "This is the default mobile notification. You can edit it with your own settings",
-			TaskTrigger: constants.NotificationTriggerTaskError,
+			TaskTrigger: constants.NotificationTriggerTaskFinish,
 			Title:       "[Crawlab] Task Update: {{$.status}}",
 			Template: `Dear {{$.user.username}},
 
