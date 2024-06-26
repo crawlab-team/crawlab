@@ -46,6 +46,7 @@ type GrpcServerV2 struct {
 	TaskSvr             *TaskServerV2
 	ModelBaseServiceSvr *ModelBaseServiceServerV2
 	DependenciesSvr     *DependenciesServerV2
+	MetricsSvr          *MetricsServerV2
 }
 
 func (svr *GrpcServerV2) GetConfigPath() (path string) {
@@ -119,6 +120,7 @@ func (svr *GrpcServerV2) Register() (err error) {
 	grpc2.RegisterModelBaseServiceV2Server(svr.svr, *svr.ModelBaseServiceSvr)
 	grpc2.RegisterTaskServiceServer(svr.svr, *svr.TaskSvr)
 	grpc2.RegisterDependenciesServiceV2Server(svr.svr, *svr.DependenciesSvr)
+	grpc2.RegisterMetricsServiceV2Server(svr.svr, *svr.MetricsSvr)
 
 	return nil
 }
@@ -217,6 +219,7 @@ func NewGrpcServerV2() (svr *GrpcServerV2, err error) {
 		return nil, err
 	}
 	svr.DependenciesSvr = GetDependenciesServerV2()
+	svr.MetricsSvr = GetMetricsServerV2()
 
 	// recovery options
 	recoveryOpts := []grpc_recovery.Option{

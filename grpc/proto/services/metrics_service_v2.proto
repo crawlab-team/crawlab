@@ -10,12 +10,7 @@ message Metric {
   string name = 4;
   float value = 5;
   string help = 6;
-  string labels = 7;
-  MetricProcess process = 8;
-}
-
-message MetricProcess {
-  int32 pid = 1;
+  bytes labels = 7;
 }
 
 message MetricsServiceV2ConnectRequest {

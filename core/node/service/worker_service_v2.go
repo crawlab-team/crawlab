@@ -205,10 +205,7 @@ func NewWorkerServiceV2() (res *WorkerServiceV2, err error) {
 	}
 
 	// grpc client
-	svc.client, err = client.NewGrpcClientV2()
-	if err != nil {
-		return nil, err
-	}
+	svc.client = client.GetGrpcClientV2()
 
 	// handler service
 	svc.handlerSvc, err = handler.GetTaskHandlerServiceV2()

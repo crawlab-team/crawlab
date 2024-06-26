@@ -405,10 +405,7 @@ func NewTaskHandlerServiceV2() (svc2 *ServiceV2, err error) {
 	svc.cfgSvc = nodeconfig.GetNodeConfigService()
 
 	// grpc client
-	svc.c, err = grpcclient.NewGrpcClientV2()
-	if err != nil {
-		return nil, err
-	}
+	svc.c = grpcclient.GetGrpcClientV2()
 
 	log.Debugf("[NewTaskHandlerService] svc[cfgPath: %s]", svc.cfgSvc.GetConfigPath())
 

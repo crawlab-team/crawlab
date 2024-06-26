@@ -336,12 +336,9 @@ func NewModelServiceV2[T any]() *ModelServiceV2[T] {
 
 	var instance *ModelServiceV2[T]
 
-	c, err := client.GetGrpcClientV2()
-	if err != nil {
-		panic(err)
-	}
+	c := client.GetGrpcClientV2()
 	if !c.IsStarted() {
-		err = c.Start()
+		err := c.Start()
 		if err != nil {
 			panic(err)
 		}
