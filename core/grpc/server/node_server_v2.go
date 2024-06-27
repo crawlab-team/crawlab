@@ -69,7 +69,7 @@ func (svr NodeServerV2) Register(ctx context.Context, req *grpc.Request) (res *g
 			if err != nil {
 				return HandleError(err)
 			}
-			log.Infof("[NodeServerV2] updated worker[%s] in db. id: %s", nodeKey, node.Id.Hex())
+			log.Infof("[NodeServerV2] updated worker[%s] in db. id: %s", nodeKey, nodeDb.Id.Hex())
 		}
 	} else if errors2.Is(err, mongo.ErrNoDocuments) {
 		// register new

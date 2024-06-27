@@ -36,6 +36,7 @@ type GrpcClientV2 struct {
 	stream grpc2.NodeService_SubscribeClient
 	msgCh  chan *grpc2.StreamMessage
 	err    error
+	once   sync.Once
 
 	// clients
 	NodeClient               grpc2.NodeServiceClient
@@ -46,23 +47,27 @@ type GrpcClientV2 struct {
 }
 
 func (c *GrpcClientV2) Start() (err error) {
-	// connect
-	if err := c.connect(); err != nil {
-		return err
-	}
+	c.once.Do(func() {
+		// connect
+		err = c.connect()
+		if err != nil {
+			return
+		}
 
-	// register rpc services
-	c.Register()
+		// register rpc services
+		c.Register()
 
-	// subscribe
-	if err := c.subscribe(); err != nil {
-		return err
-	}
+		// subscribe
+		err = c.subscribe()
+		if err != nil {
+			return
+		}
 
-	// handle stream message
-	go c.handleStreamMessage()
+		// handle stream message
+		go c.handleStreamMessage()
+	})
 
-	return nil
+	return err
 }
 
 func (c *GrpcClientV2) Stop() (err error) {
