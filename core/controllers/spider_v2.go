@@ -560,7 +560,8 @@ func PostSpiderSaveFiles(c *gin.Context) {
 		HandleErrorForbidden(c, err)
 		return
 	}
-	PostBaseFileSaveFiles(rootPath, c)
+	targetDirectory := c.PostForm("targetDirectory")
+	PostBaseFileSaveFiles(filepath.Join(rootPath, targetDirectory), c)
 }
 
 func PostSpiderSaveDir(c *gin.Context) {
@@ -723,10 +724,6 @@ func getSpiderFsSvc(s *models.SpiderV2) (svc interfaces.FsServiceV2, err error) 
 	return fsSvc, nil
 }
 
-func GetSpiderFsSvcById(id primitive.ObjectID) (svc interfaces.FsServiceV2, err error) {
-	return getSpiderFsSvcById(id)
-}
-
 func getSpiderFsSvcById(id primitive.ObjectID) (svc interfaces.FsServiceV2, err error) {
 	s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
 	if err != nil {
@@ -803,5 +800,5 @@ func getSpiderRootPath(c *gin.Context) (rootPath string, err error) {
 		return id.Hex(), nil
 	}
 
-	return filepath.Join(s.GitId.Hex(), rootPath), nil
+	return filepath.Join(s.GitId.Hex(), s.GitRootPath), nil
 }
