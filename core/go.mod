@@ -29,7 +29,7 @@ require (
 	github.com/go-git/go-git/v5 v5.12.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
-	github.com/gorilla/websocket v1.4.2
+	github.com/gorilla/websocket v1.5.3
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.1-0.20190118093823-f849b5445de4
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/imroc/req v0.3.0
