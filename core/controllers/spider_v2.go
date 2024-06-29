@@ -61,6 +61,17 @@ func GetSpiderById(c *gin.Context) {
 		}
 	}
 
+	// git
+	if utils.IsPro() && !s.GitId.IsZero() {
+		s.Git, err = service.NewModelServiceV2[models.GitV2]().GetById(s.GitId)
+		if err != nil {
+			if !errors.Is(err, mongo2.ErrNoDocuments) {
+				HandleErrorInternalServerError(c, err)
+				return
+			}
+		}
+	}
+
 	HandleSuccessWithData(c, s)
 }
 

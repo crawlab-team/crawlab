@@ -19,6 +19,7 @@ type GitV2 struct {
 	Spiders            []SpiderV2   `json:"spiders,omitempty" bson:"-"`
 	Refs               []vcs.GitRef `json:"refs" bson:"refs"`
 	RefsUpdatedAt      time.Time    `json:"refs_updated_at" bson:"refs_updated_at"`
+	CloneLogs          []string     `json:"clone_logs,omitempty" bson:"clone_logs"`
 
 	// settings
 	AutoPull bool `json:"auto_pull" bson:"auto_pull"`
