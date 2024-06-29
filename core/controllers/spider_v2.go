@@ -108,8 +108,12 @@ func getSpiderListWithStats(c *gin.Context) {
 
 	// ids
 	var ids []primitive.ObjectID
+	var gitIds []primitive.ObjectID
 	for _, s := range spiders {
 		ids = append(ids, s.Id)
+		if !s.GitId.IsZero() {
+			gitIds = append(gitIds, s.GitId)
+		}
 	}
 
 	// total count
@@ -182,6 +186,22 @@ func getSpiderListWithStats(c *gin.Context) {
 		}
 	}
 
+	// git list
+	var gits []models.GitV2
+	if len(gitIds) > 0 && utils.IsPro() {
+		gits, err = service.NewModelServiceV2[models.GitV2]().GetMany(bson.M{"_id": bson.M{"$in": gitIds}}, nil)
+		if err != nil {
+			HandleErrorInternalServerError(c, err)
+			return
+		}
+	}
+
+	// cache git list to dict
+	dictGit := map[primitive.ObjectID]models.GitV2{}
+	for _, g := range gits {
+		dictGit[g.Id] = g
+	}
+
 	// iterate list again
 	var data []models.SpiderV2
 	for _, s := range spiders {
@@ -194,6 +214,14 @@ func getSpiderListWithStats(c *gin.Context) {
 			t, ok := dictTask[s.Id]
 			if ok {
 				s.Stat.LastTask = &t
+			}
+		}
+
+		// git
+		if !s.GitId.IsZero() && utils.IsPro() {
+			g, ok := dictGit[s.GitId]
+			if ok {
+				s.Git = &g
 			}
 		}
 
