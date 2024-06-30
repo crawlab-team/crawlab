@@ -291,6 +291,10 @@ func PostBaseFileExport(rootPath string, c *gin.Context) {
 	c.File(zipFilePath)
 }
 
+func GetBaseFileFsSvc(rootPath string) (svc interfaces.FsServiceV2, err error) {
+	return getBaseFileFsSvc(rootPath)
+}
+
 func getBaseFileFsSvc(rootPath string) (svc interfaces.FsServiceV2, err error) {
 	workspacePath := viper.GetString("workspace")
 	fsSvc := fs.NewFsServiceV2(filepath.Join(workspacePath, rootPath))
