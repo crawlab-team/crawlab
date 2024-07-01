@@ -6,7 +6,6 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	config2 "github.com/crawlab-team/crawlab/core/config"
 	"github.com/crawlab-team/crawlab/core/constants"
-	"github.com/crawlab-team/crawlab/core/container"
 	"github.com/crawlab-team/crawlab/core/grpc/server"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/models/common"
@@ -20,7 +19,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/task/handler"
 	"github.com/crawlab-team/crawlab/core/task/scheduler"
 	"github.com/crawlab-team/crawlab/core/utils"
-	grpc "github.com/crawlab-team/crawlab/grpc"
+	"github.com/crawlab-team/crawlab/grpc"
 	"github.com/crawlab-team/crawlab/trace"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -320,7 +319,7 @@ func (svc *MasterServiceV2) updateNodeAvailableRunners(node *models.NodeV2) (err
 	return nil
 }
 
-func NewMasterServiceV2() (res interfaces.NodeMasterService, err error) {
+func newMasterServiceV2() (res *MasterServiceV2, err error) {
 	// master service
 	svc := &MasterServiceV2{
 		cfgPath:         config2.GetConfigPath(),
@@ -334,14 +333,8 @@ func NewMasterServiceV2() (res interfaces.NodeMasterService, err error) {
 		serverOpts = append(serverOpts, server.WithAddress(svc.address))
 	}
 
-	// dependency injection
-	if err := container.GetContainer().Invoke(func(
-		cfgSvc interfaces.NodeConfigService,
-	) {
-		svc.cfgSvc = cfgSvc
-	}); err != nil {
-		return nil, err
-	}
+	// node config service
+	svc.cfgSvc = config.GetNodeConfigService()
 
 	// grpc server
 	svc.server, err = server.GetGrpcServerV2()
@@ -368,7 +361,7 @@ func NewMasterServiceV2() (res interfaces.NodeMasterService, err error) {
 	}
 
 	// notification service
-	svc.notificationSvc = notification.GetServiceV2()
+	svc.notificationSvc = notification.GetNotificationServiceV2()
 
 	// spider admin service
 	svc.spiderAdminSvc, err = admin.GetSpiderAdminServiceV2()
@@ -377,7 +370,7 @@ func NewMasterServiceV2() (res interfaces.NodeMasterService, err error) {
 	}
 
 	// system service
-	svc.systemSvc = system.GetServiceV2()
+	svc.systemSvc = system.GetSystemServiceV2()
 
 	// init
 	if err := svc.Init(); err != nil {
@@ -385,4 +378,18 @@ func NewMasterServiceV2() (res interfaces.NodeMasterService, err error) {
 	}
 
 	return svc, nil
+}
+
+var masterServiceV2 *MasterServiceV2
+var masterServiceV2Once = new(sync.Once)
+
+func GetMasterServiceV2() (res *MasterServiceV2, err error) {
+	masterServiceV2Once.Do(func() {
+		masterServiceV2, err = newMasterServiceV2()
+		if err != nil {
+			log.Errorf("failed to get master service: %v", err)
+		}
+	})
+	return masterServiceV2, err
+
 }

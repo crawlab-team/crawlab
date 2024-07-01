@@ -331,7 +331,7 @@ func NewModelServiceV2[T any]() *ModelServiceV2[T] {
 	typeName := t.Name()
 
 	if _, exists := onceMap[typeName]; !exists {
-		onceMap[typeName] = &sync.Once{}
+		onceMap[typeName] = new(sync.Once)
 	}
 
 	var instance *ModelServiceV2[T]

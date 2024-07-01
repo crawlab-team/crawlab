@@ -1,6 +1,7 @@
 package admin
 
 import (
+	log2 "github.com/apex/log"
 	config2 "github.com/crawlab-team/crawlab/core/config"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/errors"
@@ -13,6 +14,7 @@ import (
 	"github.com/robfig/cron/v3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"sync"
 	"time"
 )
 
@@ -160,7 +162,7 @@ func (svc *ServiceV2) isMultiTask(opts *interfaces.SpiderRunOptions) (res bool) 
 	}
 }
 
-func NewSpiderAdminServiceV2() (svc2 *ServiceV2, err error) {
+func newSpiderAdminServiceV2() (svc2 *ServiceV2, err error) {
 	svc := &ServiceV2{
 		nodeCfgSvc: config.GetNodeConfigService(),
 		cfgPath:    config2.GetConfigPath(),
@@ -182,16 +184,20 @@ func NewSpiderAdminServiceV2() (svc2 *ServiceV2, err error) {
 }
 
 var svcV2 *ServiceV2
+var svcV2Once = new(sync.Once)
 
 func GetSpiderAdminServiceV2() (svc2 *ServiceV2, err error) {
 	if svcV2 != nil {
 		return svcV2, nil
 	}
-
-	svcV2, err = NewSpiderAdminServiceV2()
+	svcV2Once.Do(func() {
+		svcV2, err = newSpiderAdminServiceV2()
+		if err != nil {
+			log2.Errorf("[GetSpiderAdminServiceV2] error: %v", err)
+		}
+	})
 	if err != nil {
 		return nil, err
 	}
-
 	return svcV2, nil
 }

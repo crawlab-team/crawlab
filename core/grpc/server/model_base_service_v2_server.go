@@ -34,6 +34,7 @@ var (
 		*new(models.ScheduleV2),
 		*new(models.SettingV2),
 		*new(models.SpiderV2),
+		*new(models.SpiderStatV2),
 		*new(models.TaskQueueItemV2),
 		*new(models.TaskStatV2),
 		*new(models.TaskV2),

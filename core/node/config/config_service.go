@@ -9,6 +9,7 @@ import (
 	"github.com/crawlab-team/crawlab/trace"
 	"os"
 	"path/filepath"
+	"sync"
 )
 
 type Service struct {
@@ -93,7 +94,7 @@ func (svc *Service) SetConfigPath(path string) {
 	svc.path = path
 }
 
-func NewNodeConfigService() (svc2 interfaces.NodeConfigService, err error) {
+func newNodeConfigService() (svc2 interfaces.NodeConfigService, err error) {
 	// cfg
 	cfg := NewConfig(nil)
 
@@ -115,17 +116,18 @@ func NewNodeConfigService() (svc2 interfaces.NodeConfigService, err error) {
 }
 
 var _service interfaces.NodeConfigService
+var _serviceOnce = new(sync.Once)
 
 func GetNodeConfigService() interfaces.NodeConfigService {
 	if _service != nil {
 		return _service
 	}
-
-	var err error
-	_service, err = NewNodeConfigService()
-	if err != nil {
-		panic(err)
-	}
-
+	_serviceOnce.Do(func() {
+		var err error
+		_service, err = newNodeConfigService()
+		if err != nil {
+			panic(err)
+		}
+	})
 	return _service
 }

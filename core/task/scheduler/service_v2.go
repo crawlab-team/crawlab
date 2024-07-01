@@ -2,12 +2,15 @@ package scheduler
 
 import (
 	errors2 "errors"
+	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/constants"
-	"github.com/crawlab-team/crawlab/core/container"
 	"github.com/crawlab-team/crawlab/core/errors"
+	"github.com/crawlab-team/crawlab/core/grpc/server"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/models/models"
 	"github.com/crawlab-team/crawlab/core/models/service"
+	nodeconfig "github.com/crawlab-team/crawlab/core/node/config"
+	"github.com/crawlab-team/crawlab/core/task/handler"
 	"github.com/crawlab-team/crawlab/core/utils"
 	grpc "github.com/crawlab-team/crawlab/grpc"
 	"github.com/crawlab-team/crawlab/trace"
@@ -20,8 +23,8 @@ import (
 type ServiceV2 struct {
 	// dependencies
 	nodeCfgSvc interfaces.NodeConfigService
-	svr        interfaces.GrpcServer
-	handlerSvc interfaces.TaskHandlerService
+	svr        *server.GrpcServerV2
+	handlerSvc *handler.ServiceV2
 
 	// settings
 	interval time.Duration
@@ -233,17 +236,15 @@ func NewTaskSchedulerServiceV2() (svc2 *ServiceV2, err error) {
 	svc := &ServiceV2{
 		interval: 5 * time.Second,
 	}
-
-	// dependency injection
-	if err := container.GetContainer().Invoke(func(
-		nodeCfgSvc interfaces.NodeConfigService,
-		svr interfaces.GrpcServer,
-		handlerSvc interfaces.TaskHandlerService,
-	) {
-		svc.nodeCfgSvc = nodeCfgSvc
-		svc.svr = svr
-		svc.handlerSvc = handlerSvc
-	}); err != nil {
+	svc.nodeCfgSvc = nodeconfig.GetNodeConfigService()
+	svc.svr, err = server.GetGrpcServerV2()
+	if err != nil {
+		log.Errorf("failed to get grpc server: %v", err)
+		return nil, err
+	}
+	svc.handlerSvc, err = handler.GetTaskHandlerServiceV2()
+	if err != nil {
+		log.Errorf("failed to get task handler service: %v", err)
 		return nil, err
 	}
 

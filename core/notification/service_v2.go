@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"sync"
 )
 
 type ServiceV2 struct {
@@ -341,7 +342,7 @@ func (svc *ServiceV2) _toggleSettingFunc(value bool) func(id primitive.ObjectID)
 	}
 }
 
-func NewServiceV2() *ServiceV2 {
+func newNotificationServiceV2() *ServiceV2 {
 	// service
 	svc := &ServiceV2{}
 
@@ -349,10 +350,14 @@ func NewServiceV2() *ServiceV2 {
 }
 
 var _serviceV2 *ServiceV2
+var _serviceV2Once = new(sync.Once)
 
-func GetServiceV2() *ServiceV2 {
-	if _serviceV2 == nil {
-		_serviceV2 = NewServiceV2()
+func GetNotificationServiceV2() *ServiceV2 {
+	if _serviceV2 != nil {
+		return _serviceV2
 	}
+	_serviceV2Once.Do(func() {
+		_serviceV2 = newNotificationServiceV2()
+	})
 	return _serviceV2
 }

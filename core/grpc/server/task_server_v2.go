@@ -110,7 +110,7 @@ func (svr TaskServerV2) Fetch(ctx context.Context, request *grpc.Request) (respo
 }
 
 func (svr TaskServerV2) SendNotification(ctx context.Context, request *grpc.Request) (response *grpc.Response, err error) {
-	svc := notification.GetServiceV2()
+	svc := notification.GetNotificationServiceV2()
 	var t = new(models.TaskV2)
 	if err := json.Unmarshal(request.Data, t); err != nil {
 		return nil, trace.TraceError(err)

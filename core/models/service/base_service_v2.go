@@ -146,7 +146,7 @@ func NewModelServiceV2[T any]() *ModelServiceV2[T] {
 	defer mu.Unlock()
 
 	if _, exists := onceMap[typeName]; !exists {
-		onceMap[typeName] = &sync.Once{}
+		onceMap[typeName] = new(sync.Once)
 	}
 
 	var instance *ModelServiceV2[T]
@@ -166,7 +166,7 @@ func NewModelServiceV2WithColName[T any](colName string) *ModelServiceV2[T] {
 	defer mu.Unlock()
 
 	if _, exists := onceColNameMap[colName]; !exists {
-		onceColNameMap[colName] = &sync.Once{}
+		onceColNameMap[colName] = new(sync.Once)
 	}
 
 	var instance *ModelServiceV2[T]

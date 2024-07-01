@@ -4,6 +4,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/models/models"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"go.mongodb.org/mongo-driver/bson"
+	"sync"
 )
 
 type ServiceV2 struct {
@@ -46,7 +47,7 @@ func (svc *ServiceV2) initData() (err error) {
 	return nil
 }
 
-func NewServiceV2() *ServiceV2 {
+func newSystemServiceV2() *ServiceV2 {
 	// service
 	svc := &ServiceV2{}
 
@@ -58,10 +59,14 @@ func NewServiceV2() *ServiceV2 {
 }
 
 var _serviceV2 *ServiceV2
+var _serviceV2Once = new(sync.Once)
 
-func GetServiceV2() *ServiceV2 {
+func GetSystemServiceV2() *ServiceV2 {
 	if _serviceV2 == nil {
-		_serviceV2 = NewServiceV2()
+		_serviceV2 = newSystemServiceV2()
 	}
+	_serviceV2Once.Do(func() {
+		_serviceV2 = newSystemServiceV2()
+	})
 	return _serviceV2
 }

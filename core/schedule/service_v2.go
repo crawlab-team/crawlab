@@ -1,6 +1,7 @@
 package schedule
 
 import (
+	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/config"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/models/models"
@@ -270,12 +271,18 @@ func NewScheduleServiceV2() (svc2 *ServiceV2, err error) {
 }
 
 var svcV2 *ServiceV2
+var svcV2Once = new(sync.Once)
 
 func GetScheduleServiceV2() (res *ServiceV2, err error) {
 	if svcV2 != nil {
 		return svcV2, nil
 	}
-	svcV2, err = NewScheduleServiceV2()
+	svcV2Once.Do(func() {
+		svcV2, err = NewScheduleServiceV2()
+		if err != nil {
+			log.Errorf("failed to get schedule service: %v", err)
+		}
+	})
 	if err != nil {
 		return nil, err
 	}
