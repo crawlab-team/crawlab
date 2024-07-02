@@ -17,7 +17,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.3.0
 	github.com/crawlab-team/crawlab/db v0.0.0-20240701075920-023ba275664a
 	github.com/crawlab-team/crawlab/fs v0.0.0-20240701075920-023ba275664a
-	github.com/crawlab-team/crawlab/grpc v0.0.0-20240614111723-e5b20af9a40b
+	github.com/crawlab-team/crawlab/grpc v0.0.0-20240701075920-023ba275664a
 	github.com/crawlab-team/crawlab/template-parser v0.0.0-20240701075920-023ba275664a
 	github.com/crawlab-team/crawlab/trace v0.0.0-20240701075920-023ba275664a
 	github.com/crawlab-team/crawlab/vcs v0.0.0-20240701075920-023ba275664a
