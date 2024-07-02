@@ -6,7 +6,7 @@ replace github.com/crawlab-team/crawlab/trace => ../trace
 
 require (
 	github.com/apex/log v1.9.0
-	github.com/cenkalti/backoff/v4 v4.1.0
+	github.com/cenkalti/backoff/v4 v4.3.0
 	github.com/crawlab-team/crawlab/trace v0.0.0-20240614095218-7b4ee8399ab0
 	github.com/crawlab-team/goseaweedfs v0.6.3
 	github.com/emirpasic/gods v1.18.1
