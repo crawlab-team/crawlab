@@ -157,4 +157,24 @@ func CreateIndexesV2() {
 			Options: (&options.IndexOptions{}).SetExpireAfterSeconds(60 * 60 * 24),
 		},
 	})
+
+	// metrics
+	mongo.GetMongoCol(service.GetCollectionNameByInstance(models.MetricV2{})).MustCreateIndexes([]mongo2.IndexModel{
+		{
+			Keys: bson.D{
+				{"created_ts", -1},
+			},
+			Options: (&options.IndexOptions{}).SetExpireAfterSeconds(60 * 60 * 24 * 30),
+		},
+		{
+			Keys: bson.D{
+				{"node_id", 1},
+			},
+		},
+		{
+			Keys: bson.D{
+				{"type", 1},
+			},
+		},
+	})
 }

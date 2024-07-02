@@ -25,6 +25,7 @@ var (
 		*new(models.DependencyTaskV2),
 		*new(models.EnvironmentV2),
 		*new(models.GitV2),
+		*new(models.MetricV2),
 		*new(models.NodeV2),
 		*new(models.NotificationSettingV2),
 		*new(models.PermissionV2),

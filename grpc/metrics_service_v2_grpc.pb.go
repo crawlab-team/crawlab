@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	MetricsServiceV2_Connect_FullMethodName = "/grpc.MetricsServiceV2/Connect"
+	MetricsServiceV2_Send_FullMethodName = "/grpc.MetricsServiceV2/Send"
 )
 
 // MetricsServiceV2Client is the client API for MetricsServiceV2 service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MetricsServiceV2Client interface {
-	Connect(ctx context.Context, opts ...grpc.CallOption) (MetricsServiceV2_ConnectClient, error)
+	Send(ctx context.Context, in *MetricsServiceV2SendRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type metricsServiceV2Client struct {
@@ -37,43 +37,21 @@ func NewMetricsServiceV2Client(cc grpc.ClientConnInterface) MetricsServiceV2Clie
 	return &metricsServiceV2Client{cc}
 }
 
-func (c *metricsServiceV2Client) Connect(ctx context.Context, opts ...grpc.CallOption) (MetricsServiceV2_ConnectClient, error) {
+func (c *metricsServiceV2Client) Send(ctx context.Context, in *MetricsServiceV2SendRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &MetricsServiceV2_ServiceDesc.Streams[0], MetricsServiceV2_Connect_FullMethodName, cOpts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, MetricsServiceV2_Send_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &metricsServiceV2ConnectClient{ClientStream: stream}
-	return x, nil
-}
-
-type MetricsServiceV2_ConnectClient interface {
-	Send(*MetricsServiceV2ConnectRequest) error
-	Recv() (*MetricsServiceV2ConnectResponse, error)
-	grpc.ClientStream
-}
-
-type metricsServiceV2ConnectClient struct {
-	grpc.ClientStream
-}
-
-func (x *metricsServiceV2ConnectClient) Send(m *MetricsServiceV2ConnectRequest) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *metricsServiceV2ConnectClient) Recv() (*MetricsServiceV2ConnectResponse, error) {
-	m := new(MetricsServiceV2ConnectResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 // MetricsServiceV2Server is the server API for MetricsServiceV2 service.
 // All implementations must embed UnimplementedMetricsServiceV2Server
 // for forward compatibility
 type MetricsServiceV2Server interface {
-	Connect(MetricsServiceV2_ConnectServer) error
+	Send(context.Context, *MetricsServiceV2SendRequest) (*Response, error)
 	mustEmbedUnimplementedMetricsServiceV2Server()
 }
 
@@ -81,8 +59,8 @@ type MetricsServiceV2Server interface {
 type UnimplementedMetricsServiceV2Server struct {
 }
 
-func (UnimplementedMetricsServiceV2Server) Connect(MetricsServiceV2_ConnectServer) error {
-	return status.Errorf(codes.Unimplemented, "method Connect not implemented")
+func (UnimplementedMetricsServiceV2Server) Send(context.Context, *MetricsServiceV2SendRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Send not implemented")
 }
 func (UnimplementedMetricsServiceV2Server) mustEmbedUnimplementedMetricsServiceV2Server() {}
 
@@ -97,30 +75,22 @@ func RegisterMetricsServiceV2Server(s grpc.ServiceRegistrar, srv MetricsServiceV
 	s.RegisterService(&MetricsServiceV2_ServiceDesc, srv)
 }
 
-func _MetricsServiceV2_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(MetricsServiceV2Server).Connect(&metricsServiceV2ConnectServer{ServerStream: stream})
-}
-
-type MetricsServiceV2_ConnectServer interface {
-	Send(*MetricsServiceV2ConnectResponse) error
-	Recv() (*MetricsServiceV2ConnectRequest, error)
-	grpc.ServerStream
-}
-
-type metricsServiceV2ConnectServer struct {
-	grpc.ServerStream
-}
-
-func (x *metricsServiceV2ConnectServer) Send(m *MetricsServiceV2ConnectResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *metricsServiceV2ConnectServer) Recv() (*MetricsServiceV2ConnectRequest, error) {
-	m := new(MetricsServiceV2ConnectRequest)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
+func _MetricsServiceV2_Send_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MetricsServiceV2SendRequest)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return m, nil
+	if interceptor == nil {
+		return srv.(MetricsServiceV2Server).Send(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MetricsServiceV2_Send_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MetricsServiceV2Server).Send(ctx, req.(*MetricsServiceV2SendRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 // MetricsServiceV2_ServiceDesc is the grpc.ServiceDesc for MetricsServiceV2 service.
@@ -129,14 +99,12 @@ func (x *metricsServiceV2ConnectServer) Recv() (*MetricsServiceV2ConnectRequest,
 var MetricsServiceV2_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "grpc.MetricsServiceV2",
 	HandlerType: (*MetricsServiceV2Server)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams: []grpc.StreamDesc{
+	Methods: []grpc.MethodDesc{
 		{
-			StreamName:    "Connect",
-			Handler:       _MetricsServiceV2_Connect_Handler,
-			ServerStreams: true,
-			ClientStreams: true,
+			MethodName: "Send",
+			Handler:    _MetricsServiceV2_Send_Handler,
 		},
 	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "services/metrics_service_v2.proto",
 }
