@@ -119,9 +119,6 @@ var _service interfaces.NodeConfigService
 var _serviceOnce = new(sync.Once)
 
 func GetNodeConfigService() interfaces.NodeConfigService {
-	if _service != nil {
-		return _service
-	}
 	_serviceOnce.Do(func() {
 		var err error
 		_service, err = newNodeConfigService()

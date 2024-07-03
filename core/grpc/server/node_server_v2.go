@@ -58,11 +58,13 @@ func (svr NodeServerV2) Register(ctx context.Context, req *grpc.NodeServiceRegis
 	} else if errors2.Is(err, mongo.ErrNoDocuments) {
 		// register new
 		node = &models.NodeV2{
-			Key:      req.Key,
-			Status:   constants.NodeStatusRegistered,
-			Active:   true,
-			ActiveAt: time.Now(),
-			Enabled:  true,
+			Key:        req.Key,
+			Name:       req.Name,
+			Status:     constants.NodeStatusRegistered,
+			Active:     true,
+			ActiveAt:   time.Now(),
+			Enabled:    true,
+			MaxRunners: int(req.MaxRunners),
 		}
 		node.SetCreated(primitive.NilObjectID)
 		node.SetUpdated(primitive.NilObjectID)
