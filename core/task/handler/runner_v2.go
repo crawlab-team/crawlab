@@ -18,7 +18,7 @@ import (
 	service2 "github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/sys_exec"
 	"github.com/crawlab-team/crawlab/core/utils"
-	grpc "github.com/crawlab-team/crawlab/grpc"
+	"github.com/crawlab-team/crawlab/grpc"
 	"github.com/crawlab-team/crawlab/trace"
 	"github.com/shirou/gopsutil/process"
 	"github.com/spf13/viper"
@@ -414,7 +414,7 @@ func (r *RunnerV2) syncFiles() (err error) {
 					}
 				} else {
 					log.Infof("File needs to be synchronized: %s", path)
-					_err := r.downloadFile(masterURL+"/download?path="+path, filepath.Join(r.cwd, path), masterFile)
+					_err := r.downloadFile(masterURL+"/download?path="+filepath.Join(workingDir, path), filepath.Join(r.cwd, path), masterFile)
 					if _err != nil {
 						log.Errorf("Error downloading file: %v", _err)
 						err = errors.Join(err, _err)
@@ -440,6 +440,10 @@ func (r *RunnerV2) downloadFile(url string, filePath string, fileInfo *entity.Fs
 	if err != nil {
 		log.Errorf("Error getting file response: %v", err)
 		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		log.Errorf("Error downloading file: %s", resp.Status)
+		return errors.New(resp.Status)
 	}
 	defer resp.Body.Close()
 
