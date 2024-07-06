@@ -1,9 +1,8 @@
 package config
 
 var DefaultConfigYaml = `
-info:
-  version: v0.6.3
-  edition: global.edition.community
+version: v0.6.3
+edition: global.edition.community
 mongo:
   host: localhost
   port: 27017
