@@ -2,7 +2,7 @@ package stats
 
 import (
 	"github.com/crawlab-team/crawlab/core/interfaces"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	nodeconfig "github.com/crawlab-team/crawlab/core/node/config"
 	"github.com/crawlab-team/crawlab/core/result"
@@ -63,7 +63,7 @@ func (svc *ServiceV2) getResultService(id primitive.ObjectID) (resultSvc interfa
 	}
 
 	// task
-	t, err := service.NewModelServiceV2[models.TaskV2]().GetById(id)
+	t, err := service.NewModelServiceV2[models2.TaskV2]().GetById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (svc *ServiceV2) getResultService(id primitive.ObjectID) (resultSvc interfa
 }
 
 func (svc *ServiceV2) updateTaskStats(id primitive.ObjectID, resultCount int) {
-	err := service.NewModelServiceV2[models.TaskStatV2]().UpdateById(id, bson.M{
+	err := service.NewModelServiceV2[models2.TaskStatV2]().UpdateById(id, bson.M{
 		"$inc": bson.M{
 			"result_count": resultCount,
 		},

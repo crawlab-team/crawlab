@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/upper/db/v4"
 	"github.com/upper/db/v4/adapter/mssql"
 	"time"
@@ -59,13 +60,13 @@ func getCockroachdbSession(ctx context.Context, ds *models.DataSource) (s db.Ses
 	return s, err
 }
 
-func GetCockroachdbSessionWithTimeoutV2(ds *models.DataSourceV2, timeout time.Duration) (s db.Session, err error) {
+func GetCockroachdbSessionWithTimeoutV2(ds *models2.DataSourceV2, timeout time.Duration) (s db.Session, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	return getCockroachdbSessionV2(ctx, ds)
 }
 
-func getCockroachdbSessionV2(ctx context.Context, ds *models.DataSourceV2) (s db.Session, err error) {
+func getCockroachdbSessionV2(ctx context.Context, ds *models2.DataSourceV2) (s db.Session, err error) {
 	// normalize settings
 	host := ds.Host
 	port := ds.Port

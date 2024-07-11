@@ -8,7 +8,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/entity"
 	"github.com/crawlab-team/crawlab/core/interfaces"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	nodeconfig "github.com/crawlab-team/crawlab/core/node/config"
 	"github.com/crawlab-team/crawlab/core/notification"
@@ -72,7 +72,7 @@ func (svr TaskServerV2) Fetch(ctx context.Context, request *grpc.Request) (respo
 	if nodeKey == "" {
 		return nil, errors.New("invalid node key")
 	}
-	n, err := service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
+	n, err := service.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
 	if err != nil {
 		return nil, trace.TraceError(err)
 	}
@@ -111,11 +111,11 @@ func (svr TaskServerV2) Fetch(ctx context.Context, request *grpc.Request) (respo
 
 func (svr TaskServerV2) SendNotification(ctx context.Context, request *grpc.Request) (response *grpc.Response, err error) {
 	svc := notification.GetNotificationServiceV2()
-	var t = new(models.TaskV2)
+	var t = new(models2.TaskV2)
 	if err := json.Unmarshal(request.Data, t); err != nil {
 		return nil, trace.TraceError(err)
 	}
-	t, err = service.NewModelServiceV2[models.TaskV2]().GetById(t.Id)
+	t, err = service.NewModelServiceV2[models2.TaskV2]().GetById(t.Id)
 	if err != nil {
 		return nil, trace.TraceError(err)
 	}
@@ -127,7 +127,7 @@ func (svr TaskServerV2) SendNotification(ctx context.Context, request *grpc.Requ
 	if err := json.Unmarshal(td, &e); err != nil {
 		return nil, trace.TraceError(err)
 	}
-	ts, err := service.NewModelServiceV2[models.TaskStatV2]().GetById(t.Id)
+	ts, err := service.NewModelServiceV2[models2.TaskStatV2]().GetById(t.Id)
 	if err != nil {
 		return nil, trace.TraceError(err)
 	}
@@ -190,22 +190,22 @@ func (svr TaskServerV2) handleInsertLogs(msg *grpc.StreamMessage) (err error) {
 }
 
 func (svr TaskServerV2) getTaskQueueItemIdAndDequeue(query bson.M, opts *mongo.FindOptions, nid primitive.ObjectID) (tid primitive.ObjectID, err error) {
-	tq, err := service.NewModelServiceV2[models.TaskQueueItemV2]().GetOne(query, opts)
+	tq, err := service.NewModelServiceV2[models2.TaskQueueItemV2]().GetOne(query, opts)
 	if err != nil {
 		if errors.Is(err, mongo2.ErrNoDocuments) {
 			return tid, nil
 		}
 		return tid, trace.TraceError(err)
 	}
-	t, err := service.NewModelServiceV2[models.TaskV2]().GetById(tq.Id)
+	t, err := service.NewModelServiceV2[models2.TaskV2]().GetById(tq.Id)
 	if err == nil {
 		t.NodeId = nid
-		err = service.NewModelServiceV2[models.TaskV2]().ReplaceById(t.Id, *t)
+		err = service.NewModelServiceV2[models2.TaskV2]().ReplaceById(t.Id, *t)
 		if err != nil {
 			return tid, trace.TraceError(err)
 		}
 	}
-	err = service.NewModelServiceV2[models.TaskQueueItemV2]().DeleteById(tq.Id)
+	err = service.NewModelServiceV2[models2.TaskQueueItemV2]().DeleteById(tq.Id)
 	if err != nil {
 		return tid, trace.TraceError(err)
 	}

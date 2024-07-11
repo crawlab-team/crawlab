@@ -8,6 +8,7 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/db/generic"
 	"github.com/crawlab-team/crawlab/trace"
 	"github.com/elastic/go-elasticsearch/v8"
@@ -83,13 +84,13 @@ func getElasticsearchClient(ctx context.Context, ds *models.DataSource) (c *elas
 	return c, err
 }
 
-func GetElasticsearchClientWithTimeoutV2(ds *models.DataSourceV2, timeout time.Duration) (c *elasticsearch.Client, err error) {
+func GetElasticsearchClientWithTimeoutV2(ds *models2.DataSourceV2, timeout time.Duration) (c *elasticsearch.Client, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	return getElasticsearchClientV2(ctx, ds)
 }
 
-func getElasticsearchClientV2(ctx context.Context, ds *models.DataSourceV2) (c *elasticsearch.Client, err error) {
+func getElasticsearchClientV2(ctx context.Context, ds *models2.DataSourceV2) (c *elasticsearch.Client, err error) {
 	// normalize settings
 	host := ds.Host
 	port := ds.Port

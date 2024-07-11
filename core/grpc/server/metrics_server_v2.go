@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"github.com/apex/log"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/grpc"
 	"go.mongodb.org/mongo-driver/bson"
@@ -17,12 +17,12 @@ type MetricsServerV2 struct {
 
 func (svr MetricsServerV2) Send(_ context.Context, req *grpc.MetricsServiceV2SendRequest) (res *grpc.Response, err error) {
 	log.Info("[MetricsServerV2] received metric from node: " + req.NodeKey)
-	n, err := service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": req.NodeKey}, nil)
+	n, err := service.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": req.NodeKey}, nil)
 	if err != nil {
 		log.Errorf("[MetricsServerV2] error getting node: %v", err)
 		return HandleError(err)
 	}
-	metric := models.MetricV2{
+	metric := models2.MetricV2{
 		Type:                 req.Type,
 		NodeId:               n.Id,
 		CpuUsagePercent:      req.CpuUsagePercent,
@@ -40,7 +40,7 @@ func (svr MetricsServerV2) Send(_ context.Context, req *grpc.MetricsServiceV2Sen
 		NetworkBytesRecvRate: req.NetworkBytesRecvRate,
 	}
 	metric.CreatedAt = time.Unix(req.Timestamp, 0)
-	_, err = service.NewModelServiceV2[models.MetricV2]().InsertOne(metric)
+	_, err = service.NewModelServiceV2[models2.MetricV2]().InsertOne(metric)
 	if err != nil {
 		log.Errorf("[MetricsServerV2] error inserting metric: %v", err)
 		return HandleError(err)

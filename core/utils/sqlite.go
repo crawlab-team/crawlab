@@ -3,6 +3,7 @@ package utils
 import (
 	"context"
 	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/upper/db/v4"
 	"github.com/upper/db/v4/adapter/sqlite"
 	"time"
@@ -44,13 +45,13 @@ func getSqliteSession(ctx context.Context, ds *models.DataSource) (s db.Session,
 	return s, err
 }
 
-func GetSqliteSessionWithTimeoutV2(ds *models.DataSourceV2, timeout time.Duration) (s db.Session, err error) {
+func GetSqliteSessionWithTimeoutV2(ds *models2.DataSourceV2, timeout time.Duration) (s db.Session, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	return getSqliteSessionV2(ctx, ds)
 }
 
-func getSqliteSessionV2(ctx context.Context, ds *models.DataSourceV2) (s db.Session, err error) {
+func getSqliteSessionV2(ctx context.Context, ds *models2.DataSourceV2) (s db.Session, err error) {
 	// connect settings
 	settings := sqlite.ConnectionURL{
 		Database: ds.Database,

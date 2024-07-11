@@ -1,20 +1,18 @@
 package models
 
-import "github.com/crawlab-team/crawlab/core/models/models/v2"
-
 type NotificationSettingV2 struct {
-	any                                       `collection:"notification_settings"`
-	models.BaseModelV2[NotificationSettingV2] `bson:",inline"`
-	Type                                      string                    `json:"type" bson:"type"`
-	Name                                      string                    `json:"name" bson:"name"`
-	Description                               string                    `json:"description" bson:"description"`
-	Enabled                                   bool                      `json:"enabled" bson:"enabled"`
-	Global                                    bool                      `json:"global" bson:"global"`
-	Title                                     string                    `json:"title,omitempty" bson:"title,omitempty"`
-	Template                                  string                    `json:"template,omitempty" bson:"template,omitempty"`
-	TaskTrigger                               string                    `json:"task_trigger" bson:"task_trigger"`
-	Mail                                      NotificationSettingMail   `json:"mail,omitempty" bson:"mail,omitempty"`
-	Mobile                                    NotificationSettingMobile `json:"mobile,omitempty" bson:"mobile,omitempty"`
+	any                                `collection:"notification_settings"`
+	BaseModelV2[NotificationSettingV2] `bson:",inline"`
+	Type                               string                    `json:"type" bson:"type"`
+	Name                               string                    `json:"name" bson:"name"`
+	Description                        string                    `json:"description" bson:"description"`
+	Enabled                            bool                      `json:"enabled" bson:"enabled"`
+	Global                             bool                      `json:"global" bson:"global"`
+	Title                              string                    `json:"title,omitempty" bson:"title,omitempty"`
+	Template                           string                    `json:"template,omitempty" bson:"template,omitempty"`
+	TaskTrigger                        string                    `json:"task_trigger" bson:"task_trigger"`
+	Mail                               NotificationSettingMail   `json:"mail,omitempty" bson:"mail,omitempty"`
+	Mobile                             NotificationSettingMobile `json:"mobile,omitempty" bson:"mobile,omitempty"`
 }
 
 type NotificationSettingMail struct {

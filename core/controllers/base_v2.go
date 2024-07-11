@@ -11,6 +11,12 @@ import (
 	mongo2 "go.mongodb.org/mongo-driver/mongo"
 )
 
+type Action struct {
+	Method      string
+	Path        string
+	HandlerFunc gin.HandlerFunc
+}
+
 type BaseControllerV2[T any] struct {
 	modelSvc *service.ModelServiceV2[T]
 	actions  []Action

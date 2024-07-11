@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/crawlab-team/crawlab/core/controllers"
 	"github.com/crawlab-team/crawlab/core/middlewares"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"

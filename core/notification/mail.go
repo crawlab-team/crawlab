@@ -3,7 +3,7 @@ package notification
 import (
 	"errors"
 	"github.com/apex/log"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/matcornic/hermes/v2"
 	"gopkg.in/gomail.v2"
 	"net/mail"

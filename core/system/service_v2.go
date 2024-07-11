@@ -1,7 +1,7 @@
 package system
 
 import (
-	"github.com/crawlab-team/crawlab/core/models/models"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"go.mongodb.org/mongo-driver/bson"
 	"sync"

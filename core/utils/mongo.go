@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/db/generic"
 	"github.com/crawlab-team/crawlab/db/mongo"
 	"go.mongodb.org/mongo-driver/bson"
@@ -54,7 +55,7 @@ func GetMongoClientWithTimeout(ds *models.DataSource, timeout time.Duration) (c 
 	return getMongoClient(ctx, ds)
 }
 
-func GetMongoClientWithTimeoutV2(ds *models.DataSourceV2, timeout time.Duration) (c *mongo2.Client, err error) {
+func GetMongoClientWithTimeoutV2(ds *models2.DataSourceV2, timeout time.Duration) (c *mongo2.Client, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	return getMongoClientV2(ctx, ds)
@@ -99,7 +100,7 @@ func getMongoClient(ctx context.Context, ds *models.DataSource) (c *mongo2.Clien
 	return mongo.GetMongoClient(opts...)
 }
 
-func getMongoClientV2(ctx context.Context, ds *models.DataSourceV2) (c *mongo2.Client, err error) {
+func getMongoClientV2(ctx context.Context, ds *models2.DataSourceV2) (c *mongo2.Client, err error) {
 	// normalize settings
 	if ds.Host == "" {
 		ds.Host = constants.DefaultHost

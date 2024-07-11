@@ -9,6 +9,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	client2 "github.com/crawlab-team/crawlab/core/models/client"
 	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	nodeconfig "github.com/crawlab-team/crawlab/core/node/config"
 	"github.com/crawlab-team/crawlab/core/task/handler"
 	"github.com/crawlab-team/crawlab/core/utils"
@@ -31,7 +32,7 @@ type WorkerServiceV2 struct {
 	heartbeatInterval time.Duration
 
 	// internals
-	n *models.NodeV2
+	n *models2.NodeV2
 	s grpc.NodeService_SubscribeClient
 }
 
@@ -87,7 +88,7 @@ func (svc *WorkerServiceV2) Register() {
 	if err != nil {
 		panic(err)
 	}
-	svc.n, err = client2.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": svc.GetConfigService().GetNodeKey()}, nil)
+	svc.n, err = client2.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": svc.GetConfigService().GetNodeKey()}, nil)
 	if err != nil {
 		panic(err)
 	}

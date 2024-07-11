@@ -6,7 +6,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/errors"
 	"github.com/crawlab-team/crawlab/core/interfaces"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/node/config"
 	"github.com/crawlab-team/crawlab/core/task/scheduler"
@@ -35,7 +35,7 @@ func (svc *ServiceV2) Start() (err error) {
 
 func (svc *ServiceV2) Schedule(id primitive.ObjectID, opts *interfaces.SpiderRunOptions) (taskIds []primitive.ObjectID, err error) {
 	// spider
-	s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -44,9 +44,9 @@ func (svc *ServiceV2) Schedule(id primitive.ObjectID, opts *interfaces.SpiderRun
 	return svc.scheduleTasks(s, opts)
 }
 
-func (svc *ServiceV2) scheduleTasks(s *models.SpiderV2, opts *interfaces.SpiderRunOptions) (taskIds []primitive.ObjectID, err error) {
+func (svc *ServiceV2) scheduleTasks(s *models2.SpiderV2, opts *interfaces.SpiderRunOptions) (taskIds []primitive.ObjectID, err error) {
 	// main task
-	mainTask := &models.TaskV2{
+	mainTask := &models2.TaskV2{
 		SpiderId:   s.Id,
 		Mode:       opts.Mode,
 		NodeIds:    opts.NodeIds,
@@ -83,7 +83,7 @@ func (svc *ServiceV2) scheduleTasks(s *models.SpiderV2, opts *interfaces.SpiderR
 			return nil, err
 		}
 		for _, nodeId := range nodeIds {
-			t := &models.TaskV2{
+			t := &models2.TaskV2{
 				SpiderId:   s.Id,
 				Mode:       opts.Mode,
 				Cmd:        opts.Cmd,
@@ -127,7 +127,7 @@ func (svc *ServiceV2) getNodeIds(opts *interfaces.SpiderRunOptions) (nodeIds []p
 			"enabled": true,
 			"status":  constants.NodeStatusOnline,
 		}
-		nodes, err := service.NewModelServiceV2[models.NodeV2]().GetMany(query, nil)
+		nodes, err := service.NewModelServiceV2[models2.NodeV2]().GetMany(query, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -147,7 +147,7 @@ func (svc *ServiceV2) isMultiTask(opts *interfaces.SpiderRunOptions) (res bool) 
 			"enabled": true,
 			"status":  constants.NodeStatusOnline,
 		}
-		nodes, err := service.NewModelServiceV2[models.NodeV2]().GetMany(query, nil)
+		nodes, err := service.NewModelServiceV2[models2.NodeV2]().GetMany(query, nil)
 		if err != nil {
 			trace.PrintError(err)
 			return false

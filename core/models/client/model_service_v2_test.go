@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/crawlab-team/crawlab/core/grpc/server"
 	"github.com/crawlab-team/crawlab/core/models/client"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/db/mongo"
 	"github.com/spf13/viper"
@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-type TestModel models.TestModel
+type TestModel models.TestModelV2
 
 func setupTestDB() {
 	viper.Set("mongo.db", "testdb")

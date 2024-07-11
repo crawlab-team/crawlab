@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/apex/log"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	mongo2 "github.com/crawlab-team/crawlab/db/mongo"
 	"github.com/crawlab-team/crawlab/grpc"
@@ -40,12 +40,12 @@ func (svr DependenciesServerV2) Connect(req *grpc.DependenciesServiceV2ConnectRe
 }
 
 func (svr DependenciesServerV2) Sync(ctx context.Context, request *grpc.DependenciesServiceV2SyncRequest) (response *grpc.Response, err error) {
-	n, err := service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": request.NodeKey}, nil)
+	n, err := service.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": request.NodeKey}, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	depsDb, err := service.NewModelServiceV2[models.DependencyV2]().GetMany(bson.M{
+	depsDb, err := service.NewModelServiceV2[models2.DependencyV2]().GetMany(bson.M{
 		"node_id": n.Id,
 		"type":    request.Lang,
 	}, nil)
@@ -56,15 +56,15 @@ func (svr DependenciesServerV2) Sync(ctx context.Context, request *grpc.Dependen
 		}
 	}
 
-	depsDbMap := make(map[string]*models.DependencyV2)
+	depsDbMap := make(map[string]*models2.DependencyV2)
 	for _, d := range depsDb {
 		depsDbMap[d.Name] = &d
 	}
 
-	var depsToInsert []models.DependencyV2
-	depsMap := make(map[string]*models.DependencyV2)
+	var depsToInsert []models2.DependencyV2
+	depsMap := make(map[string]*models2.DependencyV2)
 	for _, dep := range request.Dependencies {
-		d := models.DependencyV2{
+		d := models2.DependencyV2{
 			Name:    dep.Name,
 			NodeId:  n.Id,
 			Type:    request.Lang,
@@ -90,7 +90,7 @@ func (svr DependenciesServerV2) Sync(ctx context.Context, request *grpc.Dependen
 
 	err = mongo2.RunTransaction(func(ctx mongo.SessionContext) (err error) {
 		if len(depIdsToDelete) > 0 {
-			err = service.NewModelServiceV2[models.DependencyV2]().DeleteMany(bson.M{
+			err = service.NewModelServiceV2[models2.DependencyV2]().DeleteMany(bson.M{
 				"_id": bson.M{"$in": depIdsToDelete},
 			})
 			if err != nil {
@@ -101,7 +101,7 @@ func (svr DependenciesServerV2) Sync(ctx context.Context, request *grpc.Dependen
 		}
 
 		if len(depsToInsert) > 0 {
-			_, err = service.NewModelServiceV2[models.DependencyV2]().InsertMany(depsToInsert)
+			_, err = service.NewModelServiceV2[models2.DependencyV2]().InsertMany(depsToInsert)
 			if err != nil {
 				log.Errorf("[DependenciesServerV2] insert dependencies in db error: %v", err)
 				trace.PrintError(err)
@@ -116,7 +116,7 @@ func (svr DependenciesServerV2) Sync(ctx context.Context, request *grpc.Dependen
 }
 
 func (svr DependenciesServerV2) UpdateTaskLog(stream grpc.DependenciesServiceV2_UpdateTaskLogServer) (err error) {
-	var t *models.DependencyTaskV2
+	var t *models2.DependencyTaskV2
 	for {
 		req, err := stream.Recv()
 		if err == io.EOF {
@@ -131,21 +131,21 @@ func (svr DependenciesServerV2) UpdateTaskLog(stream grpc.DependenciesServiceV2_
 			return err
 		}
 		if t == nil {
-			t, err = service.NewModelServiceV2[models.DependencyTaskV2]().GetById(taskId)
+			t, err = service.NewModelServiceV2[models2.DependencyTaskV2]().GetById(taskId)
 			if err != nil {
 				return err
 			}
 		}
-		var logs []models.DependencyLogV2
+		var logs []models2.DependencyLogV2
 		for _, line := range req.LogLines {
-			l := models.DependencyLogV2{
+			l := models2.DependencyLogV2{
 				TaskId:  taskId,
 				Content: line,
 			}
 			l.SetCreated(t.CreatedBy)
 			logs = append(logs, l)
 		}
-		_, err = service.NewModelServiceV2[models.DependencyLogV2]().InsertMany(logs)
+		_, err = service.NewModelServiceV2[models2.DependencyLogV2]().InsertMany(logs)
 		if err != nil {
 			return err
 		}
