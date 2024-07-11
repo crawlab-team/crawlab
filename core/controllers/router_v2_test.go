@@ -2,7 +2,7 @@ package controllers_test
 
 import (
 	"github.com/crawlab-team/crawlab/core/controllers"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -28,7 +28,7 @@ func TestRouterGroups(t *testing.T) {
 func TestRegisterController_Routes(t *testing.T) {
 	router := gin.Default()
 	groups := controllers.NewRouterGroups(router)
-	ctr := controllers.NewControllerV2[models.TestModel]()
+	ctr := controllers.NewControllerV2[models.TestModelV2]()
 	basePath := "/testmodels"
 
 	controllers.RegisterController(groups.AuthGroup, basePath, ctr)

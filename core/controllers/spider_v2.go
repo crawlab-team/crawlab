@@ -6,7 +6,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/fs"
 	"github.com/crawlab-team/crawlab/core/interfaces"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/spider/admin"
 	"github.com/crawlab-team/crawlab/core/utils"
@@ -29,7 +29,7 @@ func GetSpiderById(c *gin.Context) {
 		HandleErrorBadRequest(c, err)
 		return
 	}
-	s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 	if errors.Is(err, mongo2.ErrNoDocuments) {
 		HandleErrorNotFound(c, err)
 		return
@@ -40,7 +40,7 @@ func GetSpiderById(c *gin.Context) {
 	}
 
 	// stat
-	s.Stat, err = service.NewModelServiceV2[models.SpiderStatV2]().GetById(s.Id)
+	s.Stat, err = service.NewModelServiceV2[models2.SpiderStatV2]().GetById(s.Id)
 	if err != nil {
 		if !errors.Is(err, mongo2.ErrNoDocuments) {
 			HandleErrorInternalServerError(c, err)
@@ -50,7 +50,7 @@ func GetSpiderById(c *gin.Context) {
 
 	// data collection
 	if !s.ColId.IsZero() {
-		col, err := service.NewModelServiceV2[models.DataCollectionV2]().GetById(s.ColId)
+		col, err := service.NewModelServiceV2[models2.DataCollectionV2]().GetById(s.ColId)
 		if err != nil {
 			if !errors.Is(err, mongo2.ErrNoDocuments) {
 				HandleErrorInternalServerError(c, err)
@@ -63,7 +63,7 @@ func GetSpiderById(c *gin.Context) {
 
 	// git
 	if utils.IsPro() && !s.GitId.IsZero() {
-		s.Git, err = service.NewModelServiceV2[models.GitV2]().GetById(s.GitId)
+		s.Git, err = service.NewModelServiceV2[models2.GitV2]().GetById(s.GitId)
 		if err != nil {
 			if !errors.Is(err, mongo2.ErrNoDocuments) {
 				HandleErrorInternalServerError(c, err)
@@ -79,14 +79,14 @@ func GetSpiderList(c *gin.Context) {
 	// get all list
 	all := MustGetFilterAll(c)
 	if all {
-		NewControllerV2[models.SpiderV2]().getAll(c)
+		NewControllerV2[models2.SpiderV2]().getAll(c)
 		return
 	}
 
 	// get list
 	withStats := c.Query("stats")
 	if withStats == "" {
-		NewControllerV2[models.SpiderV2]().GetList(c)
+		NewControllerV2[models2.SpiderV2]().GetList(c)
 		return
 	}
 
@@ -101,7 +101,7 @@ func getSpiderListWithStats(c *gin.Context) {
 	sort := MustGetSortOption(c)
 
 	// get list
-	spiders, err := service.NewModelServiceV2[models.SpiderV2]().GetMany(query, &mongo.FindOptions{
+	spiders, err := service.NewModelServiceV2[models2.SpiderV2]().GetMany(query, &mongo.FindOptions{
 		Sort:  sort,
 		Skip:  pagination.Size * (pagination.Page - 1),
 		Limit: pagination.Size,
@@ -113,7 +113,7 @@ func getSpiderListWithStats(c *gin.Context) {
 		return
 	}
 	if len(spiders) == 0 {
-		HandleSuccessWithListData(c, []models.SpiderV2{}, 0)
+		HandleSuccessWithListData(c, []models2.SpiderV2{}, 0)
 		return
 	}
 
@@ -128,21 +128,21 @@ func getSpiderListWithStats(c *gin.Context) {
 	}
 
 	// total count
-	total, err := service.NewModelServiceV2[models.SpiderV2]().Count(query)
+	total, err := service.NewModelServiceV2[models2.SpiderV2]().Count(query)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
 
 	// stat list
-	spiderStats, err := service.NewModelServiceV2[models.SpiderStatV2]().GetMany(bson.M{"_id": bson.M{"$in": ids}}, nil)
+	spiderStats, err := service.NewModelServiceV2[models2.SpiderStatV2]().GetMany(bson.M{"_id": bson.M{"$in": ids}}, nil)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
 
 	// cache stat list to dict
-	dict := map[primitive.ObjectID]models.SpiderStatV2{}
+	dict := map[primitive.ObjectID]models2.SpiderStatV2{}
 	var taskIds []primitive.ObjectID
 	for _, st := range spiderStats {
 		if st.Tasks > 0 {
@@ -159,9 +159,9 @@ func getSpiderListWithStats(c *gin.Context) {
 	}
 
 	// task list and stats
-	var tasks []models.TaskV2
-	dictTask := map[primitive.ObjectID]models.TaskV2{}
-	dictTaskStat := map[primitive.ObjectID]models.TaskStatV2{}
+	var tasks []models2.TaskV2
+	dictTask := map[primitive.ObjectID]models2.TaskV2{}
+	dictTaskStat := map[primitive.ObjectID]models2.TaskStatV2{}
 	if len(taskIds) > 0 {
 		// task list
 		queryTask := bson.M{
@@ -169,14 +169,14 @@ func getSpiderListWithStats(c *gin.Context) {
 				"$in": taskIds,
 			},
 		}
-		tasks, err = service.NewModelServiceV2[models.TaskV2]().GetMany(queryTask, nil)
+		tasks, err = service.NewModelServiceV2[models2.TaskV2]().GetMany(queryTask, nil)
 		if err != nil {
 			HandleErrorInternalServerError(c, err)
 			return
 		}
 
 		// task stats list
-		taskStats, err := service.NewModelServiceV2[models.TaskStatV2]().GetMany(queryTask, nil)
+		taskStats, err := service.NewModelServiceV2[models2.TaskStatV2]().GetMany(queryTask, nil)
 		if err != nil {
 			HandleErrorInternalServerError(c, err)
 			return
@@ -198,9 +198,9 @@ func getSpiderListWithStats(c *gin.Context) {
 	}
 
 	// git list
-	var gits []models.GitV2
+	var gits []models2.GitV2
 	if len(gitIds) > 0 && utils.IsPro() {
-		gits, err = service.NewModelServiceV2[models.GitV2]().GetMany(bson.M{"_id": bson.M{"$in": gitIds}}, nil)
+		gits, err = service.NewModelServiceV2[models2.GitV2]().GetMany(bson.M{"_id": bson.M{"$in": gitIds}}, nil)
 		if err != nil {
 			HandleErrorInternalServerError(c, err)
 			return
@@ -208,13 +208,13 @@ func getSpiderListWithStats(c *gin.Context) {
 	}
 
 	// cache git list to dict
-	dictGit := map[primitive.ObjectID]models.GitV2{}
+	dictGit := map[primitive.ObjectID]models2.GitV2{}
 	for _, g := range gits {
 		dictGit[g.Id] = g
 	}
 
 	// iterate list again
-	var data []models.SpiderV2
+	var data []models2.SpiderV2
 	for _, s := range spiders {
 		// spider stat
 		st, ok := dict[s.Id]
@@ -246,7 +246,7 @@ func getSpiderListWithStats(c *gin.Context) {
 
 func PostSpider(c *gin.Context) {
 	// bind
-	var s models.SpiderV2
+	var s models2.SpiderV2
 	if err := c.ShouldBindJSON(&s); err != nil {
 		HandleErrorBadRequest(c, err)
 		return
@@ -264,7 +264,7 @@ func PostSpider(c *gin.Context) {
 	// add
 	s.SetCreated(u.Id)
 	s.SetUpdated(u.Id)
-	id, err := service.NewModelServiceV2[models.SpiderV2]().InsertOne(s)
+	id, err := service.NewModelServiceV2[models2.SpiderV2]().InsertOne(s)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -272,11 +272,11 @@ func PostSpider(c *gin.Context) {
 	s.SetId(id)
 
 	// add stat
-	st := models.SpiderStatV2{}
+	st := models2.SpiderStatV2{}
 	st.SetId(id)
 	st.SetCreated(u.Id)
 	st.SetUpdated(u.Id)
-	_, err = service.NewModelServiceV2[models.SpiderStatV2]().InsertOne(st)
+	_, err = service.NewModelServiceV2[models2.SpiderStatV2]().InsertOne(st)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -305,7 +305,7 @@ func PutSpiderById(c *gin.Context) {
 	}
 
 	// bind
-	var s models.SpiderV2
+	var s models2.SpiderV2
 	if err := c.ShouldBindJSON(&s); err != nil {
 		HandleErrorBadRequest(c, err)
 		return
@@ -319,7 +319,7 @@ func PutSpiderById(c *gin.Context) {
 
 	u := GetUserFromContextV2(c)
 
-	modelSvc := service.NewModelServiceV2[models.SpiderV2]()
+	modelSvc := service.NewModelServiceV2[models2.SpiderV2]()
 
 	// save
 	s.SetUpdated(u.Id)
@@ -348,19 +348,19 @@ func DeleteSpiderById(c *gin.Context) {
 
 	if err := mongo.RunTransaction(func(context mongo2.SessionContext) (err error) {
 		// delete spider
-		err = service.NewModelServiceV2[models.SpiderV2]().DeleteById(id)
+		err = service.NewModelServiceV2[models2.SpiderV2]().DeleteById(id)
 		if err != nil {
 			return err
 		}
 
 		// delete spider stat
-		err = service.NewModelServiceV2[models.SpiderStatV2]().DeleteById(id)
+		err = service.NewModelServiceV2[models2.SpiderStatV2]().DeleteById(id)
 		if err != nil {
 			return err
 		}
 
 		// related tasks
-		tasks, err := service.NewModelServiceV2[models.TaskV2]().GetMany(bson.M{"spider_id": id}, nil)
+		tasks, err := service.NewModelServiceV2[models2.TaskV2]().GetMany(bson.M{"spider_id": id}, nil)
 		if err != nil {
 			return err
 		}
@@ -376,13 +376,13 @@ func DeleteSpiderById(c *gin.Context) {
 		}
 
 		// delete related tasks
-		err = service.NewModelServiceV2[models.TaskV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}})
+		err = service.NewModelServiceV2[models2.TaskV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}})
 		if err != nil {
 			return err
 		}
 
 		// delete related task stats
-		err = service.NewModelServiceV2[models.TaskStatV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}})
+		err = service.NewModelServiceV2[models2.TaskStatV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}})
 		if err != nil {
 			return err
 		}
@@ -410,7 +410,7 @@ func DeleteSpiderById(c *gin.Context) {
 
 	go func() {
 		// spider
-		s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+		s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 		if err != nil {
 			log.Errorf("failed to get spider: %s", err.Error())
 			trace.PrintError(err)
@@ -451,7 +451,7 @@ func DeleteSpiderList(c *gin.Context) {
 
 	if err := mongo.RunTransaction(func(context mongo2.SessionContext) (err error) {
 		// delete spiders
-		if err := service.NewModelServiceV2[models.SpiderV2]().DeleteMany(bson.M{
+		if err := service.NewModelServiceV2[models2.SpiderV2]().DeleteMany(bson.M{
 			"_id": bson.M{
 				"$in": payload.Ids,
 			},
@@ -460,7 +460,7 @@ func DeleteSpiderList(c *gin.Context) {
 		}
 
 		// delete spider stats
-		if err := service.NewModelServiceV2[models.SpiderStatV2]().DeleteMany(bson.M{
+		if err := service.NewModelServiceV2[models2.SpiderStatV2]().DeleteMany(bson.M{
 			"_id": bson.M{
 				"$in": payload.Ids,
 			},
@@ -469,7 +469,7 @@ func DeleteSpiderList(c *gin.Context) {
 		}
 
 		// related tasks
-		tasks, err := service.NewModelServiceV2[models.TaskV2]().GetMany(bson.M{"spider_id": bson.M{"$in": payload.Ids}}, nil)
+		tasks, err := service.NewModelServiceV2[models2.TaskV2]().GetMany(bson.M{"spider_id": bson.M{"$in": payload.Ids}}, nil)
 		if err != nil {
 			return err
 		}
@@ -485,12 +485,12 @@ func DeleteSpiderList(c *gin.Context) {
 		}
 
 		// delete related tasks
-		if err := service.NewModelServiceV2[models.TaskV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}}); err != nil {
+		if err := service.NewModelServiceV2[models2.TaskV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}}); err != nil {
 			return err
 		}
 
 		// delete related task stats
-		if err := service.NewModelServiceV2[models.TaskStatV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}}); err != nil {
+		if err := service.NewModelServiceV2[models2.TaskStatV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}}); err != nil {
 			return err
 		}
 
@@ -524,7 +524,7 @@ func DeleteSpiderList(c *gin.Context) {
 				defer wg.Done()
 
 				// spider
-				s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+				s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 				if err != nil {
 					log.Errorf("failed to get spider: %s", err.Error())
 					trace.PrintError(err)
@@ -692,14 +692,14 @@ func GetSpiderDataSource(c *gin.Context) {
 	}
 
 	// spider
-	s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
 
 	// data source
-	ds, err := service.NewModelServiceV2[models.DataSourceV2]().GetById(s.DataSourceId)
+	ds, err := service.NewModelServiceV2[models2.DataSourceV2]().GetById(s.DataSourceId)
 	if err != nil {
 		if err.Error() == mongo2.ErrNoDocuments.Error() {
 			HandleSuccess(c)
@@ -728,7 +728,7 @@ func PostSpiderDataSource(c *gin.Context) {
 	}
 
 	// spider
-	s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -736,7 +736,7 @@ func PostSpiderDataSource(c *gin.Context) {
 
 	// data source
 	if !dsId.IsZero() {
-		_, err = service.NewModelServiceV2[models.DataSourceV2]().GetById(dsId)
+		_, err = service.NewModelServiceV2[models2.DataSourceV2]().GetById(dsId)
 		if err != nil {
 			HandleErrorInternalServerError(c, err)
 			return
@@ -747,7 +747,7 @@ func PostSpiderDataSource(c *gin.Context) {
 	u := GetUserFromContextV2(c)
 	s.DataSourceId = dsId
 	s.SetUpdatedBy(u.Id)
-	_, err = service.NewModelServiceV2[models.SpiderV2]().InsertOne(*s)
+	_, err = service.NewModelServiceV2[models2.SpiderV2]().InsertOne(*s)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -756,7 +756,7 @@ func PostSpiderDataSource(c *gin.Context) {
 	HandleSuccess(c)
 }
 
-func getSpiderFsSvc(s *models.SpiderV2) (svc interfaces.FsServiceV2, err error) {
+func getSpiderFsSvc(s *models2.SpiderV2) (svc interfaces.FsServiceV2, err error) {
 	workspacePath := viper.GetString("workspace")
 	fsSvc := fs.NewFsServiceV2(filepath.Join(workspacePath, s.Id.Hex()))
 
@@ -764,7 +764,7 @@ func getSpiderFsSvc(s *models.SpiderV2) (svc interfaces.FsServiceV2, err error) 
 }
 
 func getSpiderFsSvcById(id primitive.ObjectID) (svc interfaces.FsServiceV2, err error) {
-	s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 	if err != nil {
 		log.Errorf("failed to get spider: %s", err.Error())
 		trace.PrintError(err)
@@ -773,8 +773,8 @@ func getSpiderFsSvcById(id primitive.ObjectID) (svc interfaces.FsServiceV2, err 
 	return getSpiderFsSvc(s)
 }
 
-func upsertSpiderDataCollection(s *models.SpiderV2) (err error) {
-	modelSvc := service.NewModelServiceV2[models.DataCollectionV2]()
+func upsertSpiderDataCollection(s *models2.SpiderV2) (err error) {
+	modelSvc := service.NewModelServiceV2[models2.DataCollectionV2]()
 	if s.ColId.IsZero() {
 		// validate
 		if s.ColName == "" {
@@ -785,7 +785,7 @@ func upsertSpiderDataCollection(s *models.SpiderV2) (err error) {
 		if err != nil {
 			if errors.Is(err, mongo2.ErrNoDocuments) {
 				// not exists, add new
-				dc = &models.DataCollectionV2{Name: s.ColName}
+				dc = &models2.DataCollectionV2{Name: s.ColName}
 				dcId, err := modelSvc.InsertOne(*dc)
 				if err != nil {
 					return err
@@ -812,7 +812,7 @@ func upsertSpiderDataCollection(s *models.SpiderV2) (err error) {
 	return nil
 }
 
-func UpsertSpiderDataCollection(s *models.SpiderV2) (err error) {
+func UpsertSpiderDataCollection(s *models2.SpiderV2) (err error) {
 	return upsertSpiderDataCollection(s)
 }
 
@@ -824,7 +824,7 @@ func getSpiderRootPath(c *gin.Context) (rootPath string, err error) {
 	}
 
 	// spider
-	s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 	if err != nil {
 		return "", err
 	}

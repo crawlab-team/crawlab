@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,7 +13,7 @@ func GetSetting(c *gin.Context) {
 	key := c.Param("id")
 
 	// setting
-	s, err := service.NewModelServiceV2[models.SettingV2]().GetOne(bson.M{"key": key}, nil)
+	s, err := service.NewModelServiceV2[models2.SettingV2]().GetOne(bson.M{"key": key}, nil)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -32,7 +33,7 @@ func PutSetting(c *gin.Context) {
 		return
 	}
 
-	modelSvc := service.NewModelServiceV2[models.SettingV2]()
+	modelSvc := service.NewModelServiceV2[models2.SettingV2]()
 
 	// setting
 	_s, err := modelSvc.GetOne(bson.M{"key": key}, nil)

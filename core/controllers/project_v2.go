@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/crawlab-team/crawlab/core/errors"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/db/mongo"
 	"github.com/gin-gonic/gin"
@@ -15,7 +15,7 @@ func GetProjectList(c *gin.Context) {
 	// get all list
 	all := MustGetFilterAll(c)
 	if all {
-		NewControllerV2[models.ProjectV2]().getAll(c)
+		NewControllerV2[models2.ProjectV2]().getAll(c)
 		return
 	}
 
@@ -25,7 +25,7 @@ func GetProjectList(c *gin.Context) {
 	sort := MustGetSortOption(c)
 
 	// get list
-	projects, err := service.NewModelServiceV2[models.ProjectV2]().GetMany(query, &mongo.FindOptions{
+	projects, err := service.NewModelServiceV2[models2.ProjectV2]().GetMany(query, &mongo.FindOptions{
 		Sort:  sort,
 		Skip:  pagination.Size * (pagination.Page - 1),
 		Limit: pagination.Size,
@@ -37,12 +37,12 @@ func GetProjectList(c *gin.Context) {
 		return
 	}
 	if len(projects) == 0 {
-		HandleSuccessWithListData(c, []models.ProjectV2{}, 0)
+		HandleSuccessWithListData(c, []models2.ProjectV2{}, 0)
 		return
 	}
 
 	// total count
-	total, err := service.NewModelServiceV2[models.ProjectV2]().Count(query)
+	total, err := service.NewModelServiceV2[models2.ProjectV2]().Count(query)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -61,7 +61,7 @@ func GetProjectList(c *gin.Context) {
 	}
 
 	// spiders
-	spiders, err := service.NewModelServiceV2[models.SpiderV2]().GetMany(bson.M{
+	spiders, err := service.NewModelServiceV2[models2.SpiderV2]().GetMany(bson.M{
 		"project_id": bson.M{
 			"$in": ids,
 		},
@@ -80,7 +80,7 @@ func GetProjectList(c *gin.Context) {
 	}
 
 	// assign
-	var data []models.ProjectV2
+	var data []models2.ProjectV2
 	for _, p := range projects {
 		p.Spiders = cache[p.Id]
 		data = append(data, p)

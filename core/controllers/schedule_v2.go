@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/crawlab-team/crawlab/core/errors"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/schedule"
 	"github.com/gin-gonic/gin"

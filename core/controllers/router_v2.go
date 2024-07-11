@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/crawlab-team/crawlab/core/middlewares"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -55,8 +55,8 @@ func InitRoutes(app *gin.Engine) (err error) {
 	// routes groups
 	groups := NewRouterGroups(app)
 
-	RegisterController(groups.AuthGroup, "/data/collections", NewControllerV2[models.DataCollectionV2]())
-	RegisterController(groups.AuthGroup, "/data-sources", NewControllerV2[models.DataSourceV2]([]Action{
+	RegisterController(groups.AuthGroup, "/data/collections", NewControllerV2[models2.DataCollectionV2]())
+	RegisterController(groups.AuthGroup, "/data-sources", NewControllerV2[models2.DataSourceV2]([]Action{
 		{
 			Method:      http.MethodPost,
 			Path:        "",
@@ -73,16 +73,16 @@ func InitRoutes(app *gin.Engine) (err error) {
 			HandlerFunc: PostDataSourceChangePassword,
 		},
 	}...))
-	RegisterController(groups.AuthGroup, "/environments", NewControllerV2[models.EnvironmentV2]())
-	RegisterController(groups.AuthGroup, "/nodes", NewControllerV2[models.NodeV2]())
-	RegisterController(groups.AuthGroup, "/projects", NewControllerV2[models.ProjectV2]([]Action{
+	RegisterController(groups.AuthGroup, "/environments", NewControllerV2[models2.EnvironmentV2]())
+	RegisterController(groups.AuthGroup, "/nodes", NewControllerV2[models2.NodeV2]())
+	RegisterController(groups.AuthGroup, "/projects", NewControllerV2[models2.ProjectV2]([]Action{
 		{
 			Method:      http.MethodGet,
 			Path:        "",
 			HandlerFunc: GetProjectList,
 		},
 	}...))
-	RegisterController(groups.AuthGroup, "/schedules", NewControllerV2[models.ScheduleV2]([]Action{
+	RegisterController(groups.AuthGroup, "/schedules", NewControllerV2[models2.ScheduleV2]([]Action{
 		{
 			Method:      http.MethodPost,
 			Path:        "",
@@ -104,7 +104,7 @@ func InitRoutes(app *gin.Engine) (err error) {
 			HandlerFunc: PostScheduleDisable,
 		},
 	}...))
-	RegisterController(groups.AuthGroup, "/spiders", NewControllerV2[models.SpiderV2]([]Action{
+	RegisterController(groups.AuthGroup, "/spiders", NewControllerV2[models2.SpiderV2]([]Action{
 		{
 			Method:      http.MethodGet,
 			Path:        "/:id",
@@ -202,7 +202,7 @@ func InitRoutes(app *gin.Engine) (err error) {
 			HandlerFunc: PostSpiderDataSource,
 		},
 	}...))
-	RegisterController(groups.AuthGroup, "/tasks", NewControllerV2[models.TaskV2]([]Action{
+	RegisterController(groups.AuthGroup, "/tasks", NewControllerV2[models2.TaskV2]([]Action{
 		{
 			Method:      http.MethodGet,
 			Path:        "/:id",
@@ -249,14 +249,14 @@ func InitRoutes(app *gin.Engine) (err error) {
 			HandlerFunc: GetTaskData,
 		},
 	}...))
-	RegisterController(groups.AuthGroup, "/tokens", NewControllerV2[models.TokenV2]([]Action{
+	RegisterController(groups.AuthGroup, "/tokens", NewControllerV2[models2.TokenV2]([]Action{
 		{
 			Method:      http.MethodPost,
 			Path:        "",
 			HandlerFunc: PostToken,
 		},
 	}...))
-	RegisterController(groups.AuthGroup, "/users", NewControllerV2[models.UserV2]([]Action{
+	RegisterController(groups.AuthGroup, "/users", NewControllerV2[models2.UserV2]([]Action{
 		{
 			Method:      http.MethodPost,
 			Path:        "",
