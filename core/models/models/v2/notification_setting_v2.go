@@ -12,6 +12,7 @@ type NotificationSettingV2 struct {
 	TemplateMode                       string                    `json:"template_mode" bson:"template_mode"`
 	TemplateMarkdown                   string                    `json:"template_markdown,omitempty" bson:"template_markdown,omitempty"`
 	TemplateRichText                   string                    `json:"template_rich_text,omitempty" bson:"template_rich_text,omitempty"`
+	TemplateRichTextJson               string                    `json:"template_rich_text_json,omitempty" bson:"template_rich_text_json,omitempty"`
 	TaskTrigger                        string                    `json:"task_trigger" bson:"task_trigger"`
 	Mail                               NotificationSettingMail   `json:"mail,omitempty" bson:"mail,omitempty"`
 	Mobile                             NotificationSettingMobile `json:"mobile,omitempty" bson:"mobile,omitempty"`
