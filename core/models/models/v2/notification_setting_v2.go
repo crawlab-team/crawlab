@@ -9,7 +9,9 @@ type NotificationSettingV2 struct {
 	Enabled                            bool                      `json:"enabled" bson:"enabled"`
 	Global                             bool                      `json:"global" bson:"global"`
 	Title                              string                    `json:"title,omitempty" bson:"title,omitempty"`
-	Template                           string                    `json:"template,omitempty" bson:"template,omitempty"`
+	TemplateMode                       string                    `json:"template_mode" bson:"template_mode"`
+	TemplateMarkdown                   string                    `json:"template_markdown,omitempty" bson:"template_markdown,omitempty"`
+	TemplateRichText                   string                    `json:"template_rich_text,omitempty" bson:"template_rich_text,omitempty"`
 	TaskTrigger                        string                    `json:"task_trigger" bson:"task_trigger"`
 	Mail                               NotificationSettingMail   `json:"mail,omitempty" bson:"mail,omitempty"`
 	Mobile                             NotificationSettingMobile `json:"mobile,omitempty" bson:"mobile,omitempty"`

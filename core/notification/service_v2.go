@@ -48,7 +48,7 @@ func (svc *ServiceV2) initData() (err error) {
 			Description: "这是默认的邮件通知。您可以使用您自己的设置进行编辑。",
 			TaskTrigger: constants.NotificationTriggerTaskFinish,
 			Title:       "[Crawlab] 爬虫任务更新: {{$.status}}",
-			Template: `尊敬的 {{$.user.username}},
+			TemplateMarkdown: `尊敬的 {{$.user.username}},
 
 请查看下面的任务数据。
 
@@ -83,7 +83,7 @@ func (svc *ServiceV2) initData() (err error) {
 			Description: "This is the default mail notification. You can edit it with your own settings",
 			TaskTrigger: constants.NotificationTriggerTaskFinish,
 			Title:       "[Crawlab] Task Update: {{$.status}}",
-			Template: `Dear {{$.user.username}},
+			TemplateMarkdown: `Dear {{$.user.username}},
 
 Please find the task data as below.
 
@@ -118,7 +118,7 @@ Please find the task data as below.
 			Description: "这是默认的手机通知。您可以使用您自己的设置进行编辑。",
 			TaskTrigger: constants.NotificationTriggerTaskFinish,
 			Title:       "[Crawlab] 任务更新: {{$.status}}",
-			Template: `尊敬的 {{$.user.username}},
+			TemplateMarkdown: `尊敬的 {{$.user.username}},
 
 请查看下面的任务数据。
 
@@ -146,7 +146,7 @@ Please find the task data as below.
 			Description: "This is the default mobile notification. You can edit it with your own settings",
 			TaskTrigger: constants.NotificationTriggerTaskFinish,
 			Title:       "[Crawlab] Task Update: {{$.status}}",
-			Template: `Dear {{$.user.username}},
+			TemplateMarkdown: `Dear {{$.user.username}},
 
 Please find the task data as below.
 
@@ -208,7 +208,7 @@ func (svc *ServiceV2) SendMail(s *models.NotificationSettingV2, entity bson.M) (
 	}
 
 	// content
-	content, err := parser.Parse(s.Template, entity)
+	content, err := parser.Parse(s.TemplateMarkdown, entity)
 	if err != nil {
 		log.Warnf("parsing 'content' error: %v", err)
 	}
@@ -238,7 +238,7 @@ func (svc *ServiceV2) SendMobile(s *models.NotificationSettingV2, entity bson.M)
 	}
 
 	// content
-	content, err := parser.Parse(s.Template, entity)
+	content, err := parser.Parse(s.TemplateMarkdown, entity)
 	if err != nil {
 		log.Warnf("parsing 'content' error: %v", err)
 	}
