@@ -327,12 +327,6 @@ func newMasterServiceV2() (res *MasterServiceV2, err error) {
 		stopOnError:     false,
 	}
 
-	// server options
-	var serverOpts []server.Option
-	if svc.address != nil {
-		serverOpts = append(serverOpts, server.WithAddress(svc.address))
-	}
-
 	// node config service
 	svc.cfgSvc = config.GetNodeConfigService()
 
