@@ -5,6 +5,10 @@ const (
 	NotificationTriggerTaskError        = "task_error"
 	NotificationTriggerTaskEmptyResults = "task_empty_results"
 	NotificationTriggerTaskNever        = "task_never"
+	NotificationTriggerNodeStatusChange = "node_status_change"
+	NotificationTriggerNodeOnline       = "node_online"
+	NotificationTriggerNodeOffline      = "node_offline"
+	NotificationTriggerNodeNever        = "node_never"
 )
 
 const (

@@ -15,6 +15,8 @@ type NotificationSettingV2 struct {
 	TemplateRichText                   string                    `json:"template_rich_text,omitempty" bson:"template_rich_text,omitempty"`
 	TemplateRichTextJson               string                    `json:"template_rich_text_json,omitempty" bson:"template_rich_text_json,omitempty"`
 	TaskTrigger                        string                    `json:"task_trigger" bson:"task_trigger"`
+	TriggerTarget                      string                    `json:"trigger_target" bson:"trigger_target"`
+	Trigger                            string                    `json:"trigger" bson:"trigger"`
 	Mail                               NotificationSettingMail   `json:"mail,omitempty" bson:"mail,omitempty"`
 	Mobile                             NotificationSettingMobile `json:"mobile,omitempty" bson:"mobile,omitempty"`
 }
