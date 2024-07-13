@@ -31,10 +31,3 @@ func initModule(name string, fn func() error) (err error) {
 	log.Info(fmt.Sprintf("initialized %s successfully", name))
 	return nil
 }
-
-func initApp(name string, app App) {
-	_ = initModule(name, func() error {
-		app.Init()
-		return nil
-	})
-}

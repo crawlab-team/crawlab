@@ -23,11 +23,6 @@ func Execute() error {
 	return rootCmd.Execute()
 }
 
-// GetRootCmd get rootCmd instance
-func GetRootCmd() *cobra.Command {
-	return rootCmd
-}
-
 func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "c", "", "Use Custom Config File")
 }
