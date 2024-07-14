@@ -138,7 +138,14 @@ func (svr TaskServerV2) SendNotification(ctx context.Context, request *grpc.Requ
 		return nil, trace.TraceError(err)
 	}
 	for _, s := range settings {
-		switch s.TaskTrigger {
+		// compatible with old settings
+		trigger := s.Trigger
+		if trigger == "" {
+			trigger = s.TaskTrigger
+		}
+
+		// send notification
+		switch trigger {
 		case constants.NotificationTriggerTaskFinish:
 			if t.Status != constants.TaskStatusPending && t.Status != constants.TaskStatusRunning {
 				_ = svc.Send(&s, e)
