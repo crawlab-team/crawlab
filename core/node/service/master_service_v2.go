@@ -101,8 +101,14 @@ func (svc *MasterServiceV2) Stop() {
 
 func (svc *MasterServiceV2) Monitor() {
 	log.Infof("master[%s] monitoring started", svc.GetConfigService().GetNodeKey())
+
+	// ticker
+	ticker := time.NewTicker(svc.monitorInterval)
+
 	for {
-		if err := svc.monitor(); err != nil {
+		// monitor
+		err := svc.monitor()
+		if err != nil {
 			trace.PrintError(err)
 			if svc.stopOnError {
 				log.Errorf("master[%s] monitor error, now stopping...", svc.GetConfigService().GetNodeKey())
@@ -111,7 +117,8 @@ func (svc *MasterServiceV2) Monitor() {
 			}
 		}
 
-		time.Sleep(svc.monitorInterval)
+		// wait
+		<-ticker.C
 	}
 }
 

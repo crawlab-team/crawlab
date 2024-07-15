@@ -30,7 +30,7 @@ type NodeServerV2 struct {
 }
 
 // Register from handler/worker to master
-func (svr NodeServerV2) Register(ctx context.Context, req *grpc.NodeServiceRegisterRequest) (res *grpc.Response, err error) {
+func (svr NodeServerV2) Register(_ context.Context, req *grpc.NodeServiceRegisterRequest) (res *grpc.Response, err error) {
 	// unmarshall data
 	if req.IsMaster {
 		// error: cannot register master node
@@ -84,7 +84,7 @@ func (svr NodeServerV2) Register(ctx context.Context, req *grpc.NodeServiceRegis
 }
 
 // SendHeartbeat from worker to master
-func (svr NodeServerV2) SendHeartbeat(ctx context.Context, req *grpc.NodeServiceSendHeartbeatRequest) (res *grpc.Response, err error) {
+func (svr NodeServerV2) SendHeartbeat(_ context.Context, req *grpc.NodeServiceSendHeartbeatRequest) (res *grpc.Response, err error) {
 	// find in db
 	node, err := service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": req.Key}, nil)
 	if err != nil {
@@ -139,7 +139,7 @@ func (svr NodeServerV2) Subscribe(request *grpc.Request, stream grpc.NodeService
 	}
 }
 
-func (svr NodeServerV2) Unsubscribe(ctx context.Context, req *grpc.Request) (res *grpc.Response, err error) {
+func (svr NodeServerV2) Unsubscribe(_ context.Context, req *grpc.Request) (res *grpc.Response, err error) {
 	sub, err := svr.server.GetSubscribe("node:" + req.NodeKey)
 	if err != nil {
 		return nil, errors.ErrorGrpcSubscribeNotExists

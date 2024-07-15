@@ -28,7 +28,7 @@ func SendMail(m *models.NotificationSettingMail, to, cc, title, content string) 
 
 	// config
 	port, _ := strconv.Atoi(m.Port)
-	password := m.Password // test password: ALWVDPRHBEXOENXD
+	password := m.Password
 	SMTPUser := m.User
 	smtpConfig := smtpAuthentication{
 		Server:         m.Server,

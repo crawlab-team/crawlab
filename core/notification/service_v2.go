@@ -6,28 +6,19 @@ import (
 	"github.com/crawlab-team/crawlab/core/entity"
 	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
-	mongo2 "github.com/crawlab-team/crawlab/db/mongo"
-	parser "github.com/crawlab-team/crawlab/template-parser"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
+	"regexp"
 	"sync"
 )
 
 type ServiceV2 struct {
 }
 
-func (svc *ServiceV2) Start() (err error) {
+func (svc *ServiceV2) Start() {
 	// initialize data
 	if err := svc.initData(); err != nil {
-		return err
+		log.Errorf("[NotificationServiceV2] initializing data error: %v", err)
+		return
 	}
-
-	return nil
-}
-
-func (svc *ServiceV2) Stop() (err error) {
-	return nil
 }
 
 func (svc *ServiceV2) initData() (err error) {
@@ -175,187 +166,95 @@ Please find the task data as below.
 	return nil
 }
 
-func (svc *ServiceV2) Send(s *models.NotificationSettingV2, entity bson.M) (err error) {
+func (svc *ServiceV2) Send(s *models.NotificationSettingV2, args ...any) (err error) {
+	content := svc.getContent(s, args...)
 	switch s.Type {
 	case TypeMail:
-		return svc.SendMail(s, entity)
+		return svc.SendMail(s, content)
 	case TypeMobile:
-		return svc.SendMobile(s, entity)
+		return svc.SendMobile(s, content)
 	}
 	return nil
 }
 
-func (svc *ServiceV2) SendMail(s *models.NotificationSettingV2, entity bson.M) (err error) {
-	// to
-	to, err := parser.Parse(s.Mail.To, entity)
-	if err != nil {
-		log.Warnf("parsing 'to' error: %v", err)
-	}
-	if to == "" {
-		return nil
-	}
-
-	// cc
-	cc, err := parser.Parse(s.Mail.Cc, entity)
-	if err != nil {
-		log.Warnf("parsing 'cc' error: %v", err)
-	}
-
-	// title
-	title, err := parser.Parse(s.Title, entity)
-	if err != nil {
-		log.Warnf("parsing 'title' error: %v", err)
-	}
-
-	// content
-	content, err := parser.Parse(s.TemplateMarkdown, entity)
-	if err != nil {
-		log.Warnf("parsing 'content' error: %v", err)
-	}
+func (svc *ServiceV2) SendMail(s *models.NotificationSettingV2, content string) (err error) {
+	// TODO: parse to/cc/bcc
 
 	// send mail
-	if err := SendMail(&s.Mail, to, cc, title, content); err != nil {
+	if err := SendMail(&s.Mail, s.Mail.To, s.Mail.Cc, s.Title, content); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (svc *ServiceV2) SendMobile(s *models.NotificationSettingV2, entity bson.M) (err error) {
-	// webhook
-	webhook, err := parser.Parse(s.Mobile.Webhook, entity)
-	if err != nil {
-		log.Warnf("parsing 'webhook' error: %v", err)
-	}
-	if webhook == "" {
-		return nil
-	}
-
-	// title
-	title, err := parser.Parse(s.Title, entity)
-	if err != nil {
-		log.Warnf("parsing 'title' error: %v", err)
-	}
-
-	// content
-	content, err := parser.Parse(s.TemplateMarkdown, entity)
-	if err != nil {
-		log.Warnf("parsing 'content' error: %v", err)
-	}
-
+func (svc *ServiceV2) SendMobile(s *models.NotificationSettingV2, content string) (err error) {
 	// send
-	if err := SendMobileNotification(webhook, title, content); err != nil {
+	if err := SendMobileNotification(s.Mobile.Webhook, s.Title, content); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (svc *ServiceV2) GetSettingList(query bson.M, pagination *entity.Pagination, sort bson.D) (res []models.NotificationSettingV2, total int, err error) {
-	// options
-	var options *mongo2.FindOptions
-	if pagination != nil || sort != nil {
-		options = new(mongo2.FindOptions)
-		if pagination != nil {
-			options.Skip = pagination.Size * (pagination.Page - 1)
-			options.Limit = pagination.Size
+func (svc *ServiceV2) getContent(s *models.NotificationSettingV2, args ...any) (content string) {
+	switch s.TriggerTarget {
+	case constants.NotificationTriggerTargetTask:
+		//task := new(models.TaskV2)
+		//taskStat := new(models.TaskStatV2)
+		//spider := new(models.SpiderV2)
+		//node := new(models.NodeV2)
+		//for _, arg := range args {
+		//	switch arg.(type) {
+		//	case models.TaskV2:
+		//		task = arg.(*models.TaskV2)
+		//	case models.TaskStatV2:
+		//		taskStat = arg.(*models.TaskStatV2)
+		//	case models.SpiderV2:
+		//		spider = arg.(*models.SpiderV2)
+		//	case models.NodeV2:
+		//		node = arg.(*models.NodeV2)
+		//	}
+		//}
+		switch s.TemplateMode {
+		case constants.NotificationTemplateModeMarkdown:
+			// TODO: implement
+		case constants.NotificationTemplateModeRichText:
+			//s.TemplateRichText
 		}
-		if sort != nil {
-			options.Sort = sort
-		}
+
+	case constants.NotificationTriggerTargetNode:
+
 	}
 
-	// get list
-	list, err := service.NewModelServiceV2[models.NotificationSettingV2]().GetMany(query, options)
-	if err != nil {
-		if err.Error() == mongo.ErrNoDocuments.Error() {
-			return nil, 0, nil
-		} else {
-			return nil, 0, err
-		}
-	}
-
-	// total count
-	total, err = service.NewModelServiceV2[models.NotificationSettingV2]().Count(query)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return list, total, nil
+	return content
 }
 
-func (svc *ServiceV2) GetSetting(id primitive.ObjectID) (res *models.NotificationSettingV2, err error) {
-	s, err := service.NewModelServiceV2[models.NotificationSettingV2]().GetById(id)
-	if err != nil {
-		return nil, err
-	}
-	return s, nil
-}
+func (svc *ServiceV2) parseTemplateVariables(s *models.NotificationSettingV2) (variables []entity.NotificationVariable) {
+	regex := regexp.MustCompile("\\$\\{(\\w+):(\\w+)}")
 
-func (svc *ServiceV2) PosSetting(s *models.NotificationSettingV2) (err error) {
-	s.Id = primitive.NewObjectID()
-	_, err = service.NewModelServiceV2[models.NotificationSettingV2]().InsertOne(*s)
-	if err != nil {
-		return err
-	}
-	return nil
-}
+	// find all matches
+	matches := regex.FindAllStringSubmatch(s.Template, -1)
 
-func (svc *ServiceV2) PutSetting(id primitive.ObjectID, s models.NotificationSettingV2) (err error) {
-	err = service.NewModelServiceV2[models.NotificationSettingV2]().ReplaceById(id, s)
-	if err != nil {
-		return err
+	// iterate over matches
+	for _, match := range matches {
+		variables = append(variables, entity.NotificationVariable{
+			Category: match[1],
+			Name:     match[2],
+		})
 	}
 
-	return nil
-}
-
-func (svc *ServiceV2) DeleteSetting(id primitive.ObjectID) (err error) {
-	err = service.NewModelServiceV2[models.NotificationSettingV2]().DeleteById(id)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (svc *ServiceV2) EnableSetting(id primitive.ObjectID) (err error) {
-	return svc._toggleSettingFunc(true)(id)
-}
-
-func (svc *ServiceV2) DisableSetting(id primitive.ObjectID) (err error) {
-	return svc._toggleSettingFunc(false)(id)
-}
-
-func (svc *ServiceV2) _toggleSettingFunc(value bool) func(id primitive.ObjectID) error {
-	return func(id primitive.ObjectID) (err error) {
-		s, err := service.NewModelServiceV2[models.NotificationSettingV2]().GetById(id)
-		if err != nil {
-			return err
-		}
-		s.Enabled = value
-		err = service.NewModelServiceV2[models.NotificationSettingV2]().ReplaceById(id, *s)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
+	return variables
 }
 
 func newNotificationServiceV2() *ServiceV2 {
-	// service
-	svc := &ServiceV2{}
-
-	return svc
+	return &ServiceV2{}
 }
 
 var _serviceV2 *ServiceV2
 var _serviceV2Once = new(sync.Once)
 
 func GetNotificationServiceV2() *ServiceV2 {
-	if _serviceV2 != nil {
-		return _serviceV2
-	}
 	_serviceV2Once.Do(func() {
 		_serviceV2 = newNotificationServiceV2()
 	})

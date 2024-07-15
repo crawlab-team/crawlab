@@ -109,8 +109,8 @@ func (svr TaskServerV2) Fetch(ctx context.Context, request *grpc.Request) (respo
 	return HandleSuccessWithData(tid)
 }
 
-func (svr TaskServerV2) SendNotification(ctx context.Context, request *grpc.Request) (response *grpc.Response, err error) {
-	svc := notification.GetNotificationServiceV2()
+func (svr TaskServerV2) SendNotification(_ context.Context, request *grpc.Request) (response *grpc.Response, err error) {
+	// task
 	var t = new(models2.TaskV2)
 	if err := json.Unmarshal(request.Data, t); err != nil {
 		return nil, trace.TraceError(err)
@@ -119,6 +119,8 @@ func (svr TaskServerV2) SendNotification(ctx context.Context, request *grpc.Requ
 	if err != nil {
 		return nil, trace.TraceError(err)
 	}
+
+	// serialize task data
 	td, err := json.Marshal(t)
 	if err != nil {
 		return nil, trace.TraceError(err)
@@ -131,12 +133,19 @@ func (svr TaskServerV2) SendNotification(ctx context.Context, request *grpc.Requ
 	if err != nil {
 		return nil, trace.TraceError(err)
 	}
-	settings, _, err := svc.GetSettingList(bson.M{
-		"enabled": true,
-	}, nil, nil)
+
+	// settings
+	settings, err := service.NewModelServiceV2[models2.NotificationSettingV2]().GetMany(bson.M{
+		"enabled":        true,
+		"trigger_target": constants.NotificationTriggerTargetTask,
+	}, nil)
 	if err != nil {
 		return nil, trace.TraceError(err)
 	}
+
+	// notification service
+	svc := notification.GetNotificationServiceV2()
+
 	for _, s := range settings {
 		// compatible with old settings
 		trigger := s.Trigger
@@ -160,9 +169,9 @@ func (svr TaskServerV2) SendNotification(ctx context.Context, request *grpc.Requ
 					_ = svc.Send(&s, e)
 				}
 			}
-		case constants.NotificationTriggerTaskNever:
 		}
 	}
+
 	return nil, nil
 }
 
