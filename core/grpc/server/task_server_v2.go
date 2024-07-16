@@ -109,29 +109,57 @@ func (svr TaskServerV2) Fetch(ctx context.Context, request *grpc.Request) (respo
 	return HandleSuccessWithData(tid)
 }
 
-func (svr TaskServerV2) SendNotification(_ context.Context, request *grpc.Request) (response *grpc.Response, err error) {
-	// task
-	var t = new(models2.TaskV2)
-	if err := json.Unmarshal(request.Data, t); err != nil {
-		return nil, trace.TraceError(err)
-	}
-	t, err = service.NewModelServiceV2[models2.TaskV2]().GetById(t.Id)
+func (svr TaskServerV2) SendNotification(_ context.Context, request *grpc.TaskServiceSendNotificationRequest) (response *grpc.Response, err error) {
+	// task id
+	taskId, err := primitive.ObjectIDFromHex(request.TaskId)
 	if err != nil {
+		log.Errorf("invalid task id: %s", request.TaskId)
 		return nil, trace.TraceError(err)
 	}
 
-	// serialize task data
-	td, err := json.Marshal(t)
+	// arguments
+	var args []any
+
+	// task
+	task, err := service.NewModelServiceV2[models2.TaskV2]().GetById(taskId)
+	if err != nil {
+		log.Errorf("task not found: %s", request.TaskId)
+		return nil, trace.TraceError(err)
+	}
+	args = append(args, task)
+
+	// task stat
+	taskStat, err := service.NewModelServiceV2[models2.TaskStatV2]().GetById(task.Id)
+	if err != nil {
+		log.Errorf("task stat not found for task: %s", request.TaskId)
+		return nil, trace.TraceError(err)
+	}
+	args = append(args, taskStat)
+
+	// spider
+	spider, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(task.SpiderId)
+	if err != nil {
+		log.Errorf("spider not found for task: %s", request.TaskId)
+		return nil, trace.TraceError(err)
+	}
+	args = append(args, spider)
+
+	// node
+	node, err := service.NewModelServiceV2[models2.NodeV2]().GetById(task.NodeId)
 	if err != nil {
 		return nil, trace.TraceError(err)
 	}
-	var e bson.M
-	if err := json.Unmarshal(td, &e); err != nil {
-		return nil, trace.TraceError(err)
-	}
-	ts, err := service.NewModelServiceV2[models2.TaskStatV2]().GetById(t.Id)
-	if err != nil {
-		return nil, trace.TraceError(err)
+	args = append(args, node)
+
+	// schedule
+	var schedule *models2.ScheduleV2
+	if !task.ScheduleId.IsZero() {
+		schedule, err = service.NewModelServiceV2[models2.ScheduleV2]().GetById(task.ScheduleId)
+		if err != nil {
+			log.Errorf("schedule not found for task: %s", request.TaskId)
+			return nil, trace.TraceError(err)
+		}
+		args = append(args, schedule)
 	}
 
 	// settings
@@ -156,17 +184,17 @@ func (svr TaskServerV2) SendNotification(_ context.Context, request *grpc.Reques
 		// send notification
 		switch trigger {
 		case constants.NotificationTriggerTaskFinish:
-			if t.Status != constants.TaskStatusPending && t.Status != constants.TaskStatusRunning {
-				_ = svc.Send(&s, e)
+			if task.Status != constants.TaskStatusPending && task.Status != constants.TaskStatusRunning {
+				go svc.Send(&s, args...)
 			}
 		case constants.NotificationTriggerTaskError:
-			if t.Status == constants.TaskStatusError || t.Status == constants.TaskStatusAbnormal {
-				_ = svc.Send(&s, e)
+			if task.Status == constants.TaskStatusError || task.Status == constants.TaskStatusAbnormal {
+				go svc.Send(&s, args...)
 			}
 		case constants.NotificationTriggerTaskEmptyResults:
-			if t.Status != constants.TaskStatusPending && t.Status != constants.TaskStatusRunning {
-				if ts.ResultCount == 0 {
-					_ = svc.Send(&s, e)
+			if task.Status != constants.TaskStatusPending && task.Status != constants.TaskStatusRunning {
+				if taskStat.ResultCount == 0 {
+					go svc.Send(&s, args...)
 				}
 			}
 		}

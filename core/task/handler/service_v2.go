@@ -245,11 +245,11 @@ func (svc *ServiceV2) GetSpiderById(id primitive.ObjectID) (s *models2.SpiderV2,
 	return s, nil
 }
 
-func (svc *ServiceV2) getRunners() (runners []*Runner) {
+func (svc *ServiceV2) getRunners() (runners []*RunnerV2) {
 	svc.mu.Lock()
 	defer svc.mu.Unlock()
 	svc.runners.Range(func(key, value interface{}) bool {
-		r := value.(Runner)
+		r := value.(RunnerV2)
 		runners = append(runners, &r)
 		return true
 	})

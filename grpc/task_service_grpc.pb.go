@@ -30,7 +30,7 @@ const (
 type TaskServiceClient interface {
 	Subscribe(ctx context.Context, opts ...grpc.CallOption) (TaskService_SubscribeClient, error)
 	Fetch(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
-	SendNotification(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
+	SendNotification(ctx context.Context, in *TaskServiceSendNotificationRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type taskServiceClient struct {
@@ -86,7 +86,7 @@ func (c *taskServiceClient) Fetch(ctx context.Context, in *Request, opts ...grpc
 	return out, nil
 }
 
-func (c *taskServiceClient) SendNotification(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
+func (c *taskServiceClient) SendNotification(ctx context.Context, in *TaskServiceSendNotificationRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
 	err := c.cc.Invoke(ctx, TaskService_SendNotification_FullMethodName, in, out, cOpts...)
@@ -102,7 +102,7 @@ func (c *taskServiceClient) SendNotification(ctx context.Context, in *Request, o
 type TaskServiceServer interface {
 	Subscribe(TaskService_SubscribeServer) error
 	Fetch(context.Context, *Request) (*Response, error)
-	SendNotification(context.Context, *Request) (*Response, error)
+	SendNotification(context.Context, *TaskServiceSendNotificationRequest) (*Response, error)
 	mustEmbedUnimplementedTaskServiceServer()
 }
 
@@ -116,7 +116,7 @@ func (UnimplementedTaskServiceServer) Subscribe(TaskService_SubscribeServer) err
 func (UnimplementedTaskServiceServer) Fetch(context.Context, *Request) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Fetch not implemented")
 }
-func (UnimplementedTaskServiceServer) SendNotification(context.Context, *Request) (*Response, error) {
+func (UnimplementedTaskServiceServer) SendNotification(context.Context, *TaskServiceSendNotificationRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendNotification not implemented")
 }
 func (UnimplementedTaskServiceServer) mustEmbedUnimplementedTaskServiceServer() {}
@@ -177,7 +177,7 @@ func _TaskService_Fetch_Handler(srv interface{}, ctx context.Context, dec func(i
 }
 
 func _TaskService_SendNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Request)
+	in := new(TaskServiceSendNotificationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -189,7 +189,7 @@ func _TaskService_SendNotification_Handler(srv interface{}, ctx context.Context,
 		FullMethod: TaskService_SendNotification_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TaskServiceServer).SendNotification(ctx, req.(*Request))
+		return srv.(TaskServiceServer).SendNotification(ctx, req.(*TaskServiceSendNotificationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

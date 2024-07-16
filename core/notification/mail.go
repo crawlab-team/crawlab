@@ -2,30 +2,19 @@ package notification
 
 import (
 	"errors"
+	"github.com/PuerkitoBio/goquery"
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/models/models/v2"
-	"github.com/matcornic/hermes/v2"
+	"github.com/crawlab-team/crawlab/trace"
 	"gopkg.in/gomail.v2"
 	"net/mail"
+	"regexp"
 	"runtime/debug"
 	"strconv"
 	"strings"
 )
 
 func SendMail(m *models.NotificationSettingMail, to, cc, title, content string) error {
-	// theme
-	theme := new(MailThemeFlat)
-
-	// hermes instance
-	h := hermes.Hermes{
-		Theme: theme,
-		Product: hermes.Product{
-			Logo:      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxnIGZpbGw9Im5vbmUiPgogICAgICAgIDxjaXJjbGUgY3g9IjE1MCIgY3k9IjE1MCIgcj0iMTMwIiBmaWxsPSJub25lIiBzdHJva2Utd2lkdGg9IjQwIiBzdHJva2U9IiM0MDllZmYiPgogICAgICAgIDwvY2lyY2xlPgogICAgICAgIDxjaXJjbGUgY3g9IjE1MCIgY3k9IjE1MCIgcj0iMTEwIiBmaWxsPSJ3aGl0ZSI+CiAgICAgICAgPC9jaXJjbGU+CiAgICAgICAgPGNpcmNsZSBjeD0iMTUwIiBjeT0iMTUwIiByPSI3MCIgZmlsbD0iIzQwOWVmZiI+CiAgICAgICAgPC9jaXJjbGU+CiAgICAgICAgPHBhdGggZD0iCiAgICAgICAgICAgIE0gMTUwLDE1MAogICAgICAgICAgICBMIDI4MCwyMjUKICAgICAgICAgICAgQSAxNTAsMTUwIDkwIDAgMCAyODAsNzUKICAgICAgICAgICAgIiBmaWxsPSIjNDA5ZWZmIj4KICAgICAgICA8L3BhdGg+CiAgICA8L2c+Cjwvc3ZnPgo=",
-			Name:      "Crawlab",
-			Copyright: "© 2024 Crawlab-Team",
-		},
-	}
-
 	// config
 	port, _ := strconv.Atoi(m.Port)
 	password := m.Password
@@ -44,44 +33,40 @@ func SendMail(m *models.NotificationSettingMail, to, cc, title, content string) 
 		Subject: title,
 	}
 
-	// add style
-	content += theme.GetStyle()
-
-	// markdown
-	markdown := hermes.Markdown(content + GetFooter())
-
-	// email instance
-	email := hermes.Email{
-		Body: hermes.Body{
-			Signature:    "Happy Crawling ☺",
-			FreeMarkdown: markdown,
-		},
+	// convert html to text
+	text := content
+	if isHtml(text) {
+		text = convertHtmlToText(text)
 	}
 
-	// generate html
-	html, err := h.GenerateHTML(email)
-	if err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return err
-	}
-
-	// generate text
-	text, err := h.GeneratePlainText(email)
-	if err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
-		return err
+	// apply theme
+	if isHtml(content) {
+		content = GetTheme() + content
 	}
 
 	// send the email
-	if err := send(smtpConfig, options, html, text); err != nil {
+	if err := send(smtpConfig, options, content, text); err != nil {
 		log.Errorf(err.Error())
 		debug.PrintStack()
 		return err
 	}
 
 	return nil
+}
+
+func isHtml(content string) bool {
+	regex := regexp.MustCompile(`(?i)<\s*(html|head|body|div|span|p|a|img|table|tr|td|th|tbody|thead|tfoot|ul|ol|li|dl|dt|dd|form|input|textarea|button|select|option|optgroup|fieldset|legend|label|iframe|embed|object|param|video|audio|source|canvas|svg|math|style|link|script|meta|base|title|br|hr|b|strong|i|em|u|s|strike|del|ins|mark|small|sub|sup|big|pre|code|q|blockquote|abbr|address|bdo|cite|dfn|kbd|var|samp|ruby|rt|rp|time|progress|meter|output|area|map)`)
+	return regex.MatchString(content)
+}
+
+func convertHtmlToText(content string) string {
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(content))
+	if err != nil {
+		log.Errorf("failed to convert html to text: %v", err)
+		trace.PrintError(err)
+		return ""
+	}
+	return doc.Text()
 }
 
 type smtpAuthentication struct {
@@ -169,10 +154,4 @@ func getRecipientList(value string) (values []string) {
 		values = []string{value}
 	}
 	return values
-}
-
-func GetFooter() string {
-	return `
-[Github](https://github.com/crawlab-team/crawlab) | [Documentation](http://docs.crawlab.cn) | [Docker](https://hub.docker.com/r/tikazyq/crawlab)
-`
 }

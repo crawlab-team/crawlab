@@ -605,17 +605,13 @@ func (r *RunnerV2) _updateTaskStat(status string) {
 }
 
 func (r *RunnerV2) sendNotification() {
-	data, err := json.Marshal(r.t)
-	if err != nil {
-		trace.PrintError(err)
-		return
-	}
-	req := &grpc.Request{
+	req := &grpc.TaskServiceSendNotificationRequest{
 		NodeKey: r.svc.GetNodeConfigService().GetNodeKey(),
-		Data:    data,
+		TaskId:  r.tid.Hex(),
 	}
-	_, err = r.c.TaskClient.SendNotification(context.Background(), req)
+	_, err := r.c.TaskClient.SendNotification(context.Background(), req)
 	if err != nil {
+		log.Errorf("Error sending notification: %v", err)
 		trace.PrintError(err)
 		return
 	}

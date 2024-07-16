@@ -2,7 +2,6 @@ package notification
 
 import (
 	"github.com/crawlab-team/crawlab/core/entity"
-	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,11 +15,11 @@ func TestParseTemplateVariables_WithValidTemplate_ReturnsVariables(t *testing.T)
 		{Category: "task", Name: "id"},
 		{Category: "task", Name: "status"},
 	}
-	setting := models.NotificationSettingV2{Template: template}
 
-	variables := svc.parseTemplateVariables(&setting)
+	variables := svc.parseTemplateVariables(template)
 
-	assert.Equal(t, expected, variables)
+	// contains all expected variables
+	assert.ElementsMatch(t, expected, variables)
 }
 
 func TestParseTemplateVariables_WithRepeatedVariables_ReturnsUniqueVariables(t *testing.T) {
@@ -31,9 +30,9 @@ func TestParseTemplateVariables_WithRepeatedVariables_ReturnsUniqueVariables(t *
 		{Category: "task", Name: "id"},
 		{Category: "task", Name: "status"},
 	}
-	setting := models.NotificationSettingV2{Template: template}
 
-	variables := svc.parseTemplateVariables(&setting)
+	variables := svc.parseTemplateVariables(template)
 
-	assert.Equal(t, expected, variables)
+	// contains all expected variables
+	assert.ElementsMatch(t, expected, variables)
 }

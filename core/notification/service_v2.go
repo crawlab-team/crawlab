@@ -1,12 +1,14 @@
 package notification
 
 import (
+	"fmt"
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/entity"
 	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"regexp"
+	"strings"
 	"sync"
 )
 
@@ -166,82 +168,121 @@ Please find the task data as below.
 	return nil
 }
 
-func (svc *ServiceV2) Send(s *models.NotificationSettingV2, args ...any) (err error) {
+func (svc *ServiceV2) Send(s *models.NotificationSettingV2, args ...any) {
 	content := svc.getContent(s, args...)
 	switch s.Type {
 	case TypeMail:
-		return svc.SendMail(s, content)
+		svc.SendMail(s, content)
 	case TypeMobile:
-		return svc.SendMobile(s, content)
+		svc.SendMobile(s, content)
 	}
-	return nil
 }
 
-func (svc *ServiceV2) SendMail(s *models.NotificationSettingV2, content string) (err error) {
+func (svc *ServiceV2) SendMail(s *models.NotificationSettingV2, content string) {
 	// TODO: parse to/cc/bcc
 
 	// send mail
-	if err := SendMail(&s.Mail, s.Mail.To, s.Mail.Cc, s.Title, content); err != nil {
-		return err
+	err := SendMail(&s.Mail, s.Mail.To, s.Mail.Cc, s.Title, content)
+	if err != nil {
+		log.Errorf("[NotificationServiceV2] send mail error: %v", err)
 	}
-
-	return nil
 }
 
-func (svc *ServiceV2) SendMobile(s *models.NotificationSettingV2, content string) (err error) {
-	// send
-	if err := SendMobileNotification(s.Mobile.Webhook, s.Title, content); err != nil {
-		return err
+func (svc *ServiceV2) SendMobile(s *models.NotificationSettingV2, content string) {
+	err := SendMobileNotification(s.Mobile.Webhook, s.Title, content)
+	if err != nil {
+		log.Errorf("[NotificationServiceV2] send mobile notification error: %v", err)
 	}
-
-	return nil
 }
 
 func (svc *ServiceV2) getContent(s *models.NotificationSettingV2, args ...any) (content string) {
 	switch s.TriggerTarget {
 	case constants.NotificationTriggerTargetTask:
-		//task := new(models.TaskV2)
-		//taskStat := new(models.TaskStatV2)
-		//spider := new(models.SpiderV2)
-		//node := new(models.NodeV2)
-		//for _, arg := range args {
-		//	switch arg.(type) {
-		//	case models.TaskV2:
-		//		task = arg.(*models.TaskV2)
-		//	case models.TaskStatV2:
-		//		taskStat = arg.(*models.TaskStatV2)
-		//	case models.SpiderV2:
-		//		spider = arg.(*models.SpiderV2)
-		//	case models.NodeV2:
-		//		node = arg.(*models.NodeV2)
-		//	}
-		//}
+		vd := svc.getTaskVariableData(args...)
 		switch s.TemplateMode {
 		case constants.NotificationTemplateModeMarkdown:
-			// TODO: implement
+			variables := svc.parseTemplateVariables(s.TemplateMarkdown)
+			return svc.getTaskContent(s.TemplateMarkdown, variables, vd)
 		case constants.NotificationTemplateModeRichText:
-			//s.TemplateRichText
+			variables := svc.parseTemplateVariables(s.TemplateRichText)
+			return svc.getTaskContent(s.TemplateRichText, variables, vd)
 		}
 
 	case constants.NotificationTriggerTargetNode:
+		// TODO: implement
 
 	}
 
 	return content
 }
 
-func (svc *ServiceV2) parseTemplateVariables(s *models.NotificationSettingV2) (variables []entity.NotificationVariable) {
+func (svc *ServiceV2) getTaskContent(template string, variables []entity.NotificationVariable, vd VariableDataTask) (content string) {
+	content = template
+	for _, v := range variables {
+		switch v.Category {
+		case "task":
+			switch v.Name {
+			case "id":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Id.Hex())
+			case "status":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Status)
+			case "priority":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Task.Priority))
+			case "mode":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Mode)
+			case "cmd":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Cmd)
+			case "param":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Param)
+			}
+		}
+	}
+	return content
+}
+
+func (svc *ServiceV2) getTaskVariableData(args ...any) (vd VariableDataTask) {
+	for _, arg := range args {
+		switch arg.(type) {
+		case *models.TaskV2:
+			vd.Task = arg.(*models.TaskV2)
+		case *models.TaskStatV2:
+			vd.TaskStat = arg.(*models.TaskStatV2)
+		case *models.SpiderV2:
+			vd.Spider = arg.(*models.SpiderV2)
+		case *models.NodeV2:
+			vd.Node = arg.(*models.NodeV2)
+		case *models.ScheduleV2:
+			vd.Schedule = arg.(*models.ScheduleV2)
+		}
+	}
+	return vd
+}
+
+func (svc *ServiceV2) parseTemplateVariables(template string) (variables []entity.NotificationVariable) {
+	// regex pattern
 	regex := regexp.MustCompile("\\$\\{(\\w+):(\\w+)}")
 
 	// find all matches
-	matches := regex.FindAllStringSubmatch(s.Template, -1)
+	matches := regex.FindAllStringSubmatch(template, -1)
+
+	// variables map
+	variablesMap := make(map[string]entity.NotificationVariable)
 
 	// iterate over matches
 	for _, match := range matches {
-		variables = append(variables, entity.NotificationVariable{
+		variable := entity.NotificationVariable{
 			Category: match[1],
 			Name:     match[2],
-		})
+		}
+		key := fmt.Sprintf("%s:%s", variable.Category, variable.Name)
+		if _, ok := variablesMap[key]; !ok {
+			variablesMap[key] = variable
+		}
+	}
+
+	// convert map to slice
+	for _, variable := range variablesMap {
+		variables = append(variables, variable)
 	}
 
 	return variables
