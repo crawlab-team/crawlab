@@ -1,8 +1,8 @@
 package notification
 
 const (
-	TypeMail   = "mail"
-	TypeMobile = "mobile"
+	TypeMail = "mail"
+	TypeIM   = "im"
 )
 
 const (

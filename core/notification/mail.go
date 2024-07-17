@@ -14,23 +14,31 @@ import (
 	"strings"
 )
 
-func SendMail(m *models.NotificationSettingMail, to, cc, title, content string) error {
+func SendMail(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, to, cc, bcc, title, content string) error {
+	// mail settings
+	ms := ch.MailSettings
+
 	// config
-	port, _ := strconv.Atoi(m.Port)
-	password := m.Password
-	SMTPUser := m.User
-	smtpConfig := smtpAuthentication{
-		Server:         m.Server,
-		Port:           port,
-		SenderEmail:    m.SenderEmail,
-		SenderIdentity: m.SenderIdentity,
-		SMTPPassword:   password,
-		SMTPUser:       SMTPUser,
+	port, err := strconv.Atoi(ms.SMTPPort)
+	if err != nil {
+		log.Errorf("failed to convert SMTP port to int: %v", err)
+		trace.PrintError(err)
+		return err
 	}
+	smtpConfig := smtpAuthentication{
+		Server:         ms.SMTPServer,
+		Port:           port,
+		SenderIdentity: s.SenderName,
+		SenderEmail:    s.SenderEmail,
+		SMTPUser:       ms.SMTPUser,
+		SMTPPassword:   ms.SMTPPassword,
+	}
+
 	options := sendOptions{
+		Subject: title,
 		To:      to,
 		Cc:      cc,
-		Subject: title,
+		Bcc:     bcc,
 	}
 
 	// convert html to text
@@ -80,9 +88,10 @@ type smtpAuthentication struct {
 
 // sendOptions are options for sending an email
 type sendOptions struct {
-	To      string
 	Subject string
+	To      string
 	Cc      string
+	Bcc     string
 }
 
 // send email
@@ -97,14 +106,6 @@ func send(smtpConfig smtpAuthentication, options sendOptions, htmlBody string, t
 
 	if smtpConfig.SMTPUser == "" {
 		return errors.New("SMTP user is empty")
-	}
-
-	if smtpConfig.SenderIdentity == "" {
-		return errors.New("SMTP sender identity is empty")
-	}
-
-	if smtpConfig.SenderEmail == "" {
-		return errors.New("SMTP sender email is empty")
 	}
 
 	if options.To == "" {
@@ -133,6 +134,9 @@ func send(smtpConfig smtpAuthentication, options sendOptions, htmlBody string, t
 	m.SetHeader("Subject", options.Subject)
 	if options.Cc != "" {
 		m.SetHeader("Cc", getRecipientList(options.Cc)...)
+	}
+	if options.Bcc != "" {
+		m.SetHeader("Bcc", getRecipientList(options.Bcc)...)
 	}
 
 	m.SetBody("text/plain", txtBody)

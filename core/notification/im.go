@@ -2,6 +2,7 @@ package notification
 
 import (
 	"errors"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/trace"
 	"github.com/imroc/req"
 	"strings"
@@ -12,7 +13,9 @@ type ResBody struct {
 	ErrMsg  string `json:"errmsg"`
 }
 
-func SendMobileNotification(webhook string, title string, content string) error {
+func SendIMNotification(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, content string) error {
+	// TODO: compatibility with different IM providers
+
 	// request header
 	header := req.Header{
 		"Content-Type": "application/json; charset=utf-8",
@@ -22,7 +25,7 @@ func SendMobileNotification(webhook string, title string, content string) error 
 	data := req.Param{
 		"msgtype": "markdown",
 		"markdown": req.Param{
-			"title":   title,
+			"title":   s.Title,
 			"text":    content,
 			"content": content,
 		},
@@ -32,7 +35,7 @@ func SendMobileNotification(webhook string, title string, content string) error 
 		},
 		"text": content,
 	}
-	if strings.Contains(strings.ToLower(webhook), "feishu") {
+	if strings.Contains(strings.ToLower(ch.IMSettings.Webhook), "feishu") {
 		data = req.Param{
 			"msg_type": "text",
 			"content": req.Param{
@@ -42,7 +45,7 @@ func SendMobileNotification(webhook string, title string, content string) error 
 	}
 
 	// perform request
-	res, err := req.Post(webhook, header, req.BodyJSON(&data))
+	res, err := req.Post(ch.IMSettings.Webhook, header, req.BodyJSON(&data))
 	if err != nil {
 		return trace.TraceError(err)
 	}

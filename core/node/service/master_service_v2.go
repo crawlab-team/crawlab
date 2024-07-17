@@ -12,9 +12,7 @@ import (
 	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/node/config"
-	"github.com/crawlab-team/crawlab/core/notification"
 	"github.com/crawlab-team/crawlab/core/schedule"
-	"github.com/crawlab-team/crawlab/core/spider/admin"
 	"github.com/crawlab-team/crawlab/core/system"
 	"github.com/crawlab-team/crawlab/core/task/handler"
 	"github.com/crawlab-team/crawlab/core/task/scheduler"
@@ -30,14 +28,12 @@ import (
 
 type MasterServiceV2 struct {
 	// dependencies
-	cfgSvc          interfaces.NodeConfigService
-	server          *server.GrpcServerV2
-	schedulerSvc    *scheduler.ServiceV2
-	handlerSvc      *handler.ServiceV2
-	scheduleSvc     *schedule.ServiceV2
-	notificationSvc *notification.ServiceV2
-	spiderAdminSvc  *admin.ServiceV2
-	systemSvc       *system.ServiceV2
+	cfgSvc       interfaces.NodeConfigService
+	server       *server.GrpcServerV2
+	schedulerSvc *scheduler.ServiceV2
+	handlerSvc   *handler.ServiceV2
+	scheduleSvc  *schedule.ServiceV2
+	systemSvc    *system.ServiceV2
 
 	// settings
 	cfgPath         string
@@ -76,12 +72,6 @@ func (svc *MasterServiceV2) Start() {
 
 	// start schedule service
 	go svc.scheduleSvc.Start()
-
-	// start notification service
-	go svc.notificationSvc.Start()
-
-	// start spider admin service
-	go svc.spiderAdminSvc.Start()
 
 	// wait for quit signal
 	svc.Wait()
@@ -357,15 +347,6 @@ func newMasterServiceV2() (res *MasterServiceV2, err error) {
 
 	// schedule service
 	svc.scheduleSvc, err = schedule.GetScheduleServiceV2()
-	if err != nil {
-		return nil, err
-	}
-
-	// notification service
-	svc.notificationSvc = notification.GetNotificationServiceV2()
-
-	// spider admin service
-	svc.spiderAdminSvc, err = admin.GetSpiderAdminServiceV2()
 	if err != nil {
 		return nil, err
 	}

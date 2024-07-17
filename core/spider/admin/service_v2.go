@@ -29,10 +29,6 @@ type ServiceV2 struct {
 	cfgPath string
 }
 
-func (svc *ServiceV2) Start() (err error) {
-	return nil
-}
-
 func (svc *ServiceV2) Schedule(id primitive.ObjectID, opts *interfaces.SpiderRunOptions) (taskIds []primitive.ObjectID, err error) {
 	// spider
 	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
