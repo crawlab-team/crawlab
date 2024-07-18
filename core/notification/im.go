@@ -35,7 +35,7 @@ func SendIMNotification(s *models.NotificationSettingV2, ch *models.Notification
 		},
 		"text": content,
 	}
-	if strings.Contains(strings.ToLower(ch.IMSettings.Webhook), "feishu") {
+	if strings.Contains(strings.ToLower(ch.WebhookUrl), "feishu") {
 		data = req.Param{
 			"msg_type": "text",
 			"content": req.Param{
@@ -45,7 +45,7 @@ func SendIMNotification(s *models.NotificationSettingV2, ch *models.Notification
 	}
 
 	// perform request
-	res, err := req.Post(ch.IMSettings.Webhook, header, req.BodyJSON(&data))
+	res, err := req.Post(ch.WebhookUrl, header, req.BodyJSON(&data))
 	if err != nil {
 		return trace.TraceError(err)
 	}

@@ -19,10 +19,7 @@ const (
 	ChannelMailProvider126            = "126"
 	ChannelMailProviderSina           = "sina"
 	ChannelMailProviderSohu           = "sohu"
-	ChannelMailProvider21CN           = "21cn"
 	ChannelMailProviderTencent        = "tencent"
-	ChannelMailProviderHuawei         = "huawei"
-	ChannelMailProviderAliyun         = "aliyun"
 
 	ChannelIMProviderSlack             = "slack"              // https://api.slack.com/messaging/webhooks
 	ChannelIMProviderMSTeams           = "ms_teams"           // https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook?tabs=newteams%2Cjavascript

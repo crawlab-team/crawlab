@@ -15,23 +15,20 @@ import (
 )
 
 func SendMail(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, to, cc, bcc, title, content string) error {
-	// mail settings
-	ms := ch.MailSettings
-
 	// config
-	port, err := strconv.Atoi(ms.SMTPPort)
+	port, err := strconv.Atoi(ch.SMTPPort)
 	if err != nil {
 		log.Errorf("failed to convert SMTP port to int: %v", err)
 		trace.PrintError(err)
 		return err
 	}
 	smtpConfig := smtpAuthentication{
-		Server:         ms.SMTPServer,
+		Server:         ch.SMTPServer,
 		Port:           port,
 		SenderIdentity: s.SenderName,
 		SenderEmail:    s.SenderEmail,
-		SMTPUser:       ms.SMTPUser,
-		SMTPPassword:   ms.SMTPPassword,
+		SMTPUser:       ch.SMTPUsername,
+		SMTPPassword:   ch.SMTPPassword,
 	}
 
 	options := sendOptions{
