@@ -6,20 +6,15 @@ const (
 )
 
 const (
-	ChannelMailProviderGmail          = "gmail"
-	ChannelMailProviderOutlook        = "outlook"
-	ChannelMailProviderYahoo          = "yahoo"
-	ChannelMailProviderHotmail        = "hotmail"
-	ChannelMailProviderAol            = "aol"
-	ChannelMailProviderZoho           = "zoho"
-	ChannelMailProviderYandex         = "yandex"
-	ChannelMailProviderICloud         = "icloud"
-	ChannelMailProviderQQMailProvider = "qq"
-	ChannelMailProvider163            = "163"
-	ChannelMailProvider126            = "126"
-	ChannelMailProviderSina           = "sina"
-	ChannelMailProviderSohu           = "sohu"
-	ChannelMailProviderTencent        = "tencent"
+	ChannelMailProviderGmail   = "gmail"
+	ChannelMailProviderOutlook = "outlook"
+	ChannelMailProviderYahoo   = "yahoo"
+	ChannelMailProviderICloud  = "icloud"
+	ChannelMailProviderAol     = "aol"
+	ChannelMailProviderZoho    = "zoho"
+	ChannelMailProviderQQ      = "qq"
+	ChannelMailProvider163     = "163"
+	ChannelMailProviderExmail  = "exmail"
 
 	ChannelIMProviderSlack             = "slack"              // https://api.slack.com/messaging/webhooks
 	ChannelIMProviderMSTeams           = "ms_teams"           // https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook?tabs=newteams%2Cjavascript
