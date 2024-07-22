@@ -10,21 +10,14 @@ import (
 	"net/mail"
 	"regexp"
 	"runtime/debug"
-	"strconv"
 	"strings"
 )
 
 func SendMail(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, to, cc, bcc, title, content string) error {
 	// config
-	port, err := strconv.Atoi(ch.SMTPPort)
-	if err != nil {
-		log.Errorf("failed to convert SMTP port to int: %v", err)
-		trace.PrintError(err)
-		return err
-	}
 	smtpConfig := smtpAuthentication{
 		Server:         ch.SMTPServer,
-		Port:           port,
+		Port:           ch.SMTPPort,
 		SenderIdentity: s.SenderName,
 		SenderEmail:    s.SenderEmail,
 		SMTPUser:       ch.SMTPUsername,

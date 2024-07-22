@@ -8,7 +8,7 @@ type NotificationChannelV2 struct {
 	Description                        string `json:"description" bson:"description"`
 	Provider                           string `json:"provider" bson:"provider"`
 	SMTPServer                         string `json:"smtp_server" bson:"smtp_server"`
-	SMTPPort                           string `json:"smtp_port" bson:"smtp_port"`
+	SMTPPort                           int    `json:"smtp_port" bson:"smtp_port"`
 	SMTPUsername                       string `json:"smtp_username" bson:"smtp_username"`
 	SMTPPassword                       string `json:"smtp_password" bson:"smtp_password"`
 	WebhookUrl                         string `json:"webhook_url" bson:"webhook_url"`
