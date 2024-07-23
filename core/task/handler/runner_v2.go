@@ -522,14 +522,12 @@ func (r *RunnerV2) updateTask(status string, e error) (err error) {
 			}
 		}
 
+		// update stats
+		r._updateTaskStat(status)
+		r._updateSpiderStat(status)
+
 		// send notification
 		go r.sendNotification()
-
-		// update stats
-		go func() {
-			r._updateTaskStat(status)
-			r._updateSpiderStat(status)
-		}()
 	}
 
 	// get task
@@ -579,15 +577,15 @@ func (r *RunnerV2) _updateTaskStat(status string) {
 		// do nothing
 	case constants.TaskStatusRunning:
 		ts.StartTs = time.Now()
-		ts.WaitDuration = ts.StartTs.Sub(ts.CreateTs).Milliseconds()
+		ts.WaitDuration = ts.StartTs.Sub(ts.BaseModelV2.CreatedAt).Milliseconds()
 	case constants.TaskStatusFinished, constants.TaskStatusError, constants.TaskStatusCancelled:
 		if ts.StartTs.IsZero() {
 			ts.StartTs = time.Now()
-			ts.WaitDuration = ts.StartTs.Sub(ts.CreateTs).Milliseconds()
+			ts.WaitDuration = ts.StartTs.Sub(ts.BaseModelV2.CreatedAt).Milliseconds()
 		}
 		ts.EndTs = time.Now()
 		ts.RuntimeDuration = ts.EndTs.Sub(ts.StartTs).Milliseconds()
-		ts.TotalDuration = ts.EndTs.Sub(ts.CreateTs).Milliseconds()
+		ts.TotalDuration = ts.EndTs.Sub(ts.BaseModelV2.CreatedAt).Milliseconds()
 	}
 	if r.svc.GetNodeConfigService().IsMaster() {
 		err = service2.NewModelServiceV2[models2.TaskStatV2]().ReplaceById(ts.Id, *ts)

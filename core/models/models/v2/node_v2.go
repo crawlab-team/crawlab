@@ -10,7 +10,6 @@ type NodeV2 struct {
 	Key                 string    `json:"key" bson:"key"`
 	Name                string    `json:"name" bson:"name"`
 	Ip                  string    `json:"ip" bson:"ip"`
-	Port                string    `json:"port" bson:"port"`
 	Mac                 string    `json:"mac" bson:"mac"`
 	Hostname            string    `json:"hostname" bson:"hostname"`
 	Description         string    `json:"description" bson:"description"`

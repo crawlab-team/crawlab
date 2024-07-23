@@ -8,7 +8,6 @@ type SpiderV2 struct {
 	any                   `collection:"spiders"`
 	BaseModelV2[SpiderV2] `bson:",inline"`
 	Name                  string               `json:"name" bson:"name"`                     // spider name
-	Type                  string               `json:"type" bson:"type"`                     // spider type
 	ColId                 primitive.ObjectID   `json:"col_id" bson:"col_id"`                 // data collection id
 	ColName               string               `json:"col_name,omitempty" bson:"-"`          // data collection name
 	DataSourceId          primitive.ObjectID   `json:"data_source_id" bson:"data_source_id"` // data source id

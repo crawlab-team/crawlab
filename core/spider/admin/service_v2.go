@@ -41,7 +41,7 @@ func (svc *ServiceV2) Schedule(id primitive.ObjectID, opts *interfaces.SpiderRun
 
 func (svc *ServiceV2) scheduleTasks(s *models2.SpiderV2, opts *interfaces.SpiderRunOptions) (taskIds []primitive.ObjectID, err error) {
 	// main task
-	mainTask := &models2.TaskV2{
+	t := &models2.TaskV2{
 		SpiderId:   s.Id,
 		Mode:       opts.Mode,
 		NodeIds:    opts.NodeIds,
@@ -49,66 +49,38 @@ func (svc *ServiceV2) scheduleTasks(s *models2.SpiderV2, opts *interfaces.Spider
 		Param:      opts.Param,
 		ScheduleId: opts.ScheduleId,
 		Priority:   opts.Priority,
-		UserId:     opts.UserId,
 	}
-	mainTask.SetId(primitive.NewObjectID())
+	t.SetId(primitive.NewObjectID())
 
 	// normalize
-	if mainTask.Mode == "" {
-		mainTask.Mode = s.Mode
+	if t.Mode == "" {
+		t.Mode = s.Mode
 	}
-	if mainTask.NodeIds == nil {
-		mainTask.NodeIds = s.NodeIds
+	if t.NodeIds == nil {
+		t.NodeIds = s.NodeIds
 	}
-	if mainTask.Cmd == "" {
-		mainTask.Cmd = s.Cmd
+	if t.Cmd == "" {
+		t.Cmd = s.Cmd
 	}
-	if mainTask.Param == "" {
-		mainTask.Param = s.Param
+	if t.Param == "" {
+		t.Param = s.Param
 	}
-	if mainTask.Priority == 0 {
-		mainTask.Priority = s.Priority
+	if t.Priority == 0 {
+		t.Priority = s.Priority
 	}
 
-	if svc.isMultiTask(opts) {
-		// multi tasks
-		nodeIds, err := svc.getNodeIds(opts)
-		if err != nil {
-			return nil, err
-		}
-		for _, nodeId := range nodeIds {
-			t := &models2.TaskV2{
-				SpiderId:   s.Id,
-				Mode:       opts.Mode,
-				Cmd:        opts.Cmd,
-				Param:      opts.Param,
-				NodeId:     nodeId,
-				ScheduleId: opts.ScheduleId,
-				Priority:   opts.Priority,
-				UserId:     opts.UserId,
-			}
-			t.SetId(primitive.NewObjectID())
-			t2, err := svc.schedulerSvc.Enqueue(t, opts.UserId)
-			if err != nil {
-				return nil, err
-			}
-			taskIds = append(taskIds, t2.Id)
-		}
-	} else {
-		// single task
-		nodeIds, err := svc.getNodeIds(opts)
-		if err != nil {
-			return nil, err
-		}
-		if len(nodeIds) > 0 {
-			mainTask.NodeId = nodeIds[0]
-		}
-		t2, err := svc.schedulerSvc.Enqueue(mainTask, opts.UserId)
-		if err != nil {
-			return nil, err
-		}
-		taskIds = append(taskIds, t2.Id)
+	nodeIds, err := svc.getNodeIds(opts)
+	if err != nil {
+		return nil, err
 	}
+	if len(nodeIds) > 0 {
+		t.NodeId = nodeIds[0]
+	}
+	t2, err := svc.schedulerSvc.Enqueue(t, opts.UserId)
+	if err != nil {
+		return nil, err
+	}
+	taskIds = append(taskIds, t2.Id)
 
 	return taskIds, nil
 }

@@ -39,12 +39,12 @@ func (svc *ServiceV2) Start() {
 func (svc *ServiceV2) Enqueue(t *models2.TaskV2, by primitive.ObjectID) (t2 *models2.TaskV2, err error) {
 	// set task status
 	t.Status = constants.TaskStatusPending
-	t.SetCreatedBy(by)
+	t.SetCreated(by)
 	t.SetUpdated(by)
 
 	// add task
 	taskModelSvc := service.NewModelServiceV2[models2.TaskV2]()
-	_, err = taskModelSvc.InsertOne(*t)
+	id, err := taskModelSvc.InsertOne(*t)
 	if err != nil {
 		return nil, err
 	}
@@ -54,13 +54,15 @@ func (svc *ServiceV2) Enqueue(t *models2.TaskV2, by primitive.ObjectID) (t2 *mod
 		Priority: t.Priority,
 		NodeId:   t.NodeId,
 	}
-	tq.SetId(t.Id)
+	tq.SetId(id)
+	tq.SetCreated(by)
+	tq.SetUpdated(by)
 
 	// task stat
-	ts := models2.TaskStatV2{
-		CreateTs: time.Now(),
-	}
-	ts.SetId(t.Id)
+	ts := models2.TaskStatV2{}
+	ts.SetId(id)
+	ts.SetCreated(by)
+	ts.SetUpdated(by)
 
 	// enqueue task
 	_, err = service.NewModelServiceV2[models2.TaskQueueItemV2]().InsertOne(tq)

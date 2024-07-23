@@ -14,11 +14,11 @@ type ResBody struct {
 	ErrMsg  string `json:"errmsg"`
 }
 
-func SendIMNotification(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, content string) error {
+func SendIMNotification(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, title, content string) error {
 	// TODO: compatibility with different IM providers
 	switch ch.Provider {
 	case ChannelIMProviderLark:
-		return sendImLark(ch, content)
+		return sendImLark(ch, title, content)
 	}
 
 	// request header
@@ -30,7 +30,7 @@ func SendIMNotification(s *models.NotificationSettingV2, ch *models.Notification
 	data := req.Param{
 		"msgtype": "markdown",
 		"markdown": req.Param{
-			"title":   s.Title,
+			"title":   title,
 			"text":    content,
 			"content": content,
 		},
@@ -99,11 +99,17 @@ func performIMRequest(webhookUrl string, data req.Param) error {
 	return nil
 }
 
-func sendImLark(ch *models.NotificationChannelV2, content string) error {
+func sendImLark(ch *models.NotificationChannelV2, title, content string) error {
 	// request header
 	data := req.Param{
 		"msg_type": "interactive",
 		"card": req.Param{
+			"header": req.Param{
+				"title": req.Param{
+					"tag":     "plain_text",
+					"content": title,
+				},
+			},
 			"elements": []req.Param{
 				{
 					"tag":     "markdown",

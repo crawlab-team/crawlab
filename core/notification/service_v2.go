@@ -7,6 +7,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/entity"
 	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
+	"github.com/gomarkdown/markdown"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"regexp"
 	"strings"
@@ -18,6 +19,7 @@ type ServiceV2 struct {
 }
 
 func (svc *ServiceV2) Send(s *models.NotificationSettingV2, args ...any) {
+	title := s.Title
 	content := svc.getContent(s, args...)
 
 	wg := sync.WaitGroup{}
@@ -32,30 +34,30 @@ func (svc *ServiceV2) Send(s *models.NotificationSettingV2, args ...any) {
 			}
 			switch ch.Type {
 			case TypeMail:
-				svc.SendMail(s, ch, content)
+				svc.SendMail(s, ch, title, content)
 			case TypeIM:
-				svc.SendIM(s, ch, content)
+				svc.SendIM(s, ch, title, content)
 			}
 		}(chId)
 	}
 	wg.Wait()
 }
 
-func (svc *ServiceV2) SendMail(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, content string) {
+func (svc *ServiceV2) SendMail(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, title, content string) {
 	// TODO: parse to/cc/bcc
 	mailTo := s.MailTo
 	mailCc := s.MailCc
 	mailBcc := s.MailBcc
 
 	// send mail
-	err := SendMail(s, ch, mailTo, mailCc, mailBcc, s.Title, content)
+	err := SendMail(s, ch, mailTo, mailCc, mailBcc, title, content)
 	if err != nil {
 		log.Errorf("[NotificationServiceV2] send mail error: %v", err)
 	}
 }
 
-func (svc *ServiceV2) SendIM(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, content string) {
-	err := SendIMNotification(s, ch, content)
+func (svc *ServiceV2) SendIM(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, title, content string) {
+	err := SendIMNotification(s, ch, title, content)
 	if err != nil {
 		log.Errorf("[NotificationServiceV2] send mobile notification error: %v", err)
 	}
@@ -68,7 +70,9 @@ func (svc *ServiceV2) getContent(s *models.NotificationSettingV2, args ...any) (
 		switch s.TemplateMode {
 		case constants.NotificationTemplateModeMarkdown:
 			variables := svc.parseTemplateVariables(s.TemplateMarkdown)
-			return svc.getTaskContent(s.TemplateMarkdown, variables, vd)
+			content = svc.getTaskContent(s.TemplateMarkdown, variables, vd)
+			content = svc.convertMarkdownToHtml(content)
+			return content
 		case constants.NotificationTemplateModeRichText:
 			variables := svc.parseTemplateVariables(s.TemplateRichText)
 			return svc.getTaskContent(s.TemplateRichText, variables, vd)
@@ -87,6 +91,10 @@ func (svc *ServiceV2) getTaskContent(template string, variables []entity.Notific
 	for _, v := range variables {
 		switch v.Category {
 		case "task":
+			if vd.Task == nil {
+				content = strings.ReplaceAll(content, v.GetKey(), "N/A")
+				continue
+			}
 			switch v.Name {
 			case "id":
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Id.Hex())
@@ -106,20 +114,46 @@ func (svc *ServiceV2) getTaskContent(template string, variables []entity.Notific
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Mode)
 			case "priority":
 				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Task.Priority))
-			case "created_at":
-				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.CreatedAt.Format(time.DateTime))
-			case "updated_at":
-				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.UpdatedAt.Format(time.DateTime))
+			case "created_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Task.CreatedAt))
+			case "created_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Task.CreatedBy))
+			case "updated_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Task.UpdatedAt))
+			case "updated_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Task.UpdatedBy))
+			}
+
+		case "task_stat":
+			if vd.TaskStat == nil {
+				content = strings.ReplaceAll(content, v.GetKey(), "N/A")
+				continue
+			}
+			switch v.Name {
+			case "start_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.TaskStat.StartTs))
+			case "end_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.TaskStat.EndTs))
+			case "wait_duration":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%ds", vd.TaskStat.WaitDuration/1000))
+			case "runtime_duration":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%ds", vd.TaskStat.RuntimeDuration/1000))
+			case "total_duration":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%ds", vd.TaskStat.TotalDuration/1000))
+			case "result_count":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.TaskStat.ResultCount))
 			}
 
 		case "spider":
+			if vd.Spider == nil {
+				content = strings.ReplaceAll(content, v.GetKey(), "N/A")
+				continue
+			}
 			switch v.Name {
 			case "id":
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Id.Hex())
 			case "name":
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Name)
-			case "type":
-				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Type)
 			case "description":
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Description)
 			case "mode":
@@ -130,13 +164,21 @@ func (svc *ServiceV2) getTaskContent(template string, variables []entity.Notific
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Param)
 			case "priority":
 				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Spider.Priority))
-			case "created_at":
-				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.CreatedAt.Format(time.DateTime))
-			case "updated_at":
-				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.UpdatedAt.Format(time.DateTime))
+			case "created_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Spider.CreatedAt))
+			case "created_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Spider.CreatedBy))
+			case "updated_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Spider.UpdatedAt))
+			case "updated_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Spider.UpdatedBy))
 			}
 
 		case "node":
+			if vd.Node == nil {
+				content = strings.ReplaceAll(content, v.GetKey(), "N/A")
+				continue
+			}
 			switch v.Name {
 			case "id":
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Id.Hex())
@@ -146,8 +188,8 @@ func (svc *ServiceV2) getTaskContent(template string, variables []entity.Notific
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Name)
 			case "ip":
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Ip)
-			case "port":
-				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Port)
+			case "mac":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Mac)
 			case "hostname":
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Hostname)
 			case "description":
@@ -159,18 +201,26 @@ func (svc *ServiceV2) getTaskContent(template string, variables []entity.Notific
 			case "active":
 				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%t", vd.Node.Active))
 			case "active_at":
-				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.ActiveAt.Format("2006-01-02 15:04:05"))
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Node.ActiveAt))
 			case "available_runners":
 				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Node.AvailableRunners))
 			case "max_runners":
 				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Node.MaxRunners))
-			case "created_at":
-				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.CreatedAt.Format(time.DateTime))
-			case "updated_at":
-				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.UpdatedAt.Format(time.DateTime))
+			case "created_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Node.CreatedAt))
+			case "created_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Node.CreatedBy))
+			case "updated_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Node.UpdatedAt))
+			case "updated_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Node.UpdatedBy))
 			}
 
 		case "schedule":
+			if vd.Schedule == nil {
+				content = strings.ReplaceAll(content, v.GetKey(), "N/A")
+				continue
+			}
 			switch v.Name {
 			case "id":
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.Id.Hex())
@@ -190,10 +240,14 @@ func (svc *ServiceV2) getTaskContent(template string, variables []entity.Notific
 				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Schedule.Priority))
 			case "enabled":
 				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%t", vd.Schedule.Enabled))
-			case "created_at":
-				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.CreatedAt.Format(time.DateTime))
-			case "updated_at":
-				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.UpdatedAt.Format(time.DateTime))
+			case "created_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Schedule.CreatedAt))
+			case "created_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Schedule.CreatedBy))
+			case "updated_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Schedule.UpdatedAt))
+			case "updated_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Schedule.UpdatedBy))
 			}
 		}
 	}
@@ -248,8 +302,27 @@ func (svc *ServiceV2) parseTemplateVariables(template string) (variables []entit
 	return variables
 }
 
-func (svc *ServiceV2) getUserById(id primitive.ObjectID) {
+func (svc *ServiceV2) getUsernameById(id primitive.ObjectID) (username string) {
+	if id.IsZero() {
+		return ""
+	}
+	u, err := service.NewModelServiceV2[models.UserV2]().GetById(id)
+	if err != nil {
+		log.Errorf("[NotificationServiceV2] get user error: %v", err)
+		return ""
+	}
+	return u.Username
+}
 
+func (svc *ServiceV2) getFormattedTime(t time.Time) (res string) {
+	if t.IsZero() {
+		return "N/A"
+	}
+	return t.Local().Format(time.DateTime)
+}
+
+func (svc *ServiceV2) convertMarkdownToHtml(content string) (html string) {
+	return string(markdown.ToHTML([]byte(content), nil, nil))
 }
 
 func newNotificationServiceV2() *ServiceV2 {
