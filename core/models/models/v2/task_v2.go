@@ -2,7 +2,6 @@ package models
 
 import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"time"
 )
 
 type TaskV2 struct {
@@ -26,5 +25,4 @@ type TaskV2 struct {
 	SubTasks            []TaskV2             `json:"sub_tasks,omitempty" bson:"-"`
 	Spider              *SpiderV2            `json:"spider,omitempty" bson:"-"`
 	UserId              primitive.ObjectID   `json:"-" bson:"-"`
-	CreateTs            time.Time            `json:"create_ts" bson:"create_ts"`
 }

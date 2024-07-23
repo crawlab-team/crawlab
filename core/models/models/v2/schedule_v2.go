@@ -19,5 +19,4 @@ type ScheduleV2 struct {
 	NodeIds                 []primitive.ObjectID `json:"node_ids" bson:"node_ids"`
 	Priority                int                  `json:"priority" bson:"priority"`
 	Enabled                 bool                 `json:"enabled" bson:"enabled"`
-	UserId                  primitive.ObjectID   `json:"user_id" bson:"user_id"`
 }

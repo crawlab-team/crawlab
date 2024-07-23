@@ -28,6 +28,7 @@ var (
 		*new(models2.MetricV2),
 		*new(models2.NodeV2),
 		*new(models2.NotificationChannelV2),
+		*new(models2.NotificationRequestV2),
 		*new(models2.NotificationSettingV2),
 		*new(models2.PermissionV2),
 		*new(models2.ProjectV2),

@@ -15,7 +15,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"sync"
-	"time"
 )
 
 type ServiceV2 struct {
@@ -51,7 +50,6 @@ func (svc *ServiceV2) scheduleTasks(s *models2.SpiderV2, opts *interfaces.Spider
 		ScheduleId: opts.ScheduleId,
 		Priority:   opts.Priority,
 		UserId:     opts.UserId,
-		CreateTs:   time.Now(),
 	}
 	mainTask.SetId(primitive.NewObjectID())
 
@@ -88,7 +86,6 @@ func (svc *ServiceV2) scheduleTasks(s *models2.SpiderV2, opts *interfaces.Spider
 				ScheduleId: opts.ScheduleId,
 				Priority:   opts.Priority,
 				UserId:     opts.UserId,
-				CreateTs:   time.Now(),
 			}
 			t.SetId(primitive.NewObjectID())
 			t2, err := svc.schedulerSvc.Enqueue(t, opts.UserId)

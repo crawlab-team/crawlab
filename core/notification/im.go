@@ -2,6 +2,7 @@ package notification
 
 import (
 	"errors"
+	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/trace"
 	"github.com/imroc/req"
@@ -15,6 +16,10 @@ type ResBody struct {
 
 func SendIMNotification(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, content string) error {
 	// TODO: compatibility with different IM providers
+	switch ch.Provider {
+	case ChannelIMProviderLark:
+		return sendImLark(ch, content)
+	}
 
 	// request header
 	header := req.Header{
@@ -62,4 +67,50 @@ func SendIMNotification(s *models.NotificationSettingV2, ch *models.Notification
 	}
 
 	return nil
+}
+
+func getIMRequestHeader() req.Header {
+	return req.Header{
+		"Content-Type": "application/json; charset=utf-8",
+	}
+}
+
+func performIMRequest(webhookUrl string, data req.Param) error {
+	// perform request
+	res, err := req.Post(webhookUrl, getIMRequestHeader(), req.BodyJSON(&data))
+	if err != nil {
+		log.Errorf("IM request error: %v", err)
+		return err
+	}
+
+	// parse response
+	var resBody ResBody
+	if err := res.ToJSON(&resBody); err != nil {
+		log.Errorf("Parsing IM response error: %v", err)
+		return err
+	}
+
+	// validate response code
+	if resBody.ErrCode != 0 {
+		log.Errorf("IM response error: %v", resBody.ErrMsg)
+		return errors.New(resBody.ErrMsg)
+	}
+
+	return nil
+}
+
+func sendImLark(ch *models.NotificationChannelV2, content string) error {
+	// request header
+	data := req.Param{
+		"msg_type": "interactive",
+		"card": req.Param{
+			"elements": []req.Param{
+				{
+					"tag":     "markdown",
+					"content": content,
+				},
+			},
+		},
+	}
+	return performIMRequest(ch.WebhookUrl, data)
 }

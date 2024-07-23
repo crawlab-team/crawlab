@@ -9,7 +9,6 @@ import (
 	"gopkg.in/gomail.v2"
 	"net/mail"
 	"regexp"
-	"runtime/debug"
 	"strings"
 )
 
@@ -44,8 +43,8 @@ func SendMail(s *models.NotificationSettingV2, ch *models.NotificationChannelV2,
 
 	// send the email
 	if err := send(smtpConfig, options, content, text); err != nil {
-		log.Errorf(err.Error())
-		debug.PrintStack()
+		log.Errorf("failed to send email: %v", err)
+		trace.PrintError(err)
 		return err
 	}
 

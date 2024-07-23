@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 )
 
 type ServiceV2 struct {
@@ -91,14 +92,108 @@ func (svc *ServiceV2) getTaskContent(template string, variables []entity.Notific
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Id.Hex())
 			case "status":
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Status)
-			case "priority":
-				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Task.Priority))
-			case "mode":
-				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Mode)
 			case "cmd":
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Cmd)
 			case "param":
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Param)
+			case "error":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Error)
+			case "pid":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Task.Pid))
+			case "type":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Type)
+			case "mode":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Mode)
+			case "priority":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Task.Priority))
+			case "created_at":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.CreatedAt.Format(time.DateTime))
+			case "updated_at":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.UpdatedAt.Format(time.DateTime))
+			}
+
+		case "spider":
+			switch v.Name {
+			case "id":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Id.Hex())
+			case "name":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Name)
+			case "type":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Type)
+			case "description":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Description)
+			case "mode":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Mode)
+			case "cmd":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Cmd)
+			case "param":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Param)
+			case "priority":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Spider.Priority))
+			case "created_at":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.CreatedAt.Format(time.DateTime))
+			case "updated_at":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.UpdatedAt.Format(time.DateTime))
+			}
+
+		case "node":
+			switch v.Name {
+			case "id":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Id.Hex())
+			case "key":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Key)
+			case "name":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Name)
+			case "ip":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Ip)
+			case "port":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Port)
+			case "hostname":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Hostname)
+			case "description":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Description)
+			case "status":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Status)
+			case "enabled":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%t", vd.Node.Enabled))
+			case "active":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%t", vd.Node.Active))
+			case "active_at":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.ActiveAt.Format("2006-01-02 15:04:05"))
+			case "available_runners":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Node.AvailableRunners))
+			case "max_runners":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Node.MaxRunners))
+			case "created_at":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.CreatedAt.Format(time.DateTime))
+			case "updated_at":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.UpdatedAt.Format(time.DateTime))
+			}
+
+		case "schedule":
+			switch v.Name {
+			case "id":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.Id.Hex())
+			case "name":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.Name)
+			case "description":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.Description)
+			case "cron":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.Cron)
+			case "cmd":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.Cmd)
+			case "param":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.Param)
+			case "mode":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.Mode)
+			case "priority":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Schedule.Priority))
+			case "enabled":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%t", vd.Schedule.Enabled))
+			case "created_at":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.CreatedAt.Format(time.DateTime))
+			case "updated_at":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.UpdatedAt.Format(time.DateTime))
 			}
 		}
 	}
@@ -151,6 +246,10 @@ func (svc *ServiceV2) parseTemplateVariables(template string) (variables []entit
 	}
 
 	return variables
+}
+
+func (svc *ServiceV2) getUserById(id primitive.ObjectID) {
+
 }
 
 func newNotificationServiceV2() *ServiceV2 {
