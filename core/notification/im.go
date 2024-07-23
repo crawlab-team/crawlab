@@ -19,6 +19,8 @@ func SendIMNotification(s *models.NotificationSettingV2, ch *models.Notification
 	switch ch.Provider {
 	case ChannelIMProviderLark:
 		return sendImLark(ch, title, content)
+	case ChannelIMProviderSlack:
+		return sendImSlack(ch, title, content)
 	}
 
 	// request header
@@ -116,6 +118,17 @@ func sendImLark(ch *models.NotificationChannelV2, title, content string) error {
 					"content": content,
 				},
 			},
+		},
+	}
+	return performIMRequest(ch.WebhookUrl, data)
+}
+
+func sendImSlack(ch *models.NotificationChannelV2, title, content string) error {
+	// request header
+	data := req.Param{
+		"blocks": []req.Param{
+			{"type": "header", "text": req.Param{"type": "plain_text", "text": title}},
+			{"type": "section", "text": req.Param{"type": "mrkdwn", "text": content}},
 		},
 	}
 	return performIMRequest(ch.WebhookUrl, data)

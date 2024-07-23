@@ -20,7 +20,6 @@ type ServiceV2 struct {
 
 func (svc *ServiceV2) Send(s *models.NotificationSettingV2, args ...any) {
 	title := s.Title
-	content := svc.getContent(s, args...)
 
 	wg := sync.WaitGroup{}
 	wg.Add(len(s.ChannelIds))
@@ -32,6 +31,7 @@ func (svc *ServiceV2) Send(s *models.NotificationSettingV2, args ...any) {
 				log.Errorf("[NotificationServiceV2] get channel error: %v", err)
 				return
 			}
+			content := svc.getContent(s, ch, args...)
 			switch ch.Type {
 			case TypeMail:
 				svc.SendMail(s, ch, title, content)
@@ -63,7 +63,7 @@ func (svc *ServiceV2) SendIM(s *models.NotificationSettingV2, ch *models.Notific
 	}
 }
 
-func (svc *ServiceV2) getContent(s *models.NotificationSettingV2, args ...any) (content string) {
+func (svc *ServiceV2) getContent(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, args ...any) (content string) {
 	switch s.TriggerTarget {
 	case constants.NotificationTriggerTargetTask:
 		vd := svc.getTaskVariableData(args...)
@@ -71,11 +71,17 @@ func (svc *ServiceV2) getContent(s *models.NotificationSettingV2, args ...any) (
 		case constants.NotificationTemplateModeMarkdown:
 			variables := svc.parseTemplateVariables(s.TemplateMarkdown)
 			content = svc.getTaskContent(s.TemplateMarkdown, variables, vd)
-			content = svc.convertMarkdownToHtml(content)
+			if ch.Type == TypeMail {
+				content = svc.convertMarkdownToHtml(content)
+			}
 			return content
 		case constants.NotificationTemplateModeRichText:
-			variables := svc.parseTemplateVariables(s.TemplateRichText)
-			return svc.getTaskContent(s.TemplateRichText, variables, vd)
+			template := s.TemplateRichText
+			if ch.Type == TypeIM {
+				template = s.TemplateMarkdown
+			}
+			variables := svc.parseTemplateVariables(template)
+			return svc.getTaskContent(template, variables, vd)
 		}
 
 	case constants.NotificationTriggerTargetNode:
