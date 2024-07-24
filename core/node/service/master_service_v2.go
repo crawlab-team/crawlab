@@ -12,6 +12,7 @@ import (
 	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/node/config"
+	"github.com/crawlab-team/crawlab/core/notification"
 	"github.com/crawlab-team/crawlab/core/schedule"
 	"github.com/crawlab-team/crawlab/core/system"
 	"github.com/crawlab-team/crawlab/core/task/handler"
@@ -207,11 +208,12 @@ func (svc *MasterServiceV2) monitor() (err error) {
 	wg.Add(len(workerNodes))
 	for _, n := range workerNodes {
 		go func(n *models2.NodeV2) {
+			defer wg.Done()
+
 			// subscribe
 			ok := svc.subscribeNode(n)
 			if !ok {
 				go svc.setWorkerNodeOffline(n)
-				wg.Done()
 				return
 			}
 
@@ -219,19 +221,14 @@ func (svc *MasterServiceV2) monitor() (err error) {
 			ok = svc.pingNodeClient(n)
 			if !ok {
 				go svc.setWorkerNodeOffline(n)
-				wg.Done()
 				return
 			}
 
 			// update node available runners
 			if err := svc.updateNodeAvailableRunners(n); err != nil {
 				trace.PrintError(err)
-				wg.Done()
 				return
 			}
-
-			// done
-			wg.Done()
 		}(&n)
 	}
 
@@ -261,13 +258,24 @@ func (svc *MasterServiceV2) updateMasterNodeStatus() (err error) {
 	if err != nil {
 		return err
 	}
+	oldStatus := node.Status
+
 	node.Status = constants.NodeStatusOnline
 	node.Active = true
 	node.ActiveAt = time.Now()
+	newStatus := node.Status
+
 	err = service.NewModelServiceV2[models2.NodeV2]().ReplaceById(node.Id, *node)
 	if err != nil {
 		return err
 	}
+
+	if utils.IsPro() {
+		if oldStatus != newStatus {
+			go svc.sendNotification(node)
+		}
+	}
+
 	return nil
 }
 
@@ -280,6 +288,7 @@ func (svc *MasterServiceV2) setWorkerNodeOffline(node *models2.NodeV2) {
 	if err != nil {
 		trace.PrintError(err)
 	}
+	svc.sendNotification(node)
 }
 
 func (svc *MasterServiceV2) subscribeNode(n *models2.NodeV2) (ok bool) {
@@ -314,6 +323,13 @@ func (svc *MasterServiceV2) updateNodeAvailableRunners(node *models2.NodeV2) (er
 		return err
 	}
 	return nil
+}
+
+func (svc *MasterServiceV2) sendNotification(node *models2.NodeV2) {
+	if !utils.IsPro() {
+		return
+	}
+	go notification.GetNotificationServiceV2().SendNodeNotification(node)
 }
 
 func newMasterServiceV2() (res *MasterServiceV2, err error) {

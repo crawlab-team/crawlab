@@ -2,7 +2,7 @@ package notification
 
 import "github.com/crawlab-team/crawlab/core/models/models/v2"
 
-type VariableDataTask struct {
+type VariableData struct {
 	Task     *models.TaskV2     `json:"task"`
 	TaskStat *models.TaskStatV2 `json:"task_stat"`
 	Spider   *models.SpiderV2   `json:"spider"`

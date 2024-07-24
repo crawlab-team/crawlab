@@ -7,7 +7,9 @@ import (
 	"github.com/crawlab-team/crawlab/core/entity"
 	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
+	"github.com/crawlab-team/crawlab/trace"
 	"github.com/gomarkdown/markdown"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"regexp"
 	"strings"
@@ -64,35 +66,28 @@ func (svc *ServiceV2) SendIM(s *models.NotificationSettingV2, ch *models.Notific
 }
 
 func (svc *ServiceV2) getContent(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, args ...any) (content string) {
-	switch s.TriggerTarget {
-	case constants.NotificationTriggerTargetTask:
-		vd := svc.getTaskVariableData(args...)
-		switch s.TemplateMode {
-		case constants.NotificationTemplateModeMarkdown:
-			variables := svc.parseTemplateVariables(s.TemplateMarkdown)
-			content = svc.getTaskContent(s.TemplateMarkdown, variables, vd)
-			if ch.Type == TypeMail {
-				content = svc.convertMarkdownToHtml(content)
-			}
-			return content
-		case constants.NotificationTemplateModeRichText:
-			template := s.TemplateRichText
-			if ch.Type == TypeIM {
-				template = s.TemplateMarkdown
-			}
-			variables := svc.parseTemplateVariables(template)
-			return svc.getTaskContent(template, variables, vd)
+	vd := svc.getVariableData(args...)
+	switch s.TemplateMode {
+	case constants.NotificationTemplateModeMarkdown:
+		variables := svc.parseTemplateVariables(s.TemplateMarkdown)
+		content = svc.geContentWithVariables(s.TemplateMarkdown, variables, vd)
+		if ch.Type == TypeMail {
+			content = svc.convertMarkdownToHtml(content)
 		}
-
-	case constants.NotificationTriggerTargetNode:
-		// TODO: implement
-
+		return content
+	case constants.NotificationTemplateModeRichText:
+		template := s.TemplateRichText
+		if ch.Type == TypeIM {
+			template = s.TemplateMarkdown
+		}
+		variables := svc.parseTemplateVariables(template)
+		return svc.geContentWithVariables(template, variables, vd)
 	}
 
 	return content
 }
 
-func (svc *ServiceV2) getTaskContent(template string, variables []entity.NotificationVariable, vd VariableDataTask) (content string) {
+func (svc *ServiceV2) geContentWithVariables(template string, variables []entity.NotificationVariable, vd VariableData) (content string) {
 	content = template
 	for _, v := range variables {
 		switch v.Category {
@@ -192,6 +187,8 @@ func (svc *ServiceV2) getTaskContent(template string, variables []entity.Notific
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Key)
 			case "name":
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Name)
+			case "is_master":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%t", vd.Node.IsMaster))
 			case "ip":
 				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Ip)
 			case "mac":
@@ -260,7 +257,7 @@ func (svc *ServiceV2) getTaskContent(template string, variables []entity.Notific
 	return content
 }
 
-func (svc *ServiceV2) getTaskVariableData(args ...any) (vd VariableDataTask) {
+func (svc *ServiceV2) getVariableData(args ...any) (vd VariableData) {
 	for _, arg := range args {
 		switch arg.(type) {
 		case *models.TaskV2:
@@ -329,6 +326,39 @@ func (svc *ServiceV2) getFormattedTime(t time.Time) (res string) {
 
 func (svc *ServiceV2) convertMarkdownToHtml(content string) (html string) {
 	return string(markdown.ToHTML([]byte(content), nil, nil))
+}
+
+func (svc *ServiceV2) SendNodeNotification(node *models.NodeV2) {
+	// arguments
+	var args []any
+	args = append(args, node)
+
+	// settings
+	settings, err := service.NewModelServiceV2[models.NotificationSettingV2]().GetMany(bson.M{
+		"enabled":        true,
+		"trigger_target": constants.NotificationTriggerTargetNode,
+	}, nil)
+	if err != nil {
+		log.Errorf("get notification settings error: %v", err)
+		trace.PrintError(err)
+		return
+	}
+
+	for _, s := range settings {
+		// send notification
+		switch s.Trigger {
+		case constants.NotificationTriggerNodeStatusChange:
+			go svc.Send(&s, args...)
+		case constants.NotificationTriggerNodeOnline:
+			if node.Status == constants.NodeStatusOnline {
+				go svc.Send(&s, args...)
+			}
+		case constants.NotificationTriggerNodeOffline:
+			if node.Status == constants.NodeStatusOffline {
+				go svc.Send(&s, args...)
+			}
+		}
+	}
 }
 
 func newNotificationServiceV2() *ServiceV2 {

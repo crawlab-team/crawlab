@@ -10,6 +10,8 @@ import (
 	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	nodeconfig "github.com/crawlab-team/crawlab/core/node/config"
+	"github.com/crawlab-team/crawlab/core/notification"
+	"github.com/crawlab-team/crawlab/core/utils"
 	"github.com/crawlab-team/crawlab/grpc"
 	errors2 "github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
@@ -93,6 +95,7 @@ func (svr NodeServerV2) SendHeartbeat(_ context.Context, req *grpc.NodeServiceSe
 		}
 		return HandleError(err)
 	}
+	oldStatus := node.Status
 
 	// validate status
 	if node.Status == constants.NodeStatusUnregistered {
@@ -106,6 +109,14 @@ func (svr NodeServerV2) SendHeartbeat(_ context.Context, req *grpc.NodeServiceSe
 	err = service.NewModelServiceV2[models.NodeV2]().ReplaceById(node.Id, *node)
 	if err != nil {
 		return HandleError(err)
+	}
+	newStatus := node.Status
+
+	// send notification if status changed
+	if utils.IsPro() {
+		if oldStatus != newStatus {
+			go notification.GetNotificationServiceV2().SendNodeNotification(node)
+		}
 	}
 
 	return HandleSuccessWithData(node)

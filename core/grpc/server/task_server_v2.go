@@ -110,6 +110,10 @@ func (svr TaskServerV2) Fetch(ctx context.Context, request *grpc.Request) (respo
 }
 
 func (svr TaskServerV2) SendNotification(_ context.Context, request *grpc.TaskServiceSendNotificationRequest) (response *grpc.Response, err error) {
+	if !utils.IsPro() {
+		return nil, nil
+	}
+
 	// task id
 	taskId, err := primitive.ObjectIDFromHex(request.TaskId)
 	if err != nil {
