@@ -38,7 +38,7 @@ func (svc *ServiceV2) Send(s *models.NotificationSettingV2, args ...any) {
 			case TypeMail:
 				svc.SendMail(s, ch, title, content)
 			case TypeIM:
-				svc.SendIM(s, ch, title, content)
+				svc.SendIM(ch, title, content)
 			}
 		}(chId)
 	}
@@ -58,8 +58,8 @@ func (svc *ServiceV2) SendMail(s *models.NotificationSettingV2, ch *models.Notif
 	}
 }
 
-func (svc *ServiceV2) SendIM(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, title, content string) {
-	err := SendIMNotification(s, ch, title, content)
+func (svc *ServiceV2) SendIM(ch *models.NotificationChannelV2, title, content string) {
+	err := SendIMNotification(ch, title, content)
 	if err != nil {
 		log.Errorf("[NotificationServiceV2] send mobile notification error: %v", err)
 	}

@@ -2,10 +2,12 @@ package notification
 
 import (
 	"errors"
+	"fmt"
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/trace"
 	"github.com/imroc/req"
+	"regexp"
 	"strings"
 )
 
@@ -14,13 +16,17 @@ type ResBody struct {
 	ErrMsg  string `json:"errmsg"`
 }
 
-func SendIMNotification(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, title, content string) error {
+func SendIMNotification(ch *models.NotificationChannelV2, title, content string) error {
 	// TODO: compatibility with different IM providers
 	switch ch.Provider {
 	case ChannelIMProviderLark:
 		return sendImLark(ch, title, content)
 	case ChannelIMProviderSlack:
 		return sendImSlack(ch, title, content)
+	case ChannelIMProviderDingtalk:
+		return sendImDingTalk(ch, title, content)
+	case ChannelIMProviderWechatWork:
+		return sendImWechatWork(ch, title, content)
 	}
 
 	// request header
@@ -101,8 +107,40 @@ func performIMRequest(webhookUrl string, data req.Param) error {
 	return nil
 }
 
+func convertMarkdownToSlack(markdown string) string {
+	// Convert bold text
+	reBold := regexp.MustCompile(`\*\*(.*?)\*\*`)
+	slack := reBold.ReplaceAllString(markdown, `*$1*`)
+
+	// Convert italic text
+	reItalic := regexp.MustCompile(`\*(.*?)\*`)
+	slack = reItalic.ReplaceAllString(slack, `_$1_`)
+
+	// Convert links
+	reLink := regexp.MustCompile(`\[(.*?)\]\((.*?)\)`)
+	slack = reLink.ReplaceAllString(slack, `<$2|$1>`)
+
+	// Convert inline code
+	reInlineCode := regexp.MustCompile("`(.*?)`")
+	slack = reInlineCode.ReplaceAllString(slack, "`$1`")
+
+	// Convert unordered list
+	slack = strings.ReplaceAll(slack, "- ", "• ")
+
+	// Convert ordered list
+	reOrderedList := regexp.MustCompile(`^\d+\. `)
+	slack = reOrderedList.ReplaceAllStringFunc(slack, func(s string) string {
+		return strings.Replace(s, ". ", ". ", 1)
+	})
+
+	// Convert blockquote
+	reBlockquote := regexp.MustCompile(`^> (.*)`)
+	slack = reBlockquote.ReplaceAllString(slack, `> $1`)
+
+	return slack
+}
+
 func sendImLark(ch *models.NotificationChannelV2, title, content string) error {
-	// request header
 	data := req.Param{
 		"msg_type": "interactive",
 		"card": req.Param{
@@ -124,11 +162,31 @@ func sendImLark(ch *models.NotificationChannelV2, title, content string) error {
 }
 
 func sendImSlack(ch *models.NotificationChannelV2, title, content string) error {
-	// request header
 	data := req.Param{
 		"blocks": []req.Param{
 			{"type": "header", "text": req.Param{"type": "plain_text", "text": title}},
-			{"type": "section", "text": req.Param{"type": "mrkdwn", "text": content}},
+			{"type": "section", "text": req.Param{"type": "mrkdwn", "text": convertMarkdownToSlack(content)}},
+		},
+	}
+	return performIMRequest(ch.WebhookUrl, data)
+}
+
+func sendImDingTalk(ch *models.NotificationChannelV2, title string, content string) error {
+	data := req.Param{
+		"msgtype": "markdown",
+		"markdown": req.Param{
+			"title": title,
+			"text":  fmt.Sprintf("# %s\n\n%s", title, content),
+		},
+	}
+	return performIMRequest(ch.WebhookUrl, data)
+}
+
+func sendImWechatWork(ch *models.NotificationChannelV2, title string, content string) error {
+	data := req.Param{
+		"msgtype": "markdown",
+		"markdown": req.Param{
+			"content": fmt.Sprintf("# %s\n\n%s", title, content),
 		},
 	}
 	return performIMRequest(ch.WebhookUrl, data)
