@@ -20,15 +20,19 @@ func SendIMNotification(ch *models.NotificationChannelV2, title, content string)
 	// TODO: compatibility with different IM providers
 	switch ch.Provider {
 	case ChannelIMProviderLark:
-		return sendImLark(ch, title, content)
+		return sendIMLark(ch, title, content)
 	case ChannelIMProviderSlack:
-		return sendImSlack(ch, title, content)
+		return sendIMSlack(ch, title, content)
 	case ChannelIMProviderDingtalk:
-		return sendImDingTalk(ch, title, content)
+		return sendIMDingTalk(ch, title, content)
 	case ChannelIMProviderWechatWork:
-		return sendImWechatWork(ch, title, content)
+		return sendIMWechatWork(ch, title, content)
 	case ChannelIMProviderTelegram:
-		return sendImTelegram(ch, title, content)
+		return sendIMTelegram(ch, title, content)
+	case ChannelIMProviderDiscord:
+		return sendIMDiscord(ch, title, content)
+	case ChannelIMProviderMSTeams:
+		return sendIMMSTeams(ch, title, content)
 	}
 
 	// request header
@@ -91,6 +95,15 @@ func performIMRequest[T any](webhookUrl string, data req.Param) (resBody T, err 
 	if err != nil {
 		log.Errorf("IM request error: %v", err)
 		return resBody, err
+	}
+
+	// get response
+	response := res.Response()
+
+	// check status code
+	if response.StatusCode >= 400 {
+		log.Errorf("IM response status code: %d", res.Response().StatusCode)
+		return resBody, errors.New(fmt.Sprintf("IM error response %d: %s", response.StatusCode, res.String()))
 	}
 
 	// parse response
@@ -171,7 +184,7 @@ func convertMarkdownToTelegram(markdownText string) string {
 	return markdownText
 }
 
-func sendImLark(ch *models.NotificationChannelV2, title, content string) error {
+func sendIMLark(ch *models.NotificationChannelV2, title, content string) error {
 	data := req.Param{
 		"msg_type": "interactive",
 		"card": req.Param{
@@ -199,7 +212,7 @@ func sendImLark(ch *models.NotificationChannelV2, title, content string) error {
 	return nil
 }
 
-func sendImSlack(ch *models.NotificationChannelV2, title, content string) error {
+func sendIMSlack(ch *models.NotificationChannelV2, title, content string) error {
 	data := req.Param{
 		"blocks": []req.Param{
 			{"type": "header", "text": req.Param{"type": "plain_text", "text": title}},
@@ -216,7 +229,7 @@ func sendImSlack(ch *models.NotificationChannelV2, title, content string) error 
 	return nil
 }
 
-func sendImDingTalk(ch *models.NotificationChannelV2, title string, content string) error {
+func sendIMDingTalk(ch *models.NotificationChannelV2, title string, content string) error {
 	data := req.Param{
 		"msgtype": "markdown",
 		"markdown": req.Param{
@@ -234,7 +247,7 @@ func sendImDingTalk(ch *models.NotificationChannelV2, title string, content stri
 	return nil
 }
 
-func sendImWechatWork(ch *models.NotificationChannelV2, title string, content string) error {
+func sendIMWechatWork(ch *models.NotificationChannelV2, title string, content string) error {
 	data := req.Param{
 		"msgtype": "markdown",
 		"markdown": req.Param{
@@ -251,7 +264,7 @@ func sendImWechatWork(ch *models.NotificationChannelV2, title string, content st
 	return nil
 }
 
-func sendImTelegram(ch *models.NotificationChannelV2, title string, content string) error {
+func sendIMTelegram(ch *models.NotificationChannelV2, title string, content string) error {
 	type ResBody struct {
 		Ok          bool   `json:"ok"`
 		Description string `json:"description"`
@@ -286,6 +299,58 @@ func sendImTelegram(ch *models.NotificationChannelV2, title string, content stri
 	}
 	if !resBody.Ok {
 		return errors.New(resBody.Description)
+	}
+	return nil
+}
+
+func sendIMDiscord(ch *models.NotificationChannelV2, title string, content string) error {
+	data := req.Param{
+		"embeds": []req.Param{
+			{
+				"title":       title,
+				"description": content,
+			},
+		},
+	}
+	resBody, err := performIMRequest[ResBody](ch.WebhookUrl, data)
+	if err != nil {
+		return err
+	}
+	if resBody.ErrCode != 0 {
+		return errors.New(resBody.ErrMsg)
+	}
+	return nil
+}
+
+func sendIMMSTeams(ch *models.NotificationChannelV2, title string, content string) error {
+	data := req.Param{
+		"type": "message",
+		"attachments": []req.Param{{
+			"contentType": "application/vnd.microsoft.card.adaptive",
+			"contentUrl":  nil,
+			"content": req.Param{
+				"$schema": "https://adaptivecards.io/schemas/adaptive-card.json",
+				"type":    "AdaptiveCard",
+				"version": "1.2",
+				"body": []req.Param{
+					{
+						"type": "TextBlock",
+						"text": title,
+					},
+					{
+						"type": "TextBlock",
+						"text": content,
+					},
+				},
+			},
+		}},
+	}
+	resBody, err := performIMRequest[ResBody](ch.WebhookUrl, data)
+	if err != nil {
+		return err
+	}
+	if resBody.ErrCode != 0 {
+		return errors.New(resBody.ErrMsg)
 	}
 	return nil
 }
