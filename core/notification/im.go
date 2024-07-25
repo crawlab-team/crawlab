@@ -89,12 +89,12 @@ func getIMRequestHeader() req.Header {
 	}
 }
 
-func performIMRequest[T any](webhookUrl string, data req.Param) (resBody T, err error) {
+func performIMRequest(webhookUrl string, data req.Param) (res *req.Resp, err error) {
 	// perform request
-	res, err := req.Post(webhookUrl, getIMRequestHeader(), req.BodyJSON(&data))
+	res, err = req.Post(webhookUrl, getIMRequestHeader(), req.BodyJSON(&data))
 	if err != nil {
 		log.Errorf("IM request error: %v", err)
-		return resBody, err
+		return nil, err
 	}
 
 	// get response
@@ -103,7 +103,16 @@ func performIMRequest[T any](webhookUrl string, data req.Param) (resBody T, err 
 	// check status code
 	if response.StatusCode >= 400 {
 		log.Errorf("IM response status code: %d", res.Response().StatusCode)
-		return resBody, errors.New(fmt.Sprintf("IM error response %d: %s", response.StatusCode, res.String()))
+		return nil, errors.New(fmt.Sprintf("IM error response %d: %s", response.StatusCode, res.String()))
+	}
+
+	return res, nil
+}
+
+func performIMRequestWithJson[T any](webhookUrl string, data req.Param) (resBody T, err error) {
+	res, err := performIMRequest(webhookUrl, data)
+	if err != nil {
+		return resBody, err
 	}
 
 	// parse response
@@ -202,7 +211,7 @@ func sendIMLark(ch *models.NotificationChannelV2, title, content string) error {
 			},
 		},
 	}
-	resBody, err := performIMRequest[ResBody](ch.WebhookUrl, data)
+	resBody, err := performIMRequestWithJson[ResBody](ch.WebhookUrl, data)
 	if err != nil {
 		return err
 	}
@@ -219,7 +228,7 @@ func sendIMSlack(ch *models.NotificationChannelV2, title, content string) error 
 			{"type": "section", "text": req.Param{"type": "mrkdwn", "text": convertMarkdownToSlack(content)}},
 		},
 	}
-	resBody, err := performIMRequest[ResBody](ch.WebhookUrl, data)
+	resBody, err := performIMRequestWithJson[ResBody](ch.WebhookUrl, data)
 	if err != nil {
 		return err
 	}
@@ -237,7 +246,7 @@ func sendIMDingTalk(ch *models.NotificationChannelV2, title string, content stri
 			"text":  fmt.Sprintf("# %s\n\n%s", title, content),
 		},
 	}
-	resBody, err := performIMRequest[ResBody](ch.WebhookUrl, data)
+	resBody, err := performIMRequestWithJson[ResBody](ch.WebhookUrl, data)
 	if err != nil {
 		return err
 	}
@@ -254,7 +263,7 @@ func sendIMWechatWork(ch *models.NotificationChannelV2, title string, content st
 			"content": fmt.Sprintf("# %s\n\n%s", title, content),
 		},
 	}
-	resBody, err := performIMRequest[ResBody](ch.WebhookUrl, data)
+	resBody, err := performIMRequestWithJson[ResBody](ch.WebhookUrl, data)
 	if err != nil {
 		return err
 	}
@@ -293,12 +302,9 @@ func sendIMTelegram(ch *models.NotificationChannelV2, title string, content stri
 	}
 
 	// perform request
-	resBody, err := performIMRequest[ResBody](webhookUrl, data)
+	_, err := performIMRequest(webhookUrl, data)
 	if err != nil {
 		return err
-	}
-	if !resBody.Ok {
-		return errors.New(resBody.Description)
 	}
 	return nil
 }
@@ -312,12 +318,9 @@ func sendIMDiscord(ch *models.NotificationChannelV2, title string, content strin
 			},
 		},
 	}
-	resBody, err := performIMRequest[ResBody](ch.WebhookUrl, data)
+	_, err := performIMRequest(ch.WebhookUrl, data)
 	if err != nil {
 		return err
-	}
-	if resBody.ErrCode != 0 {
-		return errors.New(resBody.ErrMsg)
 	}
 	return nil
 }
@@ -335,7 +338,7 @@ func sendIMMSTeams(ch *models.NotificationChannelV2, title string, content strin
 				"body": []req.Param{
 					{
 						"type": "TextBlock",
-						"text": title,
+						"text": fmt.Sprintf("**%s**", title),
 					},
 					{
 						"type": "TextBlock",
@@ -345,12 +348,9 @@ func sendIMMSTeams(ch *models.NotificationChannelV2, title string, content strin
 			},
 		}},
 	}
-	resBody, err := performIMRequest[ResBody](ch.WebhookUrl, data)
+	_, err := performIMRequest(ch.WebhookUrl, data)
 	if err != nil {
 		return err
-	}
-	if resBody.ErrCode != 0 {
-		return errors.New(resBody.ErrMsg)
 	}
 	return nil
 }
