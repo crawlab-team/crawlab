@@ -7,9 +7,11 @@ type NotificationChannelV2 struct {
 	Name                               string `json:"name" bson:"name"`
 	Description                        string `json:"description" bson:"description"`
 	Provider                           string `json:"provider" bson:"provider"`
-	SMTPServer                         string `json:"smtp_server" bson:"smtp_server"`
-	SMTPPort                           int    `json:"smtp_port" bson:"smtp_port"`
-	SMTPUsername                       string `json:"smtp_username" bson:"smtp_username"`
-	SMTPPassword                       string `json:"smtp_password" bson:"smtp_password"`
-	WebhookUrl                         string `json:"webhook_url" bson:"webhook_url"`
+	SMTPServer                         string `json:"smtp_server,omitempty" bson:"smtp_server,omitempty"`
+	SMTPPort                           int    `json:"smtp_port,omitempty" bson:"smtp_port,omitempty"`
+	SMTPUsername                       string `json:"smtp_username,omitempty" bson:"smtp_username,omitempty"`
+	SMTPPassword                       string `json:"smtp_password,omitempty" bson:"smtp_password,omitempty"`
+	WebhookUrl                         string `json:"webhook_url,omitempty" bson:"webhook_url,omitempty"`
+	TelegramBotToken                   string `json:"telegram_bot_token,omitempty" bson:"telegram_bot_token,omitempty"`
+	TelegramChatId                     string `json:"telegram_chat_id,omitempty" bson:"telegram_chat_id,omitempty"`
 }

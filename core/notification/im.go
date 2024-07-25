@@ -27,6 +27,8 @@ func SendIMNotification(ch *models.NotificationChannelV2, title, content string)
 		return sendImDingTalk(ch, title, content)
 	case ChannelIMProviderWechatWork:
 		return sendImWechatWork(ch, title, content)
+	case ChannelIMProviderTelegram:
+		return sendImTelegram(ch, title, content)
 	}
 
 	// request header
@@ -83,28 +85,27 @@ func getIMRequestHeader() req.Header {
 	}
 }
 
-func performIMRequest(webhookUrl string, data req.Param) error {
+func performIMRequest[T any](webhookUrl string, data req.Param) (resBody T, err error) {
 	// perform request
 	res, err := req.Post(webhookUrl, getIMRequestHeader(), req.BodyJSON(&data))
 	if err != nil {
 		log.Errorf("IM request error: %v", err)
-		return err
+		return resBody, err
 	}
 
 	// parse response
-	var resBody ResBody
 	if err := res.ToJSON(&resBody); err != nil {
-		log.Errorf("Parsing IM response error: %v", err)
-		return err
+		log.Warnf("Parsing IM response error: %v", err)
+		resText, err := res.ToString()
+		if err != nil {
+			log.Warnf("Converting response to string error: %v", err)
+			return resBody, err
+		}
+		log.Infof("IM response: %s", resText)
+		return resBody, nil
 	}
 
-	// validate response code
-	if resBody.ErrCode != 0 {
-		log.Errorf("IM response error: %v", resBody.ErrMsg)
-		return errors.New(resBody.ErrMsg)
-	}
-
-	return nil
+	return resBody, nil
 }
 
 func convertMarkdownToSlack(markdown string) string {
@@ -140,6 +141,36 @@ func convertMarkdownToSlack(markdown string) string {
 	return slack
 }
 
+func convertMarkdownToTelegram(markdownText string) string {
+	// Combined regex to handle bold and italic
+	re := regexp.MustCompile(`(?m)(\*\*)(.*)(\*\*)|(__)(.*)(__)|(\*)(.*)(\*)|(_)(.*)(_)`)
+	markdownText = re.ReplaceAllStringFunc(markdownText, func(match string) string {
+		groups := re.FindStringSubmatch(match)
+		if groups[1] != "" || groups[4] != "" {
+			// Handle bold
+			return "*" + match[2:len(match)-2] + "*"
+		} else if groups[6] != "" || groups[9] != "" {
+			// Handle italic
+			return "_" + match[1:len(match)-1] + "_"
+		} else {
+			// No match
+			return match
+		}
+	})
+
+	// Convert unordered list
+	re = regexp.MustCompile(`(?m)^- (.*)`)
+	markdownText = re.ReplaceAllString(markdownText, "• $1")
+
+	// Escape characters
+	escapeChars := []string{"#", "-", "."}
+	for _, c := range escapeChars {
+		markdownText = strings.ReplaceAll(markdownText, c, "\\"+c)
+	}
+
+	return markdownText
+}
+
 func sendImLark(ch *models.NotificationChannelV2, title, content string) error {
 	data := req.Param{
 		"msg_type": "interactive",
@@ -158,7 +189,14 @@ func sendImLark(ch *models.NotificationChannelV2, title, content string) error {
 			},
 		},
 	}
-	return performIMRequest(ch.WebhookUrl, data)
+	resBody, err := performIMRequest[ResBody](ch.WebhookUrl, data)
+	if err != nil {
+		return err
+	}
+	if resBody.ErrCode != 0 {
+		return errors.New(resBody.ErrMsg)
+	}
+	return nil
 }
 
 func sendImSlack(ch *models.NotificationChannelV2, title, content string) error {
@@ -168,7 +206,14 @@ func sendImSlack(ch *models.NotificationChannelV2, title, content string) error 
 			{"type": "section", "text": req.Param{"type": "mrkdwn", "text": convertMarkdownToSlack(content)}},
 		},
 	}
-	return performIMRequest(ch.WebhookUrl, data)
+	resBody, err := performIMRequest[ResBody](ch.WebhookUrl, data)
+	if err != nil {
+		return err
+	}
+	if resBody.ErrCode != 0 {
+		return errors.New(resBody.ErrMsg)
+	}
+	return nil
 }
 
 func sendImDingTalk(ch *models.NotificationChannelV2, title string, content string) error {
@@ -179,7 +224,14 @@ func sendImDingTalk(ch *models.NotificationChannelV2, title string, content stri
 			"text":  fmt.Sprintf("# %s\n\n%s", title, content),
 		},
 	}
-	return performIMRequest(ch.WebhookUrl, data)
+	resBody, err := performIMRequest[ResBody](ch.WebhookUrl, data)
+	if err != nil {
+		return err
+	}
+	if resBody.ErrCode != 0 {
+		return errors.New(resBody.ErrMsg)
+	}
+	return nil
 }
 
 func sendImWechatWork(ch *models.NotificationChannelV2, title string, content string) error {
@@ -189,5 +241,51 @@ func sendImWechatWork(ch *models.NotificationChannelV2, title string, content st
 			"content": fmt.Sprintf("# %s\n\n%s", title, content),
 		},
 	}
-	return performIMRequest(ch.WebhookUrl, data)
+	resBody, err := performIMRequest[ResBody](ch.WebhookUrl, data)
+	if err != nil {
+		return err
+	}
+	if resBody.ErrCode != 0 {
+		return errors.New(resBody.ErrMsg)
+	}
+	return nil
+}
+
+func sendImTelegram(ch *models.NotificationChannelV2, title string, content string) error {
+	type ResBody struct {
+		Ok          bool   `json:"ok"`
+		Description string `json:"description"`
+	}
+
+	// chat id
+	chatId := ch.TelegramChatId
+	if !strings.HasPrefix("@", ch.TelegramChatId) {
+		chatId = fmt.Sprintf("@%s", ch.TelegramChatId)
+	}
+
+	// webhook url
+	webhookUrl := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", ch.TelegramBotToken)
+
+	// original Markdown text
+	text := fmt.Sprintf("**%s**\n\n%s", title, content)
+
+	// convert to Telegram MarkdownV2
+	text = convertMarkdownToTelegram(text)
+
+	// request data
+	data := req.Param{
+		"chat_id":    chatId,
+		"text":       text,
+		"parse_mode": "MarkdownV2",
+	}
+
+	// perform request
+	resBody, err := performIMRequest[ResBody](webhookUrl, data)
+	if err != nil {
+		return err
+	}
+	if !resBody.Ok {
+		return errors.New(resBody.Description)
+	}
+	return nil
 }
