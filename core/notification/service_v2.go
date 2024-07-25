@@ -38,7 +38,7 @@ func (svc *ServiceV2) Send(s *models.NotificationSettingV2, args ...any) {
 			case TypeMail:
 				svc.SendMail(s, ch, title, content)
 			case TypeIM:
-				svc.SendIM(ch, title, content)
+				svc.SendIM(s, ch, title, content)
 			}
 		}(chId)
 	}
@@ -56,13 +56,15 @@ func (svc *ServiceV2) SendMail(s *models.NotificationSettingV2, ch *models.Notif
 	if err != nil {
 		log.Errorf("[NotificationServiceV2] send mail error: %v", err)
 	}
+	go svc.saveRequest(s, ch, title, content, err)
 }
 
-func (svc *ServiceV2) SendIM(ch *models.NotificationChannelV2, title, content string) {
+func (svc *ServiceV2) SendIM(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, title, content string) {
 	err := SendIMNotification(ch, title, content)
 	if err != nil {
 		log.Errorf("[NotificationServiceV2] send mobile notification error: %v", err)
 	}
+	go svc.saveRequest(s, ch, title, content, err)
 }
 
 func (svc *ServiceV2) getContent(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, args ...any) (content string) {
@@ -358,6 +360,29 @@ func (svc *ServiceV2) SendNodeNotification(node *models.NodeV2) {
 				go svc.Send(&s, args...)
 			}
 		}
+	}
+}
+
+func (svc *ServiceV2) saveRequest(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, title, content string, err error) {
+	status := StatusSuccess
+	errMsg := ""
+	if err != nil {
+		status = StatusError
+		errMsg = err.Error()
+	}
+	r := models.NotificationRequestV2{
+		Status:    status,
+		Error:     errMsg,
+		SettingId: s.Id,
+		ChannelId: ch.Id,
+		Title:     title,
+		Content:   content,
+	}
+	r.SetCreatedAt(time.Now())
+	r.SetUpdatedAt(time.Now())
+	_, err = service.NewModelServiceV2[models.NotificationRequestV2]().InsertOne(r)
+	if err != nil {
+		log.Errorf("[NotificationServiceV2] save request error: %v", err)
 	}
 }
 

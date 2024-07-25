@@ -177,4 +177,29 @@ func CreateIndexesV2() {
 			},
 		},
 	})
+
+	// notification requests
+	mongo.GetMongoCol(service.GetCollectionNameByInstance(models2.NotificationRequestV2{})).MustCreateIndexes([]mongo2.IndexModel{
+		{
+			Keys: bson.D{
+				{"created_ts", -1},
+			},
+			Options: (&options.IndexOptions{}).SetExpireAfterSeconds(60 * 60 * 24 * 7),
+		},
+		{
+			Keys: bson.D{
+				{"channel_id", 1},
+			},
+		},
+		{
+			Keys: bson.D{
+				{"setting_id", 1},
+			},
+		},
+		{
+			Keys: bson.D{
+				{"status", 1},
+			},
+		},
+	})
 }

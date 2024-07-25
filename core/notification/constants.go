@@ -24,3 +24,8 @@ const (
 	ChannelIMProviderDingtalk   = "dingtalk"    // https://open.dingtalk.com/document/orgapp/custom-robot-access
 	ChannelIMProviderLark       = "lark"        // https://www.larksuite.com/hc/en-US/articles/099698615114-use-webhook-triggers
 )
+
+const (
+	StatusSuccess = "success"
+	StatusError   = "error"
+)

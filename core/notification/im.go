@@ -17,16 +17,15 @@ type ResBody struct {
 }
 
 func SendIMNotification(ch *models.NotificationChannelV2, title, content string) error {
-	// TODO: compatibility with different IM providers
 	switch ch.Provider {
 	case ChannelIMProviderLark:
 		return sendIMLark(ch, title, content)
-	case ChannelIMProviderSlack:
-		return sendIMSlack(ch, title, content)
 	case ChannelIMProviderDingtalk:
 		return sendIMDingTalk(ch, title, content)
 	case ChannelIMProviderWechatWork:
 		return sendIMWechatWork(ch, title, content)
+	case ChannelIMProviderSlack:
+		return sendIMSlack(ch, title, content)
 	case ChannelIMProviderTelegram:
 		return sendIMTelegram(ch, title, content)
 	case ChannelIMProviderDiscord:
@@ -221,23 +220,6 @@ func sendIMLark(ch *models.NotificationChannelV2, title, content string) error {
 	return nil
 }
 
-func sendIMSlack(ch *models.NotificationChannelV2, title, content string) error {
-	data := req.Param{
-		"blocks": []req.Param{
-			{"type": "header", "text": req.Param{"type": "plain_text", "text": title}},
-			{"type": "section", "text": req.Param{"type": "mrkdwn", "text": convertMarkdownToSlack(content)}},
-		},
-	}
-	resBody, err := performIMRequestWithJson[ResBody](ch.WebhookUrl, data)
-	if err != nil {
-		return err
-	}
-	if resBody.ErrCode != 0 {
-		return errors.New(resBody.ErrMsg)
-	}
-	return nil
-}
-
 func sendIMDingTalk(ch *models.NotificationChannelV2, title string, content string) error {
 	data := req.Param{
 		"msgtype": "markdown",
@@ -269,6 +251,20 @@ func sendIMWechatWork(ch *models.NotificationChannelV2, title string, content st
 	}
 	if resBody.ErrCode != 0 {
 		return errors.New(resBody.ErrMsg)
+	}
+	return nil
+}
+
+func sendIMSlack(ch *models.NotificationChannelV2, title, content string) error {
+	data := req.Param{
+		"blocks": []req.Param{
+			{"type": "header", "text": req.Param{"type": "plain_text", "text": title}},
+			{"type": "section", "text": req.Param{"type": "mrkdwn", "text": convertMarkdownToSlack(content)}},
+		},
+	}
+	_, err := performIMRequest(ch.WebhookUrl, data)
+	if err != nil {
+		return err
 	}
 	return nil
 }
