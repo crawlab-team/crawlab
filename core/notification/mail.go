@@ -13,6 +13,20 @@ import (
 )
 
 func SendMail(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, to, cc, bcc, title, content string) error {
+	// compatibility for different providers
+	var auth *XOAuth2Auth
+	if ch.Provider == ChannelMailProviderOutlook {
+		token, err := getOutlookToken(ch.OutlookTenantId, ch.OutlookClientId, ch.OutlookClientSecret)
+		if err != nil {
+			log.Errorf("failed to get outlook token: %v", err)
+			return err
+		}
+		auth = &XOAuth2Auth{
+			Username: ch.SMTPUsername,
+			Token:    token,
+		}
+	}
+
 	// config
 	smtpConfig := smtpAuthentication{
 		Server:         ch.SMTPServer,
@@ -42,7 +56,7 @@ func SendMail(s *models.NotificationSettingV2, ch *models.NotificationChannelV2,
 	}
 
 	// send the email
-	if err := send(smtpConfig, options, content, text); err != nil {
+	if err := sendMail(smtpConfig, options, content, text, auth); err != nil {
 		log.Errorf("failed to send email: %v", err)
 		trace.PrintError(err)
 		return err
@@ -84,7 +98,7 @@ type sendOptions struct {
 }
 
 // send email
-func send(smtpConfig smtpAuthentication, options sendOptions, htmlBody string, txtBody string) error {
+func sendMail(smtpConfig smtpAuthentication, options sendOptions, htmlBody string, txtBody string, auth *XOAuth2Auth) error {
 	if smtpConfig.Server == "" {
 		return errors.New("SMTP server config is empty")
 	}
@@ -132,6 +146,9 @@ func send(smtpConfig smtpAuthentication, options sendOptions, htmlBody string, t
 	m.AddAlternative("text/html", htmlBody)
 
 	d := gomail.NewDialer(smtpConfig.Server, smtpConfig.Port, smtpConfig.SMTPUser, smtpConfig.SMTPPassword)
+	if auth != nil {
+		d.Auth = auth
+	}
 
 	return d.DialAndSend(m)
 }
