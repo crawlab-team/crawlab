@@ -21,12 +21,11 @@ type NotificationSettingV2 struct {
 	TriggerTarget string `json:"trigger_target" bson:"trigger_target"`
 	Trigger       string `json:"trigger" bson:"trigger"`
 
-	HasMail     bool   `json:"has_mail" bson:"has_mail"`
-	SenderEmail string `json:"sender_email" bson:"sender_email"`
-	SenderName  string `json:"sender_name" bson:"sender_name"`
-	MailTo      string `json:"mail_to" bson:"mail_to"`
-	MailCc      string `json:"mail_cc" bson:"mail_cc"`
-	MailBcc     string `json:"mail_bcc" bson:"mail_bcc"`
+	SenderEmail string `json:"sender_email,omitempty" bson:"sender_email,omitempty"`
+	SenderName  string `json:"sender_name,omitempty" bson:"sender_name,omitempty"`
+	MailTo      string `json:"mail_to" bson:"mail_to,omitempty"`
+	MailCc      string `json:"mail_cc,omitempty" bson:"mail_cc,omitempty"`
+	MailBcc     string `json:"mail_bcc,omitempty" bson:"mail_bcc,omitempty"`
 
 	ChannelIds []primitive.ObjectID    `json:"channel_ids,omitempty" bson:"channel_ids,omitempty"`
 	Channels   []NotificationChannelV2 `json:"channels,omitempty" bson:"-"`

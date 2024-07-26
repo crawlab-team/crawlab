@@ -26,6 +26,7 @@ const (
 )
 
 const (
+	StatusSending = "sending"
 	StatusSuccess = "success"
 	StatusError   = "error"
 )

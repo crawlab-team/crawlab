@@ -51,20 +51,31 @@ func (svc *ServiceV2) SendMail(s *models.NotificationSettingV2, ch *models.Notif
 	mailCc := s.MailCc
 	mailBcc := s.MailBcc
 
+	// request
+	r, _ := svc.createRequest(s, ch, title, content)
+
 	// send mail
 	err := SendMail(s, ch, mailTo, mailCc, mailBcc, title, content)
 	if err != nil {
 		log.Errorf("[NotificationServiceV2] send mail error: %v", err)
 	}
-	go svc.saveRequest(s, ch, title, content, err)
+
+	// save request
+	go svc.saveRequest(r, err)
 }
 
 func (svc *ServiceV2) SendIM(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, title, content string) {
+	// request
+	r, _ := svc.createRequest(s, ch, title, content)
+
+	// send mobile notification
 	err := SendIMNotification(ch, title, content)
 	if err != nil {
 		log.Errorf("[NotificationServiceV2] send mobile notification error: %v", err)
 	}
-	go svc.saveRequest(s, ch, title, content, err)
+
+	// save request
+	go svc.saveRequest(r, err)
 }
 
 func (svc *ServiceV2) getContent(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, args ...any) (content string) {
@@ -363,24 +374,42 @@ func (svc *ServiceV2) SendNodeNotification(node *models.NodeV2) {
 	}
 }
 
-func (svc *ServiceV2) saveRequest(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, title, content string, err error) {
-	status := StatusSuccess
-	errMsg := ""
-	if err != nil {
-		status = StatusError
-		errMsg = err.Error()
-	}
+func (svc *ServiceV2) createRequest(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, title, content string) (res *models.NotificationRequestV2, err error) {
 	r := models.NotificationRequestV2{
-		Status:    status,
-		Error:     errMsg,
-		SettingId: s.Id,
-		ChannelId: ch.Id,
-		Title:     title,
-		Content:   content,
+		Status:      StatusSending,
+		SettingId:   s.Id,
+		ChannelId:   ch.Id,
+		Title:       title,
+		Content:     content,
+		SenderEmail: s.SenderEmail,
+		SenderName:  s.SenderName,
+		MailTo:      s.MailTo,
+		MailCc:      s.MailCc,
+		MailBcc:     s.MailBcc,
 	}
 	r.SetCreatedAt(time.Now())
 	r.SetUpdatedAt(time.Now())
-	_, err = service.NewModelServiceV2[models.NotificationRequestV2]().InsertOne(r)
+	r.Id, err = service.NewModelServiceV2[models.NotificationRequestV2]().InsertOne(r)
+	if err != nil {
+		log.Errorf("[NotificationServiceV2] save request error: %v", err)
+		return nil, err
+	}
+	return &r, nil
+}
+
+func (svc *ServiceV2) saveRequest(r *models.NotificationRequestV2, err error) {
+	if r == nil {
+		return
+	}
+
+	if err != nil {
+		r.Status = StatusError
+		r.Error = err.Error()
+	} else {
+		r.Status = StatusSuccess
+	}
+	r.SetUpdatedAt(time.Now())
+	err = service.NewModelServiceV2[models.NotificationRequestV2]().ReplaceById(r.Id, *r)
 	if err != nil {
 		log.Errorf("[NotificationServiceV2] save request error: %v", err)
 	}
