@@ -335,6 +335,7 @@ func sendIMMSTeams(ch *models.NotificationChannelV2, title string, content strin
 					{
 						"type": "TextBlock",
 						"text": fmt.Sprintf("**%s**", title),
+						"size": "Large",
 					},
 					{
 						"type": "TextBlock",
