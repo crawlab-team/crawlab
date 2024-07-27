@@ -46,7 +46,6 @@ func (svc *ServiceV2) Send(s *models.NotificationSettingV2, args ...any) {
 }
 
 func (svc *ServiceV2) SendMail(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, title, content string) {
-	// TODO: parse to/cc/bcc
 	mailTo := s.MailTo
 	mailCc := s.MailCc
 	mailBcc := s.MailBcc
@@ -375,13 +374,17 @@ func (svc *ServiceV2) SendNodeNotification(node *models.NodeV2) {
 }
 
 func (svc *ServiceV2) createRequest(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, title, content string) (res *models.NotificationRequestV2, err error) {
+	senderEmail := ch.SMTPUsername
+	if s.UseCustomSenderEmail {
+		senderEmail = s.SenderEmail
+	}
 	r := models.NotificationRequestV2{
 		Status:      StatusSending,
 		SettingId:   s.Id,
 		ChannelId:   ch.Id,
 		Title:       title,
 		Content:     content,
-		SenderEmail: s.SenderEmail,
+		SenderEmail: senderEmail,
 		SenderName:  s.SenderName,
 		MailTo:      s.MailTo,
 		MailCc:      s.MailCc,
