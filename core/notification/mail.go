@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func SendMail(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, to, cc, bcc, title, content string) error {
+func SendMail(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, to, cc, bcc []string, title, content string) error {
 	// compatibility for different providers
 	var auth *XOAuth2Auth
 	if ch.Provider == ChannelMailProviderOutlook {
@@ -92,9 +92,9 @@ type smtpAuthentication struct {
 // sendOptions are options for sending an email
 type sendOptions struct {
 	Subject string
-	To      string
-	Cc      string
-	Bcc     string
+	To      []string
+	Cc      []string
+	Bcc     []string
 }
 
 // send email
@@ -111,7 +111,7 @@ func sendMail(smtpConfig smtpAuthentication, options sendOptions, htmlBody strin
 		return errors.New("SMTP user is empty")
 	}
 
-	if options.To == "" {
+	if len(options.To) == 0 {
 		return errors.New("no receiver emails configured")
 	}
 
@@ -120,26 +120,15 @@ func sendMail(smtpConfig smtpAuthentication, options sendOptions, htmlBody strin
 		Address: smtpConfig.SenderEmail,
 	}
 
-	var toList []string
-	if strings.Contains(options.To, ";") {
-		toList = strings.Split(options.To, ";")
-		// trim space
-		for i, to := range toList {
-			toList[i] = strings.TrimSpace(to)
-		}
-	} else {
-		toList = []string{options.To}
-	}
-
 	m := gomail.NewMessage()
 	m.SetHeader("From", from.String())
-	m.SetHeader("To", getRecipientList(options.To)...)
+	m.SetHeader("To", options.To...)
 	m.SetHeader("Subject", options.Subject)
-	if options.Cc != "" {
-		m.SetHeader("Cc", getRecipientList(options.Cc)...)
+	if len(options.Cc) > 0 {
+		m.SetHeader("Cc", options.Cc...)
 	}
-	if options.Bcc != "" {
-		m.SetHeader("Bcc", getRecipientList(options.Bcc)...)
+	if len(options.Bcc) > 0 {
+		m.SetHeader("Bcc", options.Bcc...)
 	}
 
 	m.SetBody("text/plain", txtBody)
@@ -151,17 +140,4 @@ func sendMail(smtpConfig smtpAuthentication, options sendOptions, htmlBody strin
 	}
 
 	return d.DialAndSend(m)
-}
-
-func getRecipientList(value string) (values []string) {
-	if strings.Contains(value, ";") {
-		values = strings.Split(value, ";")
-		// trim space
-		for i, v := range values {
-			values[i] = strings.TrimSpace(v)
-		}
-	} else {
-		values = []string{value}
-	}
-	return values
 }
