@@ -30,4 +30,6 @@ type NotificationSettingV2 struct {
 
 	ChannelIds []primitive.ObjectID    `json:"channel_ids,omitempty" bson:"channel_ids,omitempty"`
 	Channels   []NotificationChannelV2 `json:"channels,omitempty" bson:"-"`
+
+	AlertId primitive.ObjectID `json:"alert_id,omitempty" bson:"alert_id,omitempty"`
 }
