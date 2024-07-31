@@ -1,8 +1,8 @@
 package constants
 
 const (
-	NotificationTriggerTargetTask = "task"
-	NotificationTriggerTargetNode = "node"
+	NotificationTriggerPatternTask = "^task"
+	NotificationTriggerPatternNode = "^node"
 )
 
 const (
@@ -12,6 +12,7 @@ const (
 	NotificationTriggerNodeStatusChange = "node_status_change"
 	NotificationTriggerNodeOnline       = "node_online"
 	NotificationTriggerNodeOffline      = "node_offline"
+	NotificationTriggerAlert            = "alert"
 )
 
 const (

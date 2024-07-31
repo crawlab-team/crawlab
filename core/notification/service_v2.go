@@ -264,6 +264,43 @@ func (svc *ServiceV2) geContentWithVariables(template string, variables []entity
 			case "updated_by":
 				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Schedule.UpdatedBy))
 			}
+
+		case "alert":
+			switch v.Name {
+			case "id":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Alert.Id.Hex())
+			case "name":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Alert.Name)
+			case "description":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Alert.Description)
+			case "enabled":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%t", vd.Alert.Enabled))
+			case "metric_name":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Alert.MetricName)
+			case "operator":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Alert.Operator)
+			case "lasting_seconds":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Alert.LastingSeconds))
+			case "target_value":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTargetValue(vd.Alert))
+			case "level":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Alert.Level)
+			}
+
+		case "metric":
+			if vd.Metric == nil {
+				content = strings.ReplaceAll(content, v.GetKey(), "N/A")
+				continue
+			}
+			switch v.Name {
+			case "type":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Metric.Type)
+			case "node_id":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Metric.NodeId.Hex())
+			default:
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedMetricValue(v.Name, vd.Metric))
+			}
+
 		}
 	}
 	return content
@@ -282,6 +319,10 @@ func (svc *ServiceV2) getVariableData(args ...any) (vd VariableData) {
 			vd.Node = arg.(*models.NodeV2)
 		case *models.ScheduleV2:
 			vd.Schedule = arg.(*models.ScheduleV2)
+		case *models.NotificationAlertV2:
+			vd.Alert = arg.(*models.NotificationAlertV2)
+		case *models.MetricV2:
+			vd.Metric = arg.(*models.MetricV2)
 		}
 	}
 	return vd
@@ -336,6 +377,53 @@ func (svc *ServiceV2) getFormattedTime(t time.Time) (res string) {
 	return t.Local().Format(time.DateTime)
 }
 
+func (svc *ServiceV2) getFormattedTargetValue(a *models.NotificationAlertV2) (res string) {
+	if strings.HasSuffix(a.MetricName, "_percent") {
+		return fmt.Sprintf("%.2f%%", a.TargetValue)
+	} else if strings.HasSuffix(a.MetricName, "_memory") {
+		return fmt.Sprintf("%dMB", int(a.TargetValue/(1024*1024)))
+	} else if strings.HasSuffix(a.MetricName, "_disk") {
+		return fmt.Sprintf("%dGB", int(a.TargetValue/(1024*1024*1024)))
+	} else if strings.HasSuffix(a.MetricName, "_rate") {
+		return fmt.Sprintf("%.2fMB/s", a.TargetValue/(1024*1024))
+	} else {
+		return fmt.Sprintf("%f", a.TargetValue)
+	}
+}
+
+func (svc *ServiceV2) getFormattedMetricValue(metricName string, m *models.MetricV2) (res string) {
+	switch metricName {
+	case "cpu_usage_percent":
+		return fmt.Sprintf("%.2f%%", m.CpuUsagePercent)
+	case "total_memory":
+		return fmt.Sprintf("%dMB", m.TotalMemory/(1024*1024))
+	case "available_memory":
+		return fmt.Sprintf("%dMB", m.AvailableMemory/(1024*1024))
+	case "used_memory":
+		return fmt.Sprintf("%dMB", m.UsedMemory/(1024*1024))
+	case "used_memory_percent":
+		return fmt.Sprintf("%.2f%%", m.UsedMemoryPercent)
+	case "total_disk":
+		return fmt.Sprintf("%dGB", m.TotalDisk/(1024*1024*1024))
+	case "available_disk":
+		return fmt.Sprintf("%dGB", m.AvailableDisk/(1024*1024*1024))
+	case "used_disk":
+		return fmt.Sprintf("%dGB", m.UsedDisk/(1024*1024*1024))
+	case "used_disk_percent":
+		return fmt.Sprintf("%.2f%%", m.UsedDiskPercent)
+	case "disk_read_bytes_rate":
+		return fmt.Sprintf("%.2fMB/s", m.DiskReadBytesRate/(1024*1024))
+	case "disk_write_bytes_rate":
+		return fmt.Sprintf("%.2fMB/s", m.DiskWriteBytesRate/(1024*1024))
+	case "network_bytes_sent_rate":
+		return fmt.Sprintf("%.2fMB/s", m.NetworkBytesSentRate/(1024*1024))
+	case "network_bytes_recv_rate":
+		return fmt.Sprintf("%.2fMB/s", m.NetworkBytesRecvRate/(1024*1024))
+	default:
+		return "N/A"
+	}
+}
+
 func (svc *ServiceV2) convertMarkdownToHtml(content string) (html string) {
 	return string(markdown.ToHTML([]byte(content), nil, nil))
 }
@@ -347,8 +435,10 @@ func (svc *ServiceV2) SendNodeNotification(node *models.NodeV2) {
 
 	// settings
 	settings, err := service.NewModelServiceV2[models.NotificationSettingV2]().GetMany(bson.M{
-		"enabled":        true,
-		"trigger_target": constants.NotificationTriggerTargetNode,
+		"enabled": true,
+		"trigger": bson.M{
+			"$regex": constants.NotificationTriggerPatternNode,
+		},
 	}, nil)
 	if err != nil {
 		log.Errorf("get notification settings error: %v", err)

@@ -168,8 +168,10 @@ func (svr TaskServerV2) SendNotification(_ context.Context, request *grpc.TaskSe
 
 	// settings
 	settings, err := service.NewModelServiceV2[models2.NotificationSettingV2]().GetMany(bson.M{
-		"enabled":        true,
-		"trigger_target": constants.NotificationTriggerTargetTask,
+		"enabled": true,
+		"trigger": bson.M{
+			"$regex": constants.NotificationTriggerPatternTask,
+		},
 	}, nil)
 	if err != nil {
 		return nil, trace.TraceError(err)

@@ -17,9 +17,8 @@ type NotificationSettingV2 struct {
 	TemplateRichTextJson string `json:"template_rich_text_json,omitempty" bson:"template_rich_text_json,omitempty"`
 	TemplateTheme        string `json:"template_theme,omitempty" bson:"template_theme,omitempty"`
 
-	TaskTrigger   string `json:"task_trigger" bson:"task_trigger"`
-	TriggerTarget string `json:"trigger_target" bson:"trigger_target"`
-	Trigger       string `json:"trigger" bson:"trigger"`
+	TaskTrigger string `json:"task_trigger" bson:"task_trigger"`
+	Trigger     string `json:"trigger" bson:"trigger"`
 
 	SenderEmail          string   `json:"sender_email,omitempty" bson:"sender_email,omitempty"`
 	UseCustomSenderEmail bool     `json:"use_custom_sender_email,omitempty" bson:"use_custom_sender_email,omitempty"`

@@ -15,4 +15,5 @@ type NotificationAlertV2 struct {
 	LastingSeconds                   int                `json:"lasting_seconds" bson:"lasting_seconds"`
 	TargetValue                      float32            `json:"target_value" bson:"target_value"`
 	Level                            string             `json:"level" bson:"level"`
+	TemplateKey                      string             `json:"template_key,omitempty" bson:"template_key,omitempty"`
 }
