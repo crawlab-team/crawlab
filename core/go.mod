@@ -15,11 +15,11 @@ require (
 	github.com/ReneKroon/ttlcache v1.7.0
 	github.com/apex/log v1.9.0
 	github.com/cenkalti/backoff/v4 v4.3.0
-	github.com/crawlab-team/crawlab/db v0.0.0-20240701075920-023ba275664a
-	github.com/crawlab-team/crawlab/fs v0.0.0-20240701075920-023ba275664a
-	github.com/crawlab-team/crawlab/grpc v0.0.0-20240701075920-023ba275664a
-	github.com/crawlab-team/crawlab/trace v0.0.0-20240701075920-023ba275664a
-	github.com/crawlab-team/crawlab/vcs v0.0.0-20240701075920-023ba275664a
+	github.com/crawlab-team/crawlab/db v0.0.0-20240731075841-7fe770ae9d15
+	github.com/crawlab-team/crawlab/fs v0.0.0-20240731075841-7fe770ae9d15
+	github.com/crawlab-team/crawlab/grpc v0.0.0-20240731075841-7fe770ae9d15
+	github.com/crawlab-team/crawlab/trace v0.0.0-20240731075841-7fe770ae9d15
+	github.com/crawlab-team/crawlab/vcs v0.0.0-20240731075841-7fe770ae9d15
 	github.com/elastic/go-elasticsearch/v8 v8.14.0
 	github.com/emirpasic/gods v1.18.1
 	github.com/fsnotify/fsnotify v1.7.0
@@ -87,7 +87,6 @@ require (
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/s2a-go v0.1.8 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
@@ -163,7 +162,6 @@ require (
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240711142825-46eb208f015d // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240725223205-93522f1f2a9f // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
