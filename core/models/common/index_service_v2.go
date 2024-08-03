@@ -68,7 +68,7 @@ func CreateIndexesV2() {
 
 	// settings
 	mongo.GetMongoCol(service.GetCollectionNameByInstance(models2.SettingV2{})).MustCreateIndexes([]mongo2.IndexModel{
-		{Keys: bson.M{"key": 1}},
+		{Keys: bson.D{{"key", 1}}, Options: options.Index().SetUnique(true)},
 	})
 
 	// tokens

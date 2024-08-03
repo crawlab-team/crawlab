@@ -25,7 +25,7 @@ func (svc *Service) Init() (err error) {
 
 func (svc *Service) initData() (err error) {
 	total, err := svc.col.Count(bson.M{
-		"key": "site_title",
+		"key": "customize",
 	})
 	if err != nil {
 		return err
@@ -38,10 +38,13 @@ func (svc *Service) initData() (err error) {
 	settings := []models.Setting{
 		{
 			Id:  primitive.NewObjectID(),
-			Key: "site_title",
+			Key: "customize",
 			Value: bson.M{
-				"customize_site_title": false,
-				"site_title":           "",
+				"show_custom_title":     false,
+				"custom_title":          "",
+				"show_custom_logo":      false,
+				"custom_logo":           "",
+				"hide_platform_version": false,
 			},
 		},
 	}

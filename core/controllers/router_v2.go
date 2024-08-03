@@ -327,6 +327,11 @@ func InitRoutes(app *gin.Engine) (err error) {
 			HandlerFunc: GetSetting,
 		},
 		{
+			Method:      http.MethodPost,
+			Path:        "/:id",
+			HandlerFunc: PostSetting,
+		},
+		{
 			Method:      http.MethodPut,
 			Path:        "/:id",
 			HandlerFunc: PutSetting,
