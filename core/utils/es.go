@@ -84,13 +84,13 @@ func getElasticsearchClient(ctx context.Context, ds *models.DataSource) (c *elas
 	return c, err
 }
 
-func GetElasticsearchClientWithTimeoutV2(ds *models2.DataSourceV2, timeout time.Duration) (c *elasticsearch.Client, err error) {
+func GetElasticsearchClientWithTimeoutV2(ds *models2.DatabaseV2, timeout time.Duration) (c *elasticsearch.Client, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	return getElasticsearchClientV2(ctx, ds)
 }
 
-func getElasticsearchClientV2(ctx context.Context, ds *models2.DataSourceV2) (c *elasticsearch.Client, err error) {
+func getElasticsearchClientV2(ctx context.Context, ds *models2.DatabaseV2) (c *elasticsearch.Client, err error) {
 	// normalize settings
 	host := ds.Host
 	port := ds.Port

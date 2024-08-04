@@ -51,7 +51,7 @@ func (svc *ServiceV2) Stop() {
 }
 
 func (svc *ServiceV2) ChangePassword(id primitive.ObjectID, password string, by primitive.ObjectID) (err error) {
-	dataSource, err := service.NewModelServiceV2[models.DataSourceV2]().GetById(id)
+	dataSource, err := service.NewModelServiceV2[models.DatabaseV2]().GetById(id)
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func (svc *ServiceV2) ChangePassword(id primitive.ObjectID, password string, by 
 		return err
 	}
 	dataSource.SetUpdated(by)
-	err = service.NewModelServiceV2[models.DataSourceV2]().ReplaceById(id, *dataSource)
+	err = service.NewModelServiceV2[models.DatabaseV2]().ReplaceById(id, *dataSource)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (svc *ServiceV2) Monitor() {
 }
 
 func (svc *ServiceV2) CheckStatus(id primitive.ObjectID) (err error) {
-	ds, err := service.NewModelServiceV2[models.DataSourceV2]().GetById(id)
+	ds, err := service.NewModelServiceV2[models.DatabaseV2]().GetById(id)
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func (svc *ServiceV2) monitor() (err error) {
 	log.Debugf("[DataSourceService] start monitoring")
 
 	// data source list
-	dataSources, err := service.NewModelServiceV2[models.DataSourceV2]().GetMany(nil, nil)
+	dataSources, err := service.NewModelServiceV2[models.DatabaseV2]().GetMany(nil, nil)
 	if err != nil {
 		return err
 	}
@@ -118,7 +118,7 @@ func (svc *ServiceV2) monitor() (err error) {
 	// iterate data source list
 	for _, ds := range dataSources {
 		// async operation
-		go func(ds *models.DataSourceV2) {
+		go func(ds *models.DatabaseV2) {
 			// check status and save
 			_ = svc.checkStatus(ds, true)
 
@@ -137,7 +137,7 @@ func (svc *ServiceV2) monitor() (err error) {
 	return nil
 }
 
-func (svc *ServiceV2) checkStatus(ds *models.DataSourceV2, save bool) (err error) {
+func (svc *ServiceV2) checkStatus(ds *models.DatabaseV2, save bool) (err error) {
 	// check status
 	if err := svc._checkStatus(ds); err != nil {
 		ds.Status = constants2.DataSourceStatusOffline
@@ -155,12 +155,12 @@ func (svc *ServiceV2) checkStatus(ds *models.DataSourceV2, save bool) (err error
 	return nil
 }
 
-func (svc *ServiceV2) _save(ds *models.DataSourceV2) (err error) {
+func (svc *ServiceV2) _save(ds *models.DatabaseV2) (err error) {
 	log.Debugf("[DataSourceService] saving data source: name=%s, type=%s, status=%s, error=%s", ds.Name, ds.Type, ds.Status, ds.Error)
-	return service.NewModelServiceV2[models.DataSourceV2]().ReplaceById(ds.Id, *ds)
+	return service.NewModelServiceV2[models.DatabaseV2]().ReplaceById(ds.Id, *ds)
 }
 
-func (svc *ServiceV2) _checkStatus(ds *models.DataSourceV2) (err error) {
+func (svc *ServiceV2) _checkStatus(ds *models.DatabaseV2) (err error) {
 	switch ds.Type {
 	case constants.DataSourceTypeMongo:
 		_, err := utils2.GetMongoClientWithTimeoutV2(ds, svc.timeout)

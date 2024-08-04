@@ -699,7 +699,7 @@ func GetSpiderDataSource(c *gin.Context) {
 	}
 
 	// data source
-	ds, err := service.NewModelServiceV2[models2.DataSourceV2]().GetById(s.DataSourceId)
+	ds, err := service.NewModelServiceV2[models2.DatabaseV2]().GetById(s.DataSourceId)
 	if err != nil {
 		if err.Error() == mongo2.ErrNoDocuments.Error() {
 			HandleSuccess(c)
@@ -736,7 +736,7 @@ func PostSpiderDataSource(c *gin.Context) {
 
 	// data source
 	if !dsId.IsZero() {
-		_, err = service.NewModelServiceV2[models2.DataSourceV2]().GetById(dsId)
+		_, err = service.NewModelServiceV2[models2.DatabaseV2]().GetById(dsId)
 		if err != nil {
 			HandleErrorInternalServerError(c, err)
 			return

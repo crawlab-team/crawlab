@@ -82,7 +82,7 @@ func CreateIndexesV2() {
 	})
 
 	// data sources
-	mongo.GetMongoCol(service.GetCollectionNameByInstance(models2.DataSourceV2{})).MustCreateIndexes([]mongo2.IndexModel{
+	mongo.GetMongoCol(service.GetCollectionNameByInstance(models2.DatabaseV2{})).MustCreateIndexes([]mongo2.IndexModel{
 		{Keys: bson.M{"name": 1}},
 	})
 

@@ -39,10 +39,10 @@ func GetResultList(c *gin.Context) {
 	}
 
 	// data source
-	ds, err := service.NewModelServiceV2[models2.DataSourceV2]().GetById(dsId)
+	ds, err := service.NewModelServiceV2[models2.DatabaseV2]().GetById(dsId)
 	if err != nil {
 		if err.Error() == mongo2.ErrNoDocuments.Error() {
-			ds = &models2.DataSourceV2{}
+			ds = &models2.DatabaseV2{}
 		} else {
 			HandleErrorInternalServerError(c, err)
 			return

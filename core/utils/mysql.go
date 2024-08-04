@@ -60,13 +60,13 @@ func getMysqlSession(ctx context.Context, ds *models.DataSource) (s db.Session, 
 	return s, err
 }
 
-func GetMysqlSessionWithTimeoutV2(ds *models2.DataSourceV2, timeout time.Duration) (s db.Session, err error) {
+func GetMysqlSessionWithTimeoutV2(ds *models2.DatabaseV2, timeout time.Duration) (s db.Session, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	return getMysqlSessionV2(ctx, ds)
 }
 
-func getMysqlSessionV2(ctx context.Context, ds *models2.DataSourceV2) (s db.Session, err error) {
+func getMysqlSessionV2(ctx context.Context, ds *models2.DatabaseV2) (s db.Session, err error) {
 	// normalize settings
 	host := ds.Host
 	port := ds.Port

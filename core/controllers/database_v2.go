@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func PostDataSource(c *gin.Context) {
+func PostDatabase(c *gin.Context) {
 	// data source
 	var payload struct {
 		Name        string            `json:"name"`
@@ -35,7 +35,7 @@ func PostDataSource(c *gin.Context) {
 	u := GetUserFromContextV2(c)
 
 	// add data source to db
-	dataSource := models.DataSourceV2{
+	dataSource := models.DatabaseV2{
 		Name:        payload.Name,
 		Type:        payload.Type,
 		Description: payload.Description,
@@ -53,7 +53,7 @@ func PostDataSource(c *gin.Context) {
 	}
 	dataSource.SetCreated(u.Id)
 	dataSource.SetUpdated(u.Id)
-	id, err := service.NewModelServiceV2[models.DataSourceV2]().InsertOne(dataSource)
+	id, err := service.NewModelServiceV2[models.DatabaseV2]().InsertOne(dataSource)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -68,7 +68,7 @@ func PostDataSource(c *gin.Context) {
 	HandleSuccessWithData(c, dataSource)
 }
 
-func PutDataSourceById(c *gin.Context) {
+func PutDatabaseById(c *gin.Context) {
 	id, err := primitive.ObjectIDFromHex(c.Param("id"))
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
@@ -76,13 +76,13 @@ func PutDataSourceById(c *gin.Context) {
 	}
 
 	// data source
-	var dataSource models.DataSourceV2
+	var dataSource models.DatabaseV2
 	if err := c.ShouldBindJSON(&dataSource); err != nil {
 		HandleErrorBadRequest(c, err)
 		return
 	}
 
-	err = service.NewModelServiceV2[models.DataSourceV2]().ReplaceById(id, dataSource)
+	err = service.NewModelServiceV2[models.DatabaseV2]().ReplaceById(id, dataSource)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -94,7 +94,7 @@ func PutDataSourceById(c *gin.Context) {
 	}()
 }
 
-func PostDataSourceChangePassword(c *gin.Context) {
+func PostDatabaseChangePassword(c *gin.Context) {
 	id, err := primitive.ObjectIDFromHex(c.Param("id"))
 	if err != nil {
 		HandleErrorBadRequest(c, err)

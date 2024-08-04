@@ -60,13 +60,13 @@ func getMssqlSession(ctx context.Context, ds *models.DataSource) (s db.Session, 
 	return s, err
 }
 
-func GetMssqlSessionWithTimeoutV2(ds *models2.DataSourceV2, timeout time.Duration) (s db.Session, err error) {
+func GetMssqlSessionWithTimeoutV2(ds *models2.DatabaseV2, timeout time.Duration) (s db.Session, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	return getMssqlSessionV2(ctx, ds)
 }
 
-func getMssqlSessionV2(ctx context.Context, ds *models2.DataSourceV2) (s db.Session, err error) {
+func getMssqlSessionV2(ctx context.Context, ds *models2.DatabaseV2) (s db.Session, err error) {
 	// normalize settings
 	host := ds.Host
 	port := ds.Port

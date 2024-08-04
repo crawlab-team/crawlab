@@ -18,7 +18,7 @@ var (
 	typeOneInstances    = []any{
 		*new(models2.TestModelV2),
 		*new(models2.DataCollectionV2),
-		*new(models2.DataSourceV2),
+		*new(models2.DatabaseV2),
 		*new(models2.DependencyV2),
 		*new(models2.DependencyLogV2),
 		*new(models2.DependencySettingV2),
