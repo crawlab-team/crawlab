@@ -28,7 +28,7 @@ func getMysqlSession(ctx context.Context, ds *models.DataSource) (s db.Session, 
 	if ds.Host == "" {
 		host = constants.DefaultHost
 	}
-	if ds.Port == "" {
+	if ds.Port == 0 {
 		port = constants.DefaultMysqlPort
 	}
 
@@ -73,7 +73,7 @@ func getMysqlSessionV2(ctx context.Context, ds *models2.DatabaseV2) (s db.Sessio
 	if ds.Host == "" {
 		host = constants.DefaultHost
 	}
-	if ds.Port == "" {
+	if ds.Port == 0 {
 		port = constants.DefaultMysqlPort
 	}
 

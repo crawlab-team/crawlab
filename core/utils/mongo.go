@@ -66,7 +66,7 @@ func getMongoClient(ctx context.Context, ds *models.DataSource) (c *mongo2.Clien
 	if ds.Host == "" {
 		ds.Host = constants.DefaultHost
 	}
-	if ds.Port == "" {
+	if ds.Port == 0 {
 		ds.Port = constants.DefaultMongoPort
 	}
 
@@ -79,7 +79,6 @@ func getMongoClient(ctx context.Context, ds *models.DataSource) (c *mongo2.Clien
 	opts = append(opts, mongo.WithDb(ds.Database))
 	opts = append(opts, mongo.WithUsername(ds.Username))
 	opts = append(opts, mongo.WithPassword(ds.Password))
-	opts = append(opts, mongo.WithHosts(ds.Hosts))
 
 	// extra
 	if ds.Extra != nil {
@@ -105,7 +104,7 @@ func getMongoClientV2(ctx context.Context, ds *models2.DatabaseV2) (c *mongo2.Cl
 	if ds.Host == "" {
 		ds.Host = constants.DefaultHost
 	}
-	if ds.Port == "" {
+	if ds.Port == 0 {
 		ds.Port = constants.DefaultMongoPort
 	}
 
@@ -118,7 +117,6 @@ func getMongoClientV2(ctx context.Context, ds *models2.DatabaseV2) (c *mongo2.Cl
 	opts = append(opts, mongo.WithDb(ds.Database))
 	opts = append(opts, mongo.WithUsername(ds.Username))
 	opts = append(opts, mongo.WithPassword(ds.Password))
-	opts = append(opts, mongo.WithHosts(ds.Hosts))
 
 	// extra
 	if ds.Extra != nil {

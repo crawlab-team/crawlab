@@ -27,7 +27,7 @@ func getKafkaConnection(ctx context.Context, ds *models.DataSource) (c *kafka.Co
 	if ds.Host == "" {
 		host = constants.DefaultHost
 	}
-	if ds.Port == "" {
+	if ds.Port == 0 {
 		port = constants.DefaultKafkaPort
 	}
 
@@ -54,7 +54,7 @@ func getKafkaConnectionV2(ctx context.Context, ds *models2.DatabaseV2) (c *kafka
 	if ds.Host == "" {
 		host = constants.DefaultHost
 	}
-	if ds.Port == "" {
+	if ds.Port == 0 {
 		port = constants.DefaultKafkaPort
 	}
 

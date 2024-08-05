@@ -33,10 +33,10 @@ func GetMongoClient(opts ...ClientOption) (c *mongo.Client, err error) {
 			_opts.Host = "localhost"
 		}
 	}
-	if _opts.Port == "" {
-		_opts.Port = viper.GetString("mongo.port")
-		if _opts.Port == "" {
-			_opts.Port = "27017"
+	if _opts.Port == 0 {
+		_opts.Port = viper.GetInt("mongo.port")
+		if _opts.Port == 0 {
+			_opts.Port = 27017
 		}
 	}
 	if _opts.Db == "" {
@@ -123,7 +123,7 @@ func newMongoClient(ctx context.Context, _opts *ClientOptions) (c *mongo.Client,
 			mongoOpts.SetHosts(_opts.Hosts)
 		} else {
 			// hosts are unset
-			mongoOpts.ApplyURI(fmt.Sprintf("mongodb://%s:%s/%s", _opts.Host, _opts.Port, _opts.Db))
+			mongoOpts.ApplyURI(fmt.Sprintf("mongodb://%s:%d/%s", _opts.Host, _opts.Port, _opts.Db))
 		}
 	}
 

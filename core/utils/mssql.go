@@ -28,7 +28,7 @@ func getMssqlSession(ctx context.Context, ds *models.DataSource) (s db.Session, 
 	if ds.Host == "" {
 		host = constants.DefaultHost
 	}
-	if ds.Port == "" {
+	if ds.Port == 0 {
 		port = constants.DefaultMssqlPort
 	}
 
@@ -73,7 +73,7 @@ func getMssqlSessionV2(ctx context.Context, ds *models2.DatabaseV2) (s db.Sessio
 	if ds.Host == "" {
 		host = constants.DefaultHost
 	}
-	if ds.Port == "" {
+	if ds.Port == 0 {
 		port = constants.DefaultMssqlPort
 	}
 

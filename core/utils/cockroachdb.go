@@ -28,7 +28,7 @@ func getCockroachdbSession(ctx context.Context, ds *models.DataSource) (s db.Ses
 	if ds.Host == "" {
 		host = constants.DefaultHost
 	}
-	if ds.Port == "" {
+	if ds.Port == 0 {
 		port = constants.DefaultCockroachdbPort
 	}
 
@@ -73,7 +73,7 @@ func getCockroachdbSessionV2(ctx context.Context, ds *models2.DatabaseV2) (s db.
 	if ds.Host == "" {
 		host = constants.DefaultHost
 	}
-	if ds.Port == "" {
+	if ds.Port == 0 {
 		port = constants.DefaultCockroachdbPort
 	}
 

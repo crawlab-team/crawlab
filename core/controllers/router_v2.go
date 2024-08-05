@@ -56,18 +56,6 @@ func InitRoutes(app *gin.Engine) (err error) {
 	groups := NewRouterGroups(app)
 
 	RegisterController(groups.AuthGroup, "/data/collections", NewControllerV2[models2.DataCollectionV2]())
-	RegisterController(groups.AuthGroup, "/databases", NewControllerV2[models2.DatabaseV2]([]Action{
-		{
-			Method:      http.MethodPost,
-			Path:        "",
-			HandlerFunc: PostDatabase,
-		},
-		{
-			Method:      http.MethodPut,
-			Path:        "/:id",
-			HandlerFunc: PutDatabaseById,
-		},
-	}...))
 	RegisterController(groups.AuthGroup, "/environments", NewControllerV2[models2.EnvironmentV2]())
 	RegisterController(groups.AuthGroup, "/nodes", NewControllerV2[models2.NodeV2]())
 	RegisterController(groups.AuthGroup, "/projects", NewControllerV2[models2.ProjectV2]([]Action{

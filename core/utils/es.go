@@ -34,7 +34,7 @@ func getElasticsearchClient(ctx context.Context, ds *models.DataSource) (c *elas
 	if ds.Host == "" {
 		host = constants.DefaultHost
 	}
-	if ds.Port == "" {
+	if ds.Port == 0 {
 		port = constants.DefaultElasticsearchPort
 	}
 
@@ -97,7 +97,7 @@ func getElasticsearchClientV2(ctx context.Context, ds *models2.DatabaseV2) (c *e
 	if ds.Host == "" {
 		host = constants.DefaultHost
 	}
-	if ds.Port == "" {
+	if ds.Port == 0 {
 		port = constants.DefaultElasticsearchPort
 	}
 

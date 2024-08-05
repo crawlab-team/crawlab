@@ -28,7 +28,7 @@ func getPostgresqlSession(ctx context.Context, ds *models.DataSource) (s db.Sess
 	if ds.Host == "" {
 		host = constants.DefaultHost
 	}
-	if ds.Port == "" {
+	if ds.Port == 0 {
 		port = constants.DefaultPostgresqlPort
 	}
 
@@ -73,7 +73,7 @@ func getPostgresqlSessionV2(ctx context.Context, ds *models2.DatabaseV2) (s db.S
 	if ds.Host == "" {
 		host = constants.DefaultHost
 	}
-	if ds.Port == "" {
+	if ds.Port == 0 {
 		port = constants.DefaultPostgresqlPort
 	}
 

@@ -16,7 +16,7 @@ func PostDatabase(c *gin.Context) {
 		Type        string            `json:"type"`
 		Description string            `json:"description"`
 		Host        string            `json:"host"`
-		Port        string            `json:"port"`
+		Port        int               `json:"port"`
 		Url         string            `json:"url"`
 		Hosts       []string          `json:"hosts"`
 		Database    string            `json:"database"`
@@ -42,7 +42,6 @@ func PostDatabase(c *gin.Context) {
 		Host:        payload.Host,
 		Port:        payload.Port,
 		Url:         payload.Url,
-		Hosts:       payload.Hosts,
 		Database:    payload.Database,
 		Username:    payload.Username,
 		Password:    payload.Password,
