@@ -12,20 +12,19 @@ import (
 func PostDatabase(c *gin.Context) {
 	// data source
 	var payload struct {
-		Name        string            `json:"name"`
-		Type        string            `json:"type"`
-		Description string            `json:"description"`
-		Host        string            `json:"host"`
-		Port        int               `json:"port"`
-		Url         string            `json:"url"`
-		Hosts       []string          `json:"hosts"`
-		Database    string            `json:"database"`
-		Username    string            `json:"username"`
-		Password    string            `json:"-,omitempty"`
-		ConnectType string            `json:"connect_type"`
-		Status      string            `json:"status"`
-		Error       string            `json:"error"`
-		Extra       map[string]string `json:"extra,omitempty"`
+		Name        string   `json:"name"`
+		Type        string   `json:"type"`
+		Description string   `json:"description"`
+		Host        string   `json:"host"`
+		Port        int      `json:"port"`
+		Url         string   `json:"url"`
+		Hosts       []string `json:"hosts"`
+		Database    string   `json:"database"`
+		Username    string   `json:"username"`
+		Password    string   `json:"-,omitempty"`
+		ConnectType string   `json:"connect_type"`
+		Status      string   `json:"status"`
+		Error       string   `json:"error"`
 	}
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		HandleErrorBadRequest(c, err)
@@ -41,14 +40,13 @@ func PostDatabase(c *gin.Context) {
 		Description: payload.Description,
 		Host:        payload.Host,
 		Port:        payload.Port,
-		Url:         payload.Url,
+		URI:         payload.Url,
 		Database:    payload.Database,
 		Username:    payload.Username,
 		Password:    payload.Password,
 		ConnectType: payload.ConnectType,
 		Status:      payload.Status,
 		Error:       payload.Error,
-		Extra:       payload.Extra,
 	}
 	dataSource.SetCreated(u.Id)
 	dataSource.SetUpdated(u.Id)
