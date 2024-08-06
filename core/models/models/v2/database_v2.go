@@ -6,20 +6,19 @@ type DatabaseV2 struct {
 	any                     `collection:"databases"`
 	BaseModelV2[DatabaseV2] `bson:",inline"`
 	Name                    string    `json:"name" bson:"name"`
-	DataSource              string    `json:"data_source" bson:"data_source"`
-	Type                    string    `json:"type" bson:"type"`
 	Description             string    `json:"description" bson:"description"`
+	DataSource              string    `json:"data_source" bson:"data_source"`
 	Host                    string    `json:"host" bson:"host"`
 	Port                    int       `json:"port" bson:"port"`
 	URI                     string    `json:"uri,omitempty" bson:"uri,omitempty"`
 	Database                string    `json:"database,omitempty" bson:"database,omitempty"`
 	Username                string    `json:"username,omitempty" bson:"username,omitempty"`
 	Password                string    `json:"-,omitempty" bson:"password,omitempty"`
-	ConnectType             string    `json:"connect_type,omitempty" bson:"connect_type,omitempty"`
 	Status                  string    `json:"status" bson:"status"`
 	Error                   string    `json:"error" bson:"error"`
 	Active                  bool      `json:"active" bson:"active"`
 	ActiveAt                time.Time `json:"active_ts" bson:"active_ts"`
+	IsDefault               bool      `json:"is_default" bson:"-"`
 
 	MongoParams *struct {
 		AuthSource    string `json:"auth_source,omitempty" bson:"auth_source,omitempty"`
@@ -36,11 +35,11 @@ type DatabaseV2 struct {
 	} `json:"snowflake_params,omitempty" bson:"snowflake_params,omitempty"`
 	CassandraParams *struct {
 		Keyspace string `json:"keyspace,omitempty" bson:"keyspace,omitempty"`
-	}
+	} `json:"cassandra_params,omitempty" bson:"cassandra_params,omitempty"`
 	HiveParams *struct {
 		Auth string `json:"auth,omitempty" bson:"auth,omitempty"`
-	}
+	} `json:"hive_params,omitempty" bson:"hive_params,omitempty"`
 	RedisParams *struct {
 		DB int `json:"db,omitempty" bson:"db,omitempty"`
-	}
+	} `json:"redis_params,omitempty" bson:"redis_params,omitempty"`
 }
