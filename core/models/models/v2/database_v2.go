@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type DatabaseV2 struct {
 	any                     `collection:"databases"`
@@ -13,7 +15,8 @@ type DatabaseV2 struct {
 	URI                     string    `json:"uri,omitempty" bson:"uri,omitempty"`
 	Database                string    `json:"database,omitempty" bson:"database,omitempty"`
 	Username                string    `json:"username,omitempty" bson:"username,omitempty"`
-	Password                string    `json:"-,omitempty" bson:"password,omitempty"`
+	Password                string    `json:"password,omitempty" bson:"-"`
+	EncryptedPassword       string    `json:"-,omitempty" bson:"encrypted_password,omitempty"`
 	Status                  string    `json:"status" bson:"status"`
 	Error                   string    `json:"error" bson:"error"`
 	Active                  bool      `json:"active" bson:"active"`
