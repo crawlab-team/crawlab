@@ -16,13 +16,14 @@ type DatabaseTable struct {
 }
 
 type DatabaseColumn struct {
-	Name     string           `json:"name"`
-	Type     string           `json:"type"`
-	Null     bool             `json:"null,omitempty"`
-	Key      string           `json:"key,omitempty"`
-	Default  string           `json:"default,omitempty"`
-	Extra    string           `json:"extra,omitempty"`
-	Children []DatabaseColumn `json:"children,omitempty"`
+	Name       string           `json:"name"`
+	Type       string           `json:"type"`
+	PrimaryKey bool             `json:"primary_key,omitempty"`
+	Null       bool             `json:"null,omitempty"`
+	Key        string           `json:"key,omitempty"`
+	Default    string           `json:"default,omitempty"`
+	Extra      string           `json:"extra,omitempty"`
+	Children   []DatabaseColumn `json:"children,omitempty"`
 }
 
 type DatabaseIndex struct {
@@ -35,4 +36,12 @@ type DatabaseIndex struct {
 type DatabaseIndexColumn struct {
 	Name  string `json:"name"`
 	Order int    `json:"order"`
+}
+
+func (col *DatabaseIndexColumn) OrderString() string {
+	if col.Order < 0 {
+		return "DESC"
+	} else {
+		return "ASC"
+	}
 }
