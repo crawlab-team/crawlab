@@ -3,9 +3,7 @@ package vcs
 import (
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/trace"
-	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/memfs"
-	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -220,13 +218,13 @@ func (c *GitClient) Reset(opts ...GitResetOption) (err error) {
 		return err
 	}
 
-	// reset
-	if err := wt.Reset(o); err != nil {
+	// clean
+	if err := wt.Clean(&git.CleanOptions{Dir: true}); err != nil {
 		return err
 	}
 
-	// clean
-	if err := wt.Clean(&git.CleanOptions{Dir: true}); err != nil {
+	// reset
+	if err := wt.Reset(o); err != nil {
 		return err
 	}
 
