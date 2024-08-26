@@ -24,6 +24,7 @@ type DatabaseColumn struct {
 	Default    string           `json:"default,omitempty"`
 	Extra      string           `json:"extra,omitempty"`
 	Children   []DatabaseColumn `json:"children,omitempty"`
+	Hash       string           `json:"hash,omitempty"`
 }
 
 type DatabaseIndex struct {
@@ -31,6 +32,7 @@ type DatabaseIndex struct {
 	Type    string                `json:"type,omitempty"`
 	Columns []DatabaseIndexColumn `json:"columns"`
 	Unique  bool                  `json:"unique"`
+	Hash    string                `json:"hash,omitempty"`
 }
 
 type DatabaseIndexColumn struct {
