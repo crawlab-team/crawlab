@@ -19,9 +19,9 @@ type DatabaseColumn struct {
 	Name       string           `json:"name"`
 	Type       string           `json:"type"`
 	PrimaryKey bool             `json:"primary_key,omitempty"`
-	Null       bool             `json:"null,omitempty"`
+	Null       bool             `json:"null"`
 	Key        string           `json:"key,omitempty"`
-	Default    string           `json:"default,omitempty"`
+	Default    string           `json:"default"`
 	Extra      string           `json:"extra,omitempty"`
 	Children   []DatabaseColumn `json:"children,omitempty"`
 	Hash       string           `json:"hash,omitempty"`
