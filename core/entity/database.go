@@ -16,23 +16,27 @@ type DatabaseTable struct {
 }
 
 type DatabaseColumn struct {
-	Name       string           `json:"name"`
-	Type       string           `json:"type"`
-	PrimaryKey bool             `json:"primary_key,omitempty"`
-	Null       bool             `json:"null"`
-	Key        string           `json:"key,omitempty"`
-	Default    string           `json:"default"`
-	Extra      string           `json:"extra,omitempty"`
-	Children   []DatabaseColumn `json:"children,omitempty"`
-	Hash       string           `json:"hash,omitempty"`
+	Name         string           `json:"name"`
+	Type         string           `json:"type"`
+	PrimaryKey   bool             `json:"primary_key,omitempty"`
+	Null         bool             `json:"null"`
+	Key          string           `json:"key,omitempty"`
+	Default      string           `json:"default"`
+	Extra        string           `json:"extra,omitempty"`
+	Children     []DatabaseColumn `json:"children,omitempty"`
+	Hash         string           `json:"hash,omitempty"`
+	OriginalName string           `json:"original_name,omitempty"`
+	Status       string           `json:"status,omitempty"`
 }
 
 type DatabaseIndex struct {
-	Name    string                `json:"name"`
-	Type    string                `json:"type,omitempty"`
-	Columns []DatabaseIndexColumn `json:"columns"`
-	Unique  bool                  `json:"unique"`
-	Hash    string                `json:"hash,omitempty"`
+	Name         string                `json:"name"`
+	Type         string                `json:"type,omitempty"`
+	Columns      []DatabaseIndexColumn `json:"columns"`
+	Unique       bool                  `json:"unique"`
+	Hash         string                `json:"hash,omitempty"`
+	OriginalName string                `json:"original_name,omitempty"`
+	Status       string                `json:"status,omitempty"`
 }
 
 type DatabaseIndexColumn struct {
