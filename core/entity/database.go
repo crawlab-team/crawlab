@@ -16,17 +16,18 @@ type DatabaseTable struct {
 }
 
 type DatabaseColumn struct {
-	Name         string           `json:"name"`
-	Type         string           `json:"type"`
-	PrimaryKey   bool             `json:"primary_key,omitempty"`
-	NotNull      bool             `json:"not_null"`
-	Key          string           `json:"key,omitempty"`
-	Default      string           `json:"default"`
-	Extra        string           `json:"extra,omitempty"`
-	Children     []DatabaseColumn `json:"children,omitempty"`
-	Hash         string           `json:"hash,omitempty"`
-	OriginalName string           `json:"original_name,omitempty"`
-	Status       string           `json:"status,omitempty"`
+	Name          string           `json:"name"`
+	Type          string           `json:"type"`
+	PrimaryKey    bool             `json:"primary_key,omitempty"`
+	NotNull       bool             `json:"not_null"`
+	Key           string           `json:"key,omitempty"`
+	Default       string           `json:"default"`
+	Extra         string           `json:"extra,omitempty"`
+	AutoIncrement bool             `json:"auto_increment,omitempty"`
+	Children      []DatabaseColumn `json:"children,omitempty"`
+	Hash          string           `json:"hash,omitempty"`
+	OriginalName  string           `json:"original_name,omitempty"`
+	Status        string           `json:"status,omitempty"`
 }
 
 type DatabaseIndex struct {
