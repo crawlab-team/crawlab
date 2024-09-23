@@ -18,7 +18,7 @@ type DatabaseTable struct {
 type DatabaseColumn struct {
 	Name          string           `json:"name"`
 	Type          string           `json:"type"`
-	PrimaryKey    bool             `json:"primary_key,omitempty"`
+	Primary       bool             `json:"primary,omitempty"`
 	NotNull       bool             `json:"not_null"`
 	Key           string           `json:"key,omitempty"`
 	Default       string           `json:"default"`
