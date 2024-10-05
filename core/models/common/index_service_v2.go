@@ -202,4 +202,33 @@ func CreateIndexesV2() {
 			},
 		},
 	})
+
+	// databases
+	mongo.GetMongoCol(service.GetCollectionNameByInstance(models2.DatabaseV2{})).MustCreateIndexes([]mongo2.IndexModel{
+		{
+			Keys: bson.D{
+				{"data_source_id", 1},
+			},
+		},
+	})
+
+	// database metrics
+	mongo.GetMongoCol(service.GetCollectionNameByInstance(models2.DatabaseMetricV2{})).MustCreateIndexes([]mongo2.IndexModel{
+		{
+			Keys: bson.D{
+				{"created_ts", -1},
+			},
+			Options: (&options.IndexOptions{}).SetExpireAfterSeconds(60 * 60 * 24 * 30),
+		},
+		{
+			Keys: bson.D{
+				{"database_id", 1},
+			},
+		},
+		{
+			Keys: bson.D{
+				{"type", 1},
+			},
+		},
+	})
 }
