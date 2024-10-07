@@ -6,6 +6,7 @@ type DatabaseMetricV2 struct {
 	any                           `collection:"database_metrics"`
 	BaseModelV2[DatabaseMetricV2] `bson:",inline"`
 	DatabaseId                    primitive.ObjectID `json:"database_id" bson:"database_id"`
+	CpuUsagePercent               float32            `json:"cpu_usage_percent" bson:"cpu_usage_percent"`
 	TotalMemory                   uint64             `json:"total_memory" bson:"total_memory"`
 	AvailableMemory               uint64             `json:"available_memory" bson:"available_memory"`
 	UsedMemory                    uint64             `json:"used_memory" bson:"used_memory"`
