@@ -214,7 +214,7 @@ func (svr TaskServerV2) handleInsertData(msg *grpc.StreamMessage) (err error) {
 	if err != nil {
 		return err
 	}
-	var records []interface{}
+	var records []map[string]interface{}
 	for _, d := range data.Records {
 		res, ok := d[constants.TaskKey]
 		if ok {

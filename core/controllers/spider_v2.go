@@ -3,7 +3,6 @@ package controllers
 import (
 	"errors"
 	"github.com/apex/log"
-	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/fs"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
@@ -48,8 +47,8 @@ func GetSpiderById(c *gin.Context) {
 		}
 	}
 
-	// data collection
-	if !s.ColId.IsZero() {
+	// data collection (compatible to old version) # TODO: remove in the future
+	if s.ColName == "" && !s.ColId.IsZero() {
 		col, err := service.NewModelServiceV2[models2.DataCollectionV2]().GetById(s.ColId)
 		if err != nil {
 			if !errors.Is(err, mongo2.ErrNoDocuments) {
@@ -252,12 +251,6 @@ func PostSpider(c *gin.Context) {
 		return
 	}
 
-	// upsert data collection
-	if err := upsertSpiderDataCollection(&s); err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
 	// user
 	u := GetUserFromContextV2(c)
 
@@ -308,12 +301,6 @@ func PutSpiderById(c *gin.Context) {
 	var s models2.SpiderV2
 	if err := c.ShouldBindJSON(&s); err != nil {
 		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	// upsert data collection
-	if err := upsertSpiderDataCollection(&s); err != nil {
-		HandleErrorInternalServerError(c, err)
 		return
 	}
 
@@ -771,49 +758,6 @@ func getSpiderFsSvcById(id primitive.ObjectID) (svc interfaces.FsServiceV2, err 
 		return nil, err
 	}
 	return getSpiderFsSvc(s)
-}
-
-func upsertSpiderDataCollection(s *models2.SpiderV2) (err error) {
-	modelSvc := service.NewModelServiceV2[models2.DataCollectionV2]()
-	if s.ColId.IsZero() {
-		// validate
-		if s.ColName == "" {
-			return errors.New("data collection name is required")
-		}
-		// no id
-		dc, err := modelSvc.GetOne(bson.M{"name": s.ColName}, nil)
-		if err != nil {
-			if errors.Is(err, mongo2.ErrNoDocuments) {
-				// not exists, add new
-				dc = &models2.DataCollectionV2{Name: s.ColName}
-				dcId, err := modelSvc.InsertOne(*dc)
-				if err != nil {
-					return err
-				}
-				dc.SetId(dcId)
-			} else {
-				// error
-				return err
-			}
-		}
-		s.ColId = dc.Id
-
-		// create index
-		_ = mongo.GetMongoCol(dc.Name).CreateIndex(mongo2.IndexModel{Keys: bson.M{constants.TaskKey: 1}})
-		_ = mongo.GetMongoCol(dc.Name).CreateIndex(mongo2.IndexModel{Keys: bson.M{constants.HashKey: 1}})
-	} else {
-		// with id
-		dc, err := modelSvc.GetById(s.ColId)
-		if err != nil {
-			return err
-		}
-		s.ColId = dc.Id
-	}
-	return nil
-}
-
-func UpsertSpiderDataCollection(s *models2.SpiderV2) (err error) {
-	return upsertSpiderDataCollection(s)
 }
 
 func getSpiderRootPath(c *gin.Context) (rootPath string, err error) {

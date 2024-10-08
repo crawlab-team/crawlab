@@ -38,7 +38,7 @@ func NewResultService(registryKey string, s *models.Spider) (svc2 interfaces.Res
 
 var store = sync.Map{}
 
-func GetResultService(spiderId primitive.ObjectID, opts ...Option) (svc2 interfaces.ResultService, err error) {
+func GetResultService(spiderId primitive.ObjectID) (svc2 interfaces.ResultService, err error) {
 	// model service
 	modelSvc, err := service.GetService()
 	if err != nil {
@@ -49,12 +49,6 @@ func GetResultService(spiderId primitive.ObjectID, opts ...Option) (svc2 interfa
 	s, err := modelSvc.GetSpiderById(spiderId)
 	if err != nil {
 		return nil, trace.TraceError(err)
-	}
-
-	// apply options
-	_opts := &Options{}
-	for _, opt := range opts {
-		opt(_opts)
 	}
 
 	// store key
