@@ -2,6 +2,7 @@ package stats
 
 import (
 	log2 "github.com/apex/log"
+	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/database"
 	interfaces2 "github.com/crawlab-team/crawlab/core/database/interfaces"
 	"github.com/crawlab-team/crawlab/core/interfaces"
@@ -20,6 +21,7 @@ import (
 
 type databaseServiceItem struct {
 	taskId    primitive.ObjectID
+	spiderId  primitive.ObjectID
 	dbId      primitive.ObjectID
 	dbSvc     interfaces2.DatabaseService
 	tableName string
@@ -54,7 +56,7 @@ func (svc *ServiceV2) InsertData(taskId primitive.ObjectID, records ...map[strin
 	tableName := item.tableName
 	if utils.IsPro() && dbSvc != nil {
 		for _, record := range records {
-			if err := dbSvc.CreateRow(dbId, "", tableName, record); err != nil {
+			if err := dbSvc.CreateRow(dbId, "", tableName, svc.normalizeRecord(item, record)); err != nil {
 				log2.Errorf("failed to insert data: %v", err)
 				continue
 			}
@@ -63,7 +65,7 @@ func (svc *ServiceV2) InsertData(taskId primitive.ObjectID, records ...map[strin
 	} else {
 		var records2 []interface{}
 		for _, record := range records {
-			records2 = append(records2, record)
+			records2 = append(records2, svc.normalizeRecord(item, record))
 		}
 		_, err = mongo.GetMongoCol(tableName).InsertMany(records2)
 		if err != nil {
@@ -118,14 +120,18 @@ func (svc *ServiceV2) getDatabaseServiceItem(taskId primitive.ObjectID) (item *d
 		}
 	}
 
-	// store in cache
-	svc.databaseServiceItems[taskId.Hex()] = &databaseServiceItem{
+	// item
+	item = &databaseServiceItem{
 		taskId:    taskId,
+		spiderId:  s.Id,
 		dbId:      s.DataSourceId,
 		dbSvc:     dbSvc,
 		tableName: s.ColName,
 		time:      time.Now(),
 	}
+
+	// store in cache
+	svc.databaseServiceItems[taskId.Hex()] = item
 
 	return item, nil
 }
@@ -156,6 +162,18 @@ func (svc *ServiceV2) cleanup() {
 
 		time.Sleep(10 * time.Minute)
 	}
+}
+
+func (svc *ServiceV2) normalizeRecord(item *databaseServiceItem, record map[string]interface{}) (res map[string]interface{}) {
+	res = record
+
+	// set task id
+	res[constants.TaskKey] = item.taskId
+
+	// set spider id
+	res[constants.SpiderKey] = item.spiderId
+
+	return res
 }
 
 func NewTaskStatsServiceV2() (svc2 *ServiceV2, err error) {

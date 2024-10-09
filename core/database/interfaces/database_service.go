@@ -12,7 +12,7 @@ type DatabaseService interface {
 	GetMetadataAllDb(id primitive.ObjectID) (m *entity.DatabaseMetadata, err error)
 	CreateDatabase(id primitive.ObjectID, databaseName string) (err error)
 	DropDatabase(id primitive.ObjectID, databaseName string) (err error)
-	GetTableMetadata(id primitive.ObjectID, databaseName, tableName string) (table *entity.DatabaseTable, err error)
+	GetTableMetadata(id primitive.ObjectID, databaseName, tableName string, filter map[string]interface{}) (table *entity.DatabaseTable, err error)
 	CreateTable(id primitive.ObjectID, databaseName string, table *entity.DatabaseTable) (err error)
 	ModifyTable(id primitive.ObjectID, databaseName string, table *entity.DatabaseTable) (err error)
 	DropTable(id primitive.ObjectID, databaseName, tableName string) (err error)

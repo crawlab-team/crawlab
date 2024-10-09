@@ -3,6 +3,7 @@ package constants
 const (
 	FilterQueryFieldConditions = "conditions"
 	FilterQueryFieldAll        = "all"
+	FilterQueryFieldFilter     = "filter"
 )
 
 const (
