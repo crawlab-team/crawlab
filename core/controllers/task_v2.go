@@ -5,7 +5,7 @@ import (
 	log2 "github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/interfaces"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/result"
 	"github.com/crawlab-team/crawlab/core/spider/admin"
@@ -71,8 +71,8 @@ func GetTaskList(c *gin.Context) {
 	query := MustGetFilterQuery(c)
 	sort := MustGetSortOption(c)
 
-	// get list
-	list, err := service.NewModelServiceV2[models.TaskV2]().GetMany(query, &mongo.FindOptions{
+	// get tasks
+	tasks, err := service.NewModelServiceV2[models.TaskV2]().GetMany(query, &mongo.FindOptions{
 		Sort:  sort,
 		Skip:  pagination.Size * (pagination.Page - 1),
 		Limit: pagination.Size,
@@ -87,15 +87,17 @@ func GetTaskList(c *gin.Context) {
 	}
 
 	// check empty list
-	if len(list) == 0 {
+	if len(tasks) == 0 {
 		HandleSuccessWithListData(c, nil, 0)
 		return
 	}
 
 	// ids
-	var ids []primitive.ObjectID
-	for _, t := range list {
-		ids = append(ids, t.Id)
+	var taskIds []primitive.ObjectID
+	var spiderIds []primitive.ObjectID
+	for _, t := range tasks {
+		taskIds = append(taskIds, t.Id)
+		spiderIds = append(spiderIds, t.SpiderId)
 	}
 
 	// total count
@@ -106,33 +108,56 @@ func GetTaskList(c *gin.Context) {
 	}
 
 	// stat list
-	query = bson.M{
+	stats, err := service.NewModelServiceV2[models.TaskStatV2]().GetMany(bson.M{
 		"_id": bson.M{
-			"$in": ids,
+			"$in": taskIds,
 		},
-	}
-	stats, err := service.NewModelServiceV2[models.TaskStatV2]().GetMany(query, nil)
+	}, nil)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
 
 	// cache stat list to dict
-	dict := map[primitive.ObjectID]models.TaskStatV2{}
+	statsDict := map[primitive.ObjectID]models.TaskStatV2{}
 	for _, s := range stats {
-		dict[s.Id] = s
+		statsDict[s.Id] = s
+	}
+
+	// spider list
+	spiders, err := service.NewModelServiceV2[models.SpiderV2]().GetMany(bson.M{
+		"_id": bson.M{
+			"$in": spiderIds,
+		},
+	}, nil)
+	if err != nil {
+		HandleErrorInternalServerError(c, err)
+		return
+	}
+
+	// cache spider list to dict
+	spiderDict := map[primitive.ObjectID]models.SpiderV2{}
+	for _, s := range spiders {
+		spiderDict[s.Id] = s
 	}
 
 	// iterate list again
-	for i, t := range list {
-		ts, ok := dict[t.Id]
+	for i, t := range tasks {
+		// task stat
+		ts, ok := statsDict[t.Id]
 		if ok {
-			list[i].Stat = &ts
+			tasks[i].Stat = &ts
+		}
+
+		// spider
+		s, ok := spiderDict[t.SpiderId]
+		if ok {
+			tasks[i].Spider = &s
 		}
 	}
 
 	// response
-	HandleSuccessWithListData(c, list, total)
+	HandleSuccessWithListData(c, tasks, total)
 }
 
 func DeleteTaskById(c *gin.Context) {

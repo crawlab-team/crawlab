@@ -6,21 +6,19 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	config2 "github.com/crawlab-team/crawlab/core/config"
 	"github.com/crawlab-team/crawlab/core/constants"
-	"github.com/crawlab-team/crawlab/core/container"
 	"github.com/crawlab-team/crawlab/core/grpc/server"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/models/common"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/node/config"
 	"github.com/crawlab-team/crawlab/core/notification"
 	"github.com/crawlab-team/crawlab/core/schedule"
-	"github.com/crawlab-team/crawlab/core/spider/admin"
 	"github.com/crawlab-team/crawlab/core/system"
 	"github.com/crawlab-team/crawlab/core/task/handler"
 	"github.com/crawlab-team/crawlab/core/task/scheduler"
 	"github.com/crawlab-team/crawlab/core/utils"
-	grpc "github.com/crawlab-team/crawlab/grpc"
+	"github.com/crawlab-team/crawlab/grpc"
 	"github.com/crawlab-team/crawlab/trace"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -31,14 +29,12 @@ import (
 
 type MasterServiceV2 struct {
 	// dependencies
-	cfgSvc          interfaces.NodeConfigService
-	server          *server.GrpcServerV2
-	schedulerSvc    *scheduler.ServiceV2
-	handlerSvc      *handler.ServiceV2
-	scheduleSvc     *schedule.ServiceV2
-	notificationSvc *notification.Service
-	spiderAdminSvc  *admin.ServiceV2
-	systemSvc       *system.Service
+	cfgSvc       interfaces.NodeConfigService
+	server       *server.GrpcServerV2
+	schedulerSvc *scheduler.ServiceV2
+	handlerSvc   *handler.ServiceV2
+	scheduleSvc  *schedule.ServiceV2
+	systemSvc    *system.ServiceV2
 
 	// settings
 	cfgPath         string
@@ -54,7 +50,7 @@ func (svc *MasterServiceV2) Init() (err error) {
 
 func (svc *MasterServiceV2) Start() {
 	// create indexes
-	common.CreateIndexes()
+	common.CreateIndexesV2()
 
 	// start grpc server
 	if err := svc.server.Start(); err != nil {
@@ -78,12 +74,6 @@ func (svc *MasterServiceV2) Start() {
 	// start schedule service
 	go svc.scheduleSvc.Start()
 
-	// start notification service
-	go svc.notificationSvc.Start()
-
-	// start spider admin service
-	go svc.spiderAdminSvc.Start()
-
 	// wait for quit signal
 	svc.Wait()
 
@@ -102,8 +92,14 @@ func (svc *MasterServiceV2) Stop() {
 
 func (svc *MasterServiceV2) Monitor() {
 	log.Infof("master[%s] monitoring started", svc.GetConfigService().GetNodeKey())
+
+	// ticker
+	ticker := time.NewTicker(svc.monitorInterval)
+
 	for {
-		if err := svc.monitor(); err != nil {
+		// monitor
+		err := svc.monitor()
+		if err != nil {
 			trace.PrintError(err)
 			if svc.stopOnError {
 				log.Errorf("master[%s] monitor error, now stopping...", svc.GetConfigService().GetNodeKey())
@@ -112,7 +108,8 @@ func (svc *MasterServiceV2) Monitor() {
 			}
 		}
 
-		time.Sleep(svc.monitorInterval)
+		// wait
+		<-ticker.C
 	}
 }
 
@@ -143,11 +140,11 @@ func (svc *MasterServiceV2) SetMonitorInterval(duration time.Duration) {
 func (svc *MasterServiceV2) Register() (err error) {
 	nodeKey := svc.GetConfigService().GetNodeKey()
 	nodeName := svc.GetConfigService().GetNodeName()
-	node, err := service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
+	node, err := service.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
 	if err != nil && err.Error() == mongo2.ErrNoDocuments.Error() {
 		// not exists
 		log.Infof("master[%s] does not exist in db", nodeKey)
-		node := models.NodeV2{
+		node := models2.NodeV2{
 			Key:        nodeKey,
 			Name:       nodeName,
 			MaxRunners: config.DefaultConfigOptions.MaxRunners,
@@ -159,7 +156,7 @@ func (svc *MasterServiceV2) Register() (err error) {
 		}
 		node.SetCreated(primitive.NilObjectID)
 		node.SetUpdated(primitive.NilObjectID)
-		id, err := service.NewModelServiceV2[models.NodeV2]().InsertOne(node)
+		id, err := service.NewModelServiceV2[models2.NodeV2]().InsertOne(node)
 		if err != nil {
 			return err
 		}
@@ -171,7 +168,7 @@ func (svc *MasterServiceV2) Register() (err error) {
 		node.Status = constants.NodeStatusOnline
 		node.Active = true
 		node.ActiveAt = time.Now()
-		err = service.NewModelServiceV2[models.NodeV2]().ReplaceById(node.Id, *node)
+		err = service.NewModelServiceV2[models2.NodeV2]().ReplaceById(node.Id, *node)
 		if err != nil {
 			return err
 		}
@@ -210,12 +207,13 @@ func (svc *MasterServiceV2) monitor() (err error) {
 	wg := sync.WaitGroup{}
 	wg.Add(len(workerNodes))
 	for _, n := range workerNodes {
-		go func(n *models.NodeV2) {
+		go func(n *models2.NodeV2) {
+			defer wg.Done()
+
 			// subscribe
 			ok := svc.subscribeNode(n)
 			if !ok {
 				go svc.setWorkerNodeOffline(n)
-				wg.Done()
 				return
 			}
 
@@ -223,19 +221,14 @@ func (svc *MasterServiceV2) monitor() (err error) {
 			ok = svc.pingNodeClient(n)
 			if !ok {
 				go svc.setWorkerNodeOffline(n)
-				wg.Done()
 				return
 			}
 
 			// update node available runners
 			if err := svc.updateNodeAvailableRunners(n); err != nil {
 				trace.PrintError(err)
-				wg.Done()
 				return
 			}
-
-			// done
-			wg.Done()
 		}(&n)
 	}
 
@@ -244,12 +237,12 @@ func (svc *MasterServiceV2) monitor() (err error) {
 	return nil
 }
 
-func (svc *MasterServiceV2) getAllWorkerNodes() (nodes []models.NodeV2, err error) {
+func (svc *MasterServiceV2) getAllWorkerNodes() (nodes []models2.NodeV2, err error) {
 	query := bson.M{
 		"key":    bson.M{"$ne": svc.cfgSvc.GetNodeKey()}, // not self
 		"active": true,                                   // active
 	}
-	nodes, err = service.NewModelServiceV2[models.NodeV2]().GetMany(query, nil)
+	nodes, err = service.NewModelServiceV2[models2.NodeV2]().GetMany(query, nil)
 	if err != nil {
 		if errors.Is(err, mongo2.ErrNoDocuments) {
 			return nil, nil
@@ -261,32 +254,44 @@ func (svc *MasterServiceV2) getAllWorkerNodes() (nodes []models.NodeV2, err erro
 
 func (svc *MasterServiceV2) updateMasterNodeStatus() (err error) {
 	nodeKey := svc.GetConfigService().GetNodeKey()
-	node, err := service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
+	node, err := service.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
 	if err != nil {
 		return err
 	}
+	oldStatus := node.Status
+
 	node.Status = constants.NodeStatusOnline
 	node.Active = true
 	node.ActiveAt = time.Now()
-	err = service.NewModelServiceV2[models.NodeV2]().ReplaceById(node.Id, *node)
+	newStatus := node.Status
+
+	err = service.NewModelServiceV2[models2.NodeV2]().ReplaceById(node.Id, *node)
 	if err != nil {
 		return err
 	}
+
+	if utils.IsPro() {
+		if oldStatus != newStatus {
+			go svc.sendNotification(node)
+		}
+	}
+
 	return nil
 }
 
-func (svc *MasterServiceV2) setWorkerNodeOffline(node *models.NodeV2) {
+func (svc *MasterServiceV2) setWorkerNodeOffline(node *models2.NodeV2) {
 	node.Status = constants.NodeStatusOffline
 	node.Active = false
 	err := backoff.Retry(func() error {
-		return service.NewModelServiceV2[models.NodeV2]().ReplaceById(node.Id, *node)
+		return service.NewModelServiceV2[models2.NodeV2]().ReplaceById(node.Id, *node)
 	}, backoff.WithMaxRetries(backoff.NewConstantBackOff(1*time.Second), 3))
 	if err != nil {
 		trace.PrintError(err)
 	}
+	svc.sendNotification(node)
 }
 
-func (svc *MasterServiceV2) subscribeNode(n *models.NodeV2) (ok bool) {
+func (svc *MasterServiceV2) subscribeNode(n *models2.NodeV2) (ok bool) {
 	_, err := svc.server.GetSubscribe("node:" + n.Key)
 	if err != nil {
 		log.Errorf("cannot subscribe worker node[%s]: %v", n.Key, err)
@@ -295,7 +300,7 @@ func (svc *MasterServiceV2) subscribeNode(n *models.NodeV2) (ok bool) {
 	return true
 }
 
-func (svc *MasterServiceV2) pingNodeClient(n *models.NodeV2) (ok bool) {
+func (svc *MasterServiceV2) pingNodeClient(n *models2.NodeV2) (ok bool) {
 	if err := svc.server.SendStreamMessage("node:"+n.Key, grpc.StreamMessageCode_PING); err != nil {
 		log.Errorf("cannot ping worker node client[%s]: %v", n.Key, err)
 		return false
@@ -303,24 +308,31 @@ func (svc *MasterServiceV2) pingNodeClient(n *models.NodeV2) (ok bool) {
 	return true
 }
 
-func (svc *MasterServiceV2) updateNodeAvailableRunners(node *models.NodeV2) (err error) {
+func (svc *MasterServiceV2) updateNodeAvailableRunners(node *models2.NodeV2) (err error) {
 	query := bson.M{
 		"node_id": node.Id,
 		"status":  constants.TaskStatusRunning,
 	}
-	runningTasksCount, err := service.NewModelServiceV2[models.TaskV2]().Count(query)
+	runningTasksCount, err := service.NewModelServiceV2[models2.TaskV2]().Count(query)
 	if err != nil {
 		return trace.TraceError(err)
 	}
 	node.AvailableRunners = node.MaxRunners - runningTasksCount
-	err = service.NewModelServiceV2[models.NodeV2]().ReplaceById(node.Id, *node)
+	err = service.NewModelServiceV2[models2.NodeV2]().ReplaceById(node.Id, *node)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func NewMasterServiceV2() (res interfaces.NodeMasterService, err error) {
+func (svc *MasterServiceV2) sendNotification(node *models2.NodeV2) {
+	if !utils.IsPro() {
+		return
+	}
+	go notification.GetNotificationServiceV2().SendNodeNotification(node)
+}
+
+func newMasterServiceV2() (res *MasterServiceV2, err error) {
 	// master service
 	svc := &MasterServiceV2{
 		cfgPath:         config2.GetConfigPath(),
@@ -328,20 +340,8 @@ func NewMasterServiceV2() (res interfaces.NodeMasterService, err error) {
 		stopOnError:     false,
 	}
 
-	// server options
-	var serverOpts []server.Option
-	if svc.address != nil {
-		serverOpts = append(serverOpts, server.WithAddress(svc.address))
-	}
-
-	// dependency injection
-	if err := container.GetContainer().Invoke(func(
-		cfgSvc interfaces.NodeConfigService,
-	) {
-		svc.cfgSvc = cfgSvc
-	}); err != nil {
-		return nil, err
-	}
+	// node config service
+	svc.cfgSvc = config.GetNodeConfigService()
 
 	// grpc server
 	svc.server, err = server.GetGrpcServerV2()
@@ -367,17 +367,8 @@ func NewMasterServiceV2() (res interfaces.NodeMasterService, err error) {
 		return nil, err
 	}
 
-	// notification service
-	svc.notificationSvc = notification.GetService()
-
-	// spider admin service
-	svc.spiderAdminSvc, err = admin.GetSpiderAdminServiceV2()
-	if err != nil {
-		return nil, err
-	}
-
 	// system service
-	svc.systemSvc = system.GetService()
+	svc.systemSvc = system.GetSystemServiceV2()
 
 	// init
 	if err := svc.Init(); err != nil {
@@ -385,4 +376,18 @@ func NewMasterServiceV2() (res interfaces.NodeMasterService, err error) {
 	}
 
 	return svc, nil
+}
+
+var masterServiceV2 *MasterServiceV2
+var masterServiceV2Once = new(sync.Once)
+
+func GetMasterServiceV2() (res *MasterServiceV2, err error) {
+	masterServiceV2Once.Do(func() {
+		masterServiceV2, err = newMasterServiceV2()
+		if err != nil {
+			log.Errorf("failed to get master service: %v", err)
+		}
+	})
+	return masterServiceV2, err
+
 }

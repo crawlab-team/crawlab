@@ -331,17 +331,14 @@ func NewModelServiceV2[T any]() *ModelServiceV2[T] {
 	typeName := t.Name()
 
 	if _, exists := onceMap[typeName]; !exists {
-		onceMap[typeName] = &sync.Once{}
+		onceMap[typeName] = new(sync.Once)
 	}
 
 	var instance *ModelServiceV2[T]
 
-	c, err := client.GetGrpcClientV2()
-	if err != nil {
-		panic(err)
-	}
+	c := client.GetGrpcClientV2()
 	if !c.IsStarted() {
-		err = c.Start()
+		err := c.Start()
 		if err != nil {
 			panic(err)
 		}

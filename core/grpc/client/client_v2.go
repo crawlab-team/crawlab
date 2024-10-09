@@ -19,6 +19,7 @@ import (
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials/insecure"
 	"io"
+	"sync"
 	"time"
 )
 
@@ -35,36 +36,38 @@ type GrpcClientV2 struct {
 	stream grpc2.NodeService_SubscribeClient
 	msgCh  chan *grpc2.StreamMessage
 	err    error
+	once   sync.Once
 
 	// clients
 	NodeClient               grpc2.NodeServiceClient
 	TaskClient               grpc2.TaskServiceClient
 	ModelBaseServiceV2Client grpc2.ModelBaseServiceV2Client
-	DependenciesClient       grpc2.DependencyServiceV2Client
-}
-
-func (c *GrpcClientV2) Init() (err error) {
-	return nil
+	DependenciesClient       grpc2.DependenciesServiceV2Client
+	MetricsClient            grpc2.MetricsServiceV2Client
 }
 
 func (c *GrpcClientV2) Start() (err error) {
-	// connect
-	if err := c.connect(); err != nil {
-		return err
-	}
+	c.once.Do(func() {
+		// connect
+		err = c.connect()
+		if err != nil {
+			return
+		}
 
-	// register rpc services
-	c.Register()
+		// register rpc services
+		c.Register()
 
-	// subscribe
-	if err := c.subscribe(); err != nil {
-		return err
-	}
+		// subscribe
+		err = c.subscribe()
+		if err != nil {
+			return
+		}
 
-	// handle stream message
-	go c.handleStreamMessage()
+		// handle stream message
+		go c.handleStreamMessage()
+	})
 
-	return nil
+	return err
 }
 
 func (c *GrpcClientV2) Stop() (err error) {
@@ -95,12 +98,8 @@ func (c *GrpcClientV2) Register() {
 	c.NodeClient = grpc2.NewNodeServiceClient(c.conn)
 	c.ModelBaseServiceV2Client = grpc2.NewModelBaseServiceV2Client(c.conn)
 	c.TaskClient = grpc2.NewTaskServiceClient(c.conn)
-	c.DependenciesClient = grpc2.NewDependencyServiceV2Client(c.conn)
-
-	// log
-	log.Infof("[GrpcClient] grpc client registered client services")
-	log.Debugf("[GrpcClient] NodeClient: %v", c.NodeClient)
-	log.Debugf("[GrpcClient] ModelBaseServiceV2Client: %v", c.ModelBaseServiceV2Client)
+	c.DependenciesClient = grpc2.NewDependenciesServiceV2Client(c.conn)
+	c.MetricsClient = grpc2.NewMetricsServiceV2Client(c.conn)
 }
 
 func (c *GrpcClientV2) Context() (ctx context.Context, cancel context.CancelFunc) {
@@ -248,7 +247,7 @@ func (c *GrpcClientV2) handleStreamMessage() {
 	}
 }
 
-func NewGrpcClientV2() (c *GrpcClientV2, err error) {
+func newGrpcClientV2() (c *GrpcClientV2) {
 	client := &GrpcClientV2{
 		address: entity.NewAddress(&entity.AddressOptions{
 			Host: constants.DefaultGrpcClientRemoteHost,
@@ -260,28 +259,23 @@ func NewGrpcClientV2() (c *GrpcClientV2, err error) {
 	client.nodeCfgSvc = nodeconfig.GetNodeConfigService()
 
 	if viper.GetString("grpc.address") != "" {
-		client.address, err = entity.NewAddressFromString(viper.GetString("grpc.address"))
+		address, err := entity.NewAddressFromString(viper.GetString("grpc.address"))
 		if err != nil {
-			return nil, trace.TraceError(err)
+			log.Errorf("failed to parse grpc address: %s", viper.GetString("grpc.address"))
+			panic(err)
 		}
+		client.address = address
 	}
 
-	if err := client.Init(); err != nil {
-		return nil, err
-	}
-
-	return client, nil
+	return client
 }
 
-var _clientV2 *GrpcClientV2
+var clientV2 *GrpcClientV2
+var clientV2Once sync.Once
 
-func GetGrpcClientV2() (client *GrpcClientV2, err error) {
-	if _clientV2 != nil {
-		return _clientV2, nil
-	}
-	_clientV2, err = NewGrpcClientV2()
-	if err != nil {
-		return nil, err
-	}
-	return _clientV2, nil
+func GetGrpcClientV2() *GrpcClientV2 {
+	clientV2Once.Do(func() {
+		clientV2 = newGrpcClientV2()
+	})
+	return clientV2
 }

@@ -8,7 +8,7 @@ type ClientOptions struct {
 	Context                 context.Context
 	Uri                     string
 	Host                    string
-	Port                    string
+	Port                    int
 	Db                      string
 	Hosts                   []string
 	Username                string
@@ -36,7 +36,7 @@ func WithHost(value string) ClientOption {
 	}
 }
 
-func WithPort(value string) ClientOption {
+func WithPort(value int) ClientOption {
 	return func(options *ClientOptions) {
 		options.Port = value
 	}

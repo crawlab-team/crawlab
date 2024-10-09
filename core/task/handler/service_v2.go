@@ -10,7 +10,7 @@ import (
 	grpcclient "github.com/crawlab-team/crawlab/core/grpc/client"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/models/client"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	nodeconfig "github.com/crawlab-team/crawlab/core/node/config"
 	"github.com/crawlab-team/crawlab/trace"
@@ -43,7 +43,10 @@ type ServiceV2 struct {
 func (svc *ServiceV2) Start() {
 	// Initialize gRPC if not started
 	if !svc.c.IsStarted() {
-		svc.c.Start()
+		err := svc.c.Start()
+		if err != nil {
+			return
+		}
 	}
 
 	go svc.ReportStatus()
@@ -71,9 +74,10 @@ func (svc *ServiceV2) Cancel(taskId primitive.ObjectID) (err error) {
 }
 
 func (svc *ServiceV2) Fetch() {
+	ticker := time.NewTicker(svc.fetchInterval)
 	for {
 		// wait
-		time.Sleep(svc.fetchInterval)
+		<-ticker.C
 
 		// current node
 		n, err := svc.GetCurrentNode()
@@ -93,6 +97,7 @@ func (svc *ServiceV2) Fetch() {
 
 		// stop
 		if svc.stopped {
+			ticker.Stop()
 			return
 		}
 
@@ -112,10 +117,11 @@ func (svc *ServiceV2) Fetch() {
 		if err := svc.run(tid); err != nil {
 			trace.PrintError(err)
 			t, err := svc.GetTaskById(tid)
-			if err == nil && t.Status != constants.TaskStatusCancelled {
+			if err != nil && t.Status != constants.TaskStatusCancelled {
 				t.Error = err.Error()
 				t.Status = constants.TaskStatusError
 				t.SetUpdated(t.CreatedBy)
+				_ = client.NewModelServiceV2[models2.TaskV2]().ReplaceById(t.Id, *t)
 				continue
 			}
 			continue
@@ -196,15 +202,15 @@ func (svc *ServiceV2) GetNodeConfigService() (cfgSvc interfaces.NodeConfigServic
 	return svc.cfgSvc
 }
 
-func (svc *ServiceV2) GetCurrentNode() (n *models.NodeV2, err error) {
+func (svc *ServiceV2) GetCurrentNode() (n *models2.NodeV2, err error) {
 	// node key
 	nodeKey := svc.cfgSvc.GetNodeKey()
 
 	// current node
 	if svc.cfgSvc.IsMaster() {
-		n, err = service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
+		n, err = service.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
 	} else {
-		n, err = client.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
+		n, err = client.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
 	}
 	if err != nil {
 		return nil, err
@@ -213,11 +219,11 @@ func (svc *ServiceV2) GetCurrentNode() (n *models.NodeV2, err error) {
 	return n, nil
 }
 
-func (svc *ServiceV2) GetTaskById(id primitive.ObjectID) (t *models.TaskV2, err error) {
+func (svc *ServiceV2) GetTaskById(id primitive.ObjectID) (t *models2.TaskV2, err error) {
 	if svc.cfgSvc.IsMaster() {
-		t, err = service.NewModelServiceV2[models.TaskV2]().GetById(id)
+		t, err = service.NewModelServiceV2[models2.TaskV2]().GetById(id)
 	} else {
-		t, err = client.NewModelServiceV2[models.TaskV2]().GetById(id)
+		t, err = client.NewModelServiceV2[models2.TaskV2]().GetById(id)
 	}
 	if err != nil {
 		return nil, err
@@ -226,11 +232,11 @@ func (svc *ServiceV2) GetTaskById(id primitive.ObjectID) (t *models.TaskV2, err 
 	return t, nil
 }
 
-func (svc *ServiceV2) GetSpiderById(id primitive.ObjectID) (s *models.SpiderV2, err error) {
+func (svc *ServiceV2) GetSpiderById(id primitive.ObjectID) (s *models2.SpiderV2, err error) {
 	if svc.cfgSvc.IsMaster() {
-		s, err = service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+		s, err = service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 	} else {
-		s, err = client.NewModelServiceV2[models.SpiderV2]().GetById(id)
+		s, err = client.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 	}
 	if err != nil {
 		return nil, err
@@ -239,11 +245,11 @@ func (svc *ServiceV2) GetSpiderById(id primitive.ObjectID) (s *models.SpiderV2, 
 	return s, nil
 }
 
-func (svc *ServiceV2) getRunners() (runners []*Runner) {
+func (svc *ServiceV2) getRunners() (runners []*RunnerV2) {
 	svc.mu.Lock()
 	defer svc.mu.Unlock()
 	svc.runners.Range(func(key, value interface{}) bool {
-		r := value.(Runner)
+		r := value.(RunnerV2)
 		runners = append(runners, &r)
 		return true
 	})
@@ -261,13 +267,13 @@ func (svc *ServiceV2) getRunnerCount() (count int) {
 		"status":  constants.TaskStatusRunning,
 	}
 	if svc.cfgSvc.IsMaster() {
-		count, err = service.NewModelServiceV2[models.TaskV2]().Count(query)
+		count, err = service.NewModelServiceV2[models2.TaskV2]().Count(query)
 		if err != nil {
 			trace.PrintError(err)
 			return
 		}
 	} else {
-		count, err = client.NewModelServiceV2[models.TaskV2]().Count(query)
+		count, err = client.NewModelServiceV2[models2.TaskV2]().Count(query)
 		if err != nil {
 			trace.PrintError(err)
 			return
@@ -317,9 +323,9 @@ func (svc *ServiceV2) reportStatus() (err error) {
 	// save node
 	n.SetUpdated(n.CreatedBy)
 	if svc.cfgSvc.IsMaster() {
-		err = service.NewModelServiceV2[models.NodeV2]().ReplaceById(n.Id, *n)
+		err = service.NewModelServiceV2[models2.NodeV2]().ReplaceById(n.Id, *n)
 	} else {
-		err = client.NewModelServiceV2[models.NodeV2]().ReplaceById(n.Id, *n)
+		err = client.NewModelServiceV2[models2.NodeV2]().ReplaceById(n.Id, *n)
 	}
 	if err != nil {
 		return err
@@ -385,7 +391,7 @@ func (svc *ServiceV2) run(taskId primitive.ObjectID) (err error) {
 	return nil
 }
 
-func NewTaskHandlerServiceV2() (svc2 *ServiceV2, err error) {
+func newTaskHandlerServiceV2() (svc2 *ServiceV2, err error) {
 	// service
 	svc := &ServiceV2{
 		exitWatchDuration: 60 * time.Second,
@@ -402,10 +408,7 @@ func NewTaskHandlerServiceV2() (svc2 *ServiceV2, err error) {
 	svc.cfgSvc = nodeconfig.GetNodeConfigService()
 
 	// grpc client
-	svc.c, err = grpcclient.NewGrpcClientV2()
-	if err != nil {
-		return nil, err
-	}
+	svc.c = grpcclient.GetGrpcClientV2()
 
 	log.Debugf("[NewTaskHandlerService] svc[cfgPath: %s]", svc.cfgSvc.GetConfigPath())
 
@@ -413,12 +416,18 @@ func NewTaskHandlerServiceV2() (svc2 *ServiceV2, err error) {
 }
 
 var _serviceV2 *ServiceV2
+var _serviceV2Once = new(sync.Once)
 
 func GetTaskHandlerServiceV2() (svr *ServiceV2, err error) {
 	if _serviceV2 != nil {
 		return _serviceV2, nil
 	}
-	_serviceV2, err = NewTaskHandlerServiceV2()
+	_serviceV2Once.Do(func() {
+		_serviceV2, err = newTaskHandlerServiceV2()
+		if err != nil {
+			log.Errorf("failed to create task handler service: %v", err)
+		}
+	})
 	if err != nil {
 		return nil, err
 	}

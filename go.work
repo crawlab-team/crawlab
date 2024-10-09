@@ -1,11 +1,12 @@
 go 1.22
 
 use (
+	backend
 	core
 	db
+	fs
 	grpc
 	template-parser
 	trace
 	vcs
-	fs
 )

@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/crawlab-team/crawlab/core/middlewares"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -55,235 +55,212 @@ func InitRoutes(app *gin.Engine) (err error) {
 	// routes groups
 	groups := NewRouterGroups(app)
 
-	RegisterController(groups.AuthGroup, "/data/collections", NewControllerV2[models.DataCollectionV2]())
-	RegisterController(groups.AuthGroup, "/data-sources", NewControllerV2[models.DataSourceV2]())
-	RegisterController(groups.AuthGroup, "/environments", NewControllerV2[models.EnvironmentV2]())
-	RegisterController(groups.AuthGroup, "/gits", NewControllerV2[models.GitV2]())
-	RegisterController(groups.AuthGroup, "/nodes", NewControllerV2[models.NodeV2]())
-	RegisterController(groups.AuthGroup, "/notifications/settings", NewControllerV2[models.SettingV2]())
-	RegisterController(groups.AuthGroup, "/permissions", NewControllerV2[models.PermissionV2]())
-	RegisterController(groups.AuthGroup, "/projects", NewControllerV2[models.ProjectV2]())
-	RegisterController(groups.AuthGroup, "/roles", NewControllerV2[models.RoleV2]())
-	RegisterController(groups.AuthGroup, "/schedules", NewControllerV2[models.ScheduleV2](
-		Action{
+	RegisterController(groups.AuthGroup, "/data/collections", NewControllerV2[models2.DataCollectionV2]())
+	RegisterController(groups.AuthGroup, "/environments", NewControllerV2[models2.EnvironmentV2]())
+	RegisterController(groups.AuthGroup, "/nodes", NewControllerV2[models2.NodeV2]())
+	RegisterController(groups.AuthGroup, "/projects", NewControllerV2[models2.ProjectV2]([]Action{
+		{
+			Method:      http.MethodGet,
+			Path:        "",
+			HandlerFunc: GetProjectList,
+		},
+	}...))
+	RegisterController(groups.AuthGroup, "/schedules", NewControllerV2[models2.ScheduleV2]([]Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "",
 			HandlerFunc: PostSchedule,
 		},
-		Action{
+		{
 			Method:      http.MethodPut,
 			Path:        "/:id",
 			HandlerFunc: PutScheduleById,
 		},
-		Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "/:id/enable",
 			HandlerFunc: PostScheduleEnable,
 		},
-		Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "/:id/disable",
 			HandlerFunc: PostScheduleDisable,
 		},
-	))
-	RegisterController(groups.AuthGroup, "/spiders", NewControllerV2[models.SpiderV2](
-		Action{
+	}...))
+	RegisterController(groups.AuthGroup, "/spiders", NewControllerV2[models2.SpiderV2]([]Action{
+		{
 			Method:      http.MethodGet,
 			Path:        "/:id",
 			HandlerFunc: GetSpiderById,
 		},
-		Action{
+		{
 			Method:      http.MethodGet,
 			Path:        "",
 			HandlerFunc: GetSpiderList,
 		},
-		Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "",
 			HandlerFunc: PostSpider,
 		},
-		Action{
+		{
 			Method:      http.MethodPut,
 			Path:        "/:id",
 			HandlerFunc: PutSpiderById,
 		},
-		Action{
+		{
 			Method:      http.MethodDelete,
 			Path:        "/:id",
 			HandlerFunc: DeleteSpiderById,
 		},
-		Action{
+		{
 			Method:      http.MethodDelete,
 			Path:        "",
 			HandlerFunc: DeleteSpiderList,
 		},
-		Action{
+		{
 			Method:      http.MethodGet,
 			Path:        "/:id/files/list",
 			HandlerFunc: GetSpiderListDir,
 		},
-		Action{
+		{
 			Method:      http.MethodGet,
 			Path:        "/:id/files/get",
 			HandlerFunc: GetSpiderFile,
 		},
-		Action{
+		{
 			Method:      http.MethodGet,
 			Path:        "/:id/files/info",
 			HandlerFunc: GetSpiderFileInfo,
 		},
-		Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "/:id/files/save",
 			HandlerFunc: PostSpiderSaveFile,
 		},
-		Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "/:id/files/save/batch",
 			HandlerFunc: PostSpiderSaveFiles,
 		},
-		Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "/:id/files/save/dir",
 			HandlerFunc: PostSpiderSaveDir,
 		},
-		Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "/:id/files/rename",
 			HandlerFunc: PostSpiderRenameFile,
 		},
-		Action{
+		{
 			Method:      http.MethodDelete,
 			Path:        "/:id/files",
 			HandlerFunc: DeleteSpiderFile,
 		},
-		Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "/:id/files/copy",
 			HandlerFunc: PostSpiderCopyFile,
 		},
-		Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "/:id/files/export",
 			HandlerFunc: PostSpiderExport,
 		},
-		Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "/:id/run",
 			HandlerFunc: PostSpiderRun,
 		},
-		Action{
-			Method:      http.MethodGet,
-			Path:        "/:id/git",
-			HandlerFunc: GetSpiderGit,
-		},
-		Action{
-			Method:      http.MethodGet,
-			Path:        "/:id/git/remote-refs",
-			HandlerFunc: GetSpiderGitRemoteRefs,
-		},
-		Action{
-			Method:      http.MethodPost,
-			Path:        "/:id/git/checkout",
-			HandlerFunc: PostSpiderGitCheckout,
-		},
-		Action{
-			Method:      http.MethodPost,
-			Path:        "/:id/git/pull",
-			HandlerFunc: PostSpiderGitPull,
-		},
-		Action{
-			Method:      http.MethodPost,
-			Path:        "/:id/git/commit",
-			HandlerFunc: PostSpiderGitCommit,
-		},
-		Action{
+
+		{
 			Method:      http.MethodGet,
 			Path:        "/:id/data-source",
 			HandlerFunc: GetSpiderDataSource,
 		},
-		Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "/:id/data-source/:ds_id",
 			HandlerFunc: PostSpiderDataSource,
 		},
-	))
-	RegisterController(groups.AuthGroup, "/tasks", NewControllerV2[models.TaskV2](
-		Action{
+	}...))
+	RegisterController(groups.AuthGroup, "/tasks", NewControllerV2[models2.TaskV2]([]Action{
+		{
 			Method:      http.MethodGet,
 			Path:        "/:id",
 			HandlerFunc: GetTaskById,
 		},
-		Action{
+		{
 			Method:      http.MethodGet,
 			Path:        "",
 			HandlerFunc: GetTaskList,
 		},
-		Action{
+		{
 			Method:      http.MethodDelete,
 			Path:        "/:id",
 			HandlerFunc: DeleteTaskById,
 		},
-		Action{
+		{
 			Method:      http.MethodDelete,
 			Path:        "",
 			HandlerFunc: DeleteList,
 		},
-		Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "/run",
 			HandlerFunc: PostTaskRun,
 		},
-		Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "/:id/restart",
 			HandlerFunc: PostTaskRestart,
 		},
-		Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "/:id/cancel",
 			HandlerFunc: PostTaskCancel,
 		},
-		Action{
+		{
 			Method:      http.MethodGet,
 			Path:        "/:id/logs",
 			HandlerFunc: GetTaskLogs,
 		},
-		Action{
+		{
 			Method:      http.MethodGet,
 			Path:        "/:id/data",
 			HandlerFunc: GetTaskData,
 		},
-	))
-	RegisterController(groups.AuthGroup, "/tokens", NewControllerV2[models.TokenV2](
-		Action{
+	}...))
+	RegisterController(groups.AuthGroup, "/tokens", NewControllerV2[models2.TokenV2]([]Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "",
 			HandlerFunc: PostToken,
 		},
-	))
-	RegisterController(groups.AuthGroup, "/users", NewControllerV2[models.UserV2](
-		Action{
+	}...))
+	RegisterController(groups.AuthGroup, "/users", NewControllerV2[models2.UserV2]([]Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "",
 			HandlerFunc: PostUser,
 		},
-		Action{
+		{
 			Method:      http.MethodPost,
 			Path:        "/:id/change-password",
 			HandlerFunc: PostUserChangePassword,
 		},
-		Action{
+		{
 			Method:      http.MethodGet,
 			Path:        "/me",
 			HandlerFunc: GetUserMe,
 		},
-		Action{
+		{
 			Method:      http.MethodPut,
 			Path:        "/me",
 			HandlerFunc: PutUserById,
 		},
-	))
+	}...))
 
 	RegisterActions(groups.AuthGroup, "/results", []Action{
 		{
@@ -333,6 +310,11 @@ func InitRoutes(app *gin.Engine) (err error) {
 			HandlerFunc: GetSetting,
 		},
 		{
+			Method:      http.MethodPost,
+			Path:        "/:id",
+			HandlerFunc: PostSetting,
+		},
+		{
 			Method:      http.MethodPut,
 			Path:        "/:id",
 			HandlerFunc: PutSetting,
@@ -363,13 +345,6 @@ func InitRoutes(app *gin.Engine) (err error) {
 			HandlerFunc: GetSystemInfo,
 		},
 	})
-	RegisterActions(groups.AnonymousGroup, "/version", []Action{
-		{
-			Method:      http.MethodGet,
-			Path:        "",
-			HandlerFunc: GetVersion,
-		},
-	})
 	RegisterActions(groups.AnonymousGroup, "/", []Action{
 		{
 			Method:      http.MethodPost,
@@ -380,6 +355,18 @@ func InitRoutes(app *gin.Engine) (err error) {
 			Method:      http.MethodPost,
 			Path:        "/logout",
 			HandlerFunc: PostLogout,
+		},
+	})
+	RegisterActions(groups.AnonymousGroup, "/sync", []Action{
+		{
+			Method:      http.MethodGet,
+			Path:        "/:id/scan",
+			HandlerFunc: GetSyncScan,
+		},
+		{
+			Method:      http.MethodGet,
+			Path:        "/:id/download",
+			HandlerFunc: GetSyncDownload,
 		},
 	})
 

@@ -8,7 +8,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/entity"
 	"github.com/crawlab-team/crawlab/core/interfaces"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	nodeconfig "github.com/crawlab-team/crawlab/core/node/config"
 	"github.com/crawlab-team/crawlab/core/notification"
@@ -72,7 +72,7 @@ func (svr TaskServerV2) Fetch(ctx context.Context, request *grpc.Request) (respo
 	if nodeKey == "" {
 		return nil, errors.New("invalid node key")
 	}
-	n, err := service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
+	n, err := service.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
 	if err != nil {
 		return nil, trace.TraceError(err)
 	}
@@ -109,53 +109,103 @@ func (svr TaskServerV2) Fetch(ctx context.Context, request *grpc.Request) (respo
 	return HandleSuccessWithData(tid)
 }
 
-func (svr TaskServerV2) SendNotification(ctx context.Context, request *grpc.Request) (response *grpc.Response, err error) {
-	svc := notification.GetServiceV2()
-	var t = new(models.TaskV2)
-	if err := json.Unmarshal(request.Data, t); err != nil {
+func (svr TaskServerV2) SendNotification(_ context.Context, request *grpc.TaskServiceSendNotificationRequest) (response *grpc.Response, err error) {
+	if !utils.IsPro() {
+		return nil, nil
+	}
+
+	// task id
+	taskId, err := primitive.ObjectIDFromHex(request.TaskId)
+	if err != nil {
+		log.Errorf("invalid task id: %s", request.TaskId)
 		return nil, trace.TraceError(err)
 	}
-	t, err = service.NewModelServiceV2[models.TaskV2]().GetById(t.Id)
+
+	// arguments
+	var args []any
+
+	// task
+	task, err := service.NewModelServiceV2[models2.TaskV2]().GetById(taskId)
+	if err != nil {
+		log.Errorf("task not found: %s", request.TaskId)
+		return nil, trace.TraceError(err)
+	}
+	args = append(args, task)
+
+	// task stat
+	taskStat, err := service.NewModelServiceV2[models2.TaskStatV2]().GetById(task.Id)
+	if err != nil {
+		log.Errorf("task stat not found for task: %s", request.TaskId)
+		return nil, trace.TraceError(err)
+	}
+	args = append(args, taskStat)
+
+	// spider
+	spider, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(task.SpiderId)
+	if err != nil {
+		log.Errorf("spider not found for task: %s", request.TaskId)
+		return nil, trace.TraceError(err)
+	}
+	args = append(args, spider)
+
+	// node
+	node, err := service.NewModelServiceV2[models2.NodeV2]().GetById(task.NodeId)
 	if err != nil {
 		return nil, trace.TraceError(err)
 	}
-	td, err := json.Marshal(t)
-	if err != nil {
-		return nil, trace.TraceError(err)
+	args = append(args, node)
+
+	// schedule
+	var schedule *models2.ScheduleV2
+	if !task.ScheduleId.IsZero() {
+		schedule, err = service.NewModelServiceV2[models2.ScheduleV2]().GetById(task.ScheduleId)
+		if err != nil {
+			log.Errorf("schedule not found for task: %s", request.TaskId)
+			return nil, trace.TraceError(err)
+		}
+		args = append(args, schedule)
 	}
-	var e bson.M
-	if err := json.Unmarshal(td, &e); err != nil {
-		return nil, trace.TraceError(err)
-	}
-	ts, err := service.NewModelServiceV2[models.TaskStatV2]().GetById(t.Id)
-	if err != nil {
-		return nil, trace.TraceError(err)
-	}
-	settings, _, err := svc.GetSettingList(bson.M{
+
+	// settings
+	settings, err := service.NewModelServiceV2[models2.NotificationSettingV2]().GetMany(bson.M{
 		"enabled": true,
-	}, nil, nil)
+		"trigger": bson.M{
+			"$regex": constants.NotificationTriggerPatternTask,
+		},
+	}, nil)
 	if err != nil {
 		return nil, trace.TraceError(err)
 	}
+
+	// notification service
+	svc := notification.GetNotificationServiceV2()
+
 	for _, s := range settings {
-		switch s.TaskTrigger {
+		// compatible with old settings
+		trigger := s.Trigger
+		if trigger == "" {
+			trigger = s.TaskTrigger
+		}
+
+		// send notification
+		switch trigger {
 		case constants.NotificationTriggerTaskFinish:
-			if t.Status != constants.TaskStatusPending && t.Status != constants.TaskStatusRunning {
-				_ = svc.Send(&s, e)
+			if task.Status != constants.TaskStatusPending && task.Status != constants.TaskStatusRunning {
+				go svc.Send(&s, args...)
 			}
 		case constants.NotificationTriggerTaskError:
-			if t.Status == constants.TaskStatusError || t.Status == constants.TaskStatusAbnormal {
-				_ = svc.Send(&s, e)
+			if task.Status == constants.TaskStatusError || task.Status == constants.TaskStatusAbnormal {
+				go svc.Send(&s, args...)
 			}
 		case constants.NotificationTriggerTaskEmptyResults:
-			if t.Status != constants.TaskStatusPending && t.Status != constants.TaskStatusRunning {
-				if ts.ResultCount == 0 {
-					_ = svc.Send(&s, e)
+			if task.Status != constants.TaskStatusPending && task.Status != constants.TaskStatusRunning {
+				if taskStat.ResultCount == 0 {
+					go svc.Send(&s, args...)
 				}
 			}
-		case constants.NotificationTriggerTaskNever:
 		}
 	}
+
 	return nil, nil
 }
 
@@ -164,7 +214,7 @@ func (svr TaskServerV2) handleInsertData(msg *grpc.StreamMessage) (err error) {
 	if err != nil {
 		return err
 	}
-	var records []interface{}
+	var records []map[string]interface{}
 	for _, d := range data.Records {
 		res, ok := d[constants.TaskKey]
 		if ok {
@@ -190,22 +240,22 @@ func (svr TaskServerV2) handleInsertLogs(msg *grpc.StreamMessage) (err error) {
 }
 
 func (svr TaskServerV2) getTaskQueueItemIdAndDequeue(query bson.M, opts *mongo.FindOptions, nid primitive.ObjectID) (tid primitive.ObjectID, err error) {
-	tq, err := service.NewModelServiceV2[models.TaskQueueItemV2]().GetOne(query, opts)
+	tq, err := service.NewModelServiceV2[models2.TaskQueueItemV2]().GetOne(query, opts)
 	if err != nil {
 		if errors.Is(err, mongo2.ErrNoDocuments) {
 			return tid, nil
 		}
 		return tid, trace.TraceError(err)
 	}
-	t, err := service.NewModelServiceV2[models.TaskV2]().GetById(tq.Id)
+	t, err := service.NewModelServiceV2[models2.TaskV2]().GetById(tq.Id)
 	if err == nil {
 		t.NodeId = nid
-		err = service.NewModelServiceV2[models.TaskV2]().ReplaceById(t.Id, *t)
+		err = service.NewModelServiceV2[models2.TaskV2]().ReplaceById(t.Id, *t)
 		if err != nil {
 			return tid, trace.TraceError(err)
 		}
 	}
-	err = service.NewModelServiceV2[models.TaskQueueItemV2]().DeleteById(tq.Id)
+	err = service.NewModelServiceV2[models2.TaskQueueItemV2]().DeleteById(tq.Id)
 	if err != nil {
 		return tid, trace.TraceError(err)
 	}

@@ -16,7 +16,6 @@ var serverCmd = &cobra.Command{
 	Long:    `Start Crawlab node server that can serve as API, task scheduler, task runner, etc.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// app
-		//svr := apps.GetServer(opts...)
 		svr := apps.GetServerV2()
 
 		// start

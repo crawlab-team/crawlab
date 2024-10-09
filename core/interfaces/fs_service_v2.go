@@ -9,4 +9,5 @@ type FsServiceV2 interface {
 	Rename(path, newPath string) (err error)
 	Delete(path string) (err error)
 	Copy(path, newPath string) (err error)
+	Export() (resultPath string, err error)
 }

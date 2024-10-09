@@ -2,20 +2,22 @@ package server
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/entity"
 	"github.com/crawlab-team/crawlab/core/errors"
 	"github.com/crawlab-team/crawlab/core/interfaces"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	nodeconfig "github.com/crawlab-team/crawlab/core/node/config"
+	"github.com/crawlab-team/crawlab/core/notification"
+	"github.com/crawlab-team/crawlab/core/utils"
 	"github.com/crawlab-team/crawlab/grpc"
 	errors2 "github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"sync"
 	"time"
 )
 
@@ -30,84 +32,70 @@ type NodeServerV2 struct {
 }
 
 // Register from handler/worker to master
-func (svr NodeServerV2) Register(ctx context.Context, req *grpc.Request) (res *grpc.Response, err error) {
+func (svr NodeServerV2) Register(_ context.Context, req *grpc.NodeServiceRegisterRequest) (res *grpc.Response, err error) {
 	// unmarshall data
-	var node models.NodeV2
-	if req.Data != nil {
-		if err := json.Unmarshal(req.Data, &node); err != nil {
-			return HandleError(err)
-		}
-
-		if node.IsMaster {
-			// error: cannot register master node
-			return HandleError(errors.ErrorGrpcNotAllowed)
-		}
+	if req.IsMaster {
+		// error: cannot register master node
+		return HandleError(errors.ErrorGrpcNotAllowed)
 	}
 
 	// node key
-	var nodeKey string
-	if req.NodeKey != "" {
-		nodeKey = req.NodeKey
-	} else {
-		nodeKey = node.Key
-	}
-	if nodeKey == "" {
+	if req.Key == "" {
 		return HandleError(errors.ErrorModelMissingRequiredData)
 	}
 
 	// find in db
-	nodeDb, err := service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
+	var node *models.NodeV2
+	node, err = service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": req.Key}, nil)
 	if err == nil {
-		if node.IsMaster {
-			// error: cannot register master node
-			return HandleError(errors.ErrorGrpcNotAllowed)
-		} else {
-			// register existing
-			nodeDb.Status = constants.NodeStatusRegistered
-			nodeDb.Active = true
-			err = service.NewModelServiceV2[models.NodeV2]().ReplaceById(nodeDb.Id, *nodeDb)
-			if err != nil {
-				return HandleError(err)
-			}
-			log.Infof("[NodeServerV2] updated worker[%s] in db. id: %s", nodeKey, node.Id.Hex())
-		}
-	} else if errors2.Is(err, mongo.ErrNoDocuments) {
-		// register new
-		node.Key = nodeKey
+		// register existing
 		node.Status = constants.NodeStatusRegistered
 		node.Active = true
 		node.ActiveAt = time.Now()
-		node.Enabled = true
-		if node.Name == "" {
-			node.Name = nodeKey
-		}
-		node.SetCreated(primitive.NilObjectID)
-		node.SetUpdated(primitive.NilObjectID)
-		_, err = service.NewModelServiceV2[models.NodeV2]().InsertOne(*nodeDb)
+		err = service.NewModelServiceV2[models.NodeV2]().ReplaceById(node.Id, *node)
 		if err != nil {
 			return HandleError(err)
 		}
-		log.Infof("[NodeServerV2] added worker[%s] in db. id: %s", nodeKey, node.Id.Hex())
+		log.Infof("[NodeServerV2] updated worker[%s] in db. id: %s", req.Key, node.Id.Hex())
+	} else if errors2.Is(err, mongo.ErrNoDocuments) {
+		// register new
+		node = &models.NodeV2{
+			Key:        req.Key,
+			Name:       req.Name,
+			Status:     constants.NodeStatusRegistered,
+			Active:     true,
+			ActiveAt:   time.Now(),
+			Enabled:    true,
+			MaxRunners: int(req.MaxRunners),
+		}
+		node.SetCreated(primitive.NilObjectID)
+		node.SetUpdated(primitive.NilObjectID)
+		node.Id, err = service.NewModelServiceV2[models.NodeV2]().InsertOne(*node)
+		if err != nil {
+			return HandleError(err)
+		}
+		log.Infof("[NodeServerV2] added worker[%s] in db. id: %s", req.Key, node.Id.Hex())
 	} else {
 		// error
 		return HandleError(err)
 	}
 
-	log.Infof("[NodeServerV2] master registered worker[%s]", req.GetNodeKey())
+	log.Infof("[NodeServerV2] master registered worker[%s]", req.Key)
 
 	return HandleSuccessWithData(node)
 }
 
 // SendHeartbeat from worker to master
-func (svr NodeServerV2) SendHeartbeat(ctx context.Context, req *grpc.Request) (res *grpc.Response, err error) {
+func (svr NodeServerV2) SendHeartbeat(_ context.Context, req *grpc.NodeServiceSendHeartbeatRequest) (res *grpc.Response, err error) {
 	// find in db
-	node, err := service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": req.NodeKey}, nil)
+	node, err := service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": req.Key}, nil)
 	if err != nil {
 		if errors2.Is(err, mongo.ErrNoDocuments) {
 			return HandleError(errors.ErrorNodeNotExists)
 		}
 		return HandleError(err)
 	}
+	oldStatus := node.Status
 
 	// validate status
 	if node.Status == constants.NodeStatusUnregistered {
@@ -122,13 +110,16 @@ func (svr NodeServerV2) SendHeartbeat(ctx context.Context, req *grpc.Request) (r
 	if err != nil {
 		return HandleError(err)
 	}
+	newStatus := node.Status
+
+	// send notification if status changed
+	if utils.IsPro() {
+		if oldStatus != newStatus {
+			go notification.GetNotificationServiceV2().SendNodeNotification(node)
+		}
+	}
 
 	return HandleSuccessWithData(node)
-}
-
-// Ping from worker to master
-func (svr NodeServerV2) Ping(ctx context.Context, req *grpc.Request) (res *grpc.Response, err error) {
-	return HandleSuccess()
 }
 
 func (svr NodeServerV2) Subscribe(request *grpc.Request, stream grpc.NodeService_SubscribeServer) (err error) {
@@ -159,7 +150,7 @@ func (svr NodeServerV2) Subscribe(request *grpc.Request, stream grpc.NodeService
 	}
 }
 
-func (svr NodeServerV2) Unsubscribe(ctx context.Context, req *grpc.Request) (res *grpc.Response, err error) {
+func (svr NodeServerV2) Unsubscribe(_ context.Context, req *grpc.Request) (res *grpc.Response, err error) {
 	sub, err := svr.server.GetSubscribe("node:" + req.NodeKey)
 	if err != nil {
 		return nil, errors.ErrorGrpcSubscribeNotExists
@@ -177,13 +168,22 @@ func (svr NodeServerV2) Unsubscribe(ctx context.Context, req *grpc.Request) (res
 	}, nil
 }
 
+var nodeSvrV2 *NodeServerV2
+var nodeSvrV2Once = new(sync.Once)
+
 func NewNodeServerV2() (res *NodeServerV2, err error) {
-	// node server
-	svr := &NodeServerV2{}
-	svr.cfgSvc, err = nodeconfig.NewNodeConfigService()
+	if nodeSvrV2 != nil {
+		return nodeSvrV2, nil
+	}
+	nodeSvrV2Once.Do(func() {
+		nodeSvrV2 = &NodeServerV2{}
+		nodeSvrV2.cfgSvc = nodeconfig.GetNodeConfigService()
+		if err != nil {
+			log.Errorf("[NodeServerV2] error: %s", err.Error())
+		}
+	})
 	if err != nil {
 		return nil, err
 	}
-
-	return svr, nil
+	return nodeSvrV2, nil
 }

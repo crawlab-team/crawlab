@@ -4,6 +4,8 @@ import (
 	"github.com/crawlab-team/crawlab/core/entity"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/utils"
+	"github.com/crawlab-team/crawlab/trace"
+	"github.com/google/uuid"
 	"io"
 	"os"
 	"path/filepath"
@@ -157,6 +159,15 @@ func (svc *ServiceV2) Copy(path, newPath string) (err error) {
 		// If source is directory, copy it recursively
 		return utils.CopyDir(srcPath, destPath)
 	}
+}
+
+func (svc *ServiceV2) Export() (resultPath string, err error) {
+	zipFilePath := filepath.Join(os.TempDir(), uuid.New().String()+".zip")
+	if err := utils.ZipDirectory(svc.rootPath, zipFilePath); err != nil {
+		return "", trace.TraceError(err)
+	}
+
+	return zipFilePath, nil
 }
 
 func NewFsServiceV2(path string) (svc interfaces.FsServiceV2) {

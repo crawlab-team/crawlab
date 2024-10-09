@@ -193,10 +193,7 @@ func NewNodeServer() (res *NodeServer, err error) {
 	if err != nil {
 		return nil, err
 	}
-	svr.cfgSvc, err = nodeconfig.NewNodeConfigService()
-	if err != nil {
-		return nil, err
-	}
+	svr.cfgSvc = nodeconfig.GetNodeConfigService()
 
 	return svr, nil
 }

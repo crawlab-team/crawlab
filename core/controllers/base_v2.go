@@ -11,6 +11,12 @@ import (
 	mongo2 "go.mongodb.org/mongo-driver/mongo"
 )
 
+type Action struct {
+	Method      string
+	Path        string
+	HandlerFunc gin.HandlerFunc
+}
+
 type BaseControllerV2[T any] struct {
 	modelSvc *service.ModelServiceV2[T]
 	actions  []Action
@@ -86,7 +92,6 @@ func (ctr *BaseControllerV2[T]) PutById(c *gin.Context) {
 
 	u := GetUserFromContextV2(c)
 	m := any(&model).(interfaces.ModelV2)
-	m.SetId(primitive.NewObjectID())
 	m.SetUpdated(u.Id)
 
 	if err := ctr.modelSvc.ReplaceById(id, model); err != nil {
@@ -170,14 +175,19 @@ func (ctr *BaseControllerV2[T]) DeleteList(c *gin.Context) {
 }
 
 func (ctr *BaseControllerV2[T]) getAll(c *gin.Context) {
-	models, err := ctr.modelSvc.GetMany(nil, &mongo.FindOptions{
-		Sort: bson.D{{"_id", -1}},
+	query := MustGetFilterQuery(c)
+	sort := MustGetSortOption(c)
+	if sort == nil {
+		sort = bson.D{{"_id", -1}}
+	}
+	models, err := ctr.modelSvc.GetMany(query, &mongo.FindOptions{
+		Sort: sort,
 	})
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
-	total, err := ctr.modelSvc.Count(nil)
+	total, err := ctr.modelSvc.Count(query)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return

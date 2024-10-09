@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"github.com/crawlab-team/crawlab/core/controllers"
 	"github.com/crawlab-team/crawlab/core/middlewares"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/user"
 	"github.com/spf13/viper"
@@ -24,7 +24,7 @@ func init() {
 }
 
 // TestModel is a simple struct to be used as a model in tests
-type TestModel models.TestModel
+type TestModel models.TestModelV2
 
 var TestToken string
 

@@ -1,10 +1,11 @@
 package user
 
 import (
+	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/errors"
 	"github.com/crawlab-team/crawlab/core/interfaces"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/utils"
 	mongo2 "github.com/crawlab-team/crawlab/db/mongo"
@@ -14,6 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"sync"
 	"time"
 )
 
@@ -181,7 +183,7 @@ func (svc *ServiceV2) getSecretFunc() jwt.Keyfunc {
 	}
 }
 
-func NewUserServiceV2() (svc *ServiceV2, err error) {
+func newUserServiceV2() (svc *ServiceV2, err error) {
 	// service
 	svc = &ServiceV2{
 		modelSvc:         service.NewModelServiceV2[models.UserV2](),
@@ -191,6 +193,7 @@ func NewUserServiceV2() (svc *ServiceV2, err error) {
 
 	// initialize
 	if err := svc.Init(); err != nil {
+		log.Errorf("failed to initialize user service: %v", err)
 		return nil, trace.TraceError(err)
 	}
 
@@ -198,15 +201,14 @@ func NewUserServiceV2() (svc *ServiceV2, err error) {
 }
 
 var userSvcV2 *ServiceV2
+var userSvcV2Once sync.Once
 
 func GetUserServiceV2() (svc *ServiceV2, err error) {
-	if userSvcV2 != nil {
-		return userSvcV2, nil
-	}
-	svc, err = NewUserServiceV2()
-	if err != nil {
-		return nil, err
-	}
-	userSvcV2 = svc
-	return svc, nil
+	userSvcV2Once.Do(func() {
+		userSvcV2, err = newUserServiceV2()
+		if err != nil {
+			return
+		}
+	})
+	return userSvcV2, nil
 }

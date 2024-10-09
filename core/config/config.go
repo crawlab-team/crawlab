@@ -1,7 +1,6 @@
 package config
 
 import (
-	"bytes"
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/trace"
 	"github.com/fsnotify/fsnotify"
@@ -63,14 +62,10 @@ func (c *Config) Init() (err error) {
 	replacer := strings.NewReplacer(".", "_")
 	viper.SetEnvKeyReplacer(replacer)
 
-	// read default config
-	defaultConfBuf := bytes.NewBufferString(DefaultConfigYaml)
-	if err := viper.ReadConfig(defaultConfBuf); err != nil {
-		return trace.TraceError(err)
-	}
-
-	// merge config
-	if err := viper.MergeInConfig(); err != nil { // viper parsing config file
+	// read in config
+	if err := viper.ReadInConfig(); err != nil {
+		log.Errorf("Error reading config file, %s", err)
+		trace.PrintError(err)
 		return err
 	}
 

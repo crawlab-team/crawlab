@@ -1,10 +1,12 @@
 package controllers
 
 import (
-	"github.com/crawlab-team/crawlab/core/models/models"
+	"errors"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func GetSetting(c *gin.Context) {
@@ -14,9 +16,43 @@ func GetSetting(c *gin.Context) {
 	// setting
 	s, err := service.NewModelServiceV2[models.SettingV2]().GetOne(bson.M{"key": key}, nil)
 	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			HandleSuccess(c)
+			return
+		}
 		HandleErrorInternalServerError(c, err)
 		return
 	}
+
+	HandleSuccessWithData(c, s)
+}
+
+func PostSetting(c *gin.Context) {
+	// key
+	key := c.Param("id")
+
+	// settings
+	var s models.SettingV2
+	if err := c.ShouldBindJSON(&s); err != nil {
+		HandleErrorInternalServerError(c, err)
+		return
+	}
+
+	if s.Key == "" {
+		s.Key = key
+	}
+
+	u := GetUserFromContextV2(c)
+
+	s.SetCreated(u.Id)
+	s.SetUpdated(u.Id)
+
+	id, err := service.NewModelServiceV2[models.SettingV2]().InsertOne(s)
+	if err != nil {
+		HandleErrorInternalServerError(c, err)
+		return
+	}
+	s.Id = id
 
 	HandleSuccessWithData(c, s)
 }
@@ -26,7 +62,7 @@ func PutSetting(c *gin.Context) {
 	key := c.Param("id")
 
 	// settings
-	var s models.Setting
+	var s models.SettingV2
 	if err := c.ShouldBindJSON(&s); err != nil {
 		HandleErrorInternalServerError(c, err)
 		return

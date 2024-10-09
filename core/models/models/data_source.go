@@ -11,7 +11,7 @@ type DataSource struct {
 	Type        string             `json:"type" bson:"type"`
 	Description string             `json:"description" bson:"description"`
 	Host        string             `json:"host" bson:"host"`
-	Port        string             `json:"port" bson:"port"`
+	Port        int                `json:"port" bson:"port"`
 	Url         string             `json:"url" bson:"url"`
 	Hosts       []string           `json:"hosts" bson:"hosts"`
 	Database    string             `json:"database" bson:"database"`

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"github.com/crawlab-team/crawlab/vcs"
 	"github.com/go-git/go-billy/v5/memfs"
+	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/storage/memory"
 	"github.com/stretchr/testify/require"
-	"io/ioutil"
 	"os"
 	"path"
 	"testing"
@@ -61,7 +61,7 @@ func TestGitClient_CommitAllAndCheckoutBranch(t *testing.T) {
 
 	// commit
 	filePath := path.Join(T.LocalRepoPath, T.TestFileName)
-	err = ioutil.WriteFile(filePath, []byte(T.TestFileContent), os.FileMode(0766))
+	err = os.WriteFile(filePath, []byte(T.TestFileContent), os.FileMode(0766))
 	require.Nil(t, err)
 	err = T.LocalRepo.CommitAll(T.TestCommitMessage)
 	require.Nil(t, err)
@@ -86,7 +86,7 @@ func TestGitClient_Push(t *testing.T) {
 
 	// commit
 	filePath := path.Join(T.LocalRepoPath, T.TestFileName)
-	err = ioutil.WriteFile(filePath, []byte(T.TestFileContent), os.FileMode(0766))
+	err = os.WriteFile(filePath, []byte(T.TestFileContent), os.FileMode(0766))
 	require.Nil(t, err)
 	err = T.LocalRepo.CommitAll(T.TestCommitMessage)
 	require.Nil(t, err)
@@ -102,7 +102,7 @@ func TestGitClient_Reset(t *testing.T) {
 
 	// file
 	filePath := path.Join(T.LocalRepoPath, T.TestFileName)
-	err = ioutil.WriteFile(filePath, []byte(T.TestFileContent), os.FileMode(0766))
+	err = os.WriteFile(filePath, []byte(T.TestFileContent), os.FileMode(0766))
 	require.Nil(t, err)
 
 	// reset
@@ -118,7 +118,7 @@ func TestGitClient_GetLogs(t *testing.T) {
 
 	// file
 	filePath := path.Join(T.LocalRepoPath, T.TestFileName)
-	err = ioutil.WriteFile(filePath, []byte(T.TestFileContent), os.FileMode(0766))
+	err = os.WriteFile(filePath, []byte(T.TestFileContent), os.FileMode(0766))
 	require.Nil(t, err)
 	err = T.LocalRepo.CommitAll(T.TestCommitMessage)
 	require.Nil(t, err)
@@ -136,7 +136,7 @@ func TestGitClient_InitWithHttpAuth(t *testing.T) {
 
 	// get credentials
 	var cred Credential
-	data, err := ioutil.ReadFile("credentials.json")
+	data, err := os.ReadFile("credentials.json")
 	require.Nil(t, err)
 	err = json.Unmarshal(data, &cred)
 	require.Nil(t, err)
@@ -159,9 +159,9 @@ func TestGitClient_InitWithHttpAuth(t *testing.T) {
 	require.Nil(t, err)
 
 	// validate
-	files, err := ioutil.ReadDir(T.AuthRepoPath)
+	files, err := os.ReadDir(T.AuthRepoPath)
 	require.Greater(t, len(files), 0)
-	data, err = ioutil.ReadFile(path.Join(T.AuthRepoPath, "README.md"))
+	data, err = os.ReadFile(path.Join(T.AuthRepoPath, "README.md"))
 	require.Nil(t, err)
 
 	// dispose
@@ -175,7 +175,7 @@ func TestGitClient_MoveBranch(t *testing.T) {
 
 	// get credentials
 	var cred Credential
-	data, err := ioutil.ReadFile("credentials.json")
+	data, err := os.ReadFile("credentials.json")
 	require.Nil(t, err)
 	err = json.Unmarshal(data, &cred)
 	require.Nil(t, err)
@@ -188,6 +188,7 @@ func TestGitClient_MoveBranch(t *testing.T) {
 		vcs.WithUsername(cred.Username),
 		vcs.WithPassword(cred.Password),
 	)
+	require.Nil(t, err)
 
 	// pull
 	err = c.Pull(vcs.WithBranchNamePull(vcs.GitBranchNameMain))
@@ -214,7 +215,7 @@ func TestGitClient_PullWithHttpAuth(t *testing.T) {
 
 	// get credentials
 	var cred Credential
-	data, err := ioutil.ReadFile("credentials.json")
+	data, err := os.ReadFile("credentials.json")
 	require.Nil(t, err)
 	err = json.Unmarshal(data, &cred)
 	require.Nil(t, err)
@@ -245,9 +246,9 @@ func TestGitClient_PullWithHttpAuth(t *testing.T) {
 	require.Nil(t, err)
 
 	// validate
-	files, err := ioutil.ReadDir(T.AuthRepoPath)
+	files, err := os.ReadDir(T.AuthRepoPath)
 	require.Greater(t, len(files), 0)
-	data, err = ioutil.ReadFile(path.Join(T.AuthRepoPath, "README.md"))
+	data, err = os.ReadFile(path.Join(T.AuthRepoPath, "README.md"))
 	require.Nil(t, err)
 
 	// dispose
@@ -261,7 +262,7 @@ func TestGitClient_CheckoutRemoteBranchWithHttpAuth(t *testing.T) {
 
 	// get credentials
 	var cred Credential
-	data, err := ioutil.ReadFile("credentials.json")
+	data, err := os.ReadFile("credentials.json")
 	require.Nil(t, err)
 	err = json.Unmarshal(data, &cred)
 	require.Nil(t, err)
@@ -284,7 +285,7 @@ func TestGitClient_CheckoutRemoteBranchWithHttpAuth(t *testing.T) {
 	require.Nil(t, err)
 
 	// validate
-	_, err = ioutil.ReadFile(path.Join(T.AuthRepoPath, "MAIN"))
+	_, err = os.ReadFile(path.Join(T.AuthRepoPath, "MAIN"))
 	require.Nil(t, err)
 
 	// checkout remote branch
@@ -292,7 +293,7 @@ func TestGitClient_CheckoutRemoteBranchWithHttpAuth(t *testing.T) {
 	require.Nil(t, err)
 
 	// validate
-	_, err = ioutil.ReadFile(path.Join(T.AuthRepoPath, "RELEASE"))
+	_, err = os.ReadFile(path.Join(T.AuthRepoPath, "RELEASE"))
 	require.Nil(t, err)
 
 	// checkout remote branch
@@ -300,7 +301,7 @@ func TestGitClient_CheckoutRemoteBranchWithHttpAuth(t *testing.T) {
 	require.Nil(t, err)
 
 	// validate
-	_, err = ioutil.ReadFile(path.Join(T.AuthRepoPath, "DEVELOP"))
+	_, err = os.ReadFile(path.Join(T.AuthRepoPath, "DEVELOP"))
 	require.Nil(t, err)
 
 	// dispose
@@ -314,7 +315,7 @@ func TestGitClient_InitWithSshAuth_PrivateKey(t *testing.T) {
 
 	// get credentials
 	var cred Credential
-	data, err := ioutil.ReadFile("credentials.json")
+	data, err := os.ReadFile("credentials.json")
 	require.Nil(t, err)
 	err = json.Unmarshal(data, &cred)
 	require.Nil(t, err)
@@ -342,9 +343,9 @@ func TestGitClient_InitWithSshAuth_PrivateKey(t *testing.T) {
 	require.Nil(t, err)
 
 	// validate
-	files, err := ioutil.ReadDir(T.AuthRepoPath)
+	files, err := os.ReadDir(T.AuthRepoPath)
 	require.Greater(t, len(files), 0)
-	data, err = ioutil.ReadFile(path.Join(T.AuthRepoPath, "README.md"))
+	data, err = os.ReadFile(path.Join(T.AuthRepoPath, "README.md"))
 	require.Nil(t, err)
 
 	// dispose
@@ -358,7 +359,7 @@ func TestGitClient_InitWithSshAuth_PrivateKeyPath(t *testing.T) {
 
 	// get credentials
 	var cred Credential
-	data, err := ioutil.ReadFile("credentials.json")
+	data, err := os.ReadFile("credentials.json")
 	require.Nil(t, err)
 	err = json.Unmarshal(data, &cred)
 	require.Nil(t, err)
@@ -383,9 +384,9 @@ func TestGitClient_InitWithSshAuth_PrivateKeyPath(t *testing.T) {
 	require.Nil(t, err)
 
 	// validate
-	files, err := ioutil.ReadDir(T.AuthRepoPath)
+	files, err := os.ReadDir(T.AuthRepoPath)
 	require.Greater(t, len(files), 0)
-	data, err = ioutil.ReadFile(path.Join(T.AuthRepoPath, "README.md"))
+	data, err = os.ReadFile(path.Join(T.AuthRepoPath, "README.md"))
 	require.Nil(t, err)
 }
 
@@ -449,7 +450,7 @@ func TestGitClient_IsRemoteChanged(t *testing.T) {
 
 	// get credentials
 	var cred Credential
-	data, err := ioutil.ReadFile("credentials.json")
+	data, err := os.ReadFile("credentials.json")
 	require.Nil(t, err)
 	err = json.Unmarshal(data, &cred)
 	require.Nil(t, err)
@@ -487,7 +488,7 @@ func TestGitClient_IsRemoteChanged(t *testing.T) {
 	// commit and push
 	testFileName := fmt.Sprintf("test-%d.txt", time.Now().Unix())
 	filePath := path.Join(c1.GetPath(), testFileName)
-	err = ioutil.WriteFile(filePath, []byte(T.TestFileContent), os.FileMode(0766))
+	err = os.WriteFile(filePath, []byte(T.TestFileContent), os.FileMode(0766))
 	require.Nil(t, err)
 	err = c1.Add(testFileName)
 	require.Nil(t, err)

@@ -8,8 +8,8 @@ import (
 
 func GetSystemInfo(c *gin.Context) {
 	info := &entity.SystemInfo{
-		Edition: viper.GetString("info.edition"),
-		Version: viper.GetString("info.version"),
+		Edition: viper.GetString("edition"),
+		Version: viper.GetString("version"),
 	}
 	HandleSuccessWithData(c, info)
 }

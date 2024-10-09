@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"errors"
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/trace"
 	"github.com/go-git/go-billy/v5"
@@ -14,7 +15,7 @@ import (
 	gitssh "github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"github.com/go-git/go-git/v5/storage/memory"
 	"golang.org/x/crypto/ssh"
-	"io/ioutil"
+	"io"
 	"os"
 	"path"
 	"regexp"
@@ -35,6 +36,7 @@ type GitClient struct {
 	privateKey     string
 	privateKeyPath string
 	defaultBranch  string
+	defaultInit    bool
 
 	// internals
 	r *git.Repository
@@ -51,36 +53,6 @@ func (c *GitClient) Init() (err error) {
 	if err != nil {
 		return err
 	}
-
-	// if remote url is not empty and no remote exists
-	// create default remote and pull from remote url
-	remotes, err := c.r.Remotes()
-	if err != nil {
-		return err
-	}
-	if c.remoteUrl != "" && len(remotes) == 0 {
-		// attempt to get default remote
-		if _, err := c.r.Remote(GitRemoteNameOrigin); err != nil {
-			if err != git.ErrRemoteNotFound {
-				return trace.TraceError(err)
-			}
-			err = nil
-
-			// create default remote
-			if err := c.createRemote(GitRemoteNameOrigin, c.remoteUrl); err != nil {
-				return err
-			}
-
-			//// pull
-			//opts := []GitPullOption{
-			//	WithRemoteNamePull(GitRemoteNameOrigin),
-			//}
-			//if err := c.Pull(opts...); err != nil {
-			//	return err
-			//}
-		}
-	}
-
 	return nil
 }
 
@@ -94,6 +66,33 @@ func (c *GitClient) Dispose() (err error) {
 		GitMemStorages.Delete(c.path)
 		GitMemFileSystem.Delete(c.path)
 	}
+	return nil
+}
+
+func (c *GitClient) Clone() (err error) {
+	// validate
+	if c.remoteUrl == "" {
+		return ErrUnableToCloneWithEmptyRemoteUrl
+	}
+
+	// auth
+	auth, err := c.getGitAuth()
+	if err != nil {
+		return err
+	}
+
+	// options
+	o := &git.CloneOptions{
+		URL:  c.remoteUrl,
+		Auth: auth,
+	}
+
+	// clone
+	_, err = git.PlainClone(c.path, false, o)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -163,16 +162,16 @@ func (c *GitClient) Pull(opts ...GitPullOption) (err error) {
 
 	// pull
 	if err := wt.Pull(o); err != nil {
-		if err == transport.ErrEmptyRemoteRepository {
+		if errors.Is(err, transport.ErrEmptyRemoteRepository) {
 			return nil
 		}
-		if err == transport.ErrEmptyUploadPackRequest {
+		if errors.Is(err, transport.ErrEmptyUploadPackRequest) {
 			return nil
 		}
-		if err == git.NoErrAlreadyUpToDate {
+		if errors.Is(err, git.NoErrAlreadyUpToDate) {
 			return nil
 		}
-		if err == git.ErrNonFastForwardUpdate {
+		if errors.Is(err, git.ErrNonFastForwardUpdate) {
 			return nil
 		}
 		return trace.TraceError(err)
@@ -260,25 +259,20 @@ func (c *GitClient) CheckoutBranchWithRemote(branch, remote string, ref *plumbin
 	}
 
 	// check if the branch exists
-	b, err := c.r.Branch(branch)
+	_, err = c.r.Branch(branch)
 	if err != nil {
-		if err == git.ErrBranchNotFound {
+		if errors.Is(err, git.ErrBranchNotFound) {
 			// create a new branch if it does not exist
 			if err := c.createBranch(branch, remote, ref); err != nil {
 				return err
 			}
-			b, err = c.r.Branch(branch)
+			_, err = c.r.Branch(branch)
 			if err != nil {
 				return trace.TraceError(err)
 			}
 		} else {
 			return trace.TraceError(err)
 		}
-	}
-
-	// set branch remote
-	if remote != "" {
-		b.Remote = remote
 	}
 
 	// add to options
@@ -338,14 +332,14 @@ func (c *GitClient) GetLogs() (logs []GitLog, err error) {
 		return nil, trace.TraceError(err)
 	}
 	if err := iter.ForEach(func(commit *object.Commit) error {
-		log := GitLog{
+		gitLog := GitLog{
 			Hash:        commit.Hash.String(),
 			Msg:         commit.Message,
 			AuthorName:  commit.Author.Name,
 			AuthorEmail: commit.Author.Email,
 			Timestamp:   commit.Author.When,
 		}
-		logs = append(logs, log)
+		logs = append(logs, gitLog)
 		return nil
 	}); err != nil {
 		return nil, trace.TraceError(err)
@@ -524,10 +518,14 @@ func (c *GitClient) GetBranches() (branches []GitRef, err error) {
 }
 
 func (c *GitClient) GetRemoteRefs(remoteName string) (gitRefs []GitRef, err error) {
+	if remoteName == "" {
+		remoteName = GitRemoteNameOrigin
+	}
+
 	// remote
 	r, err := c.r.Remote(remoteName)
 	if err != nil {
-		if err == git.ErrRemoteNotFound {
+		if errors.Is(err, git.ErrRemoteNotFound) {
 			return nil, nil
 		}
 		return nil, trace.TraceError(err)
@@ -542,7 +540,7 @@ func (c *GitClient) GetRemoteRefs(remoteName string) (gitRefs []GitRef, err erro
 	// refs
 	refs, err := r.List(&git.ListOptions{Auth: auth})
 	if err != nil {
-		if err != transport.ErrEmptyRemoteRepository {
+		if !errors.Is(err, transport.ErrEmptyRemoteRepository) {
 			return nil, trace.TraceError(err)
 		}
 		return nil, nil
@@ -552,21 +550,27 @@ func (c *GitClient) GetRemoteRefs(remoteName string) (gitRefs []GitRef, err erro
 	for _, ref := range refs {
 		// ref type
 		var refType string
+		var gitRef *GitRef
 		if strings.HasPrefix(ref.Name().String(), "refs/heads") {
 			refType = GitRefTypeBranch
+			gitRef = &GitRef{
+				Type:     refType,
+				Name:     remoteName + "/" + ref.Name().Short(),
+				FullName: ref.Name().String(),
+				Hash:     ref.Hash().String(),
+			}
 		} else if strings.HasPrefix(ref.Name().String(), "refs/tags") {
 			refType = GitRefTypeTag
+			gitRef = &GitRef{
+				Type:     refType,
+				Name:     ref.Name().Short(),
+				FullName: ref.Name().String(),
+				Hash:     ref.Hash().String(),
+			}
 		} else {
 			continue
 		}
-
-		// add to branches
-		gitRefs = append(gitRefs, GitRef{
-			Type:     refType,
-			Name:     ref.Name().Short(),
-			FullName: ref.Name().String(),
-			Hash:     ref.Hash().String(),
-		})
+		gitRefs = append(gitRefs, *gitRef)
 	}
 
 	// logs without tags
@@ -699,7 +703,7 @@ func (c *GitClient) initMem() (err error) {
 	// attempt to init
 	c.r, err = git.Init(storage, wt)
 	if err != nil {
-		if err == git.ErrRepositoryAlreadyExists {
+		if errors.Is(err, git.ErrRepositoryAlreadyExists) {
 			// if already exists, attempt to open
 			c.r, err = git.Open(storage, wt)
 			if err != nil {
@@ -730,41 +734,8 @@ func (c *GitClient) initFs() (err error) {
 
 	// try to open repo
 	c.r, err = git.PlainOpen(c.path)
-	if err == git.ErrRepositoryNotExists {
-		// repo not exists, init
-		c.r, err = git.PlainInit(c.path, false)
-		if err != nil {
-			return trace.TraceError(err)
-		}
-	} else if err != nil {
-		// error
-		return trace.TraceError(err)
-	}
-
-	return nil
-}
-
-func (c *GitClient) clone() (err error) {
-	// validate
-	if c.remoteUrl == "" {
-		return trace.TraceError(ErrUnableToCloneWithEmptyRemoteUrl)
-	}
-
-	// auth
-	auth, err := c.getGitAuth()
 	if err != nil {
 		return err
-	}
-
-	// options
-	o := &git.CloneOptions{
-		URL:  c.remoteUrl,
-		Auth: auth,
-	}
-
-	// clone
-	if _, err := git.PlainClone(c.path, false, o); err != nil {
-		return trace.TraceError(err)
 	}
 
 	return nil
@@ -843,7 +814,7 @@ func (c *GitClient) getGitAuth() (auth transport.AuthMethod, err error) {
 			privateKeyData = []byte(c.privateKey)
 		} else if c.privateKeyPath != "" {
 			// read from private key file
-			privateKeyData, err = ioutil.ReadFile(c.privateKeyPath)
+			privateKeyData, err = os.ReadFile(c.privateKeyPath)
 			if err != nil {
 				return nil, trace.TraceError(err)
 			}
@@ -877,7 +848,7 @@ func (c *GitClient) getHeadRef() (ref string, err error) {
 	if err != nil {
 		return "", trace.TraceError(err)
 	}
-	data, err := ioutil.ReadAll(fh)
+	data, err := io.ReadAll(fh)
 	if err != nil {
 		return "", trace.TraceError(err)
 	}
@@ -933,7 +904,7 @@ func (c *GitClient) createBranch(branch, remote string, ref *plumbing.Reference)
 		ref, err = c.getBranchHashRef(branch, remote)
 
 		// if no matched remote branch, set to HEAD
-		if err == ErrNoMatchedRemoteBranch {
+		if errors.Is(err, ErrNoMatchedRemoteBranch) {
 			ref, err = c.r.Head()
 			if err != nil {
 				return trace.TraceError(err)
@@ -1003,6 +974,7 @@ func NewGitClient(opts ...GitOption) (c *GitClient, err error) {
 		authType:       GitAuthTypeNone,
 		username:       "git",
 		privateKeyPath: getDefaultPublicKeyPath(),
+		defaultInit:    true,
 	}
 
 	// apply options
@@ -1010,9 +982,11 @@ func NewGitClient(opts ...GitOption) (c *GitClient, err error) {
 		opt(c)
 	}
 
-	// init
-	if err := c.Init(); err != nil {
-		return c, err
+	// initialize
+	if c.defaultInit {
+		if err = c.Init(); err != nil {
+			return nil, err
+		}
 	}
 
 	return

@@ -1,3 +1,27 @@
-info:
-  edition: global.edition.community
-  version: v0.6.3
+# Crawlab Configuration File
+edition: global.edition.community
+version: v0.6.3
+
+mongo:
+  host: localhost
+  port: 27017
+  db: crawlab_test
+  username: ""
+  password: ""
+  authSource: "admin"
+
+server:
+  host: 0.0.0.0
+  port: 8000
+
+grpc:
+  address: localhost:9666
+  server:
+    address: 0.0.0.0:9666
+  authKey: Crawlab2021!
+
+api:
+  endpoint: http://localhost:8000
+
+log:
+  path: /var/log/crawlab

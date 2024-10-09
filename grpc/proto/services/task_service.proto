@@ -7,8 +7,13 @@ import "entity/stream_message.proto";
 package grpc;
 option go_package = ".;grpc";
 
+message TaskServiceSendNotificationRequest {
+  string node_key = 1;
+  string task_id = 2;
+}
+
 service TaskService {
   rpc Subscribe(stream StreamMessage) returns (Response){};
   rpc Fetch(Request) returns (Response){};
-  rpc SendNotification(Request) returns (Response){};
+  rpc SendNotification(TaskServiceSendNotificationRequest) returns (Response){};
 }

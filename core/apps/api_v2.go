@@ -7,6 +7,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/controllers"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/middlewares"
+	"github.com/crawlab-team/crawlab/core/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"net"
@@ -73,7 +74,7 @@ func (app *ApiV2) Start() {
 }
 
 func (app *ApiV2) Wait() {
-	DefaultWait()
+	utils.DefaultWait()
 }
 
 func (app *ApiV2) Stop() {

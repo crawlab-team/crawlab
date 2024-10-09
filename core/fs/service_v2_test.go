@@ -1,7 +1,7 @@
 package fs
 
 import (
-	"io/ioutil"
+	"github.com/apex/log"
 	"os"
 	"path/filepath"
 	"testing"
@@ -10,20 +10,25 @@ import (
 )
 
 func TestServiceV2_List(t *testing.T) {
-	rootDir, err := ioutil.TempDir("", "fsTest")
+	rootDir, err := os.MkdirTemp("", "fsTest")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(rootDir) // clean up
+	defer func() {
+		err := os.RemoveAll(rootDir) // clean up
+		if err != nil {
+			log.Errorf("Failed to remove temp dir: %v", err)
+		}
+	}()
 
 	testDir := filepath.Join(rootDir, "dir")
-	os.Mkdir(testDir, 0755)
-	ioutil.WriteFile(filepath.Join(testDir, "file1.txt"), []byte("hello world"), 0644)
-	ioutil.WriteFile(filepath.Join(testDir, "file2.txt"), []byte("hello again"), 0644)
+	_ = os.Mkdir(testDir, 0755)
+	_ = os.WriteFile(filepath.Join(testDir, "file1.txt"), []byte("hello world"), 0644)
+	_ = os.WriteFile(filepath.Join(testDir, "file2.txt"), []byte("hello again"), 0644)
 	subDir := filepath.Join(testDir, "subdir")
-	os.Mkdir(subDir, 0755)
-	ioutil.WriteFile(filepath.Join(subDir, "file3.txt"), []byte("subdir file"), 0644)
-	os.Mkdir(filepath.Join(testDir, "empty"), 0755) // explicitly testing empty dir inclusion
+	_ = os.Mkdir(subDir, 0755)
+	_ = os.WriteFile(filepath.Join(subDir, "file3.txt"), []byte("subdir file"), 0644)
+	_ = os.Mkdir(filepath.Join(testDir, "empty"), 0755) // explicitly testing empty dir inclusion
 
 	svc := NewFsServiceV2(rootDir)
 
@@ -56,14 +61,19 @@ func TestServiceV2_List(t *testing.T) {
 }
 
 func TestServiceV2_GetFile(t *testing.T) {
-	rootDir, err := ioutil.TempDir("", "fsTest")
+	rootDir, err := os.MkdirTemp("", "fsTest")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(rootDir) // clean up
+	defer func() {
+		err := os.RemoveAll(rootDir) // clean up
+		if err != nil {
+			log.Errorf("Failed to remove temp dir: %v", err)
+		}
+	}()
 
 	expectedContent := []byte("hello world")
-	ioutil.WriteFile(filepath.Join(rootDir, "file.txt"), expectedContent, 0644)
+	_ = os.WriteFile(filepath.Join(rootDir, "file.txt"), expectedContent, 0644)
 
 	svc := NewFsServiceV2(rootDir)
 
@@ -75,14 +85,19 @@ func TestServiceV2_GetFile(t *testing.T) {
 }
 
 func TestServiceV2_Delete(t *testing.T) {
-	rootDir, err := ioutil.TempDir("", "fsTest")
+	rootDir, err := os.MkdirTemp("", "fsTest")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(rootDir) // clean up
+	defer func() {
+		err := os.RemoveAll(rootDir) // clean up
+		if err != nil {
+			log.Errorf("Failed to remove temp dir: %v", err)
+		}
+	}()
 
 	filePath := filepath.Join(rootDir, "file.txt")
-	ioutil.WriteFile(filePath, []byte("hello world"), 0644)
+	_ = os.WriteFile(filePath, []byte("hello world"), 0644)
 
 	svc := NewFsServiceV2(rootDir)
 
@@ -98,11 +113,16 @@ func TestServiceV2_Delete(t *testing.T) {
 }
 
 func TestServiceV2_CreateDir(t *testing.T) {
-	rootDir, err := ioutil.TempDir("", "fsTest")
+	rootDir, err := os.MkdirTemp("", "fsTest")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(rootDir) // clean up
+	defer func() {
+		err := os.RemoveAll(rootDir) // clean up
+		if err != nil {
+			log.Errorf("Failed to remove temp dir: %v", err)
+		}
+	}()
 
 	svc := NewFsServiceV2(rootDir)
 
@@ -118,11 +138,16 @@ func TestServiceV2_CreateDir(t *testing.T) {
 }
 
 func TestServiceV2_Save(t *testing.T) {
-	rootDir, err := ioutil.TempDir("", "fsTest")
+	rootDir, err := os.MkdirTemp("", "fsTest")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(rootDir) // clean up
+	defer func() {
+		err := os.RemoveAll(rootDir) // clean up
+		if err != nil {
+			log.Errorf("Failed to remove temp dir: %v", err)
+		}
+	}()
 
 	svc := NewFsServiceV2(rootDir)
 
@@ -133,22 +158,27 @@ func TestServiceV2_Save(t *testing.T) {
 	}
 
 	// Verify the file was saved
-	data, err := ioutil.ReadFile(filepath.Join(rootDir, "newFile.txt"))
+	data, err := os.ReadFile(filepath.Join(rootDir, "newFile.txt"))
 	assert.NoError(t, err)
 	assert.Equal(t, "Hello, world!", string(data))
 }
 
 func TestServiceV2_Rename(t *testing.T) {
-	rootDir, err := ioutil.TempDir("", "fsTest")
+	rootDir, err := os.MkdirTemp("", "fsTest")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(rootDir) // clean up
+	defer func() {
+		err := os.RemoveAll(rootDir) // clean up
+		if err != nil {
+			log.Errorf("Failed to remove temp dir: %v", err)
+		}
+	}()
 
 	svc := NewFsServiceV2(rootDir)
 
 	// Create a file to rename
-	ioutil.WriteFile(filepath.Join(rootDir, "oldName.txt"), []byte("Hello, world!"), 0644)
+	_ = os.WriteFile(filepath.Join(rootDir, "oldName.txt"), []byte("Hello, world!"), 0644)
 
 	// Rename the file
 	err = svc.Rename("oldName.txt", "newName.txt")
@@ -162,16 +192,21 @@ func TestServiceV2_Rename(t *testing.T) {
 }
 
 func TestServiceV2_RenameDir(t *testing.T) {
-	rootDir, err := ioutil.TempDir("", "fsTest")
+	rootDir, err := os.MkdirTemp("", "fsTest")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(rootDir) // clean up
+	defer func() {
+		err := os.RemoveAll(rootDir) // clean up
+		if err != nil {
+			log.Errorf("Failed to remove temp dir: %v", err)
+		}
+	}()
 
 	svc := NewFsServiceV2(rootDir)
 
 	// Create a directory to rename
-	os.Mkdir(filepath.Join(rootDir, "oldName"), 0755)
+	_ = os.Mkdir(filepath.Join(rootDir, "oldName"), 0755)
 
 	// Rename the directory
 	err = svc.Rename("oldName", "newName")
@@ -185,16 +220,21 @@ func TestServiceV2_RenameDir(t *testing.T) {
 }
 
 func TestServiceV2_Copy(t *testing.T) {
-	rootDir, err := ioutil.TempDir("", "fsTest")
+	rootDir, err := os.MkdirTemp("", "fsTest")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(rootDir) // clean up
+	defer func() {
+		err := os.RemoveAll(rootDir) // clean up
+		if err != nil {
+			log.Errorf("Failed to remove temp dir: %v", err)
+		}
+	}()
 
 	svc := NewFsServiceV2(rootDir)
 
 	// Create a file to copy
-	ioutil.WriteFile(filepath.Join(rootDir, "source.txt"), []byte("Hello, world!"), 0644)
+	_ = os.WriteFile(filepath.Join(rootDir, "source.txt"), []byte("Hello, world!"), 0644)
 
 	// Copy the file
 	err = svc.Copy("source.txt", "copy.txt")
@@ -203,23 +243,28 @@ func TestServiceV2_Copy(t *testing.T) {
 	}
 
 	// Verify the file was copied
-	data, err := ioutil.ReadFile(filepath.Join(rootDir, "copy.txt"))
+	data, err := os.ReadFile(filepath.Join(rootDir, "copy.txt"))
 	assert.NoError(t, err)
 	assert.Equal(t, "Hello, world!", string(data))
 }
 
 func TestServiceV2_CopyDir(t *testing.T) {
-	rootDir, err := ioutil.TempDir("", "fsTest")
+	rootDir, err := os.MkdirTemp("", "fsTest")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(rootDir) // clean up
+	defer func() {
+		err := os.RemoveAll(rootDir) // clean up
+		if err != nil {
+			log.Errorf("Failed to remove temp dir: %v", err)
+		}
+	}()
 
 	svc := NewFsServiceV2(rootDir)
 
 	// Create a directory to copy
-	os.Mkdir(filepath.Join(rootDir, "sourceDir"), 0755)
-	ioutil.WriteFile(filepath.Join(rootDir, "sourceDir", "file.txt"), []byte("Hello, world!"), 0644)
+	_ = os.Mkdir(filepath.Join(rootDir, "sourceDir"), 0755)
+	_ = os.WriteFile(filepath.Join(rootDir, "sourceDir", "file.txt"), []byte("Hello, world!"), 0644)
 
 	// Copy the directory
 	err = svc.Copy("sourceDir", "copyDir")
@@ -232,7 +277,7 @@ func TestServiceV2_CopyDir(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Verify the file inside the directory was copied
-	data, err := ioutil.ReadFile(filepath.Join(rootDir, "copyDir", "file.txt"))
+	data, err := os.ReadFile(filepath.Join(rootDir, "copyDir", "file.txt"))
 	assert.NoError(t, err)
 	assert.Equal(t, "Hello, world!", string(data))
 }

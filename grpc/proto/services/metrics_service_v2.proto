@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+import "entity/response.proto";
+
+package grpc;
+option go_package = ".;grpc";
+
+message MetricsServiceV2SendRequest {
+  string type = 1;
+  string node_key = 2;
+  int64 timestamp = 3;
+  float cpu_usage_percent = 4;
+  uint64 total_memory = 5;
+  uint64 available_memory = 6;
+  uint64 used_memory = 7;
+  float used_memory_percent = 8;
+  uint64 total_disk = 9;
+  uint64 available_disk = 10;
+  uint64 used_disk = 11;
+  float used_disk_percent = 12;
+  float disk_read_bytes_rate = 15;
+  float disk_write_bytes_rate = 16;
+  float network_bytes_sent_rate = 17;
+  float network_bytes_recv_rate = 18;
+}
+
+service MetricsServiceV2 {
+  rpc Send(MetricsServiceV2SendRequest) returns (Response){};
+}

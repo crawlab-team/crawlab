@@ -1,9 +1,10 @@
 package schedule
 
 import (
+	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/config"
 	"github.com/crawlab-team/crawlab/core/interfaces"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/spider/admin"
 	"github.com/crawlab-team/crawlab/core/utils"
@@ -18,7 +19,7 @@ import (
 type ServiceV2 struct {
 	// dependencies
 	interfaces.WithConfigPath
-	modelSvc *service.ModelServiceV2[models.ScheduleV2]
+	modelSvc *service.ModelServiceV2[models2.ScheduleV2]
 	adminSvc *admin.ServiceV2
 
 	// settings variables
@@ -30,7 +31,7 @@ type ServiceV2 struct {
 	// internals
 	cron      *cron.Cron
 	logger    cron.Logger
-	schedules []models.ScheduleV2
+	schedules []models2.ScheduleV2
 	stopped   bool
 	mu        sync.Mutex
 }
@@ -86,7 +87,7 @@ func (svc *ServiceV2) Stop() {
 	svc.cron.Stop()
 }
 
-func (svc *ServiceV2) Enable(s models.ScheduleV2, by primitive.ObjectID) (err error) {
+func (svc *ServiceV2) Enable(s models2.ScheduleV2, by primitive.ObjectID) (err error) {
 	svc.mu.Lock()
 	defer svc.mu.Unlock()
 
@@ -100,7 +101,7 @@ func (svc *ServiceV2) Enable(s models.ScheduleV2, by primitive.ObjectID) (err er
 	return svc.modelSvc.ReplaceById(s.Id, s)
 }
 
-func (svc *ServiceV2) Disable(s models.ScheduleV2, by primitive.ObjectID) (err error) {
+func (svc *ServiceV2) Disable(s models2.ScheduleV2, by primitive.ObjectID) (err error) {
 	svc.mu.Lock()
 	defer svc.mu.Unlock()
 
@@ -190,7 +191,7 @@ func (svc *ServiceV2) schedule(id primitive.ObjectID) (fn func()) {
 		}
 
 		// spider
-		spider, err := service.NewModelServiceV2[models.SpiderV2]().GetById(s.SpiderId)
+		spider, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(s.SpiderId)
 		if err != nil {
 			trace.PrintError(err)
 			return
@@ -249,7 +250,7 @@ func NewScheduleServiceV2() (svc2 *ServiceV2, err error) {
 	if err != nil {
 		return nil, err
 	}
-	svc.modelSvc = service.NewModelServiceV2[models.ScheduleV2]()
+	svc.modelSvc = service.NewModelServiceV2[models2.ScheduleV2]()
 
 	// logger
 	svc.logger = NewLogger()
@@ -270,12 +271,18 @@ func NewScheduleServiceV2() (svc2 *ServiceV2, err error) {
 }
 
 var svcV2 *ServiceV2
+var svcV2Once = new(sync.Once)
 
 func GetScheduleServiceV2() (res *ServiceV2, err error) {
 	if svcV2 != nil {
 		return svcV2, nil
 	}
-	svcV2, err = NewScheduleServiceV2()
+	svcV2Once.Do(func() {
+		svcV2, err = NewScheduleServiceV2()
+		if err != nil {
+			log.Errorf("failed to get schedule service: %v", err)
+		}
+	})
 	if err != nil {
 		return nil, err
 	}

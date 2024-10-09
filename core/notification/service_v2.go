@@ -1,362 +1,523 @@
 package notification
 
 import (
+	"fmt"
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/entity"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
-	mongo2 "github.com/crawlab-team/crawlab/db/mongo"
-	parser "github.com/crawlab-team/crawlab/template-parser"
+	"github.com/crawlab-team/crawlab/trace"
+	"github.com/gomarkdown/markdown"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
+	"regexp"
+	"strings"
+	"sync"
+	"time"
 )
 
 type ServiceV2 struct {
 }
 
-func (svc *ServiceV2) Start() (err error) {
-	// initialize data
-	if err := svc.initData(); err != nil {
-		return err
-	}
+func (svc *ServiceV2) Send(s *models.NotificationSettingV2, args ...any) {
+	title := s.Title
 
-	return nil
+	wg := sync.WaitGroup{}
+	wg.Add(len(s.ChannelIds))
+	for _, chId := range s.ChannelIds {
+		go func(chId primitive.ObjectID) {
+			defer wg.Done()
+			ch, err := service.NewModelServiceV2[models.NotificationChannelV2]().GetById(chId)
+			if err != nil {
+				log.Errorf("[NotificationServiceV2] get channel error: %v", err)
+				return
+			}
+			content := svc.getContent(s, ch, args...)
+			switch ch.Type {
+			case TypeMail:
+				svc.SendMail(s, ch, title, content)
+			case TypeIM:
+				svc.SendIM(s, ch, title, content)
+			}
+		}(chId)
+	}
+	wg.Wait()
 }
 
-func (svc *ServiceV2) Stop() (err error) {
-	return nil
-}
+func (svc *ServiceV2) SendMail(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, title, content string) {
+	mailTo := s.MailTo
+	mailCc := s.MailCc
+	mailBcc := s.MailBcc
 
-func (svc *ServiceV2) initData() (err error) {
-	total, err := service.NewModelServiceV2[models.NotificationSettingV2]().Count(nil)
-	if err != nil {
-		return err
-	}
-	if total > 0 {
-		return nil
-	}
-
-	// data to initialize
-	settings := []models.NotificationSettingV2{
-		{
-			Id:          primitive.NewObjectID(),
-			Type:        TypeMail,
-			Enabled:     true,
-			Name:        "任务通知（邮件）",
-			Description: "这是默认的邮件通知。您可以使用您自己的设置进行编辑。",
-			TaskTrigger: constants.NotificationTriggerTaskFinish,
-			Title:       "[Crawlab] 爬虫任务更新: {{$.status}}",
-			Template: `尊敬的 {{$.user.username}},
-
-请查看下面的任务数据。
-
-|键|值|
-|:-:|:--|
-|任务状态|{{$.status}}|
-|任务优先级|{{$.priority}}|
-|任务模式|{{$.mode}}|
-|执行命令|{{$.cmd}}|
-|执行参数|{{$.param}}|
-|错误信息|{{$.error}}|
-|节点|{{$.node.name}}|
-|爬虫|{{$.spider.name}}|
-|项目|{{$.spider.project.name}}|
-|定时任务|{{$.schedule.name}}|
-|结果数|{{$.:task_stat.result_count}}|
-|等待时间（秒）|{#{{$.:task_stat.wait_duration}}/1000#}|
-|运行时间（秒）|{#{{$.:task_stat.runtime_duration}}/1000#}|
-|总时间（秒）|{#{{$.:task_stat.total_duration}}/1000#}|
-|平均结果数/秒|{#{{$.:task_stat.result_count}}/({{$.:task_stat.total_duration}}/1000)#}|
-`,
-			Mail: models.NotificationSettingMail{
-				Server: "smtp.163.com",
-				Port:   "465",
-				To:     "{{$.user[create].email}}",
-			},
-		},
-		{
-			Id:          primitive.NewObjectID(),
-			Type:        TypeMail,
-			Enabled:     true,
-			Name:        "Task Change (Mail)",
-			Description: "This is the default mail notification. You can edit it with your own settings",
-			TaskTrigger: constants.NotificationTriggerTaskFinish,
-			Title:       "[Crawlab] Task Update: {{$.status}}",
-			Template: `Dear {{$.user.username}},
-
-Please find the task data as below.
-
-|Key|Value|
-|:-:|:--|
-|Task Status|{{$.status}}|
-|Task Priority|{{$.priority}}|
-|Task Mode|{{$.mode}}|
-|Task Command|{{$.cmd}}|
-|Task Params|{{$.param}}|
-|Error Message|{{$.error}}|
-|Node|{{$.node.name}}|
-|Spider|{{$.spider.name}}|
-|Project|{{$.spider.project.name}}|
-|Schedule|{{$.schedule.name}}|
-|Result Count|{{$.:task_stat.result_count}}|
-|Wait Duration (sec)|{#{{$.:task_stat.wait_duration}}/1000#}|
-|Runtime Duration (sec)|{#{{$.:task_stat.runtime_duration}}/1000#}|
-|Total Duration (sec)|{#{{$.:task_stat.total_duration}}/1000#}|
-|Avg Results / Sec|{#{{$.:task_stat.result_count}}/({{$.:task_stat.total_duration}}/1000)#}|
-`,
-			Mail: models.NotificationSettingMail{
-				Server: "smtp.163.com",
-				Port:   "465",
-				To:     "{{$.user[create].email}}",
-			},
-		},
-		{
-			Id:          primitive.NewObjectID(),
-			Type:        TypeMobile,
-			Enabled:     true,
-			Name:        "任务通知（移动端）",
-			Description: "这是默认的手机通知。您可以使用您自己的设置进行编辑。",
-			TaskTrigger: constants.NotificationTriggerTaskFinish,
-			Title:       "[Crawlab] 任务更新: {{$.status}}",
-			Template: `尊敬的 {{$.user.username}},
-
-请查看下面的任务数据。
-
-- **任务状态**: {{$.status}}
-- **任务优先级**: {{$.priority}}
-- **任务模式**: {{$.mode}}
-- **执行命令**: {{$.cmd}}
-- **执行参数**: {{$.param}}
-- **错误信息**: {{$.error}}
-- **节点**: {{$.node.name}}
-- **爬虫**: {{$.spider.name}}
-- **项目**: {{$.spider.project.name}}
-- **定时任务**: {{$.schedule.name}}
-- **结果数**: {{$.:task_stat.result_count}}
-- **等待时间（秒）**: {#{{$.:task_stat.wait_duration}}/1000#}
-- **运行时间（秒）**: {#{{$.:task_stat.runtime_duration}}/1000#}
-- **总时间（秒）**: {#{{$.:task_stat.total_duration}}/1000#}
-- **平均结果数/秒**: {#{{$.:task_stat.result_count}}/({{$.:task_stat.total_duration}}/1000)#}`,
-			Mobile: models.NotificationSettingMobile{},
-		},
-		{
-			Id:          primitive.NewObjectID(),
-			Type:        TypeMobile,
-			Enabled:     true,
-			Name:        "Task Change (Mobile)",
-			Description: "This is the default mobile notification. You can edit it with your own settings",
-			TaskTrigger: constants.NotificationTriggerTaskError,
-			Title:       "[Crawlab] Task Update: {{$.status}}",
-			Template: `Dear {{$.user.username}},
-
-Please find the task data as below.
-
-- **Task Status**: {{$.status}}
-- **Task Priority**: {{$.priority}}
-- **Task Mode**: {{$.mode}}
-- **Task Command**: {{$.cmd}}
-- **Task Params**: {{$.param}}
-- **Error Message**: {{$.error}}
-- **Node**: {{$.node.name}}
-- **Spider**: {{$.spider.name}}
-- **Project**: {{$.spider.project.name}}
-- **Schedule**: {{$.schedule.name}}
-- **Result Count**: {{$.:task_stat.result_count}}
-- **Wait Duration (sec)**: {#{{$.:task_stat.wait_duration}}/1000#}
-- **Runtime Duration (sec)**: {#{{$.:task_stat.runtime_duration}}/1000#}
-- **Total Duration (sec)**: {#{{$.:task_stat.total_duration}}/1000#}
-- **Avg Results / Sec**: {#{{$.:task_stat.result_count}}/({{$.:task_stat.total_duration}}/1000)#}`,
-			Mobile: models.NotificationSettingMobile{},
-		},
-	}
-	_, err = service.NewModelServiceV2[models.NotificationSettingV2]().InsertMany(settings)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (svc *ServiceV2) Send(s *models.NotificationSettingV2, entity bson.M) (err error) {
-	switch s.Type {
-	case TypeMail:
-		return svc.SendMail(s, entity)
-	case TypeMobile:
-		return svc.SendMobile(s, entity)
-	}
-	return nil
-}
-
-func (svc *ServiceV2) SendMail(s *models.NotificationSettingV2, entity bson.M) (err error) {
-	// to
-	to, err := parser.Parse(s.Mail.To, entity)
-	if err != nil {
-		log.Warnf("parsing 'to' error: %v", err)
-	}
-	if to == "" {
-		return nil
-	}
-
-	// cc
-	cc, err := parser.Parse(s.Mail.Cc, entity)
-	if err != nil {
-		log.Warnf("parsing 'cc' error: %v", err)
-	}
-
-	// title
-	title, err := parser.Parse(s.Title, entity)
-	if err != nil {
-		log.Warnf("parsing 'title' error: %v", err)
-	}
-
-	// content
-	content, err := parser.Parse(s.Template, entity)
-	if err != nil {
-		log.Warnf("parsing 'content' error: %v", err)
-	}
+	// request
+	r, _ := svc.createRequest(s, ch, title, content)
 
 	// send mail
-	if err := SendMail(&s.Mail, to, cc, title, content); err != nil {
-		return err
+	err := SendMail(s, ch, mailTo, mailCc, mailBcc, title, content)
+	if err != nil {
+		log.Errorf("[NotificationServiceV2] send mail error: %v", err)
 	}
 
-	return nil
+	// save request
+	go svc.saveRequest(r, err)
 }
 
-func (svc *ServiceV2) SendMobile(s *models.NotificationSettingV2, entity bson.M) (err error) {
-	// webhook
-	webhook, err := parser.Parse(s.Mobile.Webhook, entity)
+func (svc *ServiceV2) SendIM(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, title, content string) {
+	// request
+	r, _ := svc.createRequest(s, ch, title, content)
+
+	// send mobile notification
+	err := SendIMNotification(ch, title, content)
 	if err != nil {
-		log.Warnf("parsing 'webhook' error: %v", err)
-	}
-	if webhook == "" {
-		return nil
+		log.Errorf("[NotificationServiceV2] send mobile notification error: %v", err)
 	}
 
-	// title
-	title, err := parser.Parse(s.Title, entity)
-	if err != nil {
-		log.Warnf("parsing 'title' error: %v", err)
-	}
-
-	// content
-	content, err := parser.Parse(s.Template, entity)
-	if err != nil {
-		log.Warnf("parsing 'content' error: %v", err)
-	}
-
-	// send
-	if err := SendMobileNotification(webhook, title, content); err != nil {
-		return err
-	}
-
-	return nil
+	// save request
+	go svc.saveRequest(r, err)
 }
 
-func (svc *ServiceV2) GetSettingList(query bson.M, pagination *entity.Pagination, sort bson.D) (res []models.NotificationSettingV2, total int, err error) {
-	// options
-	var options *mongo2.FindOptions
-	if pagination != nil || sort != nil {
-		options = new(mongo2.FindOptions)
-		if pagination != nil {
-			options.Skip = pagination.Size * (pagination.Page - 1)
-			options.Limit = pagination.Size
+func (svc *ServiceV2) getContent(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, args ...any) (content string) {
+	vd := svc.getVariableData(args...)
+	switch s.TemplateMode {
+	case constants.NotificationTemplateModeMarkdown:
+		variables := svc.parseTemplateVariables(s.TemplateMarkdown)
+		content = svc.geContentWithVariables(s.TemplateMarkdown, variables, vd)
+		if ch.Type == TypeMail {
+			content = svc.convertMarkdownToHtml(content)
 		}
-		if sort != nil {
-			options.Sort = sort
+		return content
+	case constants.NotificationTemplateModeRichText:
+		template := s.TemplateRichText
+		if ch.Type == TypeIM {
+			template = s.TemplateMarkdown
 		}
+		variables := svc.parseTemplateVariables(template)
+		return svc.geContentWithVariables(template, variables, vd)
 	}
 
-	// get list
-	list, err := service.NewModelServiceV2[models.NotificationSettingV2]().GetMany(query, options)
-	if err != nil {
-		if err.Error() == mongo.ErrNoDocuments.Error() {
-			return nil, 0, nil
-		} else {
-			return nil, 0, err
-		}
-	}
-
-	// total count
-	total, err = service.NewModelServiceV2[models.NotificationSettingV2]().Count(query)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return list, total, nil
+	return content
 }
 
-func (svc *ServiceV2) GetSetting(id primitive.ObjectID) (res *models.NotificationSettingV2, err error) {
-	s, err := service.NewModelServiceV2[models.NotificationSettingV2]().GetById(id)
+func (svc *ServiceV2) geContentWithVariables(template string, variables []entity.NotificationVariable, vd VariableData) (content string) {
+	content = template
+	for _, v := range variables {
+		switch v.Category {
+		case "task":
+			if vd.Task == nil {
+				content = strings.ReplaceAll(content, v.GetKey(), "N/A")
+				continue
+			}
+			switch v.Name {
+			case "id":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Id.Hex())
+			case "status":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Status)
+			case "cmd":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Cmd)
+			case "param":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Param)
+			case "error":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Error)
+			case "pid":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Task.Pid))
+			case "type":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Type)
+			case "mode":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Task.Mode)
+			case "priority":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Task.Priority))
+			case "created_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Task.CreatedAt))
+			case "created_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Task.CreatedBy))
+			case "updated_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Task.UpdatedAt))
+			case "updated_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Task.UpdatedBy))
+			}
+
+		case "task_stat":
+			if vd.TaskStat == nil {
+				content = strings.ReplaceAll(content, v.GetKey(), "N/A")
+				continue
+			}
+			switch v.Name {
+			case "start_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.TaskStat.StartTs))
+			case "end_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.TaskStat.EndTs))
+			case "wait_duration":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%ds", vd.TaskStat.WaitDuration/1000))
+			case "runtime_duration":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%ds", vd.TaskStat.RuntimeDuration/1000))
+			case "total_duration":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%ds", vd.TaskStat.TotalDuration/1000))
+			case "result_count":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.TaskStat.ResultCount))
+			}
+
+		case "spider":
+			if vd.Spider == nil {
+				content = strings.ReplaceAll(content, v.GetKey(), "N/A")
+				continue
+			}
+			switch v.Name {
+			case "id":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Id.Hex())
+			case "name":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Name)
+			case "description":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Description)
+			case "mode":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Mode)
+			case "cmd":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Cmd)
+			case "param":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Spider.Param)
+			case "priority":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Spider.Priority))
+			case "created_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Spider.CreatedAt))
+			case "created_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Spider.CreatedBy))
+			case "updated_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Spider.UpdatedAt))
+			case "updated_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Spider.UpdatedBy))
+			}
+
+		case "node":
+			if vd.Node == nil {
+				content = strings.ReplaceAll(content, v.GetKey(), "N/A")
+				continue
+			}
+			switch v.Name {
+			case "id":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Id.Hex())
+			case "key":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Key)
+			case "name":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Name)
+			case "is_master":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%t", vd.Node.IsMaster))
+			case "ip":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Ip)
+			case "mac":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Mac)
+			case "hostname":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Hostname)
+			case "description":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Description)
+			case "status":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Node.Status)
+			case "enabled":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%t", vd.Node.Enabled))
+			case "active":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%t", vd.Node.Active))
+			case "active_at":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Node.ActiveAt))
+			case "available_runners":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Node.AvailableRunners))
+			case "max_runners":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Node.MaxRunners))
+			case "created_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Node.CreatedAt))
+			case "created_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Node.CreatedBy))
+			case "updated_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Node.UpdatedAt))
+			case "updated_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Node.UpdatedBy))
+			}
+
+		case "schedule":
+			if vd.Schedule == nil {
+				content = strings.ReplaceAll(content, v.GetKey(), "N/A")
+				continue
+			}
+			switch v.Name {
+			case "id":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.Id.Hex())
+			case "name":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.Name)
+			case "description":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.Description)
+			case "cron":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.Cron)
+			case "cmd":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.Cmd)
+			case "param":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.Param)
+			case "mode":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Schedule.Mode)
+			case "priority":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Schedule.Priority))
+			case "enabled":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%t", vd.Schedule.Enabled))
+			case "created_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Schedule.CreatedAt))
+			case "created_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Schedule.CreatedBy))
+			case "updated_ts":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTime(vd.Schedule.UpdatedAt))
+			case "updated_by":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getUsernameById(vd.Schedule.UpdatedBy))
+			}
+
+		case "alert":
+			switch v.Name {
+			case "id":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Alert.Id.Hex())
+			case "name":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Alert.Name)
+			case "description":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Alert.Description)
+			case "enabled":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%t", vd.Alert.Enabled))
+			case "metric_name":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Alert.MetricName)
+			case "operator":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Alert.Operator)
+			case "lasting_seconds":
+				content = strings.ReplaceAll(content, v.GetKey(), fmt.Sprintf("%d", vd.Alert.LastingSeconds))
+			case "target_value":
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedTargetValue(vd.Alert))
+			case "level":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Alert.Level)
+			}
+
+		case "metric":
+			if vd.Metric == nil {
+				content = strings.ReplaceAll(content, v.GetKey(), "N/A")
+				continue
+			}
+			switch v.Name {
+			case "type":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Metric.Type)
+			case "node_id":
+				content = strings.ReplaceAll(content, v.GetKey(), vd.Metric.NodeId.Hex())
+			default:
+				content = strings.ReplaceAll(content, v.GetKey(), svc.getFormattedMetricValue(v.Name, vd.Metric))
+			}
+
+		}
+	}
+	return content
+}
+
+func (svc *ServiceV2) getVariableData(args ...any) (vd VariableData) {
+	for _, arg := range args {
+		switch arg.(type) {
+		case *models.TaskV2:
+			vd.Task = arg.(*models.TaskV2)
+		case *models.TaskStatV2:
+			vd.TaskStat = arg.(*models.TaskStatV2)
+		case *models.SpiderV2:
+			vd.Spider = arg.(*models.SpiderV2)
+		case *models.NodeV2:
+			vd.Node = arg.(*models.NodeV2)
+		case *models.ScheduleV2:
+			vd.Schedule = arg.(*models.ScheduleV2)
+		case *models.NotificationAlertV2:
+			vd.Alert = arg.(*models.NotificationAlertV2)
+		case *models.MetricV2:
+			vd.Metric = arg.(*models.MetricV2)
+		}
+	}
+	return vd
+}
+
+func (svc *ServiceV2) parseTemplateVariables(template string) (variables []entity.NotificationVariable) {
+	// regex pattern
+	regex := regexp.MustCompile("\\$\\{(\\w+):(\\w+)}")
+
+	// find all matches
+	matches := regex.FindAllStringSubmatch(template, -1)
+
+	// variables map
+	variablesMap := make(map[string]entity.NotificationVariable)
+
+	// iterate over matches
+	for _, match := range matches {
+		variable := entity.NotificationVariable{
+			Category: match[1],
+			Name:     match[2],
+		}
+		key := fmt.Sprintf("%s:%s", variable.Category, variable.Name)
+		if _, ok := variablesMap[key]; !ok {
+			variablesMap[key] = variable
+		}
+	}
+
+	// convert map to slice
+	for _, variable := range variablesMap {
+		variables = append(variables, variable)
+	}
+
+	return variables
+}
+
+func (svc *ServiceV2) getUsernameById(id primitive.ObjectID) (username string) {
+	if id.IsZero() {
+		return ""
+	}
+	u, err := service.NewModelServiceV2[models.UserV2]().GetById(id)
 	if err != nil {
+		log.Errorf("[NotificationServiceV2] get user error: %v", err)
+		return ""
+	}
+	return u.Username
+}
+
+func (svc *ServiceV2) getFormattedTime(t time.Time) (res string) {
+	if t.IsZero() {
+		return "N/A"
+	}
+	return t.Local().Format(time.DateTime)
+}
+
+func (svc *ServiceV2) getFormattedTargetValue(a *models.NotificationAlertV2) (res string) {
+	if strings.HasSuffix(a.MetricName, "_percent") {
+		return fmt.Sprintf("%.2f%%", a.TargetValue)
+	} else if strings.HasSuffix(a.MetricName, "_memory") {
+		return fmt.Sprintf("%dMB", int(a.TargetValue/(1024*1024)))
+	} else if strings.HasSuffix(a.MetricName, "_disk") {
+		return fmt.Sprintf("%dGB", int(a.TargetValue/(1024*1024*1024)))
+	} else if strings.HasSuffix(a.MetricName, "_rate") {
+		return fmt.Sprintf("%.2fMB/s", a.TargetValue/(1024*1024))
+	} else {
+		return fmt.Sprintf("%f", a.TargetValue)
+	}
+}
+
+func (svc *ServiceV2) getFormattedMetricValue(metricName string, m *models.MetricV2) (res string) {
+	switch metricName {
+	case "cpu_usage_percent":
+		return fmt.Sprintf("%.2f%%", m.CpuUsagePercent)
+	case "total_memory":
+		return fmt.Sprintf("%dMB", m.TotalMemory/(1024*1024))
+	case "available_memory":
+		return fmt.Sprintf("%dMB", m.AvailableMemory/(1024*1024))
+	case "used_memory":
+		return fmt.Sprintf("%dMB", m.UsedMemory/(1024*1024))
+	case "used_memory_percent":
+		return fmt.Sprintf("%.2f%%", m.UsedMemoryPercent)
+	case "total_disk":
+		return fmt.Sprintf("%dGB", m.TotalDisk/(1024*1024*1024))
+	case "available_disk":
+		return fmt.Sprintf("%dGB", m.AvailableDisk/(1024*1024*1024))
+	case "used_disk":
+		return fmt.Sprintf("%dGB", m.UsedDisk/(1024*1024*1024))
+	case "used_disk_percent":
+		return fmt.Sprintf("%.2f%%", m.UsedDiskPercent)
+	case "disk_read_bytes_rate":
+		return fmt.Sprintf("%.2fMB/s", m.DiskReadBytesRate/(1024*1024))
+	case "disk_write_bytes_rate":
+		return fmt.Sprintf("%.2fMB/s", m.DiskWriteBytesRate/(1024*1024))
+	case "network_bytes_sent_rate":
+		return fmt.Sprintf("%.2fMB/s", m.NetworkBytesSentRate/(1024*1024))
+	case "network_bytes_recv_rate":
+		return fmt.Sprintf("%.2fMB/s", m.NetworkBytesRecvRate/(1024*1024))
+	default:
+		return "N/A"
+	}
+}
+
+func (svc *ServiceV2) convertMarkdownToHtml(content string) (html string) {
+	return string(markdown.ToHTML([]byte(content), nil, nil))
+}
+
+func (svc *ServiceV2) SendNodeNotification(node *models.NodeV2) {
+	// arguments
+	var args []any
+	args = append(args, node)
+
+	// settings
+	settings, err := service.NewModelServiceV2[models.NotificationSettingV2]().GetMany(bson.M{
+		"enabled": true,
+		"trigger": bson.M{
+			"$regex": constants.NotificationTriggerPatternNode,
+		},
+	}, nil)
+	if err != nil {
+		log.Errorf("get notification settings error: %v", err)
+		trace.PrintError(err)
+		return
+	}
+
+	for _, s := range settings {
+		// send notification
+		switch s.Trigger {
+		case constants.NotificationTriggerNodeStatusChange:
+			go svc.Send(&s, args...)
+		case constants.NotificationTriggerNodeOnline:
+			if node.Status == constants.NodeStatusOnline {
+				go svc.Send(&s, args...)
+			}
+		case constants.NotificationTriggerNodeOffline:
+			if node.Status == constants.NodeStatusOffline {
+				go svc.Send(&s, args...)
+			}
+		}
+	}
+}
+
+func (svc *ServiceV2) createRequest(s *models.NotificationSettingV2, ch *models.NotificationChannelV2, title, content string) (res *models.NotificationRequestV2, err error) {
+	senderEmail := ch.SMTPUsername
+	if s.UseCustomSenderEmail {
+		senderEmail = s.SenderEmail
+	}
+	r := models.NotificationRequestV2{
+		Status:      StatusSending,
+		SettingId:   s.Id,
+		ChannelId:   ch.Id,
+		Title:       title,
+		Content:     content,
+		SenderEmail: senderEmail,
+		SenderName:  s.SenderName,
+		MailTo:      s.MailTo,
+		MailCc:      s.MailCc,
+		MailBcc:     s.MailBcc,
+	}
+	r.SetCreatedAt(time.Now())
+	r.SetUpdatedAt(time.Now())
+	r.Id, err = service.NewModelServiceV2[models.NotificationRequestV2]().InsertOne(r)
+	if err != nil {
+		log.Errorf("[NotificationServiceV2] save request error: %v", err)
 		return nil, err
 	}
-	return s, nil
+	return &r, nil
 }
 
-func (svc *ServiceV2) PosSetting(s *models.NotificationSettingV2) (err error) {
-	s.Id = primitive.NewObjectID()
-	_, err = service.NewModelServiceV2[models.NotificationSettingV2]().InsertOne(*s)
+func (svc *ServiceV2) saveRequest(r *models.NotificationRequestV2, err error) {
+	if r == nil {
+		return
+	}
+
 	if err != nil {
-		return err
+		r.Status = StatusError
+		r.Error = err.Error()
+	} else {
+		r.Status = StatusSuccess
 	}
-	return nil
-}
-
-func (svc *ServiceV2) PutSetting(id primitive.ObjectID, s models.NotificationSettingV2) (err error) {
-	err = service.NewModelServiceV2[models.NotificationSettingV2]().ReplaceById(id, s)
+	r.SetUpdatedAt(time.Now())
+	err = service.NewModelServiceV2[models.NotificationRequestV2]().ReplaceById(r.Id, *r)
 	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (svc *ServiceV2) DeleteSetting(id primitive.ObjectID) (err error) {
-	err = service.NewModelServiceV2[models.NotificationSettingV2]().DeleteById(id)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (svc *ServiceV2) EnableSetting(id primitive.ObjectID) (err error) {
-	return svc._toggleSettingFunc(true)(id)
-}
-
-func (svc *ServiceV2) DisableSetting(id primitive.ObjectID) (err error) {
-	return svc._toggleSettingFunc(false)(id)
-}
-
-func (svc *ServiceV2) _toggleSettingFunc(value bool) func(id primitive.ObjectID) error {
-	return func(id primitive.ObjectID) (err error) {
-		s, err := service.NewModelServiceV2[models.NotificationSettingV2]().GetById(id)
-		if err != nil {
-			return err
-		}
-		s.Enabled = value
-		err = service.NewModelServiceV2[models.NotificationSettingV2]().ReplaceById(id, *s)
-		if err != nil {
-			return err
-		}
-		return nil
+		log.Errorf("[NotificationServiceV2] save request error: %v", err)
 	}
 }
 
-func NewServiceV2() *ServiceV2 {
-	// service
-	svc := &ServiceV2{}
-
-	return svc
+func newNotificationServiceV2() *ServiceV2 {
+	return &ServiceV2{}
 }
 
 var _serviceV2 *ServiceV2
+var _serviceV2Once = new(sync.Once)
 
-func GetServiceV2() *ServiceV2 {
-	if _serviceV2 == nil {
-		_serviceV2 = NewServiceV2()
-	}
+func GetNotificationServiceV2() *ServiceV2 {
+	_serviceV2Once.Do(func() {
+		_serviceV2 = newNotificationServiceV2()
+	})
 	return _serviceV2
 }

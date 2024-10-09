@@ -42,10 +42,11 @@ type GrpcServerV2 struct {
 	nodeCfgSvc interfaces.NodeConfigService
 
 	// servers
-	nodeSvr             *NodeServerV2
-	taskSvr             *TaskServerV2
-	modelBaseServiceSvr *ModelBaseServiceServerV2
-	dependenciesSvr     *DependenciesServerV2
+	NodeSvr             *NodeServerV2
+	TaskSvr             *TaskServerV2
+	ModelBaseServiceSvr *ModelBaseServiceServerV2
+	DependenciesSvr     *DependenciesServerV2
+	MetricsSvr          *MetricsServerV2
 }
 
 func (svr *GrpcServerV2) GetConfigPath() (path string) {
@@ -115,9 +116,11 @@ func (svr *GrpcServerV2) Stop() (err error) {
 }
 
 func (svr *GrpcServerV2) Register() (err error) {
-	grpc2.RegisterNodeServiceServer(svr.svr, *svr.nodeSvr) // node service
-	grpc2.RegisterModelBaseServiceV2Server(svr.svr, *svr.modelBaseServiceSvr)
-	grpc2.RegisterTaskServiceServer(svr.svr, *svr.taskSvr)
+	grpc2.RegisterNodeServiceServer(svr.svr, *svr.NodeSvr)
+	grpc2.RegisterModelBaseServiceV2Server(svr.svr, *svr.ModelBaseServiceSvr)
+	grpc2.RegisterTaskServiceServer(svr.svr, *svr.TaskSvr)
+	grpc2.RegisterDependenciesServiceV2Server(svr.svr, *svr.DependenciesSvr)
+	grpc2.RegisterMetricsServiceV2Server(svr.svr, *svr.MetricsSvr)
 
 	return nil
 }
@@ -206,16 +209,17 @@ func NewGrpcServerV2() (svr *GrpcServerV2, err error) {
 
 	svr.nodeCfgSvc = nodeconfig.GetNodeConfigService()
 
-	svr.nodeSvr, err = NewNodeServerV2()
+	svr.NodeSvr, err = NewNodeServerV2()
 	if err != nil {
 		return nil, err
 	}
-	svr.modelBaseServiceSvr = NewModelBaseServiceV2Server()
-	svr.taskSvr, err = NewTaskServerV2()
+	svr.ModelBaseServiceSvr = NewModelBaseServiceV2Server()
+	svr.TaskSvr, err = NewTaskServerV2()
 	if err != nil {
 		return nil, err
 	}
-	svr.dependenciesSvr = NewDependenciesServerV2()
+	svr.DependenciesSvr = GetDependenciesServerV2()
+	svr.MetricsSvr = GetMetricsServerV2()
 
 	// recovery options
 	recoveryOpts := []grpc_recovery.Option{

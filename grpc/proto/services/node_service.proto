@@ -7,10 +7,20 @@ import "entity/stream_message.proto";
 package grpc;
 option go_package = ".;grpc";
 
+message NodeServiceRegisterRequest {
+  string key = 1;
+  string name = 2;
+  bool isMaster = 3;
+  string authKey = 4;
+  int32 maxRunners = 5;
+}
+message NodeServiceSendHeartbeatRequest {
+  string key = 1;
+}
+
 service NodeService {
-  rpc Register(Request) returns (Response){};
-  rpc SendHeartbeat(Request) returns (Response){};
-  rpc Ping(Request) returns (Response){};
+  rpc Register(NodeServiceRegisterRequest) returns (Response){};
+  rpc SendHeartbeat(NodeServiceSendHeartbeatRequest) returns (Response){};
   rpc Subscribe(Request) returns (stream StreamMessage){};
   rpc Unsubscribe(Request) returns (Response){};
 }

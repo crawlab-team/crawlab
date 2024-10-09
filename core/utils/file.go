@@ -348,13 +348,13 @@ func ScanDirectory(dir string) (res map[string]entity.FsFileInfo, err error) {
 		if err != nil {
 			return err
 		}
-		if info.IsDir() {
-			return nil
-		}
 
-		hash, err := GetFileHash(path)
-		if err != nil {
-			return err
+		var hash string
+		if !info.IsDir() {
+			hash, err = GetFileHash(path)
+			if err != nil {
+				return err
+			}
 		}
 
 		relPath, err := filepath.Rel(dir, path)
@@ -367,6 +367,7 @@ func ScanDirectory(dir string) (res map[string]entity.FsFileInfo, err error) {
 			Path:      relPath,
 			FullPath:  path,
 			Extension: filepath.Ext(path),
+			IsDir:     info.IsDir(),
 			FileSize:  info.Size(),
 			ModTime:   info.ModTime(),
 			Mode:      info.Mode(),

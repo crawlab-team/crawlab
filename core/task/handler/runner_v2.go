@@ -4,24 +4,24 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/apex/log"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/crawlab-team/crawlab/core/constants"
-	"github.com/crawlab-team/crawlab/core/container"
 	"github.com/crawlab-team/crawlab/core/entity"
-	"github.com/crawlab-team/crawlab/core/errors"
 	fs2 "github.com/crawlab-team/crawlab/core/fs"
+	client2 "github.com/crawlab-team/crawlab/core/grpc/client"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/models/client"
 	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	service2 "github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/sys_exec"
 	"github.com/crawlab-team/crawlab/core/utils"
-	grpc "github.com/crawlab-team/crawlab/grpc"
+	"github.com/crawlab-team/crawlab/grpc"
 	"github.com/crawlab-team/crawlab/trace"
 	"github.com/shirou/gopsutil/process"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -48,13 +48,13 @@ type RunnerV2 struct {
 	cmd  *exec.Cmd                        // process command instance
 	pid  int                              // process id
 	tid  primitive.ObjectID               // task id
-	t    *models.TaskV2                   // task model.Task
-	s    *models.SpiderV2                 // spider model.Spider
+	t    *models2.TaskV2                  // task model.Task
+	s    *models2.SpiderV2                // spider model.Spider
 	ch   chan constants.TaskSignal        // channel to communicate between Service and RunnerV2
 	err  error                            // standard process error
 	envs []models.Env                     // environment variables
 	cwd  string                           // working directory
-	c    interfaces.GrpcClient            // grpc client
+	c    *client2.GrpcClientV2            // grpc client
 	sub  grpc.TaskService_SubscribeClient // grpc task service stream client
 
 	// log internals
@@ -71,16 +71,8 @@ func (r *RunnerV2) Init() (err error) {
 
 	// start grpc client
 	if !r.c.IsStarted() {
-		r.c.Start()
-	}
-
-	// working directory
-	workspacePath := viper.GetString("workspace")
-	r.cwd = filepath.Join(workspacePath, r.s.Id.Hex())
-
-	// sync files from master
-	if !utils.IsMaster() {
-		if err := r.syncFiles(); err != nil {
+		err := r.c.Start()
+		if err != nil {
 			return err
 		}
 	}
@@ -97,8 +89,21 @@ func (r *RunnerV2) Run() (err error) {
 	// log task started
 	log.Infof("task[%s] started", r.tid.Hex())
 
+	// configure working directory
+	r.configureCwd()
+
+	// sync files worker nodes
+	if !utils.IsMaster() {
+		if err := r.syncFiles(); err != nil {
+			return r.updateTask(constants.TaskStatusError, err)
+		}
+	}
+
 	// configure cmd
-	r.configureCmd()
+	err = r.configureCmd()
+	if err != nil {
+		return r.updateTask(constants.TaskStatusError, err)
+	}
 
 	// configure environment variables
 	r.configureEnv()
@@ -176,7 +181,7 @@ func (r *RunnerV2) Cancel() (err error) {
 	// make sure the process does not exist
 	op := func() error {
 		if exists, _ := process.PidExists(int32(r.pid)); exists {
-			return errors.ErrorTaskProcessStillExists
+			return errors.New(fmt.Sprintf("task process %d still exists", r.pid))
 		}
 		return nil
 	}
@@ -184,7 +189,8 @@ func (r *RunnerV2) Cancel() (err error) {
 	defer cancel()
 	b := backoff.WithContext(backoff.NewConstantBackOff(1*time.Second), ctx)
 	if err := backoff.Retry(op, b); err != nil {
-		return trace.TraceError(errors.ErrorTaskUnableToCancel)
+		log.Errorf("Error canceling task %s: %v", r.tid, err)
+		return trace.TraceError(err)
 	}
 
 	return nil
@@ -203,7 +209,7 @@ func (r *RunnerV2) GetTaskId() (id primitive.ObjectID) {
 	return r.tid
 }
 
-func (r *RunnerV2) configureCmd() {
+func (r *RunnerV2) configureCmd() (err error) {
 	var cmdStr string
 
 	// customized spider
@@ -221,13 +227,17 @@ func (r *RunnerV2) configureCmd() {
 	}
 
 	// get cmd instance
-	r.cmd = sys_exec.BuildCmd(cmdStr)
+	r.cmd, err = sys_exec.BuildCmd(cmdStr)
+	if err != nil {
+		log.Errorf("Error building command: %v", err)
+		trace.PrintError(err)
+		return err
+	}
 
 	// set working directory
 	r.cmd.Dir = r.cwd
 
-	// configure pgid to allow killing sub processes
-	//sys_exec.SetPgid(r.cmd)
+	return nil
 }
 
 func (r *RunnerV2) configureLogging() {
@@ -306,7 +316,7 @@ func (r *RunnerV2) configureEnv() {
 	}
 
 	// global environment variables
-	envs, err := client.NewModelServiceV2[models.EnvironmentV2]().GetMany(nil, nil)
+	envs, err := client.NewModelServiceV2[models2.EnvironmentV2]().GetMany(nil, nil)
 	if err != nil {
 		trace.PrintError(err)
 		return
@@ -317,26 +327,33 @@ func (r *RunnerV2) configureEnv() {
 }
 
 func (r *RunnerV2) syncFiles() (err error) {
-	masterURL := fmt.Sprintf("%s/sync/%s", viper.GetString("api.endpoint"), r.s.Id.Hex())
-	workspacePath := viper.GetString("workspace")
-	workerDir := filepath.Join(workspacePath, r.s.Id.Hex())
+	var id string
+	var workingDir string
+	if r.s.GitId.IsZero() {
+		id = r.s.Id.Hex()
+		workingDir = ""
+	} else {
+		id = r.s.GitId.Hex()
+		workingDir = r.s.GitRootPath
+	}
+	masterURL := fmt.Sprintf("%s/sync/%s", viper.GetString("api.endpoint"), id)
 
 	// get file list from master
-	resp, err := http.Get(masterURL + "/scan")
+	resp, err := http.Get(masterURL + "/scan?path=" + workingDir)
 	if err != nil {
-		fmt.Println("Error getting file list from master:", err)
+		log.Errorf("Error getting file list from master: %v", err)
 		return trace.TraceError(err)
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
+		log.Errorf("Error reading response body: %v", err)
 		return trace.TraceError(err)
 	}
 	var masterFiles map[string]entity.FsFileInfo
 	err = json.Unmarshal(body, &masterFiles)
 	if err != nil {
-		fmt.Println("Error unmarshaling JSON:", err)
+		log.Errorf("Error unmarshaling JSON: %v", err)
 		return trace.TraceError(err)
 	}
 
@@ -346,80 +363,115 @@ func (r *RunnerV2) syncFiles() (err error) {
 		masterFilesMap[file.Path] = file
 	}
 
-	// create worker directory if not exists
-	if _, err := os.Stat(workerDir); os.IsNotExist(err) {
-		if err := os.MkdirAll(workerDir, os.ModePerm); err != nil {
-			fmt.Println("Error creating worker directory:", err)
+	// create working directory if not exists
+	if _, err := os.Stat(r.cwd); os.IsNotExist(err) {
+		if err := os.MkdirAll(r.cwd, os.ModePerm); err != nil {
+			log.Errorf("Error creating worker directory: %v", err)
 			return trace.TraceError(err)
 		}
 	}
 
 	// get file list from worker
-	workerFiles, err := utils.ScanDirectory(workerDir)
+	workerFiles, err := utils.ScanDirectory(r.cwd)
 	if err != nil {
-		fmt.Println("Error scanning worker directory:", err)
+		log.Errorf("Error scanning worker directory: %v", err)
 		return trace.TraceError(err)
 	}
-
-	// set up wait group and error channel
-	var wg sync.WaitGroup
-	errCh := make(chan error, 1)
 
 	// delete files that are deleted on master node
 	for path, workerFile := range workerFiles {
 		if _, exists := masterFilesMap[path]; !exists {
-			fmt.Println("Deleting file:", path)
+			log.Infof("Deleting file: %s", path)
 			err := os.Remove(workerFile.FullPath)
 			if err != nil {
-				fmt.Println("Error deleting file:", err)
+				log.Errorf("Error deleting file: %v", err)
 			}
 		}
 	}
+
+	// set up wait group and error channel
+	var wg sync.WaitGroup
+	pool := make(chan struct{}, 10)
 
 	// download files that are new or modified on master node
 	for path, masterFile := range masterFilesMap {
 		workerFile, exists := workerFiles[path]
 		if !exists || masterFile.Hash != workerFile.Hash {
 			wg.Add(1)
-			go func(path string, masterFile entity.FsFileInfo) {
+
+			// acquire token
+			pool <- struct{}{}
+
+			// start goroutine to synchronize file or directory
+			go func(path string, masterFile *entity.FsFileInfo) {
 				defer wg.Done()
-				logrus.Infof("File needs to be synchronized: %s", path)
-				err := r.downloadFile(masterURL+"/download?path="+path, filepath.Join(workerDir, path))
-				if err != nil {
-					logrus.Errorf("Error downloading file: %v", err)
-					select {
-					case errCh <- err:
-					default:
+
+				if masterFile.IsDir {
+					log.Infof("Directory needs to be synchronized: %s", path)
+					_err := os.MkdirAll(filepath.Join(r.cwd, path), masterFile.Mode)
+					if _err != nil {
+						log.Errorf("Error creating directory: %v", _err)
+						err = errors.Join(err, _err)
+					}
+				} else {
+					log.Infof("File needs to be synchronized: %s", path)
+					_err := r.downloadFile(masterURL+"/download?path="+filepath.Join(workingDir, path), filepath.Join(r.cwd, path), masterFile)
+					if _err != nil {
+						log.Errorf("Error downloading file: %v", _err)
+						err = errors.Join(err, _err)
 					}
 				}
-			}(path, masterFile)
+
+				// release token
+				<-pool
+
+			}(path, &masterFile)
 		}
 	}
 
+	// wait for all files and directories to be synchronized
 	wg.Wait()
-	close(errCh)
-	if err := <-errCh; err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
-func (r *RunnerV2) downloadFile(url string, filePath string) error {
+func (r *RunnerV2) downloadFile(url string, filePath string, fileInfo *entity.FsFileInfo) error {
+	// get file response
 	resp, err := http.Get(url)
 	if err != nil {
+		log.Errorf("Error getting file response: %v", err)
 		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		log.Errorf("Error downloading file: %s", resp.Status)
+		return errors.New(resp.Status)
 	}
 	defer resp.Body.Close()
 
-	out, err := os.Create(filePath)
+	// create directory if not exists
+	dirPath := filepath.Dir(filePath)
+	utils.Exists(dirPath)
+	err = os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
+		log.Errorf("Error creating directory: %v", err)
+		return err
+	}
+
+	// create local file
+	out, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, fileInfo.Mode)
+	if err != nil {
+		log.Errorf("Error creating file: %v", err)
 		return err
 	}
 	defer out.Close()
 
+	// copy file content to local file
 	_, err = io.Copy(out, resp.Body)
-	return err
+	if err != nil {
+		log.Errorf("Error copying file: %v", err)
+		return err
+	}
+	return nil
 }
 
 // wait for process to finish and send task signal (constants.TaskSignal)
@@ -427,7 +479,8 @@ func (r *RunnerV2) downloadFile(url string, filePath string) error {
 func (r *RunnerV2) wait() {
 	// wait for process to finish
 	if err := r.cmd.Wait(); err != nil {
-		exitError, ok := err.(*exec.ExitError)
+		var exitError *exec.ExitError
+		ok := errors.As(err, &exitError)
 		if !ok {
 			r.ch <- constants.TaskSignalError
 			return
@@ -458,25 +511,23 @@ func (r *RunnerV2) updateTask(status string, e error) (err error) {
 			r.t.Error = e.Error()
 		}
 		if r.svc.GetNodeConfigService().IsMaster() {
-			err = service2.NewModelServiceV2[models.TaskV2]().ReplaceById(r.t.Id, *r.t)
+			err = service2.NewModelServiceV2[models2.TaskV2]().ReplaceById(r.t.Id, *r.t)
 			if err != nil {
 				return err
 			}
 		} else {
-			err = client.NewModelServiceV2[models.TaskV2]().ReplaceById(r.t.Id, *r.t)
+			err = client.NewModelServiceV2[models2.TaskV2]().ReplaceById(r.t.Id, *r.t)
 			if err != nil {
 				return err
 			}
 		}
 
+		// update stats
+		r._updateTaskStat(status)
+		r._updateSpiderStat(status)
+
 		// send notification
 		go r.sendNotification()
-
-		// update stats
-		go func() {
-			r._updateTaskStat(status)
-			r._updateSpiderStat(status)
-		}()
 	}
 
 	// get task
@@ -489,7 +540,7 @@ func (r *RunnerV2) updateTask(status string, e error) (err error) {
 }
 
 func (r *RunnerV2) initSub() (err error) {
-	r.sub, err = r.c.GetTaskClient().Subscribe(context.Background())
+	r.sub, err = r.c.TaskClient.Subscribe(context.Background())
 	if err != nil {
 		return trace.TraceError(err)
 	}
@@ -516,7 +567,7 @@ func (r *RunnerV2) writeLogLines(lines []string) {
 }
 
 func (r *RunnerV2) _updateTaskStat(status string) {
-	ts, err := client.NewModelServiceV2[models.TaskStatV2]().GetById(r.tid)
+	ts, err := client.NewModelServiceV2[models2.TaskStatV2]().GetById(r.tid)
 	if err != nil {
 		trace.PrintError(err)
 		return
@@ -526,24 +577,24 @@ func (r *RunnerV2) _updateTaskStat(status string) {
 		// do nothing
 	case constants.TaskStatusRunning:
 		ts.StartTs = time.Now()
-		ts.WaitDuration = ts.StartTs.Sub(ts.CreateTs).Milliseconds()
+		ts.WaitDuration = ts.StartTs.Sub(ts.BaseModelV2.CreatedAt).Milliseconds()
 	case constants.TaskStatusFinished, constants.TaskStatusError, constants.TaskStatusCancelled:
 		if ts.StartTs.IsZero() {
 			ts.StartTs = time.Now()
-			ts.WaitDuration = ts.StartTs.Sub(ts.CreateTs).Milliseconds()
+			ts.WaitDuration = ts.StartTs.Sub(ts.BaseModelV2.CreatedAt).Milliseconds()
 		}
 		ts.EndTs = time.Now()
 		ts.RuntimeDuration = ts.EndTs.Sub(ts.StartTs).Milliseconds()
-		ts.TotalDuration = ts.EndTs.Sub(ts.CreateTs).Milliseconds()
+		ts.TotalDuration = ts.EndTs.Sub(ts.BaseModelV2.CreatedAt).Milliseconds()
 	}
 	if r.svc.GetNodeConfigService().IsMaster() {
-		err = service2.NewModelServiceV2[models.TaskStatV2]().ReplaceById(ts.Id, *ts)
+		err = service2.NewModelServiceV2[models2.TaskStatV2]().ReplaceById(ts.Id, *ts)
 		if err != nil {
 			trace.PrintError(err)
 			return
 		}
 	} else {
-		err = client.NewModelServiceV2[models.TaskStatV2]().ReplaceById(ts.Id, *ts)
+		err = client.NewModelServiceV2[models2.TaskStatV2]().ReplaceById(ts.Id, *ts)
 		if err != nil {
 			trace.PrintError(err)
 			return
@@ -552,17 +603,13 @@ func (r *RunnerV2) _updateTaskStat(status string) {
 }
 
 func (r *RunnerV2) sendNotification() {
-	data, err := json.Marshal(r.t)
-	if err != nil {
-		trace.PrintError(err)
-		return
-	}
-	req := &grpc.Request{
+	req := &grpc.TaskServiceSendNotificationRequest{
 		NodeKey: r.svc.GetNodeConfigService().GetNodeKey(),
-		Data:    data,
+		TaskId:  r.tid.Hex(),
 	}
-	_, err = r.c.GetTaskClient().SendNotification(context.Background(), req)
+	_, err := r.c.TaskClient.SendNotification(context.Background(), req)
 	if err != nil {
+		log.Errorf("Error sending notification: %v", err)
 		trace.PrintError(err)
 		return
 	}
@@ -570,7 +617,7 @@ func (r *RunnerV2) sendNotification() {
 
 func (r *RunnerV2) _updateSpiderStat(status string) {
 	// task stat
-	ts, err := client.NewModelServiceV2[models.TaskStatV2]().GetById(r.tid)
+	ts, err := client.NewModelServiceV2[models2.TaskStatV2]().GetById(r.tid)
 	if err != nil {
 		trace.PrintError(err)
 		return
@@ -601,25 +648,36 @@ func (r *RunnerV2) _updateSpiderStat(status string) {
 			},
 		}
 	default:
-		trace.PrintError(errors.ErrorTaskInvalidType)
+		log.Errorf("Invalid task status: %s", status)
+		trace.PrintError(errors.New("invalid task status"))
 		return
 	}
 
 	// perform update
 	if r.svc.GetNodeConfigService().IsMaster() {
-		err = service2.NewModelServiceV2[models.SpiderStatV2]().UpdateById(r.s.Id, update)
+		err = service2.NewModelServiceV2[models2.SpiderStatV2]().UpdateById(r.s.Id, update)
 		if err != nil {
 			trace.PrintError(err)
 			return
 		}
 	} else {
-		err = client.NewModelServiceV2[models.SpiderStatV2]().UpdateById(r.s.Id, update)
+		err = client.NewModelServiceV2[models2.SpiderStatV2]().UpdateById(r.s.Id, update)
 		if err != nil {
 			trace.PrintError(err)
 			return
 		}
 	}
+}
 
+func (r *RunnerV2) configureCwd() {
+	workspacePath := viper.GetString("workspace")
+	if r.s.GitId.IsZero() {
+		// not git
+		r.cwd = filepath.Join(workspacePath, r.s.Id.Hex())
+	} else {
+		// git
+		r.cwd = filepath.Join(workspacePath, r.s.GitId.Hex(), r.s.GitRootPath)
+	}
 }
 
 func NewTaskRunnerV2(id primitive.ObjectID, svc *ServiceV2) (r2 *RunnerV2, err error) {
@@ -653,14 +711,8 @@ func NewTaskRunnerV2(id primitive.ObjectID, svc *ServiceV2) (r2 *RunnerV2, err e
 	// task fs service
 	r.fsSvc = fs2.NewFsServiceV2(filepath.Join(viper.GetString("workspace"), r.s.Id.Hex()))
 
-	// dependency injection
-	if err := container.GetContainer().Invoke(func(
-		c interfaces.GrpcClient,
-	) {
-		r.c = c
-	}); err != nil {
-		return nil, trace.TraceError(err)
-	}
+	// grpc client
+	r.c = client2.GetGrpcClientV2()
 
 	// initialize task runner
 	if err := r.Init(); err != nil {

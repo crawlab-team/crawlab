@@ -179,7 +179,7 @@ func NewDataSourceElasticsearchService(colId primitive.ObjectID, dsId primitive.
 	if svc.ds.Host == "" {
 		svc.ds.Host = constants.DefaultHost
 	}
-	if svc.ds.Port == "" {
+	if svc.ds.Port == 0 {
 		svc.ds.Port = constants.DefaultElasticsearchPort
 	}
 

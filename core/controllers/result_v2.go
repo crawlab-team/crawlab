@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/result"
 	"github.com/crawlab-team/crawlab/core/utils"
@@ -32,17 +32,17 @@ func GetResultList(c *gin.Context) {
 	}
 
 	// data collection
-	dc, err := service.NewModelServiceV2[models.DataCollectionV2]().GetById(dcId)
+	dc, err := service.NewModelServiceV2[models2.DataCollectionV2]().GetById(dcId)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
 
 	// data source
-	ds, err := service.NewModelServiceV2[models.DataSourceV2]().GetById(dsId)
+	ds, err := service.NewModelServiceV2[models2.DatabaseV2]().GetById(dsId)
 	if err != nil {
 		if err.Error() == mongo2.ErrNoDocuments.Error() {
-			ds = &models.DataSourceV2{}
+			ds = &models2.DatabaseV2{}
 		} else {
 			HandleErrorInternalServerError(c, err)
 			return
@@ -54,7 +54,7 @@ func GetResultList(c *gin.Context) {
 		"col_id":         dc.Id,
 		"data_source_id": ds.Id,
 	}
-	s, err := service.NewModelServiceV2[models.SpiderV2]().GetOne(sq, nil)
+	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetOne(sq, nil)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return

@@ -2,31 +2,23 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
-	log2 "github.com/apex/log"
-	"github.com/crawlab-team/crawlab/core/constants"
-	"github.com/crawlab-team/crawlab/core/entity"
+	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/fs"
 	"github.com/crawlab-team/crawlab/core/interfaces"
-	"github.com/crawlab-team/crawlab/core/models/models"
+	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/spider/admin"
 	"github.com/crawlab-team/crawlab/core/utils"
 	"github.com/crawlab-team/crawlab/db/mongo"
 	"github.com/crawlab-team/crawlab/trace"
-	"github.com/crawlab-team/crawlab/vcs"
 	"github.com/gin-gonic/gin"
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/config"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	mongo2 "go.mongodb.org/mongo-driver/mongo"
-	"io"
 	"math"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 )
 
@@ -36,7 +28,7 @@ func GetSpiderById(c *gin.Context) {
 		HandleErrorBadRequest(c, err)
 		return
 	}
-	s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 	if errors.Is(err, mongo2.ErrNoDocuments) {
 		HandleErrorNotFound(c, err)
 		return
@@ -47,7 +39,7 @@ func GetSpiderById(c *gin.Context) {
 	}
 
 	// stat
-	s.Stat, err = service.NewModelServiceV2[models.SpiderStatV2]().GetById(s.Id)
+	s.Stat, err = service.NewModelServiceV2[models2.SpiderStatV2]().GetById(s.Id)
 	if err != nil {
 		if !errors.Is(err, mongo2.ErrNoDocuments) {
 			HandleErrorInternalServerError(c, err)
@@ -55,9 +47,9 @@ func GetSpiderById(c *gin.Context) {
 		}
 	}
 
-	// data collection
-	if !s.ColId.IsZero() {
-		col, err := service.NewModelServiceV2[models.DataCollectionV2]().GetById(s.ColId)
+	// data collection (compatible to old version) # TODO: remove in the future
+	if s.ColName == "" && !s.ColId.IsZero() {
+		col, err := service.NewModelServiceV2[models2.DataCollectionV2]().GetById(s.ColId)
 		if err != nil {
 			if !errors.Is(err, mongo2.ErrNoDocuments) {
 				HandleErrorInternalServerError(c, err)
@@ -68,23 +60,47 @@ func GetSpiderById(c *gin.Context) {
 		}
 	}
 
+	// git
+	if utils.IsPro() && !s.GitId.IsZero() {
+		s.Git, err = service.NewModelServiceV2[models2.GitV2]().GetById(s.GitId)
+		if err != nil {
+			if !errors.Is(err, mongo2.ErrNoDocuments) {
+				HandleErrorInternalServerError(c, err)
+				return
+			}
+		}
+	}
+
 	HandleSuccessWithData(c, s)
 }
 
 func GetSpiderList(c *gin.Context) {
-	withStats := c.Query("stats")
-	if withStats == "" {
-		NewControllerV2[models.SpiderV2]().GetList(c)
+	// get all list
+	all := MustGetFilterAll(c)
+	if all {
+		NewControllerV2[models2.SpiderV2]().getAll(c)
 		return
 	}
 
+	// get list
+	withStats := c.Query("stats")
+	if withStats == "" {
+		NewControllerV2[models2.SpiderV2]().GetList(c)
+		return
+	}
+
+	// get list with stats
+	getSpiderListWithStats(c)
+}
+
+func getSpiderListWithStats(c *gin.Context) {
 	// params
 	pagination := MustGetPagination(c)
 	query := MustGetFilterQuery(c)
 	sort := MustGetSortOption(c)
 
 	// get list
-	spiders, err := service.NewModelServiceV2[models.SpiderV2]().GetMany(query, &mongo.FindOptions{
+	spiders, err := service.NewModelServiceV2[models2.SpiderV2]().GetMany(query, &mongo.FindOptions{
 		Sort:  sort,
 		Skip:  pagination.Size * (pagination.Page - 1),
 		Limit: pagination.Size,
@@ -96,32 +112,36 @@ func GetSpiderList(c *gin.Context) {
 		return
 	}
 	if len(spiders) == 0 {
-		HandleSuccessWithListData(c, []models.SpiderV2{}, 0)
+		HandleSuccessWithListData(c, []models2.SpiderV2{}, 0)
 		return
 	}
 
 	// ids
 	var ids []primitive.ObjectID
+	var gitIds []primitive.ObjectID
 	for _, s := range spiders {
 		ids = append(ids, s.Id)
+		if !s.GitId.IsZero() {
+			gitIds = append(gitIds, s.GitId)
+		}
 	}
 
 	// total count
-	total, err := service.NewModelServiceV2[models.SpiderV2]().Count(query)
+	total, err := service.NewModelServiceV2[models2.SpiderV2]().Count(query)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
 
 	// stat list
-	spiderStats, err := service.NewModelServiceV2[models.SpiderStatV2]().GetMany(bson.M{"_id": bson.M{"$in": ids}}, nil)
+	spiderStats, err := service.NewModelServiceV2[models2.SpiderStatV2]().GetMany(bson.M{"_id": bson.M{"$in": ids}}, nil)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
 
 	// cache stat list to dict
-	dict := map[primitive.ObjectID]models.SpiderStatV2{}
+	dict := map[primitive.ObjectID]models2.SpiderStatV2{}
 	var taskIds []primitive.ObjectID
 	for _, st := range spiderStats {
 		if st.Tasks > 0 {
@@ -138,9 +158,9 @@ func GetSpiderList(c *gin.Context) {
 	}
 
 	// task list and stats
-	var tasks []models.TaskV2
-	dictTask := map[primitive.ObjectID]models.TaskV2{}
-	dictTaskStat := map[primitive.ObjectID]models.TaskStatV2{}
+	var tasks []models2.TaskV2
+	dictTask := map[primitive.ObjectID]models2.TaskV2{}
+	dictTaskStat := map[primitive.ObjectID]models2.TaskStatV2{}
 	if len(taskIds) > 0 {
 		// task list
 		queryTask := bson.M{
@@ -148,14 +168,14 @@ func GetSpiderList(c *gin.Context) {
 				"$in": taskIds,
 			},
 		}
-		tasks, err = service.NewModelServiceV2[models.TaskV2]().GetMany(queryTask, nil)
+		tasks, err = service.NewModelServiceV2[models2.TaskV2]().GetMany(queryTask, nil)
 		if err != nil {
 			HandleErrorInternalServerError(c, err)
 			return
 		}
 
 		// task stats list
-		taskStats, err := service.NewModelServiceV2[models.TaskStatV2]().GetMany(queryTask, nil)
+		taskStats, err := service.NewModelServiceV2[models2.TaskStatV2]().GetMany(queryTask, nil)
 		if err != nil {
 			HandleErrorInternalServerError(c, err)
 			return
@@ -176,8 +196,24 @@ func GetSpiderList(c *gin.Context) {
 		}
 	}
 
+	// git list
+	var gits []models2.GitV2
+	if len(gitIds) > 0 && utils.IsPro() {
+		gits, err = service.NewModelServiceV2[models2.GitV2]().GetMany(bson.M{"_id": bson.M{"$in": gitIds}}, nil)
+		if err != nil {
+			HandleErrorInternalServerError(c, err)
+			return
+		}
+	}
+
+	// cache git list to dict
+	dictGit := map[primitive.ObjectID]models2.GitV2{}
+	for _, g := range gits {
+		dictGit[g.Id] = g
+	}
+
 	// iterate list again
-	var data []models.SpiderV2
+	var data []models2.SpiderV2
 	for _, s := range spiders {
 		// spider stat
 		st, ok := dict[s.Id]
@@ -191,6 +227,14 @@ func GetSpiderList(c *gin.Context) {
 			}
 		}
 
+		// git
+		if !s.GitId.IsZero() && utils.IsPro() {
+			g, ok := dictGit[s.GitId]
+			if ok {
+				s.Git = &g
+			}
+		}
+
 		// add to list
 		data = append(data, s)
 	}
@@ -201,24 +245,19 @@ func GetSpiderList(c *gin.Context) {
 
 func PostSpider(c *gin.Context) {
 	// bind
-	var s models.SpiderV2
+	var s models2.SpiderV2
 	if err := c.ShouldBindJSON(&s); err != nil {
 		HandleErrorBadRequest(c, err)
 		return
 	}
 
-	// upsert data collection
-	if err := upsertSpiderDataCollection(&s); err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
+	// user
 	u := GetUserFromContextV2(c)
 
 	// add
 	s.SetCreated(u.Id)
 	s.SetUpdated(u.Id)
-	id, err := service.NewModelServiceV2[models.SpiderV2]().InsertOne(s)
+	id, err := service.NewModelServiceV2[models2.SpiderV2]().InsertOne(s)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -226,18 +265,23 @@ func PostSpider(c *gin.Context) {
 	s.SetId(id)
 
 	// add stat
-	st := models.SpiderStatV2{}
+	st := models2.SpiderStatV2{}
 	st.SetId(id)
 	st.SetCreated(u.Id)
 	st.SetUpdated(u.Id)
-	_, err = service.NewModelServiceV2[models.SpiderStatV2]().InsertOne(st)
+	_, err = service.NewModelServiceV2[models2.SpiderStatV2]().InsertOne(st)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
 
 	// create folder
-	err = getSpiderFsSvcById(id).CreateDir(".")
+	fsSvc, err := getSpiderFsSvcById(id)
+	if err != nil {
+		HandleErrorInternalServerError(c, err)
+		return
+	}
+	err = fsSvc.CreateDir(".")
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -254,21 +298,15 @@ func PutSpiderById(c *gin.Context) {
 	}
 
 	// bind
-	var s models.SpiderV2
+	var s models2.SpiderV2
 	if err := c.ShouldBindJSON(&s); err != nil {
 		HandleErrorBadRequest(c, err)
 		return
 	}
 
-	// upsert data collection
-	if err := upsertSpiderDataCollection(&s); err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
 	u := GetUserFromContextV2(c)
 
-	modelSvc := service.NewModelServiceV2[models.SpiderV2]()
+	modelSvc := service.NewModelServiceV2[models2.SpiderV2]()
 
 	// save
 	s.SetUpdated(u.Id)
@@ -297,19 +335,19 @@ func DeleteSpiderById(c *gin.Context) {
 
 	if err := mongo.RunTransaction(func(context mongo2.SessionContext) (err error) {
 		// delete spider
-		err = service.NewModelServiceV2[models.SpiderV2]().DeleteById(id)
+		err = service.NewModelServiceV2[models2.SpiderV2]().DeleteById(id)
 		if err != nil {
 			return err
 		}
 
 		// delete spider stat
-		err = service.NewModelServiceV2[models.SpiderStatV2]().DeleteById(id)
+		err = service.NewModelServiceV2[models2.SpiderStatV2]().DeleteById(id)
 		if err != nil {
 			return err
 		}
 
 		// related tasks
-		tasks, err := service.NewModelServiceV2[models.TaskV2]().GetMany(bson.M{"spider_id": id}, nil)
+		tasks, err := service.NewModelServiceV2[models2.TaskV2]().GetMany(bson.M{"spider_id": id}, nil)
 		if err != nil {
 			return err
 		}
@@ -325,13 +363,13 @@ func DeleteSpiderById(c *gin.Context) {
 		}
 
 		// delete related tasks
-		err = service.NewModelServiceV2[models.TaskV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}})
+		err = service.NewModelServiceV2[models2.TaskV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}})
 		if err != nil {
 			return err
 		}
 
 		// delete related task stats
-		err = service.NewModelServiceV2[models.TaskStatV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}})
+		err = service.NewModelServiceV2[models2.TaskStatV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}})
 		if err != nil {
 			return err
 		}
@@ -344,7 +382,7 @@ func DeleteSpiderById(c *gin.Context) {
 				// delete task logs
 				logPath := filepath.Join(viper.GetString("log.path"), id)
 				if err := os.RemoveAll(logPath); err != nil {
-					log2.Warnf("failed to remove task log directory: %s", logPath)
+					log.Warnf("failed to remove task log directory: %s", logPath)
 				}
 				wg.Done()
 			}(id.Hex())
@@ -356,6 +394,35 @@ func DeleteSpiderById(c *gin.Context) {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
+
+	go func() {
+		// spider
+		s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
+		if err != nil {
+			log.Errorf("failed to get spider: %s", err.Error())
+			trace.PrintError(err)
+			return
+		}
+
+		// skip spider with git
+		if !s.GitId.IsZero() {
+			return
+		}
+
+		// delete spider directory
+		fsSvc, err := getSpiderFsSvcById(id)
+		if err != nil {
+			log.Errorf("failed to get spider fs service: %s", err.Error())
+			trace.PrintError(err)
+			return
+		}
+		err = fsSvc.Delete(".")
+		if err != nil {
+			log.Errorf("failed to delete spider directory: %s", err.Error())
+			trace.PrintError(err)
+			return
+		}
+	}()
 
 	HandleSuccess(c)
 }
@@ -371,7 +438,7 @@ func DeleteSpiderList(c *gin.Context) {
 
 	if err := mongo.RunTransaction(func(context mongo2.SessionContext) (err error) {
 		// delete spiders
-		if err := service.NewModelServiceV2[models.SpiderV2]().DeleteMany(bson.M{
+		if err := service.NewModelServiceV2[models2.SpiderV2]().DeleteMany(bson.M{
 			"_id": bson.M{
 				"$in": payload.Ids,
 			},
@@ -380,7 +447,7 @@ func DeleteSpiderList(c *gin.Context) {
 		}
 
 		// delete spider stats
-		if err := service.NewModelServiceV2[models.SpiderStatV2]().DeleteMany(bson.M{
+		if err := service.NewModelServiceV2[models2.SpiderStatV2]().DeleteMany(bson.M{
 			"_id": bson.M{
 				"$in": payload.Ids,
 			},
@@ -389,7 +456,7 @@ func DeleteSpiderList(c *gin.Context) {
 		}
 
 		// related tasks
-		tasks, err := service.NewModelServiceV2[models.TaskV2]().GetMany(bson.M{"spider_id": bson.M{"$in": payload.Ids}}, nil)
+		tasks, err := service.NewModelServiceV2[models2.TaskV2]().GetMany(bson.M{"spider_id": bson.M{"$in": payload.Ids}}, nil)
 		if err != nil {
 			return err
 		}
@@ -405,12 +472,12 @@ func DeleteSpiderList(c *gin.Context) {
 		}
 
 		// delete related tasks
-		if err := service.NewModelServiceV2[models.TaskV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}}); err != nil {
+		if err := service.NewModelServiceV2[models2.TaskV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}}); err != nil {
 			return err
 		}
 
 		// delete related task stats
-		if err := service.NewModelServiceV2[models.TaskStatV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}}); err != nil {
+		if err := service.NewModelServiceV2[models2.TaskStatV2]().DeleteMany(bson.M{"_id": bson.M{"$in": taskIds}}); err != nil {
 			return err
 		}
 
@@ -422,7 +489,7 @@ func DeleteSpiderList(c *gin.Context) {
 				// delete task logs
 				logPath := filepath.Join(viper.GetString("log.path"), id)
 				if err := os.RemoveAll(logPath); err != nil {
-					log2.Warnf("failed to remove task log directory: %s", logPath)
+					log.Warnf("failed to remove task log directory: %s", logPath)
 				}
 				wg.Done()
 			}(id.Hex())
@@ -435,290 +502,137 @@ func DeleteSpiderList(c *gin.Context) {
 		return
 	}
 
+	// delete spider directories
+	go func() {
+		wg := sync.WaitGroup{}
+		wg.Add(len(payload.Ids))
+		for _, id := range payload.Ids {
+			go func(id primitive.ObjectID) {
+				defer wg.Done()
+
+				// spider
+				s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
+				if err != nil {
+					log.Errorf("failed to get spider: %s", err.Error())
+					trace.PrintError(err)
+					return
+				}
+
+				// skip spider with git
+				if !s.GitId.IsZero() {
+					return
+				}
+
+				// delete spider directory
+				fsSvc, err := getSpiderFsSvcById(id)
+				if err != nil {
+					log.Errorf("failed to get spider fs service: %s", err.Error())
+					trace.PrintError(err)
+					return
+				}
+				err = fsSvc.Delete(".")
+				if err != nil {
+					log.Errorf("failed to delete spider directory: %s", err.Error())
+					trace.PrintError(err)
+					return
+				}
+			}(id)
+		}
+		wg.Wait()
+	}()
+
 	HandleSuccess(c)
 }
 
 func GetSpiderListDir(c *gin.Context) {
-	path := c.Query("path")
-
-	fsSvc, err := getSpiderFsSvc(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorBadRequest(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-
-	files, err := fsSvc.List(path)
-	if err != nil {
-		if !errors.Is(err, os.ErrNotExist) {
-			HandleErrorInternalServerError(c, err)
-			return
-		}
-	}
-
-	HandleSuccessWithData(c, files)
+	GetBaseFileListDir(rootPath, c)
 }
 
 func GetSpiderFile(c *gin.Context) {
-	path := c.Query("path")
-
-	fsSvc, err := getSpiderFsSvc(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorBadRequest(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-
-	data, err := fsSvc.GetFile(path)
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	HandleSuccessWithData(c, string(data))
+	GetBaseFileFile(rootPath, c)
 }
 
 func GetSpiderFileInfo(c *gin.Context) {
-	path := c.Query("path")
-
-	fsSvc, err := getSpiderFsSvc(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorBadRequest(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-
-	info, err := fsSvc.GetFileInfo(path)
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	HandleSuccessWithData(c, info)
+	GetBaseFileFileInfo(rootPath, c)
 }
 
 func PostSpiderSaveFile(c *gin.Context) {
-	fsSvc, err := getSpiderFsSvc(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorInternalServerError(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-
-	if c.GetHeader("Content-Type") == "application/json" {
-		var payload struct {
-			Path string `json:"path"`
-			Data string `json:"data"`
-		}
-		if err := c.ShouldBindJSON(&payload); err != nil {
-			HandleErrorBadRequest(c, err)
-			return
-		}
-		if err := fsSvc.Save(payload.Path, []byte(payload.Data)); err != nil {
-			HandleErrorInternalServerError(c, err)
-			return
-		}
-	} else {
-		path, ok := c.GetPostForm("path")
-		if !ok {
-			HandleErrorBadRequest(c, errors.New("missing required field 'path'"))
-			return
-		}
-		file, err := c.FormFile("file")
-		if err != nil {
-			HandleErrorBadRequest(c, err)
-			return
-		}
-		f, err := file.Open()
-		if err != nil {
-			HandleErrorBadRequest(c, err)
-			return
-		}
-		fileData, err := io.ReadAll(f)
-		if err != nil {
-			HandleErrorBadRequest(c, err)
-			return
-		}
-		if err := fsSvc.Save(path, fileData); err != nil {
-			HandleErrorInternalServerError(c, err)
-			return
-		}
-	}
-
-	HandleSuccess(c)
+	PostBaseFileSaveFile(rootPath, c)
 }
 
 func PostSpiderSaveFiles(c *gin.Context) {
-	fsSvc, err := getSpiderFsSvc(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorInternalServerError(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-
-	form, err := c.MultipartForm()
-	if err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-	wg := sync.WaitGroup{}
-	wg.Add(len(form.File))
-	for path := range form.File {
-		go func(path string) {
-			file, err := c.FormFile(path)
-			if err != nil {
-				log2.Warnf("invalid file header: %s", path)
-				log2.Error(err.Error())
-				wg.Done()
-				return
-			}
-			f, err := file.Open()
-			if err != nil {
-				log2.Warnf("unable to open file: %s", path)
-				log2.Error(err.Error())
-				wg.Done()
-				return
-			}
-			fileData, err := io.ReadAll(f)
-			if err != nil {
-				log2.Warnf("unable to read file: %s", path)
-				log2.Error(err.Error())
-				wg.Done()
-				return
-			}
-			if err := fsSvc.Save(path, fileData); err != nil {
-				log2.Warnf("unable to save file: %s", path)
-				log2.Error(err.Error())
-				wg.Done()
-				return
-			}
-			wg.Done()
-		}(path)
-	}
-	wg.Wait()
-
-	HandleSuccess(c)
+	targetDirectory := c.PostForm("targetDirectory")
+	PostBaseFileSaveFiles(filepath.Join(rootPath, targetDirectory), c)
 }
 
 func PostSpiderSaveDir(c *gin.Context) {
-	var payload struct {
-		Path    string `json:"path"`
-		NewPath string `json:"new_path"`
-		Data    string `json:"data"`
-	}
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	fsSvc, err := getSpiderFsSvc(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorBadRequest(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-
-	if err := fsSvc.CreateDir(payload.Path); err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	HandleSuccess(c)
+	PostBaseFileSaveDir(rootPath, c)
 }
 
 func PostSpiderRenameFile(c *gin.Context) {
-	var payload struct {
-		Path    string `json:"path"`
-		NewPath string `json:"new_path"`
-	}
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	fsSvc, err := getSpiderFsSvc(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorBadRequest(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-
-	if err := fsSvc.Rename(payload.Path, payload.NewPath); err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
+	PostBaseFileRenameFile(rootPath, c)
 }
 
 func DeleteSpiderFile(c *gin.Context) {
-	var payload struct {
-		Path string `json:"path"`
-	}
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-	if payload.Path == "~" {
-		payload.Path = "."
-	}
-
-	fsSvc, err := getSpiderFsSvc(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorBadRequest(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-
-	if err := fsSvc.Delete(payload.Path); err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-	_, err = fsSvc.GetFileInfo(".")
-	if err != nil {
-		_ = fsSvc.CreateDir("/")
-	}
-
-	HandleSuccess(c)
+	DeleteBaseFileFile(rootPath, c)
 }
 
 func PostSpiderCopyFile(c *gin.Context) {
-	var payload struct {
-		Path    string `json:"path"`
-		NewPath string `json:"new_path"`
-	}
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	fsSvc, err := getSpiderFsSvc(c)
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorBadRequest(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-
-	if err := fsSvc.Copy(payload.Path, payload.NewPath); err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	HandleSuccess(c)
+	PostBaseFileCopyFile(rootPath, c)
 }
 
 func PostSpiderExport(c *gin.Context) {
-	id, err := primitive.ObjectIDFromHex(c.Param("id"))
+	rootPath, err := getSpiderRootPath(c)
 	if err != nil {
-		HandleErrorBadRequest(c, err)
+		HandleErrorForbidden(c, err)
 		return
 	}
-
-	adminSvc, err := admin.GetSpiderAdminServiceV2()
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	// zip file path
-	zipFilePath, err := adminSvc.Export(id)
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	// download
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", zipFilePath))
-	c.File(zipFilePath)
+	PostBaseFileExport(rootPath, c)
 }
 
 func PostSpiderRun(c *gin.Context) {
@@ -756,266 +670,6 @@ func PostSpiderRun(c *gin.Context) {
 	HandleSuccessWithData(c, taskIds)
 }
 
-func GetSpiderGit(c *gin.Context) {
-	id, err := primitive.ObjectIDFromHex(c.Param("id"))
-	if err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	// git client
-	gitClient, err := getSpiderGitClient(id)
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	// return null if git client is empty
-	if gitClient == nil {
-		HandleSuccess(c)
-		return
-	}
-
-	// current branch
-	currentBranch, err := gitClient.GetCurrentBranch()
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	// branches
-	branches, err := gitClient.GetBranches()
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-	if branches == nil || len(branches) == 0 && currentBranch != "" {
-		branches = []vcs.GitRef{{Name: currentBranch}}
-	}
-
-	// changes
-	changes, err := gitClient.GetStatus()
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	// logs
-	logs, err := gitClient.GetLogsWithRefs()
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	// ignore
-	ignore, err := getSpiderGitIgnore(id)
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	// git
-	_git, err := service.NewModelServiceV2[models.GitV2]().GetById(id)
-	if err != nil {
-		if err.Error() != mongo2.ErrNoDocuments.Error() {
-			HandleErrorInternalServerError(c, err)
-			return
-		}
-	}
-
-	// response
-	res := bson.M{
-		"current_branch": currentBranch,
-		"branches":       branches,
-		"changes":        changes,
-		"logs":           logs,
-		"ignore":         ignore,
-		"git":            _git,
-	}
-
-	HandleSuccessWithData(c, res)
-}
-
-func GetSpiderGitRemoteRefs(c *gin.Context) {
-	id, err := primitive.ObjectIDFromHex(c.Param("id"))
-	if err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	// remote name
-	remoteName := c.Query("remote")
-	if remoteName == "" {
-		remoteName = vcs.GitRemoteNameOrigin
-	}
-
-	// git client
-	gitClient, err := getSpiderGitClient(id)
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	// return null if git client is empty
-	if gitClient == nil {
-		HandleSuccess(c)
-		return
-	}
-
-	// refs
-	refs, err := gitClient.GetRemoteRefs(remoteName)
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	HandleSuccessWithData(c, refs)
-}
-
-func PostSpiderGitCheckout(c *gin.Context) {
-	id, err := primitive.ObjectIDFromHex(c.Param("id"))
-	if err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	// payload
-	var payload struct {
-		Paths         []string `json:"paths"`
-		CommitMessage string   `json:"commit_message"`
-		Branch        string   `json:"branch"`
-		Tag           string   `json:"tag"`
-	}
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	// git client
-	gitClient, err := getSpiderGitClient(id)
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	// return null if git client is empty
-	if gitClient == nil {
-		HandleSuccess(c)
-		return
-	}
-
-	// branch to pull
-	var branch string
-	if payload.Branch == "" {
-		// by default current branch
-		branch, err = gitClient.GetCurrentBranch()
-		if err != nil {
-			HandleErrorInternalServerError(c, err)
-			return
-		}
-	} else {
-		// payload branch
-		branch = payload.Branch
-	}
-
-	// checkout
-	if err := gitSpiderCheckout(gitClient, constants.GitRemoteNameOrigin, branch); err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	HandleSuccess(c)
-}
-
-func PostSpiderGitPull(c *gin.Context) {
-	id, err := primitive.ObjectIDFromHex(c.Param("id"))
-	if err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	// payload
-	var payload struct {
-		Paths         []string `json:"paths"`
-		CommitMessage string   `json:"commit_message"`
-		Branch        string   `json:"branch"`
-		Tag           string   `json:"tag"`
-	}
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	// git
-	g, err := service.NewModelServiceV2[models.GitV2]().GetById(id)
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	// attempt to sync git
-	adminSvc, err := admin.GetSpiderAdminServiceV2()
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-	_ = adminSvc.SyncGitOne(g)
-
-	HandleSuccess(c)
-}
-
-func PostSpiderGitCommit(c *gin.Context) {
-	id, err := primitive.ObjectIDFromHex(c.Param("id"))
-	if err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	// payload
-	var payload entity.GitPayload
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	// git client
-	gitClient, err := getSpiderGitClient(id)
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	// return null if git client is empty
-	if gitClient == nil {
-		HandleSuccess(c)
-		return
-	}
-
-	// add
-	for _, p := range payload.Paths {
-		if err := gitClient.Add(p); err != nil {
-			HandleErrorInternalServerError(c, err)
-			return
-		}
-	}
-
-	// commit
-	if err := gitClient.Commit(payload.CommitMessage); err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	// push
-	if err := gitClient.Push(
-		vcs.WithRemoteNamePush(vcs.GitRemoteNameOrigin),
-	); err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	HandleSuccess(c)
-}
-
 func GetSpiderDataSource(c *gin.Context) {
 	// spider id
 	id, err := primitive.ObjectIDFromHex(c.Param("id"))
@@ -1025,14 +679,14 @@ func GetSpiderDataSource(c *gin.Context) {
 	}
 
 	// spider
-	s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
 
 	// data source
-	ds, err := service.NewModelServiceV2[models.DataSourceV2]().GetById(s.DataSourceId)
+	ds, err := service.NewModelServiceV2[models2.DatabaseV2]().GetById(s.DataSourceId)
 	if err != nil {
 		if err.Error() == mongo2.ErrNoDocuments.Error() {
 			HandleSuccess(c)
@@ -1061,7 +715,7 @@ func PostSpiderDataSource(c *gin.Context) {
 	}
 
 	// spider
-	s, err := service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -1069,7 +723,7 @@ func PostSpiderDataSource(c *gin.Context) {
 
 	// data source
 	if !dsId.IsZero() {
-		_, err = service.NewModelServiceV2[models.DataSourceV2]().GetById(dsId)
+		_, err = service.NewModelServiceV2[models2.DatabaseV2]().GetById(dsId)
 		if err != nil {
 			HandleErrorInternalServerError(c, err)
 			return
@@ -1080,7 +734,7 @@ func PostSpiderDataSource(c *gin.Context) {
 	u := GetUserFromContextV2(c)
 	s.DataSourceId = dsId
 	s.SetUpdatedBy(u.Id)
-	_, err = service.NewModelServiceV2[models.SpiderV2]().InsertOne(*s)
+	_, err = service.NewModelServiceV2[models2.SpiderV2]().InsertOne(*s)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -1089,221 +743,45 @@ func PostSpiderDataSource(c *gin.Context) {
 	HandleSuccess(c)
 }
 
-func getSpiderFsSvc(c *gin.Context) (svc interfaces.FsServiceV2, err error) {
-	id, err := primitive.ObjectIDFromHex(c.Param("id"))
-	if err != nil {
-		return nil, err
-	}
-
+func getSpiderFsSvc(s *models2.SpiderV2) (svc interfaces.FsServiceV2, err error) {
 	workspacePath := viper.GetString("workspace")
-	fsSvc := fs.NewFsServiceV2(filepath.Join(workspacePath, id.Hex()))
+	fsSvc := fs.NewFsServiceV2(filepath.Join(workspacePath, s.Id.Hex()))
 
 	return fsSvc, nil
 }
 
-func getSpiderFsSvcById(id primitive.ObjectID) interfaces.FsServiceV2 {
-	workspacePath := viper.GetString("workspace")
-	fsSvc := fs.NewFsServiceV2(filepath.Join(workspacePath, id.Hex()))
-	return fsSvc
-}
-
-func getSpiderGitClient(id primitive.ObjectID) (client *vcs.GitClient, err error) {
-	// git
-	g, err := service.NewModelServiceV2[models.GitV2]().GetById(id)
+func getSpiderFsSvcById(id primitive.ObjectID) (svc interfaces.FsServiceV2, err error) {
+	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 	if err != nil {
-		if !errors.Is(err, mongo2.ErrNoDocuments) {
-			return nil, trace.TraceError(err)
-		}
-		return nil, nil
-	}
-
-	// git client
-	workspacePath := viper.GetString("workspace")
-	client, err = vcs.NewGitClient(vcs.WithPath(filepath.Join(workspacePath, id.Hex())))
-	if err != nil {
+		log.Errorf("failed to get spider: %s", err.Error())
+		trace.PrintError(err)
 		return nil, err
 	}
-
-	// set auth
-	utils.InitGitClientAuthV2(g, client)
-
-	// remote name
-	remoteName := vcs.GitRemoteNameOrigin
-
-	// update remote
-	r, err := client.GetRemote(remoteName)
-	if errors.Is(err, git.ErrRemoteNotFound) {
-		// remote not exists, create
-		if _, err := client.CreateRemote(&config.RemoteConfig{
-			Name: remoteName,
-			URLs: []string{g.Url},
-		}); err != nil {
-			return nil, trace.TraceError(err)
-		}
-	} else if err == nil {
-		// remote exists, update if different
-		if g.Url != r.Config().URLs[0] {
-			if err := client.DeleteRemote(remoteName); err != nil {
-				return nil, trace.TraceError(err)
-			}
-			if _, err := client.CreateRemote(&config.RemoteConfig{
-				Name: remoteName,
-				URLs: []string{g.Url},
-			}); err != nil {
-				return nil, trace.TraceError(err)
-			}
-		}
-		client.SetRemoteUrl(g.Url)
-	} else {
-		// error
-		return nil, trace.TraceError(err)
-	}
-
-	// check if head reference exists
-	_, err = client.GetRepository().Head()
-	if err == nil {
-		return client, nil
-	}
-
-	// align master/main branch
-	alignSpiderGitBranch(client)
-
-	return client, nil
+	return getSpiderFsSvc(s)
 }
 
-func alignSpiderGitBranch(gitClient *vcs.GitClient) {
-	// current branch
-	currentBranch, err := gitClient.GetCurrentBranch()
+func getSpiderRootPath(c *gin.Context) (rootPath string, err error) {
+	// spider id
+	id, err := primitive.ObjectIDFromHex(c.Param("id"))
 	if err != nil {
-		trace.PrintError(err)
-		return
+		return "", err
 	}
 
-	// skip if current branch is not master
-	if currentBranch != vcs.GitBranchNameMaster {
-		return
-	}
-
-	// remote refs
-	refs, err := gitClient.GetRemoteRefs(vcs.GitRemoteNameOrigin)
+	// spider
+	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 	if err != nil {
-		trace.PrintError(err)
-		return
+		return "", err
 	}
 
-	// main branch
-	defaultRemoteBranch, err := getSpiderDefaultRemoteBranch(refs)
-	if err != nil || defaultRemoteBranch == "" {
-		return
+	// check git permission
+	if !utils.IsPro() && !s.GitId.IsZero() {
+		return "", errors.New("git is not allowed in the community version")
 	}
 
-	// move branch
-	if err := gitClient.MoveBranch(vcs.GitBranchNameMaster, defaultRemoteBranch); err != nil {
-		trace.PrintError(err)
-	}
-}
-
-func getSpiderDefaultRemoteBranch(refs []vcs.GitRef) (defaultRemoteBranchName string, err error) {
-	// remote branch name
-	for _, r := range refs {
-		if r.Type != vcs.GitRefTypeBranch {
-			continue
-		}
-
-		if r.Name == vcs.GitBranchNameMain {
-			defaultRemoteBranchName = r.Name
-			break
-		}
-
-		if r.Name == vcs.GitBranchNameMaster {
-			defaultRemoteBranchName = r.Name
-			continue
-		}
-
-		if defaultRemoteBranchName == "" {
-			defaultRemoteBranchName = r.Name
-			continue
-		}
+	// if git id is zero, return spider id as root path
+	if s.GitId.IsZero() {
+		return id.Hex(), nil
 	}
 
-	return defaultRemoteBranchName, nil
-}
-
-func getSpiderGitIgnore(id primitive.ObjectID) (ignore []string, err error) {
-	workspacePath := viper.GetString("workspace")
-	filePath := filepath.Join(workspacePath, id.Hex(), ".gitignore")
-	if !utils.Exists(filePath) {
-		return nil, nil
-	}
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		return nil, trace.TraceError(err)
-	}
-	ignore = strings.Split(string(data), "\n")
-	return ignore, nil
-}
-
-func gitSpiderCheckout(gitClient *vcs.GitClient, remote, branch string) (err error) {
-	if err := gitClient.CheckoutBranch(branch, vcs.WithBranch(branch)); err != nil {
-		return trace.TraceError(err)
-	}
-
-	// pull
-	return spiderGitPull(gitClient, remote, branch)
-}
-
-func spiderGitPull(gitClient *vcs.GitClient, remote, branch string) (err error) {
-	// pull
-	if err := gitClient.Pull(
-		vcs.WithRemoteNamePull(remote),
-		vcs.WithBranchNamePull(branch),
-	); err != nil {
-		return trace.TraceError(err)
-	}
-
-	// reset
-	if err := gitClient.Reset(); err != nil {
-		return trace.TraceError(err)
-	}
-
-	return nil
-}
-
-func upsertSpiderDataCollection(s *models.SpiderV2) (err error) {
-	modelSvc := service.NewModelServiceV2[models.DataCollectionV2]()
-	if s.ColId.IsZero() {
-		// validate
-		if s.ColName == "" {
-			return errors.New("data collection name is required")
-		}
-		// no id
-		dc, err := modelSvc.GetOne(bson.M{"name": s.ColName}, nil)
-		if err != nil {
-			if errors.Is(err, mongo2.ErrNoDocuments) {
-				// not exists, add new
-				dc = &models.DataCollectionV2{Name: s.ColName}
-				dcId, err := modelSvc.InsertOne(*dc)
-				if err != nil {
-					return err
-				}
-				dc.SetId(dcId)
-			} else {
-				// error
-				return err
-			}
-		}
-		s.ColId = dc.Id
-
-		// create index
-		_ = mongo.GetMongoCol(dc.Name).CreateIndex(mongo2.IndexModel{Keys: bson.M{constants.TaskKey: 1}})
-		_ = mongo.GetMongoCol(dc.Name).CreateIndex(mongo2.IndexModel{Keys: bson.M{constants.HashKey: 1}})
-	} else {
-		// with id
-		dc, err := modelSvc.GetById(s.ColId)
-		if err != nil {
-			return err
-		}
-		s.ColId = dc.Id
-	}
-	return nil
+	return filepath.Join(s.GitId.Hex(), s.GitRootPath), nil
 }
