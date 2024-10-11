@@ -10,6 +10,7 @@ type SpiderV2 struct {
 	Name                  string               `json:"name" bson:"name"`                     // spider name
 	ColId                 primitive.ObjectID   `json:"col_id" bson:"col_id"`                 // data collection id (deprecated) # TODO: remove this field in the future
 	ColName               string               `json:"col_name,omitempty" bson:"col_name"`   // data collection name
+	DbName                string               `json:"db_name,omitempty" bson:"db_name"`     // database name
 	DataSourceId          primitive.ObjectID   `json:"data_source_id" bson:"data_source_id"` // data source id
 	DataSource            *DatabaseV2          `json:"data_source,omitempty" bson:"-"`       // data source
 	Description           string               `json:"description" bson:"description"`       // description
