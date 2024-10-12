@@ -219,13 +219,13 @@ func (c *GitClient) Reset(opts ...GitResetOption) (err error) {
 		return err
 	}
 
-	// reset
-	if err := wt.Reset(o); err != nil {
+	// clean
+	if err := wt.Clean(&git.CleanOptions{Dir: true}); err != nil {
 		return err
 	}
 
-	// clean
-	if err := wt.Clean(&git.CleanOptions{Dir: true}); err != nil {
+	// reset
+	if err := wt.Reset(o); err != nil {
 		return err
 	}
 
