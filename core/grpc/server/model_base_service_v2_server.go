@@ -15,37 +15,7 @@ import (
 var (
 	typeNameColNameMap  = make(map[string]string)
 	typeOneNameModelMap = make(map[string]any)
-	typeOneInstances    = []any{
-		*new(models2.TestModelV2),
-		*new(models2.DataCollectionV2),
-		*new(models2.DatabaseV2),
-		*new(models2.DatabaseMetricV2),
-		*new(models2.DependencyV2),
-		*new(models2.DependencyLogV2),
-		*new(models2.DependencySettingV2),
-		*new(models2.DependencyTaskV2),
-		*new(models2.EnvironmentV2),
-		*new(models2.GitV2),
-		*new(models2.MetricV2),
-		*new(models2.NodeV2),
-		*new(models2.NotificationChannelV2),
-		*new(models2.NotificationRequestV2),
-		*new(models2.NotificationSettingV2),
-		*new(models2.PermissionV2),
-		*new(models2.ProjectV2),
-		*new(models2.RolePermissionV2),
-		*new(models2.RoleV2),
-		*new(models2.ScheduleV2),
-		*new(models2.SettingV2),
-		*new(models2.SpiderV2),
-		*new(models2.SpiderStatV2),
-		*new(models2.TaskQueueItemV2),
-		*new(models2.TaskStatV2),
-		*new(models2.TaskV2),
-		*new(models2.TokenV2),
-		*new(models2.UserRoleV2),
-		*new(models2.UserV2),
-	}
+	typeOneInstances    = models2.GetModelInstances()
 )
 
 func init() {

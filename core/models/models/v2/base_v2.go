@@ -79,6 +79,7 @@ func GetModelInstances() []any {
 		*new(GitV2),
 		*new(MetricV2),
 		*new(NodeV2),
+		*new(NotificationAlertV2),
 		*new(NotificationChannelV2),
 		*new(NotificationRequestV2),
 		*new(NotificationSettingV2),
@@ -116,7 +117,6 @@ func GetCollectionNameByInstance(v any) string {
 	return field.Tag.Get("collection")
 }
 
-// Add this new function
 func GetSystemModelColNamesMap() map[string]bool {
 	colNamesMap := make(map[string]bool)
 	for _, instance := range GetModelInstances() {
