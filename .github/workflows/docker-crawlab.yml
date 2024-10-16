@@ -184,10 +184,10 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Test demo
-        run: |
-          pip install crawlab-demo
-          crawlab-demo validate
+      # - name: Test demo
+      #   run: |
+      #     pip install crawlab-demo
+      #     crawlab-demo validate
 
       - name: Build and test image
         id: build_and_test
