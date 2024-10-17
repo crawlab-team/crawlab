@@ -25,5 +25,6 @@ type TaskV2 struct {
 	SubTasks            []TaskV2             `json:"sub_tasks,omitempty" bson:"-"`
 	Spider              *SpiderV2            `json:"spider,omitempty" bson:"-"`
 	Schedule            *ScheduleV2          `json:"schedule,omitempty" bson:"-"`
+	Node                *NodeV2              `json:"node,omitempty" bson:"-"`
 	UserId              primitive.ObjectID   `json:"-" bson:"-"`
 }
