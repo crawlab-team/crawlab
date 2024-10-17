@@ -173,16 +173,10 @@ func InitRoutes(app *gin.Engine) (err error) {
 			Path:        "/:id/run",
 			HandlerFunc: PostSpiderRun,
 		},
-
 		{
 			Method:      http.MethodGet,
-			Path:        "/:id/data-source",
-			HandlerFunc: GetSpiderDataSource,
-		},
-		{
-			Method:      http.MethodPost,
-			Path:        "/:id/data-source/:ds_id",
-			HandlerFunc: PostSpiderDataSource,
+			Path:        "/:id/results",
+			HandlerFunc: GetSpiderResults,
 		},
 	}...))
 	RegisterController(groups.AuthGroup, "/tasks", NewControllerV2[models2.TaskV2]([]Action{
@@ -262,13 +256,6 @@ func InitRoutes(app *gin.Engine) (err error) {
 		},
 	}...))
 
-	RegisterActions(groups.AuthGroup, "/results", []Action{
-		{
-			Method:      http.MethodGet,
-			Path:        "/:id",
-			HandlerFunc: GetResultList,
-		},
-	})
 	RegisterActions(groups.AuthGroup, "/export", []Action{
 		{
 			Method:      http.MethodPost,

@@ -9,6 +9,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/spider/admin"
 	"github.com/crawlab-team/crawlab/core/utils"
+	"github.com/crawlab-team/crawlab/db/generic"
 	"github.com/crawlab-team/crawlab/db/mongo"
 	"github.com/crawlab-team/crawlab/trace"
 	"github.com/gin-gonic/gin"
@@ -670,77 +671,43 @@ func PostSpiderRun(c *gin.Context) {
 	HandleSuccessWithData(c, taskIds)
 }
 
-func GetSpiderDataSource(c *gin.Context) {
-	// spider id
+func GetSpiderResults(c *gin.Context) {
 	id, err := primitive.ObjectIDFromHex(c.Param("id"))
 	if err != nil {
 		HandleErrorBadRequest(c, err)
 		return
 	}
 
-	// spider
 	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
 
-	// data source
-	ds, err := service.NewModelServiceV2[models2.DatabaseV2]().GetById(s.DataSourceId)
-	if err != nil {
-		if err.Error() == mongo2.ErrNoDocuments.Error() {
-			HandleSuccess(c)
-			return
-		}
-		HandleErrorInternalServerError(c, err)
-		return
-	}
+	// params
+	pagination := MustGetPagination(c)
+	query := getResultListQuery(c)
 
-	HandleSuccessWithData(c, ds)
-}
+	col := mongo.GetMongoCol(s.ColName)
 
-func PostSpiderDataSource(c *gin.Context) {
-	// spider id
-	id, err := primitive.ObjectIDFromHex(c.Param("id"))
-	if err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	// data source id
-	dsId, err := primitive.ObjectIDFromHex(c.Param("ds_id"))
-	if err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	// spider
-	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
+	var results []bson.M
+	err = col.Find(utils.GetMongoQuery(query), utils.GetMongoOpts(&generic.ListOptions{
+		Sort:  []generic.ListSort{{"_id", generic.SortDirectionDesc}},
+		Skip:  pagination.Size * (pagination.Page - 1),
+		Limit: pagination.Size,
+	})).All(&results)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
 
-	// data source
-	if !dsId.IsZero() {
-		_, err = service.NewModelServiceV2[models2.DatabaseV2]().GetById(dsId)
-		if err != nil {
-			HandleErrorInternalServerError(c, err)
-			return
-		}
-	}
-
-	// save data source id
-	u := GetUserFromContextV2(c)
-	s.DataSourceId = dsId
-	s.SetUpdatedBy(u.Id)
-	_, err = service.NewModelServiceV2[models2.SpiderV2]().InsertOne(*s)
+	total, err := mongo.GetMongoCol(s.ColName).Count(utils.GetMongoQuery(query))
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
 
-	HandleSuccess(c)
+	HandleSuccessWithListData(c, results, total)
 }
 
 func getSpiderFsSvc(s *models2.SpiderV2) (svc interfaces.FsServiceV2, err error) {
