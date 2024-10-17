@@ -222,9 +222,9 @@ jobs:
           res=`${cmd}`
           echo "res: ${res}"
           if [[ $res =~ "success" ]]; then
-            echo "test_passed=true" >> $GITHUB_OUTPUT
+            echo "::set-output test_passed=true"
           else
-            echo "test_passed=false" >> $GITHUB_OUTPUT
+            echo "::set-output test_passed=false"
             exit 1
           fi
           docker stop crawlab_master
