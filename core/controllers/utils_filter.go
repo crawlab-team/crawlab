@@ -6,6 +6,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/entity"
 	"github.com/crawlab-team/crawlab/core/errors"
 	"github.com/crawlab-team/crawlab/core/utils"
+	"github.com/crawlab-team/crawlab/db/generic"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -120,4 +121,19 @@ func MustGetFilterAll(c *gin.Context) (res bool) {
 		return false
 	}
 	return res
+}
+
+func getResultListQuery(c *gin.Context) (q generic.ListQuery) {
+	f, err := GetFilter(c)
+	if err != nil {
+		return q
+	}
+	for _, cond := range f.Conditions {
+		q = append(q, generic.ListQueryCondition{
+			Key:   cond.Key,
+			Op:    cond.Op,
+			Value: utils.NormalizeObjectId(cond.Value),
+		})
+	}
+	return q
 }

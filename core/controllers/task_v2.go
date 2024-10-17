@@ -44,13 +44,25 @@ func GetTaskById(c *gin.Context) {
 		return
 	}
 
-	// spider
-	t.Spider, _ = service.NewModelServiceV2[models.SpiderV2]().GetById(t.SpiderId)
-
 	// skip if task status is pending
 	if t.Status == constants.TaskStatusPending {
 		HandleSuccessWithData(c, t)
 		return
+	}
+
+	// spider
+	if !t.SpiderId.IsZero() {
+		t.Spider, _ = service.NewModelServiceV2[models.SpiderV2]().GetById(t.SpiderId)
+	}
+
+	// schedule
+	if !t.ScheduleId.IsZero() {
+		t.Schedule, _ = service.NewModelServiceV2[models.ScheduleV2]().GetById(t.ScheduleId)
+	}
+
+	// node
+	if !t.NodeId.IsZero() {
+		t.Node, _ = service.NewModelServiceV2[models.NodeV2]().GetById(t.NodeId)
 	}
 
 	// task stat
