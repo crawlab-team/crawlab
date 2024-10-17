@@ -53,6 +53,11 @@ func GetTaskById(c *gin.Context) {
 		return
 	}
 
+	// schedule
+	if !t.ScheduleId.IsZero() {
+		t.Schedule, _ = service.NewModelServiceV2[models.ScheduleV2]().GetById(t.ScheduleId)
+	}
+
 	// task stat
 	t.Stat, _ = service.NewModelServiceV2[models.TaskStatV2]().GetById(id)
 
