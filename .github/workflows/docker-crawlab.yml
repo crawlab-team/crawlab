@@ -221,17 +221,15 @@ jobs:
           echo "cmd: ${cmd}"
           res=`${cmd}`
           echo "res: ${res}"
+          docker stop crawlab_master
           if [[ $res =~ "success" ]]; then
-            echo "::set-output test_passed=true"
+            :
           else
-            echo "::set-output test_passed=false"
             exit 1
           fi
-          docker stop crawlab_master
 
   push_images:
     needs: [setup, build_crawlab]
-    if: needs.build_crawlab.outputs.test_passed == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
