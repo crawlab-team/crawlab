@@ -4,12 +4,7 @@ import (
 	"github.com/crawlab-team/crawlab/trace"
 	"io"
 	"reflect"
-	"unsafe"
 )
-
-func BytesToString(b []byte) string {
-	return *(*string)(unsafe.Pointer(&b))
-}
 
 func Close(c io.Closer) {
 	err := c.Close()

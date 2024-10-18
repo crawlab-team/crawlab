@@ -3,11 +3,13 @@ package middlewares
 import (
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/errors"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/user"
 	"github.com/crawlab-team/crawlab/core/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func AuthorizationMiddlewareV2() gin.HandlerFunc {
@@ -15,12 +17,7 @@ func AuthorizationMiddlewareV2() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// disable auth for test
 		if viper.GetBool("auth.disabled") {
-			modelSvc, err := service.GetService()
-			if err != nil {
-				utils.HandleErrorInternalServerError(c, err)
-				return
-			}
-			u, err := modelSvc.GetUserByUsername(constants.DefaultAdminUsername, nil)
+			u, err := service.NewModelServiceV2[models.UserV2]().GetOne(bson.M{"username": constants.DefaultAdminUsername}, nil)
 			if err != nil {
 				utils.HandleErrorInternalServerError(c, err)
 				return

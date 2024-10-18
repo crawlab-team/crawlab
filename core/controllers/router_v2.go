@@ -220,11 +220,6 @@ func InitRoutes(app *gin.Engine) (err error) {
 			Path:        "/:id/logs",
 			HandlerFunc: GetTaskLogs,
 		},
-		{
-			Method:      http.MethodGet,
-			Path:        "/:id/data",
-			HandlerFunc: GetTaskData,
-		},
 	}...))
 	RegisterController(groups.AuthGroup, "/tokens", NewControllerV2[models2.TokenV2]([]Action{
 		{

@@ -4,16 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/apex/log"
-	config2 "github.com/crawlab-team/crawlab/core/config"
+	"github.com/crawlab-team/crawlab/core/config"
 	"github.com/crawlab-team/crawlab/core/grpc/client"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	client2 "github.com/crawlab-team/crawlab/core/models/client"
-	"github.com/crawlab-team/crawlab/core/models/models"
-	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	nodeconfig "github.com/crawlab-team/crawlab/core/node/config"
 	"github.com/crawlab-team/crawlab/core/task/handler"
 	"github.com/crawlab-team/crawlab/core/utils"
-	grpc "github.com/crawlab-team/crawlab/grpc"
+	"github.com/crawlab-team/crawlab/grpc"
 	"github.com/crawlab-team/crawlab/trace"
 	"go.mongodb.org/mongo-driver/bson"
 	"sync"
@@ -32,7 +31,7 @@ type WorkerServiceV2 struct {
 	heartbeatInterval time.Duration
 
 	// internals
-	n *models2.NodeV2
+	n *models.NodeV2
 	s grpc.NodeService_SubscribeClient
 }
 
@@ -88,7 +87,7 @@ func (svc *WorkerServiceV2) Register() {
 	if err != nil {
 		panic(err)
 	}
-	svc.n, err = client2.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": svc.GetConfigService().GetNodeKey()}, nil)
+	svc.n, err = client2.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": svc.GetConfigService().GetNodeKey()}, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -125,7 +124,7 @@ func (svc *WorkerServiceV2) handleStreamMessage(msg *grpc.StreamMessage) (err er
 			return trace.TraceError(err)
 		}
 	case grpc.StreamMessageCode_RUN_TASK:
-		var t models.Task
+		var t models.TaskV2
 		if err := json.Unmarshal(msg.Data, &t); err != nil {
 			return trace.TraceError(err)
 		}
@@ -133,7 +132,7 @@ func (svc *WorkerServiceV2) handleStreamMessage(msg *grpc.StreamMessage) (err er
 			return trace.TraceError(err)
 		}
 	case grpc.StreamMessageCode_CANCEL_TASK:
-		var t models.Task
+		var t models.TaskV2
 		if err := json.Unmarshal(msg.Data, &t); err != nil {
 			return trace.TraceError(err)
 		}
@@ -202,7 +201,7 @@ var workerServiceV2Once = new(sync.Once)
 
 func newWorkerServiceV2() (res *WorkerServiceV2, err error) {
 	svc := &WorkerServiceV2{
-		cfgPath:           config2.GetConfigPath(),
+		cfgPath:           config.GetConfigPath(),
 		heartbeatInterval: 15 * time.Second,
 	}
 

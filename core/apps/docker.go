@@ -167,16 +167,6 @@ func (app *Docker) startSeaweedFs() {
 	}
 }
 
-func (app *Docker) importDemo() {
-	for {
-		if app.Ready() {
-			break
-		}
-		time.Sleep(1 * time.Second)
-	}
-	_ = utils.ImportDemo()
-}
-
 func NewDocker(svr ServerApp) *Docker {
 	dck := &Docker{
 		parent:        svr,

@@ -4,13 +4,11 @@ import (
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/errors"
-	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/utils"
 	mongo2 "github.com/crawlab-team/crawlab/db/mongo"
 	"github.com/crawlab-team/crawlab/trace"
-	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -117,19 +115,6 @@ func (svc *ServiceV2) ChangePassword(id primitive.ObjectID, password string, by 
 
 func (svc *ServiceV2) MakeToken(user *models.UserV2) (tokenStr string, err error) {
 	return svc.makeToken(user)
-}
-
-func (svc *ServiceV2) GetCurrentUser(c *gin.Context) (user interfaces.User, err error) {
-	// token string
-	tokenStr := c.GetHeader("Authorization")
-
-	// user
-	u, err := userSvc.CheckToken(tokenStr)
-	if err != nil {
-		return nil, err
-	}
-
-	return u, nil
 }
 
 func (svc *ServiceV2) makeToken(user *models.UserV2) (tokenStr string, err error) {

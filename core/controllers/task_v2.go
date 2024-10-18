@@ -7,12 +7,10 @@ import (
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
-	"github.com/crawlab-team/crawlab/core/result"
 	"github.com/crawlab-team/crawlab/core/spider/admin"
 	"github.com/crawlab-team/crawlab/core/task/log"
 	"github.com/crawlab-team/crawlab/core/task/scheduler"
 	"github.com/crawlab-team/crawlab/core/utils"
-	"github.com/crawlab-team/crawlab/db/generic"
 	"github.com/crawlab-team/crawlab/db/mongo"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
@@ -440,63 +438,4 @@ func GetTaskLogs(c *gin.Context) {
 	}
 
 	HandleSuccessWithListData(c, logs, total)
-}
-
-func GetTaskData(c *gin.Context) {
-	// id
-	id, err := primitive.ObjectIDFromHex(c.Param("id"))
-	if err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	// pagination
-	p, err := GetPagination(c)
-	if err != nil {
-		HandleErrorBadRequest(c, err)
-		return
-	}
-
-	// task
-	t, err := service.NewModelServiceV2[models.TaskV2]().GetById(id)
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	// result service
-	resultSvc, err := result.GetResultService(t.SpiderId)
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	// query
-	query := generic.ListQuery{
-		generic.ListQueryCondition{
-			Key:   constants.TaskKey,
-			Op:    generic.OpEqual,
-			Value: t.Id,
-		},
-	}
-
-	// list
-	data, err := resultSvc.List(query, &generic.ListOptions{
-		Skip:  (p.Page - 1) * p.Size,
-		Limit: p.Size,
-		Sort:  []generic.ListSort{{"_id", generic.SortDirectionDesc}},
-	})
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	// total
-	total, err := resultSvc.Count(query)
-	if err != nil {
-		HandleErrorInternalServerError(c, err)
-		return
-	}
-
-	HandleSuccessWithListData(c, data, total)
 }

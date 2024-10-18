@@ -4,6 +4,7 @@ import (
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/entity"
 	"github.com/crawlab-team/crawlab/core/interfaces"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/db/mongo"
 	"go.mongodb.org/mongo-driver/bson"
 	mongo2 "go.mongodb.org/mongo-driver/mongo"
@@ -16,7 +17,7 @@ func (svc *Service) GetOverviewStats(query bson.M) (data interface{}, err error)
 	stats := bson.M{}
 
 	// nodes
-	stats["nodes"], err = mongo.GetMongoCol(interfaces.ModelColNameNode).Count(bson.M{"active": true})
+	stats["nodes"], err = mongo.GetMongoCol(models.GetCollectionNameByInstance(models.NodeV2{})).Count(bson.M{"active": true})
 	if err != nil {
 		if err.Error() != mongo2.ErrNoDocuments.Error() {
 			return nil, err
@@ -25,7 +26,7 @@ func (svc *Service) GetOverviewStats(query bson.M) (data interface{}, err error)
 	}
 
 	// projects
-	stats["projects"], err = mongo.GetMongoCol(interfaces.ModelColNameProject).Count(nil)
+	stats["projects"], err = mongo.GetMongoCol(models.GetCollectionNameByInstance(models.ProjectV2{})).Count(nil)
 	if err != nil {
 		if err.Error() != mongo2.ErrNoDocuments.Error() {
 			return nil, err
@@ -34,7 +35,7 @@ func (svc *Service) GetOverviewStats(query bson.M) (data interface{}, err error)
 	}
 
 	// spiders
-	stats["spiders"], err = mongo.GetMongoCol(interfaces.ModelColNameSpider).Count(nil)
+	stats["spiders"], err = mongo.GetMongoCol(models.GetCollectionNameByInstance(models.SpiderV2{})).Count(nil)
 	if err != nil {
 		if err.Error() != mongo2.ErrNoDocuments.Error() {
 			return nil, err
@@ -43,7 +44,7 @@ func (svc *Service) GetOverviewStats(query bson.M) (data interface{}, err error)
 	}
 
 	// schedules
-	stats["schedules"], err = mongo.GetMongoCol(interfaces.ModelColNameSchedule).Count(nil)
+	stats["schedules"], err = mongo.GetMongoCol(models.GetCollectionNameByInstance(models.ScheduleV2{})).Count(nil)
 	if err != nil {
 		if err.Error() != mongo2.ErrNoDocuments.Error() {
 			return nil, err
@@ -52,7 +53,7 @@ func (svc *Service) GetOverviewStats(query bson.M) (data interface{}, err error)
 	}
 
 	// tasks
-	stats["tasks"], err = mongo.GetMongoCol(interfaces.ModelColNameTask).Count(nil)
+	stats["tasks"], err = mongo.GetMongoCol(models.GetCollectionNameByInstance(models.TaskV2{})).Count(nil)
 	if err != nil {
 		if err.Error() != mongo2.ErrNoDocuments.Error() {
 			return nil, err
@@ -61,7 +62,7 @@ func (svc *Service) GetOverviewStats(query bson.M) (data interface{}, err error)
 	}
 
 	// error tasks
-	stats["error_tasks"], err = mongo.GetMongoCol(interfaces.ModelColNameTask).Count(bson.M{"status": constants.TaskStatusError})
+	stats["error_tasks"], err = mongo.GetMongoCol(models.GetCollectionNameByInstance(models.TaskV2{})).Count(bson.M{"status": constants.TaskStatusError})
 	if err != nil {
 		if err.Error() != mongo2.ErrNoDocuments.Error() {
 			return nil, err
@@ -79,7 +80,7 @@ func (svc *Service) GetOverviewStats(query bson.M) (data interface{}, err error)
 	}
 
 	// users
-	stats["users"], err = mongo.GetMongoCol(interfaces.ModelColNameUser).Count(nil)
+	stats["users"], err = mongo.GetMongoCol(models.GetCollectionNameByInstance(models.UserV2{})).Count(nil)
 	if err != nil {
 		if err.Error() != mongo2.ErrNoDocuments.Error() {
 			return nil, err
@@ -153,7 +154,7 @@ func (svc *Service) getDailyTasksStats(query bson.M) (data interface{}, err erro
 		}},
 	}
 	var results []entity.StatsDailyItem
-	if err := mongo.GetMongoCol(interfaces.ModelColNameTaskStat).Aggregate(pipeline, nil).All(&results); err != nil {
+	if err := mongo.GetMongoCol(models.GetCollectionNameByInstance(models.TaskStatV2{})).Aggregate(pipeline, nil).All(&results); err != nil {
 		return nil, err
 	}
 	return results, nil
@@ -171,7 +172,7 @@ func (svc *Service) getOverviewResults(query bson.M) (data interface{}, err erro
 		}},
 	}
 	var res bson.M
-	if err := mongo.GetMongoCol(interfaces.ModelColNameTaskStat).Aggregate(pipeline, nil).One(&res); err != nil {
+	if err := mongo.GetMongoCol(models.GetCollectionNameByInstance(models.TaskStatV2{})).Aggregate(pipeline, nil).One(&res); err != nil {
 		return nil, err
 	}
 	return res["results"], nil
@@ -196,7 +197,7 @@ func (svc *Service) getTaskStatsByStatus(query bson.M) (data interface{}, err er
 		}},
 	}
 	var results []bson.M
-	if err := mongo.GetMongoCol(interfaces.ModelColNameTask).Aggregate(pipeline, nil).All(&results); err != nil {
+	if err := mongo.GetMongoCol(models.GetCollectionNameByInstance(models.TaskV2{})).Aggregate(pipeline, nil).All(&results); err != nil {
 		return nil, err
 	}
 	return results, nil
@@ -215,7 +216,7 @@ func (svc *Service) getTaskStatsByNode(query bson.M) (data interface{}, err erro
 		{{
 			"$lookup",
 			bson.M{
-				"from":         interfaces.ModelColNameNode,
+				"from":         models.GetCollectionNameByInstance(models.NodeV2{}),
 				"localField":   "_id",
 				"foreignField": "_id",
 				"as":           "_n",
@@ -232,7 +233,7 @@ func (svc *Service) getTaskStatsByNode(query bson.M) (data interface{}, err erro
 		}},
 	}
 	var results []bson.M
-	if err := mongo.GetMongoCol(interfaces.ModelColNameTask).Aggregate(pipeline, nil).All(&results); err != nil {
+	if err := mongo.GetMongoCol(models.GetCollectionNameByInstance(models.TaskV2{})).Aggregate(pipeline, nil).All(&results); err != nil {
 		return nil, err
 	}
 	return results, nil
@@ -251,7 +252,7 @@ func (svc *Service) getTaskStatsBySpider(query bson.M) (data interface{}, err er
 		{{
 			"$lookup",
 			bson.M{
-				"from":         interfaces.ModelColNameSpider,
+				"from":         models.GetCollectionNameByInstance(models.SpiderV2{}),
 				"localField":   "_id",
 				"foreignField": "_id",
 				"as":           "_s",
@@ -269,7 +270,7 @@ func (svc *Service) getTaskStatsBySpider(query bson.M) (data interface{}, err er
 		{{"$limit", 10}},
 	}
 	var results []bson.M
-	if err := mongo.GetMongoCol(interfaces.ModelColNameTask).Aggregate(pipeline, nil).All(&results); err != nil {
+	if err := mongo.GetMongoCol(models.GetCollectionNameByInstance(models.TaskV2{})).Aggregate(pipeline, nil).All(&results); err != nil {
 		return nil, err
 	}
 	return results, nil
@@ -281,7 +282,7 @@ func (svc *Service) getTaskStatsHistogram(query bson.M) (data interface{}, err e
 		{{
 			"$lookup",
 			bson.M{
-				"from":         interfaces.ModelColNameTaskStat,
+				"from":         models.GetCollectionNameByInstance(models.TaskStatV2{}),
 				"localField":   "_id",
 				"foreignField": "_id",
 				"as":           "_ts",
@@ -303,7 +304,7 @@ func (svc *Service) getTaskStatsHistogram(query bson.M) (data interface{}, err e
 		}},
 	}
 	var res bson.M
-	if err := mongo.GetMongoCol(interfaces.ModelColNameTask).Aggregate(pipeline, nil).One(&res); err != nil {
+	if err := mongo.GetMongoCol(models.GetCollectionNameByInstance(models.TaskV2{})).Aggregate(pipeline, nil).One(&res); err != nil {
 		return nil, err
 	}
 	return res, nil

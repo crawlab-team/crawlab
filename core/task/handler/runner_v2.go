@@ -10,13 +10,12 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/entity"
-	fs2 "github.com/crawlab-team/crawlab/core/fs"
+	"github.com/crawlab-team/crawlab/core/fs"
 	client2 "github.com/crawlab-team/crawlab/core/grpc/client"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"github.com/crawlab-team/crawlab/core/models/client"
-	"github.com/crawlab-team/crawlab/core/models/models"
-	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
-	service2 "github.com/crawlab-team/crawlab/core/models/service"
+	"github.com/crawlab-team/crawlab/core/models/models/v2"
+	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/sys_exec"
 	"github.com/crawlab-team/crawlab/core/utils"
 	"github.com/crawlab-team/crawlab/grpc"
@@ -45,17 +44,16 @@ type RunnerV2 struct {
 	bufferSize       int
 
 	// internals
-	cmd  *exec.Cmd                        // process command instance
-	pid  int                              // process id
-	tid  primitive.ObjectID               // task id
-	t    *models2.TaskV2                  // task model.Task
-	s    *models2.SpiderV2                // spider model.Spider
-	ch   chan constants.TaskSignal        // channel to communicate between Service and RunnerV2
-	err  error                            // standard process error
-	envs []models.Env                     // environment variables
-	cwd  string                           // working directory
-	c    *client2.GrpcClientV2            // grpc client
-	sub  grpc.TaskService_SubscribeClient // grpc task service stream client
+	cmd *exec.Cmd                        // process command instance
+	pid int                              // process id
+	tid primitive.ObjectID               // task id
+	t   *models.TaskV2                   // task model.Task
+	s   *models.SpiderV2                 // spider model.Spider
+	ch  chan constants.TaskSignal        // channel to communicate between Service and RunnerV2
+	err error                            // standard process error
+	cwd string                           // working directory
+	c   *client2.GrpcClientV2            // grpc client
+	sub grpc.TaskService_SubscribeClient // grpc task service stream client
 
 	// log internals
 	scannerStdout *bufio.Reader
@@ -316,7 +314,7 @@ func (r *RunnerV2) configureEnv() {
 	}
 
 	// global environment variables
-	envs, err := client.NewModelServiceV2[models2.EnvironmentV2]().GetMany(nil, nil)
+	envs, err := client.NewModelServiceV2[models.EnvironmentV2]().GetMany(nil, nil)
 	if err != nil {
 		trace.PrintError(err)
 		return
@@ -511,12 +509,12 @@ func (r *RunnerV2) updateTask(status string, e error) (err error) {
 			r.t.Error = e.Error()
 		}
 		if r.svc.GetNodeConfigService().IsMaster() {
-			err = service2.NewModelServiceV2[models2.TaskV2]().ReplaceById(r.t.Id, *r.t)
+			err = service.NewModelServiceV2[models.TaskV2]().ReplaceById(r.t.Id, *r.t)
 			if err != nil {
 				return err
 			}
 		} else {
-			err = client.NewModelServiceV2[models2.TaskV2]().ReplaceById(r.t.Id, *r.t)
+			err = client.NewModelServiceV2[models.TaskV2]().ReplaceById(r.t.Id, *r.t)
 			if err != nil {
 				return err
 			}
@@ -567,7 +565,7 @@ func (r *RunnerV2) writeLogLines(lines []string) {
 }
 
 func (r *RunnerV2) _updateTaskStat(status string) {
-	ts, err := client.NewModelServiceV2[models2.TaskStatV2]().GetById(r.tid)
+	ts, err := client.NewModelServiceV2[models.TaskStatV2]().GetById(r.tid)
 	if err != nil {
 		trace.PrintError(err)
 		return
@@ -588,13 +586,13 @@ func (r *RunnerV2) _updateTaskStat(status string) {
 		ts.TotalDuration = ts.EndTs.Sub(ts.BaseModelV2.CreatedAt).Milliseconds()
 	}
 	if r.svc.GetNodeConfigService().IsMaster() {
-		err = service2.NewModelServiceV2[models2.TaskStatV2]().ReplaceById(ts.Id, *ts)
+		err = service.NewModelServiceV2[models.TaskStatV2]().ReplaceById(ts.Id, *ts)
 		if err != nil {
 			trace.PrintError(err)
 			return
 		}
 	} else {
-		err = client.NewModelServiceV2[models2.TaskStatV2]().ReplaceById(ts.Id, *ts)
+		err = client.NewModelServiceV2[models.TaskStatV2]().ReplaceById(ts.Id, *ts)
 		if err != nil {
 			trace.PrintError(err)
 			return
@@ -617,7 +615,7 @@ func (r *RunnerV2) sendNotification() {
 
 func (r *RunnerV2) _updateSpiderStat(status string) {
 	// task stat
-	ts, err := client.NewModelServiceV2[models2.TaskStatV2]().GetById(r.tid)
+	ts, err := client.NewModelServiceV2[models.TaskStatV2]().GetById(r.tid)
 	if err != nil {
 		trace.PrintError(err)
 		return
@@ -655,13 +653,13 @@ func (r *RunnerV2) _updateSpiderStat(status string) {
 
 	// perform update
 	if r.svc.GetNodeConfigService().IsMaster() {
-		err = service2.NewModelServiceV2[models2.SpiderStatV2]().UpdateById(r.s.Id, update)
+		err = service.NewModelServiceV2[models.SpiderStatV2]().UpdateById(r.s.Id, update)
 		if err != nil {
 			trace.PrintError(err)
 			return
 		}
 	} else {
-		err = client.NewModelServiceV2[models2.SpiderStatV2]().UpdateById(r.s.Id, update)
+		err = client.NewModelServiceV2[models.SpiderStatV2]().UpdateById(r.s.Id, update)
 		if err != nil {
 			trace.PrintError(err)
 			return
@@ -709,7 +707,7 @@ func NewTaskRunnerV2(id primitive.ObjectID, svc *ServiceV2) (r2 *RunnerV2, err e
 	}
 
 	// task fs service
-	r.fsSvc = fs2.NewFsServiceV2(filepath.Join(viper.GetString("workspace"), r.s.Id.Hex()))
+	r.fsSvc = fs.NewFsServiceV2(filepath.Join(viper.GetString("workspace"), r.s.Id.Hex()))
 
 	// grpc client
 	r.c = client2.GetGrpcClientV2()
