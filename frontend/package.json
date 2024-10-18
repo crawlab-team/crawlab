@@ -31,6 +31,8 @@
     "async-validator": "^4.2.5",
     "atom-material-icons": "^3.0.0",
     "axios": "^1.7.2",
+    "chart.js": "^4.4.3",
+    "chartjs-adapter-date-fns": "^3.0.0",
     "core-js": "^3.37.1",
     "crawlab-ui": "0.7.0-rc3",
     "crawlab-vue3-dropzone": "3.0.3",
