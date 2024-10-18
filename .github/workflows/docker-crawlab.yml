@@ -84,7 +84,7 @@ jobs:
           
           echo "::set-output name=version::$VERSION"
       
-  build-backend:
+  build_backend:
     needs: [ setup ]
     if: needs.setup.outputs.is_matched_backend == '1'
     runs-on: ubuntu-latest
@@ -106,7 +106,7 @@ jobs:
           docker tag image $IMAGE_NAME:$IMAGE_VERSION
           docker push $IMAGE_NAME:$IMAGE_VERSION
 
-  build-frontend:
+  build_frontend:
     needs: [ setup ]
     if: needs.setup.outputs.is_matched_frontend == '1'
     runs-on: ubuntu-latest
@@ -128,9 +128,9 @@ jobs:
           docker tag image $IMAGE_NAME:$IMAGE_VERSION
           docker push $IMAGE_NAME:$IMAGE_VERSION
 
-  build-crawlab:
+  build_crawlab:
     if: ${{ always() }}
-    needs: [ setup, build-backend, build-frontend ]
+    needs: [ setup, build_backend, build_frontend ]
     runs-on: ubuntu-latest
     outputs:
       test_passed: ${{ steps.build_and_test.outputs.test_passed }}
@@ -229,9 +229,9 @@ jobs:
           fi
           docker stop crawlab_master
 
-  push-images:
-    needs: [setup, build-crawlab]
-    if: needs.build-crawlab.outputs.test_passed == 'true'
+  push_images:
+    needs: [setup, build_crawlab]
+    if: needs.build_crawlab.outputs.test_passed == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -254,4 +254,3 @@ jobs:
         with:
           push: true
           tags: ${{ (matrix.registry == 'dockerhub' && env.IMAGE_NAME_CRAWLAB) || (matrix.registry == 'tencent' && env.IMAGE_NAME_CRAWLAB_TENCENT) }}:${{ needs.setup.outputs.version }}
-
