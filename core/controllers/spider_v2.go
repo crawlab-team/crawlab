@@ -432,6 +432,17 @@ func DeleteSpiderList(c *gin.Context) {
 		return
 	}
 
+	// Fetch spiders before deletion
+	spiders, err := service.NewModelServiceV2[models2.SpiderV2]().GetMany(bson.M{
+		"_id": bson.M{
+			"$in": payload.Ids,
+		},
+	}, nil)
+	if err != nil {
+		HandleErrorInternalServerError(c, err)
+		return
+	}
+
 	if err := mongo.RunTransaction(func(context mongo2.SessionContext) (err error) {
 		// delete spiders
 		if err := service.NewModelServiceV2[models2.SpiderV2]().DeleteMany(bson.M{
@@ -498,29 +509,21 @@ func DeleteSpiderList(c *gin.Context) {
 		return
 	}
 
-	// delete spider directories
+	// Delete spider directories
 	go func() {
 		wg := sync.WaitGroup{}
-		wg.Add(len(payload.Ids))
-		for _, id := range payload.Ids {
-			go func(id primitive.ObjectID) {
+		wg.Add(len(spiders))
+		for i := range spiders {
+			go func(s *models2.SpiderV2) {
 				defer wg.Done()
 
-				// spider
-				s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
-				if err != nil {
-					log.Errorf("failed to get spider: %s", err.Error())
-					trace.PrintError(err)
-					return
-				}
-
-				// skip spider with git
+				// Skip spider with git
 				if !s.GitId.IsZero() {
 					return
 				}
 
-				// delete spider directory
-				fsSvc, err := getSpiderFsSvcById(id)
+				// Delete spider directory
+				fsSvc, err := getSpiderFsSvcById(s.Id)
 				if err != nil {
 					log.Errorf("failed to get spider fs service: %s", err.Error())
 					trace.PrintError(err)
@@ -532,7 +535,7 @@ func DeleteSpiderList(c *gin.Context) {
 					trace.PrintError(err)
 					return
 				}
-			}(id)
+			}(&spiders[i])
 		}
 		wg.Wait()
 	}()
