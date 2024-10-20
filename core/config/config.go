@@ -41,6 +41,9 @@ func (c *Config) WatchConfig() {
 }
 
 func (c *Config) Init() (err error) {
+	// Set default values
+	c.setDefaults()
+
 	// config
 	if c.Name != "" {
 		viper.SetConfigFile(c.Name) // if config file is set, load it accordingly
@@ -50,13 +53,13 @@ func (c *Config) Init() (err error) {
 	}
 
 	// config type as yaml
-	viper.SetConfigType("yaml") // default yaml
+	viper.SetConfigType("yaml")
 
 	// auto env
-	viper.AutomaticEnv() // load matched environment variables
+	viper.AutomaticEnv()
 
 	// env prefix
-	viper.SetEnvPrefix("CRAWLAB") // environment variable prefix as CRAWLAB
+	viper.SetEnvPrefix("CRAWLAB")
 
 	// replacer
 	replacer := strings.NewReplacer(".", "_")
@@ -64,11 +67,37 @@ func (c *Config) Init() (err error) {
 
 	// read in config
 	if err := viper.ReadInConfig(); err != nil {
-		log.Errorf("Error reading config file, %s", err)
-		return err
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			log.Warn("No config file found. Using default values.")
+		} else {
+			log.Errorf("Error reading config file: %s", err)
+			return err
+		}
 	}
 
 	return nil
+}
+
+func (c *Config) setDefaults() {
+	viper.SetDefault("edition", "global.edition.community")
+
+	viper.SetDefault("mongo.host", "localhost")
+	viper.SetDefault("mongo.port", 27017)
+	viper.SetDefault("mongo.db", "crawlab_test")
+	viper.SetDefault("mongo.username", "")
+	viper.SetDefault("mongo.password", "")
+	viper.SetDefault("mongo.authSource", "admin")
+
+	viper.SetDefault("server.host", "0.0.0.0")
+	viper.SetDefault("server.port", 8000)
+
+	viper.SetDefault("grpc.address", "localhost:9666")
+	viper.SetDefault("grpc.server.address", "0.0.0.0:9666")
+	viper.SetDefault("grpc.authKey", "Crawlab2021!")
+
+	viper.SetDefault("api.endpoint", "http://localhost:8000")
+
+	viper.SetDefault("log.path", "/var/log/crawlab")
 }
 
 func (c *Config) initLogLevel() {

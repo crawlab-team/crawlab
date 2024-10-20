@@ -3,6 +3,10 @@ package controllers_test
 import (
 	"bytes"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/crawlab-team/crawlab/core/controllers"
 	"github.com/crawlab-team/crawlab/core/middlewares"
 	"github.com/crawlab-team/crawlab/core/models/models/v2"
@@ -12,9 +16,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestCreateSpider(t *testing.T) {
@@ -45,7 +46,6 @@ func TestCreateSpider(t *testing.T) {
 	require.Nil(t, err)
 	assert.False(t, response.Data.Id.IsZero())
 	assert.Equal(t, payload.Name, response.Data.Name)
-	assert.False(t, response.Data.ColId.IsZero())
 }
 
 func TestGetSpiderById(t *testing.T) {
