@@ -39,7 +39,6 @@ type TaskServerV2 struct {
 func (svr TaskServerV2) Subscribe(stream grpc.TaskService_SubscribeServer) (err error) {
 	for {
 		msg, err := stream.Recv()
-		utils.LogDebug(msg.String())
 		if err == io.EOF {
 			return nil
 		}

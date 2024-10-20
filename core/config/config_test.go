@@ -60,6 +60,9 @@ server:
 	err = os.WriteFile(configPath, configContent, 0644)
 	require.NoError(t, err, "Failed to write config file")
 
+	// Remove the environment variable before testing with config file
+	os.Unsetenv("CRAWLAB_MONGO_HOST")
+
 	// Create a new Config instance with the config file
 	cWithFile := Config{Name: configPath}
 	err = cWithFile.Init()

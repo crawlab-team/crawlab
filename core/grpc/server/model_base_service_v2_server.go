@@ -3,13 +3,14 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"reflect"
+
 	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/db/mongo"
 	"github.com/crawlab-team/crawlab/grpc"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"reflect"
 )
 
 var (
@@ -253,7 +254,11 @@ func (svr ModelBaseServiceServerV2) InsertMany(_ context.Context, req *grpc.Mode
 	modelsSlice := reflect.ValueOf(modelsSlicePtr).Elem()
 	modelsInterface := make([]any, modelsSlice.Len())
 	for i := 0; i < modelsSlice.Len(); i++ {
-		modelsInterface[i] = modelsSlice.Index(i).Interface()
+		modelValue := modelsSlice.Index(i)
+		if modelValue.FieldByName("Id").Interface().(primitive.ObjectID).IsZero() {
+			modelValue.FieldByName("Id").Set(reflect.ValueOf(primitive.NewObjectID()))
+		}
+		modelsInterface[i] = modelValue.Interface()
 	}
 	modelSvc := GetModelService[bson.M](req.ModelType)
 	r, err := modelSvc.GetCol().GetCollection().InsertMany(modelSvc.GetCol().GetContext(), modelsInterface)
