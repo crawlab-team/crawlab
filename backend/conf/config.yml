@@ -25,4 +25,3 @@ api:
 
 log:
   path: /var/log/crawlab
-

@@ -98,7 +98,7 @@ jobs:
       - name: Run tests
         run: |
           cd core
-          go test ./... -parallel 1
+          go test ./... -parallel 1 -json
 
   build_backend:
     needs: [ setup, test_backend ]
