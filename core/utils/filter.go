@@ -1,8 +1,8 @@
 package utils
 
 import (
+	errors2 "errors"
 	"github.com/crawlab-team/crawlab/core/constants"
-	"github.com/crawlab-team/crawlab/core/errors"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -42,7 +42,7 @@ func FilterToQuery(f interfaces.Filter) (q bson.M, err error) {
 		case constants.FilterOpLessThanEqual:
 			q[key] = bson.M{"$lte": value}
 		default:
-			return nil, errors.ErrorFilterInvalidOperation
+			return nil, errors2.New("invalid operation")
 		}
 	}
 	return q, nil

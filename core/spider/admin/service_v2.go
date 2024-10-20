@@ -1,10 +1,10 @@
 package admin
 
 import (
+	"errors"
 	log2 "github.com/apex/log"
 	config2 "github.com/crawlab-team/crawlab/core/config"
 	"github.com/crawlab-team/crawlab/core/constants"
-	"github.com/crawlab-team/crawlab/core/errors"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
@@ -142,7 +142,7 @@ func newSpiderAdminServiceV2() (svc2 *ServiceV2, err error) {
 
 	// validate node type
 	if !svc.nodeCfgSvc.IsMaster() {
-		return nil, trace.TraceError(errors.ErrorSpiderForbidden)
+		return nil, errors.New("only master node can run spider admin service")
 	}
 
 	return svc, nil

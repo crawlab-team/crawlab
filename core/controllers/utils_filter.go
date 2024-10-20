@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
+	errors2 "errors"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/entity"
-	"github.com/crawlab-team/crawlab/core/errors"
 	"github.com/crawlab-team/crawlab/core/utils"
 	"github.com/crawlab-team/crawlab/db/generic"
 	"github.com/gin-gonic/gin"
@@ -111,7 +111,7 @@ func GetFilterAll(c *gin.Context) (res bool, err error) {
 	case "FALSE":
 		return false, nil
 	default:
-		return false, errors.ErrorFilterInvalidOperation
+		return false, errors2.New("invalid value")
 	}
 }
 

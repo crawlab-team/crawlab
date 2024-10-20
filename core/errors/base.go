@@ -6,24 +6,11 @@ import (
 )
 
 const (
-	ErrorPrefixController = "controller"
-	ErrorPrefixModel      = "model"
-	ErrorPrefixFilter     = "filter"
-	ErrorPrefixHttp       = "http"
-	ErrorPrefixGrpc       = "grpc"
-	ErrorPrefixNode       = "node"
-	ErrorPrefixInject     = "inject"
-	ErrorPrefixSpider     = "spider"
-	ErrorPrefixFs         = "fs"
-	ErrorPrefixTask       = "task"
-	ErrorPrefixSchedule   = "schedule"
-	ErrorPrefixUser       = "user"
-	ErrorPrefixStats      = "stats"
-	ErrorPrefixEvent      = "event"
-	ErrorPrefixProcess    = "process"
-	ErrorPrefixGit        = "git"
-	ErrorPrefixResult     = "result"
-	ErrorPrefixDataSource = "data_source"
+	ErrorPrefixModel = "model"
+	ErrorPrefixGrpc  = "grpc"
+	ErrorPrefixNode  = "node"
+	ErrorPrefixTask  = "task"
+	ErrorPrefixUser  = "user"
 )
 
 type ErrorPrefix string

@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/crawlab-team/crawlab/core/errors"
+	errors2 "errors"
 	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/schedule"
@@ -56,7 +56,7 @@ func PutScheduleById(c *gin.Context) {
 		return
 	}
 	if s.Id != id {
-		HandleErrorBadRequest(c, errors.ErrorHttpBadRequest)
+		HandleErrorBadRequest(c, errors2.New("id in path does not match id in body"))
 		return
 	}
 

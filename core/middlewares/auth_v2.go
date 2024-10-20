@@ -1,8 +1,8 @@
 package middlewares
 
 import (
+	"errors"
 	"github.com/crawlab-team/crawlab/core/constants"
-	"github.com/crawlab-team/crawlab/core/errors"
 	"github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/core/user"
@@ -34,7 +34,7 @@ func AuthorizationMiddlewareV2() gin.HandlerFunc {
 		u, err := userSvc.CheckToken(tokenStr)
 		if err != nil {
 			// validation failed, return error response
-			utils.HandleErrorUnauthorized(c, errors.ErrorHttpUnauthorized)
+			utils.HandleErrorUnauthorized(c, errors.New("invalid token"))
 			return
 		}
 

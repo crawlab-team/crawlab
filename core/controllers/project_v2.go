@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/crawlab-team/crawlab/core/errors"
+	"errors"
 	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
 	"github.com/crawlab-team/crawlab/db/mongo"
@@ -73,7 +73,7 @@ func GetProjectList(c *gin.Context) {
 	for _, s := range spiders {
 		_, ok := cache[s.ProjectId]
 		if !ok {
-			HandleErrorInternalServerError(c, errors.ErrorControllerMissingInCache)
+			HandleErrorInternalServerError(c, errors.New("project id not found"))
 			return
 		}
 		cache[s.ProjectId]++
