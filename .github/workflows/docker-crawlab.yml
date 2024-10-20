@@ -101,7 +101,7 @@ jobs:
             if [ -d "$dir" ]; then
               echo "Running tests in $dir"
               cd $dir
-              go test ./... -v
+              go test ./...
               cd ..
             fi
           done
