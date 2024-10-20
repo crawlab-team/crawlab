@@ -2,6 +2,11 @@ package controllers
 
 import (
 	"errors"
+	"math"
+	"os"
+	"path/filepath"
+	"sync"
+
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/fs"
 	"github.com/crawlab-team/crawlab/core/interfaces"
@@ -17,10 +22,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	mongo2 "go.mongodb.org/mongo-driver/mongo"
-	"math"
-	"os"
-	"path/filepath"
-	"sync"
 )
 
 func GetSpiderById(c *gin.Context) {
@@ -334,6 +335,13 @@ func DeleteSpiderById(c *gin.Context) {
 		return
 	}
 
+	// spider
+	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
+	if err != nil {
+		HandleErrorInternalServerError(c, err)
+		return
+	}
+
 	if err := mongo.RunTransaction(func(context mongo2.SessionContext) (err error) {
 		// delete spider
 		err = service.NewModelServiceV2[models2.SpiderV2]().DeleteById(id)
@@ -396,34 +404,21 @@ func DeleteSpiderById(c *gin.Context) {
 		return
 	}
 
-	go func() {
-		// spider
-		s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
-		if err != nil {
-			log.Errorf("failed to get spider: %s", err.Error())
-			trace.PrintError(err)
-			return
-		}
-
-		// skip spider with git
-		if !s.GitId.IsZero() {
-			return
-		}
-
-		// delete spider directory
-		fsSvc, err := getSpiderFsSvcById(id)
-		if err != nil {
-			log.Errorf("failed to get spider fs service: %s", err.Error())
-			trace.PrintError(err)
-			return
-		}
-		err = fsSvc.Delete(".")
-		if err != nil {
-			log.Errorf("failed to delete spider directory: %s", err.Error())
-			trace.PrintError(err)
-			return
-		}
-	}()
+	if !s.GitId.IsZero() {
+		go func() {
+			// delete spider directory
+			fsSvc, err := getSpiderFsSvcById(id)
+			if err != nil {
+				log.Errorf("failed to get spider fs service: %s", err.Error())
+				return
+			}
+			err = fsSvc.Delete(".")
+			if err != nil {
+				log.Errorf("failed to delete spider directory: %s", err.Error())
+				return
+			}
+		}()
+	}
 
 	HandleSuccess(c)
 }
