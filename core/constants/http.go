@@ -5,7 +5,3 @@ const (
 	HttpResponseMessageSuccess = "success"
 	HttpResponseMessageError   = "error"
 )
-
-const (
-	HttpContentTypeApplicationJson = "application/json"
-)

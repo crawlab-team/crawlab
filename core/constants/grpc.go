@@ -11,7 +11,3 @@ const (
 const (
 	GrpcHeaderAuthorization = "authorization"
 )
-
-const (
-	GrpcSubscribeTypeNode = "node"
-)

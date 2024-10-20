@@ -1,11 +1,11 @@
 package config
 
 import (
+	"strings"
+
 	"github.com/apex/log"
-	"github.com/crawlab-team/crawlab/trace"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
-	"strings"
 )
 
 func init() {
@@ -65,7 +65,6 @@ func (c *Config) Init() (err error) {
 	// read in config
 	if err := viper.ReadInConfig(); err != nil {
 		log.Errorf("Error reading config file, %s", err)
-		trace.PrintError(err)
 		return err
 	}
 

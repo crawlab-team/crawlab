@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/apex/log"
-	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/entity"
 	"io"
 	"io/fs"
@@ -209,13 +208,6 @@ func _Compress(file *os.File, prefix string, zw *zip.Writer) error {
 		}
 	}
 	return nil
-}
-
-func TrimFileData(data []byte) (res []byte) {
-	if string(data) == constants.EmptyFileData {
-		return res
-	}
-	return data
 }
 
 func ZipDirectory(dir, zipfile string) error {

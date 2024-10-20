@@ -7,12 +7,6 @@ const (
 )
 
 const (
-	FilterObjectTypeString  = "string"
-	FilterObjectTypeNumber  = "number"
-	FilterObjectTypeBoolean = "boolean"
-)
-
-const (
 	FilterOpNotSet           = "ns"
 	FilterOpContains         = "c"
 	FilterOpNotContains      = "nc"
