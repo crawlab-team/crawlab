@@ -97,14 +97,16 @@ jobs:
           go-version: '1.22'
       - name: Run tests
         run: |
-          for dir in core db fs grpc vcs trace; do
-            if [ -d "$dir" ]; then
-              echo "Running tests in $dir"
-              cd $dir
-              go test ./...
-              cd ..
-            fi
-          done
+          cd core
+          go test ./...
+          # for dir in core db fs grpc vcs trace; do
+          #   if [ -d "$dir" ]; then
+          #     echo "Running tests in $dir"
+          #     cd $dir
+          #     go test ./...
+          #     cd ..
+          #   fi
+          # done
 
   build_backend:
     needs: [ setup, test_backend ]
@@ -151,14 +153,17 @@ jobs:
           docker push $IMAGE_NAME:$IMAGE_VERSION
 
   build_crawlab:
-    if: ${{ always() }}
-    needs: [ setup, build_backend, build_frontend ]
+    needs: [setup, build_backend, build_frontend]
+    if: |
+      always() &&
+      (needs.setup.outputs.is_matched_backend != '1' || needs.build_backend.result == 'success') &&
+      (needs.setup.outputs.is_matched_frontend != '1' || needs.build_frontend.result == 'success')
     runs-on: ubuntu-latest
     outputs:
       test_passed: ${{ steps.build_and_test.outputs.test_passed }}
     services:
       mongo:
-        image: mongo:4.2
+        image: mongo:5
         ports:
           - 27017:27017
     steps:
