@@ -98,15 +98,7 @@ jobs:
       - name: Run tests
         run: |
           cd core
-          go test ./...
-          # for dir in core db fs grpc vcs trace; do
-          #   if [ -d "$dir" ]; then
-          #     echo "Running tests in $dir"
-          #     cd $dir
-          #     go test ./...
-          #     cd ..
-          #   fi
-          # done
+          go test ./... -parallel 1
 
   build_backend:
     needs: [ setup, test_backend ]
