@@ -1,6 +1,6 @@
 # Crawlab Configuration File
 edition: global.edition.community
-version: v0.6.3
+version: v0.7.0
 
 mongo:
   host: localhost
