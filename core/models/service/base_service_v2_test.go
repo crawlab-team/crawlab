@@ -33,7 +33,7 @@ func teardownTestDB() {
 		log.Errorf("dropping test db error: %v", err)
 		return
 	}
-	log.Info("dropped test db")
+	log.Infof("dropped test db")
 }
 
 func TestModelServiceV2(t *testing.T) {
