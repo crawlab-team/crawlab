@@ -23,50 +23,47 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      is_matched_backend: ${{ steps.check_changed_files.outputs.is_matched_backend }}
-      is_matched_frontend: ${{ steps.check_changed_files.outputs.is_matched_frontend }}
-      is_matched_dockerfile: ${{ steps.check_changed_files.outputs.is_matched_dockerfile }}
+      backend_changed: ${{ steps.check_changed_files.outputs.backend_changed }}
+      frontend_changed: ${{ steps.check_changed_files.outputs.frontend_changed }}
+      dockerfile_changed: ${{ steps.check_changed_files.outputs.dockerfile_changed }}
       version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v2
       - name: Get changed files
         id: changed_files
-        uses: tj-actions/changed-files@v18.7
+        uses: tj-actions/changed-files@v45
+        with:
+          files_yaml: |
+            backend:
+              - 'backend/**'
+              - 'core/**'
+              - 'db/**'
+              - 'fs/**'
+              - 'grpc/**'
+              - 'vcs/**'
+              - 'trace/**'
+            frontend:
+              - '${{ env.IMAGE_PATH_CRAWLAB_FRONTEND }}/**'
+            dockerfile:
+              - 'Dockerfile'
       - id: check_changed_files
         name: Check changed files
         run: |
-          # check changed files
-          is_matched_backend=0
-          is_matched_frontend=0
-          is_matched_dockerfile=0
-          for file in ${{ steps.changed_files.outputs.all_changed_files }}; do
-            if [[ $file =~ ^(backend|core|db|fs|grpc|vcs|trace)/.* ]]; then
-              is_matched_backend=1
-            fi
-            if [[ $file =~ ^${IMAGE_PATH_CRAWLAB_FRONTEND}/.* ]]; then
-              is_matched_frontend=1
-            fi
-            if [[ $file == Dockerfile ]]; then
-              is_matched_dockerfile=1
-            fi
-          done
-          
           # set outputs
           if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
-            is_matched_backend=1
-            is_matched_frontend=1
-            is_matched_dockerfile=1
+            echo "backend_changed=true" >> $GITHUB_OUTPUT
+            echo "frontend_changed=true" >> $GITHUB_OUTPUT
+            echo "dockerfile_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "backend_changed=${{ steps.changed_files.outputs.backend_any_changed }}" >> $GITHUB_OUTPUT
+            echo "frontend_changed=${{ steps.changed_files.outputs.frontend_any_changed }}" >> $GITHUB_OUTPUT
+            echo "dockerfile_changed=${{ steps.changed_files.outputs.dockerfile_any_changed }}" >> $GITHUB_OUTPUT
           fi
           
-          # Update outputs
-          echo "is_matched_backend=$is_matched_backend" >> $GITHUB_OUTPUT
-          echo "is_matched_frontend=$is_matched_frontend" >> $GITHUB_OUTPUT
-          echo "is_matched_dockerfile=$is_matched_dockerfile" >> $GITHUB_OUTPUT
-          
-          # echo outputs
-          echo "is_matched_backend=$is_matched_backend"
-          echo "is_matched_frontend=$is_matched_frontend"
-          echo "is_matched_dockerfile=$is_matched_dockerfile"
+          # Display change status for each component
+          echo "Backend changed: $backend_changed"
+          echo "Frontend changed: $frontend_changed"
+          echo "Dockerfile changed: $dockerfile_changed"
           
       - id: version
         name: Get version
@@ -84,7 +81,7 @@ jobs:
      
   test_backend:
     needs: [ setup ]
-    if: needs.setup.outputs.is_matched_backend == '1'
+    if: needs.setup.outputs.backend_changed == 'true'
     runs-on: ubuntu-latest
     services:
       mongo:
@@ -112,7 +109,7 @@ jobs:
 
   build_backend:
     needs: [ setup, test_backend ]
-    if: needs.setup.outputs.is_matched_backend == '1'
+    if: needs.setup.outputs.backend_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -131,7 +128,7 @@ jobs:
 
   build_frontend:
     needs: [ setup ]
-    if: needs.setup.outputs.is_matched_frontend == '1'
+    if: needs.setup.outputs.frontend_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -152,11 +149,10 @@ jobs:
     needs: [setup, build_backend, build_frontend]
     if: |
       always() &&
-      (needs.setup.outputs.is_matched_backend != '1' || needs.build_backend.result == 'success') &&
-      (needs.setup.outputs.is_matched_frontend != '1' || needs.build_frontend.result == 'success')
+      ((needs.setup.outputs.backend_changed == 'true' && needs.build_backend.result == 'success') ||
+      (needs.setup.outputs.frontend_changed == 'true' && needs.build_frontend.result == 'success') ||
+      (needs.setup.outputs.dockerfile_changed == 'true'))
     runs-on: ubuntu-latest
-    outputs:
-      test_passed: ${{ steps.build_and_test.outputs.test_passed }}
     services:
       mongo:
         image: mongo:5
@@ -206,11 +202,6 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: '3.12'
-
-      # - name: Test demo
-      #   run: |
-      #     pip install crawlab-demo
-      #     crawlab-demo validate
 
       - name: Build and test image
         id: build_and_test
