@@ -17,7 +17,7 @@ env:
   IMAGE_NAME_CRAWLAB: crawlabteam/crawlab
   IMAGE_NAME_CRAWLAB_BACKEND: crawlabteam/crawlab-backend
   IMAGE_NAME_CRAWLAB_FRONTEND: crawlabteam/crawlab-frontend
-  IMAGE_NAME_CRAWLAB_TENCENT: ccr.ccs.tencentyun.com/crawlabteam/crawlab
+  IMAGE_NAME_CRAWLAB_TENCENT: ccr.ccs.tencentyun.com/crawlab/crawlab
 
 jobs:
   setup:
