@@ -113,7 +113,7 @@ jobs:
 
   build_backend:
     needs: [ setup, test_backend ]
-    if: needs.setup.outputs.backend_changed == 'true'
+    if: needs.test_backend.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
