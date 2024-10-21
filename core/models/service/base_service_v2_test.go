@@ -2,6 +2,7 @@ package service_test
 
 import (
 	"context"
+	"github.com/apex/log"
 	"testing"
 	"time"
 
@@ -29,17 +30,19 @@ func teardownTestDB() {
 	db := mongo.GetMongoDb("testdb")
 	err := db.Drop(context.Background())
 	if err != nil {
+		log.Errorf("dropping test db error: %v", err)
 		return
 	}
+	log.Info("dropped test db")
 }
 
 func TestModelServiceV2(t *testing.T) {
-	t.Run("GetById", func(t *testing.T) {
-		setupTestDB()
-		defer teardownTestDB()
+	setupTestDB()
+	defer teardownTestDB()
 
+	t.Run("GetById", func(t *testing.T) {
 		svc := service.NewModelServiceV2[TestModel]()
-		testModel := TestModel{Name: "Test Name"}
+		testModel := TestModel{Name: "GetById Test"}
 
 		id, err := svc.InsertOne(testModel)
 		require.Nil(t, err)
@@ -51,46 +54,37 @@ func TestModelServiceV2(t *testing.T) {
 	})
 
 	t.Run("GetOne", func(t *testing.T) {
-		setupTestDB()
-		defer teardownTestDB()
-
 		svc := service.NewModelServiceV2[TestModel]()
-		testModel := TestModel{Name: "Test Name"}
+		testModel := TestModel{Name: "GetOne Test"}
 
 		_, err := svc.InsertOne(testModel)
 		require.Nil(t, err)
 		time.Sleep(100 * time.Millisecond)
 
-		result, err := svc.GetOne(bson.M{"name": "Test Name"}, nil)
+		result, err := svc.GetOne(bson.M{"name": "GetOne Test"}, nil)
 		require.Nil(t, err)
 		assert.Equal(t, testModel.Name, result.Name)
 	})
 
 	t.Run("GetMany", func(t *testing.T) {
-		setupTestDB()
-		defer teardownTestDB()
-
 		svc := service.NewModelServiceV2[TestModel]()
 		testModels := []TestModel{
-			{Name: "Name1"},
-			{Name: "Name2"},
+			{Name: "GetMany Test 1"},
+			{Name: "GetMany Test 2"},
 		}
 
 		_, err := svc.InsertMany(testModels)
 		require.Nil(t, err)
 		time.Sleep(100 * time.Millisecond)
 
-		results, err := svc.GetMany(bson.M{}, nil)
+		results, err := svc.GetMany(bson.M{"name": bson.M{"$regex": "^GetMany Test"}}, nil)
 		require.Nil(t, err)
 		assert.Equal(t, 2, len(results))
 	})
 
 	t.Run("InsertOne", func(t *testing.T) {
-		setupTestDB()
-		defer teardownTestDB()
-
 		svc := service.NewModelServiceV2[TestModel]()
-		testModel := TestModel{Name: "Test Name"}
+		testModel := TestModel{Name: "InsertOne Test"}
 
 		id, err := svc.InsertOne(testModel)
 		require.Nil(t, err)
@@ -98,13 +92,10 @@ func TestModelServiceV2(t *testing.T) {
 	})
 
 	t.Run("InsertMany", func(t *testing.T) {
-		setupTestDB()
-		defer teardownTestDB()
-
 		svc := service.NewModelServiceV2[TestModel]()
 		testModels := []TestModel{
-			{Name: "Name1"},
-			{Name: "Name2"},
+			{Name: "InsertMany Test 1"},
+			{Name: "InsertMany Test 2"},
 		}
 
 		ids, err := svc.InsertMany(testModels)
@@ -113,77 +104,65 @@ func TestModelServiceV2(t *testing.T) {
 	})
 
 	t.Run("UpdateById", func(t *testing.T) {
-		setupTestDB()
-		defer teardownTestDB()
-
 		svc := service.NewModelServiceV2[TestModel]()
-		testModel := TestModel{Name: "Old Name"}
+		testModel := TestModel{Name: "UpdateById Test"}
 
 		id, err := svc.InsertOne(testModel)
 		require.Nil(t, err)
 		time.Sleep(100 * time.Millisecond)
 
-		update := bson.M{"$set": bson.M{"name": "New Name"}}
+		update := bson.M{"$set": bson.M{"name": "UpdateById Test New Name"}}
 		err = svc.UpdateById(id, update)
 		require.Nil(t, err)
 		time.Sleep(100 * time.Millisecond)
 
 		result, err := svc.GetById(id)
 		require.Nil(t, err)
-		assert.Equal(t, "New Name", result.Name)
+		assert.Equal(t, "UpdateById Test New Name", result.Name)
 	})
 
 	t.Run("UpdateOne", func(t *testing.T) {
-		setupTestDB()
-		defer teardownTestDB()
-
 		svc := service.NewModelServiceV2[TestModel]()
-		testModel := TestModel{Name: "Old Name"}
+		testModel := TestModel{Name: "UpdateOne Test"}
 
 		_, err := svc.InsertOne(testModel)
 		require.Nil(t, err)
 		time.Sleep(100 * time.Millisecond)
 
-		update := bson.M{"$set": bson.M{"name": "New Name"}}
-		err = svc.UpdateOne(bson.M{"name": "Old Name"}, update)
+		update := bson.M{"$set": bson.M{"name": "UpdateOne Test New Name"}}
+		err = svc.UpdateOne(bson.M{"name": "UpdateOne Test"}, update)
 		require.Nil(t, err)
 		time.Sleep(100 * time.Millisecond)
 
-		result, err := svc.GetOne(bson.M{"name": "New Name"}, nil)
+		result, err := svc.GetOne(bson.M{"name": "UpdateOne Test New Name"}, nil)
 		require.Nil(t, err)
-		assert.Equal(t, "New Name", result.Name)
+		assert.Equal(t, "UpdateOne Test New Name", result.Name)
 	})
 
 	t.Run("UpdateMany", func(t *testing.T) {
-		setupTestDB()
-		defer teardownTestDB()
-
 		svc := service.NewModelServiceV2[TestModel]()
 		testModels := []TestModel{
-			{Name: "Old Name1"},
-			{Name: "Old Name2"},
+			{Name: "UpdateMany Test 1"},
+			{Name: "UpdateMany Test 2"},
 		}
 
 		_, err := svc.InsertMany(testModels)
 		require.Nil(t, err)
 		time.Sleep(100 * time.Millisecond)
 
-		update := bson.M{"$set": bson.M{"name": "New Name"}}
-		err = svc.UpdateMany(bson.M{"name": bson.M{"$regex": "^Old"}}, update)
+		update := bson.M{"$set": bson.M{"name": "UpdateMany Test New Name"}}
+		err = svc.UpdateMany(bson.M{"name": bson.M{"$regex": "^UpdateMany Test"}}, update)
 		require.Nil(t, err)
 		time.Sleep(100 * time.Millisecond)
 
-		results, err := svc.GetMany(bson.M{"name": "New Name"}, nil)
+		results, err := svc.GetMany(bson.M{"name": "UpdateMany Test New Name"}, nil)
 		require.Nil(t, err)
 		assert.Equal(t, 2, len(results))
 	})
 
 	t.Run("DeleteById", func(t *testing.T) {
-		setupTestDB()
-		defer teardownTestDB()
-
 		svc := service.NewModelServiceV2[TestModel]()
-		testModel := TestModel{Name: "Test Name"}
+		testModel := TestModel{Name: "DeleteById Test"}
 
 		id, err := svc.InsertOne(testModel)
 		require.Nil(t, err)
@@ -199,63 +178,54 @@ func TestModelServiceV2(t *testing.T) {
 	})
 
 	t.Run("DeleteOne", func(t *testing.T) {
-		setupTestDB()
-		defer teardownTestDB()
-
 		svc := service.NewModelServiceV2[TestModel]()
-		testModel := TestModel{Name: "Test Name"}
+		testModel := TestModel{Name: "DeleteOne Test"}
 
 		_, err := svc.InsertOne(testModel)
 		require.Nil(t, err)
 		time.Sleep(100 * time.Millisecond)
 
-		err = svc.DeleteOne(bson.M{"name": "Test Name"})
+		err = svc.DeleteOne(bson.M{"name": "DeleteOne Test"})
 		require.Nil(t, err)
 		time.Sleep(100 * time.Millisecond)
 
-		result, err := svc.GetOne(bson.M{"name": "Test Name"}, nil)
+		result, err := svc.GetOne(bson.M{"name": "DeleteOne Test"}, nil)
 		assert.NotNil(t, err)
 		assert.Nil(t, result)
 	})
 
 	t.Run("DeleteMany", func(t *testing.T) {
-		setupTestDB()
-		defer teardownTestDB()
-
 		svc := service.NewModelServiceV2[TestModel]()
 		testModels := []TestModel{
-			{Name: "Test Name1"},
-			{Name: "Test Name2"},
+			{Name: "DeleteMany Test 1"},
+			{Name: "DeleteMany Test 2"},
 		}
 
 		_, err := svc.InsertMany(testModels)
 		require.Nil(t, err)
 		time.Sleep(100 * time.Millisecond)
 
-		err = svc.DeleteMany(bson.M{"name": bson.M{"$regex": "^Test Name"}})
+		err = svc.DeleteMany(bson.M{"name": bson.M{"$regex": "^DeleteMany Test"}})
 		require.Nil(t, err)
 		time.Sleep(100 * time.Millisecond)
 
-		results, err := svc.GetMany(bson.M{"name": bson.M{"$regex": "^Test Name"}}, nil)
+		results, err := svc.GetMany(bson.M{"name": bson.M{"$regex": "^DeleteMany Test"}}, nil)
 		require.Nil(t, err)
 		assert.Equal(t, 0, len(results))
 	})
 
 	t.Run("Count", func(t *testing.T) {
-		setupTestDB()
-		defer teardownTestDB()
-
 		svc := service.NewModelServiceV2[TestModel]()
 		testModels := []TestModel{
-			{Name: "Name1"},
-			{Name: "Name2"},
+			{Name: "Count Test 1"},
+			{Name: "Count Test 2"},
 		}
 
 		_, err := svc.InsertMany(testModels)
 		require.Nil(t, err)
 		time.Sleep(100 * time.Millisecond)
 
-		total, err := svc.Count(bson.M{})
+		total, err := svc.Count(bson.M{"name": bson.M{"$regex": "^Count Test"}})
 		require.Nil(t, err)
 		assert.Equal(t, 2, total)
 	})

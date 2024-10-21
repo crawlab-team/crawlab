@@ -98,7 +98,15 @@ jobs:
       - name: Run tests
         run: |
           cd core
-          go test ./...
+          # Find all directories containing *_test.go files
+          test_dirs=$(find . -name "*_test.go" -exec dirname {} \; | sort -u)
+
+          # Run go test on each directory
+          for dir in $test_dirs
+          do
+            echo "Running tests in $dir"
+            go test ./$dir
+          done
 
   build_backend:
     needs: [ setup, test_backend ]
