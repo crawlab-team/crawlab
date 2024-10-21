@@ -61,9 +61,9 @@ jobs:
           fi
           
           # Display change status for each component
-          echo "Backend changed: $backend_changed"
-          echo "Frontend changed: $frontend_changed"
-          echo "Dockerfile changed: $dockerfile_changed"
+          echo "Backend changed: ${{ steps.changed_files.outputs.backend_any_changed }}"
+          echo "Frontend changed: ${{ steps.changed_files.outputs.frontend_any_changed }}"
+          echo "Dockerfile changed: ${{ steps.changed_files.outputs.dockerfile_any_changed }}"
           
       - id: version
         name: Get version
