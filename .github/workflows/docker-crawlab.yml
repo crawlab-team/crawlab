@@ -58,9 +58,11 @@ jobs:
             is_matched_dockerfile=1
           fi
           
-          echo "::set-output name=is_matched_backend::$is_matched_backend"
-          echo "::set-output name=is_matched_frontend::$is_matched_frontend"
-          echo "::set-output name=is_matched_dockerfile::$is_matched_dockerfile"
+          # Update outputs
+          echo "is_matched_backend=$is_matched_backend" >> $GITHUB_OUTPUT
+          echo "is_matched_frontend=$is_matched_frontend" >> $GITHUB_OUTPUT
+          echo "is_matched_dockerfile=$is_matched_dockerfile" >> $GITHUB_OUTPUT
+          
           # echo outputs
           echo "is_matched_backend=$is_matched_backend"
           echo "is_matched_frontend=$is_matched_frontend"
@@ -78,7 +80,7 @@ jobs:
           # Use Docker `latest` tag convention
           [ "$VERSION" == "main" ] && VERSION=latest
           
-          echo "::set-output name=version::$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
      
   test_backend:
     needs: [ setup ]
@@ -250,7 +252,7 @@ jobs:
           fi
 
   push_images:
-    if: ${{ success() && needs.build_crawlab.result == 'success' }}
+    if: ${{ needs.build_crawlab.result == 'success' }}
     needs: [setup, build_crawlab]
     runs-on: ubuntu-latest
     strategy:
