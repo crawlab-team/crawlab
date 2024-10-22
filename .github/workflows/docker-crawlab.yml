@@ -183,38 +183,12 @@ jobs:
           tags: crawlab:${{ github.sha }}
           outputs: type=docker,dest=/tmp/crawlab-image.tar
 
-      - name: Cache Docker image
-        uses: actions/cache@v3
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
         with:
-          path: /tmp/crawlab-image.tar
-          key: ${{ runner.os }}-crawlab-${{ github.sha }}
-
-      - name: Test image
-        run: |
-          docker load --input /tmp/crawlab-image.tar
-          docker run --rm -d --name crawlab_master \
-            -e CRAWLAB_NODE_MASTER=true \
-            -e CRAWLAB_DEMO=true \
-            -e CRAWLAB_MONGO_HOST=localhost \
-            -e CRAWLAB_MONGO_PORT=27017 \
-            -p 8080:8080 \
-            --network host \
-            crawlab:${{ github.sha }}
-          docker exec crawlab_master env
-          docker logs -f crawlab_master &
-          sleep 10
-          docker ps
-          cmd='curl http://localhost:8080/api/system-info -s'
-          echo "cmd: ${cmd}"
-          res=`${cmd}`
-          echo "res: ${res}"
-          docker stop crawlab_master
-          if [[ $res =~ "success" ]]; then
-            echo "Test passed successfully"
-          else
-            echo "Test failed"
-            exit 1
-          fi
+          name: crawlab-image-${{ github.sha }}
+          path: /tmp/crawlab-image-${{ github.sha }}.tar
+          retention-days: 1
 
   test_crawlab:
     needs: [setup, build_crawlab]
@@ -228,14 +202,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore cached Docker image
-        uses: actions/cache@v3
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v3
         with:
-          path: /tmp/crawlab-image.tar
-          key: ${{ runner.os }}-crawlab-${{ github.sha }}
+          name: crawlab-image-${{ github.sha }}
+          path: /tmp
 
       - name: Load Docker image
-        run: docker load --input /tmp/crawlab-image.tar
+        run: docker load --input /tmp/crawlab-image-${{ github.sha }}.tar
 
       - name: Test image
         run: |
