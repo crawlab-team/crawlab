@@ -2,7 +2,7 @@ package mongo
 
 import (
 	"context"
-	"github.com/crawlab-team/crawlab/db/errors"
+	"errors"
 	"github.com/crawlab-team/crawlab/trace"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -58,7 +58,7 @@ func (col *Col) Insert(doc interface{}) (id primitive.ObjectID, err error) {
 	if id, ok := res.InsertedID.(primitive.ObjectID); ok {
 		return id, nil
 	}
-	return primitive.NilObjectID, trace.TraceError(errors.ErrInvalidType)
+	return primitive.NilObjectID, trace.TraceError(errors.New("InsertedID is not ObjectID"))
 }
 
 func (col *Col) InsertMany(docs []interface{}) (ids []primitive.ObjectID, err error) {
@@ -72,7 +72,7 @@ func (col *Col) InsertMany(docs []interface{}) (ids []primitive.ObjectID, err er
 			id := v.(primitive.ObjectID)
 			ids = append(ids, id)
 		default:
-			return nil, trace.TraceError(errors.ErrInvalidType)
+			return nil, trace.TraceError(errors.New("InsertedID is not ObjectID"))
 		}
 	}
 	return ids, nil

@@ -2,7 +2,7 @@ package mongo
 
 import (
 	"context"
-	"github.com/crawlab-team/crawlab/db/errors"
+	"errors"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -13,16 +13,6 @@ type FindResultInterface interface {
 	GetSingleResult() (res *mongo.SingleResult)
 	GetCursor() (cur *mongo.Cursor)
 	GetError() (err error)
-}
-
-func NewFindResult() (fr *FindResult) {
-	return &FindResult{}
-}
-
-func NewFindResultWithError(err error) (fr *FindResult) {
-	return &FindResult{
-		err: err,
-	}
 }
 
 type FindResult struct {
@@ -61,7 +51,7 @@ func (fr *FindResult) All(val interface{}) (err error) {
 		ctx = fr.col.ctx
 	}
 	if fr.cur == nil {
-		return errors.ErrNoCursor
+		return errors.New("no cursor")
 	}
 	if !fr.cur.TryNext(ctx) {
 		return ctx.Err()
