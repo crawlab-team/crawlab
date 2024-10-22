@@ -1,0 +1,3 @@
+[submodule "tests/e2e"]
+	path = tests/e2e
+	url = git@github.com:crawlab-team/e2e-tests.git
