@@ -176,10 +176,22 @@ jobs:
           fi
 
       - name: Build image
-        run: docker build . --file Dockerfile --tag image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          tags: crawlab:${{ github.sha }}
+          outputs: type=docker,dest=/tmp/crawlab-image.tar
+
+      - name: Cache Docker image
+        uses: actions/cache@v3
+        with:
+          path: /tmp/crawlab-image.tar
+          key: ${{ runner.os }}-crawlab-${{ github.sha }}
 
       - name: Test image
         run: |
+          docker load --input /tmp/crawlab-image.tar
           docker run --rm -d --name crawlab_master \
             -e CRAWLAB_NODE_MASTER=true \
             -e CRAWLAB_DEMO=true \
@@ -187,7 +199,7 @@ jobs:
             -e CRAWLAB_MONGO_PORT=27017 \
             -p 8080:8080 \
             --network host \
-            image
+            crawlab:${{ github.sha }}
           docker exec crawlab_master env
           docker logs -f crawlab_master &
           sleep 10
@@ -215,6 +227,16 @@ jobs:
           - 27017:27017
     steps:
       - uses: actions/checkout@v4
+
+      - name: Restore cached Docker image
+        uses: actions/cache@v3
+        with:
+          path: /tmp/crawlab-image.tar
+          key: ${{ runner.os }}-crawlab-${{ github.sha }}
+
+      - name: Load Docker image
+        run: docker load --input /tmp/crawlab-image.tar
+
       - name: Test image
         run: |
           docker run --rm -d --name crawlab_master \
@@ -224,7 +246,7 @@ jobs:
             -e CRAWLAB_MONGO_PORT=27017 \
             -p 8080:8080 \
             --network host \
-            image
+            crawlab:${{ github.sha }}
           docker ps
           sleep 10
           docker logs -f crawlab_master &
@@ -253,7 +275,6 @@ jobs:
           name: playwright-report
           path: tests/e2e/playwright-report/
           retention-days: 30
-
   push_images:
     if: ${{ always() && needs.test_crawlab.result == 'success' }}
     needs: [setup, test_crawlab]
