@@ -255,8 +255,8 @@ jobs:
           retention-days: 30
 
   push_images:
-    if: ${{ always() && needs.build_crawlab.result == 'success' }}
-    needs: [setup, build_crawlab]
+    if: ${{ always() && needs.test_crawlab.result == 'success' }}
+    needs: [setup, test_crawlab]
     runs-on: ubuntu-latest
     strategy:
       matrix:
