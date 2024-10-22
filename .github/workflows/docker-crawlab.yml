@@ -157,11 +157,6 @@ jobs:
       (needs.setup.outputs.frontend_changed == 'true' && needs.build_frontend.result == 'success') ||
       (needs.setup.outputs.dockerfile_changed == 'true'))
     runs-on: ubuntu-latest
-    services:
-      mongo:
-        image: mongo:5
-        ports:
-          - 27017:27017
     steps:
       - uses: actions/checkout@v4
       
@@ -211,7 +206,7 @@ jobs:
       - name: Load Docker image
         run: docker load --input /tmp/crawlab-image-${{ github.sha }}.tar
 
-      - name: Test image
+      - name: Run Docker container
         run: |
           docker run --rm -d --name crawlab_master \
             -e CRAWLAB_NODE_MASTER=true \
@@ -222,9 +217,6 @@ jobs:
             --network host \
             crawlab:${{ github.sha }}
           docker ps
-          sleep 10
-          docker logs -f crawlab_master &
-          sleep 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -232,23 +224,27 @@ jobs:
           node-version: '20'
 
       - name: Install Playwright and dependencies
+        id: install_playwright
         run: |
           npm init -y
           npm install @playwright/test
           npx playwright install --with-deps
 
       - name: Run Playwright tests
+        id: run_playwright
         run: |
           cd tests/e2e
           npx playwright test
 
       - name: Upload Playwright report
+        id: upload_playwright_report
         uses: actions/upload-artifact@v3
-        if: always()
+        if: ${{ always() && steps.install_playwright.outcome == 'success' }}
         with:
           name: playwright-report
           path: tests/e2e/playwright-report/
           retention-days: 30
+
   push_images:
     if: ${{ always() && needs.test_crawlab.result == 'success' }}
     needs: [setup, test_crawlab]
