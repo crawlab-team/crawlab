@@ -80,7 +80,7 @@ jobs:
           [ "$VERSION" == "main" ] && VERSION=latest
           
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-     
+
   test_backend:
     needs: [ setup ]
     if: needs.setup.outputs.backend_changed == 'true'
