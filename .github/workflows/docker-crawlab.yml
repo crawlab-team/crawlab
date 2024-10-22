@@ -204,6 +204,56 @@ jobs:
             exit 1
           fi
 
+  test_crawlab:
+    needs: [setup, build_crawlab]
+    if: ${{ always() && needs.build_crawlab.result == 'success' }}
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:5
+        ports:
+          - 27017:27017
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test image
+        run: |
+          docker run --rm -d --name crawlab_master \
+            -e CRAWLAB_NODE_MASTER=true \
+            -e CRAWLAB_DEMO=true \
+            -e CRAWLAB_MONGO_HOST=localhost \
+            -e CRAWLAB_MONGO_PORT=27017 \
+            -p 8080:8080 \
+            --network host \
+            image
+          docker ps
+          sleep 10
+          docker logs -f crawlab_master &
+          sleep 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install Playwright and dependencies
+        run: |
+          npm init -y
+          npm install @playwright/test
+          npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: |
+          cd tests/e2e
+          npx playwright test
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: tests/e2e/playwright-report/
+          retention-days: 30
+
   push_images:
     if: ${{ always() && needs.build_crawlab.result == 'success' }}
     needs: [setup, build_crawlab]
