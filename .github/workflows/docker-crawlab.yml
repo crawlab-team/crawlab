@@ -14,15 +14,17 @@ on:
 env:
   IMAGE_PATH_CRAWLAB_BACKEND: backend
   IMAGE_PATH_CRAWLAB_FRONTEND: frontend
-  IMAGE_NAME_CRAWLAB: crawlabteam/crawlab
-  IMAGE_NAME_CRAWLAB_BACKEND: crawlabteam/crawlab-backend
-  IMAGE_NAME_CRAWLAB_FRONTEND: crawlabteam/crawlab-frontend
+  IMAGE_NAME_CRAWLAB_BACKEND: ghcr.io/${{ github.repository }}/crawlab-backend
+  IMAGE_NAME_CRAWLAB_FRONTEND: ghcr.io/${{ github.repository }}/crawlab-frontend
+  IMAGE_NAME_CRAWLAB_GITHUB: ghcr.io/${{ github.repository }}
+  IMAGE_NAME_CRAWLAB_DOCKERHUB: crawlabteam/crawlab
   IMAGE_NAME_CRAWLAB_TENCENT: ccr.ccs.tencentyun.com/crawlab/crawlab
 
 jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
+      workflow_changed: ${{ steps.check_changed_files.outputs.workflow_changed }}
       backend_changed: ${{ steps.check_changed_files.outputs.backend_changed }}
       frontend_changed: ${{ steps.check_changed_files.outputs.frontend_changed }}
       dockerfile_changed: ${{ steps.check_changed_files.outputs.dockerfile_changed }}
@@ -49,6 +51,8 @@ jobs:
               - '${{ env.IMAGE_PATH_CRAWLAB_FRONTEND }}/**'
             dockerfile:
               - 'Dockerfile'
+            workflow:
+              - '.github/workflows/docker-crawlab.yml'
 
       - id: check_changed_files
         name: Check changed files
@@ -62,13 +66,15 @@ jobs:
             echo "backend_changed=${{ steps.changed_files.outputs.backend_any_changed }}" >> $GITHUB_OUTPUT
             echo "frontend_changed=${{ steps.changed_files.outputs.frontend_any_changed }}" >> $GITHUB_OUTPUT
             echo "dockerfile_changed=${{ steps.changed_files.outputs.dockerfile_any_changed }}" >> $GITHUB_OUTPUT
+            echo "workflow_changed=${{ steps.changed_files.outputs.workflow_any_changed }}" >> $GITHUB_OUTPUT
           fi
           
           # Display change status for each component
           echo "Backend changed: ${{ steps.changed_files.outputs.backend_any_changed }}"
           echo "Frontend changed: ${{ steps.changed_files.outputs.frontend_any_changed }}"
           echo "Dockerfile changed: ${{ steps.changed_files.outputs.dockerfile_any_changed }}"
-          
+          echo "Workflow changed: ${{ steps.changed_files.outputs.workflow_any_changed }}"
+
       - id: version
         name: Get version
         run: |
@@ -89,7 +95,7 @@ jobs:
 
   test_backend:
     needs: [ setup ]
-    if: needs.setup.outputs.backend_changed == 'true'
+    if: needs.setup.outputs.backend_changed == 'true' || needs.setup.outputs.workflow_changed == 'true'
     runs-on: ubuntu-latest
     services:
       mongo:
@@ -120,41 +126,41 @@ jobs:
 
   build_backend:
     needs: [ setup, test_backend ]
-    if: needs.test_backend.result == 'success'
+    if: needs.test_backend.result == 'success' || needs.setup.outputs.workflow_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build image
-        run: |
-          cd $IMAGE_PATH_CRAWLAB_BACKEND
-          docker build . --file Dockerfile --tag image
-      - name: Log into registry
-        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push image
-        run: |
-          IMAGE_VERSION=${{needs.setup.outputs.version}}
-          IMAGE_NAME=$IMAGE_NAME_CRAWLAB_BACKEND
-          docker tag image $IMAGE_NAME:$IMAGE_VERSION
-          docker push $IMAGE_NAME:$IMAGE_VERSION
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ env.IMAGE_PATH_CRAWLAB_BACKEND }}
+          push: true
+          tags: ${{ env.IMAGE_NAME_CRAWLAB_BACKEND }}:${{ needs.setup.outputs.image_hash }}
 
   build_frontend:
     needs: [ setup ]
-    if: needs.setup.outputs.frontend_changed == 'true'
+    if: needs.setup.outputs.frontend_changed == 'true' || needs.setup.outputs.workflow_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build image
-        run: |
-          cd $IMAGE_PATH_CRAWLAB_FRONTEND
-          docker build . --file Dockerfile --tag image
-      - name: Log into registry
-        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push image
-        run: |
-          IMAGE_VERSION=${{needs.setup.outputs.version}}
-          IMAGE_NAME=$IMAGE_NAME_CRAWLAB_FRONTEND
-          docker tag image $IMAGE_NAME:$IMAGE_VERSION
-          docker push $IMAGE_NAME:$IMAGE_VERSION
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ env.IMAGE_PATH_CRAWLAB_FRONTEND }}
+          push: true
+          tags: ${{ env.IMAGE_NAME_CRAWLAB_FRONTEND }}:${{ needs.setup.outputs.image_hash }}
 
   build_crawlab:
     needs: [setup, build_backend, build_frontend]
@@ -162,20 +168,18 @@ jobs:
       always() &&
       ((needs.setup.outputs.backend_changed == 'true' && needs.build_backend.result == 'success') ||
       (needs.setup.outputs.frontend_changed == 'true' && needs.build_frontend.result == 'success') ||
-      (needs.setup.outputs.dockerfile_changed == 'true'))
+      (needs.setup.outputs.dockerfile_changed == 'true') ||
+      (needs.setup.outputs.workflow_changed == 'true'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
       - name: Update Dockerfile
         run: |
-          IMAGE_VERSION=${{needs.setup.outputs.version}}
-          if [[ $IMAGE_VERSION != "latest" ]]; then
-            for n in crawlab-backend crawlab-frontend; do
-              IMAGE_NAME=$n
-              sed -i "s/${IMAGE_NAME}:latest/${IMAGE_NAME}:${IMAGE_VERSION}/" Dockerfile
-            done
-          fi
+          for name in crawlab-backend crawlab-frontend; do
+            IMAGE_NAME=${{ env.IMAGE_NAME_CRAWLAB_GITHUB }}/$name
+            sed -i "s/crawlabteam\/${name}:latest/${IMAGE_NAME}:${{ needs.setup.outputs.image_hash }}/" Dockerfile
+          done
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -191,7 +195,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/crawlab:${{ needs.setup.outputs.image_hash }}
+            ${{ env.IMAGE_NAME_CRAWLAB_GITHUB }}:${{ needs.setup.outputs.image_hash }}
 
   test_crawlab:
     needs: [setup, build_crawlab]
@@ -203,10 +207,10 @@ jobs:
         ports:
           - 27017:27017
       crawlab:
-        image: ghcr.io/${{ github.repository }}/crawlab:${{ needs.setup.outputs.image_hash }}
+        image: ghcr.io/${{ github.repository }}:${{ needs.setup.outputs.image_hash }}
         env:
           CRAWLAB_NODE_MASTER: "true"
-          CRAWLAB_MONGO_HOST: mongo
+          CRAWLAB_MONGO_HOST: localhost
           CRAWLAB_MONGO_PORT: 27017
         ports:
           - 8080:8080
@@ -262,7 +266,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull Docker image from GitHub Container Registry
-        run: docker pull ghcr.io/${{ github.repository }}/crawlab:${{ needs.setup.outputs.image_hash }}
+        run: docker pull ${{ env.IMAGE_NAME_CRAWLAB_GITHUB }}:${{ needs.setup.outputs.image_hash }}
 
       - name: Login to DockerHub or Tencent Registry
         uses: docker/login-action@v3
@@ -273,18 +277,25 @@ jobs:
 
       - name: Tag and push image
         run: |
-          docker tag ghcr.io/${{ github.repository }}/crawlab:${{ needs.setup.outputs.image_hash }} ${{ (matrix.registry == 'dockerhub' && env.IMAGE_NAME_CRAWLAB) || (matrix.registry == 'tencent' && env.IMAGE_NAME_CRAWLAB_TENCENT) }}:${{ needs.setup.outputs.version }}
-          docker push ${{ (matrix.registry == 'dockerhub' && env.IMAGE_NAME_CRAWLAB) || (matrix.registry == 'tencent' && env.IMAGE_NAME_CRAWLAB_TENCENT) }}:${{ needs.setup.outputs.version }}
+          docker tag ghcr.io/${{ github.repository }}:${{ needs.setup.outputs.image_hash }} ${{ (matrix.registry == 'dockerhub' && env.IMAGE_NAME_CRAWLAB_DOCKERHUB) || (matrix.registry == 'tencent' && env.IMAGE_NAME_CRAWLAB_TENCENT) }}:${{ needs.setup.outputs.version }}
+          docker push ${{ (matrix.registry == 'dockerhub' && env.IMAGE_NAME_CRAWLAB_DOCKERHUB) || (matrix.registry == 'tencent' && env.IMAGE_NAME_CRAWLAB_TENCENT) }}:${{ needs.setup.outputs.version }}
 
   cleanup:
     needs: [setup, push_images]
     if: always()
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: [
+          { name: 'ghcr.io/${{ github.repository }}' },
+          { name: 'ghcr.io/${{ github.repository }}/crawlab-frontend' },
+          { name: 'ghcr.io/${{ github.repository }}/crawlab-backend' }
+        ]
     steps:
-      - name: Delete temporary image from GitHub Container Registry
+      - name: Delete temporary images
         uses: actions/delete-package-versions@v5
         with:
-          package-name: '${{ github.repository }}/crawlab'
+          package-name: ${{ matrix.image.name }}
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}
           package-version-ids: ${{ needs.setup.outputs.image_hash }}
