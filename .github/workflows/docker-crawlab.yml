@@ -27,6 +27,8 @@ jobs:
       frontend_changed: ${{ steps.check_changed_files.outputs.frontend_changed }}
       dockerfile_changed: ${{ steps.check_changed_files.outputs.dockerfile_changed }}
       version: ${{ steps.version.outputs.version }}
+      image_hash: ${{ steps.hash.outputs.hash }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -80,6 +82,10 @@ jobs:
           [ "$VERSION" == "main" ] && VERSION=latest
           
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - id: hash
+        name: Generate unique hash
+        run: echo "hash=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
 
   test_backend:
     needs: [ setup ]
@@ -170,20 +176,22 @@ jobs:
             done
           fi
 
-      - name: Build image
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
-          tags: crawlab:${{ github.sha }}
-          outputs: type=tar,dest=/tmp/crawlab-image-${{ github.sha }}.tar
-
-      - name: Upload Docker image artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: crawlab-image-${{ github.sha }}
-          path: /tmp/crawlab-image-${{ github.sha }}.tar
-          retention-days: 1
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/crawlab:${{ needs.setup.outputs.version }}
+            ghcr.io/${{ github.repository }}/crawlab:${{ needs.setup.outputs.image_hash }}
 
   test_crawlab:
     needs: [setup, build_crawlab]
@@ -197,14 +205,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          name: crawlab-image-${{ github.sha }}
-          path: /tmp
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Load Docker image
-        run: docker load --input /tmp/crawlab-image-${{ github.sha }}.tar
+      - name: Pull Docker image from GitHub Container Registry
+        run: docker pull ghcr.io/${{ github.repository }}/crawlab:${{ needs.setup.outputs.image_hash }}
 
       - name: Run Docker container
         run: |
@@ -215,7 +224,7 @@ jobs:
             -e CRAWLAB_MONGO_PORT=27017 \
             -p 8080:8080 \
             --network host \
-            crawlab:${{ github.sha }}
+            ghcr.io/${{ github.repository }}/crawlab:${{ needs.setup.outputs.image_hash }}
           docker ps
 
       - name: Setup Node.js
@@ -253,21 +262,51 @@ jobs:
       matrix:
         registry: [dockerhub, tencent]
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Pull Docker image from GitHub Container Registry
+        run: docker pull ghcr.io/${{ github.repository }}/crawlab:${{ needs.setup.outputs.image_hash }}
 
-      - name: Login to DockerHub
+      - name: Login to DockerHub or Tencent Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ (matrix.registry == 'dockerhub' && 'https://index.docker.io/v1/') || (matrix.registry == 'tencent' && 'ccr.ccs.tencentyun.com') }}
           username: ${{ (matrix.registry == 'dockerhub' && secrets.DOCKER_USERNAME) || (matrix.registry == 'tencent' && secrets.DOCKER_TENCENT_USERNAME) }}
           password: ${{ (matrix.registry == 'dockerhub' && secrets.DOCKER_PASSWORD) || (matrix.registry == 'tencent' && secrets.DOCKER_TENCENT_PASSWORD) }}
 
-      - name: Push to DockerHub
-        uses: docker/build-push-action@v6
+      - name: Tag and push image
+        run: |
+          docker tag ghcr.io/${{ github.repository }}/crawlab:${{ needs.setup.outputs.image_hash }} ${{ (matrix.registry == 'dockerhub' && env.IMAGE_NAME_CRAWLAB) || (matrix.registry == 'tencent' && env.IMAGE_NAME_CRAWLAB_TENCENT) }}:${{ needs.setup.outputs.version }}
+          docker push ${{ (matrix.registry == 'dockerhub' && env.IMAGE_NAME_CRAWLAB) || (matrix.registry == 'tencent' && env.IMAGE_NAME_CRAWLAB_TENCENT) }}:${{ needs.setup.outputs.version }}
+
+  cleanup:
+    needs: [setup, push_images]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete temporary image
+        uses: actions/github-script@v6
         with:
-          push: true
-          tags: ${{ (matrix.registry == 'dockerhub' && env.IMAGE_NAME_CRAWLAB) || (matrix.registry == 'tencent' && env.IMAGE_NAME_CRAWLAB_TENCENT) }}:${{ needs.setup.outputs.version }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const package_name = 'crawlab';
+            const tag = '${{ needs.setup.outputs.image_hash }}';
+            
+            try {
+              await github.rest.packages.deletePackageVersionForOrg({
+                package_type: 'container',
+                package_name: package_name,
+                org: owner,
+                version_id: tag,
+              });
+              console.log(`Successfully deleted image: ${owner}/${repo}/${package_name}:${tag}`);
+            } catch (error) {
+              console.error('Failed to delete image:', error);
+            }
