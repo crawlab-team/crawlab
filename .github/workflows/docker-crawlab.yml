@@ -190,7 +190,6 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/crawlab:${{ needs.setup.outputs.version }}
             ghcr.io/${{ github.repository }}/crawlab:${{ needs.setup.outputs.image_hash }}
 
   test_crawlab:
@@ -202,32 +201,18 @@ jobs:
         image: mongo:5
         ports:
           - 27017:27017
+      crawlab:
+        image: ghcr.io/${{ github.repository }}/crawlab:${{ needs.setup.outputs.image_hash }}
+        env:
+          CRAWLAB_NODE_MASTER: "true"
+          CRAWLAB_MONGO_HOST: mongo
+          CRAWLAB_MONGO_PORT: 27017
+        ports:
+          - 8080:8080
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull Docker image from GitHub Container Registry
-        run: docker pull ghcr.io/${{ github.repository }}/crawlab:${{ needs.setup.outputs.image_hash }}
-
-      - name: Run Docker container
-        run: |
-          docker run --rm -d --name crawlab_master \
-            -e CRAWLAB_NODE_MASTER=true \
-            -e CRAWLAB_DEMO=true \
-            -e CRAWLAB_MONGO_HOST=localhost \
-            -e CRAWLAB_MONGO_PORT=27017 \
-            -p 8080:8080 \
-            --network host \
-            ghcr.io/${{ github.repository }}/crawlab:${{ needs.setup.outputs.image_hash }}
-          docker ps
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
