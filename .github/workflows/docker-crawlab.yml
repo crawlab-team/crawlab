@@ -205,6 +205,11 @@ jobs:
         image: mongo:5
         ports:
           - 27017:27017
+        options: >-
+          --health-cmd mongosh --eval "db.adminCommand('ping')"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
       crawlab:
         image: ghcr.io/${{ github.repository }}:${{ needs.setup.outputs.image_hash }}
         env:
@@ -213,6 +218,11 @@ jobs:
           CRAWLAB_MONGO_PORT: 27017
         ports:
           - 8080:8080
+        options: >-
+          --health-cmd "curl -f http://localhost:8080/api/system-info || exit 1"
+          --health-interval 30s
+          --health-timeout 10s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
         with:
@@ -291,9 +301,19 @@ jobs:
           { name: 'ghcr.io/${{ github.repository }}/crawlab-backend' }
         ]
     steps:
-      - name: Delete temporary images
+      - name: List Docker image versions
+        id: list_versions
+        run: |
+          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/orgs/YOUR_ORG/packages/container/YOUR_PACKAGE_NAME/versions > versions.json
+          
+          jq '.[] | select(.metadata.container.tags[] | contains("${{ needs.setup.outputs.image_hash }}")) | .id' versions.json > version_ids.txt
+
+      - name: Delete Docker image versions
         uses: actions/delete-package-versions@v5
         with:
           package-name: "${{ matrix.image.name }}:${{ needs.setup.outputs.image_hash }}"
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}
+          package-version-ids: $(cat version_ids.txt)
