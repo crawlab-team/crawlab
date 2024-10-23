@@ -12,9 +12,12 @@ on:
 env:
   IMAGE_PATH_CRAWLAB_BACKEND: backend
   IMAGE_PATH_CRAWLAB_FRONTEND: frontend
-  IMAGE_NAME_CRAWLAB_BACKEND: ghcr.io/${{ github.repository }}/crawlab-backend
-  IMAGE_NAME_CRAWLAB_FRONTEND: ghcr.io/${{ github.repository }}/crawlab-frontend
-  IMAGE_NAME_CRAWLAB_GITHUB: ghcr.io/${{ github.repository }}
+  GH_PKG_NAME_CRAWLAB_BACKEND: ${{ github.repository_owner }}/crawlab-backend
+  GH_PKG_NAME_CRAWLAB_FRONTEND: ${{ github.repository_owner }}/crawlab-frontend
+  GH_PKG_NAME_CRAWLAB: ${{ github.repository_owner }}/crawlab
+  IMAGE_NAME_CRAWLAB_BACKEND: ghcr.io/${{ github.repository_owner }}/crawlab-backend
+  IMAGE_NAME_CRAWLAB_FRONTEND: ghcr.io/${{ github.repository_owner }}/crawlab-frontend
+  IMAGE_NAME_CRAWLAB: ghcr.io/${{ github.repository_owner }}/crawlab
   IMAGE_NAME_CRAWLAB_DOCKERHUB: crawlabteam/crawlab
   IMAGE_NAME_CRAWLAB_TENCENT: ccr.ccs.tencentyun.com/crawlab/crawlab
 
@@ -192,7 +195,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ env.IMAGE_NAME_CRAWLAB_GITHUB }}:${{ needs.setup.outputs.image_hash }}
+            ${{ env.IMAGE_NAME_CRAWLAB }}:${{ needs.setup.outputs.image_hash }}
 
   test_crawlab:
     needs: [setup, build_crawlab]
@@ -246,15 +249,6 @@ jobs:
         working-directory: tests/e2e
         run: pnpm run test
 
-      # - name: Upload Playwright report
-      #   id: upload_playwright_report
-      #   uses: actions/upload-artifact@v3
-      #   if: ${{ always() && steps.install_playwright.outcome == 'success' }}
-      #   with:
-      #     name: playwright-report
-      #     path: tests/e2e/playwright-report/
-      #     retention-days: 1
-
       - name: Deploy to GitHub Pages
         if: ${{ always() && steps.install_playwright.outcome == 'success' }}
         uses: peaceiris/actions-gh-pages@v3
@@ -279,7 +273,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull Docker image from GitHub Container Registry
-        run: docker pull ${{ env.IMAGE_NAME_CRAWLAB_GITHUB }}:${{ needs.setup.outputs.image_hash }}
+        run: docker pull ${{ env.IMAGE_NAME_CRAWLAB }}:${{ needs.setup.outputs.image_hash }}
 
       - name: Login to DockerHub or Tencent Registry
         uses: docker/login-action@v3
@@ -290,7 +284,7 @@ jobs:
 
       - name: Tag and push image
         run: |
-          docker tag ghcr.io/${{ github.repository }}:${{ needs.setup.outputs.image_hash }} ${{ (matrix.registry == 'dockerhub' && env.IMAGE_NAME_CRAWLAB_DOCKERHUB) || (matrix.registry == 'tencent' && env.IMAGE_NAME_CRAWLAB_TENCENT) }}:${{ needs.setup.outputs.version }}
+          docker tag ${{ env.IMAGE_NAME_CRAWLAB }}:${{ needs.setup.outputs.image_hash }} ${{ (matrix.registry == 'dockerhub' && env.IMAGE_NAME_CRAWLAB_DOCKERHUB) || (matrix.registry == 'tencent' && env.IMAGE_NAME_CRAWLAB_TENCENT) }}:${{ needs.setup.outputs.version }}
           docker push ${{ (matrix.registry == 'dockerhub' && env.IMAGE_NAME_CRAWLAB_DOCKERHUB) || (matrix.registry == 'tencent' && env.IMAGE_NAME_CRAWLAB_TENCENT) }}:${{ needs.setup.outputs.version }}
 
   cleanup:
@@ -312,7 +306,7 @@ jobs:
         run: |
           curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/orgs/crawlab-team/packages/container/${{ matrix.image.name }}/versions > versions.json
+            https://api.github.com/orgs/${{ github.repository_owner }}/packages/container/${{ matrix.image.name }}/versions > versions.json
 
           cat versions.json
           
