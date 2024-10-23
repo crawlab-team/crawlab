@@ -102,11 +102,11 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version-file: 'core/go.mod'
 
       - name: Run tests
+        working-directory: core
         run: |
-          cd core
           # Find all directories containing *_test.go files
           test_dirs=$(find . -name "*_test.go" -exec dirname {} \; | sort -u)
 
