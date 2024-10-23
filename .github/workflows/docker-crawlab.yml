@@ -250,14 +250,22 @@ jobs:
         working-directory: tests/e2e
         run: pnpm run test
 
-      - name: Upload Playwright report
-        id: upload_playwright_report
-        uses: actions/upload-artifact@v3
+      # - name: Upload Playwright report
+      #   id: upload_playwright_report
+      #   uses: actions/upload-artifact@v3
+      #   if: ${{ always() && steps.install_playwright.outcome == 'success' }}
+      #   with:
+      #     name: playwright-report
+      #     path: tests/e2e/playwright-report/
+      #     retention-days: 1
+
+      - name: Deploy to GitHub Pages
         if: ${{ always() && steps.install_playwright.outcome == 'success' }}
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: playwright-report
-          path: tests/e2e/playwright-report/
-          retention-days: 1
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: tests/e2e/playwright-report
+          destination_dir: playwright-report/${{ needs.setup.outputs.version }}
 
   push_images:
     if: ${{ always() && needs.test_crawlab.result == 'success' }}
