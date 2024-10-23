@@ -294,7 +294,7 @@ jobs:
           docker push ${{ (matrix.registry == 'dockerhub' && env.IMAGE_NAME_CRAWLAB_DOCKERHUB) || (matrix.registry == 'tencent' && env.IMAGE_NAME_CRAWLAB_TENCENT) }}:${{ needs.setup.outputs.version }}
 
   cleanup:
-    needs: [setup, push_images]
+    needs: [setup, build_backend, build_frontend, build_crawlab, push_images]
     if: always()
     runs-on: ubuntu-latest
     strategy:
@@ -306,6 +306,8 @@ jobs:
         ]
     steps:
       - name: List Docker image versions
+        if: |
+          ${{ (matrix.image.name == 'crawlab' && needs.build_crawlab.result == 'success') || (matrix.image.name == 'crawlab/crawlab-backend' && needs.build_backend.result == 'success') || (matrix.image.name == 'crawlab/crawlab-frontend' && needs.build_frontend.result == 'success') }}
         id: list_versions
         run: |
           curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
