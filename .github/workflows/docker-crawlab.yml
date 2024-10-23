@@ -3,8 +3,6 @@ name: "Docker Image CI: crawlab"
 on:
   push:
     branches: [ develop, main ]
-  #pull_request:
-  #  branches: [ main ]
   release:
     types: [ published ]
   workflow_dispatch:
