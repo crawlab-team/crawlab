@@ -25,12 +25,11 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      workflow_changed: ${{ steps.check_changed_files.outputs.workflow_changed }}
       backend_changed: ${{ steps.check_changed_files.outputs.backend_changed }}
       frontend_changed: ${{ steps.check_changed_files.outputs.frontend_changed }}
       dockerfile_changed: ${{ steps.check_changed_files.outputs.dockerfile_changed }}
+      workflow_changed: ${{ steps.check_changed_files.outputs.workflow_changed }}
       version: ${{ steps.version.outputs.version }}
-      image_hash: ${{ steps.hash.outputs.hash }}
 
     steps:
       - uses: actions/checkout@v4
@@ -63,6 +62,7 @@ jobs:
             echo "backend_changed=true" >> $GITHUB_OUTPUT
             echo "frontend_changed=true" >> $GITHUB_OUTPUT
             echo "dockerfile_changed=true" >> $GITHUB_OUTPUT
+            echo "workflow_changed=true" >> $GITHUB_OUTPUT
           else
             echo "backend_changed=${{ steps.changed_files.outputs.backend_any_changed }}" >> $GITHUB_OUTPUT
             echo "frontend_changed=${{ steps.changed_files.outputs.frontend_any_changed }}" >> $GITHUB_OUTPUT
@@ -142,7 +142,7 @@ jobs:
         with:
           context: ${{ env.IMAGE_PATH_CRAWLAB_BACKEND }}
           push: true
-          tags: ${{ env.IMAGE_NAME_CRAWLAB_BACKEND }}:${{ needs.setup.outputs.image_hash }}
+          tags: ${{ env.IMAGE_NAME_CRAWLAB_BACKEND }}:${{ needs.setup.outputs.version }}
 
   build_frontend:
     needs: [ setup ]
@@ -161,7 +161,7 @@ jobs:
         with:
           context: ${{ env.IMAGE_PATH_CRAWLAB_FRONTEND }}
           push: true
-          tags: ${{ env.IMAGE_NAME_CRAWLAB_FRONTEND }}:${{ needs.setup.outputs.image_hash }}
+          tags: ${{ env.IMAGE_NAME_CRAWLAB_FRONTEND }}:${{ needs.setup.outputs.version }}
 
   build_crawlab:
     needs: [setup, build_backend, build_frontend]
@@ -179,7 +179,7 @@ jobs:
         run: |
           for name in crawlab-backend crawlab-frontend; do
             IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/$name
-            sed -i "s|crawlabteam/${name}:latest|${IMAGE_NAME}:${{ needs.setup.outputs.image_hash }}|" Dockerfile
+            sed -i "s|crawlabteam/${name}:latest|${IMAGE_NAME}:${{ needs.setup.outputs.version }}|" Dockerfile
           done
 
       - name: Log in to GitHub Container Registry
@@ -196,7 +196,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ env.IMAGE_NAME_CRAWLAB }}:${{ needs.setup.outputs.image_hash }}
+            ${{ env.IMAGE_NAME_CRAWLAB }}:${{ needs.setup.outputs.version }}
 
   test_crawlab:
     needs: [setup, build_crawlab]
@@ -211,7 +211,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       crawlab:
-        image: ghcr.io/${{ github.repository_owner }}/crawlab:${{ needs.setup.outputs.image_hash }}
+        image: ghcr.io/${{ github.repository_owner }}/crawlab:${{ needs.setup.outputs.version }}
         env:
           CRAWLAB_NODE_MASTER: Y
           CRAWLAB_MONGO_HOST: mongo 
@@ -274,7 +274,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull Docker image from GitHub Container Registry
-        run: docker pull ${{ env.IMAGE_NAME_CRAWLAB }}:${{ needs.setup.outputs.image_hash }}
+        run: docker pull ${{ env.IMAGE_NAME_CRAWLAB }}:${{ needs.setup.outputs.version }}
 
       - name: Login to DockerHub or Tencent Registry
         uses: docker/login-action@v3
@@ -285,7 +285,7 @@ jobs:
 
       - name: Tag and push image
         run: |
-          docker tag ${{ env.IMAGE_NAME_CRAWLAB }}:${{ needs.setup.outputs.image_hash }} ${{ (matrix.registry == 'dockerhub' && env.IMAGE_NAME_CRAWLAB_DOCKERHUB) || (matrix.registry == 'tencent' && env.IMAGE_NAME_CRAWLAB_TENCENT) }}:${{ needs.setup.outputs.version }}
+          docker tag ${{ env.IMAGE_NAME_CRAWLAB }}:${{ needs.setup.outputs.version }} ${{ (matrix.registry == 'dockerhub' && env.IMAGE_NAME_CRAWLAB_DOCKERHUB) || (matrix.registry == 'tencent' && env.IMAGE_NAME_CRAWLAB_TENCENT) }}:${{ needs.setup.outputs.version }}
           docker push ${{ (matrix.registry == 'dockerhub' && env.IMAGE_NAME_CRAWLAB_DOCKERHUB) || (matrix.registry == 'tencent' && env.IMAGE_NAME_CRAWLAB_TENCENT) }}:${{ needs.setup.outputs.version }}
 
   cleanup:
@@ -323,7 +323,7 @@ jobs:
           node -e "
             const fs = require('fs');
             const data = JSON.parse(fs.readFileSync('versions.json', 'utf8'));
-            const tag = '${{ needs.setup.outputs.image_hash }}';
+            const tag = '${{ needs.setup.outputs.version }}';
             const versionIds = data
               .filter(version => version.metadata.container.tags.some(t => t.includes(tag)))
               .map(version => version.id);
