@@ -176,7 +176,7 @@ jobs:
           context: .
           file: ./Dockerfile
           tags: crawlab:${{ github.sha }}
-          outputs: type=local,dest=/tmp/crawlab-image-${{ github.sha }}.tar
+          outputs: type=tar,dest=/tmp/crawlab-image-${{ github.sha }}.tar
 
       - name: Upload Docker image artifact
         uses: actions/upload-artifact@v4
