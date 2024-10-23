@@ -301,7 +301,7 @@ jobs:
     steps:
       - name: List Docker image versions
         if: |
-          ${{ (matrix.image.name == 'crawlab' && needs.build_crawlab.result == 'success') || (matrix.image.name == 'crawlab/crawlab-backend' && needs.build_backend.result == 'success') || (matrix.image.name == 'crawlab/crawlab-frontend' && needs.build_frontend.result == 'success') }}
+          ${{ (matrix.image.name == 'crawlab' && needs.build_crawlab.result == 'success') || (matrix.image.name == 'crawlab-backend' && needs.build_backend.result == 'success') || (matrix.image.name == 'crawlab-frontend' && needs.build_frontend.result == 'success') }}
         id: list_versions
         run: |
           curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
