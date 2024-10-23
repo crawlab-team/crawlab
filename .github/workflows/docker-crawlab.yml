@@ -177,10 +177,9 @@ jobs:
       - name: Update Dockerfile
         run: |
           for name in crawlab-backend crawlab-frontend; do
-            IMAGE_NAME=${{ env.IMAGE_NAME_CRAWLAB_GITHUB }}/$name
-            sed -i "s/crawlabteam\/${name}:latest/${IMAGE_NAME}:${{ needs.setup.outputs.image_hash }}/" Dockerfile
+            IMAGE_NAME=ghcr.io/crawlab-team/crawlab/$name
+            sed -i "s|crawlabteam/${name}:latest|${IMAGE_NAME}:${{ needs.setup.outputs.image_hash }}|" Dockerfile
           done
-
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
