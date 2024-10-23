@@ -307,6 +307,8 @@ jobs:
           curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/orgs/crawlab-team/packages/container/${{ matrix.image.name }}/versions > versions.json
+
+          cat versions.json
           
           jq --arg tag "${{ needs.setup.outputs.image_hash }}" '.[] | select(.metadata.container.tags[] | contains($tag)) | .id' versions.json > version_ids.txt
           
