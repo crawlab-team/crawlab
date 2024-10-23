@@ -203,8 +203,6 @@ jobs:
     services:
       mongo:
         image: mongo:5
-        ports:
-          - 27017:27017
         options: >-
           --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")' || exit 1"
           --health-interval 10s
