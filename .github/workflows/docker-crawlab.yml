@@ -294,7 +294,6 @@ jobs:
       - name: Delete temporary images
         uses: actions/delete-package-versions@v5
         with:
-          package-name: ${{ matrix.image.name }}
+          package-name: "${{ matrix.image.name }}:${{ needs.setup.outputs.image_hash }}"
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}
-          package-version-ids: ${{ needs.setup.outputs.image_hash }}
