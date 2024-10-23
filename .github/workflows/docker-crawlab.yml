@@ -300,9 +300,18 @@ jobs:
           { name: 'crawlab-frontend' }
         ]
     steps:
-      - name: List Docker image versions
+      - name: Setup Node.js
+        id: setup_node
         if: |
-          ${{ (matrix.image.name == 'crawlab' && needs.build_crawlab.result == 'success') || (matrix.image.name == 'crawlab-backend' && needs.build_backend.result == 'success') || (matrix.image.name == 'crawlab-frontend' && needs.build_frontend.result == 'success') }}
+          (matrix.image.name == 'crawlab' && needs.build_crawlab.result == 'success') ||
+          (matrix.image.name == 'crawlab-backend' && needs.build_backend.result == 'success') ||
+          (matrix.image.name == 'crawlab-frontend' && needs.build_frontend.result == 'success')
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: List Docker image versions
+        if: ${{ steps.setup_node.outcome == 'success' }}
         id: list_versions
         run: |
           curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
@@ -311,12 +320,22 @@ jobs:
 
           cat versions.json
           
-          jq --arg tag "${{ needs.setup.outputs.image_hash }}" '.[] | select(.metadata.container.tags[] | contains($tag)) | .id' versions.json > version_ids.txt
+          node -e "
+            const fs = require('fs');
+            const data = JSON.parse(fs.readFileSync('versions.json', 'utf8'));
+            const tag = '${{ needs.setup.outputs.image_hash }}';
+            const versionIds = data
+              .filter(version => version.metadata.container.tags.some(t => t.includes(tag)))
+              .map(version => version.id);
+            fs.writeFileSync('version_ids.txt', versionIds.join('\n'));
+          "
+          
+          echo "version_ids=$(cat version_ids.txt | tr '\n' ',' | sed 's/,$//')" >> $GITHUB_OUTPUT
           
       - name: Delete Docker image versions
         uses: actions/delete-package-versions@v5
         with:
-          package-name: "${{ matrix.image.name }}:${{ needs.setup.outputs.image_hash }}"
+          package-name: ${{ matrix.image.name }}
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}
-          package-version-ids: $(cat version_ids.txt)
+          package-version-ids: ${{ steps.list_versions.outputs.version_ids }}
