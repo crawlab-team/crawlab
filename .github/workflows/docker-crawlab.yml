@@ -281,24 +281,10 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: Delete temporary image
-        uses: actions/github-script@v6
+      - name: Delete temporary image from GitHub Container Registry
+        uses: actions/delete-package-versions@v5
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const package_name = 'crawlab';
-            const tag = '${{ needs.setup.outputs.image_hash }}';
-            
-            try {
-              await github.rest.packages.deletePackageVersionForOrg({
-                package_type: 'container',
-                package_name: package_name,
-                org: owner,
-                version_id: tag,
-              });
-              console.log(`Successfully deleted image: ${owner}/${repo}/${package_name}:${tag}`);
-            } catch (error) {
-              console.error('Failed to delete image:', error);
-            }
+          package-name: '${{ github.repository }}/crawlab'
+          package-type: 'container'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          package-version-ids: ${{ needs.setup.outputs.image_hash }}
