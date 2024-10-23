@@ -248,6 +248,8 @@ jobs:
       - name: Run Playwright tests
         id: run_playwright
         working-directory: tests/e2e
+        env:
+          WORKERS: 10
         run: pnpm playwright test
 
       - name: Upload Playwright report
