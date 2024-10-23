@@ -296,9 +296,9 @@ jobs:
     strategy:
       matrix:
         image: [
-          { name: 'ghcr.io/${{ github.repository }}' },
-          { name: 'ghcr.io/${{ github.repository }}/crawlab-frontend' },
-          { name: 'ghcr.io/${{ github.repository }}/crawlab-backend' }
+          { name: 'crawlab' },
+          { name: 'crawlab/crawlab-backend' },
+          { name: 'crawlab/crawlab-frontend' }
         ]
     steps:
       - name: List Docker image versions
