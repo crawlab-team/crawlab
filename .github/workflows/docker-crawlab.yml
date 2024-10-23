@@ -234,18 +234,22 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Playwright and dependencies
+      - name: Install pnpm
+        run: npm install -g pnpm@9
+
+      - name: Install dependencies
+        working-directory: tests/e2e
+        run: pnpm install
+
+      - name: Install Playwright browser
         id: install_playwright
-        run: |
-          npm init -y
-          npm install @playwright/test
-          npx playwright install --with-deps
+        working-directory: tests/e2e
+        run: pnpm playwright install --with-deps
 
       - name: Run Playwright tests
         id: run_playwright
-        run: |
-          cd tests/e2e
-          npx playwright test
+        working-directory: tests/e2e
+        run: pnpm playwright test
 
       - name: Upload Playwright report
         id: upload_playwright_report
