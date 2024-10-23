@@ -34,7 +34,7 @@
     "chart.js": "^4.4.3",
     "chartjs-adapter-date-fns": "^3.0.0",
     "core-js": "^3.37.1",
-    "crawlab-ui": "0.7.0-rc4",
+    "crawlab-ui": "0.7.0-rc5",
     "crawlab-vue3-dropzone": "3.0.3",
     "cron-parser": "^4.9.0",
     "cronstrue": "^2.50.0",
