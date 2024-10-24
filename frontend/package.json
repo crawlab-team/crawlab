@@ -1,6 +1,6 @@
 {
   "name": "crawlab",
-  "version": "0.7.0",
+  "version": "0.7.0-rc1",
   "workspaces": [
     "packages/*",
     "apps/*"
