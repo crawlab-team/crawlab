@@ -182,9 +182,10 @@ jobs:
     needs: [setup, build_backend, build_frontend]
     if: |
       always() &&
+      (needs.build_backend.outputs.failed != 'true' && needs.build_frontend.outputs.failed != 'true') &&
       (
-        (needs.setup.outputs.backend_changed == 'true' && needs.build_backend.outputs.failed != 'true') ||
-        (needs.setup.outputs.frontend_changed == 'true' && needs.build_frontend.outputs.failed != 'true') ||
+        needs.setup.outputs.backend_changed == 'true' ||
+        needs.setup.outputs.frontend_changed == 'true' ||
         needs.setup.outputs.dockerfile_changed == 'true' ||
         needs.setup.outputs.workflow_changed == 'true'
       )
