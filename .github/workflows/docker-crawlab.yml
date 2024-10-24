@@ -130,6 +130,8 @@ jobs:
     needs: [ setup, test_backend ]
     if: needs.test_backend.result == 'success' || needs.setup.outputs.workflow_changed == 'true'
     runs-on: ubuntu-latest
+    outputs:
+      failed: ${{ steps.set_output.outputs.failed }}
     steps:
       - uses: actions/checkout@v4
       - name: Log in to GitHub Container Registry
@@ -144,11 +146,17 @@ jobs:
           context: ${{ env.IMAGE_PATH_CRAWLAB_BACKEND }}
           push: true
           tags: ${{ env.IMAGE_NAME_CRAWLAB_BACKEND }}:${{ needs.setup.outputs.version }}
+      - name: Set output
+        id: set_output
+        if: failure()
+        run: echo "failed=true" >> $GITHUB_OUTPUT
 
   build_frontend:
     needs: [ setup ]
     if: needs.setup.outputs.frontend_changed == 'true' || needs.setup.outputs.workflow_changed == 'true'
     runs-on: ubuntu-latest
+    outputs:
+      failed: ${{ steps.set_output.outputs.failed }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -165,15 +173,21 @@ jobs:
           context: ${{ env.IMAGE_PATH_CRAWLAB_FRONTEND }}
           push: true
           tags: ${{ env.IMAGE_NAME_CRAWLAB_FRONTEND }}:${{ needs.setup.outputs.version }}
+      - name: Set output
+        id: set_output
+        if: failure()
+        run: echo "failed=true" >> $GITHUB_OUTPUT
 
   build_crawlab:
     needs: [setup, build_backend, build_frontend]
     if: |
       always() &&
-      ((needs.setup.outputs.backend_changed == 'true' && needs.build_backend.result == 'success') ||
-      (needs.setup.outputs.frontend_changed == 'true' && needs.build_frontend.result == 'success') ||
-      (needs.setup.outputs.dockerfile_changed == 'true') ||
-      (needs.setup.outputs.workflow_changed == 'true'))
+      (
+        (needs.setup.outputs.backend_changed == 'true' && needs.build_backend.outputs.failed != 'true') ||
+        (needs.setup.outputs.frontend_changed == 'true' && needs.build_frontend.outputs.failed != 'true') ||
+        needs.setup.outputs.dockerfile_changed == 'true' ||
+        needs.setup.outputs.workflow_changed == 'true'
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
