@@ -1,10 +1,6 @@
 {
   "name": "crawlab",
   "version": "0.7.0-rc1",
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
   "scripts": {
     "dev": "turbo run dev",
     "test": "turbo run test",
