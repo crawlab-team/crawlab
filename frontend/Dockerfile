@@ -8,10 +8,10 @@ WORKDIR /app
 RUN npm install -g pnpm
 
 # Copy package.json and pnpm-lock.yaml
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Install project dependencies
-RUN pnpm recursive install
+RUN pnpm install
 
 # Copy the rest of the application code
 COPY . .
