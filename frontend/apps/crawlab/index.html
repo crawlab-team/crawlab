@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width,initial-scale=1.0" name="viewport">
+  <link href="./node_modules/crawlab-ui/dist/favicon.ico" rel="icon">
+  <title>Crawlab</title>
+  <link href="./node_modules/crawlab-ui/dist/css/font-awesome.min.css" rel="stylesheet">
+  <link href="./node_modules/crawlab-ui/dist/css/style.css" rel="stylesheet">
+  <script type="application/javascript" src="three/three.min.js"></script>
+  <script type="module" src="./node_modules/crawlab-ui/dist/js/login-canvas-three.js"></script>
+</head>
+<body>
+<noscript>
+  <strong>We're sorry but Crawlab doesn't work properly without JavaScript enabled.
+    Please enable it to continue.</strong>
+</noscript>
+<div id="login-canvas"></div>
+<script>
+  window.onload = function() {
+    if (window.initCanvas) {
+      window.initCanvas();
+    }
+  };
+</script>
+<div id="app"></div>
+<script type="module" src="./src/main.ts"></script>
+<!-- built files will be auto injected -->
+</body>
+</html>

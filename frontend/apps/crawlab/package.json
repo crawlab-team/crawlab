@@ -1,0 +1,31 @@
+{
+  "name": "crawlab",
+  "version": "0.7.0",
+  "scripts": {
+    "dev": "pnpm run serve",
+    "serve": "vite",
+    "preview": "vite preview",
+    "build": "vite build",
+    "build:analyze": "vite build --mode analyze",
+    "build:serve": "serve dist",
+    "test": "jest"
+  },
+  "dependencies": {
+    "crawlab-ui": "workspace:crawlab-ui"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.8",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "@vue/compiler-sfc": "^3.2.45",
+    "pnpm": "^9",
+    "rollup-plugin-external-globals": "^0.10.0",
+    "rollup-plugin-visualizer": "^5.12.0",
+    "sass": "^1.56.1",
+    "typescript": "^5",
+    "vite": "^5.4.6",
+    "vite-aliases": "^0.11.7",
+    "vite-plugin-dynamic-import": "^1.5.0",
+    "vite-plugin-externalize-deps": "^0.8.0",
+    "vue-tsc": "^2.0.22"
+  }
+}

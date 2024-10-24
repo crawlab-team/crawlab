@@ -1,0 +1,3 @@
+[submodule "frontend/packages/crawlab-ui"]
+	path = frontend/packages/crawlab-ui
+	url = git@github.com:crawlab-team/crawlab-ui.git

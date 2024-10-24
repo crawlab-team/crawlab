@@ -1,0 +1,21 @@
+{
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "crawlab-pro#build": {
+      "dependsOn": [
+        "crawlab-ui#build"
+      ]
+    },
+    "dev": {
+      "cache": false
+    },
+    "test": {}
+  }
+}
