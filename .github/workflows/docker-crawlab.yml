@@ -20,6 +20,7 @@ env:
   IMAGE_NAME_CRAWLAB: ghcr.io/${{ github.repository_owner }}/crawlab
   IMAGE_NAME_CRAWLAB_DOCKERHUB: crawlabteam/crawlab
   IMAGE_NAME_CRAWLAB_TENCENT: ccr.ccs.tencentyun.com/crawlab/crawlab
+  E2E_TESTS_IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/e2e-tests
 
 jobs:
   setup:
@@ -224,38 +225,34 @@ jobs:
           --health-timeout 10s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          submodules: 'recursive'
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
+      - name: Pull and run e2e test image
+        run: |
+          docker pull ${{ env.E2E_TESTS_IMAGE_NAME }}:latest
+          docker run --network host \
+            -e BASE_URL=http://localhost:8080 \
+            ${{ env.E2E_TESTS_IMAGE_NAME }}:latest
 
-      - name: Install pnpm
-        run: npm install -g pnpm@9
-
-      - name: Install dependencies
-        working-directory: tests/e2e
-        run: pnpm install
-
-      - name: Install Playwright browser
-        id: install_playwright
-        working-directory: tests/e2e
-        run: pnpm playwright install --with-deps
-
-      - name: Run Playwright tests
-        id: run_playwright
-        working-directory: tests/e2e
-        run: pnpm run test
+      - name: Copy test results
+        if: always()
+        run: |
+          docker cp $(docker ps -aq -f ancestor=${{ env.E2E_TESTS_IMAGE_NAME }}:latest):/app/playwright-report ./playwright-report
 
       - name: Deploy to GitHub Pages
-        if: ${{ always() && steps.install_playwright.outcome == 'success' }}
+        if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: tests/e2e/playwright-report
+          publish_dir: ./playwright-report
           destination_dir: playwright-report/${{ needs.setup.outputs.version }}
 
   push_images:
