@@ -271,6 +271,9 @@ importers:
       axios:
         specifier: ^1.7.2
         version: 1.7.7
+      chalk:
+        specifier: ^5.3.0
+        version: 5.3.0
       chart.js:
         specifier: ^4.4.3
         version: 4.4.5
@@ -331,6 +334,9 @@ importers:
       point-cluster:
         specifier: ^3.1.8
         version: 3.1.8
+      rd:
+        specifier: ^2.0.1
+        version: 2.0.1
       showdown:
         specifier: ^2.1.0
         version: 2.1.0
@@ -413,9 +419,6 @@ importers:
       base64-img:
         specifier: ^1.0.4
         version: 1.0.4
-      chalk:
-        specifier: ^5.3.0
-        version: 5.3.0
       chartjs-adapter-date-fns:
         specifier: ^3.0.0
         version: 3.0.0(chart.js@4.4.5)(date-fns@4.1.0)
@@ -455,9 +458,6 @@ importers:
       prismjs:
         specifier: ^1.29.0
         version: 1.29.0
-      rd:
-        specifier: ^2.0.1
-        version: 2.0.1
       rollup-plugin-external-globals:
         specifier: ^0.10.0
         version: 0.10.0(rollup@4.24.0)
