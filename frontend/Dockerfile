@@ -1,15 +1,26 @@
-FROM node:14 AS build
+# Build stage
+FROM node:20-alpine AS build
 
-ADD . /app
+# Set the working directory in the container
 WORKDIR /app
-RUN rm /app/.npmrc
 
-# install frontend
-RUN npm i -g pnpm@7
-RUN pnpm install
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy package.json and pnpm-lock.yaml
+COPY package.json pnpm-lock.yaml ./
+
+# Install project dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy the rest of the application code
+COPY . .
+
+# Build the application
 RUN pnpm run build
 
+# Production stage
 FROM alpine:3.14
 
-# copy files
+# Copy only the built artifacts from the build stage
 COPY --from=build /app/dist /app/dist
