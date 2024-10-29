@@ -8,7 +8,7 @@ import (
 type TaskRunner interface {
 	Init() (err error)
 	Run() (err error)
-	Cancel() (err error)
+	Cancel(force bool) (err error)
 	SetSubscribeTimeout(timeout time.Duration)
 	GetTaskId() (id primitive.ObjectID)
 	CleanUp() (err error)

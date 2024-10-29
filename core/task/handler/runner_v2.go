@@ -166,11 +166,11 @@ func (r *RunnerV2) Run() (err error) {
 	return err
 }
 
-func (r *RunnerV2) Cancel() (err error) {
+func (r *RunnerV2) Cancel(force bool) (err error) {
 	// kill process
 	opts := &sys_exec.KillProcessOptions{
 		Timeout: r.svc.GetCancelTimeout(),
-		Force:   true,
+		Force:   force,
 	}
 	if err := sys_exec.KillProcess(r.cmd, opts); err != nil {
 		return err

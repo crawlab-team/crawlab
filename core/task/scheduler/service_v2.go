@@ -12,7 +12,7 @@ import (
 	nodeconfig "github.com/crawlab-team/crawlab/core/node/config"
 	"github.com/crawlab-team/crawlab/core/task/handler"
 	"github.com/crawlab-team/crawlab/core/utils"
-	grpc "github.com/crawlab-team/crawlab/grpc"
+	"github.com/crawlab-team/crawlab/grpc"
 	"github.com/crawlab-team/crawlab/trace"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -80,7 +80,7 @@ func (svc *ServiceV2) Enqueue(t *models2.TaskV2, by primitive.ObjectID) (t2 *mod
 	return t, nil
 }
 
-func (svc *ServiceV2) Cancel(id primitive.ObjectID, by primitive.ObjectID) (err error) {
+func (svc *ServiceV2) Cancel(id primitive.ObjectID, by primitive.ObjectID, force bool) (err error) {
 	// task
 	t, err := service.NewModelServiceV2[models2.TaskV2]().GetById(id)
 	if err != nil {
@@ -119,7 +119,7 @@ func (svc *ServiceV2) Cancel(id primitive.ObjectID, by primitive.ObjectID) (err 
 
 	if isMasterTask {
 		// cancel task on master
-		if err := svc.handlerSvc.Cancel(id); err != nil {
+		if err := svc.handlerSvc.Cancel(id, force); err != nil {
 			return trace.TraceError(err)
 		}
 		// cancel success

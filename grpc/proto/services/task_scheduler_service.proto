@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+import "entity/request.proto";
+import "entity/response.proto";
+import "entity/stream_message.proto";
+
+package grpc;
+option go_package = ".;grpc";
+
+message TaskSchedulerServiceConnectRequest {
+  string node_key = 1;
+}
+
+enum TaskSchedulerServiceCode {
+  CANCEL = 0;
+}
+
+message TaskSchedulerServiceConnectResponse {
+  TaskSchedulerServiceCode code = 1;
+  string task_id = 2;
+  bool force = 3;
+}
+
+message TaskSchedulerServiceFetchTaskRequest {
+  string node_key = 1;
+}
+
+message TaskSchedulerServiceFetchTaskResponse {
+  string task_id = 2;
+}
+
+message TaskServiceSendNotificationRequest {
+  string node_key = 1;
+  string task_id = 2;
+}
+
+service TaskSchedulerService {
+  rpc Connect(stream TaskSchedulerServiceConnectRequest) returns (TaskSchedulerServiceConnectResponse){};
+  rpc FetchTask(TaskSchedulerServiceFetchTaskRequest) returns (TaskSchedulerServiceFetchTaskResponse){};
+  rpc SendNotification(TaskServiceSendNotificationRequest) returns (Response){};
+}

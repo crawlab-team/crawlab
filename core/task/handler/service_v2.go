@@ -66,12 +66,12 @@ func (svc *ServiceV2) Reset() {
 	defer svc.mu.Unlock()
 }
 
-func (svc *ServiceV2) Cancel(taskId primitive.ObjectID) (err error) {
+func (svc *ServiceV2) Cancel(taskId primitive.ObjectID, force bool) (err error) {
 	r, err := svc.getRunner(taskId)
 	if err != nil {
 		return err
 	}
-	if err := r.Cancel(); err != nil {
+	if err := r.Cancel(force); err != nil {
 		return err
 	}
 	return nil

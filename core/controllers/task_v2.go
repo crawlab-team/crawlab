@@ -365,9 +365,20 @@ func PostTaskRestart(c *gin.Context) {
 }
 
 func PostTaskCancel(c *gin.Context) {
+	type Payload struct {
+		Force bool `json:"force,omitempty"`
+	}
+
 	// id
 	id, err := primitive.ObjectIDFromHex(c.Param("id"))
 	if err != nil {
+		HandleErrorBadRequest(c, err)
+		return
+	}
+
+	// payload
+	var p Payload
+	if err := c.ShouldBindJSON(&p); err != nil {
 		HandleErrorBadRequest(c, err)
 		return
 	}
@@ -393,7 +404,7 @@ func PostTaskCancel(c *gin.Context) {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
-	if err := schedulerSvc.Cancel(id, u.Id); err != nil {
+	if err := schedulerSvc.Cancel(id, u.Id, p.Force); err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
