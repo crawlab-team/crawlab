@@ -20,7 +20,8 @@ const _ = grpc.SupportPackageIsVersion8
 
 const (
 	TaskService_Subscribe_FullMethodName        = "/grpc.TaskService/Subscribe"
-	TaskService_Fetch_FullMethodName            = "/grpc.TaskService/Fetch"
+	TaskService_Connect_FullMethodName          = "/grpc.TaskService/Connect"
+	TaskService_FetchTask_FullMethodName        = "/grpc.TaskService/FetchTask"
 	TaskService_SendNotification_FullMethodName = "/grpc.TaskService/SendNotification"
 )
 
@@ -28,8 +29,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TaskServiceClient interface {
-	Subscribe(ctx context.Context, opts ...grpc.CallOption) (TaskService_SubscribeClient, error)
-	Fetch(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
+	Subscribe(ctx context.Context, in *TaskServiceSubscribeRequest, opts ...grpc.CallOption) (TaskService_SubscribeClient, error)
+	Connect(ctx context.Context, opts ...grpc.CallOption) (TaskService_ConnectClient, error)
+	FetchTask(ctx context.Context, in *TaskServiceFetchTaskRequest, opts ...grpc.CallOption) (*TaskServiceFetchTaskResponse, error)
 	SendNotification(ctx context.Context, in *TaskServiceSendNotificationRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
@@ -41,19 +43,24 @@ func NewTaskServiceClient(cc grpc.ClientConnInterface) TaskServiceClient {
 	return &taskServiceClient{cc}
 }
 
-func (c *taskServiceClient) Subscribe(ctx context.Context, opts ...grpc.CallOption) (TaskService_SubscribeClient, error) {
+func (c *taskServiceClient) Subscribe(ctx context.Context, in *TaskServiceSubscribeRequest, opts ...grpc.CallOption) (TaskService_SubscribeClient, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &TaskService_ServiceDesc.Streams[0], TaskService_Subscribe_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	x := &taskServiceSubscribeClient{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
 	return x, nil
 }
 
 type TaskService_SubscribeClient interface {
-	Send(*StreamMessage) error
-	CloseAndRecv() (*Response, error)
+	Recv() (*TaskServiceSubscribeResponse, error)
 	grpc.ClientStream
 }
 
@@ -61,11 +68,39 @@ type taskServiceSubscribeClient struct {
 	grpc.ClientStream
 }
 
-func (x *taskServiceSubscribeClient) Send(m *StreamMessage) error {
+func (x *taskServiceSubscribeClient) Recv() (*TaskServiceSubscribeResponse, error) {
+	m := new(TaskServiceSubscribeResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *taskServiceClient) Connect(ctx context.Context, opts ...grpc.CallOption) (TaskService_ConnectClient, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &TaskService_ServiceDesc.Streams[1], TaskService_Connect_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &taskServiceConnectClient{ClientStream: stream}
+	return x, nil
+}
+
+type TaskService_ConnectClient interface {
+	Send(*TaskServiceConnectRequest) error
+	CloseAndRecv() (*Response, error)
+	grpc.ClientStream
+}
+
+type taskServiceConnectClient struct {
+	grpc.ClientStream
+}
+
+func (x *taskServiceConnectClient) Send(m *TaskServiceConnectRequest) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *taskServiceSubscribeClient) CloseAndRecv() (*Response, error) {
+func (x *taskServiceConnectClient) CloseAndRecv() (*Response, error) {
 	if err := x.ClientStream.CloseSend(); err != nil {
 		return nil, err
 	}
@@ -76,10 +111,10 @@ func (x *taskServiceSubscribeClient) CloseAndRecv() (*Response, error) {
 	return m, nil
 }
 
-func (c *taskServiceClient) Fetch(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
+func (c *taskServiceClient) FetchTask(ctx context.Context, in *TaskServiceFetchTaskRequest, opts ...grpc.CallOption) (*TaskServiceFetchTaskResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Response)
-	err := c.cc.Invoke(ctx, TaskService_Fetch_FullMethodName, in, out, cOpts...)
+	out := new(TaskServiceFetchTaskResponse)
+	err := c.cc.Invoke(ctx, TaskService_FetchTask_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -100,8 +135,9 @@ func (c *taskServiceClient) SendNotification(ctx context.Context, in *TaskServic
 // All implementations must embed UnimplementedTaskServiceServer
 // for forward compatibility
 type TaskServiceServer interface {
-	Subscribe(TaskService_SubscribeServer) error
-	Fetch(context.Context, *Request) (*Response, error)
+	Subscribe(*TaskServiceSubscribeRequest, TaskService_SubscribeServer) error
+	Connect(TaskService_ConnectServer) error
+	FetchTask(context.Context, *TaskServiceFetchTaskRequest) (*TaskServiceFetchTaskResponse, error)
 	SendNotification(context.Context, *TaskServiceSendNotificationRequest) (*Response, error)
 	mustEmbedUnimplementedTaskServiceServer()
 }
@@ -110,11 +146,14 @@ type TaskServiceServer interface {
 type UnimplementedTaskServiceServer struct {
 }
 
-func (UnimplementedTaskServiceServer) Subscribe(TaskService_SubscribeServer) error {
+func (UnimplementedTaskServiceServer) Subscribe(*TaskServiceSubscribeRequest, TaskService_SubscribeServer) error {
 	return status.Errorf(codes.Unimplemented, "method Subscribe not implemented")
 }
-func (UnimplementedTaskServiceServer) Fetch(context.Context, *Request) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Fetch not implemented")
+func (UnimplementedTaskServiceServer) Connect(TaskService_ConnectServer) error {
+	return status.Errorf(codes.Unimplemented, "method Connect not implemented")
+}
+func (UnimplementedTaskServiceServer) FetchTask(context.Context, *TaskServiceFetchTaskRequest) (*TaskServiceFetchTaskResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FetchTask not implemented")
 }
 func (UnimplementedTaskServiceServer) SendNotification(context.Context, *TaskServiceSendNotificationRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendNotification not implemented")
@@ -133,12 +172,15 @@ func RegisterTaskServiceServer(s grpc.ServiceRegistrar, srv TaskServiceServer) {
 }
 
 func _TaskService_Subscribe_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(TaskServiceServer).Subscribe(&taskServiceSubscribeServer{ServerStream: stream})
+	m := new(TaskServiceSubscribeRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(TaskServiceServer).Subscribe(m, &taskServiceSubscribeServer{ServerStream: stream})
 }
 
 type TaskService_SubscribeServer interface {
-	SendAndClose(*Response) error
-	Recv() (*StreamMessage, error)
+	Send(*TaskServiceSubscribeResponse) error
 	grpc.ServerStream
 }
 
@@ -146,32 +188,50 @@ type taskServiceSubscribeServer struct {
 	grpc.ServerStream
 }
 
-func (x *taskServiceSubscribeServer) SendAndClose(m *Response) error {
+func (x *taskServiceSubscribeServer) Send(m *TaskServiceSubscribeResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *taskServiceSubscribeServer) Recv() (*StreamMessage, error) {
-	m := new(StreamMessage)
+func _TaskService_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(TaskServiceServer).Connect(&taskServiceConnectServer{ServerStream: stream})
+}
+
+type TaskService_ConnectServer interface {
+	SendAndClose(*Response) error
+	Recv() (*TaskServiceConnectRequest, error)
+	grpc.ServerStream
+}
+
+type taskServiceConnectServer struct {
+	grpc.ServerStream
+}
+
+func (x *taskServiceConnectServer) SendAndClose(m *Response) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *taskServiceConnectServer) Recv() (*TaskServiceConnectRequest, error) {
+	m := new(TaskServiceConnectRequest)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func _TaskService_Fetch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Request)
+func _TaskService_FetchTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TaskServiceFetchTaskRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TaskServiceServer).Fetch(ctx, in)
+		return srv.(TaskServiceServer).FetchTask(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TaskService_Fetch_FullMethodName,
+		FullMethod: TaskService_FetchTask_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TaskServiceServer).Fetch(ctx, req.(*Request))
+		return srv.(TaskServiceServer).FetchTask(ctx, req.(*TaskServiceFetchTaskRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -202,8 +262,8 @@ var TaskService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*TaskServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Fetch",
-			Handler:    _TaskService_Fetch_Handler,
+			MethodName: "FetchTask",
+			Handler:    _TaskService_FetchTask_Handler,
 		},
 		{
 			MethodName: "SendNotification",
@@ -214,6 +274,11 @@ var TaskService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "Subscribe",
 			Handler:       _TaskService_Subscribe_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "Connect",
+			Handler:       _TaskService_Connect_Handler,
 			ClientStreams: true,
 		},
 	},

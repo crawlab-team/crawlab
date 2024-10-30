@@ -1,9 +1,12 @@
 syntax = "proto3";
 
-import "entity/response_code.proto";
-
 package grpc;
 option go_package = ".;grpc";
+
+enum ResponseCode {
+  OK = 0;
+  ERROR = 1;
+}
 
 message Response {
   ResponseCode code = 1;

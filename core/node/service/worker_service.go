@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/config"
 	"github.com/crawlab-team/crawlab/core/grpc/client"
@@ -15,11 +15,12 @@ import (
 	"github.com/crawlab-team/crawlab/grpc"
 	"github.com/crawlab-team/crawlab/trace"
 	"go.mongodb.org/mongo-driver/bson"
+	"io"
 	"sync"
 	"time"
 )
 
-type WorkerServiceV2 struct {
+type WorkerService struct {
 	// dependencies
 	cfgSvc     interfaces.NodeConfigService
 	client     *client.GrpcClientV2
@@ -31,16 +32,17 @@ type WorkerServiceV2 struct {
 	heartbeatInterval time.Duration
 
 	// internals
-	n *models.NodeV2
-	s grpc.NodeService_SubscribeClient
+	stopped bool
+	n       *models.NodeV2
+	s       grpc.NodeService_SubscribeClient
 }
 
-func (svc *WorkerServiceV2) Init() (err error) {
+func (svc *WorkerService) Init() (err error) {
 	// do nothing
 	return nil
 }
 
-func (svc *WorkerServiceV2) Start() {
+func (svc *WorkerService) Start() {
 	// start grpc client
 	if err := svc.client.Start(); err != nil {
 		panic(err)
@@ -49,8 +51,8 @@ func (svc *WorkerServiceV2) Start() {
 	// register to master
 	svc.Register()
 
-	// start receiving stream messages
-	go svc.Recv()
+	// subscribe
+	svc.Subscribe()
 
 	// start sending heartbeat to master
 	go svc.ReportStatus()
@@ -65,24 +67,23 @@ func (svc *WorkerServiceV2) Start() {
 	svc.Stop()
 }
 
-func (svc *WorkerServiceV2) Wait() {
+func (svc *WorkerService) Wait() {
 	utils.DefaultWait()
 }
 
-func (svc *WorkerServiceV2) Stop() {
+func (svc *WorkerService) Stop() {
+	svc.stopped = true
 	_ = svc.client.Stop()
 	svc.handlerSvc.Stop()
 	log.Infof("worker[%s] service has stopped", svc.cfgSvc.GetNodeKey())
 }
 
-func (svc *WorkerServiceV2) Register() {
+func (svc *WorkerService) Register() {
 	ctx, cancel := svc.client.Context()
 	defer cancel()
 	_, err := svc.client.NodeClient.Register(ctx, &grpc.NodeServiceRegisterRequest{
-		Key:        svc.cfgSvc.GetNodeKey(),
-		Name:       svc.cfgSvc.GetNodeName(),
-		IsMaster:   svc.cfgSvc.IsMaster(),
-		AuthKey:    svc.cfgSvc.GetAuthKey(),
+		NodeKey:    svc.cfgSvc.GetNodeKey(),
+		NodeName:   svc.cfgSvc.GetNodeName(),
 		MaxRunners: int32(svc.cfgSvc.GetMaxRunners()),
 	})
 	if err != nil {
@@ -96,56 +97,7 @@ func (svc *WorkerServiceV2) Register() {
 	return
 }
 
-func (svc *WorkerServiceV2) Recv() {
-	msgCh := svc.client.GetMessageChannel()
-	for {
-		// return if client is closed
-		if svc.client.IsClosed() {
-			return
-		}
-
-		// receive message from channel
-		msg := <-msgCh
-
-		// handle message
-		if err := svc.handleStreamMessage(msg); err != nil {
-			continue
-		}
-	}
-}
-
-func (svc *WorkerServiceV2) handleStreamMessage(msg *grpc.StreamMessage) (err error) {
-	log.Debugf("[WorkerServiceV2] handle msg: %v", msg)
-	switch msg.Code {
-	case grpc.StreamMessageCode_PING:
-		_, err := svc.client.NodeClient.SendHeartbeat(context.Background(), &grpc.NodeServiceSendHeartbeatRequest{
-			Key: svc.cfgSvc.GetNodeKey(),
-		})
-		if err != nil {
-			return trace.TraceError(err)
-		}
-	case grpc.StreamMessageCode_RUN_TASK:
-		var t models.TaskV2
-		if err := json.Unmarshal(msg.Data, &t); err != nil {
-			return trace.TraceError(err)
-		}
-		if err := svc.handlerSvc.Run(t.Id); err != nil {
-			return trace.TraceError(err)
-		}
-	case grpc.StreamMessageCode_CANCEL_TASK:
-		var t models.TaskV2
-		if err := json.Unmarshal(msg.Data, &t); err != nil {
-			return trace.TraceError(err)
-		}
-		if err := svc.handlerSvc.Cancel(t.Id); err != nil {
-			return trace.TraceError(err)
-		}
-	}
-
-	return nil
-}
-
-func (svc *WorkerServiceV2) ReportStatus() {
+func (svc *WorkerService) ReportStatus() {
 	ticker := time.NewTicker(svc.heartbeatInterval)
 	for {
 		// return if client is closed
@@ -162,46 +114,76 @@ func (svc *WorkerServiceV2) ReportStatus() {
 	}
 }
 
-func (svc *WorkerServiceV2) GetConfigService() (cfgSvc interfaces.NodeConfigService) {
+func (svc *WorkerService) GetConfigService() (cfgSvc interfaces.NodeConfigService) {
 	return svc.cfgSvc
 }
 
-func (svc *WorkerServiceV2) GetConfigPath() (path string) {
+func (svc *WorkerService) GetConfigPath() (path string) {
 	return svc.cfgPath
 }
 
-func (svc *WorkerServiceV2) SetConfigPath(path string) {
+func (svc *WorkerService) SetConfigPath(path string) {
 	svc.cfgPath = path
 }
 
-func (svc *WorkerServiceV2) GetAddress() (address interfaces.Address) {
+func (svc *WorkerService) GetAddress() (address interfaces.Address) {
 	return svc.address
 }
 
-func (svc *WorkerServiceV2) SetAddress(address interfaces.Address) {
+func (svc *WorkerService) SetAddress(address interfaces.Address) {
 	svc.address = address
 }
 
-func (svc *WorkerServiceV2) SetHeartbeatInterval(duration time.Duration) {
+func (svc *WorkerService) SetHeartbeatInterval(duration time.Duration) {
 	svc.heartbeatInterval = duration
 }
 
-func (svc *WorkerServiceV2) reportStatus() {
+func (svc *WorkerService) Subscribe() {
+	stream, err := svc.client.NodeClient.Subscribe(context.Background(), &grpc.NodeServiceSubscribeRequest{
+		NodeKey: svc.cfgSvc.GetNodeKey(),
+	})
+	if err != nil {
+		log.Errorf("failed to subscribe to master: %v", err)
+		return
+	}
+	for {
+		if svc.stopped {
+			return
+		}
+		select {
+		default:
+			msg, err := stream.Recv()
+			if err != nil {
+				if errors.Is(err, io.EOF) {
+					return
+				}
+				log.Errorf("failed to receive message from master: %v", err)
+				continue
+			}
+			switch msg.Code {
+			case grpc.NodeServiceSubscribeCode_PING:
+				// do nothing
+			}
+		}
+	}
+}
+
+func (svc *WorkerService) reportStatus() {
 	ctx, cancel := context.WithTimeout(context.Background(), svc.heartbeatInterval)
 	defer cancel()
 	_, err := svc.client.NodeClient.SendHeartbeat(ctx, &grpc.NodeServiceSendHeartbeatRequest{
-		Key: svc.cfgSvc.GetNodeKey(),
+		NodeKey: svc.cfgSvc.GetNodeKey(),
 	})
 	if err != nil {
 		trace.PrintError(err)
 	}
 }
 
-var workerServiceV2 *WorkerServiceV2
+var workerServiceV2 *WorkerService
 var workerServiceV2Once = new(sync.Once)
 
-func newWorkerServiceV2() (res *WorkerServiceV2, err error) {
-	svc := &WorkerServiceV2{
+func newWorkerService() (res *WorkerService, err error) {
+	svc := &WorkerService{
 		cfgPath:           config.GetConfigPath(),
 		heartbeatInterval: 15 * time.Second,
 	}
@@ -233,9 +215,9 @@ func newWorkerServiceV2() (res *WorkerServiceV2, err error) {
 	return svc, nil
 }
 
-func GetWorkerServiceV2() (res *WorkerServiceV2, err error) {
+func GetWorkerService() (res *WorkerService, err error) {
 	workerServiceV2Once.Do(func() {
-		workerServiceV2, err = newWorkerServiceV2()
+		workerServiceV2, err = newWorkerService()
 		if err != nil {
 			log.Errorf("failed to get worker service: %v", err)
 		}

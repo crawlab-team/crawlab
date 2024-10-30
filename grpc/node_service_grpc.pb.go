@@ -22,7 +22,6 @@ const (
 	NodeService_Register_FullMethodName      = "/grpc.NodeService/Register"
 	NodeService_SendHeartbeat_FullMethodName = "/grpc.NodeService/SendHeartbeat"
 	NodeService_Subscribe_FullMethodName     = "/grpc.NodeService/Subscribe"
-	NodeService_Unsubscribe_FullMethodName   = "/grpc.NodeService/Unsubscribe"
 )
 
 // NodeServiceClient is the client API for NodeService service.
@@ -31,8 +30,7 @@ const (
 type NodeServiceClient interface {
 	Register(ctx context.Context, in *NodeServiceRegisterRequest, opts ...grpc.CallOption) (*Response, error)
 	SendHeartbeat(ctx context.Context, in *NodeServiceSendHeartbeatRequest, opts ...grpc.CallOption) (*Response, error)
-	Subscribe(ctx context.Context, in *Request, opts ...grpc.CallOption) (NodeService_SubscribeClient, error)
-	Unsubscribe(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
+	Subscribe(ctx context.Context, in *NodeServiceSubscribeRequest, opts ...grpc.CallOption) (NodeService_SubscribeClient, error)
 }
 
 type nodeServiceClient struct {
@@ -63,7 +61,7 @@ func (c *nodeServiceClient) SendHeartbeat(ctx context.Context, in *NodeServiceSe
 	return out, nil
 }
 
-func (c *nodeServiceClient) Subscribe(ctx context.Context, in *Request, opts ...grpc.CallOption) (NodeService_SubscribeClient, error) {
+func (c *nodeServiceClient) Subscribe(ctx context.Context, in *NodeServiceSubscribeRequest, opts ...grpc.CallOption) (NodeService_SubscribeClient, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &NodeService_ServiceDesc.Streams[0], NodeService_Subscribe_FullMethodName, cOpts...)
 	if err != nil {
@@ -80,7 +78,7 @@ func (c *nodeServiceClient) Subscribe(ctx context.Context, in *Request, opts ...
 }
 
 type NodeService_SubscribeClient interface {
-	Recv() (*StreamMessage, error)
+	Recv() (*NodeServiceSubscribeResponse, error)
 	grpc.ClientStream
 }
 
@@ -88,22 +86,12 @@ type nodeServiceSubscribeClient struct {
 	grpc.ClientStream
 }
 
-func (x *nodeServiceSubscribeClient) Recv() (*StreamMessage, error) {
-	m := new(StreamMessage)
+func (x *nodeServiceSubscribeClient) Recv() (*NodeServiceSubscribeResponse, error) {
+	m := new(NodeServiceSubscribeResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
-}
-
-func (c *nodeServiceClient) Unsubscribe(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Response)
-	err := c.cc.Invoke(ctx, NodeService_Unsubscribe_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 // NodeServiceServer is the server API for NodeService service.
@@ -112,8 +100,7 @@ func (c *nodeServiceClient) Unsubscribe(ctx context.Context, in *Request, opts .
 type NodeServiceServer interface {
 	Register(context.Context, *NodeServiceRegisterRequest) (*Response, error)
 	SendHeartbeat(context.Context, *NodeServiceSendHeartbeatRequest) (*Response, error)
-	Subscribe(*Request, NodeService_SubscribeServer) error
-	Unsubscribe(context.Context, *Request) (*Response, error)
+	Subscribe(*NodeServiceSubscribeRequest, NodeService_SubscribeServer) error
 	mustEmbedUnimplementedNodeServiceServer()
 }
 
@@ -127,11 +114,8 @@ func (UnimplementedNodeServiceServer) Register(context.Context, *NodeServiceRegi
 func (UnimplementedNodeServiceServer) SendHeartbeat(context.Context, *NodeServiceSendHeartbeatRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendHeartbeat not implemented")
 }
-func (UnimplementedNodeServiceServer) Subscribe(*Request, NodeService_SubscribeServer) error {
+func (UnimplementedNodeServiceServer) Subscribe(*NodeServiceSubscribeRequest, NodeService_SubscribeServer) error {
 	return status.Errorf(codes.Unimplemented, "method Subscribe not implemented")
-}
-func (UnimplementedNodeServiceServer) Unsubscribe(context.Context, *Request) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Unsubscribe not implemented")
 }
 func (UnimplementedNodeServiceServer) mustEmbedUnimplementedNodeServiceServer() {}
 
@@ -183,7 +167,7 @@ func _NodeService_SendHeartbeat_Handler(srv interface{}, ctx context.Context, de
 }
 
 func _NodeService_Subscribe_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(Request)
+	m := new(NodeServiceSubscribeRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -191,7 +175,7 @@ func _NodeService_Subscribe_Handler(srv interface{}, stream grpc.ServerStream) e
 }
 
 type NodeService_SubscribeServer interface {
-	Send(*StreamMessage) error
+	Send(*NodeServiceSubscribeResponse) error
 	grpc.ServerStream
 }
 
@@ -199,26 +183,8 @@ type nodeServiceSubscribeServer struct {
 	grpc.ServerStream
 }
 
-func (x *nodeServiceSubscribeServer) Send(m *StreamMessage) error {
+func (x *nodeServiceSubscribeServer) Send(m *NodeServiceSubscribeResponse) error {
 	return x.ServerStream.SendMsg(m)
-}
-
-func _NodeService_Unsubscribe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Request)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(NodeServiceServer).Unsubscribe(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: NodeService_Unsubscribe_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServiceServer).Unsubscribe(ctx, req.(*Request))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 // NodeService_ServiceDesc is the grpc.ServiceDesc for NodeService service.
@@ -235,10 +201,6 @@ var NodeService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendHeartbeat",
 			Handler:    _NodeService_SendHeartbeat_Handler,
-		},
-		{
-			MethodName: "Unsubscribe",
-			Handler:    _NodeService_Unsubscribe_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

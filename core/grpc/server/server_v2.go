@@ -1,7 +1,6 @@
 package server
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/constants"
@@ -17,7 +16,6 @@ import (
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	errors2 "github.com/pkg/errors"
 	"github.com/spf13/viper"
-	"go/types"
 	"google.golang.org/grpc"
 	"net"
 	"sync"
@@ -28,7 +26,7 @@ var (
 	mutexSubsV2 = &sync.Mutex{}
 )
 
-type GrpcServerV2 struct {
+type GrpcServer struct {
 	// settings
 	cfgPath string
 	address interfaces.Address
@@ -42,22 +40,22 @@ type GrpcServerV2 struct {
 	nodeCfgSvc interfaces.NodeConfigService
 
 	// servers
-	NodeSvr             *NodeServerV2
-	TaskSvr             *TaskServerV2
+	NodeSvr             *NodeServiceServer
+	TaskSvr             *TaskServiceServer
 	ModelBaseServiceSvr *ModelBaseServiceServerV2
-	DependenciesSvr     *DependenciesServerV2
-	MetricsSvr          *MetricsServerV2
+	DependencySvr       *DependencyServiceServer
+	MetricSvr           *MetricServiceServer
 }
 
-func (svr *GrpcServerV2) GetConfigPath() (path string) {
+func (svr *GrpcServer) GetConfigPath() (path string) {
 	return svr.cfgPath
 }
 
-func (svr *GrpcServerV2) SetConfigPath(path string) {
+func (svr *GrpcServer) SetConfigPath(path string) {
 	svr.cfgPath = path
 }
 
-func (svr *GrpcServerV2) Init() (err error) {
+func (svr *GrpcServer) Init() (err error) {
 	// register
 	if err := svr.Register(); err != nil {
 		return err
@@ -66,7 +64,7 @@ func (svr *GrpcServerV2) Init() (err error) {
 	return nil
 }
 
-func (svr *GrpcServerV2) Start() (err error) {
+func (svr *GrpcServer) Start() (err error) {
 	// grpc server binding address
 	address := svr.address.String()
 
@@ -92,7 +90,7 @@ func (svr *GrpcServerV2) Start() (err error) {
 	return nil
 }
 
-func (svr *GrpcServerV2) Stop() (err error) {
+func (svr *GrpcServer) Stop() (err error) {
 	// skip if listener is nil
 	if svr.l == nil {
 		return nil
@@ -115,27 +113,27 @@ func (svr *GrpcServerV2) Stop() (err error) {
 	return nil
 }
 
-func (svr *GrpcServerV2) Register() (err error) {
+func (svr *GrpcServer) Register() (err error) {
 	grpc2.RegisterNodeServiceServer(svr.svr, *svr.NodeSvr)
 	grpc2.RegisterModelBaseServiceV2Server(svr.svr, *svr.ModelBaseServiceSvr)
 	grpc2.RegisterTaskServiceServer(svr.svr, *svr.TaskSvr)
-	grpc2.RegisterDependenciesServiceV2Server(svr.svr, *svr.DependenciesSvr)
-	grpc2.RegisterMetricsServiceV2Server(svr.svr, *svr.MetricsSvr)
+	grpc2.RegisterDependencyServiceV2Server(svr.svr, *svr.DependencySvr)
+	grpc2.RegisterMetricServiceV2Server(svr.svr, *svr.MetricSvr)
 
 	return nil
 }
 
-func (svr *GrpcServerV2) recoveryHandlerFunc(p interface{}) (err error) {
+func (svr *GrpcServer) recoveryHandlerFunc(p interface{}) (err error) {
 	err = errors.NewError(errors.ErrorPrefixGrpc, fmt.Sprintf("%v", p))
 	trace.PrintError(err)
 	return err
 }
 
-func (svr *GrpcServerV2) SetAddress(address interfaces.Address) {
+func (svr *GrpcServer) SetAddress(address interfaces.Address) {
 
 }
 
-func (svr *GrpcServerV2) GetSubscribe(key string) (sub interfaces.GrpcSubscribe, err error) {
+func (svr *GrpcServer) GetSubscribe(key string) (sub interfaces.GrpcSubscribe, err error) {
 	mutexSubsV2.Lock()
 	defer mutexSubsV2.Unlock()
 	sub, ok := subsV2[key]
@@ -145,55 +143,25 @@ func (svr *GrpcServerV2) GetSubscribe(key string) (sub interfaces.GrpcSubscribe,
 	return sub, nil
 }
 
-func (svr *GrpcServerV2) SetSubscribe(key string, sub interfaces.GrpcSubscribe) {
+func (svr *GrpcServer) SetSubscribe(key string, sub interfaces.GrpcSubscribe) {
 	mutexSubsV2.Lock()
 	defer mutexSubsV2.Unlock()
 	subsV2[key] = sub
 }
 
-func (svr *GrpcServerV2) DeleteSubscribe(key string) {
+func (svr *GrpcServer) DeleteSubscribe(key string) {
 	mutexSubsV2.Lock()
 	defer mutexSubsV2.Unlock()
 	delete(subsV2, key)
 }
 
-func (svr *GrpcServerV2) SendStreamMessage(key string, code grpc2.StreamMessageCode) (err error) {
-	return svr.SendStreamMessageWithData(key, code, nil)
-}
-
-func (svr *GrpcServerV2) SendStreamMessageWithData(key string, code grpc2.StreamMessageCode, d interface{}) (err error) {
-	var data []byte
-	switch d.(type) {
-	case types.Nil:
-		// do nothing
-	case []byte:
-		data = d.([]byte)
-	default:
-		var err error
-		data, err = json.Marshal(d)
-		if err != nil {
-			return err
-		}
-	}
-	sub, err := svr.GetSubscribe(key)
-	if err != nil {
-		return err
-	}
-	msg := &grpc2.StreamMessage{
-		Code: code,
-		Key:  svr.nodeCfgSvc.GetNodeKey(),
-		Data: data,
-	}
-	return sub.GetStream().Send(msg)
-}
-
-func (svr *GrpcServerV2) IsStopped() (res bool) {
+func (svr *GrpcServer) IsStopped() (res bool) {
 	return svr.stopped
 }
 
-func NewGrpcServerV2() (svr *GrpcServerV2, err error) {
+func NewGrpcServerV2() (svr *GrpcServer, err error) {
 	// server
-	svr = &GrpcServerV2{
+	svr = &GrpcServer{
 		address: entity.NewAddress(&entity.AddressOptions{
 			Host: constants.DefaultGrpcServerHost,
 			Port: constants.DefaultGrpcServerPort,
@@ -209,17 +177,17 @@ func NewGrpcServerV2() (svr *GrpcServerV2, err error) {
 
 	svr.nodeCfgSvc = nodeconfig.GetNodeConfigService()
 
-	svr.NodeSvr, err = NewNodeServerV2()
+	svr.NodeSvr, err = NewNodeServiceServer()
 	if err != nil {
 		return nil, err
 	}
 	svr.ModelBaseServiceSvr = NewModelBaseServiceV2Server()
-	svr.TaskSvr, err = NewTaskServerV2()
+	svr.TaskSvr, err = NewTaskServiceServer()
 	if err != nil {
 		return nil, err
 	}
-	svr.DependenciesSvr = GetDependenciesServerV2()
-	svr.MetricsSvr = GetMetricsServerV2()
+	svr.DependencySvr = GetDependenciesServerV2()
+	svr.MetricSvr = GetMetricsServerV2()
 
 	// recovery options
 	recoveryOpts := []grpc_recovery.Option{
@@ -246,9 +214,9 @@ func NewGrpcServerV2() (svr *GrpcServerV2, err error) {
 	return svr, nil
 }
 
-var _serverV2 *GrpcServerV2
+var _serverV2 *GrpcServer
 
-func GetGrpcServerV2() (svr *GrpcServerV2, err error) {
+func GetGrpcServerV2() (svr *GrpcServer, err error) {
 	if _serverV2 != nil {
 		return _serverV2, nil
 	}

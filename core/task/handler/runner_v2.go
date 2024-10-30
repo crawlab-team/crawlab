@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/apex/log"
-	"github.com/cenkalti/backoff/v4"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/entity"
 	"github.com/crawlab-team/crawlab/core/fs"
@@ -44,16 +43,16 @@ type RunnerV2 struct {
 	bufferSize       int
 
 	// internals
-	cmd *exec.Cmd                        // process command instance
-	pid int                              // process id
-	tid primitive.ObjectID               // task id
-	t   *models.TaskV2                   // task model.Task
-	s   *models.SpiderV2                 // spider model.Spider
-	ch  chan constants.TaskSignal        // channel to communicate between Service and RunnerV2
-	err error                            // standard process error
-	cwd string                           // working directory
-	c   *client2.GrpcClientV2            // grpc client
-	sub grpc.TaskService_SubscribeClient // grpc task service stream client
+	cmd  *exec.Cmd                      // process command instance
+	pid  int                            // process id
+	tid  primitive.ObjectID             // task id
+	t    *models.TaskV2                 // task model.Task
+	s    *models.SpiderV2               // spider model.Spider
+	ch   chan constants.TaskSignal      // channel to communicate between Service and RunnerV2
+	err  error                          // standard process error
+	cwd  string                         // working directory
+	c    *client2.GrpcClientV2          // grpc client
+	conn grpc.TaskService_ConnectClient // grpc task service stream client
 
 	// log internals
 	scannerStdout *bufio.Reader
@@ -76,7 +75,7 @@ func (r *RunnerV2) Init() (err error) {
 	}
 
 	// grpc task service stream client
-	if err := r.initSub(); err != nil {
+	if err := r.initConnection(); err != nil {
 		return err
 	}
 
@@ -177,26 +176,19 @@ func (r *RunnerV2) Cancel(force bool) (err error) {
 	}
 
 	// make sure the process does not exist
-	op := func() error {
-		if exists, _ := process.PidExists(int32(r.pid)); exists {
+	ticker := time.NewTicker(1 * time.Second)
+	timeout := time.After(r.svc.GetCancelTimeout())
+	for {
+		select {
+		case <-timeout:
 			return errors.New(fmt.Sprintf("task process %d still exists", r.pid))
+		case <-ticker.C:
+			if exists, _ := process.PidExists(int32(r.pid)); exists {
+				return errors.New(fmt.Sprintf("task process %d still exists", r.pid))
+			}
+			return nil
 		}
-		return nil
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), r.svc.GetExitWatchDuration())
-	defer cancel()
-	b := backoff.WithContext(backoff.NewConstantBackOff(1*time.Second), ctx)
-	if err := backoff.Retry(op, b); err != nil {
-		log.Errorf("Error canceling task %s: %v", r.tid, err)
-		return trace.TraceError(err)
-	}
-
-	return nil
-}
-
-// CleanUp clean up task runner
-func (r *RunnerV2) CleanUp() (err error) {
-	return nil
 }
 
 func (r *RunnerV2) SetSubscribeTimeout(timeout time.Duration) {
@@ -537,8 +529,8 @@ func (r *RunnerV2) updateTask(status string, e error) (err error) {
 	return nil
 }
 
-func (r *RunnerV2) initSub() (err error) {
-	r.sub, err = r.c.TaskClient.Subscribe(context.Background())
+func (r *RunnerV2) initConnection() (err error) {
+	r.conn, err = r.c.TaskClient.Connect(context.Background())
 	if err != nil {
 		return trace.TraceError(err)
 	}
@@ -546,20 +538,18 @@ func (r *RunnerV2) initSub() (err error) {
 }
 
 func (r *RunnerV2) writeLogLines(lines []string) {
-	data, err := json.Marshal(&entity.StreamMessageTaskData{
-		TaskId: r.tid,
-		Logs:   lines,
-	})
+	linesBytes, err := json.Marshal(lines)
 	if err != nil {
-		trace.PrintError(err)
+		log.Errorf("Error marshaling log lines: %v", err)
 		return
 	}
-	msg := &grpc.StreamMessage{
-		Code: grpc.StreamMessageCode_INSERT_LOGS,
-		Data: data,
+	msg := &grpc.TaskServiceConnectRequest{
+		Code:   grpc.TaskServiceConnectCode_INSERT_LOGS,
+		TaskId: r.tid.Hex(),
+		Data:   linesBytes,
 	}
-	if err := r.sub.Send(msg); err != nil {
-		trace.PrintError(err)
+	if err := r.conn.Send(msg); err != nil {
+		log.Errorf("Error sending log lines: %v", err)
 		return
 	}
 }

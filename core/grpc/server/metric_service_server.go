@@ -11,15 +11,15 @@ import (
 	"time"
 )
 
-type MetricsServerV2 struct {
-	grpc.UnimplementedMetricsServiceV2Server
+type MetricServiceServer struct {
+	grpc.UnimplementedMetricServiceV2Server
 }
 
-func (svr MetricsServerV2) Send(_ context.Context, req *grpc.MetricsServiceV2SendRequest) (res *grpc.Response, err error) {
-	log.Info("[MetricsServerV2] received metric from node: " + req.NodeKey)
+func (svr MetricServiceServer) Send(_ context.Context, req *grpc.MetricServiceV2SendRequest) (res *grpc.Response, err error) {
+	log.Info("[MetricServiceServer] received metric from node: " + req.NodeKey)
 	n, err := service.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": req.NodeKey}, nil)
 	if err != nil {
-		log.Errorf("[MetricsServerV2] error getting node: %v", err)
+		log.Errorf("[MetricServiceServer] error getting node: %v", err)
 		return HandleError(err)
 	}
 	metric := models2.MetricV2{
@@ -42,20 +42,20 @@ func (svr MetricsServerV2) Send(_ context.Context, req *grpc.MetricsServiceV2Sen
 	metric.CreatedAt = time.Unix(req.Timestamp, 0)
 	_, err = service.NewModelServiceV2[models2.MetricV2]().InsertOne(metric)
 	if err != nil {
-		log.Errorf("[MetricsServerV2] error inserting metric: %v", err)
+		log.Errorf("[MetricServiceServer] error inserting metric: %v", err)
 		return HandleError(err)
 	}
 	return HandleSuccess()
 }
 
-func newMetricsServerV2() *MetricsServerV2 {
-	return &MetricsServerV2{}
+func newMetricsServerV2() *MetricServiceServer {
+	return &MetricServiceServer{}
 }
 
-var metricsServerV2 *MetricsServerV2
+var metricsServerV2 *MetricServiceServer
 var metricsServerV2Once = &sync.Once{}
 
-func GetMetricsServerV2() *MetricsServerV2 {
+func GetMetricsServerV2() *MetricServiceServer {
 	if metricsServerV2 != nil {
 		return metricsServerV2
 	}

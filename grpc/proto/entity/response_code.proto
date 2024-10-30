@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-option go_package = ".;grpc";
-
-enum ResponseCode {
-  OK = 0;
-  ERROR = 1;
-}

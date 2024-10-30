@@ -11,5 +11,4 @@ type TaskRunner interface {
 	Cancel(force bool) (err error)
 	SetSubscribeTimeout(timeout time.Duration)
 	GetTaskId() (id primitive.ObjectID)
-	CleanUp() (err error)
 }

@@ -1,26 +1,34 @@
 syntax = "proto3";
 
-import "entity/request.proto";
 import "entity/response.proto";
-import "entity/stream_message.proto";
 
 package grpc;
 option go_package = ".;grpc";
 
 message NodeServiceRegisterRequest {
-  string key = 1;
-  string name = 2;
-  bool isMaster = 3;
-  string authKey = 4;
-  int32 maxRunners = 5;
+  string node_key = 1;
+  string node_name = 2;
+  int32 max_runners = 3;
 }
+
 message NodeServiceSendHeartbeatRequest {
-  string key = 1;
+  string node_key = 1;
+}
+
+message NodeServiceSubscribeRequest {
+  string node_key = 1;
+}
+
+enum NodeServiceSubscribeCode {
+  PING = 0;
+}
+
+message NodeServiceSubscribeResponse {
+  NodeServiceSubscribeCode code = 1;
 }
 
 service NodeService {
   rpc Register(NodeServiceRegisterRequest) returns (Response){};
   rpc SendHeartbeat(NodeServiceSendHeartbeatRequest) returns (Response){};
-  rpc Subscribe(Request) returns (stream StreamMessage){};
-  rpc Unsubscribe(Request) returns (Response){};
+  rpc Subscribe(NodeServiceSubscribeRequest) returns (stream NodeServiceSubscribeResponse){};
 }

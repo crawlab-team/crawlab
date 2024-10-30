@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+import "entity/response.proto";
+
+package grpc;
+option go_package = ".;grpc";
+
+message TaskServiceSubscribeRequest {
+  string task_id = 1;
+}
+
+enum TaskServiceSubscribeCode {
+  CANCEL = 0;
+}
+
+message TaskServiceSubscribeResponse {
+  TaskServiceSubscribeCode code = 1;
+  string task_id = 2;
+  bool force = 3;
+}
+
+enum TaskServiceConnectCode {
+  INSERT_DATA = 0;
+  INSERT_LOGS = 1;
+}
+
+message TaskServiceConnectRequest {
+  TaskServiceConnectCode code = 1;
+  string task_id = 2;
+  bytes data = 3;
+}
+
+message TaskServiceFetchTaskRequest {
+  string node_key = 1;
+}
+
+message TaskServiceFetchTaskResponse {
+  string task_id = 2;
+}
+
+message TaskServiceSendNotificationRequest {
+  string node_key = 1;
+  string task_id = 2;
+}
+
+service TaskService {
+  rpc Subscribe(TaskServiceSubscribeRequest) returns (stream TaskServiceSubscribeResponse){};
+  rpc Connect(stream TaskServiceConnectRequest) returns (Response){};
+  rpc FetchTask(TaskServiceFetchTaskRequest) returns (TaskServiceFetchTaskResponse){};
+  rpc SendNotification(TaskServiceSendNotificationRequest) returns (Response){};
+}

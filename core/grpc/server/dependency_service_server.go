@@ -17,29 +17,29 @@ import (
 	"time"
 )
 
-type DependenciesServerV2 struct {
-	grpc.UnimplementedDependenciesServiceV2Server
+type DependencyServiceServer struct {
+	grpc.UnimplementedDependencyServiceV2Server
 	mu      *sync.Mutex
-	streams map[string]*grpc.DependenciesServiceV2_ConnectServer
+	streams map[string]*grpc.DependencyServiceV2_ConnectServer
 }
 
-func (svr DependenciesServerV2) Connect(req *grpc.DependenciesServiceV2ConnectRequest, stream grpc.DependenciesServiceV2_ConnectServer) (err error) {
+func (svr DependencyServiceServer) Connect(req *grpc.DependencyServiceV2ConnectRequest, stream grpc.DependencyServiceV2_ConnectServer) (err error) {
 	svr.mu.Lock()
 	svr.streams[req.NodeKey] = &stream
 	svr.mu.Unlock()
-	log.Info("[DependenciesServerV2] connected: " + req.NodeKey)
+	log.Info("[DependencyServiceServer] connected: " + req.NodeKey)
 
 	// Keep this scope alive because once this scope exits - the stream is closed
 	for {
 		select {
 		case <-stream.Context().Done():
-			log.Info("[DependenciesServerV2] disconnected: " + req.NodeKey)
+			log.Info("[DependencyServiceServer] disconnected: " + req.NodeKey)
 			return nil
 		}
 	}
 }
 
-func (svr DependenciesServerV2) Sync(ctx context.Context, request *grpc.DependenciesServiceV2SyncRequest) (response *grpc.Response, err error) {
+func (svr DependencyServiceServer) Sync(ctx context.Context, request *grpc.DependencyServiceV2SyncRequest) (response *grpc.Response, err error) {
 	n, err := service.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": request.NodeKey}, nil)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (svr DependenciesServerV2) Sync(ctx context.Context, request *grpc.Dependen
 	}, nil)
 	if err != nil {
 		if !errors.Is(err, mongo.ErrNoDocuments) {
-			log.Errorf("[DependenciesServiceV2] get dependencies from db error: %v", err)
+			log.Errorf("[DependencyServiceV2] get dependencies from db error: %v", err)
 			return nil, err
 		}
 	}
@@ -94,7 +94,7 @@ func (svr DependenciesServerV2) Sync(ctx context.Context, request *grpc.Dependen
 				"_id": bson.M{"$in": depIdsToDelete},
 			})
 			if err != nil {
-				log.Errorf("[DependenciesServerV2] delete dependencies in db error: %v", err)
+				log.Errorf("[DependencyServiceServer] delete dependencies in db error: %v", err)
 				trace.PrintError(err)
 				return err
 			}
@@ -103,7 +103,7 @@ func (svr DependenciesServerV2) Sync(ctx context.Context, request *grpc.Dependen
 		if len(depsToInsert) > 0 {
 			_, err = service.NewModelServiceV2[models2.DependencyV2]().InsertMany(depsToInsert)
 			if err != nil {
-				log.Errorf("[DependenciesServerV2] insert dependencies in db error: %v", err)
+				log.Errorf("[DependencyServiceServer] insert dependencies in db error: %v", err)
 				trace.PrintError(err)
 				return err
 			}
@@ -115,7 +115,7 @@ func (svr DependenciesServerV2) Sync(ctx context.Context, request *grpc.Dependen
 	return nil, err
 }
 
-func (svr DependenciesServerV2) UpdateTaskLog(stream grpc.DependenciesServiceV2_UpdateTaskLogServer) (err error) {
+func (svr DependencyServiceServer) UpdateTaskLog(stream grpc.DependencyServiceV2_UpdateTaskLogServer) (err error) {
 	var t *models2.DependencyTaskV2
 	for {
 		req, err := stream.Recv()
@@ -152,7 +152,7 @@ func (svr DependenciesServerV2) UpdateTaskLog(stream grpc.DependenciesServiceV2_
 	}
 }
 
-func (svr DependenciesServerV2) GetStream(key string) (stream *grpc.DependenciesServiceV2_ConnectServer, err error) {
+func (svr DependencyServiceServer) GetStream(key string) (stream *grpc.DependencyServiceV2_ConnectServer, err error) {
 	svr.mu.Lock()
 	defer svr.mu.Unlock()
 	stream, ok := svr.streams[key]
@@ -162,19 +162,19 @@ func (svr DependenciesServerV2) GetStream(key string) (stream *grpc.Dependencies
 	return stream, nil
 }
 
-func NewDependenciesServerV2() *DependenciesServerV2 {
-	return &DependenciesServerV2{
+func NewDependencyServerV2() *DependencyServiceServer {
+	return &DependencyServiceServer{
 		mu:      new(sync.Mutex),
-		streams: make(map[string]*grpc.DependenciesServiceV2_ConnectServer),
+		streams: make(map[string]*grpc.DependencyServiceV2_ConnectServer),
 	}
 }
 
-var depSvc *DependenciesServerV2
+var depSvc *DependencyServiceServer
 
-func GetDependenciesServerV2() *DependenciesServerV2 {
+func GetDependencyServerV2() *DependencyServiceServer {
 	if depSvc != nil {
 		return depSvc
 	}
-	depSvc = NewDependenciesServerV2()
+	depSvc = NewDependencyServerV2()
 	return depSvc
 }

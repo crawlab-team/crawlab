@@ -23,7 +23,7 @@ import (
 type ServiceV2 struct {
 	// dependencies
 	nodeCfgSvc interfaces.NodeConfigService
-	svr        *server.GrpcServerV2
+	svr        *server.GrpcServer
 	handlerSvc *handler.ServiceV2
 
 	// settings

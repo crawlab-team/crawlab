@@ -29,14 +29,14 @@ func teardownTestDB() {
 	db.Drop(context.Background())
 }
 
-func startSvr(svr *server.GrpcServerV2) {
+func startSvr(svr *server.GrpcServer) {
 	err := svr.Start()
 	if err != nil {
 		log.Errorf("failed to start grpc server: %v", err)
 	}
 }
 
-func stopSvr(svr *server.GrpcServerV2) {
+func stopSvr(svr *server.GrpcServer) {
 	err := svr.Stop()
 	if err != nil {
 		log.Errorf("failed to stop grpc server: %v", err)

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/constants"
-	"github.com/crawlab-team/crawlab/core/entity"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	models2 "github.com/crawlab-team/crawlab/core/models/models/v2"
 	"github.com/crawlab-team/crawlab/core/models/service"
@@ -22,9 +21,12 @@ import (
 	mongo2 "go.mongodb.org/mongo-driver/mongo"
 	"io"
 	"strings"
+	"sync"
 )
 
-type TaskServerV2 struct {
+var taskServiceMutex = sync.Mutex{}
+
+type TaskServiceServer struct {
 	grpc.UnimplementedTaskServiceServer
 
 	// dependencies
@@ -33,10 +35,52 @@ type TaskServerV2 struct {
 
 	// internals
 	server interfaces.GrpcServer
+	subs   map[primitive.ObjectID]grpc.TaskService_SubscribeServer
 }
 
-// Subscribe to task stream when a task runner in a node starts
-func (svr TaskServerV2) Subscribe(stream grpc.TaskService_SubscribeServer) (err error) {
+func (svr TaskServiceServer) Subscribe(req *grpc.TaskServiceSubscribeRequest, stream grpc.TaskService_SubscribeServer) (err error) {
+	// task id
+	taskId, err := primitive.ObjectIDFromHex(req.TaskId)
+	if err != nil {
+		return errors.New("invalid task id")
+	}
+
+	// validate stream
+	if stream == nil {
+		return errors.New("invalid stream")
+	}
+
+	// add stream
+	taskServiceMutex.Lock()
+	svr.subs[taskId] = stream
+	taskServiceMutex.Unlock()
+
+	// create a new goroutine to receive messages from the stream to listen for EOF (end of stream)
+	go func() {
+		for {
+			select {
+			case <-stream.Context().Done():
+				taskServiceMutex.Lock()
+				delete(svr.subs, taskId)
+				taskServiceMutex.Unlock()
+				return
+			default:
+				err := stream.RecvMsg(nil)
+				if err == io.EOF {
+					taskServiceMutex.Lock()
+					delete(svr.subs, taskId)
+					taskServiceMutex.Unlock()
+					return
+				}
+			}
+		}
+	}()
+
+	return nil
+}
+
+// Connect to task stream when a task runner in a node starts
+func (svr TaskServiceServer) Connect(stream grpc.TaskService_ConnectServer) (err error) {
 	for {
 		msg, err := stream.Recv()
 		if err == io.EOF {
@@ -49,11 +93,19 @@ func (svr TaskServerV2) Subscribe(stream grpc.TaskService_SubscribeServer) (err 
 			trace.PrintError(err)
 			continue
 		}
+
+		// validate task id
+		taskId, err := primitive.ObjectIDFromHex(msg.TaskId)
+		if err != nil {
+			log.Errorf("invalid task id: %s", msg.TaskId)
+			continue
+		}
+
 		switch msg.Code {
-		case grpc.StreamMessageCode_INSERT_DATA:
-			err = svr.handleInsertData(msg)
-		case grpc.StreamMessageCode_INSERT_LOGS:
-			err = svr.handleInsertLogs(msg)
+		case grpc.TaskServiceConnectCode_INSERT_DATA:
+			err = svr.handleInsertData(taskId, msg)
+		case grpc.TaskServiceConnectCode_INSERT_LOGS:
+			err = svr.handleInsertLogs(taskId, msg)
 		default:
 			err = errors.New("invalid stream message code")
 			log.Errorf("invalid stream message code: %d", msg.Code)
@@ -65,8 +117,8 @@ func (svr TaskServerV2) Subscribe(stream grpc.TaskService_SubscribeServer) (err 
 	}
 }
 
-// Fetch tasks to be executed by a task handler
-func (svr TaskServerV2) Fetch(ctx context.Context, request *grpc.Request) (response *grpc.Response, err error) {
+// FetchTask tasks to be executed by a task handler
+func (svr TaskServiceServer) FetchTask(ctx context.Context, request *grpc.TaskServiceFetchTaskRequest) (response *grpc.TaskServiceFetchTaskResponse, err error) {
 	nodeKey := request.GetNodeKey()
 	if nodeKey == "" {
 		return nil, errors.New("invalid node key")
@@ -105,10 +157,10 @@ func (svr TaskServerV2) Fetch(ctx context.Context, request *grpc.Request) (respo
 	}); err != nil {
 		return nil, err
 	}
-	return HandleSuccessWithData(tid)
+	return &grpc.TaskServiceFetchTaskResponse{TaskId: tid.Hex()}, nil
 }
 
-func (svr TaskServerV2) SendNotification(_ context.Context, request *grpc.TaskServiceSendNotificationRequest) (response *grpc.Response, err error) {
+func (svr TaskServiceServer) SendNotification(_ context.Context, request *grpc.TaskServiceSendNotificationRequest) (response *grpc.Response, err error) {
 	if !utils.IsPro() {
 		return nil, nil
 	}
@@ -208,27 +260,32 @@ func (svr TaskServerV2) SendNotification(_ context.Context, request *grpc.TaskSe
 	return nil, nil
 }
 
-func (svr TaskServerV2) handleInsertData(msg *grpc.StreamMessage) (err error) {
-	data, err := svr.deserialize(msg)
-	if err != nil {
-		return err
-	}
+func (svr TaskServiceServer) GetSubscribeStream(taskId primitive.ObjectID) (stream grpc.TaskService_SubscribeServer, ok bool) {
+	taskServiceMutex.Lock()
+	defer taskServiceMutex.Unlock()
+	stream, ok = svr.subs[taskId]
+	return stream, ok
+}
+
+func (svr TaskServiceServer) handleInsertData(taskId primitive.ObjectID, msg *grpc.TaskServiceConnectRequest) (err error) {
 	var records []map[string]interface{}
-	for _, d := range data.Records {
-		records = append(records, d)
-	}
-	return svr.statsSvc.InsertData(data.TaskId, records...)
-}
-
-func (svr TaskServerV2) handleInsertLogs(msg *grpc.StreamMessage) (err error) {
-	data, err := svr.deserialize(msg)
+	err = json.Unmarshal(msg.Data, &records)
 	if err != nil {
-		return err
+		return trace.TraceError(err)
 	}
-	return svr.statsSvc.InsertLogs(data.TaskId, data.Logs...)
+	return svr.statsSvc.InsertData(taskId, records...)
 }
 
-func (svr TaskServerV2) getTaskQueueItemIdAndDequeue(query bson.M, opts *mongo.FindOptions, nid primitive.ObjectID) (tid primitive.ObjectID, err error) {
+func (svr TaskServiceServer) handleInsertLogs(taskId primitive.ObjectID, msg *grpc.TaskServiceConnectRequest) (err error) {
+	var logs []string
+	err = json.Unmarshal(msg.Data, &logs)
+	if err != nil {
+		return trace.TraceError(err)
+	}
+	return svr.statsSvc.InsertLogs(taskId, logs...)
+}
+
+func (svr TaskServiceServer) getTaskQueueItemIdAndDequeue(query bson.M, opts *mongo.FindOptions, nid primitive.ObjectID) (tid primitive.ObjectID, err error) {
 	tq, err := service.NewModelServiceV2[models2.TaskQueueItemV2]().GetOne(query, opts)
 	if err != nil {
 		if errors.Is(err, mongo2.ErrNoDocuments) {
@@ -251,19 +308,9 @@ func (svr TaskServerV2) getTaskQueueItemIdAndDequeue(query bson.M, opts *mongo.F
 	return tq.Id, nil
 }
 
-func (svr TaskServerV2) deserialize(msg *grpc.StreamMessage) (data entity.StreamMessageTaskData, err error) {
-	if err := json.Unmarshal(msg.Data, &data); err != nil {
-		return data, trace.TraceError(err)
-	}
-	if data.TaskId.IsZero() {
-		return data, errors.New("invalid task id")
-	}
-	return data, nil
-}
-
-func NewTaskServerV2() (res *TaskServerV2, err error) {
+func NewTaskServiceServer() (res *TaskServiceServer, err error) {
 	// task server
-	svr := &TaskServerV2{}
+	svr := &TaskServiceServer{}
 
 	svr.cfgSvc = nodeconfig.GetNodeConfigService()
 

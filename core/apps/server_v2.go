@@ -104,9 +104,9 @@ func NewServerV2() (app NodeApp) {
 	// node service
 	var err error
 	if utils.IsMaster() {
-		svr.nodeSvc, err = service.GetMasterServiceV2()
+		svr.nodeSvc, err = service.GetMasterService()
 	} else {
-		svr.nodeSvc, err = service.GetWorkerServiceV2()
+		svr.nodeSvc, err = service.GetWorkerService()
 	}
 	if err != nil {
 		panic(err)
