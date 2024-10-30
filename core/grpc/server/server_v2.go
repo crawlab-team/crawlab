@@ -186,7 +186,7 @@ func NewGrpcServerV2() (svr *GrpcServer, err error) {
 	if err != nil {
 		return nil, err
 	}
-	svr.DependencySvr = GetDependenciesServerV2()
+	svr.DependencySvr = GetDependencyServerV2()
 	svr.MetricSvr = GetMetricsServerV2()
 
 	// recovery options
