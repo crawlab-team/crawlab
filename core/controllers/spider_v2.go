@@ -254,7 +254,7 @@ func PostSpider(c *gin.Context) {
 	}
 
 	// user
-	u := GetUserFromContextV2(c)
+	u := GetUserFromContext(c)
 
 	// add
 	s.SetCreated(u.Id)
@@ -306,7 +306,7 @@ func PutSpiderById(c *gin.Context) {
 		return
 	}
 
-	u := GetUserFromContextV2(c)
+	u := GetUserFromContext(c)
 
 	modelSvc := service.NewModelServiceV2[models2.SpiderV2]()
 
@@ -708,14 +708,14 @@ func GetSpiderResults(c *gin.Context) {
 	HandleSuccessWithListData(c, results, total)
 }
 
-func getSpiderFsSvc(s *models2.SpiderV2) (svc interfaces.FsServiceV2, err error) {
+func getSpiderFsSvc(s *models2.SpiderV2) (svc interfaces.FsService, err error) {
 	workspacePath := viper.GetString("workspace")
 	fsSvc := fs.NewFsServiceV2(filepath.Join(workspacePath, s.Id.Hex()))
 
 	return fsSvc, nil
 }
 
-func getSpiderFsSvcById(id primitive.ObjectID) (svc interfaces.FsServiceV2, err error) {
+func getSpiderFsSvcById(id primitive.ObjectID) (svc interfaces.FsService, err error) {
 	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
 	if err != nil {
 		log.Errorf("failed to get spider: %s", err.Error())

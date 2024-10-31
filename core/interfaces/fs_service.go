@@ -1,6 +1,6 @@
 package interfaces
 
-type FsServiceV2 interface {
+type FsService interface {
 	List(path string) (files []FsFileInfo, err error)
 	GetFile(path string) (data []byte, err error)
 	GetFileInfo(path string) (file FsFileInfo, err error)

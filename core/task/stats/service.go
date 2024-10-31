@@ -28,7 +28,7 @@ type databaseServiceItem struct {
 	time      time.Time
 }
 
-type ServiceV2 struct {
+type Service struct {
 	// dependencies
 	nodeCfgSvc interfaces.NodeConfigService
 
@@ -39,12 +39,12 @@ type ServiceV2 struct {
 	logDriver            log.Driver
 }
 
-func (svc *ServiceV2) Init() (err error) {
+func (svc *Service) Init() (err error) {
 	go svc.cleanup()
 	return nil
 }
 
-func (svc *ServiceV2) InsertData(taskId primitive.ObjectID, records ...map[string]interface{}) (err error) {
+func (svc *Service) InsertData(taskId primitive.ObjectID, records ...map[string]interface{}) (err error) {
 	count := 0
 
 	item, err := svc.getDatabaseServiceItem(taskId)
@@ -80,11 +80,11 @@ func (svc *ServiceV2) InsertData(taskId primitive.ObjectID, records ...map[strin
 	return nil
 }
 
-func (svc *ServiceV2) InsertLogs(id primitive.ObjectID, logs ...string) (err error) {
+func (svc *Service) InsertLogs(id primitive.ObjectID, logs ...string) (err error) {
 	return svc.logDriver.WriteLines(id.Hex(), logs)
 }
 
-func (svc *ServiceV2) getDatabaseServiceItem(taskId primitive.ObjectID) (item *databaseServiceItem, err error) {
+func (svc *Service) getDatabaseServiceItem(taskId primitive.ObjectID) (item *databaseServiceItem, err error) {
 	// atomic operation
 	svc.mu.Lock()
 	defer svc.mu.Unlock()
@@ -136,7 +136,7 @@ func (svc *ServiceV2) getDatabaseServiceItem(taskId primitive.ObjectID) (item *d
 	return item, nil
 }
 
-func (svc *ServiceV2) updateTaskStats(id primitive.ObjectID, resultCount int) {
+func (svc *Service) updateTaskStats(id primitive.ObjectID, resultCount int) {
 	err := service.NewModelServiceV2[models2.TaskStatV2]().UpdateById(id, bson.M{
 		"$inc": bson.M{
 			"result_count": resultCount,
@@ -147,7 +147,7 @@ func (svc *ServiceV2) updateTaskStats(id primitive.ObjectID, resultCount int) {
 	}
 }
 
-func (svc *ServiceV2) cleanup() {
+func (svc *Service) cleanup() {
 	for {
 		// atomic operation
 		svc.mu.Lock()
@@ -164,7 +164,7 @@ func (svc *ServiceV2) cleanup() {
 	}
 }
 
-func (svc *ServiceV2) normalizeRecord(item *databaseServiceItem, record map[string]interface{}) (res map[string]interface{}) {
+func (svc *Service) normalizeRecord(item *databaseServiceItem, record map[string]interface{}) (res map[string]interface{}) {
 	res = record
 
 	// set task id
@@ -176,9 +176,9 @@ func (svc *ServiceV2) normalizeRecord(item *databaseServiceItem, record map[stri
 	return res
 }
 
-func NewTaskStatsServiceV2() (svc2 *ServiceV2, err error) {
+func NewTaskStatsServiceV2() (svc2 *Service, err error) {
 	// service
-	svc := &ServiceV2{
+	svc := &Service{
 		mu:                   sync.Mutex{},
 		databaseServiceItems: map[string]*databaseServiceItem{},
 		databaseServiceTll:   10 * time.Minute,
@@ -195,9 +195,9 @@ func NewTaskStatsServiceV2() (svc2 *ServiceV2, err error) {
 	return svc, nil
 }
 
-var _serviceV2 *ServiceV2
+var _serviceV2 *Service
 
-func GetTaskStatsServiceV2() (svr *ServiceV2, err error) {
+func GetTaskStatsServiceV2() (svr *Service, err error) {
 	if _serviceV2 != nil {
 		return _serviceV2, nil
 	}

@@ -42,7 +42,7 @@ func PostSetting(c *gin.Context) {
 		s.Key = key
 	}
 
-	u := GetUserFromContextV2(c)
+	u := GetUserFromContext(c)
 
 	s.SetCreated(u.Id)
 	s.SetUpdated(u.Id)
@@ -77,7 +77,7 @@ func PutSetting(c *gin.Context) {
 		return
 	}
 
-	u := GetUserFromContextV2(c)
+	u := GetUserFromContext(c)
 
 	// save
 	_s.Value = s.Value

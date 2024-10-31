@@ -300,7 +300,7 @@ func PostTaskRun(c *gin.Context) {
 	}
 
 	// user
-	if u := GetUserFromContextV2(c); u != nil {
+	if u := GetUserFromContext(c); u != nil {
 		opts.UserId = u.Id
 	}
 
@@ -345,7 +345,7 @@ func PostTaskRestart(c *gin.Context) {
 	}
 
 	// user
-	if u := GetUserFromContextV2(c); u != nil {
+	if u := GetUserFromContext(c); u != nil {
 		opts.UserId = u.Id
 	}
 
@@ -396,7 +396,7 @@ func PostTaskCancel(c *gin.Context) {
 		return
 	}
 
-	u := GetUserFromContextV2(c)
+	u := GetUserFromContext(c)
 
 	// cancel
 	schedulerSvc, err := scheduler.GetTaskSchedulerServiceV2()

@@ -5,25 +5,17 @@ import (
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/entity"
-	"github.com/crawlab-team/crawlab/core/errors"
 	"github.com/crawlab-team/crawlab/core/grpc/middlewares"
 	"github.com/crawlab-team/crawlab/core/interfaces"
 	nodeconfig "github.com/crawlab-team/crawlab/core/node/config"
 	grpc2 "github.com/crawlab-team/crawlab/grpc"
-	"github.com/crawlab-team/crawlab/trace"
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
-	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	grpcmiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpcauth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	grpcrecovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	errors2 "github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"net"
-	"sync"
-)
-
-var (
-	subsV2      = map[string]interfaces.GrpcSubscribe{}
-	mutexSubsV2 = &sync.Mutex{}
 )
 
 type GrpcServer struct {
@@ -57,7 +49,7 @@ func (svr *GrpcServer) SetConfigPath(path string) {
 
 func (svr *GrpcServer) Init() (err error) {
 	// register
-	if err := svr.Register(); err != nil {
+	if err := svr.register(); err != nil {
 		return err
 	}
 
@@ -71,10 +63,10 @@ func (svr *GrpcServer) Start() (err error) {
 	// listener
 	svr.l, err = net.Listen("tcp", address)
 	if err != nil {
-		_ = trace.TraceError(err)
-		return errors.ErrorGrpcServerFailedToListen
+		log.Errorf("[GrpcServer] failed to listen: %v", err)
+		return err
 	}
-	log.Infof("grpc server listens to %s", address)
+	log.Infof("[GrpcServer] grpc server listens to %s", address)
 
 	// start grpc server
 	go func() {
@@ -82,8 +74,7 @@ func (svr *GrpcServer) Start() (err error) {
 			if errors2.Is(err, grpc.ErrServerStopped) {
 				return
 			}
-			trace.PrintError(err)
-			log.Error(errors.ErrorGrpcServerFailedToServe.Error())
+			log.Errorf("[GrpcServer] failed to serve: %v", err)
 		}
 	}()
 
@@ -97,23 +88,23 @@ func (svr *GrpcServer) Stop() (err error) {
 	}
 
 	// graceful stop
-	log.Infof("grpc server stopping...")
+	log.Infof("[GrpcServer] grpc server stopping...")
 	svr.svr.Stop()
 
 	// close listener
-	log.Infof("grpc server closing listener...")
+	log.Infof("[GrpcServer] grpc server closing listener...")
 	_ = svr.l.Close()
 
 	// mark as stopped
 	svr.stopped = true
 
 	// log
-	log.Infof("grpc server stopped")
+	log.Infof("[GrpcServer] grpc server stopped")
 
 	return nil
 }
 
-func (svr *GrpcServer) Register() (err error) {
+func (svr *GrpcServer) register() (err error) {
 	grpc2.RegisterNodeServiceServer(svr.svr, *svr.NodeSvr)
 	grpc2.RegisterModelBaseServiceV2Server(svr.svr, *svr.ModelBaseServiceSvr)
 	grpc2.RegisterTaskServiceServer(svr.svr, *svr.TaskSvr)
@@ -124,42 +115,11 @@ func (svr *GrpcServer) Register() (err error) {
 }
 
 func (svr *GrpcServer) recoveryHandlerFunc(p interface{}) (err error) {
-	err = errors.NewError(errors.ErrorPrefixGrpc, fmt.Sprintf("%v", p))
-	trace.PrintError(err)
-	return err
+	log.Errorf("[GrpcServer] recovered from panic: %v", p)
+	return fmt.Errorf("recovered from panic: %v", p)
 }
 
-func (svr *GrpcServer) SetAddress(address interfaces.Address) {
-
-}
-
-func (svr *GrpcServer) GetSubscribe(key string) (sub interfaces.GrpcSubscribe, err error) {
-	mutexSubsV2.Lock()
-	defer mutexSubsV2.Unlock()
-	sub, ok := subsV2[key]
-	if !ok {
-		return nil, errors.ErrorGrpcSubscribeNotExists
-	}
-	return sub, nil
-}
-
-func (svr *GrpcServer) SetSubscribe(key string, sub interfaces.GrpcSubscribe) {
-	mutexSubsV2.Lock()
-	defer mutexSubsV2.Unlock()
-	subsV2[key] = sub
-}
-
-func (svr *GrpcServer) DeleteSubscribe(key string) {
-	mutexSubsV2.Lock()
-	defer mutexSubsV2.Unlock()
-	delete(subsV2, key)
-}
-
-func (svr *GrpcServer) IsStopped() (res bool) {
-	return svr.stopped
-}
-
-func NewGrpcServerV2() (svr *GrpcServer, err error) {
+func NewGrpcServer() (svr *GrpcServer, err error) {
 	// server
 	svr = &GrpcServer{
 		address: entity.NewAddress(&entity.AddressOptions{
@@ -190,19 +150,19 @@ func NewGrpcServerV2() (svr *GrpcServer, err error) {
 	svr.MetricSvr = GetMetricsServerV2()
 
 	// recovery options
-	recoveryOpts := []grpc_recovery.Option{
-		grpc_recovery.WithRecoveryHandler(svr.recoveryHandlerFunc),
+	recoveryOpts := []grpcrecovery.Option{
+		grpcrecovery.WithRecoveryHandler(svr.recoveryHandlerFunc),
 	}
 
 	// grpc server
 	svr.svr = grpc.NewServer(
-		grpc_middleware.WithUnaryServerChain(
-			grpc_recovery.UnaryServerInterceptor(recoveryOpts...),
-			grpc_auth.UnaryServerInterceptor(middlewares.GetAuthTokenFunc(svr.nodeCfgSvc)),
+		grpcmiddleware.WithUnaryServerChain(
+			grpcrecovery.UnaryServerInterceptor(recoveryOpts...),
+			grpcauth.UnaryServerInterceptor(middlewares.GetAuthTokenFunc(svr.nodeCfgSvc)),
 		),
-		grpc_middleware.WithStreamServerChain(
-			grpc_recovery.StreamServerInterceptor(recoveryOpts...),
-			grpc_auth.StreamServerInterceptor(middlewares.GetAuthTokenFunc(svr.nodeCfgSvc)),
+		grpcmiddleware.WithStreamServerChain(
+			grpcrecovery.StreamServerInterceptor(recoveryOpts...),
+			grpcauth.StreamServerInterceptor(middlewares.GetAuthTokenFunc(svr.nodeCfgSvc)),
 		),
 	)
 
@@ -220,7 +180,7 @@ func GetGrpcServerV2() (svr *GrpcServer, err error) {
 	if _serverV2 != nil {
 		return _serverV2, nil
 	}
-	_serverV2, err = NewGrpcServerV2()
+	_serverV2, err = NewGrpcServer()
 	if err != nil {
 		return nil, err
 	}

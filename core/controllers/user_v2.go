@@ -19,7 +19,7 @@ func PostUser(c *gin.Context) {
 		HandleErrorBadRequest(c, err)
 		return
 	}
-	u := GetUserFromContextV2(c)
+	u := GetUserFromContext(c)
 	model := models.UserV2{
 		Username: payload.Username,
 		Password: utils.EncryptMd5(payload.Password),
@@ -62,7 +62,7 @@ func PostUserChangePassword(c *gin.Context) {
 	}
 
 	// get user
-	u := GetUserFromContextV2(c)
+	u := GetUserFromContext(c)
 	modelSvc := service.NewModelServiceV2[models.UserV2]()
 
 	// update password
@@ -83,7 +83,7 @@ func PostUserChangePassword(c *gin.Context) {
 }
 
 func GetUserMe(c *gin.Context) {
-	u := GetUserFromContextV2(c)
+	u := GetUserFromContext(c)
 	_u, err := service.NewModelServiceV2[models.UserV2]().GetById(u.Id)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
@@ -101,7 +101,7 @@ func PutUserById(c *gin.Context) {
 	}
 
 	// get user
-	u := GetUserFromContextV2(c)
+	u := GetUserFromContext(c)
 
 	modelSvc := service.NewModelServiceV2[models.UserV2]()
 

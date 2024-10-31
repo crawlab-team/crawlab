@@ -23,8 +23,8 @@ import (
 type WorkerService struct {
 	// dependencies
 	cfgSvc     interfaces.NodeConfigService
-	client     *client.GrpcClientV2
-	handlerSvc *handler.ServiceV2
+	client     *client.GrpcClient
+	handlerSvc *handler.Service
 
 	// settings
 	cfgPath           string
@@ -188,20 +188,14 @@ func newWorkerService() (res *WorkerService, err error) {
 		heartbeatInterval: 15 * time.Second,
 	}
 
-	// dependency options
-	var clientOpts []client.Option
-	if svc.address != nil {
-		clientOpts = append(clientOpts, client.WithAddress(svc.address))
-	}
-
 	// node config service
 	svc.cfgSvc = nodeconfig.GetNodeConfigService()
 
 	// grpc client
-	svc.client = client.GetGrpcClientV2()
+	svc.client = client.GetGrpcClient()
 
 	// handler service
-	svc.handlerSvc, err = handler.GetTaskHandlerServiceV2()
+	svc.handlerSvc, err = handler.GetTaskHandlerService()
 	if err != nil {
 		return nil, err
 	}

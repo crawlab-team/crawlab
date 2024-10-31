@@ -35,8 +35,8 @@ import (
 
 type RunnerV2 struct {
 	// dependencies
-	svc   *ServiceV2             // task handler service
-	fsSvc interfaces.FsServiceV2 // task fs service
+	svc   *Service             // task handler service
+	fsSvc interfaces.FsService // task fs service
 
 	// settings
 	subscribeTimeout time.Duration
@@ -51,7 +51,7 @@ type RunnerV2 struct {
 	ch   chan constants.TaskSignal      // channel to communicate between Service and RunnerV2
 	err  error                          // standard process error
 	cwd  string                         // working directory
-	c    *client2.GrpcClientV2          // grpc client
+	c    *client2.GrpcClient            // grpc client
 	conn grpc.TaskService_ConnectClient // grpc task service stream client
 
 	// log internals
@@ -668,7 +668,7 @@ func (r *RunnerV2) configureCwd() {
 	}
 }
 
-func NewTaskRunnerV2(id primitive.ObjectID, svc *ServiceV2) (r2 *RunnerV2, err error) {
+func NewTaskRunnerV2(id primitive.ObjectID, svc *Service) (r2 *RunnerV2, err error) {
 	// validate options
 	if id.IsZero() {
 		return nil, constants.ErrInvalidOptions
@@ -700,7 +700,7 @@ func NewTaskRunnerV2(id primitive.ObjectID, svc *ServiceV2) (r2 *RunnerV2, err e
 	r.fsSvc = fs.NewFsServiceV2(filepath.Join(viper.GetString("workspace"), r.s.Id.Hex()))
 
 	// grpc client
-	r.c = client2.GetGrpcClientV2()
+	r.c = client2.GetGrpcClient()
 
 	// initialize task runner
 	if err := r.Init(); err != nil {

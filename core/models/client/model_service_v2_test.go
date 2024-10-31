@@ -46,7 +46,7 @@ func stopSvr(svr *server.GrpcServer) {
 func TestModelServiceV2_GetById(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
-	svr, err := server.NewGrpcServerV2()
+	svr, err := server.NewGrpcServer()
 	require.Nil(t, err)
 	go startSvr(svr)
 	defer stopSvr(svr)
@@ -74,7 +74,7 @@ func TestModelServiceV2_GetById(t *testing.T) {
 func TestModelServiceV2_GetOne(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
-	svr, err := server.NewGrpcServerV2()
+	svr, err := server.NewGrpcServer()
 	require.Nil(t, err)
 	go startSvr(svr)
 	defer stopSvr(svr)
@@ -102,7 +102,7 @@ func TestModelServiceV2_GetOne(t *testing.T) {
 func TestModelServiceV2_GetMany(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
-	svr, err := server.NewGrpcServerV2()
+	svr, err := server.NewGrpcServer()
 	require.Nil(t, err)
 	go startSvr(svr)
 	defer stopSvr(svr)
@@ -131,7 +131,7 @@ func TestModelServiceV2_GetMany(t *testing.T) {
 func TestModelServiceV2_DeleteById(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
-	svr, err := server.NewGrpcServerV2()
+	svr, err := server.NewGrpcServer()
 	require.Nil(t, err)
 	go startSvr(svr)
 	defer stopSvr(svr)
@@ -161,7 +161,7 @@ func TestModelServiceV2_DeleteById(t *testing.T) {
 func TestModelServiceV2_DeleteOne(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
-	svr, err := server.NewGrpcServerV2()
+	svr, err := server.NewGrpcServer()
 	require.Nil(t, err)
 	go startSvr(svr)
 	defer stopSvr(svr)
@@ -191,7 +191,7 @@ func TestModelServiceV2_DeleteOne(t *testing.T) {
 func TestModelServiceV2_DeleteMany(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
-	svr, err := server.NewGrpcServerV2()
+	svr, err := server.NewGrpcServer()
 	require.Nil(t, err)
 	go startSvr(svr)
 	defer stopSvr(svr)
@@ -221,7 +221,7 @@ func TestModelServiceV2_DeleteMany(t *testing.T) {
 func TestModelServiceV2_UpdateById(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
-	svr, err := server.NewGrpcServerV2()
+	svr, err := server.NewGrpcServer()
 	require.Nil(t, err)
 	go startSvr(svr)
 	defer stopSvr(svr)
@@ -251,7 +251,7 @@ func TestModelServiceV2_UpdateById(t *testing.T) {
 func TestModelServiceV2_UpdateOne(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
-	svr, err := server.NewGrpcServerV2()
+	svr, err := server.NewGrpcServer()
 	require.Nil(t, err)
 	go startSvr(svr)
 	defer stopSvr(svr)
@@ -281,7 +281,7 @@ func TestModelServiceV2_UpdateOne(t *testing.T) {
 func TestModelServiceV2_UpdateMany(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
-	svr, err := server.NewGrpcServerV2()
+	svr, err := server.NewGrpcServer()
 	require.Nil(t, err)
 	go startSvr(svr)
 	defer stopSvr(svr)
@@ -315,7 +315,7 @@ func TestModelServiceV2_UpdateMany(t *testing.T) {
 func TestModelServiceV2_ReplaceById(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
-	svr, err := server.NewGrpcServerV2()
+	svr, err := server.NewGrpcServer()
 	require.Nil(t, err)
 	go startSvr(svr)
 	defer stopSvr(svr)
@@ -346,7 +346,7 @@ func TestModelServiceV2_ReplaceById(t *testing.T) {
 func TestModelServiceV2_ReplaceOne(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
-	svr, err := server.NewGrpcServerV2()
+	svr, err := server.NewGrpcServer()
 	require.Nil(t, err)
 	go startSvr(svr)
 	defer stopSvr(svr)
@@ -377,7 +377,7 @@ func TestModelServiceV2_ReplaceOne(t *testing.T) {
 func TestModelServiceV2_InsertOne(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
-	svr, err := server.NewGrpcServerV2()
+	svr, err := server.NewGrpcServer()
 	require.Nil(t, err)
 	go startSvr(svr)
 	defer stopSvr(svr)
@@ -401,7 +401,7 @@ func TestModelServiceV2_InsertOne(t *testing.T) {
 func TestModelServiceV2_InsertMany(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
-	svr, err := server.NewGrpcServerV2()
+	svr, err := server.NewGrpcServer()
 	require.Nil(t, err)
 	go startSvr(svr)
 	defer stopSvr(svr)
@@ -428,7 +428,7 @@ func TestModelServiceV2_InsertMany(t *testing.T) {
 func TestModelServiceV2_Count(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
-	svr, err := server.NewGrpcServerV2()
+	svr, err := server.NewGrpcServer()
 	require.Nil(t, err)
 	go startSvr(svr)
 	defer stopSvr(svr)

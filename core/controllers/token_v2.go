@@ -18,7 +18,7 @@ func PostToken(c *gin.Context) {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
-	u := GetUserFromContextV2(c)
+	u := GetUserFromContext(c)
 	t.SetCreated(u.Id)
 	t.SetUpdated(u.Id)
 	t.Token, err = svc.MakeToken(u)

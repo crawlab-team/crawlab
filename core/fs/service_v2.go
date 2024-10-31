@@ -170,7 +170,7 @@ func (svc *ServiceV2) Export() (resultPath string, err error) {
 	return zipFilePath, nil
 }
 
-func NewFsServiceV2(path string) (svc interfaces.FsServiceV2) {
+func NewFsServiceV2(path string) (svc interfaces.FsService) {
 	return &ServiceV2{
 		rootPath:  path,
 		skipNames: []string{".git"},

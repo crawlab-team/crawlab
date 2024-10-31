@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	errors2 "errors"
+	"fmt"
 	"github.com/apex/log"
 	"github.com/crawlab-team/crawlab/core/constants"
 	"github.com/crawlab-team/crawlab/core/errors"
@@ -24,7 +25,7 @@ type ServiceV2 struct {
 	// dependencies
 	nodeCfgSvc interfaces.NodeConfigService
 	svr        *server.GrpcServer
-	handlerSvc *handler.ServiceV2
+	handlerSvc *handler.Service
 
 	// settings
 	interval time.Duration
@@ -80,25 +81,23 @@ func (svc *ServiceV2) Enqueue(t *models2.TaskV2, by primitive.ObjectID) (t2 *mod
 	return t, nil
 }
 
-func (svc *ServiceV2) Cancel(id primitive.ObjectID, by primitive.ObjectID, force bool) (err error) {
+func (svc *ServiceV2) Cancel(id, by primitive.ObjectID, force bool) (err error) {
 	// task
 	t, err := service.NewModelServiceV2[models2.TaskV2]().GetById(id)
 	if err != nil {
-		return trace.TraceError(err)
+		log.Errorf("task not found: %s", id.Hex())
+		return err
 	}
 
 	// initial status
 	initialStatus := t.Status
 
-	// set task status as "cancelled"
-	t.Status = constants.TaskStatusCancelled
-	_ = svc.SaveTask(t, by)
-
 	// set status of pending tasks as "cancelled" and remove from task item queue
 	if initialStatus == constants.TaskStatusPending {
 		// remove from task item queue
 		if err := service.NewModelServiceV2[models2.TaskQueueItemV2]().DeleteById(t.Id); err != nil {
-			return trace.TraceError(err)
+			log.Errorf("failed to delete task queue item: %s", t.Id.Hex())
+			return err
 		}
 		return nil
 	}
@@ -106,32 +105,55 @@ func (svc *ServiceV2) Cancel(id primitive.ObjectID, by primitive.ObjectID, force
 	// whether task is running on master node
 	isMasterTask, err := svc.isMasterNode(t)
 	if err != nil {
-		// when error, force status being set as "cancelled"
-		t.Status = constants.TaskStatusCancelled
+		err := fmt.Errorf("failed to check if task is running on master node: %s", t.Id.Hex())
+		t.Status = constants.TaskStatusAbnormal
+		t.Error = err.Error()
 		return svc.SaveTask(t, by)
-	}
-
-	// node
-	n, err := service.NewModelServiceV2[models2.NodeV2]().GetById(t.NodeId)
-	if err != nil {
-		return trace.TraceError(err)
 	}
 
 	if isMasterTask {
 		// cancel task on master
-		if err := svc.handlerSvc.Cancel(id, force); err != nil {
-			return trace.TraceError(err)
-		}
-		// cancel success
-		return nil
+		return svc.cancelOnMaster(t, by, force)
 	} else {
 		// send to cancel task on worker nodes
-		if err := svc.svr.SendStreamMessageWithData("node:"+n.Key, grpc.StreamMessageCode_CANCEL_TASK, t); err != nil {
-			return trace.TraceError(err)
-		}
-		// cancel success
-		return nil
+		return svc.cancelOnWorker(t, by, force)
 	}
+}
+
+func (svc *ServiceV2) cancelOnMaster(t *models2.TaskV2, by primitive.ObjectID, force bool) (err error) {
+	if err := svc.handlerSvc.Cancel(t.Id, force); err != nil {
+		log.Errorf("failed to cancel task on master: %s", t.Id.Hex())
+		return err
+	}
+
+	// set task status as "cancelled"
+	t.Status = constants.TaskStatusCancelled
+	return svc.SaveTask(t, by)
+}
+
+func (svc *ServiceV2) cancelOnWorker(t *models2.TaskV2, by primitive.ObjectID, force bool) (err error) {
+	// get subscribe stream
+	stream, ok := svc.svr.TaskSvr.GetSubscribeStream(t.Id)
+	if !ok {
+		err := fmt.Errorf("stream not found for task: %s", t.Id.Hex())
+		log.Errorf(err.Error())
+		t.Status = constants.TaskStatusAbnormal
+		t.Error = err.Error()
+		return svc.SaveTask(t, by)
+	}
+
+	// send cancel request
+	err = stream.Send(&grpc.TaskServiceSubscribeResponse{
+		Code:   grpc.TaskServiceSubscribeCode_CANCEL,
+		TaskId: t.Id.Hex(),
+		Force:  force,
+	})
+	if err != nil {
+		log.Errorf("failed to send cancel request to worker: %s", t.Id.Hex())
+		return err
+	}
+
+	return nil
 }
 
 func (svc *ServiceV2) SetInterval(interval time.Duration) {
@@ -244,7 +266,7 @@ func NewTaskSchedulerServiceV2() (svc2 *ServiceV2, err error) {
 		log.Errorf("failed to get grpc server: %v", err)
 		return nil, err
 	}
-	svc.handlerSvc, err = handler.GetTaskHandlerServiceV2()
+	svc.handlerSvc, err = handler.GetTaskHandlerService()
 	if err != nil {
 		log.Errorf("failed to get task handler service: %v", err)
 		return nil, err

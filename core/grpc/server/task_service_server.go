@@ -31,11 +31,10 @@ type TaskServiceServer struct {
 
 	// dependencies
 	cfgSvc   interfaces.NodeConfigService
-	statsSvc *stats.ServiceV2
+	statsSvc *stats.Service
 
 	// internals
-	server interfaces.GrpcServer
-	subs   map[primitive.ObjectID]grpc.TaskService_SubscribeServer
+	subs map[primitive.ObjectID]grpc.TaskService_SubscribeServer
 }
 
 func (svr TaskServiceServer) Subscribe(req *grpc.TaskServiceSubscribeRequest, stream grpc.TaskService_SubscribeServer) (err error) {

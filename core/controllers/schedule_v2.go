@@ -16,7 +16,7 @@ func PostSchedule(c *gin.Context) {
 		return
 	}
 
-	u := GetUserFromContextV2(c)
+	u := GetUserFromContext(c)
 
 	modelSvc := service.NewModelServiceV2[models.ScheduleV2]()
 
@@ -73,7 +73,7 @@ func PutScheduleById(c *gin.Context) {
 		return
 	}
 
-	u := GetUserFromContextV2(c)
+	u := GetUserFromContext(c)
 
 	if s.Enabled {
 		if err := scheduleSvc.Enable(s, u.Id); err != nil {
@@ -115,7 +115,7 @@ func postScheduleEnableDisableFunc(isEnable bool) func(c *gin.Context) {
 			HandleErrorInternalServerError(c, err)
 			return
 		}
-		u := GetUserFromContextV2(c)
+		u := GetUserFromContext(c)
 		if isEnable {
 			err = svc.Enable(*s, u.Id)
 		} else {

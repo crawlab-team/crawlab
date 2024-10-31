@@ -21,7 +21,7 @@ var (
 
 type ModelServiceV2[T any] struct {
 	cfg       interfaces.NodeConfigService
-	c         *client.GrpcClientV2
+	c         *client.GrpcClient
 	modelType string
 }
 
@@ -336,7 +336,7 @@ func NewModelServiceV2[T any]() *ModelServiceV2[T] {
 
 	var instance *ModelServiceV2[T]
 
-	c := client.GetGrpcClientV2()
+	c := client.GetGrpcClient()
 	if !c.IsStarted() {
 		err := c.Start()
 		if err != nil {
