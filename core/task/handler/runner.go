@@ -33,7 +33,7 @@ import (
 	"time"
 )
 
-type RunnerV2 struct {
+type Runner struct {
 	// dependencies
 	svc   *Service             // task handler service
 	fsSvc interfaces.FsService // task fs service
@@ -48,7 +48,7 @@ type RunnerV2 struct {
 	tid  primitive.ObjectID             // task id
 	t    *models.TaskV2                 // task model.Task
 	s    *models.SpiderV2               // spider model.Spider
-	ch   chan constants.TaskSignal      // channel to communicate between Service and RunnerV2
+	ch   chan constants.TaskSignal      // channel to communicate between Service and Runner
 	err  error                          // standard process error
 	cwd  string                         // working directory
 	c    *client2.GrpcClient            // grpc client
@@ -60,7 +60,7 @@ type RunnerV2 struct {
 	logBatchSize  int
 }
 
-func (r *RunnerV2) Init() (err error) {
+func (r *Runner) Init() (err error) {
 	// update task
 	if err := r.updateTask("", nil); err != nil {
 		return err
@@ -82,7 +82,7 @@ func (r *RunnerV2) Init() (err error) {
 	return nil
 }
 
-func (r *RunnerV2) Run() (err error) {
+func (r *Runner) Run() (err error) {
 	// log task started
 	log.Infof("task[%s] started", r.tid.Hex())
 
@@ -165,7 +165,7 @@ func (r *RunnerV2) Run() (err error) {
 	return err
 }
 
-func (r *RunnerV2) Cancel(force bool) (err error) {
+func (r *Runner) Cancel(force bool) (err error) {
 	// kill process
 	opts := &sys_exec.KillProcessOptions{
 		Timeout: r.svc.GetCancelTimeout(),
@@ -191,15 +191,15 @@ func (r *RunnerV2) Cancel(force bool) (err error) {
 	}
 }
 
-func (r *RunnerV2) SetSubscribeTimeout(timeout time.Duration) {
+func (r *Runner) SetSubscribeTimeout(timeout time.Duration) {
 	r.subscribeTimeout = timeout
 }
 
-func (r *RunnerV2) GetTaskId() (id primitive.ObjectID) {
+func (r *Runner) GetTaskId() (id primitive.ObjectID) {
 	return r.tid
 }
 
-func (r *RunnerV2) configureCmd() (err error) {
+func (r *Runner) configureCmd() (err error) {
 	var cmdStr string
 
 	// customized spider
@@ -230,7 +230,7 @@ func (r *RunnerV2) configureCmd() (err error) {
 	return nil
 }
 
-func (r *RunnerV2) configureLogging() {
+func (r *Runner) configureLogging() {
 	// set stdout reader
 	stdout, _ := r.cmd.StdoutPipe()
 	r.scannerStdout = bufio.NewReaderSize(stdout, r.bufferSize)
@@ -240,7 +240,7 @@ func (r *RunnerV2) configureLogging() {
 	r.scannerStderr = bufio.NewReaderSize(stderr, r.bufferSize)
 }
 
-func (r *RunnerV2) startLogging() {
+func (r *Runner) startLogging() {
 	// start reading stdout
 	go r.startLoggingReaderStdout()
 
@@ -248,7 +248,7 @@ func (r *RunnerV2) startLogging() {
 	go r.startLoggingReaderStderr()
 }
 
-func (r *RunnerV2) startLoggingReaderStdout() {
+func (r *Runner) startLoggingReaderStdout() {
 	for {
 		line, err := r.scannerStdout.ReadString(byte('\n'))
 		if err != nil {
@@ -259,7 +259,7 @@ func (r *RunnerV2) startLoggingReaderStdout() {
 	}
 }
 
-func (r *RunnerV2) startLoggingReaderStderr() {
+func (r *Runner) startLoggingReaderStderr() {
 	for {
 		line, err := r.scannerStderr.ReadString(byte('\n'))
 		if err != nil {
@@ -270,7 +270,7 @@ func (r *RunnerV2) startLoggingReaderStderr() {
 	}
 }
 
-func (r *RunnerV2) startHealthCheck() {
+func (r *Runner) startHealthCheck() {
 	if r.cmd.ProcessState == nil || r.cmd.ProcessState.Exited() {
 		return
 	}
@@ -285,7 +285,7 @@ func (r *RunnerV2) startHealthCheck() {
 	}
 }
 
-func (r *RunnerV2) configureEnv() {
+func (r *Runner) configureEnv() {
 	// 默认把Node.js的全局node_modules加入环境变量
 	envPath := os.Getenv("PATH")
 	nodePath := "/usr/lib/node_modules"
@@ -316,7 +316,7 @@ func (r *RunnerV2) configureEnv() {
 	}
 }
 
-func (r *RunnerV2) syncFiles() (err error) {
+func (r *Runner) syncFiles() (err error) {
 	var id string
 	var workingDir string
 	if r.s.GitId.IsZero() {
@@ -425,7 +425,7 @@ func (r *RunnerV2) syncFiles() (err error) {
 	return err
 }
 
-func (r *RunnerV2) downloadFile(url string, filePath string, fileInfo *entity.FsFileInfo) error {
+func (r *Runner) downloadFile(url string, filePath string, fileInfo *entity.FsFileInfo) error {
 	// get file response
 	resp, err := http.Get(url)
 	if err != nil {
@@ -465,8 +465,8 @@ func (r *RunnerV2) downloadFile(url string, filePath string, fileInfo *entity.Fs
 }
 
 // wait for process to finish and send task signal (constants.TaskSignal)
-// to task runner's channel (RunnerV2.ch) according to exit code
-func (r *RunnerV2) wait() {
+// to task runner's channel (Runner.ch) according to exit code
+func (r *Runner) wait() {
 	// wait for process to finish
 	if err := r.cmd.Wait(); err != nil {
 		var exitError *exec.ExitError
@@ -492,8 +492,8 @@ func (r *RunnerV2) wait() {
 	r.ch <- constants.TaskSignalFinish
 }
 
-// updateTask update and get updated info of task (RunnerV2.t)
-func (r *RunnerV2) updateTask(status string, e error) (err error) {
+// updateTask update and get updated info of task (Runner.t)
+func (r *Runner) updateTask(status string, e error) (err error) {
 	if r.t != nil && status != "" {
 		// update task status
 		r.t.Status = status
@@ -529,7 +529,7 @@ func (r *RunnerV2) updateTask(status string, e error) (err error) {
 	return nil
 }
 
-func (r *RunnerV2) initConnection() (err error) {
+func (r *Runner) initConnection() (err error) {
 	r.conn, err = r.c.TaskClient.Connect(context.Background())
 	if err != nil {
 		return trace.TraceError(err)
@@ -537,7 +537,7 @@ func (r *RunnerV2) initConnection() (err error) {
 	return nil
 }
 
-func (r *RunnerV2) writeLogLines(lines []string) {
+func (r *Runner) writeLogLines(lines []string) {
 	linesBytes, err := json.Marshal(lines)
 	if err != nil {
 		log.Errorf("Error marshaling log lines: %v", err)
@@ -554,7 +554,7 @@ func (r *RunnerV2) writeLogLines(lines []string) {
 	}
 }
 
-func (r *RunnerV2) _updateTaskStat(status string) {
+func (r *Runner) _updateTaskStat(status string) {
 	ts, err := client.NewModelServiceV2[models.TaskStatV2]().GetById(r.tid)
 	if err != nil {
 		trace.PrintError(err)
@@ -590,7 +590,7 @@ func (r *RunnerV2) _updateTaskStat(status string) {
 	}
 }
 
-func (r *RunnerV2) sendNotification() {
+func (r *Runner) sendNotification() {
 	req := &grpc.TaskServiceSendNotificationRequest{
 		NodeKey: r.svc.GetNodeConfigService().GetNodeKey(),
 		TaskId:  r.tid.Hex(),
@@ -603,7 +603,7 @@ func (r *RunnerV2) sendNotification() {
 	}
 }
 
-func (r *RunnerV2) _updateSpiderStat(status string) {
+func (r *Runner) _updateSpiderStat(status string) {
 	// task stat
 	ts, err := client.NewModelServiceV2[models.TaskStatV2]().GetById(r.tid)
 	if err != nil {
@@ -657,7 +657,7 @@ func (r *RunnerV2) _updateSpiderStat(status string) {
 	}
 }
 
-func (r *RunnerV2) configureCwd() {
+func (r *Runner) configureCwd() {
 	workspacePath := viper.GetString("workspace")
 	if r.s.GitId.IsZero() {
 		// not git
@@ -668,14 +668,14 @@ func (r *RunnerV2) configureCwd() {
 	}
 }
 
-func NewTaskRunnerV2(id primitive.ObjectID, svc *Service) (r2 *RunnerV2, err error) {
+func NewTaskRunnerV2(id primitive.ObjectID, svc *Service) (r2 *Runner, err error) {
 	// validate options
 	if id.IsZero() {
 		return nil, constants.ErrInvalidOptions
 	}
 
 	// runner
-	r := &RunnerV2{
+	r := &Runner{
 		subscribeTimeout: 30 * time.Second,
 		bufferSize:       1024 * 1024,
 		svc:              svc,

@@ -54,26 +54,14 @@ func (svr TaskServiceServer) Subscribe(req *grpc.TaskServiceSubscribeRequest, st
 	svr.subs[taskId] = stream
 	taskServiceMutex.Unlock()
 
-	// create a new goroutine to receive messages from the stream to listen for EOF (end of stream)
-	go func() {
-		for {
-			select {
-			case <-stream.Context().Done():
-				taskServiceMutex.Lock()
-				delete(svr.subs, taskId)
-				taskServiceMutex.Unlock()
-				return
-			default:
-				err := stream.RecvMsg(nil)
-				if err == io.EOF {
-					taskServiceMutex.Lock()
-					delete(svr.subs, taskId)
-					taskServiceMutex.Unlock()
-					return
-				}
-			}
-		}
-	}()
+	// wait for stream to close
+	<-stream.Context().Done()
+
+	// remove stream
+	taskServiceMutex.Lock()
+	delete(svr.subs, taskId)
+	taskServiceMutex.Unlock()
+	log.Infof("[TaskServiceServer] task stream closed: %s", taskId.Hex())
 
 	return nil
 }
@@ -129,33 +117,47 @@ func (svr TaskServiceServer) FetchTask(ctx context.Context, request *grpc.TaskSe
 	var tid primitive.ObjectID
 	opts := &mongo.FindOptions{
 		Sort: bson.D{
-			{"p", 1},
+			{"priority", 1},
 			{"_id", 1},
 		},
 		Limit: 1,
 	}
 	if err := mongo.RunTransactionWithContext(ctx, func(sc mongo2.SessionContext) (err error) {
-		// get task queue item assigned to this node
-		tid, err = svr.getTaskQueueItemIdAndDequeue(bson.M{"nid": n.Id}, opts, n.Id)
-		if err != nil {
+		// fetch task for the given node
+		t, err := service.NewModelServiceV2[models2.TaskV2]().GetOne(bson.M{
+			"node_id": n.Id,
+			"status":  constants.TaskStatusPending,
+		}, opts)
+		if err == nil {
+			tid = t.Id
+			t.Status = constants.TaskStatusAssigned
+			return svr.saveTask(t)
+		} else if !errors.Is(err, mongo2.ErrNoDocuments) {
+			log.Errorf("error fetching task for node[%s]: %v", nodeKey, err)
 			return err
-		}
-		if !tid.IsZero() {
-			return nil
 		}
 
-		// get task queue item assigned to any node (random mode)
-		tid, err = svr.getTaskQueueItemIdAndDequeue(bson.M{"nid": nil}, opts, n.Id)
-		if !tid.IsZero() {
-			return nil
-		}
-		if err != nil {
+		// fetch task for any node
+		t, err = service.NewModelServiceV2[models2.TaskV2]().GetOne(bson.M{
+			"node_id": primitive.NilObjectID,
+			"status":  constants.TaskStatusPending,
+		}, opts)
+		if err == nil {
+			tid = t.Id
+			t.NodeId = n.Id
+			t.Status = constants.TaskStatusAssigned
+			return svr.saveTask(t)
+		} else if !errors.Is(err, mongo2.ErrNoDocuments) {
+			log.Errorf("error fetching task for any node: %v", err)
 			return err
 		}
+
+		// no task found
 		return nil
 	}); err != nil {
 		return nil, err
 	}
+
 	return &grpc.TaskServiceFetchTaskResponse{TaskId: tid.Hex()}, nil
 }
 
@@ -284,32 +286,16 @@ func (svr TaskServiceServer) handleInsertLogs(taskId primitive.ObjectID, msg *gr
 	return svr.statsSvc.InsertLogs(taskId, logs...)
 }
 
-func (svr TaskServiceServer) getTaskQueueItemIdAndDequeue(query bson.M, opts *mongo.FindOptions, nid primitive.ObjectID) (tid primitive.ObjectID, err error) {
-	tq, err := service.NewModelServiceV2[models2.TaskQueueItemV2]().GetOne(query, opts)
-	if err != nil {
-		if errors.Is(err, mongo2.ErrNoDocuments) {
-			return tid, nil
-		}
-		return tid, trace.TraceError(err)
-	}
-	t, err := service.NewModelServiceV2[models2.TaskV2]().GetById(tq.Id)
-	if err == nil {
-		t.NodeId = nid
-		err = service.NewModelServiceV2[models2.TaskV2]().ReplaceById(t.Id, *t)
-		if err != nil {
-			return tid, trace.TraceError(err)
-		}
-	}
-	err = service.NewModelServiceV2[models2.TaskQueueItemV2]().DeleteById(tq.Id)
-	if err != nil {
-		return tid, trace.TraceError(err)
-	}
-	return tq.Id, nil
+func (svr TaskServiceServer) saveTask(t *models2.TaskV2) (err error) {
+	t.SetUpdated(t.CreatedBy)
+	return service.NewModelServiceV2[models2.TaskV2]().ReplaceById(t.Id, *t)
 }
 
 func NewTaskServiceServer() (res *TaskServiceServer, err error) {
 	// task server
-	svr := &TaskServiceServer{}
+	svr := &TaskServiceServer{
+		subs: make(map[primitive.ObjectID]grpc.TaskService_SubscribeServer),
+	}
 
 	svr.cfgSvc = nodeconfig.GetNodeConfigService()
 

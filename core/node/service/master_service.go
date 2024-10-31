@@ -31,7 +31,7 @@ type MasterService struct {
 	// dependencies
 	cfgSvc       interfaces.NodeConfigService
 	server       *server.GrpcServer
-	schedulerSvc *scheduler.ServiceV2
+	schedulerSvc *scheduler.Service
 	handlerSvc   *handler.Service
 	scheduleSvc  *schedule.ServiceV2
 	systemSvc    *system.ServiceV2
@@ -339,7 +339,7 @@ func newMasterServiceV2() (res *MasterService, err error) {
 	}
 
 	// scheduler service
-	svc.schedulerSvc, err = scheduler.GetTaskSchedulerServiceV2()
+	svc.schedulerSvc, err = scheduler.GetTaskSchedulerService()
 	if err != nil {
 		return nil, err
 	}

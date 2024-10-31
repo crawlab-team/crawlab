@@ -20,7 +20,7 @@ type ServiceV2 struct {
 	// dependencies
 	interfaces.WithConfigPath
 	modelSvc *service.ModelServiceV2[models2.ScheduleV2]
-	adminSvc *admin.ServiceV2
+	adminSvc *admin.Service
 
 	// settings variables
 	loc            *time.Location
@@ -246,7 +246,7 @@ func NewScheduleServiceV2() (svc2 *ServiceV2, err error) {
 		skip:           false,
 		updateInterval: 1 * time.Minute,
 	}
-	svc.adminSvc, err = admin.GetSpiderAdminServiceV2()
+	svc.adminSvc, err = admin.GetSpiderAdminService()
 	if err != nil {
 		return nil, err
 	}

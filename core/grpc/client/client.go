@@ -141,6 +141,8 @@ func (c *GrpcClient) connect() (err error) {
 			return err
 		}
 
+		// connect
+		c.conn.Connect()
 		log.Infof("[GrpcClient] grpc client connected to %s", address)
 
 		return nil

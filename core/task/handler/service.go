@@ -51,8 +51,8 @@ func (svc *Service) Start() {
 		}
 	}
 
-	go svc.ReportStatus()
-	go svc.FetchAndRunTasks()
+	go svc.reportStatus()
+	go svc.fetchAndRunTasks()
 }
 
 func (svc *Service) Stop() {
@@ -67,7 +67,7 @@ func (svc *Service) Cancel(taskId primitive.ObjectID, force bool) (err error) {
 	return svc.cancelTask(taskId, force)
 }
 
-func (svc *Service) FetchAndRunTasks() {
+func (svc *Service) fetchAndRunTasks() {
 	ticker := time.NewTicker(svc.fetchInterval)
 	for {
 		if svc.stopped {
@@ -119,7 +119,7 @@ func (svc *Service) FetchAndRunTasks() {
 	}
 }
 
-func (svc *Service) ReportStatus() {
+func (svc *Service) reportStatus() {
 	ticker := time.NewTicker(svc.reportInterval)
 	for {
 		if svc.stopped {
@@ -128,9 +128,9 @@ func (svc *Service) ReportStatus() {
 
 		select {
 		case <-ticker.C:
-			// report handler status
-			if err := svc.reportStatus(); err != nil {
-				trace.PrintError(err)
+			// update node status
+			if err := svc.updateNodeStatus(); err != nil {
+				log.Errorf("failed to report status: %v", err)
 			}
 		}
 	}
@@ -178,6 +178,19 @@ func (svc *Service) GetTaskById(id primitive.ObjectID) (t *models2.TaskV2, err e
 	return t, nil
 }
 
+func (svc *Service) UpdateTask(t *models2.TaskV2) (err error) {
+	t.SetUpdated(t.CreatedBy)
+	if svc.cfgSvc.IsMaster() {
+		err = service.NewModelServiceV2[models2.TaskV2]().ReplaceById(t.Id, *t)
+	} else {
+		err = client.NewModelServiceV2[models2.TaskV2]().ReplaceById(t.Id, *t)
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (svc *Service) GetSpiderById(id primitive.ObjectID) (s *models2.SpiderV2, err error) {
 	if svc.cfgSvc.IsMaster() {
 		s, err = service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
@@ -194,12 +207,14 @@ func (svc *Service) GetSpiderById(id primitive.ObjectID) (s *models2.SpiderV2, e
 func (svc *Service) getRunnerCount() (count int) {
 	n, err := svc.GetCurrentNode()
 	if err != nil {
-		trace.PrintError(err)
+		log.Errorf("failed to get current node: %v", err)
 		return
 	}
 	query := bson.M{
 		"node_id": n.Id,
-		"status":  constants.TaskStatusRunning,
+		"status": bson.M{
+			"$in": []string{constants.TaskStatusAssigned, constants.TaskStatusRunning},
+		},
 	}
 	if svc.cfgSvc.IsMaster() {
 		count, err = service.NewModelServiceV2[models2.TaskV2]().Count(query)
@@ -242,7 +257,7 @@ func (svc *Service) deleteRunner(taskId primitive.ObjectID) {
 	svc.runners.Delete(taskId)
 }
 
-func (svc *Service) reportStatus() (err error) {
+func (svc *Service) updateNodeStatus() (err error) {
 	// current node
 	n, err := svc.GetCurrentNode()
 	if err != nil {
@@ -398,8 +413,19 @@ func (svc *Service) handleCancel(msg *grpc.TaskServiceSubscribeResponse, taskId 
 		log.Errorf("task[%s] failed to cancel: %v", taskId.Hex(), err)
 		return
 	}
-
 	log.Infof("task[%s] cancelled", taskId.Hex())
+
+	// set task status as "cancelled"
+	t, err := svc.GetTaskById(taskId)
+	if err != nil {
+		log.Errorf("task[%s] failed to get task: %v", taskId.Hex(), err)
+		return
+	}
+	t.Status = constants.TaskStatusCancelled
+	err = svc.UpdateTask(t)
+	if err != nil {
+		log.Errorf("task[%s] failed to update task: %v", taskId.Hex(), err)
+	}
 }
 
 func (svc *Service) cancelTask(taskId primitive.ObjectID, force bool) (err error) {

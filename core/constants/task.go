@@ -2,6 +2,7 @@ package constants
 
 const (
 	TaskStatusPending   = "pending"
+	TaskStatusAssigned  = "assigned"
 	TaskStatusRunning   = "running"
 	TaskStatusFinished  = "finished"
 	TaskStatusError     = "error"

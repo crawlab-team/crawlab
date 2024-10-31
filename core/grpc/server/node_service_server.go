@@ -16,7 +16,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"io"
 	"sync"
 	"time"
 )
@@ -30,8 +29,7 @@ type NodeServiceServer struct {
 	cfgSvc interfaces.NodeConfigService
 
 	// internals
-	server *GrpcServer
-	subs   map[primitive.ObjectID]grpc.NodeService_SubscribeServer
+	subs map[primitive.ObjectID]grpc.NodeService_SubscribeServer
 }
 
 // Register from handler/worker to master
@@ -46,7 +44,7 @@ func (svr NodeServiceServer) Register(_ context.Context, req *grpc.NodeServiceRe
 	node, err = service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": req.NodeKey}, nil)
 	if err == nil {
 		// register existing
-		node.Status = constants.NodeStatusRegistered
+		node.Status = constants.NodeStatusOnline
 		node.Active = true
 		node.ActiveAt = time.Now()
 		err = service.NewModelServiceV2[models.NodeV2]().ReplaceById(node.Id, *node)
@@ -59,7 +57,7 @@ func (svr NodeServiceServer) Register(_ context.Context, req *grpc.NodeServiceRe
 		node = &models.NodeV2{
 			Key:        req.NodeKey,
 			Name:       req.NodeName,
-			Status:     constants.NodeStatusRegistered,
+			Status:     constants.NodeStatusOnline,
 			Active:     true,
 			ActiveAt:   time.Now(),
 			Enabled:    true,
@@ -93,11 +91,6 @@ func (svr NodeServiceServer) SendHeartbeat(_ context.Context, req *grpc.NodeServ
 		return HandleError(err)
 	}
 	oldStatus := node.Status
-
-	// validate status
-	if node.Status == constants.NodeStatusUnregistered {
-		return HandleError(errors.ErrorNodeUnregistered)
-	}
 
 	// update status
 	node.Status = constants.NodeStatusOnline
@@ -136,26 +129,14 @@ func (svr NodeServiceServer) Subscribe(request *grpc.NodeServiceSubscribeRequest
 
 	// TODO: send notification
 
-	// create a new goroutine to receive messages from the stream to listen for EOF (end of stream)
-	go func() {
-		for {
-			select {
-			case <-stream.Context().Done():
-				nodeServiceMutex.Lock()
-				delete(svr.subs, node.Id)
-				nodeServiceMutex.Unlock()
-				return
-			default:
-				err := stream.RecvMsg(nil)
-				if err == io.EOF {
-					nodeServiceMutex.Lock()
-					delete(svr.subs, node.Id)
-					nodeServiceMutex.Unlock()
-					return
-				}
-			}
-		}
-	}()
+	// wait for stream to close
+	<-stream.Context().Done()
+
+	// unsubscribe
+	nodeServiceMutex.Lock()
+	delete(svr.subs, node.Id)
+	nodeServiceMutex.Unlock()
+	log.Infof("[NodeServiceServer] master unsubscribed from node[%s]", request.NodeKey)
 
 	return nil
 }
@@ -167,16 +148,18 @@ func (svr NodeServiceServer) GetSubscribeStream(nodeId primitive.ObjectID) (stre
 	return stream, ok
 }
 
-var nodeSvrV2 *NodeServiceServer
-var nodeSvrV2Once = new(sync.Once)
+var nodeSvr *NodeServiceServer
+var nodeSvrOnce = new(sync.Once)
 
 func NewNodeServiceServer() (res *NodeServiceServer, err error) {
-	if nodeSvrV2 != nil {
-		return nodeSvrV2, nil
+	if nodeSvr != nil {
+		return nodeSvr, nil
 	}
-	nodeSvrV2Once.Do(func() {
-		nodeSvrV2 = &NodeServiceServer{}
-		nodeSvrV2.cfgSvc = nodeconfig.GetNodeConfigService()
+	nodeSvrOnce.Do(func() {
+		nodeSvr = &NodeServiceServer{
+			subs: make(map[primitive.ObjectID]grpc.NodeService_SubscribeServer),
+		}
+		nodeSvr.cfgSvc = nodeconfig.GetNodeConfigService()
 		if err != nil {
 			log.Errorf("[NodeServiceServer] error: %s", err.Error())
 		}
@@ -184,5 +167,5 @@ func NewNodeServiceServer() (res *NodeServiceServer, err error) {
 	if err != nil {
 		return nil, err
 	}
-	return nodeSvrV2, nil
+	return nodeSvr, nil
 }

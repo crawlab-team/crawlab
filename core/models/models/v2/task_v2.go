@@ -18,11 +18,8 @@ type TaskV2 struct {
 	Type                string               `json:"type" bson:"type"`
 	Mode                string               `json:"mode" bson:"mode"`
 	NodeIds             []primitive.ObjectID `json:"node_ids" bson:"node_ids"`
-	ParentId            primitive.ObjectID   `json:"parent_id" bson:"parent_id"`
 	Priority            int                  `json:"priority" bson:"priority"`
 	Stat                *TaskStatV2          `json:"stat,omitempty" bson:"-"`
-	HasSub              bool                 `json:"has_sub" json:"has_sub"`
-	SubTasks            []TaskV2             `json:"sub_tasks,omitempty" bson:"-"`
 	Spider              *SpiderV2            `json:"spider,omitempty" bson:"-"`
 	Schedule            *ScheduleV2          `json:"schedule,omitempty" bson:"-"`
 	Node                *NodeV2              `json:"node,omitempty" bson:"-"`

@@ -45,6 +45,7 @@ func InitIndexes() {
 		{Keys: bson.M{"parent_id": 1}},
 		{Keys: bson.M{"has_sub": 1}},
 		{Keys: bson.M{"created_ts": -1}, Options: (&options.IndexOptions{}).SetExpireAfterSeconds(60 * 60 * 24 * 30)},
+		{Keys: bson.M{"node_id": 1, "status": 1}},
 	})
 
 	// task stats

@@ -2,8 +2,11 @@ package service
 
 import (
 	"context"
-	"errors"
+	"sync"
+	"time"
+
 	"github.com/apex/log"
+	"github.com/cenkalti/backoff/v4"
 	"github.com/crawlab-team/crawlab/core/config"
 	"github.com/crawlab-team/crawlab/core/grpc/client"
 	"github.com/crawlab-team/crawlab/core/interfaces"
@@ -15,9 +18,6 @@ import (
 	"github.com/crawlab-team/crawlab/grpc"
 	"github.com/crawlab-team/crawlab/trace"
 	"go.mongodb.org/mongo-driver/bson"
-	"io"
-	"sync"
-	"time"
 )
 
 type WorkerService struct {
@@ -49,13 +49,13 @@ func (svc *WorkerService) Start() {
 	}
 
 	// register to master
-	svc.Register()
+	svc.register()
 
 	// subscribe
-	svc.Subscribe()
+	go svc.subscribe()
 
 	// start sending heartbeat to master
-	go svc.ReportStatus()
+	go svc.reportStatus()
 
 	// start handler
 	go svc.handlerSvc.Start()
@@ -78,7 +78,7 @@ func (svc *WorkerService) Stop() {
 	log.Infof("worker[%s] service has stopped", svc.cfgSvc.GetNodeKey())
 }
 
-func (svc *WorkerService) Register() {
+func (svc *WorkerService) register() {
 	ctx, cancel := svc.client.Context()
 	defer cancel()
 	_, err := svc.client.NodeClient.Register(ctx, &grpc.NodeServiceRegisterRequest{
@@ -87,17 +87,19 @@ func (svc *WorkerService) Register() {
 		MaxRunners: int32(svc.cfgSvc.GetMaxRunners()),
 	})
 	if err != nil {
+		log.Fatalf("failed to register worker[%s] to master: %v", svc.cfgSvc.GetNodeKey(), err)
 		panic(err)
 	}
 	svc.n, err = client2.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": svc.GetConfigService().GetNodeKey()}, nil)
 	if err != nil {
+		log.Fatalf("failed to get node: %v", err)
 		panic(err)
 	}
 	log.Infof("worker[%s] registered to master. id: %s", svc.GetConfigService().GetNodeKey(), svc.n.Id.Hex())
 	return
 }
 
-func (svc *WorkerService) ReportStatus() {
+func (svc *WorkerService) reportStatus() {
 	ticker := time.NewTicker(svc.heartbeatInterval)
 	for {
 		// return if client is closed
@@ -106,8 +108,8 @@ func (svc *WorkerService) ReportStatus() {
 			return
 		}
 
-		// report status
-		svc.reportStatus()
+		// send heartbeat
+		svc.sendHeartbeat()
 
 		// sleep
 		<-ticker.C
@@ -126,49 +128,65 @@ func (svc *WorkerService) SetConfigPath(path string) {
 	svc.cfgPath = path
 }
 
-func (svc *WorkerService) GetAddress() (address interfaces.Address) {
-	return svc.address
-}
+func (svc *WorkerService) subscribe() {
+	// Configure exponential backoff
+	b := backoff.NewExponentialBackOff()
+	b.InitialInterval = 1 * time.Second
+	b.MaxInterval = 1 * time.Minute
+	b.MaxElapsedTime = 10 * time.Minute
+	b.Multiplier = 2.0
 
-func (svc *WorkerService) SetAddress(address interfaces.Address) {
-	svc.address = address
-}
-
-func (svc *WorkerService) SetHeartbeatInterval(duration time.Duration) {
-	svc.heartbeatInterval = duration
-}
-
-func (svc *WorkerService) Subscribe() {
-	stream, err := svc.client.NodeClient.Subscribe(context.Background(), &grpc.NodeServiceSubscribeRequest{
-		NodeKey: svc.cfgSvc.GetNodeKey(),
-	})
-	if err != nil {
-		log.Errorf("failed to subscribe to master: %v", err)
-		return
-	}
 	for {
 		if svc.stopped {
 			return
 		}
-		select {
-		default:
-			msg, err := stream.Recv()
+
+		// Use backoff for connection attempts
+		operation := func() error {
+			stream, err := svc.client.NodeClient.Subscribe(context.Background(), &grpc.NodeServiceSubscribeRequest{
+				NodeKey: svc.cfgSvc.GetNodeKey(),
+			})
 			if err != nil {
-				if errors.Is(err, io.EOF) {
-					return
-				}
-				log.Errorf("failed to receive message from master: %v", err)
-				continue
+				log.Errorf("failed to subscribe to master: %v", err)
+				return err
 			}
-			switch msg.Code {
-			case grpc.NodeServiceSubscribeCode_PING:
-				// do nothing
+
+			// Handle messages
+			for {
+				if svc.stopped {
+					return nil
+				}
+
+				msg, err := stream.Recv()
+				if err != nil {
+					if svc.client.IsClosed() {
+						log.Errorf("connection to master is closed: %v", err)
+						return err
+					}
+					log.Errorf("failed to receive message from master: %v", err)
+					return err
+				}
+
+				switch msg.Code {
+				case grpc.NodeServiceSubscribeCode_PING:
+					// do nothing
+				}
 			}
 		}
+
+		// Execute with backoff
+		err := backoff.Retry(operation, b)
+		if err != nil {
+			log.Errorf("subscription failed after max retries: %v", err)
+			return
+		}
+
+		// Wait before attempting to reconnect
+		time.Sleep(time.Second)
 	}
 }
 
-func (svc *WorkerService) reportStatus() {
+func (svc *WorkerService) sendHeartbeat() {
 	ctx, cancel := context.WithTimeout(context.Background(), svc.heartbeatInterval)
 	defer cancel()
 	_, err := svc.client.NodeClient.SendHeartbeat(ctx, &grpc.NodeServiceSendHeartbeatRequest{

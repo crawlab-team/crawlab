@@ -305,7 +305,7 @@ func PostTaskRun(c *gin.Context) {
 	}
 
 	// run
-	adminSvc, err := admin.GetSpiderAdminServiceV2()
+	adminSvc, err := admin.GetSpiderAdminService()
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -350,7 +350,7 @@ func PostTaskRestart(c *gin.Context) {
 	}
 
 	// run
-	adminSvc, err := admin.GetSpiderAdminServiceV2()
+	adminSvc, err := admin.GetSpiderAdminService()
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -399,7 +399,7 @@ func PostTaskCancel(c *gin.Context) {
 	u := GetUserFromContext(c)
 
 	// cancel
-	schedulerSvc, err := scheduler.GetTaskSchedulerServiceV2()
+	schedulerSvc, err := scheduler.GetTaskSchedulerService()
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return

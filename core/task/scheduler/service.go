@@ -21,7 +21,7 @@ import (
 	"time"
 )
 
-type ServiceV2 struct {
+type Service struct {
 	// dependencies
 	nodeCfgSvc interfaces.NodeConfigService
 	svr        *server.GrpcServer
@@ -31,13 +31,13 @@ type ServiceV2 struct {
 	interval time.Duration
 }
 
-func (svc *ServiceV2) Start() {
+func (svc *Service) Start() {
 	go svc.initTaskStatus()
 	go svc.cleanupTasks()
 	utils.DefaultWait()
 }
 
-func (svc *ServiceV2) Enqueue(t *models2.TaskV2, by primitive.ObjectID) (t2 *models2.TaskV2, err error) {
+func (svc *Service) Enqueue(t *models2.TaskV2, by primitive.ObjectID) (t2 *models2.TaskV2, err error) {
 	// set task status
 	t.Status = constants.TaskStatusPending
 	t.SetCreated(by)
@@ -45,31 +45,16 @@ func (svc *ServiceV2) Enqueue(t *models2.TaskV2, by primitive.ObjectID) (t2 *mod
 
 	// add task
 	taskModelSvc := service.NewModelServiceV2[models2.TaskV2]()
-	id, err := taskModelSvc.InsertOne(*t)
+	t.Id, err = taskModelSvc.InsertOne(*t)
 	if err != nil {
 		return nil, err
 	}
 
-	// task queue item
-	tq := models2.TaskQueueItemV2{
-		Priority: t.Priority,
-		NodeId:   t.NodeId,
-	}
-	tq.SetId(id)
-	tq.SetCreated(by)
-	tq.SetUpdated(by)
-
 	// task stat
 	ts := models2.TaskStatV2{}
-	ts.SetId(id)
+	ts.SetId(t.Id)
 	ts.SetCreated(by)
 	ts.SetUpdated(by)
-
-	// enqueue task
-	_, err = service.NewModelServiceV2[models2.TaskQueueItemV2]().InsertOne(tq)
-	if err != nil {
-		return nil, trace.TraceError(err)
-	}
 
 	// add task stat
 	_, err = service.NewModelServiceV2[models2.TaskStatV2]().InsertOne(ts)
@@ -81,7 +66,7 @@ func (svc *ServiceV2) Enqueue(t *models2.TaskV2, by primitive.ObjectID) (t2 *mod
 	return t, nil
 }
 
-func (svc *ServiceV2) Cancel(id, by primitive.ObjectID, force bool) (err error) {
+func (svc *Service) Cancel(id, by primitive.ObjectID, force bool) (err error) {
 	// task
 	t, err := service.NewModelServiceV2[models2.TaskV2]().GetById(id)
 	if err != nil {
@@ -92,14 +77,10 @@ func (svc *ServiceV2) Cancel(id, by primitive.ObjectID, force bool) (err error) 
 	// initial status
 	initialStatus := t.Status
 
-	// set status of pending tasks as "cancelled" and remove from task item queue
+	// set status of pending tasks as "cancelled"
 	if initialStatus == constants.TaskStatusPending {
-		// remove from task item queue
-		if err := service.NewModelServiceV2[models2.TaskQueueItemV2]().DeleteById(t.Id); err != nil {
-			log.Errorf("failed to delete task queue item: %s", t.Id.Hex())
-			return err
-		}
-		return nil
+		t.Status = constants.TaskStatusCancelled
+		return svc.SaveTask(t, by)
 	}
 
 	// whether task is running on master node
@@ -120,7 +101,7 @@ func (svc *ServiceV2) Cancel(id, by primitive.ObjectID, force bool) (err error) 
 	}
 }
 
-func (svc *ServiceV2) cancelOnMaster(t *models2.TaskV2, by primitive.ObjectID, force bool) (err error) {
+func (svc *Service) cancelOnMaster(t *models2.TaskV2, by primitive.ObjectID, force bool) (err error) {
 	if err := svc.handlerSvc.Cancel(t.Id, force); err != nil {
 		log.Errorf("failed to cancel task on master: %s", t.Id.Hex())
 		return err
@@ -131,7 +112,7 @@ func (svc *ServiceV2) cancelOnMaster(t *models2.TaskV2, by primitive.ObjectID, f
 	return svc.SaveTask(t, by)
 }
 
-func (svc *ServiceV2) cancelOnWorker(t *models2.TaskV2, by primitive.ObjectID, force bool) (err error) {
+func (svc *Service) cancelOnWorker(t *models2.TaskV2, by primitive.ObjectID, force bool) (err error) {
 	// get subscribe stream
 	stream, ok := svc.svr.TaskSvr.GetSubscribeStream(t.Id)
 	if !ok {
@@ -156,11 +137,11 @@ func (svc *ServiceV2) cancelOnWorker(t *models2.TaskV2, by primitive.ObjectID, f
 	return nil
 }
 
-func (svc *ServiceV2) SetInterval(interval time.Duration) {
+func (svc *Service) SetInterval(interval time.Duration) {
 	svc.interval = interval
 }
 
-func (svc *ServiceV2) SaveTask(t *models2.TaskV2, by primitive.ObjectID) (err error) {
+func (svc *Service) SaveTask(t *models2.TaskV2, by primitive.ObjectID) (err error) {
 	if t.Id.IsZero() {
 		t.SetCreated(by)
 		t.SetUpdated(by)
@@ -173,12 +154,13 @@ func (svc *ServiceV2) SaveTask(t *models2.TaskV2, by primitive.ObjectID) (err er
 }
 
 // initTaskStatus initialize task status of existing tasks
-func (svc *ServiceV2) initTaskStatus() {
+func (svc *Service) initTaskStatus() {
 	// set status of running tasks as TaskStatusAbnormal
 	runningTasks, err := service.NewModelServiceV2[models2.TaskV2]().GetMany(bson.M{
 		"status": bson.M{
 			"$in": []string{
 				constants.TaskStatusPending,
+				constants.TaskStatusAssigned,
 				constants.TaskStatusRunning,
 			},
 		},
@@ -187,7 +169,8 @@ func (svc *ServiceV2) initTaskStatus() {
 		if errors2.Is(err, mongo2.ErrNoDocuments) {
 			return
 		}
-		trace.PrintError(err)
+		log.Errorf("failed to get running tasks: %v", err)
+		return
 	}
 	for _, t := range runningTasks {
 		go func(t *models2.TaskV2) {
@@ -197,12 +180,9 @@ func (svc *ServiceV2) initTaskStatus() {
 			}
 		}(&t)
 	}
-	if err := service.NewModelServiceV2[models2.TaskQueueItemV2]().DeleteMany(nil); err != nil {
-		return
-	}
 }
 
-func (svc *ServiceV2) isMasterNode(t *models2.TaskV2) (ok bool, err error) {
+func (svc *Service) isMasterNode(t *models2.TaskV2) (ok bool, err error) {
 	if t.NodeId.IsZero() {
 		return false, trace.TraceError(errors.ErrorTaskNoNodeId)
 	}
@@ -216,7 +196,7 @@ func (svc *ServiceV2) isMasterNode(t *models2.TaskV2) (ok bool, err error) {
 	return n.IsMaster, nil
 }
 
-func (svc *ServiceV2) cleanupTasks() {
+func (svc *Service) cleanupTasks() {
 	for {
 		// task stats over 30 days ago
 		taskStats, err := service.NewModelServiceV2[models2.TaskStatV2]().GetMany(bson.M{
@@ -255,9 +235,9 @@ func (svc *ServiceV2) cleanupTasks() {
 	}
 }
 
-func NewTaskSchedulerServiceV2() (svc2 *ServiceV2, err error) {
+func NewTaskSchedulerService() (svc2 *Service, err error) {
 	// service
-	svc := &ServiceV2{
+	svc := &Service{
 		interval: 5 * time.Second,
 	}
 	svc.nodeCfgSvc = nodeconfig.GetNodeConfigService()
@@ -275,15 +255,15 @@ func NewTaskSchedulerServiceV2() (svc2 *ServiceV2, err error) {
 	return svc, nil
 }
 
-var svcV2 *ServiceV2
+var svc *Service
 
-func GetTaskSchedulerServiceV2() (svr *ServiceV2, err error) {
-	if svcV2 != nil {
-		return svcV2, nil
+func GetTaskSchedulerService() (svr *Service, err error) {
+	if svc != nil {
+		return svc, nil
 	}
-	svcV2, err = NewTaskSchedulerServiceV2()
+	svc, err = NewTaskSchedulerService()
 	if err != nil {
 		return nil, err
 	}
-	return svcV2, nil
+	return svc, nil
 }

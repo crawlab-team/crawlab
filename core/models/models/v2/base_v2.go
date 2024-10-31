@@ -91,7 +91,6 @@ func GetModelInstances() []any {
 		*new(SettingV2),
 		*new(SpiderV2),
 		*new(SpiderStatV2),
-		*new(TaskQueueItemV2),
 		*new(TaskStatV2),
 		*new(TaskV2),
 		*new(TokenV2),

@@ -653,7 +653,7 @@ func PostSpiderRun(c *gin.Context) {
 		opts.UserId = u.GetId()
 	}
 
-	adminSvc, err := admin.GetSpiderAdminServiceV2()
+	adminSvc, err := admin.GetSpiderAdminService()
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
