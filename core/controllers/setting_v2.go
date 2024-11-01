@@ -14,7 +14,7 @@ func GetSetting(c *gin.Context) {
 	key := c.Param("id")
 
 	// setting
-	s, err := service.NewModelServiceV2[models.SettingV2]().GetOne(bson.M{"key": key}, nil)
+	s, err := service.NewModelService[models.SettingV2]().GetOne(bson.M{"key": key}, nil)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			HandleSuccess(c)
@@ -47,7 +47,7 @@ func PostSetting(c *gin.Context) {
 	s.SetCreated(u.Id)
 	s.SetUpdated(u.Id)
 
-	id, err := service.NewModelServiceV2[models.SettingV2]().InsertOne(s)
+	id, err := service.NewModelService[models.SettingV2]().InsertOne(s)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -68,7 +68,7 @@ func PutSetting(c *gin.Context) {
 		return
 	}
 
-	modelSvc := service.NewModelServiceV2[models.SettingV2]()
+	modelSvc := service.NewModelService[models.SettingV2]()
 
 	// setting
 	_s, err := modelSvc.GetOne(bson.M{"key": key}, nil)

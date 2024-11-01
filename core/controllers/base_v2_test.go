@@ -31,7 +31,7 @@ var TestToken string
 // SetupTestDB sets up the test database
 func SetupTestDB() {
 	viper.Set("mongo.db", "testdb")
-	modelSvc := service.NewModelServiceV2[models.UserV2]()
+	modelSvc := service.NewModelService[models.UserV2]()
 	u := models.UserV2{
 		Username: "admin",
 	}
@@ -68,7 +68,7 @@ func TestBaseControllerV2_GetById(t *testing.T) {
 	defer CleanupTestDB()
 
 	// Insert a test document
-	id, err := service.NewModelServiceV2[TestModel]().InsertOne(TestModel{Name: "test"})
+	id, err := service.NewModelService[TestModel]().InsertOne(TestModel{Name: "test"})
 	assert.NoError(t, err)
 
 	// Initialize the controller
@@ -127,7 +127,7 @@ func TestBaseControllerV2_Post(t *testing.T) {
 	assert.Equal(t, "test", response.Data.Name)
 
 	// Check if the document was inserted into the database
-	result, err := service.NewModelServiceV2[TestModel]().GetById(response.Data.Id)
+	result, err := service.NewModelService[TestModel]().GetById(response.Data.Id)
 	assert.NoError(t, err)
 	assert.Equal(t, "test", result.Name)
 }
@@ -137,7 +137,7 @@ func TestBaseControllerV2_DeleteById(t *testing.T) {
 	defer CleanupTestDB()
 
 	// Insert a test document
-	id, err := service.NewModelServiceV2[TestModel]().InsertOne(TestModel{Name: "test"})
+	id, err := service.NewModelService[TestModel]().InsertOne(TestModel{Name: "test"})
 	assert.NoError(t, err)
 
 	// Initialize the controller
@@ -160,6 +160,6 @@ func TestBaseControllerV2_DeleteById(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	// Check if the document was deleted from the database
-	_, err = service.NewModelServiceV2[TestModel]().GetById(id)
+	_, err = service.NewModelService[TestModel]().GetById(id)
 	assert.Error(t, err)
 }

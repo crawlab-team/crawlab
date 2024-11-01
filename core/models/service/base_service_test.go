@@ -41,7 +41,7 @@ func TestModelServiceV2(t *testing.T) {
 	defer teardownTestDB()
 
 	t.Run("GetById", func(t *testing.T) {
-		svc := service.NewModelServiceV2[TestModel]()
+		svc := service.NewModelService[TestModel]()
 		testModel := TestModel{Name: "GetById Test"}
 
 		id, err := svc.InsertOne(testModel)
@@ -54,7 +54,7 @@ func TestModelServiceV2(t *testing.T) {
 	})
 
 	t.Run("GetOne", func(t *testing.T) {
-		svc := service.NewModelServiceV2[TestModel]()
+		svc := service.NewModelService[TestModel]()
 		testModel := TestModel{Name: "GetOne Test"}
 
 		_, err := svc.InsertOne(testModel)
@@ -67,7 +67,7 @@ func TestModelServiceV2(t *testing.T) {
 	})
 
 	t.Run("GetMany", func(t *testing.T) {
-		svc := service.NewModelServiceV2[TestModel]()
+		svc := service.NewModelService[TestModel]()
 		testModels := []TestModel{
 			{Name: "GetMany Test 1"},
 			{Name: "GetMany Test 2"},
@@ -83,7 +83,7 @@ func TestModelServiceV2(t *testing.T) {
 	})
 
 	t.Run("InsertOne", func(t *testing.T) {
-		svc := service.NewModelServiceV2[TestModel]()
+		svc := service.NewModelService[TestModel]()
 		testModel := TestModel{Name: "InsertOne Test"}
 
 		id, err := svc.InsertOne(testModel)
@@ -92,7 +92,7 @@ func TestModelServiceV2(t *testing.T) {
 	})
 
 	t.Run("InsertMany", func(t *testing.T) {
-		svc := service.NewModelServiceV2[TestModel]()
+		svc := service.NewModelService[TestModel]()
 		testModels := []TestModel{
 			{Name: "InsertMany Test 1"},
 			{Name: "InsertMany Test 2"},
@@ -104,7 +104,7 @@ func TestModelServiceV2(t *testing.T) {
 	})
 
 	t.Run("UpdateById", func(t *testing.T) {
-		svc := service.NewModelServiceV2[TestModel]()
+		svc := service.NewModelService[TestModel]()
 		testModel := TestModel{Name: "UpdateById Test"}
 
 		id, err := svc.InsertOne(testModel)
@@ -122,7 +122,7 @@ func TestModelServiceV2(t *testing.T) {
 	})
 
 	t.Run("UpdateOne", func(t *testing.T) {
-		svc := service.NewModelServiceV2[TestModel]()
+		svc := service.NewModelService[TestModel]()
 		testModel := TestModel{Name: "UpdateOne Test"}
 
 		_, err := svc.InsertOne(testModel)
@@ -140,7 +140,7 @@ func TestModelServiceV2(t *testing.T) {
 	})
 
 	t.Run("UpdateMany", func(t *testing.T) {
-		svc := service.NewModelServiceV2[TestModel]()
+		svc := service.NewModelService[TestModel]()
 		testModels := []TestModel{
 			{Name: "UpdateMany Test 1"},
 			{Name: "UpdateMany Test 2"},
@@ -161,7 +161,7 @@ func TestModelServiceV2(t *testing.T) {
 	})
 
 	t.Run("DeleteById", func(t *testing.T) {
-		svc := service.NewModelServiceV2[TestModel]()
+		svc := service.NewModelService[TestModel]()
 		testModel := TestModel{Name: "DeleteById Test"}
 
 		id, err := svc.InsertOne(testModel)
@@ -178,7 +178,7 @@ func TestModelServiceV2(t *testing.T) {
 	})
 
 	t.Run("DeleteOne", func(t *testing.T) {
-		svc := service.NewModelServiceV2[TestModel]()
+		svc := service.NewModelService[TestModel]()
 		testModel := TestModel{Name: "DeleteOne Test"}
 
 		_, err := svc.InsertOne(testModel)
@@ -195,7 +195,7 @@ func TestModelServiceV2(t *testing.T) {
 	})
 
 	t.Run("DeleteMany", func(t *testing.T) {
-		svc := service.NewModelServiceV2[TestModel]()
+		svc := service.NewModelService[TestModel]()
 		testModels := []TestModel{
 			{Name: "DeleteMany Test 1"},
 			{Name: "DeleteMany Test 2"},
@@ -215,7 +215,7 @@ func TestModelServiceV2(t *testing.T) {
 	})
 
 	t.Run("Count", func(t *testing.T) {
-		svc := service.NewModelServiceV2[TestModel]()
+		svc := service.NewModelService[TestModel]()
 		testModels := []TestModel{
 			{Name: "Count Test 1"},
 			{Name: "Count Test 2"},

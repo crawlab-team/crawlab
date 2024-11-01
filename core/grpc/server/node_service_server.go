@@ -41,13 +41,13 @@ func (svr NodeServiceServer) Register(_ context.Context, req *grpc.NodeServiceRe
 
 	// find in db
 	var node *models.NodeV2
-	node, err = service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": req.NodeKey}, nil)
+	node, err = service.NewModelService[models.NodeV2]().GetOne(bson.M{"key": req.NodeKey}, nil)
 	if err == nil {
 		// register existing
 		node.Status = constants.NodeStatusOnline
 		node.Active = true
 		node.ActiveAt = time.Now()
-		err = service.NewModelServiceV2[models.NodeV2]().ReplaceById(node.Id, *node)
+		err = service.NewModelService[models.NodeV2]().ReplaceById(node.Id, *node)
 		if err != nil {
 			return HandleError(err)
 		}
@@ -65,7 +65,7 @@ func (svr NodeServiceServer) Register(_ context.Context, req *grpc.NodeServiceRe
 		}
 		node.SetCreated(primitive.NilObjectID)
 		node.SetUpdated(primitive.NilObjectID)
-		node.Id, err = service.NewModelServiceV2[models.NodeV2]().InsertOne(*node)
+		node.Id, err = service.NewModelService[models.NodeV2]().InsertOne(*node)
 		if err != nil {
 			return HandleError(err)
 		}
@@ -83,7 +83,7 @@ func (svr NodeServiceServer) Register(_ context.Context, req *grpc.NodeServiceRe
 // SendHeartbeat from worker to master
 func (svr NodeServiceServer) SendHeartbeat(_ context.Context, req *grpc.NodeServiceSendHeartbeatRequest) (res *grpc.Response, err error) {
 	// find in db
-	node, err := service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": req.NodeKey}, nil)
+	node, err := service.NewModelService[models.NodeV2]().GetOne(bson.M{"key": req.NodeKey}, nil)
 	if err != nil {
 		if errors2.Is(err, mongo.ErrNoDocuments) {
 			return HandleError(errors.ErrorNodeNotExists)
@@ -96,7 +96,7 @@ func (svr NodeServiceServer) SendHeartbeat(_ context.Context, req *grpc.NodeServ
 	node.Status = constants.NodeStatusOnline
 	node.Active = true
 	node.ActiveAt = time.Now()
-	err = service.NewModelServiceV2[models.NodeV2]().ReplaceById(node.Id, *node)
+	err = service.NewModelService[models.NodeV2]().ReplaceById(node.Id, *node)
 	if err != nil {
 		return HandleError(err)
 	}
@@ -116,7 +116,7 @@ func (svr NodeServiceServer) Subscribe(request *grpc.NodeServiceSubscribeRequest
 	log.Infof("[NodeServiceServer] master received subscribe request from node[%s]", request.NodeKey)
 
 	// find in db
-	node, err := service.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": request.NodeKey}, nil)
+	node, err := service.NewModelService[models.NodeV2]().GetOne(bson.M{"key": request.NodeKey}, nil)
 	if err != nil {
 		log.Errorf("[NodeServiceServer] error getting node: %v", err)
 		return err

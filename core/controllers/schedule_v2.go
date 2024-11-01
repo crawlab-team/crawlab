@@ -18,7 +18,7 @@ func PostSchedule(c *gin.Context) {
 
 	u := GetUserFromContext(c)
 
-	modelSvc := service.NewModelServiceV2[models.ScheduleV2]()
+	modelSvc := service.NewModelService[models.ScheduleV2]()
 
 	s.SetCreated(u.Id)
 	s.SetUpdated(u.Id)
@@ -60,7 +60,7 @@ func PutScheduleById(c *gin.Context) {
 		return
 	}
 
-	modelSvc := service.NewModelServiceV2[models.ScheduleV2]()
+	modelSvc := service.NewModelService[models.ScheduleV2]()
 	err = modelSvc.ReplaceById(id, s)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
@@ -110,7 +110,7 @@ func postScheduleEnableDisableFunc(isEnable bool) func(c *gin.Context) {
 			HandleErrorInternalServerError(c, err)
 			return
 		}
-		s, err := service.NewModelServiceV2[models.ScheduleV2]().GetById(id)
+		s, err := service.NewModelService[models.ScheduleV2]().GetById(id)
 		if err != nil {
 			HandleErrorInternalServerError(c, err)
 			return

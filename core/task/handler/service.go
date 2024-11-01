@@ -110,7 +110,7 @@ func (svc *Service) fetchAndRunTasks() {
 					t.Error = err.Error()
 					t.Status = constants.TaskStatusError
 					t.SetUpdated(t.CreatedBy)
-					_ = client.NewModelServiceV2[models2.TaskV2]().ReplaceById(t.Id, *t)
+					_ = client.NewModelService[models2.TaskV2]().ReplaceById(t.Id, *t)
 					continue
 				}
 				continue
@@ -154,9 +154,9 @@ func (svc *Service) GetCurrentNode() (n *models2.NodeV2, err error) {
 
 	// current node
 	if svc.cfgSvc.IsMaster() {
-		n, err = service.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
+		n, err = service.NewModelService[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
 	} else {
-		n, err = client.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
+		n, err = client.NewModelService[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
 	}
 	if err != nil {
 		return nil, err
@@ -167,9 +167,9 @@ func (svc *Service) GetCurrentNode() (n *models2.NodeV2, err error) {
 
 func (svc *Service) GetTaskById(id primitive.ObjectID) (t *models2.TaskV2, err error) {
 	if svc.cfgSvc.IsMaster() {
-		t, err = service.NewModelServiceV2[models2.TaskV2]().GetById(id)
+		t, err = service.NewModelService[models2.TaskV2]().GetById(id)
 	} else {
-		t, err = client.NewModelServiceV2[models2.TaskV2]().GetById(id)
+		t, err = client.NewModelService[models2.TaskV2]().GetById(id)
 	}
 	if err != nil {
 		return nil, err
@@ -181,9 +181,9 @@ func (svc *Service) GetTaskById(id primitive.ObjectID) (t *models2.TaskV2, err e
 func (svc *Service) UpdateTask(t *models2.TaskV2) (err error) {
 	t.SetUpdated(t.CreatedBy)
 	if svc.cfgSvc.IsMaster() {
-		err = service.NewModelServiceV2[models2.TaskV2]().ReplaceById(t.Id, *t)
+		err = service.NewModelService[models2.TaskV2]().ReplaceById(t.Id, *t)
 	} else {
-		err = client.NewModelServiceV2[models2.TaskV2]().ReplaceById(t.Id, *t)
+		err = client.NewModelService[models2.TaskV2]().ReplaceById(t.Id, *t)
 	}
 	if err != nil {
 		return err
@@ -193,9 +193,9 @@ func (svc *Service) UpdateTask(t *models2.TaskV2) (err error) {
 
 func (svc *Service) GetSpiderById(id primitive.ObjectID) (s *models2.SpiderV2, err error) {
 	if svc.cfgSvc.IsMaster() {
-		s, err = service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
+		s, err = service.NewModelService[models2.SpiderV2]().GetById(id)
 	} else {
-		s, err = client.NewModelServiceV2[models2.SpiderV2]().GetById(id)
+		s, err = client.NewModelService[models2.SpiderV2]().GetById(id)
 	}
 	if err != nil {
 		return nil, err
@@ -217,13 +217,13 @@ func (svc *Service) getRunnerCount() (count int) {
 		},
 	}
 	if svc.cfgSvc.IsMaster() {
-		count, err = service.NewModelServiceV2[models2.TaskV2]().Count(query)
+		count, err = service.NewModelService[models2.TaskV2]().Count(query)
 		if err != nil {
 			trace.PrintError(err)
 			return
 		}
 	} else {
-		count, err = client.NewModelServiceV2[models2.TaskV2]().Count(query)
+		count, err = client.NewModelService[models2.TaskV2]().Count(query)
 		if err != nil {
 			trace.PrintError(err)
 			return
@@ -273,9 +273,9 @@ func (svc *Service) updateNodeStatus() (err error) {
 	// save node
 	n.SetUpdated(n.CreatedBy)
 	if svc.cfgSvc.IsMaster() {
-		err = service.NewModelServiceV2[models2.NodeV2]().ReplaceById(n.Id, *n)
+		err = service.NewModelService[models2.NodeV2]().ReplaceById(n.Id, *n)
 	} else {
-		err = client.NewModelServiceV2[models2.NodeV2]().ReplaceById(n.Id, *n)
+		err = client.NewModelService[models2.NodeV2]().ReplaceById(n.Id, *n)
 	}
 	if err != nil {
 		return err

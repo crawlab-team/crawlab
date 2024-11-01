@@ -34,7 +34,7 @@ type GrpcServer struct {
 	// servers
 	NodeSvr             *NodeServiceServer
 	TaskSvr             *TaskServiceServer
-	ModelBaseServiceSvr *ModelBaseServiceServerV2
+	ModelBaseServiceSvr *ModelBaseServiceServer
 	DependencySvr       *DependencyServiceServer
 	MetricSvr           *MetricServiceServer
 }
@@ -106,10 +106,10 @@ func (svr *GrpcServer) Stop() (err error) {
 
 func (svr *GrpcServer) register() (err error) {
 	grpc2.RegisterNodeServiceServer(svr.svr, *svr.NodeSvr)
-	grpc2.RegisterModelBaseServiceV2Server(svr.svr, *svr.ModelBaseServiceSvr)
+	grpc2.RegisterModelBaseServiceServer(svr.svr, *svr.ModelBaseServiceSvr)
 	grpc2.RegisterTaskServiceServer(svr.svr, *svr.TaskSvr)
-	grpc2.RegisterDependencyServiceV2Server(svr.svr, *svr.DependencySvr)
-	grpc2.RegisterMetricServiceV2Server(svr.svr, *svr.MetricSvr)
+	grpc2.RegisterDependencyServiceServer(svr.svr, *svr.DependencySvr)
+	grpc2.RegisterMetricServiceServer(svr.svr, *svr.MetricSvr)
 
 	return nil
 }
@@ -141,7 +141,7 @@ func NewGrpcServer() (svr *GrpcServer, err error) {
 	if err != nil {
 		return nil, err
 	}
-	svr.ModelBaseServiceSvr = NewModelBaseServiceV2Server()
+	svr.ModelBaseServiceSvr = NewModelBaseServiceServer()
 	svr.TaskSvr, err = NewTaskServiceServer()
 	if err != nil {
 		return nil, err

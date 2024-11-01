@@ -12,12 +12,12 @@ import (
 )
 
 type MetricServiceServer struct {
-	grpc.UnimplementedMetricServiceV2Server
+	grpc.UnimplementedMetricServiceServer
 }
 
-func (svr MetricServiceServer) Send(_ context.Context, req *grpc.MetricServiceV2SendRequest) (res *grpc.Response, err error) {
+func (svr MetricServiceServer) Send(_ context.Context, req *grpc.MetricServiceSendRequest) (res *grpc.Response, err error) {
 	log.Info("[MetricServiceServer] received metric from node: " + req.NodeKey)
-	n, err := service.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": req.NodeKey}, nil)
+	n, err := service.NewModelService[models2.NodeV2]().GetOne(bson.M{"key": req.NodeKey}, nil)
 	if err != nil {
 		log.Errorf("[MetricServiceServer] error getting node: %v", err)
 		return HandleError(err)
@@ -40,7 +40,7 @@ func (svr MetricServiceServer) Send(_ context.Context, req *grpc.MetricServiceV2
 		NetworkBytesRecvRate: req.NetworkBytesRecvRate,
 	}
 	metric.CreatedAt = time.Unix(req.Timestamp, 0)
-	_, err = service.NewModelServiceV2[models2.MetricV2]().InsertOne(metric)
+	_, err = service.NewModelService[models2.MetricV2]().InsertOne(metric)
 	if err != nil {
 		log.Errorf("[MetricServiceServer] error inserting metric: %v", err)
 		return HandleError(err)

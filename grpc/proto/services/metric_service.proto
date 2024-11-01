@@ -5,7 +5,7 @@ import "entity/response.proto";
 package grpc;
 option go_package = ".;grpc";
 
-message MetricServiceV2SendRequest {
+message MetricServiceSendRequest {
   string type = 1;
   string node_key = 2;
   int64 timestamp = 3;
@@ -24,6 +24,6 @@ message MetricServiceV2SendRequest {
   float network_bytes_recv_rate = 18;
 }
 
-service MetricServiceV2 {
-  rpc Send(MetricServiceV2SendRequest) returns (Response){};
+service MetricService {
+  rpc Send(MetricServiceSendRequest) returns (Response){};
 }

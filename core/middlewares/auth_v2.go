@@ -17,7 +17,7 @@ func AuthorizationMiddlewareV2() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// disable auth for test
 		if viper.GetBool("auth.disabled") {
-			u, err := service.NewModelServiceV2[models.UserV2]().GetOne(bson.M{"username": constants.DefaultAdminUsername}, nil)
+			u, err := service.NewModelService[models.UserV2]().GetOne(bson.M{"username": constants.DefaultAdminUsername}, nil)
 			if err != nil {
 				utils.HandleErrorInternalServerError(c, err)
 				return

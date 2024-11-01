@@ -90,7 +90,7 @@ func (svc *WorkerService) register() {
 		log.Fatalf("failed to register worker[%s] to master: %v", svc.cfgSvc.GetNodeKey(), err)
 		panic(err)
 	}
-	svc.n, err = client2.NewModelServiceV2[models.NodeV2]().GetOne(bson.M{"key": svc.GetConfigService().GetNodeKey()}, nil)
+	svc.n, err = client2.NewModelService[models.NodeV2]().GetOne(bson.M{"key": svc.GetConfigService().GetNodeKey()}, nil)
 	if err != nil {
 		log.Fatalf("failed to get node: %v", err)
 		panic(err)

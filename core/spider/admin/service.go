@@ -28,7 +28,7 @@ type Service struct {
 
 func (svc *Service) Schedule(id primitive.ObjectID, opts *interfaces.SpiderRunOptions) (taskIds []primitive.ObjectID, err error) {
 	// spider
-	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(id)
+	s, err := service.NewModelService[models2.SpiderV2]().GetById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (svc *Service) getNodeIds(opts *interfaces.SpiderRunOptions) (nodeIds []pri
 			"enabled": true,
 			"status":  constants.NodeStatusOnline,
 		}
-		nodes, err := service.NewModelServiceV2[models2.NodeV2]().GetMany(query, nil)
+		nodes, err := service.NewModelService[models2.NodeV2]().GetMany(query, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -119,7 +119,7 @@ func (svc *Service) isMultiTask(opts *interfaces.SpiderRunOptions) (res bool) {
 			"enabled": true,
 			"status":  constants.NodeStatusOnline,
 		}
-		nodes, err := service.NewModelServiceV2[models2.NodeV2]().GetMany(query, nil)
+		nodes, err := service.NewModelService[models2.NodeV2]().GetMany(query, nil)
 		if err != nil {
 			trace.PrintError(err)
 			return false

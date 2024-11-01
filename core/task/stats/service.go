@@ -98,13 +98,13 @@ func (svc *Service) getDatabaseServiceItem(taskId primitive.ObjectID) (item *dat
 	}
 
 	// task
-	t, err := service.NewModelServiceV2[models2.TaskV2]().GetById(taskId)
+	t, err := service.NewModelService[models2.TaskV2]().GetById(taskId)
 	if err != nil {
 		return nil, err
 	}
 
 	// spider
-	s, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(t.SpiderId)
+	s, err := service.NewModelService[models2.SpiderV2]().GetById(t.SpiderId)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func (svc *Service) getDatabaseServiceItem(taskId primitive.ObjectID) (item *dat
 }
 
 func (svc *Service) updateTaskStats(id primitive.ObjectID, resultCount int) {
-	err := service.NewModelServiceV2[models2.TaskStatV2]().UpdateById(id, bson.M{
+	err := service.NewModelService[models2.TaskStatV2]().UpdateById(id, bson.M{
 		"$inc": bson.M{
 			"result_count": resultCount,
 		},

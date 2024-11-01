@@ -37,11 +37,11 @@ type GrpcClient struct {
 	stop    chan struct{}
 
 	// clients
-	NodeClient               grpc2.NodeServiceClient
-	TaskClient               grpc2.TaskServiceClient
-	ModelBaseServiceV2Client grpc2.ModelBaseServiceV2Client
-	DependencyClient         grpc2.DependencyServiceV2Client
-	MetricClient             grpc2.MetricServiceV2Client
+	NodeClient             grpc2.NodeServiceClient
+	TaskClient             grpc2.TaskServiceClient
+	ModelBaseServiceClient grpc2.ModelBaseServiceClient
+	DependencyClient       grpc2.DependencyServiceClient
+	MetricClient           grpc2.MetricServiceClient
 }
 
 func (c *GrpcClient) Start() (err error) {
@@ -84,10 +84,10 @@ func (c *GrpcClient) Stop() (err error) {
 
 func (c *GrpcClient) register() {
 	c.NodeClient = grpc2.NewNodeServiceClient(c.conn)
-	c.ModelBaseServiceV2Client = grpc2.NewModelBaseServiceV2Client(c.conn)
+	c.ModelBaseServiceClient = grpc2.NewModelBaseServiceClient(c.conn)
 	c.TaskClient = grpc2.NewTaskServiceClient(c.conn)
-	c.DependencyClient = grpc2.NewDependencyServiceV2Client(c.conn)
-	c.MetricClient = grpc2.NewMetricServiceV2Client(c.conn)
+	c.DependencyClient = grpc2.NewDependencyServiceClient(c.conn)
+	c.MetricClient = grpc2.NewMetricServiceClient(c.conn)
 }
 
 func (c *GrpcClient) Context() (ctx context.Context, cancel context.CancelFunc) {

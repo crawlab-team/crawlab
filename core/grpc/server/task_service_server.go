@@ -110,7 +110,7 @@ func (svr TaskServiceServer) FetchTask(ctx context.Context, request *grpc.TaskSe
 	if nodeKey == "" {
 		return nil, errors.New("invalid node key")
 	}
-	n, err := service.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
+	n, err := service.NewModelService[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
 	if err != nil {
 		return nil, trace.TraceError(err)
 	}
@@ -124,7 +124,7 @@ func (svr TaskServiceServer) FetchTask(ctx context.Context, request *grpc.TaskSe
 	}
 	if err := mongo.RunTransactionWithContext(ctx, func(sc mongo2.SessionContext) (err error) {
 		// fetch task for the given node
-		t, err := service.NewModelServiceV2[models2.TaskV2]().GetOne(bson.M{
+		t, err := service.NewModelService[models2.TaskV2]().GetOne(bson.M{
 			"node_id": n.Id,
 			"status":  constants.TaskStatusPending,
 		}, opts)
@@ -138,7 +138,7 @@ func (svr TaskServiceServer) FetchTask(ctx context.Context, request *grpc.TaskSe
 		}
 
 		// fetch task for any node
-		t, err = service.NewModelServiceV2[models2.TaskV2]().GetOne(bson.M{
+		t, err = service.NewModelService[models2.TaskV2]().GetOne(bson.M{
 			"node_id": primitive.NilObjectID,
 			"status":  constants.TaskStatusPending,
 		}, opts)
@@ -177,7 +177,7 @@ func (svr TaskServiceServer) SendNotification(_ context.Context, request *grpc.T
 	var args []any
 
 	// task
-	task, err := service.NewModelServiceV2[models2.TaskV2]().GetById(taskId)
+	task, err := service.NewModelService[models2.TaskV2]().GetById(taskId)
 	if err != nil {
 		log.Errorf("task not found: %s", request.TaskId)
 		return nil, trace.TraceError(err)
@@ -185,7 +185,7 @@ func (svr TaskServiceServer) SendNotification(_ context.Context, request *grpc.T
 	args = append(args, task)
 
 	// task stat
-	taskStat, err := service.NewModelServiceV2[models2.TaskStatV2]().GetById(task.Id)
+	taskStat, err := service.NewModelService[models2.TaskStatV2]().GetById(task.Id)
 	if err != nil {
 		log.Errorf("task stat not found for task: %s", request.TaskId)
 		return nil, trace.TraceError(err)
@@ -193,7 +193,7 @@ func (svr TaskServiceServer) SendNotification(_ context.Context, request *grpc.T
 	args = append(args, taskStat)
 
 	// spider
-	spider, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(task.SpiderId)
+	spider, err := service.NewModelService[models2.SpiderV2]().GetById(task.SpiderId)
 	if err != nil {
 		log.Errorf("spider not found for task: %s", request.TaskId)
 		return nil, trace.TraceError(err)
@@ -201,7 +201,7 @@ func (svr TaskServiceServer) SendNotification(_ context.Context, request *grpc.T
 	args = append(args, spider)
 
 	// node
-	node, err := service.NewModelServiceV2[models2.NodeV2]().GetById(task.NodeId)
+	node, err := service.NewModelService[models2.NodeV2]().GetById(task.NodeId)
 	if err != nil {
 		return nil, trace.TraceError(err)
 	}
@@ -210,7 +210,7 @@ func (svr TaskServiceServer) SendNotification(_ context.Context, request *grpc.T
 	// schedule
 	var schedule *models2.ScheduleV2
 	if !task.ScheduleId.IsZero() {
-		schedule, err = service.NewModelServiceV2[models2.ScheduleV2]().GetById(task.ScheduleId)
+		schedule, err = service.NewModelService[models2.ScheduleV2]().GetById(task.ScheduleId)
 		if err != nil {
 			log.Errorf("schedule not found for task: %s", request.TaskId)
 			return nil, trace.TraceError(err)
@@ -219,7 +219,7 @@ func (svr TaskServiceServer) SendNotification(_ context.Context, request *grpc.T
 	}
 
 	// settings
-	settings, err := service.NewModelServiceV2[models2.NotificationSettingV2]().GetMany(bson.M{
+	settings, err := service.NewModelService[models2.NotificationSettingV2]().GetMany(bson.M{
 		"enabled": true,
 		"trigger": bson.M{
 			"$regex": constants.NotificationTriggerPatternTask,
@@ -288,7 +288,7 @@ func (svr TaskServiceServer) handleInsertLogs(taskId primitive.ObjectID, msg *gr
 
 func (svr TaskServiceServer) saveTask(t *models2.TaskV2) (err error) {
 	t.SetUpdated(t.CreatedBy)
-	return service.NewModelServiceV2[models2.TaskV2]().ReplaceById(t.Id, *t)
+	return service.NewModelService[models2.TaskV2]().ReplaceById(t.Id, *t)
 }
 
 func NewTaskServiceServer() (res *TaskServiceServer, err error) {

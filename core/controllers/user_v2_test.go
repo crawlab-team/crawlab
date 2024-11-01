@@ -17,7 +17,7 @@ func TestPostUserChangePassword_Success(t *testing.T) {
 	SetupTestDB()
 	defer CleanupTestDB()
 
-	modelSvc := service.NewModelServiceV2[models.UserV2]()
+	modelSvc := service.NewModelService[models.UserV2]()
 	u := models.UserV2{}
 	id, err := modelSvc.InsertOne(u)
 	assert.Nil(t, err)
@@ -43,7 +43,7 @@ func TestGetUserMe_Success(t *testing.T) {
 	SetupTestDB()
 	defer CleanupTestDB()
 
-	modelSvc := service.NewModelServiceV2[models.UserV2]()
+	modelSvc := service.NewModelService[models.UserV2]()
 	u := models.UserV2{}
 	id, err := modelSvc.InsertOne(u)
 	assert.Nil(t, err)
@@ -67,7 +67,7 @@ func TestPutUserById_Success(t *testing.T) {
 	SetupTestDB()
 	defer CleanupTestDB()
 
-	modelSvc := service.NewModelServiceV2[models.UserV2]()
+	modelSvc := service.NewModelService[models.UserV2]()
 	u := models.UserV2{}
 	id, err := modelSvc.InsertOne(u)
 	assert.Nil(t, err)

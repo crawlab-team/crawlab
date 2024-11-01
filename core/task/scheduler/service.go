@@ -44,7 +44,7 @@ func (svc *Service) Enqueue(t *models2.TaskV2, by primitive.ObjectID) (t2 *model
 	t.SetUpdated(by)
 
 	// add task
-	taskModelSvc := service.NewModelServiceV2[models2.TaskV2]()
+	taskModelSvc := service.NewModelService[models2.TaskV2]()
 	t.Id, err = taskModelSvc.InsertOne(*t)
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func (svc *Service) Enqueue(t *models2.TaskV2, by primitive.ObjectID) (t2 *model
 	ts.SetUpdated(by)
 
 	// add task stat
-	_, err = service.NewModelServiceV2[models2.TaskStatV2]().InsertOne(ts)
+	_, err = service.NewModelService[models2.TaskStatV2]().InsertOne(ts)
 	if err != nil {
 		return nil, trace.TraceError(err)
 	}
@@ -68,7 +68,7 @@ func (svc *Service) Enqueue(t *models2.TaskV2, by primitive.ObjectID) (t2 *model
 
 func (svc *Service) Cancel(id, by primitive.ObjectID, force bool) (err error) {
 	// task
-	t, err := service.NewModelServiceV2[models2.TaskV2]().GetById(id)
+	t, err := service.NewModelService[models2.TaskV2]().GetById(id)
 	if err != nil {
 		log.Errorf("task not found: %s", id.Hex())
 		return err
@@ -145,18 +145,18 @@ func (svc *Service) SaveTask(t *models2.TaskV2, by primitive.ObjectID) (err erro
 	if t.Id.IsZero() {
 		t.SetCreated(by)
 		t.SetUpdated(by)
-		_, err = service.NewModelServiceV2[models2.TaskV2]().InsertOne(*t)
+		_, err = service.NewModelService[models2.TaskV2]().InsertOne(*t)
 		return err
 	} else {
 		t.SetUpdated(by)
-		return service.NewModelServiceV2[models2.TaskV2]().ReplaceById(t.Id, *t)
+		return service.NewModelService[models2.TaskV2]().ReplaceById(t.Id, *t)
 	}
 }
 
 // initTaskStatus initialize task status of existing tasks
 func (svc *Service) initTaskStatus() {
 	// set status of running tasks as TaskStatusAbnormal
-	runningTasks, err := service.NewModelServiceV2[models2.TaskV2]().GetMany(bson.M{
+	runningTasks, err := service.NewModelService[models2.TaskV2]().GetMany(bson.M{
 		"status": bson.M{
 			"$in": []string{
 				constants.TaskStatusPending,
@@ -186,7 +186,7 @@ func (svc *Service) isMasterNode(t *models2.TaskV2) (ok bool, err error) {
 	if t.NodeId.IsZero() {
 		return false, trace.TraceError(errors.ErrorTaskNoNodeId)
 	}
-	n, err := service.NewModelServiceV2[models2.NodeV2]().GetById(t.NodeId)
+	n, err := service.NewModelService[models2.NodeV2]().GetById(t.NodeId)
 	if err != nil {
 		if errors2.Is(err, mongo2.ErrNoDocuments) {
 			return false, trace.TraceError(errors.ErrorTaskNodeNotFound)
@@ -199,7 +199,7 @@ func (svc *Service) isMasterNode(t *models2.TaskV2) (ok bool, err error) {
 func (svc *Service) cleanupTasks() {
 	for {
 		// task stats over 30 days ago
-		taskStats, err := service.NewModelServiceV2[models2.TaskStatV2]().GetMany(bson.M{
+		taskStats, err := service.NewModelService[models2.TaskStatV2]().GetMany(bson.M{
 			"created_ts": bson.M{
 				"$lt": time.Now().Add(-30 * 24 * time.Hour),
 			},
@@ -217,14 +217,14 @@ func (svc *Service) cleanupTasks() {
 
 		if len(ids) > 0 {
 			// remove tasks
-			if err := service.NewModelServiceV2[models2.TaskV2]().DeleteMany(bson.M{
+			if err := service.NewModelService[models2.TaskV2]().DeleteMany(bson.M{
 				"_id": bson.M{"$in": ids},
 			}); err != nil {
 				trace.PrintError(err)
 			}
 
 			// remove task stats
-			if err := service.NewModelServiceV2[models2.TaskStatV2]().DeleteMany(bson.M{
+			if err := service.NewModelService[models2.TaskStatV2]().DeleteMany(bson.M{
 				"_id": bson.M{"$in": ids},
 			}); err != nil {
 				trace.PrintError(err)

@@ -20,7 +20,7 @@ func (svc *ServiceV2) Init() (err error) {
 }
 
 func (svc *ServiceV2) initData() (err error) {
-	total, err := service.NewModelServiceV2[models.SettingV2]().Count(bson.M{
+	total, err := service.NewModelService[models.SettingV2]().Count(bson.M{
 		"key": "site_title",
 	})
 	if err != nil {
@@ -40,7 +40,7 @@ func (svc *ServiceV2) initData() (err error) {
 			},
 		},
 	}
-	_, err = service.NewModelServiceV2[models.SettingV2]().InsertMany(settings)
+	_, err = service.NewModelService[models.SettingV2]().InsertMany(settings)
 	if err != nil {
 		return err
 	}

@@ -28,13 +28,13 @@ func PostUser(c *gin.Context) {
 	}
 	model.SetCreated(u.Id)
 	model.SetUpdated(u.Id)
-	id, err := service.NewModelServiceV2[models.UserV2]().InsertOne(model)
+	id, err := service.NewModelService[models.UserV2]().InsertOne(model)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
 
-	result, err := service.NewModelServiceV2[models.UserV2]().GetById(id)
+	result, err := service.NewModelService[models.UserV2]().GetById(id)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -63,7 +63,7 @@ func PostUserChangePassword(c *gin.Context) {
 
 	// get user
 	u := GetUserFromContext(c)
-	modelSvc := service.NewModelServiceV2[models.UserV2]()
+	modelSvc := service.NewModelService[models.UserV2]()
 
 	// update password
 	user, err := modelSvc.GetById(id)
@@ -84,7 +84,7 @@ func PostUserChangePassword(c *gin.Context) {
 
 func GetUserMe(c *gin.Context) {
 	u := GetUserFromContext(c)
-	_u, err := service.NewModelServiceV2[models.UserV2]().GetById(u.Id)
+	_u, err := service.NewModelService[models.UserV2]().GetById(u.Id)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -103,7 +103,7 @@ func PutUserById(c *gin.Context) {
 	// get user
 	u := GetUserFromContext(c)
 
-	modelSvc := service.NewModelServiceV2[models.UserV2]()
+	modelSvc := service.NewModelService[models.UserV2]()
 
 	// update user
 	userDb, err := modelSvc.GetById(u.Id)

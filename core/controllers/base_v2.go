@@ -18,7 +18,7 @@ type Action struct {
 }
 
 type BaseControllerV2[T any] struct {
-	modelSvc *service.ModelServiceV2[T]
+	modelSvc *service.ModelService[T]
 	actions  []Action
 }
 
@@ -229,7 +229,7 @@ func (ctr *BaseControllerV2[T]) getList(c *gin.Context) {
 
 func NewControllerV2[T any](actions ...Action) *BaseControllerV2[T] {
 	ctr := &BaseControllerV2[T]{
-		modelSvc: service.NewModelServiceV2[T](),
+		modelSvc: service.NewModelService[T](),
 		actions:  actions,
 	}
 	return ctr

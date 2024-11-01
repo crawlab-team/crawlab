@@ -19,16 +19,16 @@ var (
 	mu          sync.Mutex
 )
 
-type ModelServiceV2[T any] struct {
+type ModelService[T any] struct {
 	cfg       interfaces.NodeConfigService
 	c         *client.GrpcClient
 	modelType string
 }
 
-func (svc *ModelServiceV2[T]) GetById(id primitive.ObjectID) (model *T, err error) {
+func (svc *ModelService[T]) GetById(id primitive.ObjectID) (model *T, err error) {
 	ctx, cancel := svc.c.Context()
 	defer cancel()
-	res, err := svc.c.ModelBaseServiceV2Client.GetById(ctx, &grpc.ModelServiceV2GetByIdRequest{
+	res, err := svc.c.ModelBaseServiceClient.GetById(ctx, &grpc.ModelServiceGetByIdRequest{
 		NodeKey:   svc.cfg.GetNodeKey(),
 		ModelType: svc.modelType,
 		Id:        id.Hex(),
@@ -39,7 +39,7 @@ func (svc *ModelServiceV2[T]) GetById(id primitive.ObjectID) (model *T, err erro
 	return svc.deserializeOne(res)
 }
 
-func (svc *ModelServiceV2[T]) GetOne(query bson.M, options *mongo.FindOptions) (model *T, err error) {
+func (svc *ModelService[T]) GetOne(query bson.M, options *mongo.FindOptions) (model *T, err error) {
 	ctx, cancel := svc.c.Context()
 	defer cancel()
 	queryData, err := json.Marshal(query)
@@ -50,7 +50,7 @@ func (svc *ModelServiceV2[T]) GetOne(query bson.M, options *mongo.FindOptions) (
 	if err != nil {
 		return nil, err
 	}
-	res, err := svc.c.ModelBaseServiceV2Client.GetOne(ctx, &grpc.ModelServiceV2GetOneRequest{
+	res, err := svc.c.ModelBaseServiceClient.GetOne(ctx, &grpc.ModelServiceGetOneRequest{
 		NodeKey:     svc.cfg.GetNodeKey(),
 		ModelType:   svc.modelType,
 		Query:       queryData,
@@ -62,7 +62,7 @@ func (svc *ModelServiceV2[T]) GetOne(query bson.M, options *mongo.FindOptions) (
 	return svc.deserializeOne(res)
 }
 
-func (svc *ModelServiceV2[T]) GetMany(query bson.M, options *mongo.FindOptions) (models []T, err error) {
+func (svc *ModelService[T]) GetMany(query bson.M, options *mongo.FindOptions) (models []T, err error) {
 	ctx, cancel := svc.c.Context()
 	defer cancel()
 	queryData, err := json.Marshal(query)
@@ -73,7 +73,7 @@ func (svc *ModelServiceV2[T]) GetMany(query bson.M, options *mongo.FindOptions) 
 	if err != nil {
 		return nil, err
 	}
-	res, err := svc.c.ModelBaseServiceV2Client.GetMany(ctx, &grpc.ModelServiceV2GetManyRequest{
+	res, err := svc.c.ModelBaseServiceClient.GetMany(ctx, &grpc.ModelServiceGetManyRequest{
 		NodeKey:     svc.cfg.GetNodeKey(),
 		ModelType:   svc.modelType,
 		Query:       queryData,
@@ -85,10 +85,10 @@ func (svc *ModelServiceV2[T]) GetMany(query bson.M, options *mongo.FindOptions) 
 	return svc.deserializeMany(res)
 }
 
-func (svc *ModelServiceV2[T]) DeleteById(id primitive.ObjectID) (err error) {
+func (svc *ModelService[T]) DeleteById(id primitive.ObjectID) (err error) {
 	ctx, cancel := svc.c.Context()
 	defer cancel()
-	_, err = svc.c.ModelBaseServiceV2Client.DeleteById(ctx, &grpc.ModelServiceV2DeleteByIdRequest{
+	_, err = svc.c.ModelBaseServiceClient.DeleteById(ctx, &grpc.ModelServiceDeleteByIdRequest{
 		NodeKey:   svc.cfg.GetNodeKey(),
 		ModelType: svc.modelType,
 		Id:        id.Hex(),
@@ -99,14 +99,14 @@ func (svc *ModelServiceV2[T]) DeleteById(id primitive.ObjectID) (err error) {
 	return nil
 }
 
-func (svc *ModelServiceV2[T]) DeleteOne(query bson.M) (err error) {
+func (svc *ModelService[T]) DeleteOne(query bson.M) (err error) {
 	ctx, cancel := svc.c.Context()
 	defer cancel()
 	queryData, err := json.Marshal(query)
 	if err != nil {
 		return err
 	}
-	_, err = svc.c.ModelBaseServiceV2Client.DeleteOne(ctx, &grpc.ModelServiceV2DeleteOneRequest{
+	_, err = svc.c.ModelBaseServiceClient.DeleteOne(ctx, &grpc.ModelServiceDeleteOneRequest{
 		NodeKey:   svc.cfg.GetNodeKey(),
 		ModelType: svc.modelType,
 		Query:     queryData,
@@ -117,14 +117,14 @@ func (svc *ModelServiceV2[T]) DeleteOne(query bson.M) (err error) {
 	return nil
 }
 
-func (svc *ModelServiceV2[T]) DeleteMany(query bson.M) (err error) {
+func (svc *ModelService[T]) DeleteMany(query bson.M) (err error) {
 	ctx, cancel := svc.c.Context()
 	defer cancel()
 	queryData, err := json.Marshal(query)
 	if err != nil {
 		return err
 	}
-	_, err = svc.c.ModelBaseServiceV2Client.DeleteMany(ctx, &grpc.ModelServiceV2DeleteManyRequest{
+	_, err = svc.c.ModelBaseServiceClient.DeleteMany(ctx, &grpc.ModelServiceDeleteManyRequest{
 		NodeKey:   svc.cfg.GetNodeKey(),
 		ModelType: svc.modelType,
 		Query:     queryData,
@@ -135,14 +135,14 @@ func (svc *ModelServiceV2[T]) DeleteMany(query bson.M) (err error) {
 	return nil
 }
 
-func (svc *ModelServiceV2[T]) UpdateById(id primitive.ObjectID, update bson.M) (err error) {
+func (svc *ModelService[T]) UpdateById(id primitive.ObjectID, update bson.M) (err error) {
 	ctx, cancel := svc.c.Context()
 	defer cancel()
 	updateData, err := json.Marshal(update)
 	if err != nil {
 		return err
 	}
-	_, err = svc.c.ModelBaseServiceV2Client.UpdateById(ctx, &grpc.ModelServiceV2UpdateByIdRequest{
+	_, err = svc.c.ModelBaseServiceClient.UpdateById(ctx, &grpc.ModelServiceUpdateByIdRequest{
 		NodeKey:   svc.cfg.GetNodeKey(),
 		ModelType: svc.modelType,
 		Id:        id.Hex(),
@@ -154,7 +154,7 @@ func (svc *ModelServiceV2[T]) UpdateById(id primitive.ObjectID, update bson.M) (
 	return nil
 }
 
-func (svc *ModelServiceV2[T]) UpdateOne(query bson.M, update bson.M) (err error) {
+func (svc *ModelService[T]) UpdateOne(query bson.M, update bson.M) (err error) {
 	ctx, cancel := svc.c.Context()
 	defer cancel()
 	queryData, err := json.Marshal(query)
@@ -165,7 +165,7 @@ func (svc *ModelServiceV2[T]) UpdateOne(query bson.M, update bson.M) (err error)
 	if err != nil {
 		return err
 	}
-	_, err = svc.c.ModelBaseServiceV2Client.UpdateOne(ctx, &grpc.ModelServiceV2UpdateOneRequest{
+	_, err = svc.c.ModelBaseServiceClient.UpdateOne(ctx, &grpc.ModelServiceUpdateOneRequest{
 		NodeKey:   svc.cfg.GetNodeKey(),
 		ModelType: svc.modelType,
 		Query:     queryData,
@@ -177,7 +177,7 @@ func (svc *ModelServiceV2[T]) UpdateOne(query bson.M, update bson.M) (err error)
 	return nil
 }
 
-func (svc *ModelServiceV2[T]) UpdateMany(query bson.M, update bson.M) (err error) {
+func (svc *ModelService[T]) UpdateMany(query bson.M, update bson.M) (err error) {
 	ctx, cancel := svc.c.Context()
 	defer cancel()
 	queryData, err := json.Marshal(query)
@@ -188,7 +188,7 @@ func (svc *ModelServiceV2[T]) UpdateMany(query bson.M, update bson.M) (err error
 	if err != nil {
 		return err
 	}
-	_, err = svc.c.ModelBaseServiceV2Client.UpdateMany(ctx, &grpc.ModelServiceV2UpdateManyRequest{
+	_, err = svc.c.ModelBaseServiceClient.UpdateMany(ctx, &grpc.ModelServiceUpdateManyRequest{
 		NodeKey:   svc.cfg.GetNodeKey(),
 		ModelType: svc.modelType,
 		Query:     queryData,
@@ -197,14 +197,14 @@ func (svc *ModelServiceV2[T]) UpdateMany(query bson.M, update bson.M) (err error
 	return nil
 }
 
-func (svc *ModelServiceV2[T]) ReplaceById(id primitive.ObjectID, model T) (err error) {
+func (svc *ModelService[T]) ReplaceById(id primitive.ObjectID, model T) (err error) {
 	ctx, cancel := svc.c.Context()
 	defer cancel()
 	modelData, err := json.Marshal(model)
 	if err != nil {
 		return err
 	}
-	_, err = svc.c.ModelBaseServiceV2Client.ReplaceById(ctx, &grpc.ModelServiceV2ReplaceByIdRequest{
+	_, err = svc.c.ModelBaseServiceClient.ReplaceById(ctx, &grpc.ModelServiceReplaceByIdRequest{
 		NodeKey:   svc.cfg.GetNodeKey(),
 		ModelType: svc.modelType,
 		Id:        id.Hex(),
@@ -216,7 +216,7 @@ func (svc *ModelServiceV2[T]) ReplaceById(id primitive.ObjectID, model T) (err e
 	return nil
 }
 
-func (svc *ModelServiceV2[T]) ReplaceOne(query bson.M, model T) (err error) {
+func (svc *ModelService[T]) ReplaceOne(query bson.M, model T) (err error) {
 	ctx, cancel := svc.c.Context()
 	defer cancel()
 	queryData, err := json.Marshal(query)
@@ -227,7 +227,7 @@ func (svc *ModelServiceV2[T]) ReplaceOne(query bson.M, model T) (err error) {
 	if err != nil {
 		return err
 	}
-	_, err = svc.c.ModelBaseServiceV2Client.ReplaceOne(ctx, &grpc.ModelServiceV2ReplaceOneRequest{
+	_, err = svc.c.ModelBaseServiceClient.ReplaceOne(ctx, &grpc.ModelServiceReplaceOneRequest{
 		NodeKey:   svc.cfg.GetNodeKey(),
 		ModelType: svc.modelType,
 		Query:     queryData,
@@ -239,14 +239,14 @@ func (svc *ModelServiceV2[T]) ReplaceOne(query bson.M, model T) (err error) {
 	return nil
 }
 
-func (svc *ModelServiceV2[T]) InsertOne(model T) (id primitive.ObjectID, err error) {
+func (svc *ModelService[T]) InsertOne(model T) (id primitive.ObjectID, err error) {
 	ctx, cancel := svc.c.Context()
 	defer cancel()
 	modelData, err := json.Marshal(model)
 	if err != nil {
 		return primitive.NilObjectID, err
 	}
-	res, err := svc.c.ModelBaseServiceV2Client.InsertOne(ctx, &grpc.ModelServiceV2InsertOneRequest{
+	res, err := svc.c.ModelBaseServiceClient.InsertOne(ctx, &grpc.ModelServiceInsertOneRequest{
 		NodeKey:   svc.cfg.GetNodeKey(),
 		ModelType: svc.modelType,
 		Model:     modelData,
@@ -262,14 +262,14 @@ func (svc *ModelServiceV2[T]) InsertOne(model T) (id primitive.ObjectID, err err
 	//return primitive.ObjectIDFromHex(idStr)
 }
 
-func (svc *ModelServiceV2[T]) InsertMany(models []T) (ids []primitive.ObjectID, err error) {
+func (svc *ModelService[T]) InsertMany(models []T) (ids []primitive.ObjectID, err error) {
 	ctx, cancel := svc.c.Context()
 	defer cancel()
 	modelsData, err := json.Marshal(models)
 	if err != nil {
 		return nil, err
 	}
-	res, err := svc.c.ModelBaseServiceV2Client.InsertMany(ctx, &grpc.ModelServiceV2InsertManyRequest{
+	res, err := svc.c.ModelBaseServiceClient.InsertMany(ctx, &grpc.ModelServiceInsertManyRequest{
 		NodeKey:   svc.cfg.GetNodeKey(),
 		ModelType: svc.modelType,
 		Models:    modelsData,
@@ -280,14 +280,14 @@ func (svc *ModelServiceV2[T]) InsertMany(models []T) (ids []primitive.ObjectID, 
 	return deserialize[[]primitive.ObjectID](res)
 }
 
-func (svc *ModelServiceV2[T]) Count(query bson.M) (total int, err error) {
+func (svc *ModelService[T]) Count(query bson.M) (total int, err error) {
 	ctx, cancel := svc.c.Context()
 	defer cancel()
 	queryData, err := json.Marshal(query)
 	if err != nil {
 		return 0, err
 	}
-	res, err := svc.c.ModelBaseServiceV2Client.Count(ctx, &grpc.ModelServiceV2CountRequest{
+	res, err := svc.c.ModelBaseServiceClient.Count(ctx, &grpc.ModelServiceCountRequest{
 		NodeKey:   svc.cfg.GetNodeKey(),
 		ModelType: svc.modelType,
 		Query:     queryData,
@@ -298,11 +298,11 @@ func (svc *ModelServiceV2[T]) Count(query bson.M) (total int, err error) {
 	return deserialize[int](res)
 }
 
-func (svc *ModelServiceV2[T]) GetCol() (col *mongo.Col) {
+func (svc *ModelService[T]) GetCol() (col *mongo.Col) {
 	return nil
 }
 
-func (svc *ModelServiceV2[T]) deserializeOne(res *grpc.Response) (result *T, err error) {
+func (svc *ModelService[T]) deserializeOne(res *grpc.Response) (result *T, err error) {
 	r, err := deserialize[T](res)
 	if err != nil {
 		return nil, err
@@ -310,7 +310,7 @@ func (svc *ModelServiceV2[T]) deserializeOne(res *grpc.Response) (result *T, err
 	return &r, err
 }
 
-func (svc *ModelServiceV2[T]) deserializeMany(res *grpc.Response) (results []T, err error) {
+func (svc *ModelService[T]) deserializeMany(res *grpc.Response) (results []T, err error) {
 	return deserialize[[]T](res)
 }
 
@@ -322,7 +322,7 @@ func deserialize[T any](res *grpc.Response) (result T, err error) {
 	return result, nil
 }
 
-func NewModelServiceV2[T any]() *ModelServiceV2[T] {
+func NewModelService[T any]() *ModelService[T] {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -334,7 +334,7 @@ func NewModelServiceV2[T any]() *ModelServiceV2[T] {
 		onceMap[typeName] = new(sync.Once)
 	}
 
-	var instance *ModelServiceV2[T]
+	var instance *ModelService[T]
 
 	c := client.GetGrpcClient()
 	if !c.IsStarted() {
@@ -345,7 +345,7 @@ func NewModelServiceV2[T any]() *ModelServiceV2[T] {
 	}
 
 	onceMap[typeName].Do(func() {
-		instance = &ModelServiceV2[T]{
+		instance = &ModelService[T]{
 			cfg:       nodeconfig.GetNodeConfigService(),
 			c:         c,
 			modelType: typeName,
@@ -353,5 +353,5 @@ func NewModelServiceV2[T any]() *ModelServiceV2[T] {
 		instanceMap[typeName] = instance
 	})
 
-	return instanceMap[typeName].(*ModelServiceV2[T])
+	return instanceMap[typeName].(*ModelService[T])
 }

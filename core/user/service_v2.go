@@ -20,7 +20,7 @@ import (
 type ServiceV2 struct {
 	jwtSecret        string
 	jwtSigningMethod jwt.SigningMethod
-	modelSvc         *service.ModelServiceV2[models.UserV2]
+	modelSvc         *service.ModelService[models.UserV2]
 }
 
 func (svc *ServiceV2) Init() (err error) {
@@ -171,7 +171,7 @@ func (svc *ServiceV2) getSecretFunc() jwt.Keyfunc {
 func newUserServiceV2() (svc *ServiceV2, err error) {
 	// service
 	svc = &ServiceV2{
-		modelSvc:         service.NewModelServiceV2[models.UserV2](),
+		modelSvc:         service.NewModelService[models.UserV2](),
 		jwtSecret:        "crawlab",
 		jwtSigningMethod: jwt.SigningMethodHS256,
 	}

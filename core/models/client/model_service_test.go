@@ -43,7 +43,7 @@ func stopSvr(svr *server.GrpcServer) {
 	}
 }
 
-func TestModelServiceV2_GetById(t *testing.T) {
+func TestModelService_GetById(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
 	svr, err := server.NewGrpcServer()
@@ -54,7 +54,7 @@ func TestModelServiceV2_GetById(t *testing.T) {
 	m := models.TestModelV2{
 		Name: "Test Name",
 	}
-	modelSvc := service.NewModelServiceV2[models.TestModelV2]()
+	modelSvc := service.NewModelService[models.TestModelV2]()
 	id, err := modelSvc.InsertOne(m)
 	require.Nil(t, err)
 	m.SetId(id)
@@ -64,14 +64,14 @@ func TestModelServiceV2_GetById(t *testing.T) {
 	require.Nil(t, err)
 	c.Connect()
 
-	clientSvc := client.NewModelServiceV2[models.TestModelV2]()
+	clientSvc := client.NewModelService[models.TestModelV2]()
 	res, err := clientSvc.GetById(m.Id)
 	require.Nil(t, err)
 	assert.Equal(t, res.Id, m.Id)
 	assert.Equal(t, res.Name, m.Name)
 }
 
-func TestModelServiceV2_GetOne(t *testing.T) {
+func TestModelService_GetOne(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
 	svr, err := server.NewGrpcServer()
@@ -82,7 +82,7 @@ func TestModelServiceV2_GetOne(t *testing.T) {
 	m := models.TestModelV2{
 		Name: "Test Name",
 	}
-	modelSvc := service.NewModelServiceV2[models.TestModelV2]()
+	modelSvc := service.NewModelService[models.TestModelV2]()
 	id, err := modelSvc.InsertOne(m)
 	require.Nil(t, err)
 	m.SetId(id)
@@ -92,14 +92,14 @@ func TestModelServiceV2_GetOne(t *testing.T) {
 	require.Nil(t, err)
 	c.Connect()
 
-	clientSvc := client.NewModelServiceV2[models.TestModelV2]()
+	clientSvc := client.NewModelService[models.TestModelV2]()
 	res, err := clientSvc.GetOne(bson.M{"name": m.Name}, nil)
 	require.Nil(t, err)
 	assert.Equal(t, res.Id, m.Id)
 	assert.Equal(t, res.Name, m.Name)
 }
 
-func TestModelServiceV2_GetMany(t *testing.T) {
+func TestModelService_GetMany(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
 	svr, err := server.NewGrpcServer()
@@ -110,7 +110,7 @@ func TestModelServiceV2_GetMany(t *testing.T) {
 	m := models.TestModelV2{
 		Name: "Test Name",
 	}
-	modelSvc := service.NewModelServiceV2[models.TestModelV2]()
+	modelSvc := service.NewModelService[models.TestModelV2]()
 	id, err := modelSvc.InsertOne(m)
 	require.Nil(t, err)
 	m.SetId(id)
@@ -120,7 +120,7 @@ func TestModelServiceV2_GetMany(t *testing.T) {
 	require.Nil(t, err)
 	c.Connect()
 
-	clientSvc := client.NewModelServiceV2[models.TestModelV2]()
+	clientSvc := client.NewModelService[models.TestModelV2]()
 	res, err := clientSvc.GetMany(bson.M{"name": m.Name}, nil)
 	require.Nil(t, err)
 	assert.Equal(t, len(res), 1)
@@ -128,7 +128,7 @@ func TestModelServiceV2_GetMany(t *testing.T) {
 	assert.Equal(t, res[0].Name, m.Name)
 }
 
-func TestModelServiceV2_DeleteById(t *testing.T) {
+func TestModelService_DeleteById(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
 	svr, err := server.NewGrpcServer()
@@ -139,7 +139,7 @@ func TestModelServiceV2_DeleteById(t *testing.T) {
 	m := models.TestModelV2{
 		Name: "Test Name",
 	}
-	modelSvc := service.NewModelServiceV2[models.TestModelV2]()
+	modelSvc := service.NewModelService[models.TestModelV2]()
 	id, err := modelSvc.InsertOne(m)
 	require.Nil(t, err)
 	m.SetId(id)
@@ -149,7 +149,7 @@ func TestModelServiceV2_DeleteById(t *testing.T) {
 	require.Nil(t, err)
 	c.Connect()
 
-	clientSvc := client.NewModelServiceV2[models.TestModelV2]()
+	clientSvc := client.NewModelService[models.TestModelV2]()
 	err = clientSvc.DeleteById(m.Id)
 	require.Nil(t, err)
 
@@ -158,7 +158,7 @@ func TestModelServiceV2_DeleteById(t *testing.T) {
 	require.Nil(t, res)
 }
 
-func TestModelServiceV2_DeleteOne(t *testing.T) {
+func TestModelService_DeleteOne(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
 	svr, err := server.NewGrpcServer()
@@ -169,7 +169,7 @@ func TestModelServiceV2_DeleteOne(t *testing.T) {
 	m := models.TestModelV2{
 		Name: "Test Name",
 	}
-	modelSvc := service.NewModelServiceV2[models.TestModelV2]()
+	modelSvc := service.NewModelService[models.TestModelV2]()
 	id, err := modelSvc.InsertOne(m)
 	require.Nil(t, err)
 	m.SetId(id)
@@ -179,7 +179,7 @@ func TestModelServiceV2_DeleteOne(t *testing.T) {
 	require.Nil(t, err)
 	c.Connect()
 
-	clientSvc := client.NewModelServiceV2[models.TestModelV2]()
+	clientSvc := client.NewModelService[models.TestModelV2]()
 	err = clientSvc.DeleteOne(bson.M{"name": m.Name})
 	require.Nil(t, err)
 
@@ -188,7 +188,7 @@ func TestModelServiceV2_DeleteOne(t *testing.T) {
 	require.Nil(t, res)
 }
 
-func TestModelServiceV2_DeleteMany(t *testing.T) {
+func TestModelService_DeleteMany(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
 	svr, err := server.NewGrpcServer()
@@ -199,7 +199,7 @@ func TestModelServiceV2_DeleteMany(t *testing.T) {
 	m := models.TestModelV2{
 		Name: "Test Name",
 	}
-	modelSvc := service.NewModelServiceV2[models.TestModelV2]()
+	modelSvc := service.NewModelService[models.TestModelV2]()
 	id, err := modelSvc.InsertOne(m)
 	require.Nil(t, err)
 	m.SetId(id)
@@ -209,7 +209,7 @@ func TestModelServiceV2_DeleteMany(t *testing.T) {
 	require.Nil(t, err)
 	c.Connect()
 
-	clientSvc := client.NewModelServiceV2[models.TestModelV2]()
+	clientSvc := client.NewModelService[models.TestModelV2]()
 	err = clientSvc.DeleteMany(bson.M{"name": m.Name})
 	require.Nil(t, err)
 
@@ -218,7 +218,7 @@ func TestModelServiceV2_DeleteMany(t *testing.T) {
 	assert.Equal(t, len(res), 0)
 }
 
-func TestModelServiceV2_UpdateById(t *testing.T) {
+func TestModelService_UpdateById(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
 	svr, err := server.NewGrpcServer()
@@ -229,7 +229,7 @@ func TestModelServiceV2_UpdateById(t *testing.T) {
 	m := models.TestModelV2{
 		Name: "Test Name",
 	}
-	modelSvc := service.NewModelServiceV2[models.TestModelV2]()
+	modelSvc := service.NewModelService[models.TestModelV2]()
 	id, err := modelSvc.InsertOne(m)
 	require.Nil(t, err)
 	m.SetId(id)
@@ -239,7 +239,7 @@ func TestModelServiceV2_UpdateById(t *testing.T) {
 	require.Nil(t, err)
 	c.Connect()
 
-	clientSvc := client.NewModelServiceV2[models.TestModelV2]()
+	clientSvc := client.NewModelService[models.TestModelV2]()
 	err = clientSvc.UpdateById(m.Id, bson.M{"$set": bson.M{"name": "New Name"}})
 	require.Nil(t, err)
 
@@ -248,7 +248,7 @@ func TestModelServiceV2_UpdateById(t *testing.T) {
 	assert.Equal(t, res.Name, "New Name")
 }
 
-func TestModelServiceV2_UpdateOne(t *testing.T) {
+func TestModelService_UpdateOne(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
 	svr, err := server.NewGrpcServer()
@@ -259,7 +259,7 @@ func TestModelServiceV2_UpdateOne(t *testing.T) {
 	m := models.TestModelV2{
 		Name: "Test Name",
 	}
-	modelSvc := service.NewModelServiceV2[models.TestModelV2]()
+	modelSvc := service.NewModelService[models.TestModelV2]()
 	id, err := modelSvc.InsertOne(m)
 	require.Nil(t, err)
 	m.SetId(id)
@@ -269,7 +269,7 @@ func TestModelServiceV2_UpdateOne(t *testing.T) {
 	require.Nil(t, err)
 	c.Connect()
 
-	clientSvc := client.NewModelServiceV2[models.TestModelV2]()
+	clientSvc := client.NewModelService[models.TestModelV2]()
 	err = clientSvc.UpdateOne(bson.M{"name": m.Name}, bson.M{"$set": bson.M{"name": "New Name"}})
 	require.Nil(t, err)
 
@@ -278,7 +278,7 @@ func TestModelServiceV2_UpdateOne(t *testing.T) {
 	assert.Equal(t, res.Name, "New Name")
 }
 
-func TestModelServiceV2_UpdateMany(t *testing.T) {
+func TestModelService_UpdateMany(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
 	svr, err := server.NewGrpcServer()
@@ -292,7 +292,7 @@ func TestModelServiceV2_UpdateMany(t *testing.T) {
 	m2 := models.TestModelV2{
 		Name: "Test Name",
 	}
-	modelSvc := service.NewModelServiceV2[models.TestModelV2]()
+	modelSvc := service.NewModelService[models.TestModelV2]()
 	_, err = modelSvc.InsertOne(m1)
 	require.Nil(t, err)
 	_, err = modelSvc.InsertOne(m2)
@@ -303,7 +303,7 @@ func TestModelServiceV2_UpdateMany(t *testing.T) {
 	require.Nil(t, err)
 	c.Connect()
 
-	clientSvc := client.NewModelServiceV2[models.TestModelV2]()
+	clientSvc := client.NewModelService[models.TestModelV2]()
 	err = clientSvc.UpdateMany(bson.M{"name": "Test Name"}, bson.M{"$set": bson.M{"name": "New Name"}})
 	require.Nil(t, err)
 
@@ -312,7 +312,7 @@ func TestModelServiceV2_UpdateMany(t *testing.T) {
 	assert.Equal(t, len(res), 2)
 }
 
-func TestModelServiceV2_ReplaceById(t *testing.T) {
+func TestModelService_ReplaceById(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
 	svr, err := server.NewGrpcServer()
@@ -323,7 +323,7 @@ func TestModelServiceV2_ReplaceById(t *testing.T) {
 	m := models.TestModelV2{
 		Name: "Test Name",
 	}
-	modelSvc := service.NewModelServiceV2[models.TestModelV2]()
+	modelSvc := service.NewModelService[models.TestModelV2]()
 	id, err := modelSvc.InsertOne(m)
 	require.Nil(t, err)
 	m.SetId(id)
@@ -333,7 +333,7 @@ func TestModelServiceV2_ReplaceById(t *testing.T) {
 	require.Nil(t, err)
 	c.Connect()
 
-	clientSvc := client.NewModelServiceV2[models.TestModelV2]()
+	clientSvc := client.NewModelService[models.TestModelV2]()
 	m.Name = "New Name"
 	err = clientSvc.ReplaceById(m.Id, m)
 	require.Nil(t, err)
@@ -343,7 +343,7 @@ func TestModelServiceV2_ReplaceById(t *testing.T) {
 	assert.Equal(t, res.Name, "New Name")
 }
 
-func TestModelServiceV2_ReplaceOne(t *testing.T) {
+func TestModelService_ReplaceOne(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
 	svr, err := server.NewGrpcServer()
@@ -354,7 +354,7 @@ func TestModelServiceV2_ReplaceOne(t *testing.T) {
 	m := models.TestModelV2{
 		Name: "Test Name",
 	}
-	modelSvc := service.NewModelServiceV2[models.TestModelV2]()
+	modelSvc := service.NewModelService[models.TestModelV2]()
 	id, err := modelSvc.InsertOne(m)
 	require.Nil(t, err)
 	m.SetId(id)
@@ -364,7 +364,7 @@ func TestModelServiceV2_ReplaceOne(t *testing.T) {
 	require.Nil(t, err)
 	c.Connect()
 
-	clientSvc := client.NewModelServiceV2[models.TestModelV2]()
+	clientSvc := client.NewModelService[models.TestModelV2]()
 	m.Name = "New Name"
 	err = clientSvc.ReplaceOne(bson.M{"name": "Test Name"}, m)
 	require.Nil(t, err)
@@ -374,7 +374,7 @@ func TestModelServiceV2_ReplaceOne(t *testing.T) {
 	assert.Equal(t, res.Name, "New Name")
 }
 
-func TestModelServiceV2_InsertOne(t *testing.T) {
+func TestModelService_InsertOne(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
 	svr, err := server.NewGrpcServer()
@@ -386,7 +386,7 @@ func TestModelServiceV2_InsertOne(t *testing.T) {
 	require.Nil(t, err)
 	c.Connect()
 
-	clientSvc := client.NewModelServiceV2[models.TestModelV2]()
+	clientSvc := client.NewModelService[models.TestModelV2]()
 	m := models.TestModelV2{
 		Name: "Test Name",
 	}
@@ -398,7 +398,7 @@ func TestModelServiceV2_InsertOne(t *testing.T) {
 	assert.Equal(t, res.Name, m.Name)
 }
 
-func TestModelServiceV2_InsertMany(t *testing.T) {
+func TestModelService_InsertMany(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
 	svr, err := server.NewGrpcServer()
@@ -410,7 +410,7 @@ func TestModelServiceV2_InsertMany(t *testing.T) {
 	require.Nil(t, err)
 	c.Connect()
 
-	clientSvc := client.NewModelServiceV2[models.TestModelV2]()
+	clientSvc := client.NewModelService[models.TestModelV2]()
 	testModels := []models.TestModelV2{
 		{Name: "Test Name 1"},
 		{Name: "Test Name 2"},
@@ -425,7 +425,7 @@ func TestModelServiceV2_InsertMany(t *testing.T) {
 	}
 }
 
-func TestModelServiceV2_Count(t *testing.T) {
+func TestModelService_Count(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
 	svr, err := server.NewGrpcServer()
@@ -433,7 +433,7 @@ func TestModelServiceV2_Count(t *testing.T) {
 	go startSvr(svr)
 	defer stopSvr(svr)
 
-	modelSvc := service.NewModelServiceV2[models.TestModelV2]()
+	modelSvc := service.NewModelService[models.TestModelV2]()
 	for i := 0; i < 5; i++ {
 		_, err = modelSvc.InsertOne(models.TestModelV2{
 			Name: "Test Name",
@@ -446,7 +446,7 @@ func TestModelServiceV2_Count(t *testing.T) {
 	require.Nil(t, err)
 	c.Connect()
 
-	clientSvc := client.NewModelServiceV2[models.TestModelV2]()
+	clientSvc := client.NewModelService[models.TestModelV2]()
 	count, err := clientSvc.Count(bson.M{})
 	require.Nil(t, err)
 

@@ -62,11 +62,11 @@ func TestGetSpiderById(t *testing.T) {
 		Name:    "Test Spider",
 		ColName: "test_spiders",
 	}
-	id, err := service.NewModelServiceV2[models.SpiderV2]().InsertOne(model)
+	id, err := service.NewModelService[models.SpiderV2]().InsertOne(model)
 	require.Nil(t, err)
 	ts := models.SpiderStatV2{}
 	ts.SetId(id)
-	_, err = service.NewModelServiceV2[models.SpiderStatV2]().InsertOne(ts)
+	_, err = service.NewModelService[models.SpiderStatV2]().InsertOne(ts)
 	require.Nil(t, err)
 
 	req, _ := http.NewRequest("GET", "/spiders/"+id.Hex(), nil)
@@ -97,11 +97,11 @@ func TestUpdateSpiderById(t *testing.T) {
 		Name:    "Test Spider",
 		ColName: "test_spiders",
 	}
-	id, err := service.NewModelServiceV2[models.SpiderV2]().InsertOne(model)
+	id, err := service.NewModelService[models.SpiderV2]().InsertOne(model)
 	require.Nil(t, err)
 	ts := models.SpiderStatV2{}
 	ts.SetId(id)
-	_, err = service.NewModelServiceV2[models.SpiderStatV2]().InsertOne(ts)
+	_, err = service.NewModelService[models.SpiderStatV2]().InsertOne(ts)
 	require.Nil(t, err)
 
 	spiderId := id.Hex()
@@ -124,7 +124,7 @@ func TestUpdateSpiderById(t *testing.T) {
 	require.Nil(t, err)
 	assert.Equal(t, payload.Name, response.Data.Name)
 
-	svc := service.NewModelServiceV2[models.SpiderV2]()
+	svc := service.NewModelService[models.SpiderV2]()
 	resModel, err := svc.GetById(id)
 	require.Nil(t, err)
 	assert.Equal(t, payload.Name, resModel.Name)
@@ -144,19 +144,19 @@ func TestDeleteSpiderById(t *testing.T) {
 		Name:    "Test Spider",
 		ColName: "test_spiders",
 	}
-	id, err := service.NewModelServiceV2[models.SpiderV2]().InsertOne(model)
+	id, err := service.NewModelService[models.SpiderV2]().InsertOne(model)
 	require.Nil(t, err)
 	ts := models.SpiderStatV2{}
 	ts.SetId(id)
-	_, err = service.NewModelServiceV2[models.SpiderStatV2]().InsertOne(ts)
+	_, err = service.NewModelService[models.SpiderStatV2]().InsertOne(ts)
 	require.Nil(t, err)
 	task := models.TaskV2{}
 	task.SpiderId = id
-	taskId, err := service.NewModelServiceV2[models.TaskV2]().InsertOne(task)
+	taskId, err := service.NewModelService[models.TaskV2]().InsertOne(task)
 	require.Nil(t, err)
 	taskStat := models.TaskStatV2{}
 	taskStat.SetId(taskId)
-	_, err = service.NewModelServiceV2[models.TaskStatV2]().InsertOne(taskStat)
+	_, err = service.NewModelService[models.TaskStatV2]().InsertOne(taskStat)
 	require.Nil(t, err)
 
 	req, _ := http.NewRequest("DELETE", "/spiders/"+id.Hex(), nil)
@@ -167,14 +167,14 @@ func TestDeleteSpiderById(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, resp.Code)
 
-	_, err = service.NewModelServiceV2[models.SpiderV2]().GetById(id)
+	_, err = service.NewModelService[models.SpiderV2]().GetById(id)
 	assert.NotNil(t, err)
-	_, err = service.NewModelServiceV2[models.SpiderStatV2]().GetById(id)
+	_, err = service.NewModelService[models.SpiderStatV2]().GetById(id)
 	assert.NotNil(t, err)
-	taskCount, err := service.NewModelServiceV2[models.TaskV2]().Count(bson.M{"spider_id": id})
+	taskCount, err := service.NewModelService[models.TaskV2]().Count(bson.M{"spider_id": id})
 	require.Nil(t, err)
 	assert.Equal(t, 0, taskCount)
-	taskStatCount, err := service.NewModelServiceV2[models.TaskStatV2]().Count(bson.M{"_id": taskId})
+	taskStatCount, err := service.NewModelService[models.TaskStatV2]().Count(bson.M{"_id": taskId})
 	require.Nil(t, err)
 	assert.Equal(t, 0, taskStatCount)
 
@@ -202,19 +202,19 @@ func TestDeleteSpiderList(t *testing.T) {
 	var ids []primitive.ObjectID
 	var taskIds []primitive.ObjectID
 	for _, model := range modelList {
-		id, err := service.NewModelServiceV2[models.SpiderV2]().InsertOne(model)
+		id, err := service.NewModelService[models.SpiderV2]().InsertOne(model)
 		require.Nil(t, err)
 		ts := models.SpiderStatV2{}
 		ts.SetId(id)
-		_, err = service.NewModelServiceV2[models.SpiderStatV2]().InsertOne(ts)
+		_, err = service.NewModelService[models.SpiderStatV2]().InsertOne(ts)
 		require.Nil(t, err)
 		task := models.TaskV2{}
 		task.SpiderId = id
-		taskId, err := service.NewModelServiceV2[models.TaskV2]().InsertOne(task)
+		taskId, err := service.NewModelService[models.TaskV2]().InsertOne(task)
 		require.Nil(t, err)
 		taskStat := models.TaskStatV2{}
 		taskStat.SetId(taskId)
-		_, err = service.NewModelServiceV2[models.TaskStatV2]().InsertOne(taskStat)
+		_, err = service.NewModelService[models.TaskStatV2]().InsertOne(taskStat)
 		require.Nil(t, err)
 		ids = append(ids, id)
 		taskIds = append(taskIds, taskId)
@@ -234,16 +234,16 @@ func TestDeleteSpiderList(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, resp.Code)
 
-	spiderCount, err := service.NewModelServiceV2[models.SpiderV2]().Count(bson.M{"_id": bson.M{"$in": ids}})
+	spiderCount, err := service.NewModelService[models.SpiderV2]().Count(bson.M{"_id": bson.M{"$in": ids}})
 	require.Nil(t, err)
 	assert.Equal(t, 0, spiderCount)
-	spiderStatCount, err := service.NewModelServiceV2[models.SpiderStatV2]().Count(bson.M{"_id": bson.M{"$in": ids}})
+	spiderStatCount, err := service.NewModelService[models.SpiderStatV2]().Count(bson.M{"_id": bson.M{"$in": ids}})
 	require.Nil(t, err)
 	assert.Equal(t, 0, spiderStatCount)
-	taskCount, err := service.NewModelServiceV2[models.TaskV2]().Count(bson.M{"_id": bson.M{"$in": taskIds}})
+	taskCount, err := service.NewModelService[models.TaskV2]().Count(bson.M{"_id": bson.M{"$in": taskIds}})
 	require.Nil(t, err)
 	assert.Equal(t, 0, taskCount)
-	taskStatCount, err := service.NewModelServiceV2[models.TaskStatV2]().Count(bson.M{"_id": bson.M{"$in": taskIds}})
+	taskStatCount, err := service.NewModelService[models.TaskStatV2]().Count(bson.M{"_id": bson.M{"$in": taskIds}})
 	require.Nil(t, err)
 	assert.Equal(t, 0, taskStatCount)
 }

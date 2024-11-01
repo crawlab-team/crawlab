@@ -25,7 +25,7 @@ func GetProjectList(c *gin.Context) {
 	sort := MustGetSortOption(c)
 
 	// get list
-	projects, err := service.NewModelServiceV2[models2.ProjectV2]().GetMany(query, &mongo.FindOptions{
+	projects, err := service.NewModelService[models2.ProjectV2]().GetMany(query, &mongo.FindOptions{
 		Sort:  sort,
 		Skip:  pagination.Size * (pagination.Page - 1),
 		Limit: pagination.Size,
@@ -42,7 +42,7 @@ func GetProjectList(c *gin.Context) {
 	}
 
 	// total count
-	total, err := service.NewModelServiceV2[models2.ProjectV2]().Count(query)
+	total, err := service.NewModelService[models2.ProjectV2]().Count(query)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return
@@ -61,7 +61,7 @@ func GetProjectList(c *gin.Context) {
 	}
 
 	// spiders
-	spiders, err := service.NewModelServiceV2[models2.SpiderV2]().GetMany(bson.M{
+	spiders, err := service.NewModelService[models2.SpiderV2]().GetMany(bson.M{
 		"project_id": bson.M{
 			"$in": ids,
 		},

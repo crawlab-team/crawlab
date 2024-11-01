@@ -19,7 +19,7 @@ import (
 type ServiceV2 struct {
 	// dependencies
 	interfaces.WithConfigPath
-	modelSvc *service.ModelServiceV2[models2.ScheduleV2]
+	modelSvc *service.ModelService[models2.ScheduleV2]
 	adminSvc *admin.Service
 
 	// settings variables
@@ -191,7 +191,7 @@ func (svc *ServiceV2) schedule(id primitive.ObjectID) (fn func()) {
 		}
 
 		// spider
-		spider, err := service.NewModelServiceV2[models2.SpiderV2]().GetById(s.SpiderId)
+		spider, err := service.NewModelService[models2.SpiderV2]().GetById(s.SpiderId)
 		if err != nil {
 			trace.PrintError(err)
 			return
@@ -250,7 +250,7 @@ func NewScheduleServiceV2() (svc2 *ServiceV2, err error) {
 	if err != nil {
 		return nil, err
 	}
-	svc.modelSvc = service.NewModelServiceV2[models2.ScheduleV2]()
+	svc.modelSvc = service.NewModelService[models2.ScheduleV2]()
 
 	// logger
 	svc.logger = NewLogger()

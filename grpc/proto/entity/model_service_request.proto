@@ -3,92 +3,92 @@ syntax = "proto3";
 package grpc;
 option go_package = ".;grpc";
 
-message ModelServiceV2GetByIdRequest {
+message ModelServiceGetByIdRequest {
   string node_key = 1;
   string model_type = 2;
   string id = 3;
 }
 
-message ModelServiceV2GetOneRequest {
+message ModelServiceGetOneRequest {
   string node_key = 1;
   string model_type = 2;
   bytes query = 3;
   bytes find_options = 4;
 }
 
-message ModelServiceV2GetManyRequest {
+message ModelServiceGetManyRequest {
   string node_key = 1;
   string model_type = 2;
   bytes query = 3;
   bytes find_options = 4;
 }
 
-message ModelServiceV2DeleteByIdRequest {
+message ModelServiceDeleteByIdRequest {
   string node_key = 1;
   string model_type = 2;
   string id = 3;
 }
 
-message ModelServiceV2DeleteOneRequest {
+message ModelServiceDeleteOneRequest {
   string node_key = 1;
   string model_type = 2;
   bytes query = 3;
 }
 
-message ModelServiceV2DeleteManyRequest {
+message ModelServiceDeleteManyRequest {
   string node_key = 1;
   string model_type = 2;
   bytes query = 3;
 }
 
-message ModelServiceV2UpdateByIdRequest {
+message ModelServiceUpdateByIdRequest {
   string node_key = 1;
   string model_type = 2;
   string id = 3;
   bytes update = 4;
 }
 
-message ModelServiceV2UpdateOneRequest {
+message ModelServiceUpdateOneRequest {
   string node_key = 1;
   string model_type = 2;
   bytes query = 3;
   bytes update = 4;
 }
 
-message ModelServiceV2UpdateManyRequest {
+message ModelServiceUpdateManyRequest {
   string node_key = 1;
   string model_type = 2;
   bytes query = 3;
   bytes update = 4;
 }
 
-message ModelServiceV2ReplaceByIdRequest {
+message ModelServiceReplaceByIdRequest {
   string node_key = 1;
   string model_type = 2;
   string id = 3;
   bytes model = 4;
 }
 
-message ModelServiceV2ReplaceOneRequest {
+message ModelServiceReplaceOneRequest {
   string node_key = 1;
   string model_type = 2;
   bytes query = 3;
   bytes model = 4;
 }
 
-message ModelServiceV2InsertOneRequest {
+message ModelServiceInsertOneRequest {
   string node_key = 1;
   string model_type = 2;
   bytes model = 3;
 }
 
-message ModelServiceV2InsertManyRequest {
+message ModelServiceInsertManyRequest {
   string node_key = 1;
   string model_type = 2;
   bytes models = 3;
 }
 
-message ModelServiceV2CountRequest {
+message ModelServiceCountRequest {
   string node_key = 1;
   string model_type = 2;
   bytes query = 3;

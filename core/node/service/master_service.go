@@ -133,7 +133,7 @@ func (svc *MasterService) SetMonitorInterval(duration time.Duration) {
 func (svc *MasterService) Register() (err error) {
 	nodeKey := svc.GetConfigService().GetNodeKey()
 	nodeName := svc.GetConfigService().GetNodeName()
-	node, err := service.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
+	node, err := service.NewModelService[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
 	if err != nil && err.Error() == mongo2.ErrNoDocuments.Error() {
 		// not exists
 		log.Infof("master[%s] does not exist in db", nodeKey)
@@ -149,7 +149,7 @@ func (svc *MasterService) Register() (err error) {
 		}
 		node.SetCreated(primitive.NilObjectID)
 		node.SetUpdated(primitive.NilObjectID)
-		id, err := service.NewModelServiceV2[models2.NodeV2]().InsertOne(node)
+		id, err := service.NewModelService[models2.NodeV2]().InsertOne(node)
 		if err != nil {
 			return err
 		}
@@ -161,7 +161,7 @@ func (svc *MasterService) Register() (err error) {
 		node.Status = constants.NodeStatusOnline
 		node.Active = true
 		node.ActiveAt = time.Now()
-		err = service.NewModelServiceV2[models2.NodeV2]().ReplaceById(node.Id, *node)
+		err = service.NewModelService[models2.NodeV2]().ReplaceById(node.Id, *node)
 		if err != nil {
 			return err
 		}
@@ -227,7 +227,7 @@ func (svc *MasterService) getAllWorkerNodes() (nodes []models2.NodeV2, err error
 		"key":    bson.M{"$ne": svc.cfgSvc.GetNodeKey()}, // not self
 		"active": true,                                   // active
 	}
-	nodes, err = service.NewModelServiceV2[models2.NodeV2]().GetMany(query, nil)
+	nodes, err = service.NewModelService[models2.NodeV2]().GetMany(query, nil)
 	if err != nil {
 		if errors.Is(err, mongo2.ErrNoDocuments) {
 			return nil, nil
@@ -239,7 +239,7 @@ func (svc *MasterService) getAllWorkerNodes() (nodes []models2.NodeV2, err error
 
 func (svc *MasterService) updateMasterNodeStatus() (err error) {
 	nodeKey := svc.GetConfigService().GetNodeKey()
-	node, err := service.NewModelServiceV2[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
+	node, err := service.NewModelService[models2.NodeV2]().GetOne(bson.M{"key": nodeKey}, nil)
 	if err != nil {
 		return err
 	}
@@ -250,7 +250,7 @@ func (svc *MasterService) updateMasterNodeStatus() (err error) {
 	node.ActiveAt = time.Now()
 	newStatus := node.Status
 
-	err = service.NewModelServiceV2[models2.NodeV2]().ReplaceById(node.Id, *node)
+	err = service.NewModelService[models2.NodeV2]().ReplaceById(node.Id, *node)
 	if err != nil {
 		return err
 	}
@@ -268,7 +268,7 @@ func (svc *MasterService) setWorkerNodeOffline(node *models2.NodeV2) {
 	node.Status = constants.NodeStatusOffline
 	node.Active = false
 	err := backoff.Retry(func() error {
-		return service.NewModelServiceV2[models2.NodeV2]().ReplaceById(node.Id, *node)
+		return service.NewModelService[models2.NodeV2]().ReplaceById(node.Id, *node)
 	}, backoff.WithMaxRetries(backoff.NewConstantBackOff(1*time.Second), 3))
 	if err != nil {
 		trace.PrintError(err)
@@ -302,12 +302,12 @@ func (svc *MasterService) updateNodeAvailableRunners(node *models2.NodeV2) (err 
 		"node_id": node.Id,
 		"status":  constants.TaskStatusRunning,
 	}
-	runningTasksCount, err := service.NewModelServiceV2[models2.TaskV2]().Count(query)
+	runningTasksCount, err := service.NewModelService[models2.TaskV2]().Count(query)
 	if err != nil {
 		return trace.TraceError(err)
 	}
 	node.AvailableRunners = node.MaxRunners - runningTasksCount
-	err = service.NewModelServiceV2[models2.NodeV2]().ReplaceById(node.Id, *node)
+	err = service.NewModelService[models2.NodeV2]().ReplaceById(node.Id, *node)
 	if err != nil {
 		return err
 	}

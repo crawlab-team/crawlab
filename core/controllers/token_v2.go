@@ -26,7 +26,7 @@ func PostToken(c *gin.Context) {
 		HandleErrorInternalServerError(c, err)
 		return
 	}
-	_, err = service.NewModelServiceV2[models.TokenV2]().InsertOne(t)
+	_, err = service.NewModelService[models.TokenV2]().InsertOne(t)
 	if err != nil {
 		HandleErrorInternalServerError(c, err)
 		return

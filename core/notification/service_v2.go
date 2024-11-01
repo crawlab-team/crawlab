@@ -28,7 +28,7 @@ func (svc *ServiceV2) Send(s *models.NotificationSettingV2, args ...any) {
 	for _, chId := range s.ChannelIds {
 		go func(chId primitive.ObjectID) {
 			defer wg.Done()
-			ch, err := service.NewModelServiceV2[models.NotificationChannelV2]().GetById(chId)
+			ch, err := service.NewModelService[models.NotificationChannelV2]().GetById(chId)
 			if err != nil {
 				log.Errorf("[NotificationServiceV2] get channel error: %v", err)
 				return
@@ -362,7 +362,7 @@ func (svc *ServiceV2) getUsernameById(id primitive.ObjectID) (username string) {
 	if id.IsZero() {
 		return ""
 	}
-	u, err := service.NewModelServiceV2[models.UserV2]().GetById(id)
+	u, err := service.NewModelService[models.UserV2]().GetById(id)
 	if err != nil {
 		log.Errorf("[NotificationServiceV2] get user error: %v", err)
 		return ""
@@ -434,7 +434,7 @@ func (svc *ServiceV2) SendNodeNotification(node *models.NodeV2) {
 	args = append(args, node)
 
 	// settings
-	settings, err := service.NewModelServiceV2[models.NotificationSettingV2]().GetMany(bson.M{
+	settings, err := service.NewModelService[models.NotificationSettingV2]().GetMany(bson.M{
 		"enabled": true,
 		"trigger": bson.M{
 			"$regex": constants.NotificationTriggerPatternNode,
@@ -482,7 +482,7 @@ func (svc *ServiceV2) createRequest(s *models.NotificationSettingV2, ch *models.
 	}
 	r.SetCreatedAt(time.Now())
 	r.SetUpdatedAt(time.Now())
-	r.Id, err = service.NewModelServiceV2[models.NotificationRequestV2]().InsertOne(r)
+	r.Id, err = service.NewModelService[models.NotificationRequestV2]().InsertOne(r)
 	if err != nil {
 		log.Errorf("[NotificationServiceV2] save request error: %v", err)
 		return nil, err
@@ -502,7 +502,7 @@ func (svc *ServiceV2) saveRequest(r *models.NotificationRequestV2, err error) {
 		r.Status = StatusSuccess
 	}
 	r.SetUpdatedAt(time.Now())
-	err = service.NewModelServiceV2[models.NotificationRequestV2]().ReplaceById(r.Id, *r)
+	err = service.NewModelService[models.NotificationRequestV2]().ReplaceById(r.Id, *r)
 	if err != nil {
 		log.Errorf("[NotificationServiceV2] save request error: %v", err)
 	}
