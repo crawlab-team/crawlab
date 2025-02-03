@@ -35,12 +35,12 @@ You can follow the [installation guide](https://docs.crawlab.cn/en/guide/install
 
 ## Quick Start
 
-Please open the command line prompt and execute the command below. Make sure you have installed `docker-compose` in advance.
+Please open the command line prompt and execute the command below. Make sure you have installed `docker` in advance.
 
 ```bash
 git clone https://github.com/crawlab-team/examples
 cd examples/docker/basic
-docker-compose up -d
+docker compose up -d
 ```
 
 Next, you can look into the `docker-compose.yml` (with detailed config params) and the [Documentation](http://docs.crawlab.cn/en/) for further information. 
@@ -49,7 +49,7 @@ Next, you can look into the `docker-compose.yml` (with detailed config params) a
 
 ### Docker
 
-Please use `docker-compose` to one-click to start up. By doing so, you don't even have to configure MongoDB database. Create a file named `docker-compose.yml` and input the code below.
+Please use `docker compose` to one-click to start up. By doing so, you don't even have to configure MongoDB database. Create a file named `docker-compose.yml` and input the code below.
 
 
 ```yaml
@@ -101,7 +101,7 @@ services:
 Then execute the command below, and Crawlab Master and Worker Nodes + MongoDB will start up. Open the browser and enter `http://localhost:8080` to see the UI interface.
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 For Docker Deployment details, please refer to [relevant documentation](https://docs.crawlab.cn/en/guide/installation/docker.html).
