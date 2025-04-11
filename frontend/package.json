@@ -34,7 +34,7 @@
     "rollup-plugin-external-globals": "^0.8.0",
     "rollup-plugin-visualizer": "^5.9.2",
     "typescript": "^4.6.4",
-    "vite": "^3.2.4",
+    "vite": "^4.5.13",
     "vite-aliases": "^0.9.7",
     "vite-plugin-dynamic-import": "^1.2.4",
     "vite-plugin-externalize-deps": "^0.7.0",
