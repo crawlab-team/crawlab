@@ -1,6 +1,6 @@
 module github.com/crawlab-team/crawlab/core
 
-go 1.22
+go 1.22.0
 
 replace (
 	github.com/crawlab-team/crawlab/db => ../db
@@ -64,7 +64,7 @@ require (
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
-	github.com/cloudflare/circl v1.3.7 // indirect
+	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/crawlab-team/goseaweedfs v0.6.3 // indirect
