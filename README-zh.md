@@ -1,5 +1,7 @@
 # Crawlab
 
+> **说明：** Crawlab 的后续活跃开发在 [Crawlab Pro](https://www.crawlab.io) 中进行。文档见 [docs.crawlab.io](https://docs.crawlab.io)。问题与支持请发送至 [support@crawlab.io](mailto:support@crawlab.io)。安全漏洞请参阅 [SECURITY.md](SECURITY.md)。
+
 <p>
   <a href="https://github.com/crawlab-team/crawlab/actions/workflows/docker-crawlab.yml" target="_blank">
     <img src="https://github.com/crawlab-team/crawlab/workflows/Docker%20Image%20CI:%20crawlab/badge.svg">
