@@ -1,3 +1,15 @@
+> ## This repository is archived and no longer maintained
+>
+> The open-source Crawlab repository is archived. It is read-only and will not receive bug fixes, security fixes or new releases.
+>
+> Known security issues are not fixed in the open-source version. This includes publicly reported issues such as #1528, #1562, #1619, #1620, #1621, #1622 and #1623. Do not expose an open-source Crawlab instance to untrusted networks.
+>
+> Crawlab Pro 0.7.6 contains fixes for these issues.
+>
+> For Crawlab Pro, sales and support, contact support@crawlab.io.
+>
+> To report a security problem, see [SECURITY.md](SECURITY.md).
+
 # Crawlab
 
 > **Note:** Active development of Crawlab continues in [Crawlab Pro](https://www.crawlab.io). Documentation is at [docs.crawlab.io](https://docs.crawlab.io). For questions and support, email [support@crawlab.io](mailto:support@crawlab.io). To report a security vulnerability, see [SECURITY.md](SECURITY.md).
