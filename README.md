@@ -1,5 +1,7 @@
 # Crawlab
 
+> **Note:** Active development of Crawlab continues in [Crawlab Pro](https://www.crawlab.io). Documentation is at [docs.crawlab.io](https://docs.crawlab.io). For questions and support, email [support@crawlab.io](mailto:support@crawlab.io). To report a security vulnerability, see [SECURITY.md](SECURITY.md).
+
 <p>
   <a href="https://github.com/crawlab-team/crawlab/actions/workflows/docker-crawlab.yml" target="_blank">
     <img src="https://github.com/crawlab-team/crawlab/workflows/Docker%20Image%20CI:%20crawlab/badge.svg">
