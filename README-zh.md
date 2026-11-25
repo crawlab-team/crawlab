@@ -1,3 +1,15 @@
+> ## 本仓库已归档，不再维护
+>
+> Crawlab 开源仓库已归档，为只读状态，不再提供缺陷修复、安全修复或新版本发布。
+>
+> 开源版中已知的安全问题不会修复，包括已公开提交的 #1528、#1562、#1619、#1620、#1621、#1622 和 #1623。请不要把开源版 Crawlab 暴露在不可信的网络中。
+>
+> Crawlab Pro 0.7.6 已包含这些问题的修复。
+>
+> 如需了解 Crawlab Pro、商务合作或技术支持，请联系 support@crawlab.io。
+>
+> 如需报告安全问题，请参阅 [SECURITY.md](SECURITY.md)。
+
 # Crawlab
 
 > **说明：** Crawlab 的后续活跃开发在 [Crawlab Pro](https://www.crawlab.io) 中进行。文档见 [docs.crawlab.io](https://docs.crawlab.io)。问题与支持请发送至 [support@crawlab.io](mailto:support@crawlab.io)。安全漏洞请参阅 [SECURITY.md](SECURITY.md)。
